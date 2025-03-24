@@ -10,7 +10,9 @@ def encode_image_to_base64(image_path):
         return base64.b64encode(image_file.read()).decode('utf-8')
 
 def analyze_image_pair(initial_image_path, output_image_path):
-    # Encode both images
+    """Compares two images and analyzes their differences in detail."""
+    
+    # Encode both images to base64
     initial_base64 = encode_image_to_base64(initial_image_path)
     output_base64 = encode_image_to_base64(output_image_path)
     
@@ -21,20 +23,36 @@ def analyze_image_pair(initial_image_path, output_image_path):
             "content": [
                 {
                     "type": "text",
-                    "text": "Compare these two images. Analyze the differences."
+                    "text": """Please compare the two provided images and analyze the differences in detail. Your analysis should include:
+
+    Overview of Each Image:
+        - Summarize the main content, themes, or subjects in each image.
+
+    Visual Elements Comparison:
+        - Identify and describe differences in color schemes, shapes, textures, and patterns.
+        - Highlight variations in layout, composition, and design elements.
+
+    Context and Style:
+        - Note any differences in artistic style, mood, or visual tone.
+        - Discuss any context-specific elements or details that set the images apart.
+
+    Subtle Differences:
+        - Point out any minor or nuanced differences that may not be immediately obvious.
+
+Your response should be structured, detailed, and focus solely on comparing and contrasting the two images based on the aspects mentioned above."""
                 },
                 {
                     "type": "image_url",
                     "image_url": {
                         "url": f"data:image/jpeg;base64,{initial_base64}",
-                    "detail": "low",
+                        "detail": "low"
                     }
                 },
                 {
                     "type": "image_url",
                     "image_url": {
                         "url": f"data:image/jpeg;base64,{output_base64}",
-                       "detail": "low", 
+                        "detail": "low"
                     }
                 }
             ]
@@ -43,12 +61,12 @@ def analyze_image_pair(initial_image_path, output_image_path):
 
     # Make the API call
     response = openai.ChatCompletion.create(
-        model="gpt-4o-mini",
+        model="gpt-4o",
         messages=messages,
         max_tokens=350
     )
     
-    return response.choices[0].message['content']
+    return response["choices"][0]["message"]["content"]
 
 def main():
     # Set OpenAI API key

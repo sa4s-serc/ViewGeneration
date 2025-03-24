@@ -15,13 +15,39 @@ def extract_repo_url(link):
 with open("openai_key.txt", "r") as file:
     openai.api_key = file.read().strip()
 
+import openai
+
 def get_chatgpt_response(link):
+    """Generates a structured analysis of the GitHub repository using the provided link."""
+    prompt = f"""
+Please analyze the entire GitHub repository available at {link}. Your analysis should include the following components:
+
+### File-by-File Analysis:
+- Examine each file in the repository.
+- Summarize the purpose, functionality, and any key code segments of each file.
+- Highlight the role each file plays within the overall system.
+
+### Repository Structure:
+- Describe the directory layout and organization of the files.
+- Explain how different parts of the repository interact and are connected.
+
+### High-Level Architecture:
+- Provide a summary of the overall system architecture.
+- Identify major components, modules, and services, and explain how they collaborate to achieve the system’s goals.
+- Discuss any architectural patterns or design decisions evident in the repository.
+
+### Overall Summary:
+- Conclude with a high-level summary that encapsulates the repository's purpose, its architecture, and the interrelation of its components.
+
+Your response should be **detailed, structured, and include insights** on how each part of the repository contributes to the overall design and functionality of the system.
+"""
+
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": "Analyze the following GitHub repository link and summarize it."},
-                {"role": "user", "content": link}
+                {"role": "system", "content": "You are an AI designed to analyze GitHub repositories in detail."},
+                {"role": "user", "content": prompt}
             ],
             temperature=0.7
         )
@@ -29,12 +55,22 @@ def get_chatgpt_response(link):
     except Exception as e:
         return f"Error: {e}"
 
+
+import openai
+
 def get_plantuml_from_summary(summary, repo_name, error_message=None):
-    system_content = "You are an expert at creating PlantUML diagrams. Generate a PlantUML component diagram based on the following repository summary. Include only the PlantUML code without any explanation. Ensure the code is syntax error free."
+    """Generates a PlantUML component diagram based on the repository summary."""
+    
+    system_content = '''You are an expert in creating PlantUML diagrams. Based on the following repository summary, please generate a syntactically correct PlantUML component diagram. Your output should include only the PlantUML code and no additional explanation or commentary. Make sure that:
+
+    - The diagram accurately represents the components described in the repository summary.
+    - All components and their relationships (e.g., dependencies, interactions) are clearly represented.
+    - The generated PlantUML code is free of syntax errors and can be directly used with PlantUML.
+    '''
     
     if error_message:
-        system_content += "\nThe previous code generated had errors. Here's the error message: " + error_message
-    
+        system_content += f"\nThe previous code generated had errors. Here's the error message: {error_message}"
+
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4",
@@ -47,6 +83,7 @@ def get_plantuml_from_summary(summary, repo_name, error_message=None):
         return response["choices"][0]["message"]["content"]
     except Exception as e:
         return f"Error: {e}"
+
 
 def save_plantuml_code(puml_code, repo_name):
     os.makedirs("plantumlcode", exist_ok=True)
