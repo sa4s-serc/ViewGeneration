@@ -12,18 +12,57 @@ def extract_components_and_connectors(image_path, model):
     image = load_image(image_path)
 
     prompt = '''
-You are analyzing a software architecture diagram. Please identify and extract the following and output **only** the valid JSON structure below (no explanatory text):
+You are analyzing a software architecture diagram. Extract **all** possible information into a structured JSON format. Include:
+
+- components and their names, descriptions (if any), and boundaries (e.g., microservice, database)
+- connectors between components, along with descriptions, direction, and type (HTTP, RPC, etc.)
+- any textual annotations present in the diagram and their relative positions
+- logical groups or layers of components
+- diagram metadata (like title, filename)
+
+Use the following JSON structure exactly and do NOT include any explanation text:
 
 ```json
 {
-  "components": ["ComponentA", "ComponentB", ...],
+  "components": [
+    {
+      "name": "ComponentA",
+      "description": "optional",
+      "boundary": "optional",
+      "position": {"x": 0, "y": 0}
+    }
+  ],
   "connectors": [
-    {"source": "ComponentA", "target": "ComponentB"},
-    ...
-  ]
+    {
+      "source": "ComponentA",
+      "target": "ComponentB",
+      "label": "optional",
+      "description": "optional",
+      "type": "optional"
+    }
+  ],
+  "annotations": [
+    {
+      "text": "optional",
+      "position": {"x": 0, "y": 0}
+    }
+  ],
+  "groups": [
+    {
+      "name": "optional",
+      "components": ["ComponentA"],
+      "boundary": "optional"
+    }
+  ],
+  "metadata": {
+    "diagram_title": "optional",
+    "extracted_from": "filename.png",
+    "date_extracted": "optional"
+  }
 }
 ```
 '''
+
 
     response = model.generate_content([prompt, image])
     text = getattr(response, 'text', '') or ''
@@ -47,20 +86,13 @@ You are analyzing a software architecture diagram. Please identify and extract t
     return None
 
 
-def write_to_csv(image_name, data, output_dir="csv_outputs"):
+def write_to_json(image_name, data, output_dir="json_outputs"):
     os.makedirs(output_dir, exist_ok=True)
-    csv_path = os.path.join(output_dir, f"{image_name.rsplit('.', 1)[0]}.csv")
+    json_path = os.path.join(output_dir, f"{image_name.rsplit('.', 1)[0]}.json")
     
-    with open(csv_path, mode='w', newline='') as csv_file:
-        writer = csv.writer(csv_file)
-        writer.writerow(["Component Name"])
-        for comp in data.get("components", []):
-            writer.writerow([comp])
-        
-        writer.writerow([])
-        writer.writerow(["Source", "Target"])
-        for conn in data.get("connectors", []):
-            writer.writerow([conn.get("source"), conn.get("target")])
+    with open(json_path, mode='w', encoding='utf-8') as json_file:
+        json.dump(data, json_file, indent=2, ensure_ascii=False)
+
 
 def main():
     genai.configure(api_key="AIzaSyA19TLhE8m7qJuNy5VaKB7Ns7f_ymsWH4I")
@@ -73,7 +105,7 @@ def main():
         try:
             result = extract_components_and_connectors(image_path, model)
             if result:
-                write_to_csv(image_name, result)
+                write_to_json(image_name, result)
                 print(f"Processed and saved: {image_name}")
             else:
                 print(f"No data extracted from: {image_name}")
