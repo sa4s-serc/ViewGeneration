@@ -1,0 +1,305 @@
+{
+  "diagram1": {
+    "components": [
+      {
+        "name": "Scale Cluster 1",
+        "description": null,
+        "boundary": "box",
+        "position": "top left"
+      },
+      {
+        "name": "Scale Cluster n",
+        "description": null,
+        "boundary": "box",
+        "position": "top right"
+      },
+      {
+        "name": "Security Posture Cron Job",
+        "description": null,
+        "boundary": "box",
+        "position": "bottom left"
+      },
+      {
+        "name": "Elastic Search",
+        "description": null,
+        "boundary": "box",
+        "position": "bottom center left"
+      },
+      {
+        "name": "Kibana",
+        "description": null,
+        "boundary": "box",
+        "position": "bottom center right"
+      },
+      {
+        "name": "System Administrator",
+        "description": null,
+        "boundary": "person",
+        "position": "bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Security Posture Cron Job",
+        "target": "Elastic Search",
+        "label": "Elastic Search REST access\n$elastic_user:$elastic_search_url\nFile: security-posture.conf",
+        "type": "arrow"
+      },
+      {
+        "source": "Elastic Search",
+        "target": "Kibana",
+        "label": null,
+        "type": "arrow"
+      },
+      {
+        "source": "Kibana",
+        "target": "System Administrator",
+        "label": null,
+        "type": "arrow"
+      },
+      {
+        "source": "Security Posture Cron Job",
+        "target": "Scale Cluster 1",
+        "label": "Password less SSH Access\nssh $user:$ip-address1\nFile:scale-clusters.conf",
+        "type": "arrow"
+      },
+      {
+        "source": "Security Posture Cron Job",
+        "target": "Scale Cluster n",
+        "label": "Password less SSH Access\nssh $user:$ip-addressn\nFile:scale-clusters.conf",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "title": "Security Posture Architecture"
+    }
+  },
+  "diagram2": {
+    "components": [
+      {
+        "name": "fetch_security_posture_and_upload_to_ES.sh",
+        "description": "Orchestrates data collection and upload to Elasticsearch",
+        "boundary": "box",
+        "position": "top"
+      },
+      {
+        "name": "cronjob.py",
+        "description": "Schedules and executes security posture collection",
+        "boundary": "box",
+        "position": "top left"
+      },
+      {
+        "name": "security-posture.conf",
+        "description": "Configuration for security posture collection",
+        "boundary": "box",
+        "position": "top right"
+      },
+      {
+        "name": "collector",
+        "description": "Collects security posture data from Spectrum Scale clusters",
+        "boundary": "box",
+        "position": "center left"
+      },
+      {
+        "name": "security_posture.py",
+        "description": "Collects security posture data",
+        "boundary": "box",
+        "position": "center"
+      },
+      {
+        "name": "Elasticsearch",
+        "description": "Stores collected security posture data",
+        "boundary": "box",
+        "position": "bottom left"
+      },
+      {
+        "name": "scale-clusters.conf",
+        "description": "Configuration file for Spectrum Scale clusters",
+        "boundary": "box",
+        "position": "center right"
+      },
+      {
+        "name": "Kibana",
+        "description": "Visualizes security posture data",
+        "boundary": "box",
+        "position": "bottom center left"
+      },
+      {
+        "name": "split_json_for_kibana.py",
+        "description": "Splits JSON for Kibana import",
+        "boundary": "box",
+        "position": "bottom center"
+      },
+      {
+        "name": "kibana_dashboard.ndjson",
+        "description": "Kibana dashboard definition",
+        "boundary": "box",
+        "position": "bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "fetch_security_posture_and_upload_to_ES.sh",
+        "target": "Elasticsearch",
+        "label": "Sends Data to",
+        "type": "arrow"
+      },
+      {
+        "source": "fetch_security_posture_and_upload_to_ES.sh",
+        "target": "security-posture.conf",
+        "label": "Reads",
+        "type": "arrow"
+      },
+      {
+        "source": "cronjob.py",
+        "target": "fetch_security_posture_and_upload_to_ES.sh",
+        "label": "Executes",
+        "type": "arrow"
+      },
+      {
+        "source": "cronjob.py",
+        "target": "collector",
+        "label": "Uses",
+        "type": "arrow"
+      },
+      {
+        "source": "collector",
+        "target": "security_posture.py",
+        "label": "Collects security posture data",
+        "type": "arrow"
+      },
+      {
+        "source": "security_posture.py",
+        "target": "scale-clusters.conf",
+        "label": "Reads Cluster Info",
+        "type": "arrow"
+      },
+      {
+        "source": "Elasticsearch",
+        "target": "Kibana",
+        "label": "Provides Data for",
+        "type": "arrow"
+      },
+      {
+        "source": "Kibana",
+        "target": "kibana_dashboard.ndjson",
+        "label": "Imports Configuration from",
+        "type": "arrow"
+      },
+      {
+        "source": "split_json_for_kibana.py",
+        "target": "kibana_dashboard.ndjson",
+        "label": "Splits and transforms",
+        "type": "arrow"
+      },
+      {
+        "source": "scale-clusters.conf",
+        "target": "collector",
+        "label": null,
+        "type": "arrow"
+      },
+      {
+        "source": "split_json_for_kibana.py",
+        "target": "Kibana",
+        "label": "Splits JSON for Kibana import",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "title": "IBM Spectrum Scale Security Posture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Elastic Search",
+      "Kibana"
+    ],
+    "unique_to_diagram1": [
+      "Scale Cluster 1",
+      "Scale Cluster n",
+      "Security Posture Cron Job",
+      "System Administrator"
+    ],
+    "unique_to_diagram2": [
+      "fetch_security_posture_and_upload_to_ES.sh",
+      "cronjob.py",
+      "security-posture.conf",
+      "collector",
+      "security_posture.py",
+      "scale-clusters.conf",
+      "split_json_for_kibana.py",
+      "kibana_dashboard.ndjson"
+    ],
+    "common_connectors": [
+      {
+        "source": "Elastic Search",
+        "target": "Kibana"
+      }
+    ],
+    "unique_connectors_diagram1": [
+      {
+        "source": "Security Posture Cron Job",
+        "target": "Elastic Search"
+      },
+      {
+        "source": "Kibana",
+        "target": "System Administrator"
+      },
+      {
+        "source": "Security Posture Cron Job",
+        "target": "Scale Cluster 1"
+      },
+      {
+        "source": "Security Posture Cron Job",
+        "target": "Scale Cluster n"
+      }
+    ],
+    "unique_connectors_diagram2": [
+      {
+        "source": "fetch_security_posture_and_upload_to_ES.sh",
+        "target": "Elasticsearch"
+      },
+      {
+        "source": "fetch_security_posture_and_upload_to_ES.sh",
+        "target": "security-posture.conf"
+      },
+      {
+        "source": "cronjob.py",
+        "target": "fetch_security_posture_and_upload_to_ES.sh"
+      },
+      {
+        "source": "cronjob.py",
+        "target": "collector"
+      },
+      {
+        "source": "collector",
+        "target": "security_posture.py"
+      },
+      {
+        "source": "security_posture.py",
+        "target": "scale-clusters.conf"
+      },
+      {
+        "source": "Kibana",
+        "target": "kibana_dashboard.ndjson"
+      },
+      {
+        "source": "split_json_for_kibana.py",
+        "target": "kibana_dashboard.ndjson"
+      },
+      {
+        "source": "scale-clusters.conf",
+        "target": "collector"
+      },
+      {
+        "source": "split_json_for_kibana.py",
+        "target": "Kibana"
+      }
+    ],
+    "explanation": "Both diagrams describe an architecture for security posture analysis, visualizing the data in Kibana, and utilizing Elasticsearch for data storage. Diagram 1 provides a high-level overview, showing the interaction between Security Posture Cron Job, Scale Clusters, Elastic Search, Kibana, and the System Administrator. Diagram 2 dives into greater detail, depicting the various python and configuration files. While both include Elasticsearch and Kibana, the granular components are absent from Diagram 1, it is a more abstracted architectural view. Diagram 1 demonstrates interactions between components and clusters directly, whereas Diagram 2 showcases the steps of the data collection from the Scale clusters via intermediate components, as the processes involved in the task are shown by the new components. Overall, Diagram 2 is a more detailed, technical view, while Diagram 1 is more abstracted and easier to grasp quickly, providing an overview of the system's core functions."
+  }
+}

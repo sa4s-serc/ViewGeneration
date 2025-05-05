@@ -77,7 +77,7 @@ def extract_contents(root_folder):
 def get_chatgpt_response(repo_link):
     """Generates a structured analysis of the GitHub repository using its contents, with chunking."""
     try:
-        # Step 1: Clone the Repository
+        # Step 1: Clone the Repository           
         repo_path = clone_repository(repo_link)
         if "Error" in repo_path:
             return repo_path  # Return error message if cloning failed
