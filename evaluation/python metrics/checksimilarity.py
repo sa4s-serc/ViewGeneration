@@ -4,9 +4,9 @@ from image_similarity_measures.quality_metrics import (
     ssim, psnr, rmse, sam, sre, uiq
 )
 
-folderA = "/home/sathvika/CodeToDiagram/Approach 1/chatgpt/outputs/output_images"
-folderB = "/home/sathvika/CodeToDiagram/Approach 1/initial_images"
-output_file = "/home/sathvika/CodeToDiagram/Approach 1/chatgpt/outputs/image_similarity_results.txt"
+folderA = "/home/sathvika/CodeToDiagram/Approach 4/gemini-2o/output/gemini_output_images"
+folderB = "/home/sathvika/CodeToDiagram/scripts/initial_images"
+output_file = "/home/sathvika/CodeToDiagram/Approach 4/gemini-2o/output/image_similarity_results.txt"
 def compare_images(img1, img2):
     return {
         "SSIM": ssim(img1, img2),
