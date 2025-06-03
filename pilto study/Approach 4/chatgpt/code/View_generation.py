@@ -9,6 +9,8 @@ import tiktoken
 
 TOKEN_LIMIT = 5000
 
+with open("openai_key.txt", "r") as file:
+    openai.api_key = file.read().strip()
 def extract_repo_url(link):
     match = re.match(r"(https://github\.com/[^/]+/[^/]+)", link)
     return match.group(1) + "/" if match else link
