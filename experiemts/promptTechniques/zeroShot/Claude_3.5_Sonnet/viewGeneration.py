@@ -1,32 +1,32 @@
 import os
 import subprocess
+import openai
 import pandas as pd
-from openai import OpenAI
 
-# Initialize DeepSeek client
-client = OpenAI(api_key="<your_api_key_here>", base_url="https://api.deepseek.com/v1")
+with open("openai_key.txt", "r") as file:
+    openai.api_key = file.read().strip()
 
 def get_plantuml_from_summary(summary, repo_name, concern, behavior, error_message=None, code=None):
     # Decide on diagram type based on behavior
-    if behavior == "static":
+    if behavior== "static":
         diagram_instruction = f'''
-You are expert software architect. Your task is to design a view for the system based on the architectural knowledge provided. Use PlantUML diagrams. Based on the following repository summary, generate a **PlantUML component diagram** to capture the static architecture. Focus on the architectural concern: **{concern}**.
+You are expert software architect.Your task at the hand is to design view for the system based on the architectural knowledge given about the system. To generate the view you should use plantuml diagrams. Based on the following repository summary, generate a **plantuml component diagram** that captures the static architecture of the system. To design the view, Focus on the architectural concern: **{concern}**.
 
 Ensure the diagram:
 - Clearly shows system components and their relationships.
 - Highlights how the architecture addresses the specified concern.
-- Is valid PlantUML code with no explanation.
+- Is syntactically correct PlantUML code and contains no commentary.
 '''
     elif behavior == "dynamic":
         diagram_instruction = f'''
-You are expert software architect. Your task is to design a view for the system based on the architectural knowledge provided. Use PlantUML diagrams. Based on the following repository summary and system behavior, generate a **PlantUML sequence diagram** to show dynamic interactions.
+You are expert software architect.Your task at the hand is to design view for the system based on the architectural knowledge given about the system. To generate the view you should use plantuml diagrams. Based on the following repository summary and system behavior, generate a **plantuml sequence diagram** to illustrate the dynamic interactions in the system.
 
 **Behavioral focus:** {concern}
 
 Ensure the diagram:
 - Accurately represents runtime message flow between components or services.
-- Matches the described system behavior.
-- Is valid PlantUML code with no explanation.
+- Aligns with the described system behavior.
+- Is syntactically correct PlantUML code and contains no commentary.
 '''
 
     # Include retry guidance if needed
@@ -34,17 +34,15 @@ Ensure the diagram:
         diagram_instruction += f"\nNote: A previous attempt failed with the following error:\n{error_message}\nProblematic code:\n{code}\nPlease correct and regenerate."
 
     try:
-        response = client.chat.completions.create(
-            model="deepseek-chat",
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
             messages=[
                 {"role": "system", "content": diagram_instruction},
                 {"role": "user", "content": summary}
             ],
-            temperature=0.7,
-            max_tokens=1024,
-            stream=False
+            temperature=0.7
         )
-        return response.choices[0].message.content
+        return response["choices"][0]["message"]["content"]
     except Exception as e:
         return f"Error: {e}"
 

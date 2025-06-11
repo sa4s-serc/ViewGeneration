@@ -9,6 +9,8 @@ import tiktoken
 
 TOKEN_LIMIT = 5000
 
+with open("openai_key.txt", "r") as file:
+    openai.api_key = file.read().strip()
 def extract_repo_url(link):
     match = re.match(r"(https://github\.com/[^/]+/[^/]+)", link)
     return match.group(1) + "/" if match else link
@@ -146,83 +148,40 @@ def get_chatgpt_response(repo_link):
         return final_summary
     except Exception as e:
         return f"Error: {e}"
-def get_plantuml_from_summary(summary, repo_name, error_message=None):
-    """Generates a PlantUML component diagram based on the repository summary."""
-    
-    system_content = """You are an expert in creating PlantUML diagrams. Based on the following repository summary, please generate a syntactically correct PlantUML component diagram. Your output should include only the PlantUML code and no additional explanation or commentary. Make sure that:
-    
-    - The diagram accurately represents the components described in the repository summary.
-    - All components and their relationships (e.g., dependencies, interactions) are clearly represented.
-    - The generated PlantUML code is free of syntax errors and can be directly used with PlantUML.
-    """
 
-    if error_message:
-        system_content += f"\nPrevious error message: {error_message}"
+def incorporate_concern(summary, concern):
+    """Incorporates the view of the repository into the summary."""
+    view_prompt = f"""
+    Please incorporate the following concern into the summary:
+    Concern: {concern}
+    {summary}
+
+    Ensure that the summary is comprehensive and captures the essence of the repository.
+    """
 
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": system_content},
-                {"role": "user", "content": summary}
+                {"role": "system", "content": "You are an AI designed to enhance summaries with additional concerns."},
+                {"role": "user", "content": view_prompt}
             ],
             temperature=0.7
         )
         return response["choices"][0]["message"]["content"]
     except Exception as e:
-        return f"Error: {e}"
-def compile_plantuml(input_path, output_dir="../gemini_output_images"):
-    os.makedirs(output_dir, exist_ok=True)
-    
-    # Run PlantUML and capture output
-    result = subprocess.run(["plantuml", "-o", output_dir, input_path], 
-                          capture_output=True, text=True)
-    
-    return result.returncode == 0, result.stderr
-def save_plantuml_code(puml_code, repo_name):
-    os.makedirs("plantumlcode", exist_ok=True)
-    clean_repo_name = repo_name.replace('/', '_').replace('\\', '_').rstrip('_')
-    file_path = os.path.join("plantumlcode", f"{clean_repo_name}.puml")
-    with open(file_path, "w", encoding="utf-8") as file:
-        file.write("@startuml\n")
-        file.write(puml_code)
-        file.write("\n@enduml")
-    return file_path
+        return f"Error incorporating concern: {e}"
 
-def process_repository(link):
+def process_repository(link, concern):
     if pd.notna(link):
         repo_url = extract_repo_url(link)
         summary = get_chatgpt_response(repo_url)
-        
+        final_summary = incorporate_concern(summary, concern)
         result = {
             "repo_url": repo_url,
-            "summary": summary
+            "summary": final_summary,
+            "concern": concern
         }
-        
-        repo_name = repo_url.split('github.com/')[-1].rstrip('/')
-        max_retries = 3
-        attempt = 0
-        error_message = None
-
-        # Open log file once in append mode
-        with open("error.log", "a", encoding="utf-8") as log_file:
-            while attempt < max_retries:
-                puml_code = get_plantuml_from_summary(summary, repo_name, error_message)
-                file_path = save_plantuml_code(puml_code, repo_name)
-                success, error_message = compile_plantuml(file_path)
-
-                if success:
-                    log_file.write(f"[SUCCESS] Repo: {repo_url}\n")
-                    log_file.write(f"PlantUML saved at: {file_path}\n\n")
-                    break  # Exit loop if successful
-                else:
-                    log_file.write(f"[ERROR] Attempt {attempt + 1} for {repo_url} failed\n")
-                    log_file.write(f"Reason: {error_message}\n\n")
-                    attempt += 1  # Retry
-
-            if attempt == max_retries:
-                log_file.write(f"[FAILURE] Repo: {repo_url} - PlantUML failed after {max_retries} attempts\n\n")
-        
         return result
 
 
@@ -230,18 +189,18 @@ def main():
     with open("openai_key.txt", "r") as file:
         openai.api_key = file.read().strip()
 
-    input_csv = "./dataset_chatgpt.csv"
+    input_csv = "./examples_dataset.csv"
     output_jsonl = "output.jsonl"
     column_name = "Image URL"
-
+    column_name2 = "Concern"
     df = pd.read_csv(input_csv, delimiter=";", encoding="utf-8", on_bad_lines="skip")
     if column_name not in df.columns:
         print(f"Error: Column '{column_name}' not found in CSV file.")
         return
 
-    with open(output_jsonl, "a", encoding="utf-8") as file:
+    with open(output_jsonl, "w", encoding="utf-8") as file:
         for index, row in df.iterrows():
-            result = process_repository(row[column_name])
+            result = process_repository(row[column_name],concern=row[column_name2])
             if result:
                 file.write(json.dumps(result) + "\n")
 
