@@ -1,0 +1,64 @@
+@startuml
+skinparam componentStyle rectangle
+
+package "homesensorhub" {
+  ["homesensorhub.py\nMainApp"] as MainApp
+
+  package "routing" {
+    ["mqtt.py\nMQTTClient\n<<Singleton>>"] as MQTTClient
+    ["mqtt_sender.py\nMQTTSender"] as MQTTSender
+    ["mqtt_subscriber.py\nMQTTSubscriber"] as MQTTSubscriber
+  }
+
+  package "sensors" {
+  ["probe.py\nProbe\n<<Factory>>\n(uses FileLock)"] as Probe
+  ["sensor_types.py\nSensorTypePolled\n<<Template Method>>\n(threaded polling)"] as SensorTypes
+}
+
+
+  package "utils" {
+    ["logging.py\nLogger"] as Logger
+  }
+}
+
+package "tests/sensors" {
+  ["Sensor Unit Tests"] as Tests
+}
+
+["run.sh"] as RunScript
+["kubepods.yaml\nKubernetes Pod"] as KubeConfig
+
+' Relationships
+MainApp --> Probe : probe/init sensors
+MainApp --> SensorTypes : poll sensors
+MainApp --> MQTTSender : send payload callback
+MainApp --> MQTTSubscriber : dynamic config
+MainApp --> Logger : logging
+
+Probe --> BME280
+Probe --> BME680
+Probe --> TSL258x
+Probe --> RCWL0515
+
+BME280 --> SensorTypes
+BME680 --> SensorTypes
+TSL258x --> SensorTypes
+RCWL0515 --> SensorTypes
+
+MQTTSender --> MQTTClient : publish JSON
+MQTTSubscriber --> MQTTClient : subscribe topics
+MQTTClient --> Logger
+
+SensorTypes --> Logger
+Probe --> Logger
+MQTTSender --> Logger
+MQTTSubscriber --> Logger
+
+Tests --> BME280
+Tests --> BME680
+Tests --> TSL258x
+Tests --> RCWL0515
+
+RunScript --> MainApp : start application
+KubeConfig --> MainApp : pod configuration
+@enduml
