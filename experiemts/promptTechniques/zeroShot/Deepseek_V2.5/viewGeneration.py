@@ -1,8 +1,7 @@
 import os
 import subprocess
-import pandas as pd
 from openai import OpenAI
-
+import json
 # Initialize DeepSeek client
 client = OpenAI(api_key="<your_api_key_here>", base_url="https://api.deepseek.com/v1")
 
@@ -68,10 +67,8 @@ def compile_plantuml(input_path, output_dir="../zeroShot_gpt_output_images"):
     
     return result.returncode == 0, result.stderr
 
-def process_view(repo_url, summary, concern, behavior):
+def process_view(repo_name, summary, concern, behavior):
 
-    repo_name = repo_url.split('github.com/')[-1].rstrip('/')
-    
     # Generate and compile PlantUML code with retry mechanism
     max_retries = 3
     attempt = 0
@@ -85,33 +82,42 @@ def process_view(repo_url, summary, concern, behavior):
             success, error_message = compile_plantuml(file_path)
             
             if success:
-                log_file.write(f"Successfully processed repo {repo_url}\n")
+                log_file.write(f"Successfully processed repo {repo_name}\n")
                 log_file.write(f"PlantUML diagram generated at {file_path}\n")
                 break
             else:
-                log_file.write(f"Attempt {attempt + 1}: Error in generating PlantUML for {repo_url}\n")
+                log_file.write(f"Attempt {attempt + 1}: Error in generating PlantUML for {repo_name}\n")
                 log_file.write(f"Error message: {error_message}\n")
                 attempt += 1
                 
         if attempt == max_retries:
-            log_file.write(f"Failed to generate valid PlantUML for {repo_url} after {max_retries} attempts\n")
-    
+            log_file.write(f"Failed to generate valid PlantUML for {repo_name} after {max_retries} attempts\n")
+
     return 
 
-def main():
-    input_csv = "../../../Architectural_knowledge_extraction/generated_summaries.csv"
-    column_name1 = "repo_url"
-    column_name2 = "summary"
-    column_name3 = "concern"
-    column_name4 = "behavior"
-    df = pd.read_csv(input_csv, delimiter=";", encoding="utf-8", on_bad_lines="skip")
-    if column_name1 not in df.columns or column_name2 not in df.columns or column_name3 not in df.columns or column_name4 not in df.columns:
-        print(f"Error: Columns '{column_name1}' or '{column_name2}' not found in CSV file.")
-        return
-    for index, row in df.iterrows():
-        process_view(row[column_name1], row[column_name2], row[column_name3], row[column_name4])
 
-    print(f"Results saved in results folder.")
+def main():
+    input_jsonl = "../../../Architectural_knowledge_extraction/generated_summaries.jsonl"
+    column_name1 = "Repository Name"
+    column_name2 = "summary"
+    column_name3 = "Concern"
+    column_name4 = "Behavior"
+
+    try:
+        with open(input_jsonl, 'r', encoding='utf-8') as f:
+            entries = [json.loads(line) for line in f]
+    except Exception as e:
+        print(f"Error reading JSONL file: {e}")
+        return
+
+    for entry in entries:
+        if all(key in entry for key in [column_name1, column_name2, column_name3, column_name4]):
+            process_view(entry[column_name1], entry[column_name2], entry[column_name3], entry[column_name4])
+            print(f"Processed entry: {entry[column_name1]}")
+        else:
+            print(f"Skipping entry due to missing required fields: {entry}")
+
+    print("✅ Results saved in results folder.")
 
 if __name__ == "__main__":
-    main() 
+    main()
