@@ -1,0 +1,40 @@
+```plantuml
+@startuml kryptokrauts_ae-prediction-cards
+actor User
+participant "Frontend" as FE
+participant "Wallet Client" as WC
+participant "PredictionCards API" as API
+participant "Smart Contract" as SC
+participant "Oracle Service" as OS
+participant "Process Prediction Service" as PPS
+participant "Aeternity Blockchain" as AE
+
+User -> FE: Create Prediction
+FE -> WC: Connect Wallet
+WC -> AE: Authenticate
+FE -> API: Submit Prediction
+API -> SC: create_prediction()
+SC -> AE: Store Prediction
+
+User -> FE: Rent NFT
+FE -> API: rent_nft()
+API -> SC: rent_nft()
+SC -> AE: Update NFT Rental
+
+PPS -> SC: Monitor Predictions
+SC -> PPS: Prediction Closed Event
+PPS -> OS: Request Oracle Query
+OS -> SC: ask_for_winning_option()
+SC -> AE: Oracle Query
+AE -> OS: Oracle Response
+OS -> SC: process_oracle_response()
+SC -> PPS: Winning Outcome
+PPS -> SC: Update NFT Ownership
+
+User -> FE: Claim Rewards
+FE -> API: claim()
+API -> SC: claim()
+SC -> AE: Transfer Rewards
+
+@enduml
+```

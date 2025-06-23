@@ -1,0 +1,57 @@
+### Output:
+@startuml hyeonsangjeon_youtube-dl-nas
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Web Browser" as Browser {
+  rectangle "Login Page" as Login
+  rectangle "Queue Dashboard" as Dashboard
+  rectangle "WebSocket Client" as WSClient
+}
+
+rectangle "Web Server" as Server {
+  rectangle "Bottle Framework" as Bottle
+  rectangle "REST API" as API
+  rectangle "Auth Handler" as Auth
+  rectangle "Queue Manager" as Queue
+  rectangle "Download Worker" as Worker
+  rectangle "WebSocket Server" as WSServer
+  rectangle "Scheduler" as Scheduler
+}
+
+database "Auth.json" as AuthDB
+database "Downloaded Files" as Downloads
+
+cloud "YouTube" as YouTube
+
+User --> Browser
+Browser --> Login : Submit Credentials
+Login --> Auth : Verify
+Auth --> AuthDB : Check Credentials
+
+Browser --> Dashboard : View Queue
+Dashboard --> API : GET /queue
+API --> Queue : Get Status
+Queue --> API : Return Status
+API --> Dashboard : Display Status
+
+Browser --> WSClient : Connect
+WSClient --> WSServer : Establish Connection
+Worker --> WSServer : Progress Updates
+WSServer --> WSClient : Push Notifications
+
+Browser --> API : POST /download
+API --> Queue : Add Request
+Queue --> Worker : Process Next
+Worker --> YouTube : Download Video
+Worker --> Downloads : Save File
+Worker --> Queue : Update Status
+
+Scheduler --> Worker : Daily Update yt-dlp
+@enduml

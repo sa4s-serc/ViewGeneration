@@ -1,0 +1,42 @@
+```plantuml
+@startuml domingo1021_Bunny-code
+
+actor User
+participant "Nginx (Reverse Proxy)" as Nginx
+participant "Express API" as API
+participant "Socket.IO" as Socket
+participant "MySQL Database" as MySQL
+participant "Redis Cache" as Redis
+participant "Docker Sandbox" as Sandbox
+participant "S3 Storage" as S3
+
+User -> Nginx : HTTPS Request (API/WebSocket)
+Nginx -> API : Proxy API Request
+API -> MySQL : Query Data
+MySQL --> API : Return Data
+API -> Redis : Check Cache
+Redis --> API : Return Cached Data (or null)
+API -> Sandbox : Execute Code (Docker)
+Sandbox --> API : Execution Results
+API -> S3 : Store/Retrieve Files
+S3 --> API : File Operations Result
+API --> Nginx : API Response
+Nginx --> User : HTTPS Response
+
+User -> Nginx : WebSocket Connection
+Nginx -> Socket : Upgrade Connection
+Socket -> Redis : Validate Session
+Redis --> Socket : Session Data
+Socket --> Nginx : WebSocket Established
+Nginx --> User : WebSocket Connected
+
+User -> Socket : Real-time Event (e.g., code edit)
+Socket -> Redis : Update Shared State
+Redis --> Socket : State Updated
+Socket -> API : Persist Changes (optional)
+API -> MySQL : Update Database
+MySQL --> API : Update Confirmation
+Socket --> User : Broadcast Update
+
+@enduml
+```

@@ -1,0 +1,52 @@
+Here's the PlantUML sequence diagram for the `kryptokrauts_ae-prediction-cards` system focusing on control flow:
+
+```plantuml
+@startuml kryptokrauts_ae-prediction-cards
+participant "User" as user
+participant "Frontend" as frontend
+participant "WalletClient" as wallet
+participant "PredictionCardsAPI" as api
+participant "SmartContract" as contract
+participant "ProcessPredictionService" as processor
+participant "OracleService" as oracle
+
+user -> frontend: Create Prediction (asset, price, dates, images)
+frontend -> wallet: Connect Wallet
+wallet --> frontend: Wallet Connected
+frontend -> api: Create Prediction
+api -> contract: create_prediction()
+contract --> api: Prediction Created
+api --> frontend: Success
+frontend --> user: Prediction Created
+
+user -> frontend: Rent NFT (option, amount, price)
+frontend -> api: Rent NFT
+api -> contract: rent_nft()
+contract --> api: NFT Rented
+api --> frontend: Success
+frontend --> user: NFT Rented
+
+processor -> contract: Check for CLOSED predictions
+contract --> processor: Prediction IDs
+processor -> contract: ask_for_winning_option()
+contract -> oracle: Oracle Query
+oracle --> contract: Oracle Response
+contract -> processor: oracle_response event
+processor -> contract: process_oracle_response()
+contract --> processor: Winning Option Determined
+
+user -> frontend: Check Results
+frontend -> api: Get Prediction Results
+api -> contract: get_prediction()
+contract --> api: Prediction Data
+api --> frontend: Results
+frontend --> user: Show Results
+
+user -> frontend: Claim Rewards
+frontend -> api: Claim Rewards
+api -> contract: claim()
+contract --> api: Rewards Distributed
+api --> frontend: Success
+frontend --> user: Rewards Claimed
+@enduml
+```

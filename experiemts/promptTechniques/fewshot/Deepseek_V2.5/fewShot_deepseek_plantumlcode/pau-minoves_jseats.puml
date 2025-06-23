@@ -1,0 +1,55 @@
+@startuml pau-minoves_jseats
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<model>> #d8f5d3
+  BackgroundColor<<methods>> #fff1c9
+  BackgroundColor<<cli>> #fddddd
+  BackgroundColor<<config>> #d4f0f0
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Components" <<core>> {
+  rectangle "SeatAllocatorProcessor" as Processor
+  rectangle "SeatAllocatorResolver" as Resolver
+}
+
+package "Data Model" <<model>> {
+  rectangle "Tally" as Tally
+  rectangle "Candidate" as Candidate
+  rectangle "Result" as Result
+}
+
+package "Allocation Methods" <<methods>> {
+  rectangle "Majority" as Majority
+  rectangle "LargestRemainder" as LR
+  rectangle "HighestAverages" as HA
+  rectangle "EqualProportions" as EP
+  rectangle "RankedByVotes" as RBV
+}
+
+package "Configuration" <<config>> {
+  rectangle "ProcessorConfig" as Config
+  rectangle "XML Serialization" as XML
+}
+
+package "CLI Interface" <<cli>> {
+  rectangle "SeatAllocatorLauncher" as CLI
+  rectangle "CommandParser" as Parser
+}
+
+Processor --> Resolver : resolves
+Processor --> Tally : processes
+Processor --> Result : generates
+Resolver --> Majority : creates
+Resolver --> LR : creates
+Resolver --> HA : creates
+Resolver --> EP : creates
+Resolver --> RBV : creates
+Tally --> Candidate : contains
+Config --> XML : serializes/deserializes
+CLI --> Parser : uses
+CLI --> Processor : executes
+CLI --> Config : loads
+@enduml

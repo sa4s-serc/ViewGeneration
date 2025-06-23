@@ -1,0 +1,56 @@
+### Actual Output:
+@startuml lvyahui8_http-proxy
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<client>> #d9e7fd
+  BackgroundColor<<proxy>> #d8f5d3
+  BackgroundColor<<server>> #fff1c9
+  BackgroundColor<<config>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Client" <<client>> {
+  [Web Browser] as Browser
+  [Test Client] as TestClient
+}
+
+package "HTTP Proxy" <<proxy>> {
+  rectangle "HttpProxyServer" as ProxyServer
+  rectangle "ClientToProxyHandler" as ClientHandler
+  rectangle "ProxyToServerInboundHandler" as ServerHandler
+  rectangle "EntitysManager" as EntityManager
+  rectangle "GlobalExceptionHandler" as ExceptionHandler
+  
+  ProxyServer --> ClientHandler
+  ClientHandler --> ServerHandler
+  ClientHandler --> EntityManager
+  ClientHandler --> ExceptionHandler
+  
+  package "Filters" {
+    [ProxyRequestFilter] as RequestFilter
+    [ProxyResponseFilter] as ResponseFilter
+  }
+  
+  ClientHandler --> RequestFilter
+  ServerHandler --> ResponseFilter
+}
+
+package "Backend Server" <<server>> {
+  [Test Server] as TestServer
+  [Production Server] as ProdServer
+}
+
+package "Configuration" <<config>> {
+  [entitys.json] as ConfigFile
+  [log4j2.xml] as LogConfig
+}
+
+Browser --> ProxyServer
+TestClient --> ProxyServer
+ProxyServer --> TestServer
+ProxyServer --> ProdServer
+
+EntityManager --> ConfigFile
+ProxyServer --> LogConfig
+@enduml

@@ -1,0 +1,39 @@
+```plantuml
+@startuml lvyahui8_http-proxy
+component "Client" as Client
+component "HttpProxyServer" as ProxyServer {
+    component "ClientToProxyHandler" as ClientHandler
+    component "ProxyToServerInboundHandler" as ServerHandler
+    component "EntitysManager" as EntityManager
+    component "GlobalExceptionHandler" as ExceptionHandler
+    component "Filter System" as Filters {
+        component "ProxyRequestFilter" as RequestFilter
+        component "ProxyResponseFilter" as ResponseFilter
+    }
+}
+
+component "Backend Server" as Backend
+component "Configuration" as Config {
+    file "entitys.json" as EntitiesFile
+    file "log4j2.xml" as LogConfig
+}
+
+Client --> ProxyServer : HTTP Requests
+ProxyServer --> Backend : Proxied Requests
+Backend --> ProxyServer : Responses
+
+ClientHandler --> EntityManager : Get routing rules
+ClientHandler --> RequestFilter : Apply filters
+ServerHandler --> ResponseFilter : Apply filters
+ServerHandler --> ExceptionHandler : Handle errors
+
+EntityManager --> EntitiesFile : Read/Reload
+ProxyServer --> LogConfig : Logging
+
+note right of Filters
+  Includes:
+  AttackRequestFilter
+  DefaultProxyResponseFilter
+end note
+@enduml
+```

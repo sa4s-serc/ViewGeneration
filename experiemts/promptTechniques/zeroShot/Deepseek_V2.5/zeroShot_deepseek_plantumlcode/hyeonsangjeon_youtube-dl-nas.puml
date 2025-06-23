@@ -1,0 +1,58 @@
+```plantuml
+@startuml hyeonsangjeon_youtube-dl-nas
+
+actor User
+participant "Web Interface" as WebUI
+participant "REST API" as API
+participant "Auth Service" as Auth
+participant "Queue Manager" as Queue
+participant "Download Worker" as Worker
+participant "yt-dlp/youtube-dl" as YTDL
+participant "WebSocket Service" as WS
+
+User -> WebUI : Access Web Interface
+WebUI -> Auth : Request Login
+Auth --> WebUI : Authentication Challenge
+User -> WebUI : Submit Credentials
+WebUI -> Auth : Verify Credentials
+Auth --> WebUI : Authentication Result
+
+alt Successful Auth
+    WebUI -> WS : Establish WebSocket Connection
+    WS --> WebUI : Connection Established
+    
+    User -> WebUI : Submit Download Request
+    WebUI -> Queue : Add to Queue
+    Queue --> WebUI : Queue Position
+    
+    Worker -> Queue : Poll for Jobs
+    Queue --> Worker : Next Job
+    Worker -> YTDL : Execute Download
+    YTDL --> Worker : Download Progress
+    Worker -> WS : Send Progress Updates
+    WS --> WebUI : Real-time Updates
+    
+    YTDL --> Worker : Download Complete
+    Worker -> Queue : Mark Complete
+    Worker -> WS : Send Completion
+    WS --> WebUI : Notify Completion
+else Failed Auth
+    Auth --> WebUI : Access Denied
+    WebUI --> User : Show Error
+end
+
+User -> API : Submit Download (REST)
+API -> Auth : Verify API Key
+Auth --> API : Authentication Result
+
+alt Successful Auth
+    API -> Queue : Add to Queue
+    Queue --> API : Queue Position
+    API --> User : Confirmation
+else Failed Auth
+    Auth --> API : Access Denied
+    API --> User : 401 Unauthorized
+end
+
+@enduml
+```

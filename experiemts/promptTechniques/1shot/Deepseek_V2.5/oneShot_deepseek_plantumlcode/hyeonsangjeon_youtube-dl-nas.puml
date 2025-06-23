@@ -1,0 +1,57 @@
+```plantuml
+@startuml hyeonsangjeon_youtube-dl-nas
+actor User
+participant "Web Interface" as UI
+participant "REST API" as API
+participant "WebSocket Server" as WS
+participant "Queue Manager" as QM
+participant "Download Worker" as DW
+database "Auth.json" as AUTH
+database "Download Storage" as STORAGE
+participant "yt-dlp/youtube-dl" as YT
+
+User -> UI : Login (credentials)
+UI -> AUTH : Verify credentials
+AUTH --> UI : Authentication result
+UI -> User : Display dashboard
+
+alt Web Interface
+    User -> UI : Submit download request
+    UI -> QM : Add to queue
+    QM -> DW : Notify new job
+    DW -> YT : Download video
+    YT --> DW : Download progress
+    DW -> WS : Send progress updates
+    WS -> UI : Real-time updates
+    DW -> STORAGE : Save downloaded file
+    DW -> QM : Mark job complete
+    QM -> WS : Notify completion
+    WS -> UI : Update status
+else REST API
+    User -> API : POST download request (with auth)
+    API -> AUTH : Verify credentials
+    AUTH --> API : Authentication result
+    API -> QM : Add to queue
+    QM -> DW : Notify new job
+    DW -> YT : Download video
+    YT --> DW : Download progress
+    DW -> STORAGE : Save downloaded file
+    DW -> QM : Mark job complete
+end
+
+note right of AUTH
+  Basic authentication
+  (security concern)
+end note
+
+note right of QM
+  Asynchronous queue
+  (control flow)
+end note
+
+note right of WS
+  Real-time connectivity
+  (connectivity)
+end note
+@enduml
+```

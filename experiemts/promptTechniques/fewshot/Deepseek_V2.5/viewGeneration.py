@@ -2,47 +2,82 @@ import os
 import subprocess
 from openai import OpenAI
 import json
-import glob
-import shutil
 # Initialize DeepSeek client
 client = OpenAI(api_key="", base_url="https://api.deepseek.com/v1")
 
+def load_few_shot_example(json_path="examples.json"):
+    try:
+        with open(json_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"Error loading one-shot example: {e}")
+        return None
+
 def get_plantuml_from_summary(summary, repo_name, concern, behavior, error_message=None, code=None):
-    # Decide on diagram type based on behavior
-    if behavior == "dynamic":
-        diagram_instruction = f'''
-You are expert software architect. Your task is to design a view for the system based on the architectural knowledge provided. Use PlantUML diagrams. Based on the following repository summary and system behavior, generate a **PlantUML sequence diagram** to show dynamic interactions.
+    examples = load_few_shot_example()
 
-**Behavioral focus:** {concern}
+    if not examples:
+        return "Error: Failed to load examples for few-shot prompting."
 
-Ensure the diagram:
-- Accurately represents runtime message flow between components or services.
-- Matches the described system behavior.
-- Is valid PlantUML code with no explanation.
-this is the repository name, so please name the generate image the with the same {repo_name}.
-'''
+    # Select base instruction
+    if behavior == "static":
+        diagram_type = "component"
+        focus = "- Clearly shows main components and their relationships"
     else:
-        diagram_instruction = f'''
-You are expert software architect. Your task is to design a view for the system based on the architectural knowledge provided. Use PlantUML diagrams. Based on the following repository summary, generate a **PlantUML component diagram** to capture the static architecture. Focus on the architectural concern: **{concern}**.
+        diagram_type = "sequence"
+        focus = "- Clearly shows runtime interactions between components"
 
-Ensure the diagram:
-- Clearly shows system components and their relationships.
-- Highlights how the architecture addresses the specified concern.
-- Is valid PlantUML code with no explanation.
+    # Base instruction
+    task_instruction = f"""You are an expert software architect. Your job is to design architectural views using PlantUML based on system summaries.
+
+Generate a **PlantUML {diagram_type} diagram** that:
+{focus}
+- Matches the system **behavior** and addresses the architectural **concern**
+- Uses valid PlantUML syntax
+- Outputs only PlantUML code (no explanation).
 this is the repository name, so please name the generate image the with the same {repo_name}.
-'''
+Below are some examples which have the architectural knowledge summary and corresponding plantuml code for reference.
+"""
 
-    # Include retry guidance if needed
+    # Append multiple few-shot examples
+    for i, ex in enumerate(examples):
+        task_instruction += f"""
+
+### Example {i + 1} Input:
+Summary: {ex['summary']}
+Concern: {ex['concern']}
+Behavior: {ex['behavior']}
+
+### Example {i + 1} Output:
+{ex['plantuml_code']}
+"""
+
     if error_message:
-        diagram_instruction += f"\nNote: A previous attempt failed with the following error:\n{error_message}\nProblematic code:\n{code}\nPlease correct and regenerate."
+        task_instruction += f"""\n\nNote: A previous attempt failed with:
+Error: {error_message}
+Problematic code:
+{code}
+Please regenerate correctly.
+"""
+
+    # Final messages with actual input
+    messages = [
+        {"role": "system", "content": task_instruction},
+        {
+            "role": "user",
+            "content": f"""### Actual Input:
+Summary: {summary}
+Concern: {concern}
+Behavior: {behavior}
+
+Please generate the appropriate PlantUML diagram."""
+        }
+    ]
 
     try:
         response = client.chat.completions.create(
             model="deepseek-chat",
-            messages=[
-                {"role": "system", "content": diagram_instruction},
-                {"role": "user", "content": summary}
-            ],
+            messages=messages,
             temperature=0.7,
             max_tokens=1024,
             stream=False
@@ -52,15 +87,16 @@ this is the repository name, so please name the generate image the with the same
         return f"Error: {e}"
 
 
+
+
 def save_plantuml_code(puml_code, repo_name):
-    os.makedirs("zeroShot_deepseek_plantumlcode", exist_ok=True)
-    # clean_repo_name = repo_name.replace('/', '_').replace('\\', '_').rstrip('_')
-    file_path = os.path.join("zeroShot_deepseek_plantumlcode", f"{repo_name}.puml")
+    os.makedirs("fewShot_deepseek_plantumlcode", exist_ok=True)
+    file_path = os.path.join("fewShot_deepseek_plantumlcode", f"{repo_name}.puml")
     with open(file_path, "w", encoding="utf-8") as file:
         file.write(puml_code)
     return file_path
 
-def compile_plantuml(input_path, output_dir="../zeroShot_deepseek_output_images"):
+def compile_plantuml(input_path, output_dir="../fewShot_deepseek_output_images"):
     os.makedirs(output_dir, exist_ok=True)
     
     # Run PlantUML and capture output
@@ -68,7 +104,6 @@ def compile_plantuml(input_path, output_dir="../zeroShot_deepseek_output_images"
                           capture_output=True, text=True)
     
     return result.returncode == 0, result.stderr
-
 
 def process_view(repo_name, summary, concern, behavior):
 

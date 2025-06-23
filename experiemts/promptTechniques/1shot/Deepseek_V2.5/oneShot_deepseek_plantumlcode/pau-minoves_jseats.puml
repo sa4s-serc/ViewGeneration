@@ -1,0 +1,48 @@
+```plantuml
+@startuml pau-minoves_jseats
+rectangle "CLI" as CLI
+rectangle "SeatAllocatorLauncher" as Launcher
+rectangle "ProcessorConfig" as Config
+rectangle "SeatAllocatorProcessor" as Processor
+rectangle "SeatAllocatorResolver" as Resolver
+rectangle "Tally" as Tally
+rectangle "Result" as Result
+
+database "XML Config" as XMLConfig
+database "Vote Data" as VoteData
+
+CLI -> Launcher : execute()
+Launcher -> Config : loadFromXML(XMLConfig)
+Launcher -> Tally : loadFromFile(VoteData)
+Launcher -> Processor : process(Tally, Config)
+
+Processor -> Config : getMethod()
+Processor -> Resolver : resolveMethod()
+Resolver --> Processor : SeatAllocatorMethod
+
+Processor -> Config : getFilters()
+Processor -> Resolver : resolveFilters()
+Resolver --> Processor : List<TallyFilter>
+
+Processor -> SeatAllocatorMethod : compute(Tally)
+SeatAllocatorMethod --> Processor : Result
+
+Processor -> Config : getDecorators()
+Processor -> Resolver : resolveDecorators()
+Resolver --> Processor : List<ResultDecorator>
+
+Processor -> ResultDecorator : decorate(Result)
+ResultDecorator --> Processor : Result
+
+Processor --> Launcher : Result
+Launcher --> CLI : display(Result)
+
+note right of Processor
+  Applies filters -> computes seats -> applies decorators
+end note
+
+note right of Resolver
+  Dynamically resolves components\nbased on config names
+end note
+@enduml
+```

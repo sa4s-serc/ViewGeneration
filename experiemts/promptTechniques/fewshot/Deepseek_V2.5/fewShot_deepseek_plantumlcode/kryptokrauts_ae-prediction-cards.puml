@@ -1,0 +1,53 @@
+@startuml kryptokrauts_ae-prediction-cards
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Frontend (React)" as FE {
+  rectangle "WalletClient.ts" as WalletClient
+  rectangle "PredictionCards.api.ts" as PredictionAPI
+  rectangle "state.ts (Redux)" as Redux
+}
+
+rectangle "Aeternity Blockchain" as Blockchain {
+  rectangle "PredictionCards\nSmart Contract" as Contract
+}
+
+rectangle "Backend Services" {
+  rectangle "Oracle Service" as OracleService
+  rectangle "Process Prediction\nService" as PredictionService
+}
+
+rectangle "External Services" {
+  rectangle "CoinGecko API" as CoinGecko
+  rectangle "IPFS" as IPFS
+}
+
+User --> FE
+FE --> WalletClient
+FE --> PredictionAPI
+PredictionAPI --> Contract : dry-run calls
+WalletClient --> Contract : signed transactions
+PredictionAPI --> IPFS : store/load NFT images
+
+PredictionService --> Contract : monitor predictions\ncall ask_for_winning_option
+Contract --> PredictionService : process_oracle_response
+PredictionService --> OracleService : trigger oracle query
+OracleService --> Contract : respond to oracle query
+OracleService --> CoinGecko : fetch price data
+
+note right of Contract
+  Key functions:
+  - create_prediction
+  - rent_nft
+  - deposit_to_nft
+  - claim
+  - ask_for_winning_option
+  - process_oracle_response
+end note
+@enduml

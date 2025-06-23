@@ -1,0 +1,44 @@
+```plantuml
+@startuml pau-minoves_jseats
+
+package "jseats System" {
+    [CLI Interface] as cli
+    [SeatAllocatorLauncher] as launcher
+    [SeatAllocatorProcessor] as processor
+    [ProcessorConfig] as config
+    [SeatAllocatorResolver] as resolver
+
+    component "Allocation Methods" as methods {
+        [MajorityMethods]
+        [LargestRemainderMethods]
+        [HighestAveragesMethods]
+        [EqualProportions]
+        [RankedByVotes]
+    }
+
+    component "Processing Components" as processing {
+        [TallyFilter]
+        [ResultDecorator]
+        [TieBreaker]
+    }
+
+    component "Data Model" as model {
+        [Tally]
+        [Candidate]
+        [Result]
+    }
+}
+
+cli --> launcher : triggers
+launcher --> processor : executes
+launcher --> config : loads
+processor --> config : uses
+processor --> resolver : queries
+resolver --> methods : resolves
+resolver --> processing : resolves
+processor --> model : processes
+processor --> methods : executes
+methods --> model : operates on
+
+@enduml
+```
