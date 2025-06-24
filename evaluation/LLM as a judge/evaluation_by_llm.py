@@ -54,7 +54,7 @@ def extract_and_compare_images(image_path1, image_path2, model):
      "common_connectors": [],
      "unique_connectors_diagram1": [],
      "unique_connectors_diagram2": [],
-     "explanation": "A detailed explanation highlighting similarities and differences between the two diagrams."
+     "explanation": "A detailed explanation highlighting similarities and differences between the two diagrams and also be as a judge and provide a score from 0 to 10 based on the quality of the diagrams and determine which diagram is better and why."
      }
     }
     Provide ONLY this JSON output without additional text or explanations.
@@ -85,34 +85,42 @@ def write_to_json(filename, data, output_dir="json_outputs"):
     json_path = os.path.join(output_dir, f"{filename}.json")
     with open(json_path, mode='w', encoding='utf-8') as json_file:
         json.dump(data, json_file, indent=2, ensure_ascii=False)
-
+def get_files_by_stem(folder):
+    file_map = {}
+    for fname in os.listdir(folder):
+        stem, _ = os.path.splitext(fname)
+        file_map[stem] = fname
+    return file_map
 def main():
     genai.configure(api_key="")
     model = genai.GenerativeModel("gemini-2.0-flash-exp")
     
-    folder1 = "../initial_images"
-    folder2 = "../gemini_output_images"
+    folder1 = "./initial_images"
+    folder2 = "./fewShot_deepseek_output_images"
     
-    images1 = set(os.listdir(folder1))
-    images2 = set(os.listdir(folder2))
-    common_filenames = sorted(images1 & images2)
+
+    files1 = get_files_by_stem(folder1)
+    files2 = get_files_by_stem(folder2)
+    common_stems = sorted(set(files1.keys()) & set(files2.keys()))
+
     
-    for filename in common_filenames:
-        image1 = os.path.join(folder1, filename)
-        image2 = os.path.join(folder2, filename)
+    for stem in common_stems:
+        file1 = os.path.join(folder1, files1[stem])
+        file2 = os.path.join(folder2, files2[stem])
         
         try:
-            result = extract_and_compare_images(image1, image2, model)
+            result = extract_and_compare_images(file1, file2, model)
             if result:
-                base_name = f"{filename.rsplit('.', 1)[0]}_comparison"
+                base_name = f"{stem}_comparison"
                 write_to_json(base_name, result)
                 print(f"Compared and saved: {base_name}.json")
             else:
-                print(f"Comparison failed for: {filename}")
+                print(f"Comparison failed for: {stem}")
         except Exception as e:
-            print(f"Error comparing {filename}: {str(e)}")
+            print(f"Error comparing {stem}: {str(e)}")
         
-        time.sleep(10)  # Avoid hitting rate limits
+        time.sleep(10)
+
 
 if __name__ == "__main__":
     main()

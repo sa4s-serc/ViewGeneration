@@ -1,0 +1,429 @@
+{
+  "diagram1": {
+    "components": [
+      {
+        "name": "process-prediction-service",
+        "description": null,
+        "boundary": "box",
+        "position": "top-left"
+      },
+      {
+        "name": "oracle-service",
+        "description": null,
+        "boundary": "box",
+        "position": "top-right"
+      },
+      {
+        "name": "aeternity blockchain",
+        "description": null,
+        "boundary": "box",
+        "position": "center"
+      },
+      {
+        "name": "PredictionCards Smart Contract",
+        "description": null,
+        "boundary": "box",
+        "position": "center"
+      },
+      {
+        "name": "User",
+        "description": null,
+        "boundary": null,
+        "position": "bottom-left"
+      },
+      {
+        "name": "Frontend",
+        "description": null,
+        "boundary": null,
+        "position": "bottom-left"
+      },
+      {
+        "name": "IPFS",
+        "description": null,
+        "boundary": "box",
+        "position": "bottom-right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "process-prediction-service",
+        "target": "aeternity blockchain",
+        "label": "poll for predictions with state \"CLOSED\"\ncall function \"ask_for_winning_option\"\ncall function \"process_oracle_response\" if oracle has responded",
+        "type": "arrow"
+      },
+      {
+        "source": "oracle-service",
+        "target": "aeternity blockchain",
+        "label": "poll for oracle queries\nget price from coingecko API\ndetermine outcome\nrespond to query with outcome (higher/lower)",
+        "type": "arrow"
+      },
+      {
+        "source": "Frontend",
+        "target": "aeternity blockchain",
+        "label": "create prediction\ndeposit / rent NFT\nwithdraw / claim rewards",
+        "type": "arrow"
+      },
+      {
+        "source": "User",
+        "target": "Frontend",
+        "label": null,
+        "type": "arrow"
+      },
+      {
+        "source": "Frontend",
+        "target": "IPFS",
+        "label": "load GIFs of NFTs",
+        "type": "arrow"
+      },
+      {
+        "source": "aeternity blockchain",
+        "target": "Frontend",
+        "label": "get data\nvia dry-runs",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {}
+  },
+  "diagram2": {
+    "components": [
+      {
+        "name": "User",
+        "description": null,
+        "boundary": null,
+        "position": null
+      },
+      {
+        "name": "Frontend",
+        "description": null,
+        "boundary": null,
+        "position": null
+      },
+      {
+        "name": "WalletClient",
+        "description": null,
+        "boundary": null,
+        "position": null
+      },
+      {
+        "name": "PredictionCardsAPI",
+        "description": null,
+        "boundary": null,
+        "position": null
+      },
+      {
+        "name": "SmartContract",
+        "description": null,
+        "boundary": null,
+        "position": null
+      },
+      {
+        "name": "ProcessPredictionService",
+        "description": null,
+        "boundary": null,
+        "position": null
+      },
+      {
+        "name": "OracleService",
+        "description": null,
+        "boundary": null,
+        "position": null
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Frontend",
+        "label": "Create Prediction (asset, price, dates, images)",
+        "type": "arrow"
+      },
+      {
+        "source": "Frontend",
+        "target": "WalletClient",
+        "label": "Connect Wallet",
+        "type": "arrow"
+      },
+      {
+        "source": "WalletClient",
+        "target": "Frontend",
+        "label": "Wallet Connected",
+        "type": "arrow"
+      },
+      {
+        "source": "Frontend",
+        "target": "PredictionCardsAPI",
+        "label": "Create Prediction",
+        "type": "arrow"
+      },
+      {
+        "source": "PredictionCardsAPI",
+        "target": "SmartContract",
+        "label": "create_prediction()",
+        "type": "arrow"
+      },
+      {
+        "source": "SmartContract",
+        "target": "PredictionCardsAPI",
+        "label": "Prediction Created",
+        "type": "arrow"
+      },
+      {
+        "source": "PredictionCardsAPI",
+        "target": "Frontend",
+        "label": "Success",
+        "type": "arrow"
+      },
+      {
+        "source": "User",
+        "target": "Frontend",
+        "label": "Rent NFT (option, amount, price)",
+        "type": "arrow"
+      },
+      {
+        "source": "Frontend",
+        "target": "WalletClient",
+        "label": "Rent NFT",
+        "type": "arrow"
+      },
+      {
+        "source": "WalletClient",
+        "target": "PredictionCardsAPI",
+        "label": "rent_nft()",
+        "type": "arrow"
+      },
+      {
+        "source": "PredictionCardsAPI",
+        "target": "SmartContract",
+        "label": "NFT Rented",
+        "type": "arrow"
+      },
+      {
+        "source": "PredictionCardsAPI",
+        "target": "Frontend",
+        "label": "Success",
+        "type": "arrow"
+      },
+      {
+        "source": "SmartContract",
+        "target": "ProcessPredictionService",
+        "label": "Check for CLOSED predictions",
+        "type": "arrow"
+      },
+      {
+        "source": "ProcessPredictionService",
+        "target": "SmartContract",
+        "label": "Prediction IDs",
+        "type": "arrow"
+      },
+      {
+        "source": "SmartContract",
+        "target": "ProcessPredictionService",
+        "label": "ask_for_winning_option()",
+        "type": "arrow"
+      },
+      {
+        "source": "ProcessPredictionService",
+        "target": "OracleService",
+        "label": "Oracle Query",
+        "type": "arrow"
+      },
+      {
+        "source": "OracleService",
+        "target": "ProcessPredictionService",
+        "label": "Oracle Response",
+        "type": "arrow"
+      },
+      {
+        "source": "ProcessPredictionService",
+        "target": "SmartContract",
+        "label": "process_oracle_response()",
+        "type": "arrow"
+      },
+      {
+        "source": "SmartContract",
+        "target": "ProcessPredictionService",
+        "label": "Winning Option Determined",
+        "type": "arrow"
+      },
+      {
+        "source": "User",
+        "target": "Frontend",
+        "label": "Check Results",
+        "type": "arrow"
+      },
+      {
+        "source": "Frontend",
+        "target": "PredictionCardsAPI",
+        "label": "Get Prediction Results",
+        "type": "arrow"
+      },
+      {
+        "source": "PredictionCardsAPI",
+        "target": "SmartContract",
+        "label": "get_prediction()",
+        "type": "arrow"
+      },
+      {
+        "source": "SmartContract",
+        "target": "PredictionCardsAPI",
+        "label": "Prediction Data",
+        "type": "arrow"
+      },
+      {
+        "source": "PredictionCardsAPI",
+        "target": "Frontend",
+        "label": "Results",
+        "type": "arrow"
+      },
+      {
+        "source": "User",
+        "target": "Frontend",
+        "label": "Show Results",
+        "type": "arrow"
+      },
+      {
+        "source": "User",
+        "target": "Frontend",
+        "label": "Claim Rewards",
+        "type": "arrow"
+      },
+      {
+        "source": "Frontend",
+        "target": "PredictionCardsAPI",
+        "label": "Claim Rewards",
+        "type": "arrow"
+      },
+      {
+        "source": "PredictionCardsAPI",
+        "target": "SmartContract",
+        "label": "claim()",
+        "type": "arrow"
+      },
+      {
+        "source": "SmartContract",
+        "target": "PredictionCardsAPI",
+        "label": "Rewards Distributed",
+        "type": "arrow"
+      },
+      {
+        "source": "PredictionCardsAPI",
+        "target": "Frontend",
+        "label": "Success",
+        "type": "arrow"
+      },
+      {
+        "source": "Frontend",
+        "target": "User",
+        "label": "Rewards Claimed",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {}
+  },
+  "comparison": {
+    "common_components": [
+      "User",
+      "Frontend",
+      "SmartContract",
+      "ProcessPredictionService",
+      "OracleService"
+    ],
+    "unique_to_diagram1": [
+      "process-prediction-service",
+      "oracle-service",
+      "aeternity blockchain",
+      "PredictionCards Smart Contract",
+      "IPFS"
+    ],
+    "unique_to_diagram2": [
+      "WalletClient",
+      "PredictionCardsAPI"
+    ],
+    "common_connectors": [
+      {
+        "source": "User",
+        "target": "Frontend"
+      },
+      {
+        "source": "ProcessPredictionService",
+        "target": "OracleService"
+      },
+      {
+        "source": "OracleService",
+        "target": "ProcessPredictionService"
+      }
+    ],
+    "unique_connectors_diagram1": [
+      {
+        "source": "process-prediction-service",
+        "target": "aeternity blockchain"
+      },
+      {
+        "source": "oracle-service",
+        "target": "aeternity blockchain"
+      },
+      {
+        "source": "Frontend",
+        "target": "aeternity blockchain"
+      },
+      {
+        "source": "Frontend",
+        "target": "IPFS"
+      },
+      {
+        "source": "aeternity blockchain",
+        "target": "Frontend"
+      }
+    ],
+    "unique_connectors_diagram2": [
+      {
+        "source": "Frontend",
+        "target": "WalletClient"
+      },
+      {
+        "source": "WalletClient",
+        "target": "Frontend"
+      },
+      {
+        "source": "Frontend",
+        "target": "PredictionCardsAPI"
+      },
+      {
+        "source": "PredictionCardsAPI",
+        "target": "SmartContract"
+      },
+      {
+        "source": "SmartContract",
+        "target": "PredictionCardsAPI"
+      },
+      {
+        "source": "PredictionCardsAPI",
+        "target": "Frontend"
+      },
+      {
+        "source": "User",
+        "target": "Frontend"
+      },
+      {
+        "source": "WalletClient",
+        "target": "PredictionCardsAPI"
+      },
+      {
+        "source": "SmartContract",
+        "target": "ProcessPredictionService"
+      },
+      {
+        "source": "ProcessPredictionService",
+        "target": "SmartContract"
+      },
+      {
+        "source": "Frontend",
+        "target": "User"
+      }
+    ],
+    "explanation": "Diagram 1 shows a high-level component architecture, with boxes representing components and arrows indicating data flow. Diagram 2 presents a sequence diagram which focuses on how components interact over time to complete particular tasks, such as \"Create Prediction\" or \"Claim Rewards\".\n\nBoth diagrams share common components such as \"User\", \"Frontend\", \"ProcessPredictionService\", \"OracleService\" and \"SmartContract\". However, Diagram 1 contains \"aeternity blockchain\" which encapsulates the smart contract and shows interaction with IPFS. Diagram 2 introduces \"WalletClient\" and \"PredictionCardsAPI\", components that are not explicitly represented in Diagram 1.\n\nThe connector/relationships in Diagram 1 shows general flow of information where Diagram 2 describes the specific actions between each component and interaction with labeled events.\n\nDiagram 2 provides a more detailed view of the internal workings of the system with focus on sequence of actions involved in specific operations.\n\nThe architectural structure differs significantly. Diagram 1 provides an overview of the system's structure, Diagram 2 shows the sequence of operations.\n\nAs a judge, diagram 2 is better because the interactions of each of the components is clear and it better described how components interact with each other. Therefore the score for Diagram 1 is 5 and the score for Diagram 2 is 8."
+  }
+}
