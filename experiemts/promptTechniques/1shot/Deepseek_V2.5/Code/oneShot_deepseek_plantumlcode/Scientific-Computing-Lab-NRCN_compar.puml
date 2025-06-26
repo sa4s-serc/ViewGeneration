@@ -1,0 +1,47 @@
+@startuml Scientific-Computing-Lab-NRCN_compar
+skinparam rectangle {
+  BackgroundColor<<editor>> #d9e7fd
+  BackgroundColor<<compiler>> #d8f5d3
+  BackgroundColor<<parallel>> #fddddd
+  BackgroundColor<<db>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "CodeMirror Editor" <<editor>> {
+  rectangle "Core Editor" as Core
+  rectangle "Language Modes" as Modes
+  rectangle "Addons" as Addons
+  rectangle "Event System" as Events
+  Core --> Modes
+  Core --> Addons
+  Core --> Events
+}
+
+package "ComPar System" <<compiler>> {
+  rectangle "GUI Framework" as GUI
+  rectangle "Compiler Abstraction" as Compiler
+  rectangle "Parallelization Tools" as ParallelTools
+  rectangle "Runtime Analysis" as Runtime
+  GUI --> Compiler
+  Compiler --> ParallelTools
+  ParallelTools --> Runtime
+}
+
+package "Execution" <<parallel>> {
+  rectangle "Slurm Job Mgmt" as Slurm
+  rectangle "Code Instrumentation" as Instrumentation
+  rectangle "Output Validation" as Validation
+  Runtime --> Slurm
+  Runtime --> Instrumentation
+  Runtime --> Validation
+}
+
+database "MongoDB" <<db>> as DB
+Validation --> DB
+Runtime --> DB
+
+note right of Core: Modular architecture with\nlanguage modes and addons
+note left of Compiler: Plugin-based compiler design\nwith abstract factory pattern
+note right of Slurm: Asynchronous job submission\nto cluster
+@enduml

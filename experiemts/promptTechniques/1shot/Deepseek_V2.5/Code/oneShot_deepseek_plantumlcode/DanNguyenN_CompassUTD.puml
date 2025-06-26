@@ -1,0 +1,52 @@
+@startuml DanNguyenN_CompassUTD
+skinparam rectangle {
+  BackgroundColor<<api>> #d9e7fd
+  BackgroundColor<<inference>> #d8f5d3
+  BackgroundColor<<tools>> #fddddd
+  BackgroundColor<<storage>> #fff1c9
+  BackgroundColor<<external>> #e6d9fd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "API Layer (FastAPI)" <<api>> {
+  rectangle "FastAPI App" as FastAPI
+  rectangle "Request Handler" as Handler
+  rectangle "Session Manager" as Session
+  FastAPI --> Handler
+  Handler --> Session
+}
+
+package "Inference Layer" <<inference>> {
+  rectangle "CompassInference" as Inference
+  rectangle "LangChain Agent" as Agent
+  rectangle "Content Filter" as Filter
+  Inference --> Agent
+  Inference --> Filter
+}
+
+package "Tool Layer" <<tools>> {
+  rectangle "Search Tools" as Search
+  rectangle "RateMyProfessor" as RMP
+  rectangle "Definition Lookup" as DefLookup
+  rectangle "Web Scraper" as Scraper
+}
+
+package "Storage" <<storage>> {
+  database "MongoDB" as MongoDB
+}
+
+package "External Services" <<external>> {
+  rectangle "Google Vertex AI" as VertexAI
+  rectangle "Google Search API" as GoogleSearch
+}
+
+FastAPI --> Inference
+Inference --> Search
+Inference --> RMP
+Inference --> DefLookup
+Inference --> Scraper
+Agent --> VertexAI
+Search --> GoogleSearch
+Session --> MongoDB
+@enduml

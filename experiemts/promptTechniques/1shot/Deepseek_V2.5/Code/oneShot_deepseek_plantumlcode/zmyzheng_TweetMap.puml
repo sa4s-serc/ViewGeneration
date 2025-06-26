@@ -1,0 +1,55 @@
+@startuml zmyzheng_TweetMap
+skinparam rectangle {
+  BackgroundColor<<collector>> #d9e7fd
+  BackgroundColor<<processor>> #d8f5d3
+  BackgroundColor<<storage>> #fddddd
+  BackgroundColor<<api>> #fff1c9
+  BackgroundColor<<frontend>> #e7d9fd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+rectangle "Twitter API" as TwitterAPI
+
+package "Tweet Collector" <<collector>> {
+  rectangle "SocialMediaCollector" as Collector
+  rectangle "KafkaSink" as KafkaSink
+  Collector --> KafkaSink
+}
+
+package "Kafka Cluster" <<processor>> {
+  rectangle "Tweet Topic" as KafkaTopic
+}
+
+package "Flink Processor" <<processor>> {
+  rectangle "StreamProcessor" as FlinkProcessor
+  rectangle "KafkaEsProcessor" as KafkaEs
+  FlinkProcessor --> KafkaEs
+}
+
+package "Elasticsearch" <<storage>> {
+  rectangle "Tweet Index" as ES
+}
+
+package "REST API Server" <<api>> {
+  rectangle "TweetController" as Controller
+  rectangle "TweetService" as Service
+  rectangle "TweetRepository" as Repository
+  Controller --> Service
+  Service --> Repository
+}
+
+package "Frontend" <<frontend>> {
+  rectangle "Angular App" as Angular
+  rectangle "Heatmap View" as Heatmap
+  Angular --> Heatmap
+}
+
+TwitterAPI --> Collector
+KafkaSink --> KafkaTopic
+KafkaTopic --> FlinkProcessor
+KafkaEs --> ES
+Repository --> ES
+Controller --> Angular
+
+@enduml

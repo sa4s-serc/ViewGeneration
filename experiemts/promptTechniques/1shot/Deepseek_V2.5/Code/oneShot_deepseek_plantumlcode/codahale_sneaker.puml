@@ -1,0 +1,50 @@
+@startuml codahale_sneaker
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "CLI (cmd/sneaker)" as CLI {
+}
+
+rectangle "Sneaker Core" as Core {
+  rectangle "Manager" as Manager
+  rectangle "Envelope" as Envelope
+}
+
+rectangle "AWS Services" as AWS {
+  rectangle "S3" as S3 #lightblue
+  rectangle "KMS" as KMS #palegreen
+}
+
+' ========== Connections ==========
+User --> CLI : Commands (upload/download/list/rm/pack/unpack/rotate)
+
+CLI --> Manager : Calls appropriate method
+Manager --> Envelope : encrypt/decrypt
+Manager --> S3 : upload/download/list/delete
+Manager --> KMS : generate/encrypt/decrypt data key
+
+Envelope --> KMS : encrypt/decrypt data key
+
+' Security flows
+note right of Envelope
+  Uses AES-256-GCM encryption
+  with KMS data keys
+end note
+
+note right of Manager
+  Handles key rotation
+  by re-encrypting secrets
+  with new data keys
+end note
+
+note right of S3
+  Stores encrypted secrets
+  and tarballs
+end note
+@enduml

@@ -1,1 +1,56 @@
-Error: Failed to load example for one-shot prompting.
+@startuml pau-minoves_jseats
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<model>> #d8f5d3
+  BackgroundColor<<methods>> #fddddd
+  BackgroundColor<<cli>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Components" <<core>> {
+  rectangle "SeatAllocatorProcessor" as Processor
+  rectangle "ProcessorConfig" as Config
+  rectangle "SeatAllocatorResolver" as Resolver
+  Processor --> Config
+  Processor --> Resolver
+}
+
+package "Model" <<model>> {
+  rectangle "Tally" as Tally
+  rectangle "Candidate" as Candidate
+  rectangle "Result" as Result
+  Tally --> Candidate
+  Processor --> Tally
+  Processor --> Result
+}
+
+package "Allocation Methods" <<methods>> {
+  rectangle "SeatAllocationMethod" as Method
+  rectangle "Majority\nLargestRemainder\nHighestAverages" as Algorithms
+  Method <|-- Algorithms
+  Resolver --> Method
+  Processor --> Method
+}
+
+package "CLI" <<cli>> {
+  rectangle "SeatAllocatorLauncher" as Launcher
+  rectangle "XML Parser" as XML
+  Launcher --> Processor
+  Launcher --> XML
+  XML --> Config
+}
+
+package "Extensions" {
+  rectangle "TallyFilter" as Filter
+  rectangle "ResultDecorator" as Decorator
+  rectangle "TieBreaker" as TieBreaker
+  Resolver --> Filter
+  Resolver --> Decorator
+  Resolver --> TieBreaker
+  Processor --> Filter
+  Processor --> Decorator
+  Processor --> TieBreaker
+}
+
+@enduml

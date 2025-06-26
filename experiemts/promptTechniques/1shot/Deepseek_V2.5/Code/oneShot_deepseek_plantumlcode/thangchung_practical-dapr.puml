@@ -1,0 +1,62 @@
+@startuml thangchung_practical-dapr
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<identity>> #fddddd
+  BackgroundColor<<infra>> #fff1c9
+  BackgroundColor<<dapr>> #e6d9ff
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend" <<frontend>> {
+  rectangle "Blazor WebAssembly (WebUI)" as WebUI
+  rectangle "Bootstrap Styling" as Bootstrap
+  rectangle "StrawberryShake GraphQL" as GraphQLClient
+  WebUI --> Bootstrap
+  WebUI --> GraphQLClient
+}
+
+package "Backend Services" <<backend>> {
+  rectangle "ProductCatalogApi\n(REST/gRPC/GraphQL)" as ProductCatalog
+  rectangle "InventoryApi\n(REST/gRPC/GraphQL)" as Inventory
+  rectangle "GraphQL API Gateway" as GraphAPI
+  ProductCatalog --> Inventory
+  GraphAPI --> ProductCatalog
+  GraphAPI --> Inventory
+}
+
+package "Identity Service" <<identity>> {
+  rectangle "IdentityServer4" as IdentityServer
+  rectangle "OAuth2/OpenID Connect" as OAuth
+  rectangle "Quickstart UI" as IdentityUI
+  IdentityServer --> OAuth
+  IdentityServer --> IdentityUI
+}
+
+package "Infrastructure" <<infra>> {
+  rectangle "N8T.Domain\n(Aggregates, Events)" as Domain
+  rectangle "N8T.Infrastructure\n(MediatR, EF Core)" as Infrastructure
+  rectangle "Kubernetes\n(Helm, Ingress)" as K8s
+  rectangle "CI/CD (GitHub Actions)" as CICD
+  Infrastructure --> Domain
+}
+
+package "Dapr Components" <<dapr>> {
+  rectangle "Service Invocation" as ServiceInvocation
+  rectangle "Pub/Sub (Redis)" as PubSub
+  rectangle "State Management (Redis)" as State
+  rectangle "Observability (Zipkin)" as Observability
+}
+
+WebUI --> IdentityServer
+WebUI --> GraphAPI
+ProductCatalog --> Domain
+Inventory --> Domain
+ProductCatalog --> Infrastructure
+Inventory --> Infrastructure
+ProductCatalog --> PubSub
+Inventory --> PubSub
+GraphAPI --> ServiceInvocation
+IdentityServer --> ServiceInvocation
+@enduml

@@ -1,1 +1,59 @@
-Error: Failed to load example for one-shot prompting.
+@startuml eqbal_CarND_Capstone_CarX
+skinparam rectangle {
+  BackgroundColor<<perception>> #d9e7fd
+  BackgroundColor<<planning>> #d8f5d3
+  BackgroundColor<<control>> #fddddd
+  BackgroundColor<<infra>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Perception" <<perception>> {
+  rectangle "Traffic Light Detection" as TLD
+  rectangle "Camera Info Publisher" as CIP
+  TLD --> CIP
+}
+
+package "Planning" <<planning>> {
+  rectangle "Waypoint Loader" as WPL
+  rectangle "Waypoint Updater" as WPU
+  rectangle "Waypoint Follower" as WPF
+  WPL --> WPU
+  WPU --> WPF
+}
+
+package "Control" <<control>> {
+  rectangle "Twist Controller (DBW)" as DBW
+  rectangle "PID Controller" as PID
+  rectangle "Yaw Controller" as YC
+  rectangle "LowPass Filter" as LPF
+  DBW --> PID
+  DBW --> YC
+  DBW --> LPF
+}
+
+package "Infrastructure" <<infra>> {
+  rectangle "Bridge Node" as Bridge
+  rectangle "Simulator" as Sim
+  Bridge --> Sim
+}
+
+TLD --> WPU
+WPU --> DBW
+WPF --> DBW
+
+@enduml
+
+@startuml eqbal_CarND_Capstone_CarX_sequence
+participant "Traffic Light Detection" as TLD
+participant "Waypoint Updater" as WPU
+participant "Waypoint Follower" as WPF
+participant "Twist Controller" as DBW
+participant "Simulator" as Sim
+
+TLD -> WPU : Traffic Light Status
+WPU -> WPF : Updated Waypoints
+WPF -> DBW : Target Velocity
+DBW -> Sim : Control Commands
+Sim -> TLD : Camera Images
+@enduml

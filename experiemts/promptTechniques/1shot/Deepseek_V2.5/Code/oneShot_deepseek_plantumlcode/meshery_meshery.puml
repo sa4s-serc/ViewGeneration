@@ -1,0 +1,72 @@
+@startuml meshery_meshery
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<ui>> #d8f5d3
+  BackgroundColor<<adapters>> #fddddd
+  BackgroundColor<<operator>> #fff1c9
+  BackgroundColor<<cli>> #e6d9ff
+  BackgroundColor<<k8s>> #ffd9e6
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Components" <<core>> {
+  rectangle "Meshery Server" as Server {
+    rectangle "GraphQL API" as GraphQL
+    rectangle "gRPC Server" as gRPC
+    rectangle "Provider Interface" as Provider
+  }
+  rectangle "MeshKit" as MeshKit
+  rectangle "Event Broker (NATS)" as Broker
+  Server --> MeshKit
+  Server --> Broker
+}
+
+package "Adapters" <<adapters>> {
+  rectangle "Istio Adapter" as Istio
+  rectangle "Linkerd Adapter" as Linkerd
+  rectangle "Consul Adapter" as Consul
+  rectangle "Kuma Adapter" as Kuma
+  rectangle "AWS App Mesh Adapter" as AWS
+  gRPC --> Istio
+  gRPC --> Linkerd
+  gRPC --> Consul
+  gRPC --> Kuma
+  gRPC --> AWS
+}
+
+package "UI Layer" <<ui>> {
+  rectangle "React/Next.js UI" as UI {
+    rectangle "MeshMap" as MeshMap
+    rectangle "Performance Testing" as PerfTest
+  }
+  rectangle "Sistent UI Library" as Sistent
+  UI --> Sistent
+  GraphQL --> UI
+}
+
+package "Operator" <<operator>> {
+  rectangle "Meshery Operator" as Operator {
+    rectangle "MeshSync" as MeshSync
+  }
+  Broker --> Operator
+  Operator --> MeshSync
+}
+
+package "CLI" <<cli>> {
+  rectangle "mesheryctl" as CLI
+  CLI --> Server
+}
+
+package "Kubernetes" <<k8s>> {
+  node "Kubernetes Cluster" as K8s
+  MeshSync --> K8s
+}
+
+cloud "Service Meshes" as Meshes
+Istio --> Meshes
+Linkerd --> Meshes
+Consul --> Meshes
+Kuma --> Meshes
+AWS --> Meshes
+@enduml

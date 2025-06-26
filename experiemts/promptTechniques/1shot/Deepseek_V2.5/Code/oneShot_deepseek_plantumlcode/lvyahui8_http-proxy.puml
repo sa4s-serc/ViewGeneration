@@ -2,22 +2,23 @@
 skinparam rectangle {
   BackgroundColor<<core>> #d9e7fd
   BackgroundColor<<filter>> #d8f5d3
-  BackgroundColor<<integration>> #fddddd
-  BackgroundColor<<config>> #fff1c9
+  BackgroundColor<<config>> #fddddd
+  BackgroundColor<<test>> #fff1c9
   Style roundrect
 }
 skinparam defaultTextAlignment center
 
 package "Core Proxy" <<core>> {
-  rectangle "HttpProxyServer" as ProxyServer
+  rectangle "HttpProxyServer" as Server
   rectangle "ClientToProxyHandler" as ClientHandler
   rectangle "ProxyToServerInboundHandler" as ServerHandler
   rectangle "GlobalExceptionHandler" as ExceptionHandler
   rectangle "EventLoopGroupManager" as EventLoop
-  ProxyServer --> ClientHandler
+  Server --> ClientHandler
   ClientHandler --> ServerHandler
   ClientHandler --> ExceptionHandler
-  ProxyServer --> EventLoop
+  ServerHandler --> ExceptionHandler
+  Server --> EventLoop
 }
 
 package "Filter System" <<filter>> {
@@ -34,25 +35,23 @@ package "Filter System" <<filter>> {
 package "Configuration" <<config>> {
   rectangle "EntitysManager" as EntityManager
   rectangle "entitys.json" as ConfigFile
-  rectangle "MsgTranslater" as MsgTranslater
-  rectangle "MsgCode" as MsgCode
+  rectangle "MsgTranslater" as MsgTrans
+  rectangle "StandardResponse" as StdResponse
   EntityManager --> ConfigFile
-  ExceptionHandler --> MsgTranslater
-  MsgTranslater --> MsgCode
+  ExceptionHandler --> MsgTrans
+  ExceptionHandler --> StdResponse
   ClientHandler --> EntityManager
 }
 
-package "Test Components" <<integration>> {
+package "Testing" <<test>> {
   rectangle "TestClientApp" as TestClient
   rectangle "TestServerMain" as TestServer
   rectangle "TestResource" as TestResource
-  TestClient --> ProxyServer
-  ProxyServer --> TestServer
+  TestClient --> Server
+  Server --> TestServer
   TestServer --> TestResource
 }
 
-database "Netty Framework" as Netty
-ProxyServer --> Netty
-ClientHandler --> Netty
-ServerHandler --> Netty
+database "Backend Servers" as Backends
+ServerHandler --> Backends
 @enduml

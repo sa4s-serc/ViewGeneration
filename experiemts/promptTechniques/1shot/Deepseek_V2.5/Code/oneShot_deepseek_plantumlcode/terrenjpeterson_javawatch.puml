@@ -1,0 +1,41 @@
+@startuml terrenjpeterson_javawatch
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Raspberry Pi" as Pi {
+  rectangle "photo.py" as PhotoScript #palegreen
+}
+
+rectangle "AWS S3 Bucket" as S3 #lightsteelblue
+
+rectangle "AWS Lambda" as Lambda {
+  rectangle "checkImage.py" as CheckImage #lightyellow
+  rectangle "labelCheck.js" as LabelCheck #aliceblue
+}
+
+rectangle "Amazon Rekognition" as Rekognition #mistyrose
+
+rectangle "Amazon DRS" as DRS #peachpuff
+
+rectangle "Website" as Website {
+  rectangle "registration.html" as Registration #lavender
+}
+
+' ========== Connections ==========
+User --> Website : Register device\nLink Amazon account
+User <-- Website : Confirmation
+
+PhotoScript --> S3 : Upload timestamped\ncoffee bean image
+S3 --> CheckImage : Trigger on new image
+CheckImage --> Rekognition : detect_labels("Bean")
+Rekognition --> CheckImage : Return labels
+CheckImage --> LabelCheck : Pass labels
+LabelCheck --> CheckImage : Confirm "Bean" presence
+CheckImage --> DRS : Place order if\nbeans low
+@enduml

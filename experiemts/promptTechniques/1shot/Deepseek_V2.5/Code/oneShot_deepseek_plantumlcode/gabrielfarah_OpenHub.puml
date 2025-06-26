@@ -1,0 +1,51 @@
+@startuml gabrielfarah_OpenHub
+skinparam rectangle {
+  BackgroundColor<<crawler>> #d9e7fd
+  BackgroundColor<<queue>> #fddddd
+  BackgroundColor<<worker>> #d8f5d3
+  BackgroundColor<<analysis>> #fff1c9
+  BackgroundColor<<db>> #e7d9fd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+rectangle "GitHub" as GitHub
+
+package "Crawler" <<crawler>> {
+  rectangle "crawler.py" as Crawler
+  rectangle "github3.py" as GithubLib
+  Crawler --> GithubLib
+}
+
+package "RabbitMQ" <<queue>> {
+  queue "Analysis Queue" as RabbitMQ
+}
+
+package "Worker" <<worker>> {
+  rectangle "manager.py" as Manager
+  rectangle "Error Handler" as ErrorHandler
+  Manager --> ErrorHandler
+}
+
+package "Analysis Modules" <<analysis>> {
+  rectangle "Security" as Security
+  rectangle "Testability" as Testability
+  rectangle "Reusability" as Reusability
+  rectangle "Usability" as Usability
+  Manager --> Security
+  Manager --> Testability
+  Manager --> Reusability
+  Manager --> Usability
+}
+
+database "MongoDB" <<db>> as MongoDB
+
+GitHub --> Crawler
+Crawler --> RabbitMQ
+RabbitMQ --> Manager
+Security --> MongoDB
+Testability --> MongoDB
+Reusability --> MongoDB
+Usability --> MongoDB
+
+@enduml

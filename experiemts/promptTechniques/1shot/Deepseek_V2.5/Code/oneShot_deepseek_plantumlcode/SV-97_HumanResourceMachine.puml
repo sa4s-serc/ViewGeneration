@@ -1,0 +1,43 @@
+@startuml SV-97_HumanResourceMachine
+skinparam rectangle {
+  BackgroundColor<<compiler>> #d9e7fd
+  BackgroundColor<<vm>> #d8f5d3
+  BackgroundColor<<support>> #fddddd
+  BackgroundColor<<io>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Compiler Components" <<compiler>> {
+  rectangle "Tokenizer" as Tokenizer
+  rectangle "Translator/Assembler" as Translator
+  rectangle "Bytecode Disassembler" as Disassembler
+  Tokenizer --> Translator
+  Translator --> Disassembler
+}
+
+package "Virtual Machine" <<vm>> {
+  rectangle "VM Core" as VMCore
+  rectangle "Instruction Set" as Instructions
+  rectangle "Memory Management" as Memory
+  VMCore --> Instructions
+  VMCore --> Memory
+}
+
+package "Supporting Components" <<support>> {
+  rectangle "Logger" as Logger
+  rectangle "Debug Utilities" as Debug
+  Logger --> Debug
+}
+
+package "Input/Output" <<io>> {
+  rectangle "HRM Assembly Files" as HRMInput
+  rectangle "Bytecode Files" as BytecodeOutput
+}
+
+HRMInput --> Tokenizer
+Translator --> BytecodeOutput
+BytecodeOutput --> Disassembler
+BytecodeOutput --> VMCore
+VMCore --> Logger
+@enduml

@@ -1,0 +1,68 @@
+@startuml DecenterApps_ResistanceProtocol
+skinparam rectangle {
+  BackgroundColor<<contracts>> #d9e7fd
+  BackgroundColor<<simulation>> #d8f5d3
+  BackgroundColor<<frontend>> #fddddd
+  BackgroundColor<<backend>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Smart Contracts" <<contracts>> {
+  rectangle "NOI Stablecoin (ERC20)" as NOI
+  rectangle "CDP Manager" as CDP
+  rectangle "PID Controllers" as PID
+  rectangle "MultiSig Wallet" as Wallet
+  rectangle "Oracle Interfaces" as Oracles
+  NOI --> CDP
+  CDP --> PID
+  PID --> Oracles
+  Wallet --> NOI
+}
+
+package "Simulation Engine" <<simulation>> {
+  rectangle "Agent Models" as Agents
+  rectangle "Price Station" as Price
+  rectangle "Pool Simulator" as Pool
+  rectangle "External Data" as ExtData
+  rectangle "PID Controller" as SimPID
+  Agents --> Price
+  Price --> Pool
+  Pool --> ExtData
+  ExtData --> SimPID
+  SimPID --> Price
+}
+
+package "Frontend (React)" <<frontend>> {
+  rectangle "Dashboard" as Dashboard
+  rectangle "CDP Management" as CDPUI
+  rectangle "Web3 Connector" as Web3
+  rectangle "Contract Interfaces" as Contracts
+  Dashboard --> CDPUI
+  CDPUI --> Web3
+  Web3 --> Contracts
+  Contracts --> NOI
+  Contracts --> CDP
+}
+
+package "Backend Services" <<backend>> {
+  rectangle "Deployment Scripts" as Deploy
+  rectangle "Monitoring Bots" as Bots
+  rectangle "Firebase Integration" as Firebase
+  rectangle "Event Listeners" as Events
+  Deploy --> NOI
+  Bots --> CDP
+  Events --> NOI
+  Events --> CDP
+  Firebase --> Events
+}
+
+database "Blockchain Network" as Blockchain
+NOI --> Blockchain
+CDP --> Blockchain
+Wallet --> Blockchain
+
+database "External Data Feeds" as Feeds
+Oracles --> Feeds
+ExtData --> Feeds
+@enduml

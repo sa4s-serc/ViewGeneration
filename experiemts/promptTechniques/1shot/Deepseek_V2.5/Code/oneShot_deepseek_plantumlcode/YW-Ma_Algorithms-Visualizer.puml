@@ -1,0 +1,44 @@
+@startuml YW-Ma_Algorithms-Visualizer
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Frontend" as FE {
+  rectangle "Sidebar" as Sidebar #lightblue
+  rectangle "Map" as Map #palegreen
+  rectangle "GraphSVG" as GraphSVG #lightyellow
+  rectangle "GraphTable" as GraphTable #mistyrose
+  rectangle "eventProxy" as EventProxy #aliceblue
+}
+
+rectangle "Backend" as BE {
+  rectangle "API Router" as Router #lightsteelblue
+  rectangle "Algorithm Executor" as Executor #peachpuff
+  rectangle "Database" as DB #wheat
+}
+
+rectangle "External Services" as ES {
+  rectangle "Baidu Maps API" as BMap #aliceblue
+  rectangle "C++ Executables" as Cpp #lightcoral
+}
+
+' ========== Connections ==========
+User --> Sidebar : Selects algorithm\nManages nodes
+Sidebar --> Map : Updates node positions
+Sidebar --> Router : Triggers algorithm execution
+Map --> BMap : Renders map\nGeocoding
+GraphSVG --> EventProxy : Publishes events
+GraphTable --> EventProxy : Subscribes to events
+Router --> Executor : Executes algorithm
+Executor --> Cpp : Runs external executable
+Executor --> DB : Stores results
+Router --> DB : User auth\nData persistence
+Router --> FE : Returns visualization steps
+FE --> GraphSVG : Renders animation
+FE --> GraphTable : Displays data
+@enduml

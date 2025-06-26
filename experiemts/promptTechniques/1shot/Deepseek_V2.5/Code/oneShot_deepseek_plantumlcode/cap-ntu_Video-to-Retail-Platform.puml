@@ -1,0 +1,65 @@
+@startuml cap-ntu_Video-to-Retail-Platform
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<processing>> #fddddd
+  BackgroundColor<<storage>> #fff1c9
+  BackgroundColor<<ml>> #e6d9ff
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend (React)" <<frontend>> {
+  rectangle "React Components" as React
+  rectangle "Redux State" as Redux
+  rectangle "Material-UI" as MUI
+  rectangle "Dashboard" as Dashboard
+  React --> Redux
+  React --> MUI
+  Redux --> Dashboard
+}
+
+package "Backend (Django)" <<backend>> {
+  rectangle "REST API" as REST
+  rectangle "gRPC API" as gRPC
+  rectangle "Django Services" as Django
+  REST --> Django
+  gRPC --> Django
+}
+
+package "Video Processing" <<processing>> {
+  rectangle "Video Decoder\n(FFmpeg/CUDA)" as Decoder
+  rectangle "Decode Queue" as DecodeQueue
+  rectangle "Multimodal Processor" as Processor
+  Decoder --> DecodeQueue
+  DecodeQueue --> Processor
+}
+
+package "Machine Learning" <<ml>> {
+  rectangle "Object Detection\n(SSD, Faster R-CNN)" as ObjectDetect
+  rectangle "Face Recognition" as FaceRecog
+  rectangle "Scene Recognition" as SceneRecog
+  rectangle "Sentence Embedding" as SentenceEmbed
+  ObjectDetect --> Processor
+  FaceRecog --> Processor
+  SceneRecog --> Processor
+  SentenceEmbed --> Processor
+}
+
+package "Storage" <<storage>> {
+  database "SQLite DB" as SQLite
+  rectangle "Pickle Indexes" as Pickle
+  rectangle "TFRecords" as TFRecords
+  Django --> SQLite
+  Processor --> Pickle
+  Processor --> TFRecords
+}
+
+React --> REST
+React --> gRPC
+Django --> Decoder
+Django --> ObjectDetect
+Django --> FaceRecog
+Django --> SceneRecog
+Django --> SentenceEmbed
+@enduml

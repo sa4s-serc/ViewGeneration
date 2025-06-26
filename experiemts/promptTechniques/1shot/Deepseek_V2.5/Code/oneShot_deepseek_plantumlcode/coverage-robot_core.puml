@@ -1,0 +1,49 @@
+@startuml coverage-robot_core
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "GitHub" as GitHub
+actor "User" as User
+
+rectangle "API Service" as API #lightblue {
+}
+
+rectangle "EventBridge" as EventBridge #mistyrose
+
+rectangle "Orchestrator Service" as Orchestrator #palegreen
+
+rectangle "Analyse Service" as Analyse #lightyellow
+
+rectangle "Publish Service" as Publish #aliceblue
+
+rectangle "Storage" as Storage {
+  rectangle "DynamoDB" as DynamoDB #lightgray
+  rectangle "S3" as S3 #lightgray
+  rectangle "BigQuery" as BigQuery #lightgray
+}
+
+' ========== Connections ==========
+GitHub -> API : Webhook (PR events)
+User -> API : Upload coverage\nGet badges
+
+API -> DynamoDB : Store config/metadata
+API -> S3 : Generate pre-signed URLs\nStore raw reports
+API -> EventBridge : Publish events
+
+EventBridge -> Orchestrator : Trigger event processing
+Orchestrator -> DynamoDB : Read/write event store
+Orchestrator -> EventBridge : Publish new events
+
+EventBridge -> Analyse : Trigger analysis
+Analyse -> S3 : Fetch raw reports
+Analyse -> BigQuery : Query aggregated data
+Analyse -> DynamoDB : Read configuration
+
+EventBridge -> Publish : Trigger publishing
+Publish -> GitHub : Post coverage comments
+Publish -> DynamoDB : Update project state
+@enduml

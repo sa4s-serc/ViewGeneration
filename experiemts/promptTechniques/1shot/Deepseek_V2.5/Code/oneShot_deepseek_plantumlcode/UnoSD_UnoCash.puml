@@ -1,0 +1,43 @@
+@startuml UnoSD_UnoCash
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Blazor Frontend" as Frontend {
+}
+
+rectangle "Azure API Management" as APIM #lightblue
+
+rectangle "Azure Functions" as Functions #lightgreen {
+  rectangle "GetExpenses" as GetExp
+  rectangle "AddExpense" as AddExp
+  rectangle "ReceiptParser" as Receipt
+}
+
+rectangle "Azure Storage" as Storage #lightyellow {
+  rectangle "Table Storage" as Table
+  rectangle "Blob Storage" as Blob
+}
+
+rectangle "Azure Form Recognizer" as FormRec #mistyrose
+
+' ========== Connections ==========
+User -> Frontend : Interacts with UI
+Frontend -> APIM : API Requests
+APIM -> Functions : Routes requests
+
+Functions -> Table : Read/Write expenses
+Functions -> Blob : Store receipts
+Functions -> FormRec : Parse receipts
+FormRec -> Functions : Return parsed data
+
+GetExp -> Table : Query expenses
+AddExp -> Table : Add expense
+Receipt -> Blob : Get receipt image
+Receipt -> FormRec : Send for parsing
+@enduml

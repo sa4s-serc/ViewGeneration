@@ -1,1 +1,60 @@
-Error: Failed to load example for one-shot prompting.
+@startuml medlab_320-online-prototype
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<integration>> #fddddd
+  BackgroundColor<<db>> #fff1c9
+  BackgroundColor<<testing>> #e6d9fd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend (React)" <<frontend>> {
+  rectangle "React Components" as Components
+  rectangle "Routing (react-router)" as Routing
+  rectangle "State (Redux)" as Redux
+  rectangle "UI Library (Ant Design)" as AntD
+  rectangle "Mock Data (mockjs)" as Mock
+  Components --> Routing
+  Components --> Redux
+  Components --> AntD
+  AntD --> Mock
+}
+
+package "Backend (.NET Core)" <<backend>> {
+  rectangle "Controllers" as Controllers
+  rectangle "Services" as Services
+  rectangle "EF Core" as EFCore
+  rectangle "Auth (JWT/OAuth)" as Auth
+  rectangle "Logging (Serilog)" as Logging
+  Controllers --> Services
+  Services --> EFCore
+  Services --> Auth
+  Services --> Logging
+}
+
+package "Integrations" <<integration>> {
+  rectangle "MinIO (S3 Storage)" as MinIO
+  rectangle "OAuth Providers" as OAuth
+  rectangle "EFK Stack" as EFK
+  rectangle "Tracing (SkyWalking)" as Tracing
+  Services --> MinIO
+  Auth --> OAuth
+  Logging --> EFK
+  Services --> Tracing
+}
+
+package "Testing" <<testing>> {
+  rectangle "Jest/Puppeteer" as Jest
+  rectangle "Blazor Test UI" as Blazor
+  rectangle "xUnit/MSTest" as UnitTests
+  Jest --> Components
+  Jest --> Controllers
+  Blazor --> Components
+  UnitTests --> Services
+}
+
+database "SQL Database" <<db>> as DB
+EFCore --> DB
+
+@enduml

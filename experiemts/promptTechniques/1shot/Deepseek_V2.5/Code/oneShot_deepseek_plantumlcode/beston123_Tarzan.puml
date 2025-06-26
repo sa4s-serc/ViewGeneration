@@ -1,1 +1,64 @@
-Error: Failed to load example for one-shot prompting.
+@startuml beston123_Tarzan
+skinparam rectangle {
+  BackgroundColor<<server>> #d9e7fd
+  BackgroundColor<<client>> #d8f5d3
+  BackgroundColor<<registry>> #fddddd
+  BackgroundColor<<mq>> #fff1c9
+  BackgroundColor<<store>> #e6d9ff
+  BackgroundColor<<rpc>> #ffd9e6
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Server" <<server>> {
+  rectangle "ServerStartup" as Startup
+  rectangle "ConfigManager" as Config
+  rectangle "ScheduledServiceManager" as Scheduler
+  rectangle "MessageResendService" as Resend
+  rectangle "ServerController" as Controller
+  Startup --> Config
+  Config --> Scheduler
+  Scheduler --> Resend
+  Resend --> Controller
+}
+
+package "Client" <<client>> {
+  rectangle "TarzanClient" as Client
+  rectangle "TransactionManager" as TxManager
+  Client --> TxManager
+}
+
+package "Registry (Zookeeper)" <<registry>> {
+  rectangle "ServerRegistry" as Registry
+  rectangle "Discovery" as Discovery
+  Registry --> Discovery
+}
+
+package "Message Broker (RocketMQ)" <<mq>> {
+  rectangle "RocketMQMessageNotifier" as Notifier
+  rectangle "RocketMQTransactionChecker" as Checker
+  Notifier --> Checker
+}
+
+package "Store (MySQL)" <<store>> {
+  rectangle "RocketMQStoreService" as StoreService
+  rectangle "ToSendMessage" as Message
+  rectangle "MessageConsume" as Consume
+  StoreService --> Message
+  StoreService --> Consume
+}
+
+package "RPC (Netty)" <<rpc>> {
+  rectangle "RpcClient" as RpcClient
+  rectangle "RpcServer" as RpcServer
+  RpcClient --> RpcServer
+}
+
+Client --> Registry
+Client --> Notifier
+Controller --> RpcServer
+RpcClient --> StoreService
+Checker --> StoreService
+Resend --> Notifier
+Scheduler --> Registry
+@enduml

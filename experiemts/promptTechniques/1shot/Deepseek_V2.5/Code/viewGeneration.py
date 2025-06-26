@@ -3,7 +3,7 @@ import subprocess
 from openai import OpenAI
 import json
 # Initialize DeepSeek client
-client = OpenAI(api_key="sk-a18b61e35db14879ba5f975c2efddb32", base_url="https://api.deepseek.com/v1")
+client = OpenAI(api_key="", base_url="https://api.deepseek.com/v1")
 
 def load_one_shot_example(behavior,json_path="example_prompts.json"):
     try:
@@ -148,15 +148,15 @@ def main():
             expected_output_path = os.path.join(output_dir, f"{clean_repo_name}.png")
 
             if os.path.exists(expected_output_path):
-                print(f"✅ Skipping {clean_repo_name} — already exists.")
+                print(f"Skipping {clean_repo_name} — already exists.")
                 continue
 
             process_view(clean_repo_name, entry[column_name2], entry[column_name3], entry[column_name4])
-            print(f"🔧 Processed entry: {clean_repo_name}")
+            print(f"Processed entry: {clean_repo_name}")
         else:
-            print(f"⚠️ Skipping entry due to missing required fields: {entry}")
+            print(f"Skipping entry due to missing required fields: {entry}")
 
-    print("✅ All processing complete. Results saved in results folder.")
+    print("All processing complete. Results saved in results folder.")
 
 
 if __name__ == "__main__":

@@ -16,34 +16,24 @@ rectangle "ActiveX.NET.Server (EXE)" as Server {
 
 rectangle "ActiveX.NET.Plugin (DLL)" as Plugin {
   rectangle "CoClass" as CoClass
-  rectangle "SimpleObject" as SimpleObject
 }
 
-rectangle "ActiveX.NET.Common" as Common {
-  rectangle "IActiveXServer" as Interface
-  rectangle "ActiveXServerBase" as Base
-  rectangle "ActiveXServerAttribute" as Attribute
-}
+rectangle "Registry" as Registry
 
 ' ========== Connections ==========
-Client -> Server : COM calls
-Server -> Context : Initialize
+Client -> Server : COM calls (CreateInstance)
+Server -> Registry : Query COM registration
+Registry --> Server : Registration info
+
 Context -> MEF : Discover plugins
-MEF --> Plugin : Load DLL
-MEF -> Factory : Create instances
-Factory -> CoClass : Instantiate
-CoClass -up-> Interface : Implements
-CoClass -up-> Base : Inherits
-CoClass -up-> Attribute : Decorated with
-SimpleObject -up-> CoClass : Inherits
+MEF --> Plugin : Load DLL\n(discover IActiveXServer)
+MEF -> Factory : Create factory\nfor COM object
+Factory -> CoClass : Instantiate\nCOM object
+CoClass --> Factory : Return instance
+Factory --> Client : Return COM object
 
-note right of Context
-  Handles registration/unregistration
-  Manages COM server lifecycle
-end note
+Client -> CoClass : Method calls
+CoClass --> Client : Results
 
-note right of MEF
-  Dynamically loads COM objects
-  from plugin DLLs
-end note
+Server -> Registry : Register/Unregister\nCOM objects
 @enduml

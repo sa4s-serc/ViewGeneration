@@ -1,0 +1,52 @@
+@startuml Crazy0416_KnowledgeGraph
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Frontend" as FE {
+  rectangle "Sigma.js" as Sigma
+  rectangle "Materialize UI" as Materialize
+  rectangle "Redux Store" as Redux
+}
+
+rectangle "Backend" as BE {
+  rectangle "Express Server" as Express
+  rectangle "Elasticsearch" as ES
+  rectangle "CayleyGraph" as Cayley
+}
+
+' ========== Connections ==========
+User --> FE : Interacts with\nGraph Visualization
+
+' Frontend interactions
+FE --> Sigma : Renders graph\n(WebGL/Canvas)
+Sigma --> Redux : Updates state\non graph changes
+Materialize --> FE : Handles UI\ncomponents
+Redux --> Materialize : Provides state\nfor UI updates
+
+' Backend interactions
+Express --> ES : Queries data
+Express --> Cayley : Queries graph data
+Sigma <--> Express : Fetches graph data\nand updates
+FE --> Express : API calls for\ngraph operations
+
+' Internal frontend flow
+User -> Materialize : UI interaction
+Materialize -> Redux : Dispatches actions
+Redux -> Sigma : Triggers graph updates
+Sigma -> Redux : State changes
+Redux -> Materialize : UI updates
+
+' Pathfinding flow
+User -> Sigma : Requests path
+Sigma -> Express : Path query
+Express -> Cayley : Graph traversal
+Cayley -> Express : Returns path
+Express -> Sigma : Path data
+Sigma -> User : Displays path
+@enduml

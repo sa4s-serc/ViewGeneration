@@ -1,1 +1,63 @@
-Error: Failed to load example for one-shot prompting.
+@startuml CMU-RERC-APT_tiramisu3-pr
+skinparam rectangle {
+  BackgroundColor<<mobile>> #d9e7fd
+  BackgroundColor<<frontend>> #d8f5d3
+  BackgroundColor<<backend>> #fddddd
+  BackgroundColor<<predictor>> #fff1c9
+  BackgroundColor<<aws>> #e6d9ff
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Mobile Client (Ionic/Angular)" <<mobile>> {
+  rectangle "UI Components" as UI
+  rectangle "Services" as Services
+  rectangle "Local Storage" as Storage
+  rectangle "Push Notifications" as Push
+  UI --> Services
+  Services --> Storage
+  Services --> Push
+}
+
+package "Java Frontend" <<frontend>> {
+  rectangle "Servlets" as Servlets
+  rectangle "Database" as Postgres
+  rectangle "OBA Integration" as OBA
+  Servlets --> Postgres
+  Servlets --> OBA
+}
+
+package "Backend" <<backend>> {
+  rectangle "FeedGrabber" as FeedGrabber
+  rectangle "ObservationProcessor" as Processor
+  rectangle "DynamoCleaner" as Cleaner
+  rectangle "AlarmProcessor" as Alarm
+  FeedGrabber --> Processor
+  Processor --> Cleaner
+}
+
+package "Predictor" <<predictor>> {
+  rectangle "Route Predictor" as Predictor
+  rectangle "Random Forest Model" as Model
+  Predictor --> Model
+}
+
+package "AWS Infrastructure" <<aws>> {
+  rectangle "DynamoDB" as DynamoDB
+  rectangle "SQS" as SQS
+  rectangle "SES" as SES
+  FeedGrabber --> SQS
+  SQS --> Processor
+  Processor --> DynamoDB
+  Cleaner --> DynamoDB
+  Alarm --> SES
+}
+
+Mobile Client -> Servlets : HTTP Requests
+Servlets -> FeedGrabber : API Calls
+Servlets -> Predictor : Prediction Requests
+Predictor -> DynamoDB : Read Data
+Backend -> DynamoDB : Read/Write
+Alarm -> SES : Send Notifications
+SES -> Mobile Client : Push/Email
+@enduml

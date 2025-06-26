@@ -1,1 +1,59 @@
-Error: Failed to load example for one-shot prompting.
+@startuml FAC10_week4-jajascript
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<data>> #fff1c9
+  BackgroundColor<<test>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+actor User
+
+package "Frontend" <<frontend>> {
+  rectangle "index.html" as HTML
+  rectangle "main.css" as CSS
+  rectangle "main.js" as MainJS
+  HTML --> CSS
+  HTML --> MainJS
+}
+
+package "Backend" <<backend>> {
+  rectangle "server.js" as Server
+  rectangle "router.js" as Router
+  rectangle "handler.js" as Handler
+  rectangle "algorithm.js" as Algorithm
+  Server --> Router
+  Router --> Handler
+  Handler --> Algorithm
+}
+
+package "Data" <<data>> {
+  rectangle "data.json" as Data
+  Algorithm --> Data
+}
+
+package "Testing" <<test>> {
+  rectangle "qunit.html" as QUnit
+  rectangle "frontendTests.js" as FrontendTests
+  rectangle "backendTests.js" as BackendTests
+  QUnit --> FrontendTests
+  QUnit --> BackendTests
+}
+
+User -> HTML : Enters search query
+HTML -> MainJS : Input event
+MainJS -> Server : fetchRequest(query)
+Server -> Router : /search/:query
+Router -> Handler : handleSearch(query)
+Handler -> Algorithm : autocomplete(query)
+Algorithm -> Data : Filter data
+Algorithm --> Handler : Filtered results
+Handler --> Router : JSON response
+Router --> Server : Response
+Server --> MainJS : Suggestions data
+MainJS --> HTML : Update UI
+
+BackendTests -> Algorithm : test autocomplete()
+FrontendTests -> MainJS : test getDataUrl()
+@enduml

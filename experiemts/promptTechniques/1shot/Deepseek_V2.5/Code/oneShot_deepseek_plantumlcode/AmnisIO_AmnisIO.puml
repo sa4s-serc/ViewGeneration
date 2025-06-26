@@ -1,0 +1,51 @@
+@startuml AmnisIO_AmnisIO
+skinparam rectangle {
+  BackgroundColor<<cli>> #d9e7fd
+  BackgroundColor<<transpiler>> #d8f5d3
+  BackgroundColor<<platform>> #fddddd
+  BackgroundColor<<library>> #fff1c9
+  BackgroundColor<<hardware>> #e6d9fd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "AmnisIO CLI" <<cli>> {
+  rectangle "CLI Interface" as CLI
+  rectangle "Command Modules\n(init, build, deploy)" as Commands
+  rectangle "Configuration Loader" as ConfigLoader
+  CLI --> Commands
+  Commands --> ConfigLoader
+}
+
+package "TypeScript Transpiler" <<transpiler>> {
+  rectangle "typewriter" as Typewriter
+  rectangle "TS to C Converter" as Converter
+  Typewriter --> Converter
+}
+
+package "PlatformIO" <<platform>> {
+  rectangle "Build System" as BuildSystem
+  rectangle "Dependency Manager" as DepManager
+  rectangle "Firmware Flasher" as Flasher
+  BuildSystem --> DepManager
+  BuildSystem --> Flasher
+}
+
+package "Libraries" <<library>> {
+  rectangle "rivulet\n(Stream Library)" as Rivulet
+  rectangle "gyrus\n(Board Abstraction)" as Gyrus
+  Rivulet --> Gyrus
+}
+
+package "Hardware" <<hardware>> {
+  rectangle "Arduino UNO" as Arduino
+  rectangle "Peripherals\n(LEDs, Buttons)" as Peripherals
+  Arduino --> Peripherals
+}
+
+CLI --> Typewriter
+Commands --> BuildSystem
+Typewriter --> Rivulet
+Gyrus --> Arduino
+BuildSystem --> Arduino
+@enduml

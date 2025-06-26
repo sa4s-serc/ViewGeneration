@@ -1,0 +1,78 @@
+@startuml zwt-sdk_zwt
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<components>> #d8f5d3
+  BackgroundColor<<graphics>> #fddddd
+  BackgroundColor<<input>> #fff1c9
+  BackgroundColor<<layout>> #e6d9ff
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Abstraction" <<core>> {
+  rectangle "ZwtComponent" as ZwtComponent
+  rectangle "ZwtContainer" as ZwtContainer
+  rectangle "ZwtFrame" as ZwtFrame
+  ZwtComponent <|-- ZwtContainer
+  ZwtContainer <|-- ZwtFrame
+}
+
+package "UI Components" <<components>> {
+  rectangle "ZwtPanel" as ZwtPanel
+  rectangle "ZwtLabel" as ZwtLabel
+  rectangle "ZwtButton" as ZwtButton
+  ZwtContainer <|-- ZwtPanel
+  ZwtComponent <|-- ZwtLabel
+  ZwtComponent <|-- ZwtButton
+}
+
+package "Graphics" <<graphics>> {
+  rectangle "ZwtGraphics" as ZwtGraphics
+  rectangle "ZwtColor" as ZwtColor
+  rectangle "ZwtFont" as ZwtFont
+  rectangle "ZwtDrawing" as ZwtDrawing
+  ZwtGraphics --> ZwtColor
+  ZwtGraphics --> ZwtFont
+  ZwtDrawing --> ZwtGraphics
+}
+
+package "Input" <<input>> {
+  rectangle "ZwtKeyboard" as ZwtKeyboard
+  rectangle "Event Handling" as EventHandling
+  ZwtKeyboard --> EventHandling
+}
+
+package "Layout" <<layout>> {
+  rectangle "ZwtLayout" as ZwtLayout
+  rectangle "BorderLayout" as BorderLayout
+  rectangle "FlowLayout" as FlowLayout
+  rectangle "GridLayout" as GridLayout
+  ZwtLayout <|-- BorderLayout
+  ZwtLayout <|-- FlowLayout
+  ZwtLayout <|-- GridLayout
+}
+
+package "Menus" <<components>> {
+  rectangle "ZwtMenu" as ZwtMenu
+  rectangle "ZwtMenuItem" as ZwtMenuItem
+  rectangle "Menu Listeners" as MenuListeners
+  ZwtContainer <|-- ZwtMenu
+  ZwtComponent <|-- ZwtMenuItem
+  ZwtMenu --> ZwtMenuItem
+  ZwtMenu --> MenuListeners
+  ZwtMenuItem --> MenuListeners
+}
+
+package "Backgrounds" <<graphics>> {
+  rectangle "ZwtFloor" as ZwtFloor
+  rectangle "ZwtTransparentFloor" as ZwtTransparentFloor
+  rectangle "ZwtRoundFloor" as ZwtRoundFloor
+  ZwtFloor <|-- ZwtTransparentFloor
+  ZwtFloor <|-- ZwtRoundFloor
+}
+
+ZwtFrame --> ZwtGraphics
+ZwtFrame --> ZwtLayout
+ZwtFrame --> ZwtKeyboard
+ZwtPanel --> ZwtFloor
+@enduml

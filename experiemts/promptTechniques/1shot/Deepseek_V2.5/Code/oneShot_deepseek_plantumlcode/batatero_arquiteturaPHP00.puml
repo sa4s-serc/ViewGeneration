@@ -1,0 +1,55 @@
+@startuml batatero_arquiteturaPHP00
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<database>> #fff1c9
+  BackgroundColor<<orm>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend (CodeIgniter)" <<frontend>> {
+  rectangle "Controllers" as CI_Controllers
+  rectangle "Views" as CI_Views
+  rectangle "Helpers" as CI_Helpers
+  rectangle "Libraries" as CI_Libraries
+  CI_Controllers --> CI_Views
+  CI_Controllers --> CI_Helpers
+  CI_Controllers --> CI_Libraries
+}
+
+package "Backend (CodeIgniter)" <<backend>> {
+  rectangle "Facade" as Facade
+  rectangle "Business Logic" as BusinessLogic
+  rectangle "FactoryBusiness" as FactoryBusiness
+  rectangle "FactoryDAO" as FactoryDAO
+  rectangle "GenericDAO" as GenericDAO
+  rectangle "DAOs" as DAOs
+
+  Facade --> BusinessLogic
+  BusinessLogic --> FactoryBusiness
+  FactoryBusiness --> FactoryDAO
+  FactoryDAO --> GenericDAO
+  GenericDAO --> DAOs
+}
+
+package "Doctrine ORM" <<orm>> {
+  rectangle "EntityManager" as EntityManager
+  rectangle "UnitOfWork" as UnitOfWork
+  rectangle "EntityRepository" as EntityRepository
+  rectangle "QueryBuilder" as QueryBuilder
+  rectangle "SchemaManager" as SchemaManager
+
+  EntityManager --> UnitOfWork
+  EntityManager --> EntityRepository
+  EntityManager --> QueryBuilder
+  EntityManager --> SchemaManager
+}
+
+database "Database" <<database>> as DB
+
+DAOs --> DB
+EntityManager --> DB
+CI_Libraries --> DB
+
+@enduml

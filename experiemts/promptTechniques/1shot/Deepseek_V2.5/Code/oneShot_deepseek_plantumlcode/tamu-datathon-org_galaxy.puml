@@ -1,1 +1,49 @@
-Error: Failed to load example for one-shot prompting.
+@startuml tamu-datathon-org_galaxy
+skinparam rectangle {
+  BackgroundColor<<router>> #d9e7fd
+  BackgroundColor<<auth>> #d8f5d3
+  BackgroundColor<<services>> #fddddd
+  BackgroundColor<<deploy>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+rectangle "User" as User
+
+package "Galaxy Router (Nginx)" <<router>> {
+  rectangle "Router Service" as Router
+  rectangle "routes.conf" as Routes
+  rectangle "Dockerfile" as Dockerfile
+  Router --> Routes
+  Router --> Dockerfile
+}
+
+package "Authentication" <<auth>> {
+  rectangle "Gatekeeper" as Gatekeeper
+  rectangle "User Data" as UserData
+  Gatekeeper --> UserData
+}
+
+package "Backend Services" <<services>> {
+  rectangle "OBOS (Event Mgmt)" as OBOS
+  rectangle "Gigabowser (Static)" as Gigabowser
+}
+
+package "Deployment" <<deploy>> {
+  rectangle "Heroku" as Heroku
+  rectangle "Docker Compose" as DockerCompose
+  rectangle "GitHub Actions" as GitHubActions
+}
+
+User --> Router
+Router --> Gatekeeper
+Router --> OBOS
+Router --> Gigabowser
+
+Gatekeeper --> Heroku
+OBOS --> Heroku
+GitHubActions --> Heroku
+DockerCompose --> Router
+DockerCompose --> Gatekeeper
+
+@enduml

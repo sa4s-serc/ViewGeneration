@@ -1,1 +1,54 @@
-Error: Failed to load example for one-shot prompting.
+@startuml openshift_configuration-anomaly-detection
+skinparam rectangle {
+  BackgroundColor<<cli>> #d9e7fd
+  BackgroundColor<<interceptor>> #d8f5d3
+  BackgroundColor<<external>> #fddddd
+  BackgroundColor<<pkg>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+rectangle "PagerDuty" <<external>> as PD
+rectangle "Tekton Interceptor" <<interceptor>> as Interceptor {
+  rectangle "Signature Validation"
+  rectangle "Alert Handler Check"
+}
+
+rectangle "cadctl CLI" <<cli>> as CADCTL {
+  rectangle "investigate command"
+  rectangle "Investigation Runner"
+}
+
+rectangle "Investigation Modules" <<pkg>> as Investigations {
+  rectangle "chgm"
+  rectangle "apierrorbudgetburn"
+  rectangle "insightsoperatordown"
+  rectangle "[...]"
+}
+
+rectangle "External Services" <<external>> as Services {
+  rectangle "OCM"
+  rectangle "AWS"
+  rectangle "Kubernetes"
+}
+
+PD --> Interceptor : Webhook
+Interceptor --> CADCTL : Triggers\nPipelineRun
+CADCTL --> Investigations : Executes\nInvestigation
+Investigations --> Services : Queries/Updates
+
+note right of Interceptor
+  Validates PagerDuty signatures
+  Checks for implemented handlers
+end note
+
+note left of CADCTL
+  Uses investigation.Resources
+  for dependency injection
+end note
+
+note bottom of Investigations
+  Implements Investigation interface
+  Strategy pattern for alert handling
+end note
+@enduml

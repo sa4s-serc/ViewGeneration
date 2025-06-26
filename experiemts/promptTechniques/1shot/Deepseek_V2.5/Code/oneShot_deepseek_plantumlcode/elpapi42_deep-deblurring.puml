@@ -1,0 +1,46 @@
+@startuml elpapi42_deep-deblurring
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<model>> #fddddd
+  BackgroundColor<<storage>> #fff1c9
+  BackgroundColor<<cache>> #e6d9ff
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend" <<frontend>> {
+  rectangle "Vue.js UI" as Vue
+  rectangle "User Interface" as UI
+  Vue --> UI
+}
+
+package "Backend" <<backend>> {
+  rectangle "Flask API Gateway" as Flask
+  rectangle "Request Routing" as Routing
+  rectangle "Data Collection" as DataCollection
+  Flask --> Routing
+  Flask --> DataCollection
+}
+
+package "Model Serving" <<model>> {
+  rectangle "TensorFlow Serving" as TFServing
+  rectangle "DeblurGAN-V2 Model" as Model
+  TFServing --> Model
+}
+
+package "Data Storage" <<storage>> {
+  rectangle "Cloudinary" as Cloudinary
+  rectangle "PostgreSQL" as PostgreSQL
+}
+
+package "Cache" <<cache>> {
+  rectangle "Redis" as Redis
+}
+
+Vue --> Flask
+Flask --> TFServing
+TFServing --> Cloudinary
+Flask --> PostgreSQL
+Flask --> Redis
+@enduml

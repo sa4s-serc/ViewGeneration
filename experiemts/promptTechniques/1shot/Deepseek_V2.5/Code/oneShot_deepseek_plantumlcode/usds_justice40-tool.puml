@@ -1,0 +1,55 @@
+@startuml usds_justice40-tool
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+rectangle "External Data Sources" as Sources {
+  rectangle "Census" as Census
+  rectangle "FEMA" as FEMA
+  rectangle "EPA" as EPA
+  rectangle "First Street Foundation" as FSF
+}
+
+rectangle "ETL Pipeline" as ETL {
+  rectangle "Extract" as Extract
+  rectangle "Transform" as Transform
+  rectangle "Load" as Load
+}
+
+rectangle "Data Lake" as S3 {
+  rectangle "S3 Storage" as Storage
+}
+
+rectangle "Scoring Engine" as Scoring {
+  rectangle "Score Runner" as Runner
+  rectangle "Score Methods" as Methods
+}
+
+rectangle "Map Generation" as MapGen {
+  rectangle "Tippecanoe" as Tiles
+}
+
+rectangle "Client Application" as Client {
+  rectangle "React Frontend" as Frontend
+  rectangle "MapLibre GL" as MapLibre
+}
+
+' ========== Data Flow ==========
+Sources --> Extract : Fetch raw data
+Extract --> Transform : Process data
+Transform --> Load : Store transformed data
+Load --> Storage : Save to S3
+
+Storage --> Runner : Read processed data
+Runner --> Methods : Apply scoring
+Methods --> Storage : Save scores
+
+Storage --> Tiles : Read GeoJSON
+Tiles --> Frontend : Generate map tiles
+Frontend --> MapLibre : Display interactive map
+
+Frontend --> Storage : Download data
+@enduml

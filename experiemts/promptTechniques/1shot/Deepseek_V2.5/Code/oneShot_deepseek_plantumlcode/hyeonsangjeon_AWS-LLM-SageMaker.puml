@@ -1,0 +1,44 @@
+@startuml hyeonsangjeon_AWS-LLM-SageMaker
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Streamlit UI" as UI {
+}
+
+rectangle "SageMaker Endpoint" as SM {
+  rectangle "LLM Model" as LLM #palegreen
+  rectangle "Embedding Model" as EMB #lightyellow
+}
+
+rectangle "OpenSearch" as OS #aliceblue
+
+rectangle "Utils" as UTILS {
+  rectangle "Inference Library" as INF #lightsteelblue
+  rectangle "Prompter" as PROMPT #mistyrose
+}
+
+' ========== Connections ==========
+User --> UI : Asks question
+
+UI --> INF : Sends query
+INF --> PROMPT : Generates prompt
+PROMPT --> INF : Returns formatted prompt
+
+INF --> EMB : Gets embeddings for query
+EMB --> INF : Returns embeddings
+
+INF --> OS : Searches with embeddings
+OS --> INF : Returns relevant documents
+
+INF --> LLM : Sends prompt + documents
+LLM --> INF : Generates answer
+INF --> UI : Returns answer
+UI --> User : Displays answer
+
+@enduml

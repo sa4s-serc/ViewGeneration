@@ -1,0 +1,47 @@
+@startuml aws-solutions_automated-security-response-on-aws
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "Security Engineer" as User
+
+rectangle "AWS Security Hub" as SecurityHub #lightblue
+
+rectangle "AWS EventBridge" as EventBridge #palegreen
+
+rectangle "ASR Orchestrator\n(Step Function)" as Orchestrator #mistyrose
+
+rectangle "SSM Automation\nDocuments" as SSMDocs #lightyellow
+
+rectangle "AWS Lambda" as Lambda #aliceblue {
+  rectangle "Parse Input" as ParseInput
+  rectangle "Remediation Logic" as Remediation
+  rectangle "Update Findings" as UpdateFindings
+}
+
+rectangle "AWS Systems Manager" as SSM #peachpuff
+
+rectangle "Member Account" as MemberAccount #lightgrey {
+  rectangle "AWS Resources" as Resources
+}
+
+rectangle "CloudWatch" as CloudWatch #wheat
+
+' ========== Connections ==========
+User --> SecurityHub : Triggers Custom Action\nor monitors findings
+SecurityHub --> EventBridge : Security finding events
+EventBridge --> Orchestrator : Triggers remediation workflow
+Orchestrator --> SSMDocs : Executes appropriate\nremediation runbook
+SSMDocs --> Lambda : Invokes parse_input.py
+Lambda --> ParseInput : Extracts finding details
+ParseInput --> Remediation : Passes parsed data
+Remediation --> SSM : Executes remediation actions
+SSM --> Resources : Modifies resources\n(tags, SGs, etc)
+Remediation --> UpdateFindings : Reports status
+UpdateFindings --> SecurityHub : Updates finding status
+Orchestrator --> CloudWatch : Logs metrics\nand events
+CloudWatch --> User : Alerts on failures
+@enduml

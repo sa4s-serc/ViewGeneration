@@ -3,7 +3,7 @@ skinparam rectangle {
   BackgroundColor<<core>> #d9e7fd
   BackgroundColor<<scheduling>> #d8f5d3
   BackgroundColor<<execution>> #fddddd
-  BackgroundColor<<meta>> #fff1c9
+  BackgroundColor<<metadata>> #fff1c9
   BackgroundColor<<integration>> #e6d9fd
   Style roundrect
 }
@@ -19,10 +19,10 @@ package "Core" <<core>> {
 
 package "Scheduling" <<scheduling>> {
   rectangle "scheduler.jl" as Scheduler
-  rectangle "DAG Decomposition" as DAGDecomp
-  rectangle "Task Prioritization" as TaskPriority
-  Scheduler --> DAGDecomp
-  Scheduler --> TaskPriority
+  rectangle "Task Prioritization" as Prioritization
+  rectangle "DAG Decomposition" as Decomposition
+  Scheduler --> Prioritization
+  Scheduler --> Decomposition
 }
 
 package "Execution" <<execution>> {
@@ -35,7 +35,7 @@ package "Execution" <<execution>> {
   Engine --> FaultHandling
 }
 
-package "Metadata Stores" <<meta>> {
+package "Metadata Stores" <<metadata>> {
   rectangle "ShmemMetaStore" as Shmem
   rectangle "SimpleMetaStore" as Simple
   rectangle "FDBMetaStore" as FDB
@@ -43,32 +43,18 @@ package "Metadata Stores" <<meta>> {
 
 package "Integration" <<integration>> {
   rectangle "Dagger.jl" as Dagger
-  rectangle "RemoteMonitor" as RemoteMonitor
+  rectangle "RemoteMonitor" as Monitor
   rectangle "FoundationDB" as FoundationDB
 }
 
 MainModule --> Scheduler
 MainModule --> Engine
-Scheduler --> Engine
+Common --> Scheduler
+Common --> Engine
 Engine --> Shmem
 Engine --> Simple
 Engine --> FDB
 Plugin --> Dagger
 FDB --> FoundationDB
-Engine --> RemoteMonitor
-
-node "Node" as Node1 {
-  rectangle "Broker" as Broker1
-  rectangle "Executor" as Executor1
-  Broker1 --> Executor1
-}
-
-node "Node" as Node2 {
-  rectangle "Broker" as Broker2
-  rectangle "Executor" as Executor2
-  Broker2 --> Executor2
-}
-
-Engine --> Broker1
-Engine --> Broker2
+Engine --> Monitor
 @enduml

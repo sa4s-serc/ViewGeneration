@@ -1,0 +1,62 @@
+@startuml Resurgence-VM-Development_Resurgence
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<bytecode>> #d8f5d3
+  BackgroundColor<<ffi>> #fddddd
+  BackgroundColor<<data>> #fff1c9
+  BackgroundColor<<error>> #ffd8d8
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "VM Core" <<core>> {
+  rectangle "Interpreter" as Interpreter
+  rectangle "Execution Engine" as ExecutionEngine
+  rectangle "Memory Management" as Memory
+  rectangle "Instruction Processing" as InstructionProc
+  Interpreter --> ExecutionEngine
+  ExecutionEngine --> Memory
+  ExecutionEngine --> InstructionProc
+}
+
+package "Bytecode Handling" <<bytecode>> {
+  rectangle "CodeReader" as CodeReader
+  rectangle "CodeWriter" as CodeWriter
+  rectangle "CodeHolder" as CodeHolder
+  CodeReader --> CodeHolder
+  CodeWriter --> CodeHolder
+  ExecutionEngine --> CodeHolder
+}
+
+package "FFI Interface" <<ffi>> {
+  rectangle "C FFI Bindings" as FFIBindings
+  rectangle "External Function Registry" as ExtFuncReg
+  rectangle "ResurgenceState" as ResurgenceState
+  FFIBindings --> ExtFuncReg
+  ExtFuncReg --> ResurgenceState
+  Interpreter --> ResurgenceState
+}
+
+package "Data Structures" <<data>> {
+  rectangle "Instruction Set" as InstructionSet
+  rectangle "Constant Pool" as ConstantPool
+  rectangle "Stack Frames" as StackFrames
+  InstructionProc --> InstructionSet
+  Memory --> ConstantPool
+  Memory --> StackFrames
+}
+
+package "Error Handling" <<error>> {
+  rectangle "ResurgenceError" as ResurgenceError
+  rectangle "Traceback System" as Traceback
+  ResurgenceError --> Traceback
+  Interpreter --> ResurgenceError
+  ExecutionEngine --> ResurgenceError
+}
+
+rectangle "Code Generation" as CodeGen <<bytecode>>
+CodeGen --> CodeHolder
+
+Interpreter --> FFIBindings
+ExecutionEngine --> InstructionSet
+@enduml

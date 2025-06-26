@@ -1,0 +1,46 @@
+@startuml Taymindis_fcgi-function
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<server>> #d8f5d3
+  BackgroundColor<<examples>> #fddddd
+  BackgroundColor<<config>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Framework" <<core>> {
+  rectangle "ffunc.h" as Header
+  rectangle "ffunc.c" as Implementation
+  rectangle "Memory Pool\n(ffunc_pool)" as MemoryPool
+  rectangle "Thread Management" as ThreadMgmt
+  rectangle "Function Mapping" as FunctionMap
+  Header --> Implementation
+  Implementation --> MemoryPool
+  Implementation --> ThreadMgmt
+  Implementation --> FunctionMap
+}
+
+package "FastCGI Server" <<server>> {
+  rectangle "Nginx/Apache" as WebServer
+  rectangle "fcgiapp Library" as FcgiLib
+  WebServer --> FcgiLib
+  FcgiLib --> Implementation
+}
+
+package "Example Applications" <<examples>> {
+  rectangle "profile_service.c" as ProfileExample
+  rectangle "DockerExample" as DockerExample
+  ProfileExample --> FunctionMap
+  DockerExample --> WebServer
+}
+
+package "Configuration" <<config>> {
+  rectangle "ffunc_config_t" as ConfigStruct
+  rectangle "CMakeLists.txt" as BuildConfig
+  rectangle "Nginx Config" as NginxConfig
+  ConfigStruct --> Implementation
+  BuildConfig --> Implementation
+  NginxConfig --> WebServer
+}
+
+@enduml

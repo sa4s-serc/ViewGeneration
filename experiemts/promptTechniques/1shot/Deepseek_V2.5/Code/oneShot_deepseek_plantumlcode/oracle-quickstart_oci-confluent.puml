@@ -1,0 +1,62 @@
+@startuml oracle-quickstart_oci-confluent
+skinparam rectangle {
+  BackgroundColor<<infra>> #d9e7fd
+  BackgroundColor<<confluent>> #d8f5d3
+  BackgroundColor<<oracle>> #fddddd
+  BackgroundColor<<scripts>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Infrastructure (Terraform)" <<infra>> {
+  rectangle "Network Resources" as Network
+  rectangle "Compute Instances" as Compute
+  rectangle "Block Volumes" as Volumes
+  rectangle "Security Lists" as Security
+  Network --> Compute
+  Compute --> Volumes
+  Compute --> Security
+}
+
+package "Confluent Platform" <<confluent>> {
+  rectangle "Zookeeper" as Zookeeper
+  rectangle "Kafka Brokers" as Kafka
+  rectangle "Schema Registry" as SchemaRegistry
+  rectangle "REST Proxy" as REST
+  rectangle "Kafka Connect" as Connect
+  rectangle "KSQL (Optional)" as KSQL
+  rectangle "Control Center\n(Enterprise)" as ControlCenter
+  Zookeeper --> Kafka
+  Kafka --> SchemaRegistry
+  Kafka --> REST
+  Kafka --> Connect
+  Kafka --> KSQL
+  Kafka --> ControlCenter
+}
+
+package "Oracle Cloud Services" <<oracle>> {
+  rectangle "Object Storage\n(S3 API)" as ObjectStorage
+  rectangle "Autonomous DB\n(ADW/ATP)" as AutonomousDB
+  Connect --> ObjectStorage
+  Connect --> AutonomousDB
+}
+
+package "Configuration Scripts" <<scripts>> {
+  rectangle "install.sh" as Install
+  rectangle "disks.sh" as Disks
+  rectangle "firewall.sh" as Firewall
+  rectangle "kafka_deploy_helper.sh" as Helper
+  rectangle "Component\nStart Scripts" as ComponentScripts
+  Install --> Disks
+  Install --> Firewall
+  Helper --> ComponentScripts
+}
+
+Compute --> Zookeeper
+Compute --> Kafka
+Compute --> SchemaRegistry
+Compute --> REST
+Compute --> Connect
+Compute --> KSQL
+Compute --> ControlCenter
+@enduml

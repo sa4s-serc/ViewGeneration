@@ -9,42 +9,38 @@ left to right direction
 actor User
 
 rectangle "Frontend" as FE {
-  rectangle "Board Component" as Board
-  rectangle "Note Component" as Note
+  rectangle "React Components" as React
   rectangle "Redux Store" as Redux
 }
 
 rectangle "Backend" as BE {
-  rectangle "API Router" as Router
-  rectangle "Board Service" as BoardService
-  rectangle "Note Service" as NoteService
+  rectangle "API Handlers" as API
+  rectangle "Services" as Services
   rectangle "Database" as DB
-  rectangle "Realtime Service" as Realtime
 }
 
 rectangle "Infrastructure" as Infra {
   rectangle "NATS/Redis" as NATS
+  rectangle "Auth Providers" as Auth
 }
 
 ' ========== Connections ==========
-User -> Board : Interacts with board
-User -> Note : Creates/updates note
+User --> React : Interacts with UI
+React --> Redux : Dispatches actions
+Redux --> React : Updates state
 
-Board -> Redux : Dispatch actions
-Note -> Redux : Dispatch actions
+React --> API : HTTP Requests (REST)
+API --> Services : Business logic
+Services --> DB : Data access
+DB --> Services : Query results
+Services --> API : Response data
+API --> React : JSON response
 
-Redux -> Router : API calls (HTTP)
-Router -> BoardService : Process request
-Router -> NoteService : Process request
+API --> Auth : Authenticate requests
+Auth --> API : Auth status
 
-BoardService -> DB : CRUD operations
-NoteService -> DB : CRUD operations
-
-BoardService -> Realtime : Publish updates
-NoteService -> Realtime : Publish updates
-
-Realtime -> NATS : Publish events
-NATS -> FE : Push updates (WebSocket)
-FE -> Redux : Update state
+Services --> NATS : Publish events
+NATS --> React : Real-time updates (WS)
+React --> NATS : Subscribe to events
 
 @enduml

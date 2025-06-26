@@ -1,1 +1,55 @@
-Error: Failed to load example for one-shot prompting.
+@startuml redbadger_crux
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<shell>> #d8f5d3
+  BackgroundColor<<capability>> #fddddd
+  BackgroundColor<<utility>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core (Rust)" <<core>> {
+  rectangle "App Trait" as App
+  rectangle "Core Struct" as Core
+  rectangle "Effect Trait" as Effect
+  rectangle "Bridge Struct" as Bridge
+  rectangle "Command" as Command
+  App --> Core
+  Core --> Effect
+  Core --> Bridge
+  Core --> Command
+}
+
+package "Shell (Platform-Specific)" <<shell>> {
+  rectangle "iOS (Swift)" as IOS
+  rectangle "Android (Kotlin)" as Android
+  rectangle "Web (TypeScript)" as Web
+  Bridge --> IOS
+  Bridge --> Android
+  Bridge --> Web
+}
+
+package "Capabilities" <<capability>> {
+  rectangle "Http" as Http
+  rectangle "Time" as Time
+  rectangle "KeyValue" as KeyValue
+  Command --> Http
+  Command --> Time
+  Command --> KeyValue
+}
+
+package "Utilities" <<utility>> {
+  rectangle "crux_http" as crux_http
+  rectangle "crux_time" as crux_time
+  Http --> crux_http
+  Time --> crux_time
+}
+
+database "External Services" as External {
+  rectangle "API Server" as API
+  rectangle "Timer Service" as Timer
+  crux_http --> API
+  crux_time --> Timer
+}
+
+@enduml
