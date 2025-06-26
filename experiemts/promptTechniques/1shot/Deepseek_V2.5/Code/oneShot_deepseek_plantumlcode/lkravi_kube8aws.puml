@@ -1,0 +1,64 @@
+@startuml lkravi_kube8aws
+skinparam rectangle {
+  BackgroundColor<<terraform>> #d9e7fd
+  BackgroundColor<<ansible>> #d8f5d3
+  BackgroundColor<<aws>> #fddddd
+  BackgroundColor<<kubernetes>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Terraform Configuration" <<terraform>> {
+  rectangle "vpc.tf" as vpc
+  rectangle "servers.tf" as servers
+  rectangle "load_balance.tf" as lb
+  rectangle "security.tf" as security
+  rectangle "keys.tf" as keys
+  rectangle "ansible_helper.tf" as ansible_helper
+  rectangle "templates/inventry.tftpl" as inventory_tpl
+  rectangle "outputs.tf" as outputs
+  rectangle "vars.tf" as vars
+  rectangle "providers.tf" as providers
+}
+
+package "Ansible Configuration" <<ansible>> {
+  rectangle "play.yml" as playbook
+  rectangle "ansible_vars_file.yml" as ansible_vars
+}
+
+package "AWS Infrastructure" <<aws>> {
+  rectangle "VPC" as vpc_aws
+  rectangle "Bastion Host" as bastion
+  rectangle "Master Nodes" as masters
+  rectangle "Worker Nodes" as workers
+  rectangle "Network Load Balancer" as nlb
+}
+
+package "Kubernetes Cluster" <<kubernetes>> {
+  rectangle "Control Plane" as control_plane
+  rectangle "Worker Nodes" as k8s_workers
+}
+
+vpc --> vpc_aws
+servers --> bastion
+servers --> masters
+servers --> workers
+lb --> nlb
+security --> vpc_aws
+keys --> bastion
+ansible_helper --> bastion
+inventory_tpl --> ansible_helper
+outputs --> bastion
+vars --> vpc_aws
+providers --> vpc_aws
+
+bastion --> playbook
+playbook --> ansible_vars
+playbook --> masters
+playbook --> workers
+
+nlb --> control_plane
+masters --> control_plane
+workers --> k8s_workers
+control_plane --> k8s_workers
+@enduml

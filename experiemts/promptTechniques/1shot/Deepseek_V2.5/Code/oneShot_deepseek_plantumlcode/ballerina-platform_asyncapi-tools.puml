@@ -1,0 +1,53 @@
+@startuml ballerina-platform_asyncapi-tools
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<cli>> #d8f5d3
+  BackgroundColor<<generation>> #fddddd
+  BackgroundColor<<testing>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Components" <<core>> {
+  rectangle "AsyncAPI/OpenAPI\nParser" as Parser
+  rectangle "WebSocket Handler" as WebSocket
+  rectangle "Authentication\nHandler" as Auth
+  rectangle "Data Type\nConverter" as DataTypes
+}
+
+package "Code Generation" <<generation>> {
+  rectangle "AsyncApiToBallerina\nGenerator" as ToBallerina
+  rectangle "BallerinaToAsyncApi\nGenerator" as ToAsyncAPI
+  rectangle "Template Engine" as Templates
+}
+
+package "CLI Interface" <<cli>> {
+  rectangle "AsyncApiCmd" as CLI
+  rectangle "Command Parser" as Command
+}
+
+package "Testing Framework" <<testing>> {
+  rectangle "Test Suites" as Tests
+  rectangle "YAML Samples" as Samples
+  rectangle "Expected Outputs" as Outputs
+}
+
+Parser --> ToBallerina
+Parser --> ToAsyncAPI
+WebSocket --> ToBallerina
+Auth --> ToBallerina
+DataTypes --> ToBallerina
+DataTypes --> ToAsyncAPI
+
+ToBallerina --> Templates
+ToAsyncAPI --> Templates
+
+CLI --> Command
+Command --> ToBallerina
+Command --> ToAsyncAPI
+
+Tests --> Samples
+Tests --> Outputs
+Samples --> Parser
+Outputs --> ToBallerina
+@enduml

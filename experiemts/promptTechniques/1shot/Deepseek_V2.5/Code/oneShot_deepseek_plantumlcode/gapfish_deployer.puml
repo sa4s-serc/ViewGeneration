@@ -1,0 +1,48 @@
+@startuml gapfish_deployer
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "Developer" as Dev
+
+rectangle "depctl CLI" as CLI #lightblue
+
+rectangle "Deployer Service" as Deployer #palegreen {
+  rectangle "Configuration\nManager" as Config
+  rectangle "Kubernetes\nHandler" as K8s
+  rectangle "Plugin\nManager" as Plugins
+  rectangle "Event\nLogger" as Logger
+}
+
+rectangle "Kubernetes\nCluster" as K8sCluster #mistyrose
+
+rectangle "Git\nRepository" as GitRepo #aliceblue
+
+rectangle "External\nServices" as ExtServices #lightyellow {
+  rectangle "Bugsnag" as Bugsnag
+  rectangle "Docker\nRegistry" as DockerReg
+}
+
+' ========== Connections ==========
+Dev --> CLI : triggers deployment\nchecks status\nmanages canary
+
+CLI --> Deployer : HTTP requests
+
+Deployer --> Config : loads\nconfiguration
+Config --> GitRepo : fetches\nconfig files
+Config --> ExtServices : gets\nenv vars
+
+Deployer --> K8s : modifies & applies\nresources
+K8s --> K8sCluster : kubectl apply\ncommands
+
+Deployer --> Plugins : executes\nplugins
+Plugins --> Bugsnag : error reporting
+
+Deployer --> Logger : logs\nevents
+Logger --> Dev : deployment\nstatus updates
+
+Deployer --> DockerReg : pulls\nimages
+@enduml

@@ -1,0 +1,47 @@
+@startuml i5ting_stuq-koa
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Frontend" as FE {
+}
+
+rectangle "Koa.js Application" as KoaApp #lightblue {
+  rectangle "Middleware\nStack" as Middleware
+  rectangle "Routes" as Routes
+  rectangle "Controllers" as Controllers
+  rectangle "Models" as Models
+}
+
+rectangle "MongoDB" as MongoDB #palegreen
+
+rectangle "External APIs" as ExtAPI #lightyellow
+
+rectangle "Session Store\n(MongoDB)" as SessionStore #aliceblue
+
+' ========== Connections ==========
+User -> FE : HTTP Requests
+FE -> KoaApp : API Calls
+
+' Internal Koa.js flow
+Middleware -> Routes : Process request
+Routes -> Controllers : Route to handler
+Controllers -> Models : Data operations
+Models -> MongoDB : CRUD operations
+
+' External interactions
+KoaApp -> ExtAPI : API calls
+KoaApp -> SessionStore : Session data
+
+' Response flow
+Models --> Controllers : Return data
+Controllers --> Routes : Return response
+Routes --> Middleware : Process response
+Middleware --> FE : Send response
+FE --> User : Render UI
+@enduml

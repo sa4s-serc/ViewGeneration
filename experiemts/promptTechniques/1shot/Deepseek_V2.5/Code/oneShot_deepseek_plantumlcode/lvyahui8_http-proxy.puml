@@ -1,0 +1,58 @@
+@startuml ivyahui8_http-proxy
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<filter>> #d8f5d3
+  BackgroundColor<<integration>> #fddddd
+  BackgroundColor<<config>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Proxy" <<core>> {
+  rectangle "HttpProxyServer" as ProxyServer
+  rectangle "ClientToProxyHandler" as ClientHandler
+  rectangle "ProxyToServerInboundHandler" as ServerHandler
+  rectangle "GlobalExceptionHandler" as ExceptionHandler
+  rectangle "EventLoopGroupManager" as EventLoop
+  ProxyServer --> ClientHandler
+  ClientHandler --> ServerHandler
+  ClientHandler --> ExceptionHandler
+  ProxyServer --> EventLoop
+}
+
+package "Filter System" <<filter>> {
+  rectangle "ProxyRequestFilter" as RequestFilter
+  rectangle "ProxyResponseFilter" as ResponseFilter
+  rectangle "AttackRequestFilter" as AttackFilter
+  rectangle "DefaultProxyResponseFilter" as DefaultFilter
+  ClientHandler --> RequestFilter
+  ServerHandler --> ResponseFilter
+  RequestFilter <|-- AttackFilter
+  ResponseFilter <|-- DefaultFilter
+}
+
+package "Configuration" <<config>> {
+  rectangle "EntitysManager" as EntityManager
+  rectangle "entitys.json" as ConfigFile
+  rectangle "MsgTranslater" as MsgTranslater
+  rectangle "MsgCode" as MsgCode
+  EntityManager --> ConfigFile
+  ExceptionHandler --> MsgTranslater
+  MsgTranslater --> MsgCode
+  ClientHandler --> EntityManager
+}
+
+package "Test Components" <<integration>> {
+  rectangle "TestClientApp" as TestClient
+  rectangle "TestServerMain" as TestServer
+  rectangle "TestResource" as TestResource
+  TestClient --> ProxyServer
+  ProxyServer --> TestServer
+  TestServer --> TestResource
+}
+
+database "Netty Framework" as Netty
+ProxyServer --> Netty
+ClientHandler --> Netty
+ServerHandler --> Netty
+@enduml

@@ -1,0 +1,45 @@
+@startuml alexandredev3_nodejs-clean-architeture
+skinparam rectangle {
+  BackgroundColor<<presentation>> #d9e7fd
+  BackgroundColor<<application>> #d8f5d3
+  BackgroundColor<<domain>> #fddddd
+  BackgroundColor<<infrastructure>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Presentation Layer" <<presentation>> {
+  rectangle "Express Routes" as Routes
+  rectangle "Controllers" as Controllers
+  rectangle "Middlewares\n(RateLimiter, Auth)" as Middlewares
+  Routes --> Controllers
+  Controllers --> Middlewares
+}
+
+package "Application Layer" <<application>> {
+  rectangle "User Services\n(Create, Authenticate, List)" as UserServices
+  rectangle "DTOs" as DTOs
+  UserServices --> DTOs
+}
+
+package "Domain Layer" <<domain>> {
+  rectangle "User Entity" as UserEntity
+  rectangle "Interfaces\n(Repository, CacheProvider)" as Interfaces
+  UserEntity --> Interfaces
+}
+
+package "Infrastructure Layer" <<infrastructure>> {
+  rectangle "TypeORM\n(Postgres)" as TypeORM
+  rectangle "Redis Cache" as Redis
+  rectangle "Tsyringe DI" as Tsyringe
+  rectangle "bcryptjs/JWT" as AuthLibs
+  TypeORM --> Redis
+  Tsyringe --> AuthLibs
+}
+
+Controllers --> UserServices
+UserServices --> Interfaces
+Interfaces --> TypeORM
+Interfaces --> Redis
+Middlewares --> AuthLibs
+@enduml

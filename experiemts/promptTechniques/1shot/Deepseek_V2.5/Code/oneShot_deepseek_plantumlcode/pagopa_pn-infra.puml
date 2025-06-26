@@ -1,0 +1,61 @@
+@startuml pagopa_pn-infra
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "User" as User
+
+rectangle "API Gateway" as APIGW #lightblue
+
+rectangle "Lambda Functions" as Lambda #palegreen {
+  rectangle "Reverse Proxy" as ReverseProxy
+  rectangle "Webhook Handler" as Webhook
+  rectangle "Credential Generator" as CredGen
+}
+
+rectangle "EventBridge" as EventBridge #mistyrose
+
+rectangle "SQS Queues" as SQS #lightyellow
+
+rectangle "ECS Microservices" as ECS #aliceblue {
+  rectangle "Notification Processor" as NotifProc
+  rectangle "CDC Processor" as CDCProc
+}
+
+rectangle "DynamoDB" as DynamoDB #peachpuff
+
+rectangle "S3" as S3 #lightgrey
+
+rectangle "CloudWatch" as CloudWatch #wheat
+
+rectangle "Celonis" as Celonis #lavender
+
+' ========== Connections ==========
+User -> APIGW : API Requests
+APIGW -> ReverseProxy : Routes requests
+ReverseProxy -> Webhook : /webhook path
+ReverseProxy -> ECS : /service paths
+
+Webhook -> EventBridge : Publishes events
+EventBridge -> SQS : Routes events
+SQS -> NotifProc : Consumes messages
+NotifProc -> DynamoDB : Reads/Writes data
+NotifProc -> S3 : Stores attachments
+
+CredGen -> DynamoDB : Reads credentials
+APIGW -> CredGen : /credentials path
+
+CDCProc -> DynamoDB : CDC processing
+CDCProc -> S3 : Writes CDC data
+S3 -> Celonis : Data export
+
+NotifProc -> CloudWatch : Logs metrics
+APIGW -> CloudWatch : Logs metrics
+Lambda -> CloudWatch : Logs metrics
+ECS -> CloudWatch : Logs metrics
+
+EventBridge -> Lambda : Triggers functions
+@enduml

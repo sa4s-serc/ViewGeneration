@@ -1,0 +1,64 @@
+@startuml andrempmattos_harsh-payload
+skinparam rectangle {
+  BackgroundColor<<rtos>> #d9e7fd
+  BackgroundColor<<drivers>> #d8f5d3
+  BackgroundColor<<hardware>> #fddddd
+  BackgroundColor<<services>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Real-Time OS (FreeRTOS)" <<rtos>> {
+  rectangle "Task Scheduler" as Scheduler
+  rectangle "Queues" as Queues
+  rectangle "Timers" as Timers
+  rectangle "Memory Mgmt" as Memory
+  Scheduler --> Queues
+  Scheduler --> Timers
+  Scheduler --> Memory
+}
+
+package "Peripheral Drivers" <<drivers>> {
+  rectangle "GPIO" as GPIO
+  rectangle "UART/SPI/I2C" as Comms
+  rectangle "Timers/WDT" as HWTimers
+  rectangle "NVM/Flash" as Storage
+  rectangle "PDMA" as DMA
+  GPIO --> Comms
+  Comms --> HWTimers
+  HWTimers --> Storage
+  Storage --> DMA
+}
+
+package "System Services" <<services>> {
+  rectangle "Cryptography" as Crypto
+  rectangle "RNG" as RNG
+  rectangle "Flash*Freeze" as FlashFreeze
+  rectangle "Zeroization" as Zeroize
+  rectangle "ISP" as ISP
+  Crypto --> RNG
+  RNG --> FlashFreeze
+  FlashFreeze --> Zeroize
+  Zeroize --> ISP
+}
+
+package "Hardware Layer" <<hardware>> {
+  rectangle "FPGA Fabric" as FPGA
+  rectangle "AXI/AHB Bus" as Bus
+  rectangle "Memory Subsystem" as MemoryHW
+  rectangle "Clock/Reset" as Clocks
+  rectangle "Power Mgmt" as Power
+  FPGA --> Bus
+  Bus --> MemoryHW
+  MemoryHW --> Clocks
+  Clocks --> Power
+}
+
+Scheduler --> GPIO
+Scheduler --> Comms
+Scheduler --> Crypto
+FPGA --> Scheduler
+FPGA --> GPIO
+FPGA --> Comms
+FPGA --> Crypto
+@enduml

@@ -5,16 +5,18 @@ import json
 # Initialize DeepSeek client
 client = OpenAI(api_key="", base_url="https://api.deepseek.com/v1")
 
-def load_few_shot_example(json_path="examples.json"):
+def load_few_shot_example(behavior, json_path="examples.json"):
     try:
         with open(json_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
+            examples = json.load(f)
+            # Filter examples based on behavior
+            return [ex for ex in examples if ex['behavior'] == behavior]
     except Exception as e:
         print(f"Error loading one-shot example: {e}")
         return None
 
 def get_plantuml_from_summary(summary, repo_name, concern, behavior, error_message=None, code=None):
-    examples = load_few_shot_example()
+    examples = load_few_shot_example(behavior)
 
     if not examples:
         return "Error: Failed to load examples for few-shot prompting."
@@ -135,7 +137,7 @@ def process_view(repo_name, summary, concern, behavior):
 
 
 def main():
-    input_jsonl = "../../../Architectural_knowledge_extraction/generated_summaries.jsonl"
+    input_jsonl = "../../../../Architectural_knowledge_extraction/generated_summaries.jsonl"
     column_name1 = "Repository Name"
     column_name2 = "summary"
     column_name3 = "Concern"

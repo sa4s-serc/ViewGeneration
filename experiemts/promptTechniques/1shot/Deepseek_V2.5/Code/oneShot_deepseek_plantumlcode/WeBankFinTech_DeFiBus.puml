@@ -1,0 +1,60 @@
+@startuml WeBankFinTech_DeFiBus
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<management>> #d8f5d3
+  BackgroundColor<<processing>> #fddddd
+  BackgroundColor<<storage>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Components" <<core>> {
+  rectangle "DeFiBrokerController" as BrokerController
+  rectangle "DeFiBusBrokerConfig" as BrokerConfig
+  rectangle "DeFiBusBroker2Client" as Broker2Client
+}
+
+package "Management Components" <<management>> {
+  rectangle "DeFiProducerManager" as ProducerManager
+  rectangle "DeFiConsumerManager" as ConsumerManager
+  rectangle "ConsumeQueueManager" as QueueManager
+  rectangle "DeFiTopicConfigManager" as TopicConfigManager
+  rectangle "MessageRedirectManager" as RedirectManager
+}
+
+package "Processing Components" <<processing>> {
+  rectangle "DeFiSendMessageProcessor" as SendProcessor
+  rectangle "DeFiReplyMessageProcessor" as ReplyProcessor
+  rectangle "DeFiPullMessageProcessor" as PullProcessor
+  rectangle "DeFiAdminBrokerProcessor" as AdminProcessor
+}
+
+package "Storage Components" <<storage>> {
+  rectangle "DeFiPluginMessageStore" as MessageStore
+  rectangle "ClientRebalanceResultManager" as RebalanceManager
+}
+
+BrokerController --> BrokerConfig
+BrokerController --> Broker2Client
+BrokerController --> ProducerManager
+BrokerController --> ConsumerManager
+BrokerController --> QueueManager
+BrokerController --> TopicConfigManager
+BrokerController --> RedirectManager
+BrokerController --> SendProcessor
+BrokerController --> ReplyProcessor
+BrokerController --> PullProcessor
+BrokerController --> AdminProcessor
+BrokerController --> MessageStore
+BrokerController --> RebalanceManager
+
+ProducerManager --> QueueManager
+ConsumerManager --> QueueManager
+ConsumerManager --> TopicConfigManager
+SendProcessor --> QueueManager
+SendProcessor --> RedirectManager
+PullProcessor --> QueueManager
+PullProcessor --> MessageStore
+AdminProcessor --> TopicConfigManager
+QueueManager --> MessageStore
+@enduml

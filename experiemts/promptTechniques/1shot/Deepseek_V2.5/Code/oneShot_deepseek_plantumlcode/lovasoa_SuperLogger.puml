@@ -1,0 +1,32 @@
+@startuml lovasoa_SuperLogger
+skinparam rectangle {
+  BackgroundColor<<agent>> #d9e7fd
+  BackgroundColor<<logstash>> #d8f5d3
+  BackgroundColor<<elasticsearch>> #fddddd
+  BackgroundColor<<kibana>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+rectangle "Agent (Java)" <<agent>> {
+  rectangle "SystemInfo" as SystemInfo
+  rectangle "TCPServer" as TCPServer
+  SystemInfo --> TCPServer
+}
+
+rectangle "Logstash" <<logstash>> {
+  rectangle "TCP Input" as TCPInput
+  rectangle "JSON Codec" as JSONCodec
+  rectangle "Elasticsearch Output" as ESOutput
+  TCPInput --> JSONCodec
+  JSONCodec --> ESOutput
+}
+
+database "Elasticsearch" <<elasticsearch>> as Elasticsearch
+
+rectangle "Kibana" <<kibana>> as Kibana
+
+TCPServer --> TCPInput : "TCP"
+ESOutput --> Elasticsearch
+Elasticsearch --> Kibana : "Query/Visualize"
+@enduml

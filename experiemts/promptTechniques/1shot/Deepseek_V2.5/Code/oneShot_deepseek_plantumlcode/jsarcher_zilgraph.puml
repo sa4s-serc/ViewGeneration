@@ -1,0 +1,57 @@
+@startuml jsarcher_zilgraph
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<storage>> #fff1c9
+  BackgroundColor<<integration>> #fddddd
+  BackgroundColor<<infra>> #e6d9ff
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend" <<frontend>> {
+  rectangle "Bokeh Charts" as Bokeh
+  rectangle "HTML Templates" as HTML
+  rectangle "Custom CSS" as CSS
+  rectangle "Kibana Dashboards" as Kibana
+  Bokeh --> HTML
+  HTML --> CSS
+}
+
+package "Backend" <<backend>> {
+  rectangle "Zilcrawler" as Crawler
+  rectangle "Zilswap Processor" as Processor
+  rectangle "Zillog Aggregator" as Aggregator
+  rectangle "Zilgraph Oracle" as Oracle
+  Crawler --> Processor
+  Processor --> Aggregator
+  Aggregator --> Oracle
+}
+
+package "Data Storage" <<storage>> {
+  database "Elasticsearch" as ES
+  database "MongoDB" as MongoDB
+  Aggregator --> ES
+  Aggregator --> MongoDB
+}
+
+package "Blockchain" <<integration>> {
+  rectangle "Zilliqa Blockchain" as Zilliqa
+  rectangle "Zilswap Contract" as Contract
+  Crawler --> Zilliqa
+  Processor --> Contract
+}
+
+package "Infrastructure" <<infra>> {
+  rectangle "Nginx Reverse Proxy" as Nginx
+  rectangle "Bokeh Server" as BokehServer
+  Nginx --> BokehServer
+  BokehServer --> Bokeh
+  Nginx --> Kibana
+}
+
+Zilliqa --> Crawler
+Contract --> Processor
+ES --> Aggregator
+MongoDB --> Bokeh
+@enduml

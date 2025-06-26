@@ -2,52 +2,55 @@
 @startuml lvyahui8_http-proxy
 
 package "HTTP Proxy System" {
-    [Proxy Server] as proxy_server
-    [ClientToProxyHandler] as client_handler
-    [ProxyToServerInboundHandler] as server_handler
-    [EntitysManager] as entity_manager
-    [GlobalExceptionHandler] as exception_handler
+    [HttpProxyServer] as server
+    [ClientToProxyHandler] as clientHandler
+    [ProxyToServerInboundHandler] as serverHandler
+    [EntitysManager] as entityManager
+    [GlobalExceptionHandler] as exceptionHandler
 
-    component "Filters" {
-        [ProxyRequestFilter] as request_filter
-        [ProxyResponseFilter] as response_filter
-        [AttackRequestFilter] as attack_filter
-        [DefaultProxyResponseFilter] as default_response_filter
+    package "Filters" {
+        [ProxyRequestFilter] as requestFilter
+        [ProxyResponseFilter] as responseFilter
+        [AttackRequestFilter] as attackFilter
+        [DefaultProxyResponseFilter] as defaultFilter
     }
 
-    component "Test Modules" {
-        [TestClientApp] as test_client
-        [TestServerMain] as test_server
-    }
-
-    component "Configuration" {
-        [entitys.json] as config_file
-        [log4j2.xml] as log_config
-    }
-
-    component "Netty Framework" {
-        [EventLoopGroup] as event_loop
-        [ChannelHandler] as channel_handler
+    package "Networking" {
+        [Netty Framework] as netty
+        [EventLoopGroup] as eventLoop
+        [ChannelHandler] as channelHandler
         [Bootstrap] as bootstrap
+    }
+
+    package "Configuration" {
+        [entitys.json] as configFile
+        [MsgTranslater] as msgTranslater
+        [MsgCode] as msgCode
+    }
+
+    package "Test Components" {
+        [test-client] as testClient
+        [test-server] as testServer
+        [proxy-sdk] as sdk
     }
 }
 
-proxy_server --> client_handler : handles\nrequests
-proxy_server --> server_handler : handles\nresponses
-proxy_server --> exception_handler : error\nhandling
-proxy_server --> Netty_Framework : uses
-
-client_handler --> entity_manager : gets\nproxy rules
-client_handler --> request_filter : applies\nfilters
-server_handler --> response_filter : applies\nfilters
-
-entity_manager --> config_file : reads\nconfiguration
-
-request_filter <|-- attack_filter : implements
-response_filter <|-- default_response_filter : implements
-
-test_client --> proxy_server : sends\ntest requests
-test_server --> proxy_server : serves as\nbackend
+server --> clientHandler : handles
+server --> serverHandler : handles
+clientHandler --> entityManager : queries
+clientHandler --> requestFilter : applies
+serverHandler --> responseFilter : applies
+entityManager --> configFile : monitors
+exceptionHandler --> msgTranslater : uses
+exceptionHandler --> msgCode : uses
+clientHandler --> netty : uses
+serverHandler --> netty : uses
+netty --> eventLoop : manages
+netty --> channelHandler : processes
+netty --> bootstrap : configures
+testClient --> server : tests
+testServer --> server : backend
+sdk --> server : provides API
 
 @enduml
 ```

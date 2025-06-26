@@ -1,52 +1,50 @@
-Here's the PlantUML sequence diagram for the `kryptokrauts_ae-prediction-cards` system focusing on control flow:
+Here's the PlantUML sequence diagram for the control flow in `kryptokrauts_ae-prediction-cards`:
 
 ```plantuml
 @startuml kryptokrauts_ae-prediction-cards
-participant "User" as user
-participant "Frontend" as frontend
-participant "WalletClient" as wallet
-participant "PredictionCardsAPI" as api
-participant "SmartContract" as contract
-participant "ProcessPredictionService" as processor
-participant "OracleService" as oracle
+actor User
+participant Frontend
+participant WalletClient
+participant PredictionCardsApi
+participant SmartContract
+participant OracleService
+participant ProcessPredictionService
+database Blockchain
 
-user -> frontend: Create Prediction (asset, price, dates, images)
-frontend -> wallet: Connect Wallet
-wallet --> frontend: Wallet Connected
-frontend -> api: Create Prediction
-api -> contract: create_prediction()
-contract --> api: Prediction Created
-api --> frontend: Success
-frontend --> user: Prediction Created
+User -> Frontend: Create Prediction (asset, price, times, images)
+Frontend -> WalletClient: Sign transaction
+WalletClient -> SmartContract: create_prediction()
+SmartContract -> Blockchain: Store prediction data
+SmartContract --> WalletClient: Transaction receipt
+WalletClient --> Frontend: Confirmation
+Frontend --> User: Prediction created
 
-user -> frontend: Rent NFT (option, amount, price)
-frontend -> api: Rent NFT
-api -> contract: rent_nft()
-contract --> api: NFT Rented
-api --> frontend: Success
-frontend --> user: NFT Rented
+User -> Frontend: Rent NFT (outcome, deposit, price)
+Frontend -> WalletClient: Sign transaction
+WalletClient -> SmartContract: rent_nft()
+SmartContract -> Blockchain: Update NFT rental state
+SmartContract --> WalletClient: Transaction receipt
+WalletClient --> Frontend: Confirmation
+Frontend --> User: NFT rented
 
-processor -> contract: Check for CLOSED predictions
-contract --> processor: Prediction IDs
-processor -> contract: ask_for_winning_option()
-contract -> oracle: Oracle Query
-oracle --> contract: Oracle Response
-contract -> processor: oracle_response event
-processor -> contract: process_oracle_response()
-contract --> processor: Winning Option Determined
+ProcessPredictionService -> Blockchain: Monitor for CLOSED predictions
+Blockchain --> ProcessPredictionService: Prediction end time reached
+ProcessPredictionService -> SmartContract: ask_for_winning_option()
+SmartContract -> OracleService: Oracle query
+OracleService -> ExternalAPI: Get asset price
+ExternalAPI --> OracleService: Current price
+OracleService -> SmartContract: process_oracle_response(price)
+SmartContract -> Blockchain: Store winning outcome
+SmartContract --> ProcessPredictionService: Result processed
 
-user -> frontend: Check Results
-frontend -> api: Get Prediction Results
-api -> contract: get_prediction()
-contract --> api: Prediction Data
-api --> frontend: Results
-frontend --> user: Show Results
-
-user -> frontend: Claim Rewards
-frontend -> api: Claim Rewards
-api -> contract: claim()
-contract --> api: Rewards Distributed
-api --> frontend: Success
-frontend --> user: Rewards Claimed
+User -> Frontend: Claim rewards
+Frontend -> WalletClient: Sign transaction
+WalletClient -> SmartContract: claim()
+SmartContract -> Blockchain: Verify longest renter
+SmartContract -> Blockchain: Transfer NFT ownership
+SmartContract -> Blockchain: Distribute rewards
+SmartContract --> WalletClient: Transaction receipt
+WalletClient --> Frontend: Confirmation
+Frontend --> User: Rewards claimed
 @enduml
 ```

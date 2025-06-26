@@ -1,0 +1,46 @@
+@startuml balajich_resilience4j-helloworld
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Service A" as ServiceA #lightblue {
+  rectangle "GreetingController" as ControllerA
+  rectangle "Resilience4j" as R4jA #palegreen
+}
+
+rectangle "Service B" as ServiceB #lightyellow {
+  rectangle "GreetingController" as ControllerB
+}
+
+rectangle "Prometheus" as Prometheus #mistyrose
+rectangle "Grafana" as Grafana #aliceblue
+
+' ========== Interactions ==========
+User -> ControllerA : HTTP Request
+
+' Resilience4j patterns application
+ControllerA -> R4jA : Apply resilience patterns
+R4jA -> ControllerB : Protected call
+ControllerB --> R4jA : Response/Failure
+R4jA --> ControllerA : Result/Fallback
+
+' Monitoring flow
+ServiceA --> Prometheus : Metrics
+ServiceB --> Prometheus : Metrics
+Prometheus --> Grafana : Data
+Grafana --> User : Monitoring Dashboard
+
+' Resilience patterns note
+note over R4jA
+  Circuit Breaker
+  Rate Limiter
+  Bulkhead
+  Retry
+  TimeLimiter
+end note
+@enduml

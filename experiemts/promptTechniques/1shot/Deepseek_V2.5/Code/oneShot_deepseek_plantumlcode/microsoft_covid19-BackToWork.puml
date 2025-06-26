@@ -1,0 +1,50 @@
+@startuml microsoft_covid19-BackToWork
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor Employee
+
+rectangle "Healthcare Bot" as Bot #lightblue {
+}
+
+rectangle "Azure Functions" as Functions #palegreen {
+  rectangle "PostUserInfo" as PostUser
+  rectangle "PostSymptomsInfo" as PostSymptoms
+  rectangle "PostLabTestInfo" as PostLab
+  rectangle "GetRequestStatus" as GetStatus
+  rectangle "TriggerNotification" as Notify
+}
+
+rectangle "Azure SQL Database" as DB #mistyrose
+
+rectangle "SendGrid" as Email #lightyellow
+
+' ========== Connections ==========
+Employee --> Bot : Start assessment\nProvide personal info
+Bot --> PostUser : Submit user info
+PostUser --> DB : Store user data
+
+Employee --> Bot : Report symptoms
+Bot --> PostSymptoms : Submit symptoms
+PostSymptoms --> DB : Store symptoms
+
+Employee --> Bot : Submit lab results
+Bot --> PostLab : Submit lab data
+PostLab --> DB : Store lab results
+
+Bot --> GetStatus : Check clearance status
+GetStatus --> DB : Query assessment
+DB --> GetStatus : Return status
+GetStatus --> Bot : Return clearance decision
+
+Bot --> Notify : Trigger notification
+Notify --> Email : Send clearance email\nwith QR code
+Email --> Employee : Receive notification
+
+' Optional Teams notification path
+Notify --> Notify : Programmatic trigger\nfor Teams notification
+@enduml

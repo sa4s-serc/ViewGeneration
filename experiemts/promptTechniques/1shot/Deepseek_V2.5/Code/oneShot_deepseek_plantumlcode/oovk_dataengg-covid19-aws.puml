@@ -1,0 +1,30 @@
+@startuml oovk_dataengg-covid19-aws
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+rectangle "Jupyter Notebook\n(covid19_project.ipynb)" as Notebook #palegreen
+
+rectangle "AWS Services" as AWS {
+  rectangle "S3 Data Lake" as S3 #lightsteelblue
+  rectangle "Athena" as Athena #lightyellow
+  rectangle "Redshift" as Redshift #aliceblue
+}
+
+rectangle "AWS Open Data Registry" as OpenData #mistyrose
+
+' ========== Data Flow ==========
+Notebook --> OpenData : Fetch datasets\n(enigma_jhud, nytimes_data_in_usa_us_county,\nrearc_usa_hospital_beds, etc.)
+Notebook --> Athena : Execute queries\non raw data
+Athena --> S3 : Store query results
+Notebook --> S3 : Read query results\nfor transformation
+
+Notebook --> Notebook : Transform data\n(merge datasets, convert types,\nfeature engineering)
+Notebook --> Notebook : Build dimensional model\n(factCovid, dimRegion,\ndimHospital, dimDate)
+
+Notebook --> S3 : Save transformed data\nas CSV files
+Notebook --> Redshift : Execute CREATE TABLE\nand load dimensional model
+@enduml

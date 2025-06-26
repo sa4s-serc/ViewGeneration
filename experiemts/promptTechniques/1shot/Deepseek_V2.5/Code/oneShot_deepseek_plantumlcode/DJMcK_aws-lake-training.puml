@@ -1,0 +1,74 @@
+@startuml DJMcK_aws-lake-training
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "Data Engineer" as User
+
+rectangle "AWS S3" as S3 {
+  rectangle "Raw Zone" as RawZone
+  rectangle "Landing Zone" as LandingZone
+  rectangle "Curated Zone" as CuratedZone
+}
+
+rectangle "AWS EMR" as EMR {
+  rectangle "Spark\n(fda.01.land.py)" as SparkLand
+  rectangle "Spark\n(fda.02.curate.py)" as SparkCurate
+  rectangle "Spark\n(fda.indications.py)" as SparkIndications
+}
+
+rectangle "AWS Glue" as Glue {
+  rectangle "Crawler" as Crawler
+  rectangle "Data Catalog" as DataCatalog
+}
+
+rectangle "AWS Athena" as Athena
+
+rectangle "AWS Comprehend Medical" as ComprehendMedical
+
+rectangle "AWS Step Functions" as StepFunctions {
+  rectangle "State Machine" as StateMachine
+}
+
+rectangle "AWS Lambda" as Lambda {
+  rectangle "configure_count.py" as ConfigureCount
+  rectangle "call_comprehend.py" as CallComprehend
+  rectangle "query_athena.py" as QueryAthena
+  rectangle "iterator.py" as Iterator
+}
+
+' ========== Connections ==========
+User --> S3 : Uploads raw FDA data
+
+' Data Ingestion and Transformation
+RawZone --> SparkLand : Reads raw data
+SparkLand --> LandingZone : Writes transformed data
+LandingZone --> SparkCurate : Reads landed data
+SparkCurate --> CuratedZone : Writes curated data
+
+' Data Cataloging
+CuratedZone --> Crawler : Triggers crawl
+Crawler --> DataCatalog : Updates metadata
+
+' Query Processing
+DataCatalog --> Athena : Provides schema
+Athena --> CuratedZone : Queries data
+
+' Comprehend Medical Pipeline
+Athena --> QueryAthena : Gets drug labels
+QueryAthena --> StateMachine : Starts workflow
+StateMachine --> ConfigureCount : Initializes counts
+StateMachine --> CallComprehend : Extracts entities
+CallComprehend --> ComprehendMedical : Processes text
+StateMachine --> Iterator : Checks completion
+Iterator --> StateMachine : Continues/ends loop
+
+' Final Processing
+CuratedZone --> SparkIndications : Reads curated data
+ComprehendMedical --> SparkIndications : Provides indications
+SparkIndications --> CuratedZone : Writes enriched data
+
+@enduml

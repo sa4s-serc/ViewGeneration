@@ -1,57 +1,52 @@
+Here's the corrected PlantUML sequence diagram for `hyeonsangjeon_youtube-dl-nas`:
+
 ```plantuml
 @startuml hyeonsangjeon_youtube-dl-nas
 
 actor User
-participant "Web Interface" as WebUI
-participant "REST API" as API
-participant "Auth Service" as Auth
-participant "Queue Manager" as Queue
-participant "Download Worker" as Worker
-participant "yt-dlp/youtube-dl" as YTDL
-participant "WebSocket Service" as WS
+participant WebBrowser
+participant "Web Server\n(Bottle)" as WebServer
+participant "Auth Service" as AuthService
+participant "Queue Manager" as QueueManager
+participant "Download Worker" as DownloadWorker
+participant "yt-dlp" as YTDLP
+participant "WebSocket" as WebSocket
+database "Auth.json" as AuthDB
 
-User -> WebUI : Access Web Interface
-WebUI -> Auth : Request Login
-Auth --> WebUI : Authentication Challenge
-User -> WebUI : Submit Credentials
-WebUI -> Auth : Verify Credentials
-Auth --> WebUI : Authentication Result
+User -> WebBrowser: Accesses Web Interface
+WebBrowser -> WebServer: GET /login
+WebServer -> WebBrowser: Serve login.tpl
 
-alt Successful Auth
-    WebUI -> WS : Establish WebSocket Connection
-    WS --> WebUI : Connection Established
+User -> WebBrowser: Enters credentials
+WebBrowser -> WebServer: POST /login (credentials)
+WebServer -> AuthService: Validate credentials
+AuthService -> AuthDB: Query credentials
+AuthDB --> AuthService: Return auth data
+AuthService --> WebServer: Authentication result
+
+alt Authentication Success
+    WebServer -> WebBrowser: Redirect to /index
+    WebBrowser -> WebServer: GET /index
+    WebServer -> WebBrowser: Serve index.tpl
+    WebBrowser -> WebSocket: Establish WS connection
     
-    User -> WebUI : Submit Download Request
-    WebUI -> Queue : Add to Queue
-    Queue --> WebUI : Queue Position
+    User -> WebBrowser: Submits download URL
+    WebBrowser -> WebServer: POST /download (URL)
+    WebServer -> QueueManager: Add to queue
+    QueueManager -> DownloadWorker: Notify new job
     
-    Worker -> Queue : Poll for Jobs
-    Queue --> Worker : Next Job
-    Worker -> YTDL : Execute Download
-    YTDL --> Worker : Download Progress
-    Worker -> WS : Send Progress Updates
-    WS --> WebUI : Real-time Updates
+    loop While jobs in queue
+        DownloadWorker -> QueueManager: Get next job
+        DownloadWorker -> YTDLP: Execute download
+        YTDLP --> DownloadWorker: Download progress
+        DownloadWorker -> WebSocket: Send progress
+        WebSocket -> WebBrowser: Update UI
+    end
     
-    YTDL --> Worker : Download Complete
-    Worker -> Queue : Mark Complete
-    Worker -> WS : Send Completion
-    WS --> WebUI : Notify Completion
-else Failed Auth
-    Auth --> WebUI : Access Denied
-    WebUI --> User : Show Error
-end
-
-User -> API : Submit Download (REST)
-API -> Auth : Verify API Key
-Auth --> API : Authentication Result
-
-alt Successful Auth
-    API -> Queue : Add to Queue
-    Queue --> API : Queue Position
-    API --> User : Confirmation
-else Failed Auth
-    Auth --> API : Access Denied
-    API --> User : 401 Unauthorized
+    DownloadWorker -> WebSocket: Send completion
+    WebSocket -> WebBrowser: Show completion
+else Authentication Failed
+    WebServer -> WebBrowser: Return error
 end
 
 @enduml

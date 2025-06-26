@@ -1,0 +1,57 @@
+@startuml chaitin_veinmind-tools
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<plugins>> #d8f5d3
+  BackgroundColor<<lib>> #fddddd
+  BackgroundColor<<ci>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Components" <<core>> {
+  rectangle "veinmind-runner" as Runner
+  rectangle "Configuration\n(TOML)" as Config
+  rectangle "Report Generator" as Reports
+  rectangle "CLI Interface" as CLI
+  Runner --> Config
+  Runner --> Reports
+  Runner --> CLI
+}
+
+package "Security Plugins" <<plugins>> {
+  rectangle "Malware Scanner" as Malware
+  rectangle "Weak Password\nDetector" as Weakpass
+  rectangle "CVE Scanner" as CVE
+  rectangle "Sensitive Data\nScanner" as Sensitive
+  rectangle "Intrusion\nDetector" as Intrusion
+  Runner --> Malware
+  Runner --> Weakpass
+  Runner --> CVE
+  Runner --> Sensitive
+  Runner --> Intrusion
+}
+
+package "libveinmind" <<lib>> {
+  rectangle "Container Runtime\nInterface" as Runtime
+  rectangle "Filesystem\nAccess" as FS
+  Malware --> Runtime
+  Weakpass --> FS
+  CVE --> Runtime
+  Sensitive --> FS
+  Intrusion --> Runtime
+}
+
+package "CI/CD Pipeline" <<ci>> {
+  rectangle "GitHub Actions" as GitHub
+  rectangle "Docker Builds" as Docker
+  rectangle "Testing" as Tests
+  GitHub --> Docker
+  GitHub --> Tests
+  Docker --> Runner
+  Docker --> Malware
+  Docker --> Weakpass
+  Docker --> CVE
+  Docker --> Sensitive
+  Docker --> Intrusion
+}
+@enduml

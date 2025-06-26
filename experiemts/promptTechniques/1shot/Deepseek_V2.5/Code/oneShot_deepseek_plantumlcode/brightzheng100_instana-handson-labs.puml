@@ -1,0 +1,56 @@
+@startuml brightzheng100_instana-handson-labs
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<agent>> #d8f5d3
+  BackgroundColor<<script>> #fddddd
+  BackgroundColor<<env>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Instana Core" <<core>> {
+  rectangle "Instana Backend" as Backend
+  rectangle "Web UI" as WebUI
+  rectangle "API" as API
+  Backend --> WebUI
+  Backend --> API
+}
+
+package "Monitoring Agents" <<agent>> {
+  rectangle "Kubernetes Agent" as K8sAgent
+  rectangle "Docker Agent" as DockerAgent
+  rectangle "VM Agent" as VMAgent
+  rectangle "Website Agent" as WebAgent
+  K8sAgent --> Backend
+  DockerAgent --> Backend
+  VMAgent --> Backend
+  WebAgent --> Backend
+}
+
+package "Lab Scripts" <<script>> {
+  rectangle "K8s Setup Scripts" as K8sScripts
+  rectangle "OS Config Scripts" as OSConfig
+  rectangle "Utility Scripts" as Utils
+  rectangle "Ansible Playbooks" as Ansible
+  K8sScripts --> K8sAgent
+  OSConfig --> VMAgent
+}
+
+package "Environment" <<env>> {
+  rectangle "Kubernetes Cluster" as K8s
+  rectangle "Docker Host" as Docker
+  rectangle "Virtual Machines" as VMs
+  rectangle "Web Applications" as WebApps
+  K8sAgent --> K8s
+  DockerAgent --> Docker
+  VMAgent --> VMs
+  WebAgent --> WebApps
+}
+
+rectangle "Robot Shop\nSample App" as RobotShop
+Docker --> RobotShop
+K8s --> RobotShop
+
+rectangle "OpenTelemetry\nIntegration" as OTel
+API --> OTel
+@enduml

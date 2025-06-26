@@ -1,0 +1,45 @@
+@startuml elavia_edge-computing-platform-for-deep-learning-apps
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "React Frontend" as Frontend #lightblue
+
+rectangle "Flask Backend" as Backend #palegreen {
+  rectangle "Model Management\nAPI" as ModelAPI
+  rectangle "User Auth" as Auth
+}
+
+rectangle "GCP Infrastructure" as GCP #mistyrose {
+  rectangle "Cloud SQL\n(MySQL)" as DB
+  rectangle "Cloud Storage\n(GCS)" as Storage
+  rectangle "Cloud Functions\n(TFLite Converter)" as Functions
+}
+
+rectangle "Kubernetes/KubeEdge" as K8s #lightyellow {
+  rectangle "Model Manager" as ModelManager
+  rectangle "Inference Service\n(TensorRT/TFLite)" as Inference
+}
+
+rectangle "Edge Device" as Edge #aliceblue
+
+' ========== Connections ==========
+User -> Frontend : Interacts with UI
+Frontend -> Backend : API calls (REST)
+Backend -> DB : User/auth data\nProject metadata
+Backend -> Storage : Upload/download models\n& inference files
+Backend -> Functions : Trigger TFLite conversion
+
+ModelAPI -> ModelManager : Deploy/scale models
+ModelManager -> K8s : Manage deployments\n(namespaces, services)
+K8s -> Inference : Run optimized models
+Inference -> Edge : Perform inference\non edge data
+Edge -> Inference : Return results
+
+Functions -> Storage : Store converted models
+@enduml

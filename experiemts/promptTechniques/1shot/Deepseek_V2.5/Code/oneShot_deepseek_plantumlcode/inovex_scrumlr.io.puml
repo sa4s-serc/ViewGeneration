@@ -1,0 +1,50 @@
+@startuml inovex_scrumlr.io
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Frontend" as FE {
+  rectangle "Board Component" as Board
+  rectangle "Note Component" as Note
+  rectangle "Redux Store" as Redux
+}
+
+rectangle "Backend" as BE {
+  rectangle "API Router" as Router
+  rectangle "Board Service" as BoardService
+  rectangle "Note Service" as NoteService
+  rectangle "Database" as DB
+  rectangle "Realtime Service" as Realtime
+}
+
+rectangle "Infrastructure" as Infra {
+  rectangle "NATS/Redis" as NATS
+}
+
+' ========== Connections ==========
+User -> Board : Interacts with board
+User -> Note : Creates/updates note
+
+Board -> Redux : Dispatch actions
+Note -> Redux : Dispatch actions
+
+Redux -> Router : API calls (HTTP)
+Router -> BoardService : Process request
+Router -> NoteService : Process request
+
+BoardService -> DB : CRUD operations
+NoteService -> DB : CRUD operations
+
+BoardService -> Realtime : Publish updates
+NoteService -> Realtime : Publish updates
+
+Realtime -> NATS : Publish events
+NATS -> FE : Push updates (WebSocket)
+FE -> Redux : Update state
+
+@enduml

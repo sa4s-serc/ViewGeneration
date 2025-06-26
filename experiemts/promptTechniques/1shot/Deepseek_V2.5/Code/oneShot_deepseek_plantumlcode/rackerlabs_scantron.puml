@@ -1,0 +1,65 @@
+@startuml rackerlabs_scantron
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<engine>> #fddddd
+  BackgroundColor<<storage>> #fff1c9
+  BackgroundColor<<deployment>> #e6d9ff
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend (Django)" <<frontend>> {
+  rectangle "HTML Templates" as HTML
+  rectangle "Django Views" as Views
+  rectangle "jQuery DataTables" as DataTables
+  rectangle "Static Assets" as Assets
+  HTML --> Views
+  Views --> DataTables
+  Views --> Assets
+}
+
+package "Backend (Django)" <<backend>> {
+  rectangle "REST API" as API
+  rectangle "Models\n(Scan, Engine, Site)" as Models
+  rectangle "Scan Scheduler" as Scheduler
+  rectangle "Result Processors" as Processors
+  rectangle "Email Notifications" as Email
+  API --> Models
+  Models --> Scheduler
+  Scheduler --> Processors
+  Processors --> Email
+}
+
+package "Scan Engines" <<engine>> {
+  rectangle "Engine Service" as Engine
+  rectangle "Nmap Scanner" as Nmap
+  rectangle "Masscan Scanner" as Masscan
+  rectangle "Result Collector" as Collector
+  Engine --> Nmap
+  Engine --> Masscan
+  Engine --> Collector
+}
+
+package "Storage" <<storage>> {
+  rectangle "Database" as DB
+  rectangle "NFS Share" as NFS
+  rectangle "Target Files" as Targets
+  Models --> DB
+  Processors --> NFS
+  Collector --> NFS
+  Scheduler --> Targets
+}
+
+package "Deployment" <<deployment>> {
+  rectangle "Ansible Playbooks" as Ansible
+  rectangle "Redis Queue" as Redis
+  rectangle "Nginx" as Nginx
+  Ansible --> Engine
+  Ansible --> API
+  API --> Redis
+  API --> Nginx
+}
+
+API <--> Engine
+@enduml

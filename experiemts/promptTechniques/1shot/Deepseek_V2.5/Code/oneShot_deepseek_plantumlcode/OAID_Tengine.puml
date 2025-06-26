@@ -1,0 +1,65 @@
+@startuml OAID_Tengine
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<tools>> #fddddd
+  BackgroundColor<<testing>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Framework" <<core>> {
+  rectangle "Device Abstraction Layer" as DAL
+  rectangle "Graph Representation" as Graph
+  rectangle "Operator Library" as Ops
+  rectangle "Memory Management" as Memory
+  rectangle "Python Bindings" as Python
+
+  DAL --> Graph
+  Graph --> Ops
+  Ops --> Memory
+  Memory --> DAL
+  Python --> Graph
+  Python --> Ops
+}
+
+package "Hardware Backends" <<backend>> {
+  rectangle "CPU (ARM/x86)" as CPU
+  rectangle "GPU (Vulkan/OpenCL)" as GPU
+  rectangle "NPU (OpenDLA/TIM-VX)" as NPU
+
+  DAL --> CPU
+  DAL --> GPU
+  DAL --> NPU
+}
+
+package "Tools & Utilities" <<tools>> {
+  rectangle "Model Converter" as Converter
+  rectangle "CMake Build System" as CMake
+  rectangle "Image Processing" as ImageProc
+
+  Converter --> Graph
+  CMake --> CPU
+  CMake --> GPU
+  CMake --> NPU
+}
+
+package "Testing Framework" <<testing>> {
+  rectangle "Operator Tests" as OpTests
+  rectangle "Model Tests" as ModelTests
+  rectangle "Backend Tests" as BackendTests
+
+  OpTests --> Ops
+  ModelTests --> Graph
+  BackendTests --> DAL
+}
+
+database "Model Formats" as Models {
+  rectangle "ONNX/Caffe/TF" as InputModels
+  rectangle "TM2 Format" as TM2
+}
+
+Converter --> InputModels
+Converter --> TM2
+Graph --> TM2
+@enduml

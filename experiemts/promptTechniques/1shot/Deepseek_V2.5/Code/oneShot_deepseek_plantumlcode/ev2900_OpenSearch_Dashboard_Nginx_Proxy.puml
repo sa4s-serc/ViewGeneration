@@ -1,0 +1,54 @@
+@startuml ev2900_OpenSearch_Dashboard_Nginx_Proxy
+skinparam rectangle {
+  BackgroundColor<<aws>> #d9e7fd
+  BackgroundColor<<proxy>> #d8f5d3
+  BackgroundColor<<opensearch>> #fddddd
+  BackgroundColor<<config>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "AWS Infrastructure" <<aws>> {
+  rectangle "VPC" as VPC
+  rectangle "Public Subnet" as PublicSubnet
+  rectangle "Private Subnet" as PrivateSubnet
+  rectangle "Internet Gateway" as IGW
+  rectangle "Security Groups" as SGs
+  rectangle "Elastic IP" as EIP
+  rectangle "Route Table" as RT
+  VPC --> PublicSubnet
+  VPC --> PrivateSubnet
+  PublicSubnet --> IGW
+  PublicSubnet --> SGs
+  PublicSubnet --> EIP
+  PublicSubnet --> RT
+}
+
+package "Nginx Proxy" <<proxy>> {
+  rectangle "EC2 Instance" as EC2
+  rectangle "Nginx Reverse Proxy" as Nginx
+  rectangle "SSL/TLS Termination" as SSL
+  EC2 --> Nginx
+  Nginx --> SSL
+}
+
+package "OpenSearch" <<opensearch>> {
+  rectangle "OpenSearch Domain" as OS
+  rectangle "Dashboard" as Dashboard
+  OS --> Dashboard
+}
+
+package "Configuration" <<config>> {
+  rectangle "CloudFormation Template" as CF
+  rectangle "Nginx Config File" as NginxConfig
+  rectangle "GitHub Actions" as GH
+  CF --> NginxConfig
+  GH --> CF
+}
+
+PublicSubnet --> EC2
+PrivateSubnet --> OS
+Nginx --> Dashboard
+IGW --> EIP
+RT --> PublicSubnet
+@enduml

@@ -3,19 +3,24 @@ import subprocess
 from openai import OpenAI
 import json
 # Initialize DeepSeek client
-client = OpenAI(api_key="", base_url="https://api.deepseek.com/v1")
+client = OpenAI(api_key="sk-a18b61e35db14879ba5f975c2efddb32", base_url="https://api.deepseek.com/v1")
 
-def load_one_shot_example(json_path="example_prompts.json"):
+def load_one_shot_example(behavior,json_path="example_prompts.json"):
     try:
-        with open(json_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
+         with open(json_path, 'r', encoding='utf-8') as f:
+            examples = json.load(f)
+            # Filter examples based on behavior
+            for ex in examples:
+                if ex['behavior'] == behavior:
+                    return [ex]
+            return [examples[0]]
     except Exception as e:
         print(f"Error loading one-shot example: {e}")
         return None
 
 def get_plantuml_from_summary(summary, repo_name, concern, behavior, error_message=None, code=None):
-    example = load_one_shot_example()  
-
+    exampl = load_one_shot_example(behavior)  
+    example = exampl[0] if exampl else None
     if not example:
         return "Error: Failed to load example for one-shot prompting."
 
@@ -123,11 +128,12 @@ def process_view(repo_name, summary, concern, behavior):
 
 
 def main():
-    input_jsonl = "../../../Architectural_knowledge_extraction/generated_summaries.jsonl"
+    input_jsonl = "../../../../Architectural_knowledge_extraction/generated_summaries.jsonl"
     column_name1 = "Repository Name"
     column_name2 = "summary"
     column_name3 = "Concern"
     column_name4 = "Behavior"
+    output_dir = "oneShot_deepseek_output_images"
 
     try:
         with open(input_jsonl, 'r', encoding='utf-8') as f:
@@ -136,15 +142,22 @@ def main():
         print(f"Error reading JSONL file: {e}")
         return
 
-    for entry in entries[:5]:
+    for entry in entries:
         if all(key in entry for key in [column_name1, column_name2, column_name3, column_name4]):
             clean_repo_name = entry[column_name1].replace('/', '_').replace('\\', '_').rstrip('_')
-            process_view(clean_repo_name, entry[column_name2], entry[column_name3], entry[column_name4])
-            print(f"Processed entry: {clean_repo_name}")
-        else:
-            print(f"Skipping entry due to missing required fields: {entry}")
+            expected_output_path = os.path.join(output_dir, f"{clean_repo_name}.png")
 
-    print("✅ Results saved in results folder.")
+            if os.path.exists(expected_output_path):
+                print(f"✅ Skipping {clean_repo_name} — already exists.")
+                continue
+
+            process_view(clean_repo_name, entry[column_name2], entry[column_name3], entry[column_name4])
+            print(f"🔧 Processed entry: {clean_repo_name}")
+        else:
+            print(f"⚠️ Skipping entry due to missing required fields: {entry}")
+
+    print("✅ All processing complete. Results saved in results folder.")
+
 
 if __name__ == "__main__":
     main()

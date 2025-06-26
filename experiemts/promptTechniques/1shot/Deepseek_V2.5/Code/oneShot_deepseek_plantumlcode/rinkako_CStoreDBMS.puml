@@ -1,0 +1,59 @@
+@startuml rinkako_CStoreDBMS
+skinparam rectangle {
+  BackgroundColor<<interface>> #d9e7fd
+  BackgroundColor<<compiler>> #d8f5d3
+  BackgroundColor<<engine>> #fddddd
+  BackgroundColor<<storage>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "DBInterface Layer" <<interface>> {
+  rectangle "DBController" as Controller
+  rectangle "DBConnectionPool" as ConnectionPool
+  rectangle "DBBridge" as Bridge
+  Controller --> ConnectionPool
+  ConnectionPool --> Bridge
+}
+
+package "DBCompiler Layer" <<compiler>> {
+  rectangle "LexicalAnalyzer" as Lexer
+  rectangle "SyntaxParser" as Parser
+  rectangle "Pile" as Pile
+  rectangle "CSDatabase" as CSDatabase
+  Bridge --> Lexer
+  Lexer --> Parser
+  Parser --> Pile
+  Pile --> CSDatabase
+}
+
+package "DBEngine Layer" <<engine>> {
+  rectangle "FileManager" as FileManager
+  rectangle "TableManager" as TableManager
+  rectangle "DBAllocator" as Allocator
+  rectangle "DBLock" as Lock
+  rectangle "DBTransaction" as Transaction
+  CSDatabase --> FileManager
+  CSDatabase --> TableManager
+  CSDatabase --> Allocator
+  TableManager --> Lock
+  TableManager --> Transaction
+}
+
+package "Storage" <<storage>> {
+  database "Columnar Storage" as ColumnStorage
+  database "Metadata" as Metadata
+  FileManager --> ColumnStorage
+  TableManager --> Metadata
+}
+
+note right of CSDatabase
+  Implements intermediate code
+  execution and database operations
+end note
+
+note left of FileManager
+  Handles file I/O, external sort,
+  RLE compression, and joins
+end note
+@enduml

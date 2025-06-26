@@ -1,0 +1,68 @@
+@startuml ParaStation_psmpi
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<communication>> #d8f5d3
+  BackgroundColor<<optimization>> #fddddd
+  BackgroundColor<<management>> #fff1c9
+  BackgroundColor<<external>> #e6d9fd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core MPI Implementation" <<core>> {
+  rectangle "MPI Standard\n(MPI-4, Sessions)" as MPI
+  rectangle "MPICH Base" as MPICH
+  rectangle "ROMIO\n(MPI-IO)" as ROMIO
+  rectangle "UCG Collectives" as UCG
+  rectangle "Yaksa\n(Data Handling)" as Yaksa
+  MPI --> MPICH
+  MPICH --> ROMIO
+  MPICH --> UCG
+  MPICH --> Yaksa
+}
+
+package "Communication Layer" <<communication>> {
+  rectangle "PSCOM\n(ADI Device)" as PSCOM
+  rectangle "Shared Memory\n(POSIX/XPMEM)" as SHMEM
+  rectangle "TCP Transport" as TCP
+  rectangle "RDMA\n(InfiniBand)" as RDMA
+  rectangle "UCX Integration" as UCX
+  MPICH --> PSCOM
+  PSCOM --> SHMEM
+  PSCOM --> TCP
+  PSCOM --> RDMA
+  PSCOM --> UCX
+}
+
+package "Performance Optimizations" <<optimization>> {
+  rectangle "Multi-NIC Support" as MULTINIC
+  rectangle "Zero-Copy" as ZEROCOPY
+  rectangle "Data Sieving" as DATASIEVE
+  rectangle "DMA Offloading" as DMA
+  PSCOM --> MULTINIC
+  PSCOM --> ZEROCOPY
+  ROMIO --> DATASIEVE
+  PSCOM --> DMA
+}
+
+package "Process Management" <<management>> {
+  rectangle "Hydra PM" as HYDRA
+  rectangle "PSMGMT" as PSMGMT
+  rectangle "PMIx" as PMIX
+  MPICH --> HYDRA
+  MPICH --> PSMGMT
+  MPICH --> PMIX
+}
+
+package "External Integrations" <<external>> {
+  rectangle "HCOLL" as HCOLL
+  rectangle "HWLOC" as HWLOC
+  rectangle "RoCE" as ROCE
+  UCG --> HCOLL
+  MPICH --> HWLOC
+  RDMA --> ROCE
+}
+
+database "File Systems\n(Lustre, GPFS, NFS)" as FS
+ROMIO --> FS
+@enduml

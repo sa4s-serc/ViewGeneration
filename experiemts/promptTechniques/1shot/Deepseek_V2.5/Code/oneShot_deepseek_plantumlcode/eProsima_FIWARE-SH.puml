@@ -1,0 +1,38 @@
+@startuml eProsima_FIWARE-SH
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+rectangle "Integration Service" as IS {
+}
+
+rectangle "FIWARE System Handle" as SH {
+    rectangle "SystemHandle" as SystemHandle
+    rectangle "NGSIV2Connector" as Connector
+    rectangle "Listener" as Listener
+    rectangle "Publisher" as Publisher
+    rectangle "Subscriber" as Subscriber
+}
+
+rectangle "FIWARE Context Broker" as CB {
+}
+
+rectangle "External Data Source" as DataSource
+
+' ========== Connections ==========
+IS --> SystemHandle : register/configure
+SystemHandle --> Connector : setup connection
+SystemHandle --> Publisher : create publisher
+SystemHandle --> Subscriber : create subscriber
+SystemHandle --> Listener : start listening
+
+Publisher --> Connector : publish data
+Subscriber --> Connector : subscribe to updates
+Connector <--> CB : NGSIv2 API calls\n(create/update entities,\nregister subscriptions)
+Listener --> CB : receive notifications
+CB --> Listener : push notifications
+Connector --> DataSource : fetch external data (optional)
+@enduml

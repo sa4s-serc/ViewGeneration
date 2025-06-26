@@ -1,0 +1,46 @@
+@startuml Luizbrandt_users-crud-salesforce
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "Client" as Client
+
+rectangle "API Kit Router" as Router #palegreen
+
+rectangle "Mule Flows" as Flows #lightsteelblue {
+    rectangle "Create Flow" as Create
+    rectangle "Read Flow" as Read
+    rectangle "Update Flow" as Update
+    rectangle "Delete Flow" as Delete
+}
+
+rectangle "DataWeave\nTransformations" as DW #lightyellow
+
+rectangle "Salesforce Connector" as SFConnector #mistyrose
+
+rectangle "Salesforce" as SF #aliceblue
+
+' ========== Connections ==========
+Client -> Router : HTTP Request (CRUD operation)
+Router -> Flows : Route based on operation
+
+Flows -> DW : Transform request data
+DW -> Flows : Transformed data
+
+Flows -> SFConnector : Execute operation
+SFConnector -> SF : Perform CRUD on Custom_User__c
+SF --> SFConnector : Operation result
+SFConnector --> Flows : Result
+
+Flows -> DW : Transform response data
+DW --> Flows : Transformed response
+Flows --> Router : Return response
+Router --> Client : HTTP Response
+
+' Error handling
+Flows -> Flows : Handle errors
+Flows --> Client : Error response (if any)
+@enduml

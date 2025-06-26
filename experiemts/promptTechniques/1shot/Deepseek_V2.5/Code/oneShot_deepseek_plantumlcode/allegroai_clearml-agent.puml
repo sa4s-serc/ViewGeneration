@@ -1,0 +1,46 @@
+@startuml allegroai_clearml-agent
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<integration>> #d8f5d3
+  BackgroundColor<<monitoring>> #fddddd
+  BackgroundColor<<config>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Agent" <<core>> {
+  rectangle "Task Execution" as TaskExec
+  rectangle "Requirements Manager" as ReqManager
+  rectangle "Docker Integration" as Docker
+  rectangle "Configuration System" as Config
+  TaskExec --> ReqManager
+  TaskExec --> Docker
+  TaskExec --> Config
+}
+
+package "Integrations" <<integration>> {
+  rectangle "Kubernetes" as K8s
+  rectangle "SLURM" as Slurm
+  rectangle "ClearML Server" as ClearmlServer
+  TaskExec --> K8s
+  TaskExec --> Slurm
+  TaskExec --> ClearmlServer
+}
+
+package "Monitoring" <<monitoring>> {
+  rectangle "Resource Monitor" as ResourceMonitor
+  rectangle "Experiment Tracking" as ExperimentTracking
+  ResourceMonitor --> ExperimentTracking
+  TaskExec --> ResourceMonitor
+}
+
+package "Configuration" <<config>> {
+  rectangle "HOCON Config" as Hocon
+  rectangle "Env Variables" as EnvVars
+  Config --> Hocon
+  Config --> EnvVars
+}
+
+database "Task Queues" as Queues
+ClearmlServer --> Queues
+@enduml

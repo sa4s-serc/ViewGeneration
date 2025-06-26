@@ -1,0 +1,39 @@
+@startuml annashres_CustomerBot
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<integration>> #fddddd
+  BackgroundColor<<db>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Bot Channels" <<frontend>> {
+  rectangle "Webchat" as Webchat
+  rectangle "Emulator" as Emulator
+  rectangle "Email" as Email
+}
+
+package "Core Bot Components" <<backend>> {
+  rectangle "index.js\n(Restify/Azure Function)" as Index
+  rectangle "bot.js\n(Dialog Logic)" as Bot
+  rectangle "botdisplay.js\n(UI Rendering)" as Display
+  Index --> Bot
+  Bot --> Display
+}
+
+package "Integrations" <<integration>> {
+  rectangle "Power BI Dashboard" as PowerBI
+  rectangle "Email Parser" as EmailParser
+  Display --> PowerBI
+  Email --> EmailParser
+  EmailParser --> Bot
+}
+
+database "Azure SQL Database" <<db>> as DB
+Bot --> DB
+
+Webchat --> Bot
+Emulator --> Bot
+Email --> Bot
+@enduml

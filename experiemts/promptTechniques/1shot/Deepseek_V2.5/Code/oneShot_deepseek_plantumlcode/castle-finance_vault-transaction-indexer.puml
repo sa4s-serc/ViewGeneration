@@ -1,0 +1,33 @@
+@startuml castle-finance_vault-transaction-indexer
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+rectangle "EventBridge\n(Scheduler)" as Scheduler #lightblue
+
+rectangle "index-transaction-ids\nLambda" as IndexLambda #palegreen
+
+rectangle "SNS Topic" as SNSTopic #mistyrose
+
+rectangle "download-raw-transaction\nLambda" as DownloadLambda #lightyellow
+
+rectangle "SQS Queue" as SQSQueue #aliceblue
+
+rectangle "DynamoDB\nRaw Transactions" as RawDB #peachpuff
+
+rectangle "normalize-raw-transaction\nLambda" as NormalizeLambda #lavender
+
+rectangle "DynamoDB\nNormalized Transactions" as NormalizedDB #lightcoral
+
+' ========== Connections ==========
+Scheduler --> IndexLambda : Triggers periodically
+IndexLambda --> SNSTopic : Publishes transaction IDs
+SNSTopic --> DownloadLambda : Subscribes to topic
+DownloadLambda --> SQSQueue : Pulls transaction IDs
+DownloadLambda --> RawDB : Stores raw transaction data
+RawDB --> NormalizeLambda : Triggers via DynamoDB stream
+NormalizeLambda --> NormalizedDB : Stores normalized data
+@enduml

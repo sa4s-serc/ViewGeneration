@@ -1,0 +1,50 @@
+@startuml badr42_oke_A1
+skinparam rectangle {
+  BackgroundColor<<infra>> #d9e7fd
+  BackgroundColor<<networking>> #d8f5d3
+  BackgroundColor<<kubernetes>> #fddddd
+  BackgroundColor<<app>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Infrastructure (Terraform)" <<infra>> {
+  rectangle "main.tf" as MainTF
+  rectangle "variables.tf" as VariablesTF
+  rectangle "generate-keys.sh" as KeysScript
+  MainTF --> VariablesTF
+  MainTF --> KeysScript
+}
+
+package "Networking" <<networking>> {
+  rectangle "VCN" as VCN
+  rectangle "Subnets" as Subnets
+  rectangle "Gateways\n(IGW, NGW, SGW)" as Gateways
+  rectangle "Route Tables" as Routes
+  rectangle "Security Lists" as Security
+  VCN --> Subnets
+  Subnets --> Gateways
+  Gateways --> Routes
+  Routes --> Security
+}
+
+package "Kubernetes" <<kubernetes>> {
+  rectangle "OKE Cluster" as OKE
+  rectangle "Node Pool\n(Ampere A1)" as NodePool
+  rectangle "kubeconfig" as Kubeconfig
+  OKE --> NodePool
+  NodePool --> Kubeconfig
+}
+
+package "Application" <<app>> {
+  rectangle "nginx_deployment.yaml" as NginxManifest
+  rectangle "setup_nginx.sh" as NginxScript
+  rectangle "Nginx Service\n(LoadBalancer)" as NginxLB
+  NginxManifest --> NginxScript
+  NginxScript --> NginxLB
+}
+
+MainTF --> VCN
+MainTF --> OKE
+OKE --> NginxManifest
+@enduml

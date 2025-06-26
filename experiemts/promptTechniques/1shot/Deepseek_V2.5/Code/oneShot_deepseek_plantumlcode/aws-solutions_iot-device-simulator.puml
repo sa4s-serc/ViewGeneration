@@ -1,0 +1,49 @@
+@startuml aws-solutions_iot-device-simulator
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Web Interface" as WebUI {
+}
+
+rectangle "Microservices" as Microservices #lightsteelblue {
+  rectangle "DeviceTypeManager" as DTM
+  rectangle "SimulationManager" as SM
+  rectangle "ResponseManager" as RM
+}
+
+rectangle "Simulator" as Simulator #palegreen {
+  rectangle "Device Engine" as Engine
+  rectangle "Data Generators" as Generators
+}
+
+rectangle "AWS IoT Core" as IoTCore #mistyrose
+rectangle "AWS Step Functions" as StepFunctions #aliceblue
+rectangle "AWS Lambda" as Lambda #lightyellow
+rectangle "AWS CloudFormation" as CF #peachpuff
+
+' ========== Connections ==========
+User --> WebUI : Define device types\nManage simulations
+
+WebUI --> Microservices : API calls
+Microservices --> DTM : CRUD operations
+Microservices --> SM : CRUD operations
+Microservices --> RM : Handle responses
+
+Microservices --> Simulator : Start/Stop simulations
+Simulator --> Engine : Create devices
+Engine --> Generators : Generate data
+Engine --> IoTCore : Publish messages
+
+Simulator --> StepFunctions : Orchestrate simulations
+StepFunctions --> Lambda : Execute functions
+
+CF --> Lambda : Deploy
+CF --> StepFunctions : Deploy
+CF --> IoTCore : Deploy
+@enduml

@@ -1,0 +1,62 @@
+@startuml OpenRoberta_robertalab-ev3dev
+skinparam rectangle {
+  BackgroundColor<<ui>> #d9e7fd
+  BackgroundColor<<service>> #d8f5d3
+  BackgroundColor<<network>> #fddddd
+  BackgroundColor<<hal>> #fff1c9
+  BackgroundColor<<os>> #e6d9ff
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "UI Layer" <<ui>> {
+  rectangle "Brickman UI" as BrickmanUI
+}
+
+package "Service Layer" <<service>> {
+  rectangle "roberta.lab.Service" as Service
+  rectangle "DBus Interface" as DBus
+  Service -- DBus
+}
+
+package "Network Layer" <<network>> {
+  rectangle "roberta.lab.Connector" as Connector
+  rectangle "HTTP Client" as HTTP
+  Connector -- HTTP
+}
+
+package "Execution Layer" <<service>> {
+  rectangle "Python Execution" as PythonExec
+}
+
+package "HAL Layer" <<hal>> {
+  rectangle "roberta.ev3.Hal" as Hal
+  rectangle "Motors/Sensors" as Devices
+  Hal -- Devices
+}
+
+package "ev3dev Layer" <<os>> {
+  rectangle "ev3dev.auto" as ev3dev
+  rectangle "OS Commands" as OS
+  ev3dev -- OS
+}
+
+BrickmanUI --> DBus
+DBus --> Service
+Service --> Connector
+Connector --> PythonExec
+PythonExec --> Hal
+Hal --> ev3dev
+ev3dev --> OS
+
+rectangle "Open Roberta Lab Server" as Server
+HTTP --> Server
+
+rectangle "Abort Handler" as AbortHandler
+Service --> AbortHandler
+AbortHandler --> Hal
+
+rectangle "Gfx Mode" as GfxMode
+Service --> GfxMode
+GfxMode --> Hal
+@enduml

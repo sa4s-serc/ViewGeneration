@@ -1,0 +1,53 @@
+@startuml kzh_noob
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<integration>> #fddddd
+  BackgroundColor<<db>> #fff1c9
+  BackgroundColor<<infra>> #e6d9ff
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend" <<frontend>> {
+  rectangle "Web UI" as WebUI
+  rectangle "WebSocket Client" as WSClient
+  WebUI --> WSClient
+}
+
+package "Backend Services" <<backend>> {
+  rectangle "Auth Service" as Auth
+  rectangle "Problems Service" as Problems
+  rectangle "Submissions Service" as Submissions
+  rectangle "Executor Service" as Executor
+}
+
+package "Message Broker" <<integration>> {
+  rectangle "RabbitMQ" as RabbitMQ
+  Submissions --> RabbitMQ
+  RabbitMQ --> Executor
+  Executor --> RabbitMQ
+}
+
+package "Databases" <<db>> {
+  rectangle "MongoDB" as MongoDB
+  rectangle "Redis" as Redis
+  Auth --> Redis
+  Problems --> MongoDB
+  Submissions --> MongoDB
+}
+
+package "Infrastructure" <<infra>> {
+  rectangle "Kubernetes" as K8s
+  rectangle "Docker" as Docker
+  rectangle "Jaeger" as Jaeger
+  Executor --> Docker
+  K8s --> Docker
+}
+
+WebUI --> Auth
+WebUI --> Problems
+WebUI --> Submissions
+WSClient --> Submissions
+Auth --> MongoDB
+@enduml

@@ -1,0 +1,58 @@
+@startuml Sanperolo_The-Intelligent-Bike
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+rectangle "Bicycle Sensors" as Sensors {
+  rectangle "Velocity" as Velocity
+  rectangle "Humidity/Temp" as Humidity
+  rectangle "GPS" as GPS
+  rectangle "Gyroscope" as Gyro
+  rectangle "Light" as Light
+  rectangle "Rain" as Rain
+}
+
+rectangle "Hardware Interface" as Hardware {
+  rectangle "main.py" as Main
+  rectangle "MQTT Publisher" as MQTTPub
+}
+
+rectangle "MQTT Broker" as Broker #lightblue
+
+rectangle "Backend Server" as Backend {
+  rectangle "Django API" as Django
+  rectangle "MQTT Subscriber" as MQTTSub
+  rectangle "PostgreSQL" as DB
+}
+
+rectangle "Frontend" as Frontend {
+  rectangle "Angular App" as Angular
+  rectangle "Sensor Service" as SensorService
+}
+
+rectangle "Heroku" as Heroku #pink
+
+' ========== Connections ==========
+Velocity --> Main : Sensor Data
+Humidity --> Main : Sensor Data
+GPS --> Main : Sensor Data
+Gyro --> Main : Sensor Data
+Light --> Main : Sensor Data
+Rain --> Main : Sensor Data
+
+Main --> MQTTPub : Processed Data
+MQTTPub --> Broker : Publish Data (MQTT)
+Broker --> MQTTSub : Subscribe Data (MQTT)
+MQTTSub --> Django : Save to DB
+Django --> DB : Store Data
+
+Frontend --> Django : REST API Calls
+Django --> Frontend : JSON Responses
+SensorService --> Angular : Data Binding
+
+Backend --> Heroku : Deployed
+Angular --> Heroku : Deployed
+@enduml

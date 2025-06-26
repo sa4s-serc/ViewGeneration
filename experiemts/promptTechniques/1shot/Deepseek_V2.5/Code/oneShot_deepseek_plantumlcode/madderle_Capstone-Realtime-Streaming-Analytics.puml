@@ -1,0 +1,54 @@
+@startuml madderle_Capstone-Realtime-Streaming-Analytics
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+rectangle "Twitter API" as TwitterAPI #lightblue
+rectangle "IEX API" as IEXAPI #lightblue
+
+rectangle "Data Ingestion" as Ingestion #palegreen {
+  rectangle "Twitter Service" as TwitterService
+  rectangle "IEX Service" as IEXService
+  rectangle "Manager Service" as ManagerService
+}
+
+rectangle "Redis" as Redis #mistyrose
+rectangle "AWS Kinesis" as Kinesis #aliceblue
+rectangle "MongoDB" as MongoDB #lightyellow
+rectangle "S3" as S3 #aliceblue
+
+rectangle "Data Processing" as Processing #lightsteelblue {
+  rectangle "Model Development" as ModelDev
+  rectangle "Model Deployment" as ModelDeploy
+}
+
+rectangle "Data Service" as DataService #peachpuff
+
+' ========== Connections ==========
+TwitterAPI --> TwitterService : Fetch tweets
+IEXAPI --> IEXService : Fetch stock data
+
+TwitterService --> Redis : Pub/Sub events
+IEXService --> Redis : Pub/Sub events
+ManagerService --> Redis : Market status\nFeature flags
+
+TwitterService --> Kinesis : Stream tweets
+IEXService --> Kinesis : Stream stock data
+
+Kinesis --> MongoDB : Store raw data
+Redis --> MongoDB : Store logs/events
+
+ModelDev --> S3 : Store trained models
+ModelDeploy --> S3 : Load models
+
+ModelDev --> MongoDB : Read training data
+ModelDeploy --> MongoDB : Read prediction data
+
+DataService --> MongoDB : API data access
+
+ManagerService --> TwitterService : Control flow
+ManagerService --> IEXService : Control flow
+@enduml

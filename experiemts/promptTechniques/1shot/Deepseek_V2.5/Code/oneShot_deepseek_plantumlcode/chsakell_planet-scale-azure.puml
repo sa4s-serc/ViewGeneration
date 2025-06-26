@@ -1,0 +1,56 @@
+@startuml chsakell_planet-scale-azure
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<azure>> #fddddd
+  BackgroundColor<<db>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend (Angular)" <<frontend>> {
+  rectangle "Product Catalog" as Catalog
+  rectangle "Shopping Cart" as Cart
+  rectangle "User Forum" as Forum
+  rectangle "Search UI" as SearchUI
+}
+
+package "Backend (.NET Core)" <<backend>> {
+  rectangle "Order Processing" as Order
+  rectangle "User Authentication" as Auth
+  rectangle "Product Service" as Product
+  rectangle "Forum Service" as ForumService
+}
+
+package "Azure Services" <<azure>> {
+  rectangle "Azure Traffic Manager" as TrafficManager
+  rectangle "Azure CDN" as CDN
+  rectangle "Azure Redis Cache" as Redis
+  rectangle "Azure Service Bus" as ServiceBus
+  rectangle "Azure Search" as AzureSearch
+}
+
+package "Databases" <<db>> {
+  rectangle "Azure SQL Server" as SQL
+  rectangle "Cosmos DB" as Cosmos
+}
+
+Catalog --> Product
+Cart --> Redis
+SearchUI --> AzureSearch
+Forum --> ForumService
+
+Product --> Cosmos
+Order --> SQL
+Order --> ServiceBus
+Auth --> SQL
+ForumService --> SQL
+
+TrafficManager --> CDN
+CDN --> Catalog
+CDN --> SearchUI
+
+Redis --> Cart
+ServiceBus --> Order
+AzureSearch --> Product
+@enduml

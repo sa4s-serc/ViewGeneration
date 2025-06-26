@@ -1,0 +1,62 @@
+@startuml ArnBaudzus_FluxSurfer
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<solvers>> #d8f5d3
+  BackgroundColor<<parallel>> #fddddd
+  BackgroundColor<<data>> #fff1c9
+  BackgroundColor<<tools>> #e7d9fd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Components" <<core>> {
+  rectangle "QuantumSystem" as QuantumSystem
+  rectangle "State" as State
+  rectangle "Edge" as Edge
+  QuantumSystem --> State
+  QuantumSystem --> Edge
+}
+
+package "Solvers" <<solvers>> {
+  rectangle "Solver (Abstract)" as Solver
+  rectangle "SingleStepScheme (Abstract)" as SingleStepScheme
+  rectangle "EulerForward" as Euler
+  rectangle "RichardsonSolver" as Richardson
+  rectangle "MonteCarloWanderer" as MonteCarlo
+  Solver <|-- SingleStepScheme
+  SingleStepScheme <|-- Euler
+  SingleStepScheme <|-- Richardson
+  Solver <|-- MonteCarlo
+}
+
+package "Parallel Processing" <<parallel>> {
+  rectangle "Experiment" as Experiment
+  rectangle "WorkSource" as WorkSource
+  rectangle "Thread Pool" as ThreadPool
+  Experiment --> WorkSource
+  WorkSource --> ThreadPool
+}
+
+package "Data Storage" <<data>> {
+  rectangle "GraphML Files" as GraphML
+  rectangle "METADATA.json" as JSON
+  rectangle "METADATA.csv" as CSV
+  QuantumSystem --> GraphML
+  Experiment --> JSON
+  Experiment --> CSV
+}
+
+package "Utilities" <<tools>> {
+  rectangle "fileUtility.py" as FileUtil
+  rectangle "quantities.py" as Quantities
+  rectangle "plotChargeCurve.py" as Plotter
+  rectangle "binaryNumberUtility.py" as BinaryUtil
+  FileUtil --> GraphML
+  Quantities --> JSON
+  Plotter --> CSV
+}
+
+QuantumSystem --> Solver
+Experiment --> Solver
+Experiment --> QuantumSystem
+@enduml

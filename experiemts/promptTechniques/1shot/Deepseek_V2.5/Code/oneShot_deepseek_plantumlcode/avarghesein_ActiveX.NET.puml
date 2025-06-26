@@ -1,0 +1,49 @@
+@startuml avarghesein_ActiveX.NET
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "Client Application" as Client
+
+rectangle "ActiveX.NET.Server (EXE)" as Server {
+  rectangle "ActiveXServerContext" as Context
+  rectangle "ActiveXServers (MEF)" as MEF
+  rectangle "DefaultActiveXFactory" as Factory
+}
+
+rectangle "ActiveX.NET.Plugin (DLL)" as Plugin {
+  rectangle "CoClass" as CoClass
+  rectangle "SimpleObject" as SimpleObject
+}
+
+rectangle "ActiveX.NET.Common" as Common {
+  rectangle "IActiveXServer" as Interface
+  rectangle "ActiveXServerBase" as Base
+  rectangle "ActiveXServerAttribute" as Attribute
+}
+
+' ========== Connections ==========
+Client -> Server : COM calls
+Server -> Context : Initialize
+Context -> MEF : Discover plugins
+MEF --> Plugin : Load DLL
+MEF -> Factory : Create instances
+Factory -> CoClass : Instantiate
+CoClass -up-> Interface : Implements
+CoClass -up-> Base : Inherits
+CoClass -up-> Attribute : Decorated with
+SimpleObject -up-> CoClass : Inherits
+
+note right of Context
+  Handles registration/unregistration
+  Manages COM server lifecycle
+end note
+
+note right of MEF
+  Dynamically loads COM objects
+  from plugin DLLs
+end note
+@enduml

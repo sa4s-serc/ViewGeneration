@@ -1,0 +1,66 @@
+@startuml boot2podman_machine
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "CLI" as CLI {
+}
+
+rectangle "Libmachine" as Libmachine #mistyrose {
+  rectangle "Host" as Host
+  rectangle "Filestore" as Filestore
+}
+
+rectangle "Drivers" as Drivers #lightsteelblue {
+  rectangle "VirtualBox" as VirtualBox
+  rectangle "QEMU" as QEMU
+  rectangle "Generic" as Generic
+}
+
+rectangle "Provisioners" as Provisioners #palegreen {
+  rectangle "Boot2Podman" as Boot2Podman
+  rectangle "RedHat" as RedHat
+  rectangle "Fedora" as Fedora
+}
+
+rectangle "VM" as VM #aliceblue {
+  rectangle "Podman" as Podman
+  rectangle "SSH" as SSH
+}
+
+rectangle "Network" as Network #lightyellow {
+  rectangle "Netfilter" as Netfilter
+  rectangle "NFTables" as NFTables
+}
+
+' ========== Connections ==========
+User -> CLI : Issues commands\n(create/start/stop/rm/etc)
+
+CLI -> Libmachine : Executes commands
+Libmachine -> Host : Manages VM state
+Libmachine -> Filestore : Reads/writes config
+
+Libmachine -> Drivers : Driver operations
+Drivers -> VirtualBox : Hypervisor calls
+Drivers -> QEMU : Hypervisor calls
+Drivers -> Generic : Hypervisor calls
+
+Libmachine -> Provisioners : Provisioning
+Provisioners -> Boot2Podman : OS-specific setup
+Provisioners -> RedHat : OS-specific setup
+Provisioners -> Fedora : OS-specific setup
+
+Drivers -> VM : Manages VM lifecycle
+Provisioners -> VM : Configures VM
+VM -> Podman : Runs containers
+VM -> SSH : Remote access
+
+VM -> Network : Network config
+Network -> Netfilter : Packet filtering
+Network -> NFTables : Packet manipulation
+@enduml

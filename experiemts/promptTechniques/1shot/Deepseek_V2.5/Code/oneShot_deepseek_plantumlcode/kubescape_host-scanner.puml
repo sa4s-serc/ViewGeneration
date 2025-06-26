@@ -1,0 +1,74 @@
+@startuml kubescape_host-scanner
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<sensor>> #d8f5d3
+  BackgroundColor<<http>> #fddddd
+  BackgroundColor<<utils>> #fff1c9
+  BackgroundColor<<test>> #e6d9fd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core" <<core>> {
+  rectangle "Main (sensor.go)" as Main
+  rectangle "Configuration" as Config
+  rectangle "Logging (go-logger/zap)" as Logging
+  rectangle "OpenTelemetry" as OTEL
+  Main --> Config
+  Main --> Logging
+  Main --> OTEL
+}
+
+package "HTTP Layer" <<http>> {
+  rectangle "HTTP Server" as Server
+  rectangle "Handlers (httphandlers.go)" as Handlers
+  rectangle "Middleware (negroni)" as Middleware
+  Server --> Middleware
+  Middleware --> Handlers
+}
+
+package "Sensors" <<sensor>> {
+  rectangle "OS Info" as OS
+  rectangle "Network" as Network
+  rectangle "Container Runtime" as Container
+  rectangle "Kubelet" as Kubelet
+  rectangle "Control Plane" as ControlPlane
+  rectangle "Security" as Security
+  rectangle "Cloud" as Cloud
+}
+
+package "Utilities" <<utils>> {
+  rectangle "Container Runtime Utils" as RuntimeUtils
+  rectangle "File Utils" as FileUtils
+  rectangle "Parsing Utils" as ParseUtils
+}
+
+package "Testing" <<test>> {
+  rectangle "E2E Tests" as E2E
+  rectangle "Kind Cluster" as Kind
+  rectangle "Test Data" as TestData
+  E2E --> Kind
+  E2E --> TestData
+}
+
+Handlers --> OS
+Handlers --> Network
+Handlers --> Container
+Handlers --> Kubelet
+Handlers --> ControlPlane
+Handlers --> Security
+Handlers --> Cloud
+
+OS --> FileUtils
+Network --> FileUtils
+Container --> RuntimeUtils
+Kubelet --> FileUtils
+ControlPlane --> FileUtils
+Security --> FileUtils
+Cloud --> ParseUtils
+
+RuntimeUtils --> FileUtils
+FileUtils --> ParseUtils
+
+Main --> Server
+@enduml

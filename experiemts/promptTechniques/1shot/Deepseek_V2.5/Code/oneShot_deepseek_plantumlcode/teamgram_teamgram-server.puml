@@ -1,0 +1,85 @@
+@startuml teamgram_teamgram-server
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<bff>> #d8f5d3
+  BackgroundColor<<storage>> #fddddd
+  BackgroundColor<<infra>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Services" <<core>> {
+  rectangle "User Service" as User
+  rectangle "Chat Service" as Chat
+  rectangle "Message Service" as Message
+  rectangle "Auth Service" as Auth
+  rectangle "Media Service" as Media
+  rectangle "Username Service" as Username
+  rectangle "Dialog Service" as Dialog
+  rectangle "Update Service" as Update
+  rectangle "ID Generation" as IDGen
+}
+
+package "BFF Layer" <<bff>> {
+  rectangle "Messages BFF" as MsgBFF
+  rectangle "Privacy BFF" as PrivacyBFF
+}
+
+package "Storage" <<storage>> {
+  database "MySQL" as MySQL
+  database "Redis" as Redis
+  database "MinIO" as MinIO
+}
+
+package "Infrastructure" <<infra>> {
+  rectangle "Kafka" as Kafka
+  rectangle "Etcd" as Etcd
+  rectangle "gRPC" as gRPC
+}
+
+User --> MySQL
+Chat --> MySQL
+Message --> MySQL
+Auth --> Redis
+Media --> MinIO
+Username --> MySQL
+Dialog --> MySQL
+Update --> MySQL
+IDGen --> Redis
+
+MsgBFF --> Message
+MsgBFF --> Chat
+PrivacyBFF --> User
+
+Message --> Kafka
+Update --> Kafka
+
+User -[hidden]-> Chat
+Chat -[hidden]-> Message
+Message -[hidden]-> Auth
+Auth -[hidden]-> Media
+Media -[hidden]-> Username
+Username -[hidden]-> Dialog
+Dialog -[hidden]-> Update
+Update -[hidden]-> IDGen
+
+gRPC ..> User
+gRPC ..> Chat
+gRPC ..> Message
+gRPC ..> Auth
+gRPC ..> Media
+gRPC ..> Username
+gRPC ..> Dialog
+gRPC ..> Update
+gRPC ..> IDGen
+
+Etcd ..> User
+Etcd ..> Chat
+Etcd ..> Message
+Etcd ..> Auth
+Etcd ..> Media
+Etcd ..> Username
+Etcd ..> Dialog
+Etcd ..> Update
+Etcd ..> IDGen
+@enduml

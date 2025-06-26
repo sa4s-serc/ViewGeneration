@@ -1,0 +1,33 @@
+@startuml andersonkmi_credit-card-bindb-service-aws
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "External System" as ExtSystem
+
+rectangle "API Gateway" as APIGW #lightblue
+
+rectangle "AWS Lambda" as Lambda {
+  rectangle "CSV Processor" as CSVProc #palegreen
+  rectangle "Data Transformer" as DataTrans #palegreen
+  rectangle "BIN Query Handler" as QueryHandler #palegreen
+}
+
+rectangle "S3" as S3 #aliceblue
+rectangle "SQS/Kinesis" as Queue #lightyellow
+rectangle "DynamoDB" as DynamoDB #mistyrose
+
+' ========== Connections ==========
+ExtSystem --> APIGW : API Requests
+APIGW --> QueryHandler : Query BIN Data
+QueryHandler --> DynamoDB : Read BIN Records
+
+ExtSystem --> S3 : Upload CSV Files
+S3 --> CSVProc : Trigger on new file
+CSVProc --> Queue : Split into messages
+Queue --> DataTrans : Process messages
+DataTrans --> DynamoDB : Store processed BIN data
+@enduml

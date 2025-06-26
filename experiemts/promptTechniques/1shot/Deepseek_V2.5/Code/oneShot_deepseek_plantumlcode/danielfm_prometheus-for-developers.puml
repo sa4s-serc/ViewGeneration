@@ -1,0 +1,38 @@
+@startuml danielfm_prometheus-for-developers
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+rectangle "Sample Node.js App" as App #lightblue {
+}
+
+rectangle "Prometheus" as Prometheus #palegreen {
+}
+
+rectangle "Alertmanager" as Alertmanager #mistyrose {
+}
+
+rectangle "Grafana" as Grafana #lightyellow {
+}
+
+' ========== Connections ==========
+App --> Prometheus : Exposes /metrics endpoint\n(pull-based scraping)
+Prometheus --> Alertmanager : Sends alerts based on rules
+Prometheus --> Grafana : Provides metrics data
+Grafana --> Prometheus : Queries for visualization
+
+' Alert flow
+Prometheus --> Prometheus : Evaluates alert rules
+Prometheus --> Alertmanager : Fires alerts
+Alertmanager --> Alertmanager : Groups/deduplicates alerts
+Alertmanager --> Alertmanager : Routes alerts to receivers
+
+' Data flow
+App --> App : Generates metrics\n(via prom-client)
+Prometheus --> Prometheus : Scrapes metrics\nfrom targets
+Prometheus --> Prometheus : Stores time-series data
+Grafana --> Grafana : Renders dashboards\nfrom Prometheus data
+@enduml

@@ -1,0 +1,37 @@
+@startuml quasirsg_Henry-M3
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Frontend" as FE {
+}
+
+rectangle "Node.js Server" as Node {
+  rectangle "Express.js" as Express #palegreen
+  rectangle "Custom $Promise" as Promise #lightsteelblue
+}
+
+rectangle "Testing Framework" as Testing {
+  rectangle "Mocha/Chai" as Mocha #lightyellow
+  rectangle "Supertest" as Supertest #aliceblue
+}
+
+' ========== Connections ==========
+User -> FE : HTTP Requests
+FE -> Express : Routes requests
+Express -> Promise : Handles async operations
+Promise --> Express : Returns resolved/rejected
+Express --> FE : Sends response
+
+Express -> Mocha : Runs tests
+Mocha -> Supertest : API testing
+Supertest -> Express : Sends test requests
+Express --> Supertest : Returns test responses
+
+Express -> Express : Middleware processing
+@enduml

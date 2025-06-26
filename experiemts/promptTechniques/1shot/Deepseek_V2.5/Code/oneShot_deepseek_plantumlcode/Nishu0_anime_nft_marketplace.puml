@@ -1,0 +1,39 @@
+@startuml Nishu0_anime_nft_marketplace
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Frontend (Next.js)" as FE {
+  rectangle "NFTContext" as Context #lightblue
+}
+
+rectangle "Blockchain (Ethereum/Polygon)" as Blockchain #mistyrose {
+  rectangle "NFTMarketplace\nSmart Contract" as Contract #palegreen
+}
+
+rectangle "IPFS" as IPFS #aliceblue
+
+rectangle "Metamask" as Wallet #lightyellow
+
+' ========== Connections ==========
+User --> FE : Interacts with UI
+User --> Wallet : Approves transactions
+
+' Frontend interactions
+FE --> Wallet : Connects wallet\nSigns transactions
+FE <--> Blockchain : Calls contract functions\n(fetchNFTs, createSale, buyNft)
+FE --> IPFS : Uploads NFT metadata\nFetches NFT images
+
+' Context interactions
+Context --> FE : Provides state\nand functions
+Context --> Blockchain : Writes contract calls\nvia ethers.js
+Context --> IPFS : Manages IPFS uploads
+
+' Contract interactions
+Blockchain --> Wallet : Requires transaction\nsignatures
+@enduml

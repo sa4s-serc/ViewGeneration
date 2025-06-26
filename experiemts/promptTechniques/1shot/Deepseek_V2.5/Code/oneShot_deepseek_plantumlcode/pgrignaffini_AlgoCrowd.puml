@@ -1,0 +1,47 @@
+@startuml pgrignaffini_AlgoCrowd
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<blockchain>> #fddddd
+  BackgroundColor<<db>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend (Next.js)" <<frontend>> {
+  rectangle "Pages\n(Home, Create, Details)" as Pages
+  rectangle "Components\n(Header, Project, Forms)" as Components
+  rectangle "API Client" as APIClient
+  rectangle "App Context" as Context
+  rectangle "Utils\n(Contract, Tx Ops)" as FrontendUtils
+  Pages --> Components
+  Components --> APIClient
+  Components --> Context
+  APIClient --> Context
+  Context --> FrontendUtils
+}
+
+package "Backend (Express.js)" <<backend>> {
+  rectangle "REST API Endpoints" as API
+  rectangle "Route Handlers" as Handlers
+  rectangle "DAO Layer" as DAO
+  API --> Handlers
+  Handlers --> DAO
+}
+
+package "Algorand Blockchain" <<blockchain>> {
+  rectangle "Smart Contracts\n(PyTeal)" as Contracts
+  rectangle "AlgoSigner" as AlgoSigner
+  rectangle "Algod Client" as Algod
+  Contracts --> Algod
+  AlgoSigner --> Algod
+}
+
+database "SQLite Database" <<db>> as DB
+DAO --> DB
+
+FrontendUtils --> Contracts
+APIClient --> API
+Context --> Algod
+Handlers --> Contracts
+@enduml

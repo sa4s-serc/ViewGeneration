@@ -1,0 +1,50 @@
+@startuml opstree_OT-Microservices-Training
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Frontend" as Frontend {
+}
+
+rectangle "Webserver" as Webserver {
+}
+
+rectangle "API Gateway" as Gateway {
+}
+
+rectangle "Employee Service" as EmployeeService #lightblue
+rectangle "Attendance Service" as AttendanceService #lightgreen
+rectangle "Salary Service" as SalaryService #lightyellow
+rectangle "Notification Service" as NotificationService #mistyrose
+
+rectangle "Databases" as Databases {
+  rectangle "MySQL" as MySQL #palegreen
+  rectangle "Elasticsearch" as Elasticsearch #aliceblue
+}
+
+' ========== Connections ==========
+User --> Frontend : Interacts with UI
+Frontend --> Webserver : Serves static assets
+Webserver --> Frontend : Returns frontend app
+
+Frontend --> Gateway : API requests
+Gateway --> EmployeeService : /employee/**
+Gateway --> AttendanceService : /attendance/**
+Gateway --> SalaryService : /salary/**
+
+EmployeeService --> MySQL : CRUD operations
+AttendanceService --> MySQL : CRUD operations
+SalaryService --> Elasticsearch : CRUD operations
+
+NotificationService --> Elasticsearch : Reads employee data
+NotificationService --> NotificationService : Sends emails
+
+EmployeeService --> EmployeeService : Business logic
+AttendanceService --> AttendanceService : Business logic
+SalaryService --> SalaryService : Salary calculations
+@enduml

@@ -1,0 +1,52 @@
+@startuml intel_edge-insights-vision
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<scripts>> #d8f5d3
+  BackgroundColor<<docs>> #fddddd
+  BackgroundColor<<docker>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Components" <<core>> {
+  rectangle "eiv_install.sh" as install
+  rectangle "eiv_setup.py" as setup
+  rectangle "requirements.txt" as reqs
+  install --> setup
+  setup --> reqs
+}
+
+package "Script Modules" <<scripts>> {
+  rectangle "eiv_callbacks.sh" as callbacks
+  rectangle "launch_notebooks.sh" as notebooks
+  rectangle "adl_*.sh" as adl_scripts
+  install --> callbacks
+  callbacks --> notebooks
+  callbacks --> adl_scripts
+}
+
+package "Documentation" <<docs>> {
+  rectangle "README.md" as readme
+  rectangle "docs/*" as docs_folder
+  rectangle "LICENSE" as license
+  install --> readme
+  readme --> docs_folder
+  readme --> license
+}
+
+package "Docker Integration" <<docker>> {
+  rectangle "Docker Images" as docker_images
+  rectangle "Container Runtime" as container
+  callbacks --> docker_images
+  docker_images --> container
+  notebooks --> container
+}
+
+database "OpenVINO Toolkit" as openvino
+database "Intel Drivers" as drivers
+database "Jupyter Notebooks" as jupyter
+
+setup --> openvino
+callbacks --> drivers
+container --> jupyter
+@enduml

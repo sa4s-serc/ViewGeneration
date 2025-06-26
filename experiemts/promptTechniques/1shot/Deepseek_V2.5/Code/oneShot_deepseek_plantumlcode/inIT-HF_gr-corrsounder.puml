@@ -1,0 +1,54 @@
+@startuml IT-HF_gr-corrsounder
+skinparam rectangle {
+  BackgroundColor<<cpp>> #d9e7fd
+  BackgroundColor<<python>> #d8f5d3
+  BackgroundColor<<grc>> #fddddd
+  BackgroundColor<<utils>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "C++ Core Blocks" <<cpp>> {
+  rectangle "Sequence Generation\n(FZC/MLS)" as SeqGen
+  rectangle "Correlation Blocks" as Corr
+  rectangle "Error Correction" as ErrorCorr
+  rectangle "Moving Average" as MA
+  rectangle "Sequence Gate" as SeqGate
+  rectangle "Ramdisk File Sink" as Ramdisk
+  rectangle "IR SNR Detection" as IRSNR
+  SeqGen --> Corr
+  Corr --> ErrorCorr
+  ErrorCorr --> MA
+  MA --> SeqGate
+  SeqGate --> Ramdisk
+  Corr --> IRSNR
+}
+
+package "Python Integration" <<python>> {
+  rectangle "SWIG Bindings" as SWIG
+  rectangle "pycorrsounder\n(Standalone)" as PyCorr
+  rectangle "Unit Tests" as Tests
+  SWIG --> PyCorr
+  PyCorr --> Tests
+}
+
+package "GNU Radio Companion" <<grc>> {
+  rectangle "GRC XML Blocks" as GRC
+  rectangle "Example Flowgraphs" as Examples
+  GRC --> Examples
+}
+
+package "Utilities" <<utils>> {
+  rectangle "Doxygen XML Parser" as Doxy
+  rectangle "CMake Build System" as CMake
+  rectangle "Documentation" as Docs
+  Doxy --> Docs
+}
+
+SeqGen -[hidden]-> SWIG
+SWIG --> GRC
+PyCorr --> GRC
+CMake --> SeqGen
+CMake --> SWIG
+CMake --> GRC
+@enduml

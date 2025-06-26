@@ -1,0 +1,51 @@
+@startuml turkcellcloud_jupyter-openshift
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<auth>> #fddddd
+  BackgroundColor<<storage>> #fff1c9
+  BackgroundColor<<infra>> #e6e6fa
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend" <<frontend>> {
+  rectangle "JupyterLab UI" as JupyterLab
+  rectangle "Notebook Server" as Notebook
+  JupyterLab --> Notebook
+}
+
+package "Backend" <<backend>> {
+  rectangle "JupyterHub" as JupyterHub
+  rectangle "KubeSpawner" as KubeSpawner
+  rectangle "PostgreSQL" as PostgreSQL
+  JupyterHub --> KubeSpawner
+  JupyterHub --> PostgreSQL
+}
+
+package "Authentication" <<auth>> {
+  rectangle "LDAP/AD Auth" as LDAP
+  rectangle "RBAC" as RBAC
+  JupyterHub --> LDAP
+  JupyterHub --> RBAC
+}
+
+package "Storage" <<storage>> {
+  rectangle "Persistent Volumes" as PV
+  rectangle "ConfigMaps" as ConfigMaps
+  Notebook --> PV
+  JupyterHub --> ConfigMaps
+}
+
+package "Infrastructure" <<infra>> {
+  rectangle "OpenShift 3.11" as OpenShift
+  rectangle "Network Policies" as NetPol
+  rectangle "Docker Images" as Docker
+  JupyterHub --> OpenShift
+  OpenShift --> NetPol
+  OpenShift --> Docker
+}
+
+Notebook --> JupyterHub
+KubeSpawner --> OpenShift
+@enduml

@@ -1,0 +1,53 @@
+@startuml qaware_cloud-native-weather-javaee
+skinparam rectangle {
+  BackgroundColor<<api>> #d9e7fd
+  BackgroundColor<<service>> #d8f5d3
+  BackgroundColor<<integration>> #fddddd
+  BackgroundColor<<db>> #fff1c9
+  BackgroundColor<<infra>> #e6d9fd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "API Layer" <<api>> {
+  rectangle "WeatherResource\n(JAX-RS)" as WeatherResource
+}
+
+package "Service Layer" <<service>> {
+  rectangle "WeatherService\n(Business Logic)" as WeatherService
+  rectangle "WeatherRepository\n(Data Access)" as WeatherRepository
+  WeatherResource --> WeatherService
+  WeatherService --> WeatherRepository
+}
+
+package "External Integrations" <<integration>> {
+  rectangle "OpenWeatherMapConnector\n(Fault Tolerance)" as OWMConnector
+  rectangle "OpenWeatherMap API" as OWMAPI
+  WeatherService --> OWMConnector
+  OWMConnector --> OWMAPI
+}
+
+package "Database" <<db>> {
+  rectangle "PostgreSQL" as PostgreSQL
+  rectangle "WeatherEntity\n(JPA)" as WeatherEntity
+  WeatherRepository --> WeatherEntity
+  WeatherEntity --> PostgreSQL
+}
+
+package "Infrastructure" <<infra>> {
+  rectangle "Health Checks\n(Liveness/Readiness)" as HealthChecks
+  rectangle "Metrics" as Metrics
+  rectangle "Configuration\n(Env Vars)" as Config
+  WeatherResource --> HealthChecks
+  WeatherResource --> Metrics
+  WeatherService --> Config
+}
+
+package "Deployment" <<infra>> {
+  rectangle "Docker" as Docker
+  rectangle "Kubernetes" as Kubernetes
+  rectangle "CI/CD\n(GitHub Actions)" as CICD
+  Docker --> Kubernetes
+  Kubernetes --> CICD
+}
+@enduml
