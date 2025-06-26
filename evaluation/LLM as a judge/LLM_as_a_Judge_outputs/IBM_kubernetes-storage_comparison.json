@@ -1,0 +1,344 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Represents a user interacting with the system",
+        "boundary": "External",
+        "position": "Left"
+      },
+      {
+        "name": "Kubernetes API",
+        "description": "Represents the Kubernetes API endpoint",
+        "boundary": "Internal",
+        "position": "Middle"
+      },
+      {
+        "name": "IBM Cloud Storage",
+        "description": "Represents the IBM Cloud Storage service",
+        "boundary": "External",
+        "position": "Middle"
+      },
+      {
+        "name": "Guestbook App",
+        "description": "Represents the Guestbook application",
+        "boundary": "Internal",
+        "position": "Middle"
+      },
+      {
+        "name": "Helm",
+        "description": "Represents the Helm package manager",
+        "boundary": "Internal",
+        "position": "Middle"
+      },
+      {
+        "name": "MongoDB",
+        "description": "Represents the MongoDB database",
+        "boundary": "Internal",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Kubernetes API",
+        "label": "kubectl apply -f deployment.yaml",
+        "type": "Message"
+      },
+      {
+        "source": "Kubernetes API",
+        "target": "IBM Cloud Storage",
+        "label": "Request storage provisioning",
+        "type": "Message"
+      },
+      {
+        "source": "IBM Cloud Storage",
+        "target": "Kubernetes API",
+        "label": "Provisioned storage details",
+        "type": "Message"
+      },
+      {
+        "source": "Kubernetes API",
+        "target": "Helm",
+        "label": "Install MongoDB chart",
+        "type": "Message"
+      },
+      {
+        "source": "Helm",
+        "target": "Kubernetes API",
+        "label": "Create MongoDB deployment",
+        "type": "Message"
+      },
+      {
+        "source": "Kubernetes API",
+        "target": "IBM Cloud Storage",
+        "label": "Request persistent volume",
+        "type": "Message"
+      },
+      {
+        "source": "IBM Cloud Storage",
+        "target": "Kubernetes API",
+        "label": "Persistent volume created",
+        "type": "Message"
+      },
+      {
+        "source": "Kubernetes API",
+        "target": "Guestbook App",
+        "label": "Deploy application",
+        "type": "Message"
+      },
+      {
+        "source": "Guestbook App",
+        "target": "MongoDB",
+        "label": "Connect to database",
+        "type": "Message"
+      },
+      {
+        "source": "MongoDB",
+        "target": "Guestbook App",
+        "label": "Connection established",
+        "type": "Message"
+      },
+      {
+        "source": "Guestbook App",
+        "target": "Kubernetes API",
+        "label": "Application running",
+        "type": "Message"
+      },
+      {
+        "source": "Kubernetes API",
+        "target": "User",
+        "label": "Deployment complete",
+        "type": "Message"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {}
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Kube API",
+        "description": null,
+        "boundary": "Internal",
+        "position": "Left"
+      },
+      {
+        "name": "Secrets",
+        "description": null,
+        "boundary": "Internal",
+        "position": "Top"
+      },
+      {
+        "name": "Storage Class",
+        "description": null,
+        "boundary": "Internal",
+        "position": "Top"
+      },
+      {
+        "name": "PVC",
+        "description": null,
+        "boundary": "Internal",
+        "position": "Top"
+      },
+      {
+        "name": "Object Storage Bucket Provisioner",
+        "description": null,
+        "boundary": "Internal",
+        "position": "Middle"
+      },
+      {
+        "name": "Kube FlexDriver",
+        "description": null,
+        "boundary": "Internal",
+        "position": "Middle"
+      },
+      {
+        "name": "Kube Scheduler",
+        "description": null,
+        "boundary": "Internal",
+        "position": "Middle"
+      },
+      {
+        "name": "Kubelet",
+        "description": null,
+        "boundary": "Internal",
+        "position": "Middle"
+      },
+      {
+        "name": "Container",
+        "description": null,
+        "boundary": "Internal",
+        "position": "Top Right"
+      },
+      {
+        "name": "S3FS Fuse Module",
+        "description": null,
+        "boundary": "Internal",
+        "position": "Middle Right"
+      },
+      {
+        "name": "Cloud Object Storage",
+        "description": null,
+        "boundary": "Internal",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Kube API",
+        "target": "Secrets",
+        "label": "Create Secret",
+        "type": "API Calls"
+      },
+      {
+        "source": "Kube API",
+        "target": "Object Storage Bucket Provisioner",
+        "label": "Create PVC",
+        "type": "API Calls"
+      },
+      {
+        "source": "Kube API",
+        "target": "Kube Scheduler",
+        "label": "Create POD With PVC",
+        "type": "API Calls"
+      },
+      {
+        "source": "Secrets",
+        "target": "Object Storage Bucket Provisioner",
+        "label": null,
+        "type": "API Calls"
+      },
+      {
+        "source": "Storage Class",
+        "target": "Object Storage Bucket Provisioner",
+        "label": null,
+        "type": "API Calls"
+      },
+      {
+        "source": "PVC",
+        "target": "Object Storage Bucket Provisioner",
+        "label": null,
+        "type": "API Calls"
+      },
+      {
+        "source": "Object Storage Bucket Provisioner",
+        "target": "Cloud Object Storage",
+        "label": null,
+        "type": "API Calls"
+      },
+      {
+        "source": "Object Storage Bucket Provisioner",
+        "target": "Kube FlexDriver",
+        "label": null,
+        "type": "API Calls"
+      },
+      {
+        "source": "Kube FlexDriver",
+        "target": "S3FS Fuse Module",
+        "label": null,
+        "type": "API Calls"
+      },
+      {
+        "source": "S3FS Fuse Module",
+        "target": "Cloud Object Storage",
+        "label": null,
+        "type": "Data"
+      },
+      {
+        "source": "Kubelet",
+        "target": "Cloud Object Storage",
+        "label": null,
+        "type": "API Calls"
+      },
+      {
+        "source": "Kube Scheduler",
+        "target": "Kubelet",
+        "label": null,
+        "type": "API Calls"
+      },
+      {
+        "source": "Container",
+        "target": "S3FS Fuse Module",
+        "label": "Volume",
+        "type": "API Calls"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Kubernetes",
+        "components": [
+          "Kube API",
+          "Secrets",
+          "Storage Class",
+          "PVC",
+          "Object Storage Bucket Provisioner",
+          "Kube FlexDriver",
+          "Kube Scheduler",
+          "Kubelet",
+          "Container",
+          "S3FS Fuse Module"
+        ]
+      }
+    ],
+    "metadata": {}
+  },
+  "comparison": {
+    "common_components": [],
+    "unique_to_GroundTruth": [
+      "User",
+      "Kubernetes API",
+      "IBM Cloud Storage",
+      "Guestbook App",
+      "Helm",
+      "MongoDB"
+    ],
+    "unique_to_GeneratedImage": [
+      "Kube API",
+      "Secrets",
+      "Storage Class",
+      "PVC",
+      "Object Storage Bucket Provisioner",
+      "Kube FlexDriver",
+      "Kube Scheduler",
+      "Kubelet",
+      "Container",
+      "S3FS Fuse Module",
+      "Cloud Object Storage"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      "User to Kubernetes API - kubectl apply -f deployment.yaml",
+      "Kubernetes API to IBM Cloud Storage - Request storage provisioning",
+      "IBM Cloud Storage to Kubernetes API - Provisioned storage details",
+      "Kubernetes API to Helm - Install MongoDB chart",
+      "Helm to Kubernetes API - Create MongoDB deployment",
+      "Kubernetes API to IBM Cloud Storage - Request persistent volume",
+      "IBM Cloud Storage to Kubernetes API - Persistent volume created",
+      "Kubernetes API to Guestbook App - Deploy application",
+      "Guestbook App to MongoDB - Connect to database",
+      "MongoDB to Guestbook App - Connection established",
+      "Guestbook App to Kubernetes API - Application running",
+      "Kubernetes API to User - Deployment complete"
+    ],
+    "unique_connectors_GeneratedImage": [
+      "Kube API to Secrets - Create Secret",
+      "Kube API to Object Storage Bucket Provisioner - Create PVC",
+      "Kube API to Kube Scheduler - Create POD With PVC",
+      "Secrets to Object Storage Bucket Provisioner",
+      "Storage Class to Object Storage Bucket Provisioner",
+      "PVC to Object Storage Bucket Provisioner",
+      "Object Storage Bucket Provisioner to Cloud Object Storage",
+      "Object Storage Bucket Provisioner to Kube FlexDriver",
+      "Kube FlexDriver to S3FS Fuse Module",
+      "S3FS Fuse Module to Cloud Object Storage",
+      "Kubelet to Cloud Object Storage",
+      "Kube Scheduler to Kubelet",
+      "Container to S3FS Fuse Module - Volume"
+    ],
+    "explanation": "The GroundTruth diagram depicts a sequence diagram illustrating the deployment of an application (Guestbook App) using Kubernetes, Helm, and IBM Cloud Storage. It focuses on the interaction between User, Kubernetes API, IBM Cloud Storage, Helm, Guestbook App and MongoDB. In contrast, the GeneratedImage diagram shows a more detailed component diagram of Kubernetes storage provisioning, involving components like Kube API, Secrets, Storage Class, PVC, Object Storage Bucket Provisioner, Kube FlexDriver, Kube Scheduler, Kubelet, Container, S3FS Fuse Module, and Cloud Object Storage. These images are very different in their purpose. One outlines interaction between systems, while the other details how a kubernetes volume is provisioned. Because of this, there are no common components or connectors.",
+    "Rating": 2
+  }
+}

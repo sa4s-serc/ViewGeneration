@@ -1,0 +1,355 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Stream Sources",
+        "description": "Kafka, Kinesis",
+        "boundary": "dashed",
+        "position": "top-left"
+      },
+      {
+        "name": "Raw Data",
+        "description": "",
+        "boundary": "solid",
+        "position": "top-left inside Stream Sources"
+      },
+      {
+        "name": "Transformed Data",
+        "description": "",
+        "boundary": "solid",
+        "position": "top-left inside Stream Sources"
+      },
+      {
+        "name": "Batch Sources",
+        "description": "Snowflake, BigQuery, Redshift, Synapse, S3, GCS",
+        "boundary": "dashed",
+        "position": "bottom-left"
+      },
+      {
+        "name": "Raw Data",
+        "description": "",
+        "boundary": "solid",
+        "position": "bottom-left inside Batch Sources"
+      },
+      {
+        "name": "Transformed Data",
+        "description": "",
+        "boundary": "solid",
+        "position": "bottom-left inside Batch Sources"
+      },
+      {
+        "name": "Feast",
+        "description": "Redis (Single Redis instance)",
+        "boundary": "none",
+        "position": "top-center"
+      },
+      {
+        "name": "Online Store",
+        "description": "Local",
+        "boundary": "none",
+        "position": "center"
+      },
+      {
+        "name": "Offline Store",
+        "description": "Local (Parquet files)",
+        "boundary": "none",
+        "position": "center"
+      },
+      {
+        "name": "Feature Server",
+        "description": "",
+        "boundary": "none",
+        "position": "top-center"
+      },
+      {
+        "name": "Feature Repo",
+        "description": "Local (yaml file)",
+        "boundary": "dashed",
+        "position": "bottom-center"
+      },
+      {
+        "name": "Registry",
+        "description": "Local (db file)",
+        "boundary": "dashed",
+        "position": "bottom-right"
+      },
+      {
+        "name": "Feast SDK",
+        "description": "",
+        "boundary": "none",
+        "position": "center"
+      },
+      {
+        "name": "Realtime Model Serving",
+        "description": "",
+        "boundary": "dashed",
+        "position": "right"
+      },
+      {
+        "name": "Model Training/Evaluation + Batch Scoring",
+        "description": "",
+        "boundary": "dashed",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Stream Sources",
+        "target": "Online Store",
+        "label": "store.push()",
+        "type": "arrow"
+      },
+      {
+        "source": "Batch Sources",
+        "target": "Feature Repo",
+        "label": "store.push()",
+        "type": "arrow"
+      },
+      {
+        "source": "Online Store",
+        "target": "Feature Server",
+        "label": "push",
+        "type": "arrow"
+      },
+      {
+        "source": "Feature Server",
+        "target": "Realtime Model Serving",
+        "label": "get_online_features",
+        "type": "arrow"
+      },
+      {
+        "source": "Offline Store",
+        "target": "Model Training/Evaluation + Batch Scoring",
+        "label": "get_historical_features",
+        "type": "arrow"
+      },
+      {
+        "source": "Feature Repo",
+        "target": "Registry",
+        "label": "Feast Apply",
+        "type": "arrow"
+      },
+      {
+        "source": "Feature Server",
+        "target": "Stream Sources",
+        "label": "feature_server:6565/push",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {}
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "",
+        "boundary": "none",
+        "position": "left"
+      },
+      {
+        "name": "Data Pipeline",
+        "description": "",
+        "boundary": "none",
+        "position": "center-left"
+      },
+      {
+        "name": "Feature Store (Feast)",
+        "description": "",
+        "boundary": "none",
+        "position": "center"
+      },
+      {
+        "name": "Online Store (Redis)",
+        "description": "",
+        "boundary": "none",
+        "position": "center"
+      },
+      {
+        "name": "Offline Store (Parquet)",
+        "description": "",
+        "boundary": "none",
+        "position": "center-right"
+      },
+      {
+        "name": "ML Model",
+        "description": "",
+        "boundary": "none",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Data Pipeline",
+        "label": "Triggers data ingestion",
+        "type": "arrow"
+      },
+      {
+        "source": "Data Pipeline",
+        "target": "Feature Store (Feast)",
+        "label": "Registers feature definitions",
+        "type": "arrow"
+      },
+      {
+        "source": "Feature Store (Feast)",
+        "target": "Data Pipeline",
+        "label": "Acknowledges registration",
+        "type": "arrow"
+      },
+      {
+        "source": "Data Pipeline",
+        "target": "Data Pipeline",
+        "label": "Fetches raw data",
+        "type": "arrow"
+      },
+      {
+        "source": "Data Pipeline",
+        "target": "Data Pipeline",
+        "label": "Transforms data",
+        "type": "arrow"
+      },
+      {
+        "source": "Data Pipeline",
+        "target": "Feature Store (Feast)",
+        "label": "Ingests features",
+        "type": "arrow"
+      },
+      {
+        "source": "Feature Store (Feast)",
+        "target": "Online Store (Redis)",
+        "label": "Stores features (online)",
+        "type": "arrow"
+      },
+      {
+        "source": "Feature Store (Feast)",
+        "target": "Offline Store (Parquet)",
+        "label": "Stores features (offline)",
+        "type": "arrow"
+      },
+      {
+        "source": "User",
+        "target": "ML Model",
+        "label": "Requests prediction",
+        "type": "arrow"
+      },
+      {
+        "source": "ML Model",
+        "target": "Online Store (Redis)",
+        "label": "Requests features (online)",
+        "type": "arrow"
+      },
+      {
+        "source": "Online Store (Redis)",
+        "target": "ML Model",
+        "label": "Retrieves features",
+        "type": "arrow"
+      },
+      {
+        "source": "ML Model",
+        "target": "Online Store (Redis)",
+        "label": "Returns features",
+        "type": "arrow"
+      },
+      {
+        "source": "ML Model",
+        "target": "User",
+        "label": "Returns prediction",
+        "type": "arrow"
+      },
+      {
+        "source": "User",
+        "target": "ML Model",
+        "label": "Requests batch prediction",
+        "type": "arrow"
+      },
+      {
+        "source": "ML Model",
+        "target": "Offline Store (Parquet)",
+        "label": "Requests features (offline)",
+        "type": "arrow"
+      },
+      {
+        "source": "Offline Store (Parquet)",
+        "target": "ML Model",
+        "label": "Retrieves features",
+        "type": "arrow"
+      },
+      {
+        "source": "ML Model",
+        "target": "Offline Store (Parquet)",
+        "label": "Returns features",
+        "type": "arrow"
+      },
+      {
+        "source": "ML Model",
+        "target": "User",
+        "label": "Returns predictions",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {}
+  },
+  "comparison": {
+    "common_components": [
+      "Feature Store (Feast)",
+      "Online Store (Redis)",
+      "Offline Store (Parquet)"
+    ],
+    "unique_to_GroundTruth": [
+      "Stream Sources",
+      "Batch Sources",
+      "Raw Data (inside Stream Sources)",
+      "Transformed Data (inside Stream Sources)",
+      "Raw Data (inside Batch Sources)",
+      "Transformed Data (inside Batch Sources)",
+      "Feast",
+      "Feature Server",
+      "Feature Repo",
+      "Registry",
+      "Feast SDK",
+      "Realtime Model Serving",
+      "Model Training/Evaluation + Batch Scoring"
+    ],
+    "unique_to_GeneratedImage": [
+      "User",
+      "Data Pipeline",
+      "ML Model"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      "Stream Sources to Online Store (store.push())",
+      "Batch Sources to Feature Repo (store.push())",
+      "Online Store to Feature Server (push)",
+      "Feature Server to Realtime Model Serving (get_online_features)",
+      "Offline Store to Model Training/Evaluation + Batch Scoring (get_historical_features)",
+      "Feature Repo to Registry (Feast Apply)",
+      "Feature Server to Stream Sources (feature_server:6565/push)"
+    ],
+    "unique_connectors_GeneratedImage": [
+      "User to Data Pipeline (Triggers data ingestion)",
+      "Data Pipeline to Feature Store (Feast) (Registers feature definitions)",
+      "Feature Store (Feast) to Data Pipeline (Acknowledges registration)",
+      "Data Pipeline to Data Pipeline (Fetches raw data)",
+      "Data Pipeline to Data Pipeline (Transforms data)",
+      "Data Pipeline to Feature Store (Feast) (Ingests features)",
+      "Feature Store (Feast) to Online Store (Redis) (Stores features (online))",
+      "Feature Store (Feast) to Offline Store (Parquet) (Stores features (offline))",
+      "User to ML Model (Requests prediction)",
+      "ML Model to Online Store (Redis) (Requests features (online))",
+      "Online Store (Redis) to ML Model (Retrieves features)",
+      "ML Model to Online Store (Redis) (Returns features)",
+      "ML Model to User (Returns prediction)",
+      "User to ML Model (Requests batch prediction)",
+      "ML Model to Offline Store (Parquet) (Requests features (offline))",
+      "Offline Store (Parquet) to ML Model (Retrieves features)",
+      "ML Model to Offline Store (Parquet) (Returns features)",
+      "ML Model to User (Returns predictions)"
+    ],
+    "explanation": "The ground truth diagram represents a data flow architecture centered around Feast, a feature store. It details the various data sources (Stream and Batch), the online and offline stores, feature server, feature repo and registry. The generated image uses a sequence diagram representation, outlining the interactions between a user, data pipeline, feature store, online store, offline store and ML model. The generated image simplifies some of the componentry (aggregates the feast internal pieces) and the data flows. The generated image focuses more on the request flow for feature retrieval, than the data flow of the ground truth.\n\nSimilarities include the presence of a feature store (Feast), online store (Redis), and offline store (Parquet). Differences include the representation style (data flow vs sequence), level of detail (the ground truth is more detailed), and the emphasis (ground truth is on data flows and feast internal architecture, while the generated image focus on the user interaction flow to the feature store and ML model).\n\nThe ground truth focuses on the infrastructure components and data flow whereas the generated image represents the runtime component interaction.\n",
+    "Rating": 6
+  }
+}

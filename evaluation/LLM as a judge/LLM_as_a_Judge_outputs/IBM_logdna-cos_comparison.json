@@ -1,0 +1,302 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "INTERNET SERVICES",
+        "description": "Services accessed over the internet",
+        "boundary": "implicit",
+        "position": "left"
+      },
+      {
+        "name": "OBJECT STORAGE",
+        "description": "Object storage service",
+        "boundary": "implicit",
+        "position": "middle-left"
+      },
+      {
+        "name": "NODE.JS",
+        "description": "Node.js application",
+        "boundary": "implicit",
+        "position": "middle"
+      },
+      {
+        "name": "LogDNA",
+        "description": "LogDNA service",
+        "boundary": "implicit",
+        "position": "right"
+      },
+      {
+        "name": "IBM CLOUD",
+        "description": "IBM Cloud environment",
+        "boundary": "explicit",
+        "position": "top-center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "INTERNET SERVICES",
+        "target": "OBJECT STORAGE",
+        "label": "1",
+        "type": "data flow"
+      },
+      {
+        "source": "OBJECT STORAGE",
+        "target": "NODE.JS",
+        "label": "2",
+        "type": "data flow"
+      },
+      {
+        "source": "NODE.JS",
+        "target": "LogDNA",
+        "label": "3",
+        "type": "data flow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "IBM CLOUD Boundary",
+        "components": [
+          "INTERNET SERVICES",
+          "OBJECT STORAGE",
+          "NODE.JS",
+          "LogDNA",
+          "IBM CLOUD"
+        ],
+        "type": "environment"
+      }
+    ],
+    "metadata": {}
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "COS Bucket",
+        "description": "Cloud Object Storage Bucket",
+        "boundary": "implicit",
+        "position": "left"
+      },
+      {
+        "name": "Serverless Function",
+        "description": "Serverless Function",
+        "boundary": "implicit",
+        "position": "middle-left"
+      },
+      {
+        "name": "LogDNA API",
+        "description": "LogDNA API endpoint",
+        "boundary": "implicit",
+        "position": "middle"
+      },
+      {
+        "name": "Archive COS Bucket",
+        "description": "Archive COS Bucket",
+        "boundary": "implicit",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "COS Bucket",
+        "target": "Serverless Function",
+        "label": "Object Created Event",
+        "type": "message"
+      },
+      {
+        "source": "Serverless Function",
+        "target": "COS Bucket",
+        "label": "Download Log File",
+        "type": "message"
+      },
+      {
+        "source": "COS Bucket",
+        "target": "Serverless Function",
+        "label": "Log File (Zipped)",
+        "type": "message"
+      },
+      {
+        "source": "Serverless Function",
+        "target": "LogDNA API",
+        "label": "Unzip and Parse Logs",
+        "type": "message"
+      },
+      {
+        "source": "Serverless Function",
+        "target": "LogDNA API",
+        "label": "Format Logs for LogDNA",
+        "type": "message"
+      },
+      {
+        "source": "Serverless Function",
+        "target": "LogDNA API",
+        "label": "Send Logs (POST)",
+        "type": "message"
+      },
+      {
+        "source": "LogDNA API",
+        "target": "Serverless Function",
+        "label": "200 OK",
+        "type": "message"
+      },
+      {
+        "source": "LogDNA API",
+        "target": "Serverless Function",
+        "label": "Error",
+        "type": "message"
+      },
+      {
+        "source": "Serverless Function",
+        "target": "Serverless Function",
+        "label": "Retry (3 attempts)",
+        "type": "message"
+      },
+      {
+        "source": "Serverless Function",
+        "target": "Archive COS Bucket",
+        "label": "Copy Processed File",
+        "type": "message"
+      },
+      {
+        "source": "Archive COS Bucket",
+        "target": "Serverless Function",
+        "label": "Success",
+        "type": "message"
+      },
+      {
+        "source": "Serverless Function",
+        "target": "COS Bucket",
+        "label": "Delete Original File",
+        "type": "message"
+      },
+      {
+        "source": "COS Bucket",
+        "target": "Serverless Function",
+        "label": "Success",
+        "type": "message"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {}
+  },
+  "comparison": {
+    "common_components": [
+      "LogDNA"
+    ],
+    "unique_to_GroundTruth": [
+      "INTERNET SERVICES",
+      "OBJECT STORAGE",
+      "NODE.JS",
+      "IBM CLOUD"
+    ],
+    "unique_to_GeneratedImage": [
+      "COS Bucket",
+      "Serverless Function",
+      "LogDNA API",
+      "Archive COS Bucket"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "INTERNET SERVICES",
+        "target": "OBJECT STORAGE",
+        "label": "1",
+        "type": "data flow"
+      },
+      {
+        "source": "OBJECT STORAGE",
+        "target": "NODE.JS",
+        "label": "2",
+        "type": "data flow"
+      },
+      {
+        "source": "NODE.JS",
+        "target": "LogDNA",
+        "label": "3",
+        "type": "data flow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "COS Bucket",
+        "target": "Serverless Function",
+        "label": "Object Created Event",
+        "type": "message"
+      },
+      {
+        "source": "Serverless Function",
+        "target": "COS Bucket",
+        "label": "Download Log File",
+        "type": "message"
+      },
+      {
+        "source": "COS Bucket",
+        "target": "Serverless Function",
+        "label": "Log File (Zipped)",
+        "type": "message"
+      },
+      {
+        "source": "Serverless Function",
+        "target": "LogDNA API",
+        "label": "Unzip and Parse Logs",
+        "type": "message"
+      },
+      {
+        "source": "Serverless Function",
+        "target": "LogDNA API",
+        "label": "Format Logs for LogDNA",
+        "type": "message"
+      },
+      {
+        "source": "Serverless Function",
+        "target": "LogDNA API",
+        "label": "Send Logs (POST)",
+        "type": "message"
+      },
+      {
+        "source": "LogDNA API",
+        "target": "Serverless Function",
+        "label": "200 OK",
+        "type": "message"
+      },
+      {
+        "source": "LogDNA API",
+        "target": "Serverless Function",
+        "label": "Error",
+        "type": "message"
+      },
+      {
+        "source": "Serverless Function",
+        "target": "Serverless Function",
+        "label": "Retry (3 attempts)",
+        "type": "message"
+      },
+      {
+        "source": "Serverless Function",
+        "target": "Archive COS Bucket",
+        "label": "Copy Processed File",
+        "type": "message"
+      },
+      {
+        "source": "Archive COS Bucket",
+        "target": "Serverless Function",
+        "label": "Success",
+        "type": "message"
+      },
+      {
+        "source": "Serverless Function",
+        "target": "COS Bucket",
+        "label": "Delete Original File",
+        "type": "message"
+      },
+      {
+        "source": "COS Bucket",
+        "target": "Serverless Function",
+        "label": "Success",
+        "type": "message"
+      }
+    ],
+    "explanation": "The GroundTruth diagram illustrates a high-level data flow from Internet Services to LogDNA via Object Storage and a Node.js application, all within the IBM Cloud environment. The GeneratedImage diagram, on the other hand, presents a more detailed sequence diagram of log processing using COS Buckets, a Serverless Function, and the LogDNA API. \n\nWhile both diagrams include LogDNA as a component, they differ significantly in their scope and representation. The GroundTruth provides a broad overview, while the GeneratedImage delves into the specifics of log handling and archiving. The GroundTruth uses data flow connectors to show the relationships between components, while the GeneratedImage represents the flow of control through a sequence of messages.  Components like 'Internet Services', 'Object Storage' and 'NODE.JS' in the GroundTruth image are absent in the Generated Image where they are replaced with components like 'COS Bucket', 'Serverless Function' and 'Archive COS Bucket'. The types of connections in both the diagrams are different and the overall architecture of both diagrams are completely different.\n",
+    "Rating": 3
+  }
+}

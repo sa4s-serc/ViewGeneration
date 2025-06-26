@@ -1,0 +1,596 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "SNS Notifications",
+        "description": "Cloudwatch alarm triggers an SNS topic to notify when records are in the dead letter queue.",
+        "type": "SNS",
+        "position": "top left",
+        "boundary": "cloud"
+      },
+      {
+        "name": "Cloudwatch Alarm",
+        "description": "Cloudwatch alarm triggers an SNS topic to notify when records are in the dead letter queue after 24 hours.",
+        "type": "Cloudwatch",
+        "position": "bottom left",
+        "boundary": "cloud",
+        "optional": true
+      },
+      {
+        "name": "SQS Queue",
+        "description": "Cloudwatch alarm triggers when items are on queue this is a failsafe",
+        "type": "SQS",
+        "position": "center left",
+        "boundary": "cloud"
+      },
+      {
+        "name": "Cloudwatch Alarm",
+        "description": "Cloudwatch alarm triggers when items are on queue this is a failsafe",
+        "type": "Cloudwatch",
+        "position": "center",
+        "boundary": "cloud",
+        "optional": true
+      },
+      {
+        "name": "SQS Queue",
+        "description": "Items in the queue that fail processing a number of times get moved to the dead letter queue",
+        "type": "SQS",
+        "position": "top center",
+        "boundary": "cloud"
+      },
+      {
+        "name": "Lambda Function",
+        "description": "Event triggers Lambda function at scheduled intervals",
+        "type": "Lambda",
+        "position": "top right",
+        "boundary": "cloud"
+      },
+      {
+        "name": "S3 Bucket",
+        "description": "S3 ObjectCreated event triggers SNS topic",
+        "type": "S3",
+        "position": "top right",
+        "boundary": "cloud"
+      },
+      {
+        "name": "SNS Topic",
+        "description": "SNS adds record to SNS topic when processing lambda function",
+        "type": "SNS",
+        "position": "center right",
+        "boundary": "cloud"
+      },
+      {
+        "name": "Lambda Function",
+        "description": "SNS adds record to SQS queue when processing lambda function",
+        "type": "Lambda",
+        "position": "center right",
+        "boundary": "cloud"
+      },
+      {
+        "name": "RDS",
+        "description": "Lambda adds data to database",
+        "type": "RDS",
+        "position": "bottom center",
+        "boundary": "cloud"
+      },
+      {
+        "name": "Lambda Function",
+        "description": "Lambda reads and processes file",
+        "type": "Lambda",
+        "position": "bottom right",
+        "boundary": "cloud"
+      },
+      {
+        "name": "S3 Bucket",
+        "description": "Lambda moves file to completed bucket",
+        "type": "S3",
+        "position": "bottom right",
+        "boundary": "cloud"
+      },
+      {
+        "name": "SNS Topic",
+        "description": "Lambda publishes message to SNS topic when done processing a file",
+        "type": "SNS",
+        "position": "bottom right",
+        "boundary": "cloud",
+        "optional": true
+      },
+      {
+        "name": "SNS Topic",
+        "description": "Alarm triggers SNS topic",
+        "type": "SNS",
+        "position": "center right",
+        "boundary": "cloud"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "SNS Notifications",
+        "target": "SQS Queue",
+        "label": "5.1.2",
+        "type": "arrow"
+      },
+      {
+        "source": "Cloudwatch Alarm",
+        "target": "SQS Queue",
+        "label": "5.1.3",
+        "type": "arrow"
+      },
+      {
+        "source": "SQS Queue",
+        "target": "SQS Queue",
+        "label": "5.1.1",
+        "type": "arrow"
+      },
+      {
+        "source": "SQS Queue",
+        "target": "SQS Queue",
+        "label": "5",
+        "type": "arrow"
+      },
+      {
+        "source": "Lambda Function",
+        "target": "S3 Bucket",
+        "label": "3",
+        "type": "arrow"
+      },
+      {
+        "source": "S3 Bucket",
+        "target": "SNS Topic",
+        "label": "4",
+        "type": "arrow"
+      },
+      {
+        "source": "Lambda Function",
+        "target": "RDS",
+        "label": "8",
+        "type": "arrow"
+      },
+      {
+        "source": "Lambda Function",
+        "target": "S3 Bucket",
+        "label": "9",
+        "type": "arrow"
+      },
+      {
+        "source": "S3 Bucket",
+        "target": "SNS Topic",
+        "label": "10",
+        "type": "arrow"
+      },
+      {
+        "source": "Lambda Function",
+        "target": "Lambda Function",
+        "label": "2",
+        "type": "arrow"
+      },
+      {
+        "source": "Cloudwatch Alarm",
+        "target": "SNS Topic",
+        "label": "5.2.3",
+        "type": "arrow"
+      },
+      {
+        "source": "SQS Queue",
+        "target": "Lambda Function",
+        "label": "6",
+        "type": "arrow"
+      },
+      {
+        "source": "SNS Topic",
+        "target": "SQS Queue",
+        "label": "5",
+        "type": "arrow"
+      },
+      {
+        "source": "Cloudwatch Alarm",
+        "target": "SNS Topic",
+        "label": "5.2.1",
+        "type": "arrow"
+      },
+      {
+        "source": "Cloudwatch Alarm",
+        "target": "SNS Topic",
+        "label": "5.2.2",
+        "type": "arrow"
+      },
+      {
+        "source": "Cloudwatch Event",
+        "target": "Lambda Function",
+        "label": "1",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {}
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "type": "User"
+      },
+      {
+        "name": "API Gateway",
+        "type": "API Gateway"
+      },
+      {
+        "name": "waze-data-api Lambda",
+        "type": "Lambda"
+      },
+      {
+        "name": "Aurora PostgreSQL",
+        "type": "Database"
+      },
+      {
+        "name": "waze-data-download Lambda",
+        "type": "Lambda"
+      },
+      {
+        "name": "S3 Bucket",
+        "type": "S3"
+      },
+      {
+        "name": "waze-data-process Lambda",
+        "type": "Lambda"
+      },
+      {
+        "name": "SQS Queue",
+        "type": "SQS"
+      },
+      {
+        "name": "waze-data-alerts-processing Lambda",
+        "type": "Lambda"
+      },
+      {
+        "name": "waze-data-jams-processing Lambda",
+        "type": "Lambda"
+      },
+      {
+        "name": "waze-data-irregularities-processing Lambda",
+        "type": "Lambda"
+      },
+      {
+        "name": "SNS Topic",
+        "type": "SNS"
+      },
+      {
+        "name": "WazeCCP",
+        "type": "Application"
+      },
+      {
+        "name": "User",
+        "type": "User"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "API Gateway",
+        "label": "API Request (GET/POST)",
+        "type": "arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "waze-data-api Lambda",
+        "label": "Forward request",
+        "type": "arrow"
+      },
+      {
+        "source": "waze-data-api Lambda",
+        "target": "Aurora PostgreSQL",
+        "label": "Query data",
+        "type": "arrow"
+      },
+      {
+        "source": "Aurora PostgreSQL",
+        "target": "waze-data-api Lambda",
+        "label": "Return results",
+        "type": "arrow"
+      },
+      {
+        "source": "waze-data-api Lambda",
+        "target": "User",
+        "label": "API Response",
+        "type": "arrow"
+      },
+      {
+        "source": "User",
+        "target": "User",
+        "label": "Display results",
+        "type": "arrow"
+      },
+      {
+        "source": "Data Ingestion",
+        "target": "SNS Topic",
+        "label": "Publish notification",
+        "type": "arrow"
+      },
+      {
+        "source": "Data Ingestion",
+        "target": "SNS Topic",
+        "label": "Fetch data",
+        "type": "arrow"
+      },
+      {
+        "source": "Data Ingestion",
+        "target": "SNS Topic",
+        "label": "Return JSON data",
+        "type": "arrow"
+      },
+      {
+        "source": "Data Ingestion",
+        "target": "SNS Topic",
+        "label": "Store raw JSON",
+        "type": "arrow"
+      },
+      {
+        "source": "Data Processing",
+        "target": "SNS Topic",
+        "label": "Publish processing complete",
+        "type": "arrow"
+      },
+      {
+        "source": "S3 Bucket",
+        "target": "Data Processing",
+        "label": "Trigger on new file",
+        "type": "arrow"
+      },
+      {
+        "source": "waze-data-process Lambda",
+        "target": "S3 Bucket",
+        "label": "Get file",
+        "type": "arrow"
+      },
+      {
+        "source": "waze-data-process Lambda",
+        "target": "SQS Queue",
+        "label": "Enqueue processing tasks",
+        "type": "arrow"
+      },
+      {
+        "source": "waze-data-alerts-processing Lambda",
+        "target": "SQS Queue",
+        "label": "Process alerts",
+        "type": "arrow"
+      },
+      {
+        "source": "waze-data-jams-processing Lambda",
+        "target": "SQS Queue",
+        "label": "Process jams",
+        "type": "arrow"
+      },
+      {
+        "source": "waze-data-irregularities-processing Lambda",
+        "target": "SQS Queue",
+        "label": "Process irregularities",
+        "type": "arrow"
+      },
+      {
+        "source": "waze-data-process Lambda",
+        "target": "Aurora PostgreSQL",
+        "label": "Store processed data",
+        "type": "arrow"
+      },
+      {
+        "source": "waze-data-alerts-processing Lambda",
+        "target": "Aurora PostgreSQL",
+        "label": "Store processed data",
+        "type": "arrow"
+      },
+      {
+        "source": "waze-data-jams-processing Lambda",
+        "target": "Aurora PostgreSQL",
+        "label": "Store processed data",
+        "type": "arrow"
+      },
+      {
+        "source": "waze-data-irregularities-processing Lambda",
+        "target": "Aurora PostgreSQL",
+        "label": "Store processed data",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Data Ingestion",
+        "type": "box"
+      },
+      {
+        "name": "Data Processing",
+        "type": "box"
+      }
+    ],
+    "metadata": {}
+  },
+  "comparison": {
+    "common_components": [
+      "SNS Topic",
+      "S3 Bucket",
+      "SQS Queue"
+    ],
+    "unique_to_GroundTruth": [
+      "SNS Notifications",
+      "Cloudwatch Alarm",
+      "Lambda Function",
+      "RDS"
+    ],
+    "unique_to_GeneratedImage": [
+      "User",
+      "API Gateway",
+      "waze-data-api Lambda",
+      "Aurora PostgreSQL",
+      "waze-data-download Lambda",
+      "waze-data-process Lambda",
+      "waze-data-alerts-processing Lambda",
+      "waze-data-jams-processing Lambda",
+      "waze-data-irregularities-processing Lambda",
+      "WazeCCP"
+    ],
+    "common_connectors": [
+      {
+        "source": "S3 Bucket",
+        "target": "SNS Topic",
+        "type": "arrow"
+      },
+      {
+        "source": "SQS Queue",
+        "target": "SNS Topic",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "SNS Notifications",
+        "target": "SQS Queue",
+        "type": "arrow"
+      },
+      {
+        "source": "Cloudwatch Alarm",
+        "target": "SQS Queue",
+        "type": "arrow"
+      },
+      {
+        "source": "SQS Queue",
+        "target": "SQS Queue",
+        "type": "arrow"
+      },
+      {
+        "source": "Lambda Function",
+        "target": "S3 Bucket",
+        "type": "arrow"
+      },
+      {
+        "source": "Lambda Function",
+        "target": "RDS",
+        "type": "arrow"
+      },
+      {
+        "source": "Lambda Function",
+        "target": "Lambda Function",
+        "type": "arrow"
+      },
+      {
+        "source": "Cloudwatch Alarm",
+        "target": "SNS Topic",
+        "type": "arrow"
+      },
+      {
+        "source": "SQS Queue",
+        "target": "Lambda Function",
+        "type": "arrow"
+      },
+      {
+        "source": "Lambda Function",
+        "target": "S3 Bucket",
+        "type": "arrow"
+      },
+      {
+        "source": "S3 Bucket",
+        "target": "SNS Topic",
+        "type": "arrow"
+      },
+      {
+        "source": "Cloudwatch Event",
+        "target": "Lambda Function",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "API Gateway",
+        "type": "arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "waze-data-api Lambda",
+        "type": "arrow"
+      },
+      {
+        "source": "waze-data-api Lambda",
+        "target": "Aurora PostgreSQL",
+        "type": "arrow"
+      },
+      {
+        "source": "Aurora PostgreSQL",
+        "target": "waze-data-api Lambda",
+        "type": "arrow"
+      },
+      {
+        "source": "waze-data-api Lambda",
+        "target": "User",
+        "type": "arrow"
+      },
+      {
+        "source": "User",
+        "target": "User",
+        "type": "arrow"
+      },
+      {
+        "source": "Data Ingestion",
+        "target": "SNS Topic",
+        "type": "arrow"
+      },
+      {
+        "source": "S3 Bucket",
+        "target": "Data Processing",
+        "type": "arrow"
+      },
+      {
+        "source": "waze-data-process Lambda",
+        "target": "S3 Bucket",
+        "type": "arrow"
+      },
+      {
+        "source": "waze-data-process Lambda",
+        "target": "SQS Queue",
+        "type": "arrow"
+      },
+      {
+        "source": "waze-data-alerts-processing Lambda",
+        "target": "SQS Queue",
+        "type": "arrow"
+      },
+      {
+        "source": "waze-data-jams-processing Lambda",
+        "target": "SQS Queue",
+        "type": "arrow"
+      },
+      {
+        "source": "waze-data-irregularities-processing Lambda",
+        "target": "SQS Queue",
+        "type": "arrow"
+      },
+      {
+        "source": "waze-data-process Lambda",
+        "target": "Aurora PostgreSQL",
+        "type": "arrow"
+      },
+      {
+        "source": "waze-data-alerts-processing Lambda",
+        "target": "Aurora PostgreSQL",
+        "type": "arrow"
+      },
+      {
+        "source": "waze-data-jams-processing Lambda",
+        "target": "Aurora PostgreSQL",
+        "type": "arrow"
+      },
+      {
+        "source": "waze-data-irregularities-processing Lambda",
+        "target": "Aurora PostgreSQL",
+        "type": "arrow"
+      },
+      {
+        "source": "Data Processing",
+        "target": "SNS Topic",
+        "type": "arrow"
+      }
+    ],
+    "explanation": "The GroundTruth diagram represents a data processing pipeline using AWS services like Lambda, SQS, SNS, S3, and CloudWatch. It focuses on error handling, retries, and scheduled processing. The GeneratedImage diagram represents a web application architecture. Both use SQS, SNS, and S3. The GeneratedImage introduces user interaction, API gateway, and specific Waze data processing components, including an Aurora PostgreSQL database and different Lambda functions for alert, jam, and irregularity processing. It also has 'Data Ingestion' and 'Data Processing' groups. The GroundTruth focuses on a singular process with error handling, while the GeneratedImage emphasizes a service oriented workflow with multiple data processing pathways. The GeneratedImage depicts more external service connections, while the GroundTruth focuses on the internal flow and monitoring of a single set of tasks.",
+    "Rating": 6
+  }
+}

@@ -41,11 +41,10 @@ def download_images_from_csv(csv_file):
     with open(csv_file, newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f, delimiter=';')
         for i, row in enumerate(reader):
-            if i < 7:  # your condition
-                image_url = row.get("Image URL")
-                repo_name = row.get("Repository Name")
-                if image_url and repo_name:
-                    download_image(image_url, repo_name)
+            image_url = row.get("Image URL")
+            repo_name = row.get("Repository Name")
+            if image_url and repo_name:
+                download_image(image_url, repo_name)
 
 # Usage
 if __name__ == "__main__":

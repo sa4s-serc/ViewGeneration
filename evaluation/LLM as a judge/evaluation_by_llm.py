@@ -54,8 +54,9 @@ def extract_and_compare_images(image_path1, image_path2, model):
      "common_connectors": [],
      "unique_connectors_GroundTruth": [],
      "unique_connectors_GeneratedImage": [],
-     "explanation": "A detailed explanation highlighting similarities and differences between the two diagrams and also please rate the generated image on a scale of 1 to 10 based on its accuracy and completeness, similarity compared to the ground truth and explain why you gave that rating."
-     }
+     "explanation": "A detailed explanation highlighting similarities and differences between the two diagrams and also please rate the generated image on a scale of 1 to 10 based on its accuracy and completeness, similarity compared to the ground truth and explain why you gave that rating.",
+     "Rating":0-10
+    }
     }
     Provide ONLY this JSON output without additional text or explanations.
     '''
@@ -92,11 +93,11 @@ def get_files_by_stem(folder):
         file_map[stem] = fname
     return file_map
 def main():
-    genai.configure(api_key="")
+    genai.configure(api_key="AIzaSyBkSINc-rH8g1WYm_bcI-DbpoR2APN5fyo")
     model = genai.GenerativeModel("gemini-2.0-flash-exp")
-    
+    output_dir = "LLM_as_a_Judge_outputs"
     folder1 = "./initial_images"
-    folder2 = "./oneShot_deepseek_output_images"
+    folder2 = "./zeroShot_deepseek_output_images"
     
 
     files1 = get_files_by_stem(folder1)
@@ -105,6 +106,12 @@ def main():
 
     
     for stem in common_stems:
+        output_filename = f"{stem}_comparison.json"
+        output_path = os.path.join(output_dir, output_filename)
+
+        if os.path.exists(output_path):
+            print(f"Skipping {stem} — already evaluated.")
+            continue
         file1 = os.path.join(folder1, files1[stem])
         file2 = os.path.join(folder2, files2[stem])
         
