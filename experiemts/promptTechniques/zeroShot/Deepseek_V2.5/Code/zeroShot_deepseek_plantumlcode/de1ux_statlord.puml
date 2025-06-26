@@ -1,0 +1,55 @@
+```plantuml
+@startuml de1ux_statlord
+
+actor User
+participant "Dashboard Editor" as Editor
+participant "Redux Store" as Redux
+participant "API Client" as API
+participant "Django Server" as Server
+participant "Database" as DB
+participant "Display Device" as Display
+
+User -> Editor: Creates/Edits Layout
+Editor -> Redux: Dispatch Action (UPDATE_LAYOUT)
+Redux -> Editor: State Update
+Editor -> API: Save Layout (POST /api/layouts)
+API -> Server: HTTP Request
+Server -> DB: Save Layout Data
+DB --> Server: Confirmation
+Server --> API: Response (200 OK)
+API --> Editor: Success Callback
+Editor -> User: Confirmation UI
+
+User -> Editor: Assign Layout to Display
+Editor -> Redux: Dispatch Action (ASSIGN_DISPLAY)
+Redux -> Editor: State Update
+Editor -> API: Update Display (PUT /api/displays/:id)
+API -> Server: HTTP Request
+Server -> DB: Update Display
+DB --> Server: Confirmation
+Server --> API: Response (200 OK)
+API --> Editor: Success Callback
+Editor -> User: Confirmation UI
+
+Display -> Server: Register (POST /api/displays)
+Server -> DB: Create Display Record
+DB --> Server: Confirmation
+Server --> Display: Response (201 Created)
+
+loop Polling Interval
+    Display -> Server: GET /api/displays/:id/layout
+    Server -> DB: Query Layout
+    DB --> Server: Layout Data
+    Server --> Display: Layout JSON
+    Display -> Display: Render Dashboard
+end
+
+loop Data Updates
+    Server -> DB: Get Latest Data
+    DB --> Server: Current Values
+    Server -> Display: Push Data (WebSocket/SSE)
+    Display -> Display: Update Visualization
+end
+
+@enduml
+```

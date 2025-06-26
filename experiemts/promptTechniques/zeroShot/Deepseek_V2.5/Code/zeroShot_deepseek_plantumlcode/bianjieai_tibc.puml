@@ -1,0 +1,51 @@
+```plantuml
+@startuml bianjieai_tibc
+
+package "TIBC Protocol" {
+    [TIBC Core] as core
+    [Client Implementations] as clients
+    [Relayer Algorithms] as relayers
+    [NFT Transfer] as nft
+    [Routing Module] as routing
+}
+
+package "External Systems" {
+    [Blockchain A] as chainA
+    [Blockchain B] as chainB
+}
+
+component "Host State Machine" as host {
+    interface "KV Store"
+    interface "Module System"
+    interface "Event Logging"
+}
+
+core --> clients : verifies\nstates
+core --> routing : routes\npackets
+routing --> nft : handles\nNFT transfers
+relayers --> core : submits\ndatagrams
+relayers --> routing : monitors\npackets
+
+host -- core : required\ninterfaces
+
+clients --> chainA : verifies
+clients --> chainB : verifies
+relayers --> chainA : monitors
+relayers --> chainB : submits
+
+note right of core
+    Implements:
+    - Client semantics
+    - Port/packet logic
+    - Host requirements
+end note
+
+note bottom of clients
+    Supports:
+    - Tendermint
+    - BSC
+    - Ethereum
+end note
+
+@enduml
+```

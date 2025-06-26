@@ -1,0 +1,64 @@
+```plantuml
+@startuml apigee_consumer-data-standards-au
+
+component "Client Applications" as clients
+
+component "Apigee API Gateway" as apigee {
+    component "CDS Banking API Proxies" as banking_proxies {
+        component "Get Products"
+        component "Get Accounts"
+        component "Get Transactions"
+        component "Discovery API"
+    }
+
+    component "OIDC Proxy" as oidc_proxy {
+        component "Token Management"
+        component "mTLS/HoK"
+        component "PAR Support"
+    }
+
+    component "ConsentMgmtWithKVM Proxy" as consent_proxy {
+        component "Consent API"
+        component "KVM Storage"
+        component "XSLT Transform"
+    }
+
+    component "Dynamic Client Registration" as dcr
+
+    component "Shared Flows" as shared_flows {
+        component "Request Validation"
+        component "JWT Verification"
+        component "Pagination"
+        component "Traffic Control"
+    }
+
+    component "Admin APIs" as admin_apis {
+        component "Metadata Update"
+        component "Get Metrics"
+    }
+}
+
+component "Mock OIDC Provider" as oidc_mock {
+    component "node-oidc-provider"
+}
+
+component "Metrics Service" as metrics_service {
+    component "App Engine App"
+    component "Analytics Parser"
+    component "SLO Checker"
+}
+
+clients --> apigee : REST API calls
+apigee --> oidc_mock : OIDC auth requests
+apigee --> metrics_service : Metrics data
+
+banking_proxies --> shared_flows
+oidc_proxy --> shared_flows
+consent_proxy --> shared_flows
+dcr --> shared_flows
+
+banking_proxies --> consent_proxy : Consent checks
+banking_proxies --> oidc_proxy : Auth validation
+
+@enduml
+```

@@ -1,0 +1,72 @@
+Here's the corrected PlantUML component diagram for the Decentraland Catalyst system:
+
+```plantuml
+@startuml decentraland_catalyst
+
+skinparam componentStyle uml2
+skinparam monochrome true
+skinparam nodesep 20
+skinparam ranksep 20
+
+rectangle "Client Layer" {
+    component "Web Client" as web
+    component "Mobile Client" as mobile
+    component "Game Client" as game
+}
+
+node "Content Server" {
+    component "API Gateway" as gateway
+    component "Server (Express.js)" as server
+    component "Routes" as routes
+    component "Handlers" as handlers
+    component "Controllers" as controllers
+    component "Services" as services
+    component "Validations" as validations
+    component "Synchronization" as sync
+}
+
+database "PostgreSQL" as postgres {
+    component "Entities" as entities
+    component "Content Mappings" as mappings
+    component "System Properties" as props
+}
+
+cloud "External Services" {
+    component "The Graph" as thegraph
+    component "Blockchain" as blockchain
+    component "Third-Party Resolvers" as thirdparty
+}
+
+storage "Content Storage" {
+    component "IPFS" as ipfs
+    component "S3" as s3
+}
+
+' Client connections
+web --> gateway : HTTP/HTTPS
+mobile --> gateway
+game --> gateway
+
+' Server internal connections
+gateway --> server
+server --> routes
+routes --> handlers
+handlers --> controllers
+controllers --> services
+services --> validations
+services --> sync
+
+' External connections
+services --> postgres : JDBC
+services --> thegraph : GraphQL
+services --> blockchain : RPC
+services --> thirdparty : HTTP
+services --> ipfs : IPFS Protocol
+services --> s3 : AWS SDK
+
+' Database tables
+entities - mappings
+mappings - props
+
+@enduml
+```

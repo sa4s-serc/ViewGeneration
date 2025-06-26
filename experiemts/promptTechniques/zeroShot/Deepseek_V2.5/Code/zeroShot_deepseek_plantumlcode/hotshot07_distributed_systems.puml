@@ -1,0 +1,44 @@
+```plantuml
+@startuml hotshot07_distributed_systems
+
+node "Kubernetes Cluster" {
+  [React Frontend] as frontend
+  database "DynamoDB" as dynamodb
+
+  package "Backend Microservices" {
+    [Authentication Service] as auth_service
+    [Account Management Service] as account_service
+    [Athlete Availability Service] as availability_service
+    [Test Scheduling Service] as scheduling_service
+    [Test Reporting Service] as reporting_service
+  }
+
+  frontend --> auth_service : HTTP API (JWT)
+  frontend --> account_service : HTTP API
+  frontend --> availability_service : HTTP API
+  frontend --> scheduling_service : HTTP API
+  frontend --> reporting_service : HTTP API
+
+  auth_service --> dynamodb : Read/Write
+  account_service --> dynamodb : Read/Write
+  availability_service --> dynamodb : Read/Write
+  scheduling_service --> dynamodb : Read/Write
+  reporting_service --> dynamodb : Read/Write
+
+  note right of frontend
+    Containerized React application
+    deployed as Kubernetes Pod
+  end note
+
+  note left of dynamodb
+    AWS DynamoDB
+    Managed NoSQL database
+  end note
+}
+
+cloud AWS {
+  [Kubernetes Cluster] --> [DynamoDB]
+}
+
+@enduml
+```

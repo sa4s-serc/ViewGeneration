@@ -1,0 +1,49 @@
+```plantuml
+@startuml greatfarmer_fifarm
+
+component "Web Browser" as browser {
+    component "Thymeleaf Templates" as thymeleaf
+    component "Static Assets (CSS/JS)" as static
+}
+
+component "FIFArm Application" as fifarm {
+    component "Spring Boot" as springboot {
+        component "Controllers" as controllers {
+            component "IndexController"
+            component "PathController"
+            component "JsonController (REST API)"
+        }
+        
+        component "Services" as services {
+            component "HttpRequestService"
+            component "MongoService"
+            component "LogService"
+        }
+        
+        component "Scheduler" as scheduler
+        component "Configuration" as config {
+            component "application.yml"
+            component "logback.xml"
+        }
+    }
+    
+    component "MongoDB" as mongodb {
+        component "Player Data"
+    }
+}
+
+component "External Systems" as external {
+    component "EA Sports FUT API"
+}
+
+browser --> controllers : HTTP Requests
+controllers --> browser : Thymeleaf Views
+static --> browser : Static Content
+
+controllers --> services : Uses
+services --> mongodb : CRUD Operations
+services --> external : API Calls
+scheduler --> services : Triggers Data Refresh
+
+@enduml
+```

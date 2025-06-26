@@ -1,0 +1,34 @@
+```plantuml
+@startuml ballerina-platform_asyncapi-tools
+
+package "AsyncAPI Tools" {
+    [AsyncApiCmd] as cmd
+    [AsyncApiToBallerinaGenerator] as gen
+    [BallerinaToAsyncApiGenerator] as reverse
+    [SchemaHandler] as schema
+    [WebSocketHandler] as ws
+    [AuthHandler] as auth
+    [ErrorHandler] as error
+}
+
+[API Definition Files\n(*.yaml)] as yaml
+[Ballerina Code Files\n(*.bal)] as bal
+[CLI Interface] as cli
+
+cli --> cmd : invokes
+cmd --> gen : generates\nfrom
+cmd --> reverse : exports\nto
+gen --> schema : processes
+gen --> ws : handles
+gen --> auth : configures
+gen --> error : manages
+reverse --> schema : processes
+reverse --> ws : handles
+
+yaml --> gen : input
+gen --> bal : output
+bal --> reverse : input
+reverse --> yaml : output
+
+@enduml
+```

@@ -1,0 +1,63 @@
+```plantuml
+@startuml IBM_spectrum-protect-sppmon
+
+component "SPPMon Core Engine" as sppmon {
+    component "sppmon.py" as main
+    component "sppmonMethods" as methods
+    component "sppConnection" as conn {
+        component "rest_client.py" as rest
+        component "ssh_client.py" as ssh
+        component "api_queries.py" as api
+    }
+}
+
+component "SPPCheck" as sppcheck {
+    component "sppcheck.py" as check_main
+    component "predictor" as predictor
+    component "report" as report
+    component "excel" as excel
+    component "generator" as generator
+}
+
+component "InfluxDB" as influx {
+    component "influx_client.py" as influx_client
+    component "tables" as tables
+    component "retention" as retention
+}
+
+component "Grafana" as grafana {
+    component "dashboards" as dashboards
+    component "generifyDashboard.py" as generify
+}
+
+component "Installer" as installer {
+    component "installer.sh" as install_script
+    component "addConfigFile.py" as config_script
+    component "addCrontabConfig.py" as cron_script
+}
+
+sppmon --> rest : REST API calls
+sppmon --> ssh : SSH commands
+sppmon --> api : API queries
+sppmon --> influx_client : stores data
+sppmon --> methods : data collection
+
+sppcheck --> predictor : predictions
+sppcheck --> report : PDF generation
+sppcheck --> excel : sizing sheets
+sppcheck --> generator : test data
+sppcheck --> influx_client : reads data
+
+influx_client --> tables : defines schema
+influx_client --> retention : manages policies
+
+grafana --> influx_client : queries data
+grafana --> dashboards : visualization
+grafana --> generify : dashboard prep
+
+installer --> install_script : main install
+installer --> config_script : config setup
+installer --> cron_script : automation
+
+@enduml
+```

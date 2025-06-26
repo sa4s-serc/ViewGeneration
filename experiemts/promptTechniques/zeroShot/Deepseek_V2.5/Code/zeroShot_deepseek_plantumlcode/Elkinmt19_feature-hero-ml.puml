@@ -1,0 +1,36 @@
+```plantuml
+@startuml Elkinmt19_feature-hero-ml
+
+actor User
+participant "Data Pipeline" as DataPipeline
+participant "Feature Store (Feast)" as Feast
+participant "Online Store (Redis)" as Redis
+participant "Offline Store (Parquet)" as Parquet
+participant "ML Model" as MLModel
+
+User -> DataPipeline: Triggers data ingestion
+DataPipeline -> Feast: Registers feature definitions
+Feast -> DataPipeline: Acknowledges registration
+
+DataPipeline -> DataPipeline: Fetches raw data
+DataPipeline -> DataPipeline: Transforms data
+DataPipeline -> Feast: Ingests features
+Feast -> Redis: Stores features (online)
+Feast -> Parquet: Stores features (offline)
+
+User -> MLModel: Requests prediction
+MLModel -> Feast: Requests features (online)
+Feast -> Redis: Retrieves features
+Redis -> Feast: Returns features
+Feast -> MLModel: Returns features
+MLModel -> User: Returns prediction
+
+User -> MLModel: Requests batch prediction
+MLModel -> Feast: Requests features (offline)
+Feast -> Parquet: Retrieves features
+Parquet -> Feast: Returns features
+Feast -> MLModel: Returns features
+MLModel -> User: Returns predictions
+
+@enduml
+```

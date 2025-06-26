@@ -1,0 +1,39 @@
+```plantuml
+@startuml fredrikhgrelland_data-mesh
+
+actor User as user
+participant "SQLPad" as sqlpad
+participant "Presto" as presto
+participant "Hive Metastore" as hive
+participant "MinIO" as minio
+participant "Consul" as consul
+participant "Nomad" as nomad
+
+user -> sqlpad: Execute SQL Query
+sqlpad -> presto: Forward Query
+presto -> hive: Get Schema Metadata
+hive --> presto: Return Schema
+presto -> minio: Read Data
+minio --> presto: Return Data
+presto --> sqlpad: Return Query Results
+sqlpad --> user: Display Results
+
+group Service Discovery & Security
+    presto -> consul: Discover Hive Metastore
+    consul --> presto: Return Hive Address
+    presto -> consul: Discover MinIO
+    consul --> presto: Return MinIO Address
+    presto <-> hive: Secure Connection via Consul Connect
+    presto <-> minio: Secure Connection via Consul Connect
+end
+
+group Orchestration
+    nomad -> minio: Deploy
+    nomad -> hive: Deploy
+    nomad -> presto: Deploy
+    nomad -> sqlpad: Deploy
+    nomad -> consul: Deploy
+end
+
+@enduml
+```

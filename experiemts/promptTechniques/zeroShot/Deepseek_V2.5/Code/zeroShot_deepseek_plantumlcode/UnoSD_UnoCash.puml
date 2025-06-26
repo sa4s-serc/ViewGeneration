@@ -1,0 +1,38 @@
+```plantuml
+@startuml UnoSD_UnoCash
+
+actor User
+participant "Blazor Frontend" as Frontend
+participant "Azure API Management" as APIM
+participant "Azure Functions" as Functions
+participant "Azure Table Storage" as TableStorage
+participant "Azure Blob Storage" as BlobStorage
+participant "Azure Form Recognizer" as FormRecognizer
+
+User -> Frontend: Accesses application
+Frontend -> APIM: Requests authentication
+APIM -> Frontend: Returns auth token
+
+User -> Frontend: Submits expense with receipt
+Frontend -> APIM: POST /api/expenses (with receipt data)
+APIM -> Functions: Forwards request to AddExpense function
+Functions -> BlobStorage: Uploads receipt (using SAS token)
+Functions -> TableStorage: Stores expense metadata
+Functions -> FormRecognizer: Submits receipt for processing
+FormRecognizer -> Functions: Returns parsed receipt data
+Functions -> TableStorage: Updates expense with parsed data
+Functions -> APIM: Returns success response
+APIM -> Frontend: Returns success
+Frontend -> User: Shows confirmation
+
+User -> Frontend: Requests expense list
+Frontend -> APIM: GET /api/expenses
+APIM -> Functions: Forwards to GetExpenses function
+Functions -> TableStorage: Queries expenses
+TableStorage -> Functions: Returns expense data
+Functions -> APIM: Returns formatted response
+APIM -> Frontend: Returns expense list
+Frontend -> User: Displays expenses
+
+@enduml
+```

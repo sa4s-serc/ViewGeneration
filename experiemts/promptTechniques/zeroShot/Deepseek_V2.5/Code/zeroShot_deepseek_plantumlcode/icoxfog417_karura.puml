@@ -1,0 +1,35 @@
+```plantuml
+@startuml icoxfog417_karura
+
+actor User
+participant "Kintone UI" as KintoneUI
+participant "Karura Client Plugin" as ClientPlugin
+participant "Karura Master App" as MasterApp
+participant "Karura Server" as Server
+participant "Model Manager" as ModelManager
+participant "Dataset" as Dataset
+participant "Field Manager" as FieldManager
+participant "Feature Builder" as FeatureBuilder
+participant "Model Builder" as ModelBuilder
+
+User -> KintoneUI: Interacts with Kintone app
+KintoneUI -> ClientPlugin: Triggers ML action
+ClientPlugin -> MasterApp: Sends configuration
+MasterApp -> Server: POST /train (with config)
+Server -> ModelManager: Initiate model training
+ModelManager -> Dataset: Load data from Kintone
+Dataset --> ModelManager: Return dataset
+ModelManager -> FieldManager: Process fields
+FieldManager --> ModelManager: Return processed fields
+ModelManager -> FeatureBuilder: Build features
+FeatureBuilder --> ModelManager: Return features
+ModelManager -> ModelBuilder: Train model
+ModelBuilder --> ModelManager: Return trained model
+ModelManager -> Server: Save model & return status
+Server --> MasterApp: Training complete
+MasterApp --> ClientPlugin: Update UI status
+ClientPlugin --> KintoneUI: Display results
+KintoneUI --> User: Show predictions/status
+
+@enduml
+```

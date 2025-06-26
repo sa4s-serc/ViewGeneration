@@ -1,0 +1,45 @@
+```plantuml
+@startuml EOS-Nation_dfuse-docs
+
+package "dfuse System" {
+    [dfuseeos CLI] as dfuseeos
+    [GraphQL API] as graphql
+    [gRPC Layer] as grpc
+    [Authentication Service] as auth
+    [Data Indexing Service] as indexing
+    [Streaming Service] as streaming
+    [Search Service] as search
+    [Storage Abstraction] as storage
+    [nodeos Integration] as nodeos
+}
+
+package "External Systems" {
+    [EOSIO Blockchains] as eosio
+    [BigTable/TiKV/Badger] as db
+    [Netlify] as netlify
+}
+
+dfuseeos --> graphql : manages
+dfuseeos --> nodeos : interacts with
+
+graphql --> grpc : uses
+graphql --> auth : authenticates via
+graphql --> indexing : queries
+graphql --> streaming : subscribes to
+
+grpc --> indexing : communicates with
+grpc --> streaming : communicates with
+grpc --> search : communicates with
+
+indexing --> storage : persists data
+streaming --> storage : reads/writes
+search --> storage : queries
+
+storage --> db : uses
+
+nodeos --> eosio : connects to
+
+netlify --> graphql : hosts docs for
+
+@enduml
+```

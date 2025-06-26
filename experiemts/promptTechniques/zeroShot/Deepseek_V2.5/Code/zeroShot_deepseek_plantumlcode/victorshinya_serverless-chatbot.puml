@@ -1,0 +1,26 @@
+```plantuml
+@startuml victorshinya_serverless-chatbot
+actor User
+participant "IBM Cloud Functions" as ICF
+participant "Watson Assistant" as WA
+participant "MongoDB" as DB
+
+User -> ICF: Sends message (HTTP request)
+activate ICF
+
+ICF -> WA: Forward message (with session context)
+activate WA
+WA --> ICF: Return response (text + NLU data)
+deactivate WA
+
+opt MongoDB enabled
+    ICF -> DB: Store conversation (input, output, context)
+    activate DB
+    DB --> ICF: Storage confirmation
+    deactivate DB
+end
+
+ICF --> User: Return chatbot response
+deactivate ICF
+@enduml
+```

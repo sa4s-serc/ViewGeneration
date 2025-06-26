@@ -1,0 +1,38 @@
+```plantuml
+@startuml tarhses_esp-alarm-clock
+
+actor User
+participant "Main Task" as Main
+participant "Network Task" as Network
+participant "Alarm Task" as Alarm
+participant "Display Task" as Display
+participant "Sound Task" as Sound
+participant "Potentiometer Task" as Pot
+participant "Storage" as Storage
+
+User -> Pot: Adjust potentiometers
+Pot -> Alarm: Send alarm time (via queue)
+Alarm -> Display: Update alarm display (via event)
+
+Main -> Storage: Read config.json
+Storage --> Main: Return WiFi/NTP config
+Main -> Network: Initialize WiFi
+Network -> Network: Connect to WiFi
+Network -> Network: Sync time via SNTP
+Network -> Display: Update time display (periodic event)
+
+User -> Alarm: Toggle alarm switch
+Alarm -> Display: Update alarm status icon
+
+Alarm -> Alarm: Check current time vs alarm
+Alarm -> Sound: Trigger alarm sound (via event)
+Sound -> Storage: Get random audio file
+Storage --> Sound: Return audio file path
+Sound -> Sound: Play alarm sound
+
+User -> Alarm: Press button (snooze/stop)
+Alarm -> Sound: Stop alarm sound (via event)
+Alarm -> Display: Update alarm status
+
+@enduml
+```

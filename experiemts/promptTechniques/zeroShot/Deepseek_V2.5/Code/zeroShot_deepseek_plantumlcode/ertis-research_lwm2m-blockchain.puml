@@ -1,0 +1,74 @@
+```plantuml
+@startuml ertis-research_lwm2m-blockchain
+
+title LwM2M-Blockchain Integration System\nArchitectural View: Connectivity & Control Flow
+
+skinparam componentStyle uml2
+skinparam monochrome true
+skinparam nodesep 20
+skinparam ranksep 30
+
+package "Frontend" {
+    [Anomaly Detection UI] as anomaly_ui
+    [Management UI] as mgmt_ui
+}
+
+package "Backend" {
+    [REST API] as rest_api
+    [Business Logic] as business_logic
+    [Web3j Adapter] as web3j
+}
+
+package "Blockchain" {
+    [Ethereum Node] as ethereum
+    [UserStore SC] as user_sc
+    [ClientStore SC] as client_sc
+    [AnomalyStore SC] as anomaly_sc
+}
+
+package "LwM2M" {
+    [LwM2M Server] as lwm2m_server
+    [Bootstrap Server] as bootstrap
+    [LwM2M Client] as lwm2m_client
+}
+
+package "Evaluation" {
+    [Jupyter Notebooks] as evaluation
+}
+
+' Connectivity
+anomaly_ui --> rest_api : HTTP/REST\n(device data)
+mgmt_ui --> rest_api : HTTP/REST\n(user mgmt)
+
+rest_api --> business_logic : method calls
+business_logic --> web3j : contract calls
+web3j --> ethereum : JSON-RPC
+
+business_logic --> lwm2m_server : HTTP/REST\n(client reg)
+lwm2m_server --> lwm2m_client : CoAP\n(monitoring)
+lwm2m_client --> bootstrap : CoAP\n(bootstrapping)
+bootstrap --> client_sc : Web3j\n(security info)
+
+' Control Flow Annotations
+note top of anomaly_ui
+Triggers anomaly detection flow:
+1. Fetches device data
+2. Displays anomalies
+3. Stores via backend
+end note
+
+note right of lwm2m_server
+Control flow:
+1. Monitors devices
+2. Processes data
+3. Updates blockchain
+end note
+
+note left of bootstrap
+Security flow:
+1. Gets config from blockchain
+2. Bootstraps clients
+end note
+
+@enduml
+```

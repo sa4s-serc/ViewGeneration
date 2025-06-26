@@ -1,0 +1,40 @@
+```plantuml
+@startuml gustavung_Graphrec
+
+package "Mobile Application (Client)" {
+    [MainActivity.java] as MainActivity
+    [CameraActivity.java] as CameraActivity
+    [ResultActivity.java] as ResultActivity
+    [ImageUploadTask.java] as ImageUploadTask
+    [CameraPreview.java] as CameraPreview
+    [SurfaceOverlay.java] as SurfaceOverlay
+
+    MainActivity --> CameraActivity : launches
+    CameraActivity --> CameraPreview : uses
+    CameraActivity --> SurfaceOverlay : uses
+    CameraActivity --> ImageUploadTask : triggers
+    ImageUploadTask --> ResultActivity : updates
+}
+
+package "Flask Server (Backend)" {
+    [server.py] as Server
+    [graph_classifier.py] as GraphClassifier
+    [graph_images.py] as GraphImages
+    [generate_data.py] as GenerateData
+    [cn.py] as CNN
+
+    Server --> GraphClassifier : invokes
+    GraphClassifier --> CNN : uses
+    GraphClassifier --> GraphImages : loads
+    GenerateData --> GraphImages : generates
+}
+
+[Neural Network (TensorFlow CNN)] as NeuralNetwork
+GraphClassifier --> NeuralNetwork : classifies with
+
+MainActivity -[hidden]-> Server
+ImageUploadTask --> Server : HTTP POST
+Server --> ResultActivity : HTTP Response
+
+@enduml
+```

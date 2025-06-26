@@ -1,0 +1,49 @@
+```plantuml
+@startuml fdrennan_ndexr-platform
+
+package "Data Ingestion" {
+    [PRAW Reddit API] as praw
+    [Data Ingestion Scripts] as ingestion
+}
+
+package "Data Storage" {
+    [PostgreSQL] as postgres
+    [AWS S3] as s3
+    [Elasticsearch] as elastic
+}
+
+package "Processing & API" {
+    [R Plumber API] as plumber
+    [Shiny Application] as shiny
+    [R/Python Processing] as processing
+}
+
+package "Orchestration" {
+    [Airflow] as airflow
+    [AWS EC2] as ec2
+    [AWS SNS] as sns
+}
+
+package "Monitoring" {
+    [Glances] as glances
+    [AWS Cost Monitoring] as cost_monitor
+}
+
+praw --> ingestion : "Fetches data"
+ingestion --> postgres : "Stores raw data"
+postgres --> processing : "Provides data"
+processing --> plumber : "Processes data"
+plumber --> shiny : "Serves API"
+shiny --> elastic : "Queries data"
+
+airflow --> ingestion : "Triggers"
+airflow --> postgres : "Manages"
+airflow --> s3 : "Backups"
+airflow --> ec2 : "Controls"
+
+ec2 --> processing : "Hosts"
+ec2 --> glances : "Monitors"
+sns --> cost_monitor : "Alerts"
+
+@enduml
+```

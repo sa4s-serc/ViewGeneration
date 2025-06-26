@@ -1,0 +1,74 @@
+```plantuml
+@startuml andrempmattos_harsh-payload
+
+package "HARSH Payload System" {
+    [FreeRTOS Scheduler] as scheduler
+    [Task Manager] as taskmgr
+    [Interrupt Handler] as inthandler
+    [Timer Service] as timer
+
+    component "Experiment Algorithms" as experiments {
+        [Memory Tests] as memtest
+        [Latch-up Detection] as latchup
+    }
+
+    component "OBC Communication" as obc {
+        [FSP Protocol] as fsp
+        [Command Parser] as cmdparser
+    }
+
+    component "Peripheral Drivers" as drivers {
+        [GPIO] as gpio
+        [UART] as uart
+        [SPI] as spi
+        [I2C] as i2c
+        [CAN] as can
+    }
+
+    component "System Services" as sysservices {
+        [Cryptography] as crypto
+        [Flash Operations] as flash
+        [Zeroization] as zeroize
+    }
+
+    component "Hardware Abstraction" as hal {
+        [AXI/AHB Interconnect] as bus
+        [Memory Controller] as memctrl
+        [Clock/Reset Control] as clkreset
+    }
+}
+
+scheduler --> taskmgr : manages
+scheduler --> inthandler : triggers
+scheduler --> timer : uses
+
+taskmgr --> experiments : executes
+taskmgr --> obc : handles communication
+taskmgr --> drivers : controls peripherals
+
+experiments --> memtest : runs
+experiments --> latchup : monitors
+
+obc --> fsp : implements
+obc --> cmdparser : processes
+
+drivers --> gpio
+drivers --> uart
+drivers --> spi
+drivers --> i2c
+drivers --> can
+
+sysservices --> crypto : provides
+sysservices --> flash : manages
+sysservices --> zeroize : executes
+
+hal --> bus : manages
+hal --> memctrl : controls
+hal --> clkreset : handles
+
+drivers -right-> hal : abstracts hardware
+sysservices -right-> hal : uses hardware
+experiments -right-> hal : accesses hardware
+
+@enduml
+```

@@ -1,0 +1,31 @@
+```plantuml
+@startuml CMUChimpsLab_Peekaboo
+
+actor User
+participant NodeRED_UI
+participant ProviderNode
+participant InferenceNode
+participant FilterNode
+participant NetworkNode
+participant PeekabooService
+participant ExternalService
+
+User -> NodeRED_UI: Drag & Drop Nodes
+NodeRED_UI -> ProviderNode: Configure (Pull/Push)
+NodeRED_UI -> InferenceNode: Configure (Model/Type)
+NodeRED_UI -> FilterNode: Configure (Filter Type)
+NodeRED_UI -> NetworkNode: Configure (Endpoint)
+
+ProviderNode -> InferenceNode: Raw Data (msg.payload)
+InferenceNode -> PeekabooService: Process Request
+PeekabooService -> ExternalService: API Call
+ExternalService --> PeekabooService: Inference Results
+PeekabooService --> InferenceNode: Processed Data
+InferenceNode -> FilterNode: Annotated Data
+
+FilterNode -> NetworkNode: Filtered Data
+NetworkNode -> ExternalService: HTTP Post
+ExternalService --> NetworkNode: ACK
+
+@enduml
+```

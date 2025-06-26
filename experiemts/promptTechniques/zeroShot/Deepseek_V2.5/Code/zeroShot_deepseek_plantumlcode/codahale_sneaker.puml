@@ -1,0 +1,24 @@
+```plantuml
+@startuml codahale_sneaker
+
+actor User
+participant "CLI (sneaker)" as CLI
+participant "Manager" as Manager
+participant "Envelope" as Envelope
+participant "AWS KMS" as KMS
+participant "AWS S3" as S3
+
+User -> CLI : Execute command (e.g., upload secret)
+CLI -> Manager : Forward request
+Manager -> Envelope : Generate data key
+Envelope -> KMS : GenerateDataKey()
+KMS --> Envelope : Returns encrypted data key
+Envelope -> Envelope : Encrypt secret (AES-256-GCM)
+Envelope --> Manager : Returns encrypted secret + metadata
+Manager -> S3 : Upload encrypted object
+S3 --> Manager : Confirms upload
+Manager --> CLI : Returns success
+CLI --> User : Displays result
+
+@enduml
+```

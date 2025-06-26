@@ -1,0 +1,53 @@
+```plantuml
+@startuml beston123_Tarzan
+
+package "Tarzan Distributed Transaction System" {
+    [Client] as Client
+    [Server] as Server
+    [Registry (Zookeeper)] as Registry
+    [Message Broker (RocketMQ)] as Broker
+    [Store (MySQL + Redis)] as Store
+
+    component "tarzan-rpc (Netty)" as RPC {
+        [RpcClient]
+        [RpcServer]
+    }
+
+    component "tarzan-server" as ServerModule {
+        [ConfigManager]
+        [ScheduledServiceManager]
+        [MessageResendService]
+        [ServerController]
+    }
+
+    component "tarzan-store" as StoreModule {
+        [RocketMQStoreService]
+        [ToSendMessage]
+        [MessageConsume]
+    }
+
+    component "tarzan-mq" as MQModule {
+        [RocketMQMessageNotifier]
+        [RocketMQTransactionChecker]
+    }
+}
+
+Client --> RPC : Uses
+Client --> Broker : Sends messages
+Server --> RPC : Hosts
+Server --> Registry : Registers
+Server --> Broker : Proxies messages
+Server --> Store : Persists data
+ServerModule --> StoreModule : Manages transactions
+ServerModule --> MQModule : Handles notifications
+StoreModule --> Store : Data access
+MQModule --> Broker : Message operations
+Registry --> Server : Service discovery
+
+note top of Client: Initiates transactions\nand message flow
+note right of Server: Central coordinator\nwith scheduled recovery
+note left of Broker: Primary message transport
+note bottom of Store: Persistent storage\nwith Redis locks
+
+@enduml
+```

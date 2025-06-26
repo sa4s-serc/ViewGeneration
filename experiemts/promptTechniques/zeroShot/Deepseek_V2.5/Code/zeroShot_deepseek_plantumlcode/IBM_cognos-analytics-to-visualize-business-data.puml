@@ -1,0 +1,40 @@
+Here's the corrected PlantUML sequence diagram for IBM Cognos Analytics to visualize business data:
+
+```plantuml
+@startuml IBM_cognos-analytics-to-visualize-business-data
+
+actor User
+participant "Node.js Scripts" as NodeJS
+participant "IBM Db2 Warehouse" as Db2
+participant "Netezza Performance Server" as Netezza
+participant "IBM Cognos Analytics" as Cognos
+
+User -> NodeJS: Execute generate-product-business-data.js
+NodeJS -> NodeJS: Generate sample data (stores, products, sales)
+alt Using Db2 Warehouse
+    NodeJS -> Db2: Create tables
+    NodeJS -> Db2: Insert data
+else Using Netezza
+    NodeJS -> Netezza: Create tables
+    NodeJS -> Netezza: Insert data
+end
+
+User -> Cognos: Connect to data warehouse
+alt Connected to Db2
+    Cognos -> Db2: Establish connection
+else Connected to Netezza
+    Cognos -> Netezza: Establish connection
+end
+
+User -> Cognos: Create data modules
+Cognos -> Db2: Query data schema
+Db2 --> Cognos: Return schema
+Cognos -> Cognos: Build data model
+
+User -> Cognos: Build dashboards
+Cognos -> Db2: Query data for visualization
+Db2 --> Cognos: Return results
+Cognos -> User: Display dashboards
+
+@enduml
+```

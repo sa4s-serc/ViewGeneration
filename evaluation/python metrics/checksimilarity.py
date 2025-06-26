@@ -1,4 +1,5 @@
 import os
+from collections import defaultdict
 import cv2
 from image_similarity_measures.quality_metrics import (
     ssim, psnr, rmse, sam, sre, uiq
@@ -17,20 +18,38 @@ def compare_images(img1, img2):
         "UIQ": uiq(img1, img2),
     }
 
-files = sorted(os.listdir(folderA))
+
+
+# Build maps without extensions
+def build_stem_map(folder):
+    stem_map = defaultdict(list)
+    for fname in os.listdir(folder):
+        stem, _ = os.path.splitext(fname)
+        stem_map[stem].append(fname)
+    return stem_map
+
+mapA = build_stem_map(folderA)
+mapB = build_stem_map(folderB)
+common_stems = sorted(set(mapA.keys()) & set(mapB.keys()))
+
 with open(output_file, 'w') as f:
-    for filename in files:
-        pathA = os.path.join(folderA, filename)
-        pathB = os.path.join(folderB, filename)
-        if os.path.exists(pathB):
-            imgA = cv2.imread(pathA)
-            imgB = cv2.imread(pathB)
-            imgB_resized = cv2.resize(imgB, (imgA.shape[1], imgA.shape[0]))
-            metrics = compare_images(imgA, imgB_resized)
-            
-            f.write(f"🔍 {filename}\n")
-            for key, val in metrics.items():
-                f.write(f"{key}: {float(val):.4f}\n")
-            f.write("\n")
-        else:
-            f.write(f"No match for {filename} in output_images\n\n")
+    for stem in common_stems:
+        filenameA = mapA[stem][0]
+        filenameB = mapB[stem][0]
+        pathA = os.path.join(folderA, filenameA)
+        pathB = os.path.join(folderB, filenameB)
+
+        imgA = cv2.imread(pathA)
+        imgB = cv2.imread(pathB)
+        imgB_resized = cv2.resize(imgB, (imgA.shape[1], imgA.shape[0]))
+        metrics = compare_images(imgA, imgB_resized)
+
+        f.write(f"🔍 {stem}\n")
+        for key, val in metrics.items():
+            f.write(f"{key}: {float(val):.4f}\n")
+        f.write("\n")
+
+    # Log unmatched
+    unmatchedA = set(mapA.keys()) - set(mapB.keys())
+    for stem in unmatchedA:
+        f.write(f"No match for {mapA[stem][0]} in {folderB}\n\n")

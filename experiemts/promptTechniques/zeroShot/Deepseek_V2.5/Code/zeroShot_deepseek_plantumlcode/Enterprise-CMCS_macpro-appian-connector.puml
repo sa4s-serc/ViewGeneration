@@ -1,0 +1,39 @@
+```plantuml
+@startuml Enterprise-CMCS_macpro-appian-connector
+
+actor "Appian" as appian
+participant "Kafka Connector" as connector
+participant "BigMAC" as bigmac
+participant "AWS ECS" as ecs
+participant "AWS SNS" as sns
+participant "AWS CloudWatch" as cloudwatch
+
+appian -> connector : Data Change Event
+activate connector
+
+connector -> ecs : Process Event (Serverless)
+activate ecs
+ecs -> bigmac : Stream Data
+activate bigmac
+bigmac --> ecs : Acknowledge
+deactivate bigmac
+ecs --> connector : Processing Complete
+deactivate ecs
+
+alt Error Condition
+    connector -> cloudwatch : Log Error
+    activate cloudwatch
+    cloudwatch --> connector : Log Confirmation
+    deactivate cloudwatch
+    
+    connector -> sns : Send Alert
+    activate sns
+    sns --> connector : Alert Sent
+    deactivate sns
+end
+
+connector --> appian : Event Processed
+deactivate connector
+
+@enduml
+```

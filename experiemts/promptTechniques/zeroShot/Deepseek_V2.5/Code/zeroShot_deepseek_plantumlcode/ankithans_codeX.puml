@@ -1,0 +1,68 @@
+```plantuml
+@startuml ankithans_codeX
+
+package "Frontend" {
+  [ReactJS Application] as frontend
+  component "App.js" as app
+  component "Navbar.js" as navbar
+  component "PseudoCode.js" as pseudocode
+  component "Warnings.js" as warnings
+  component "Compile.js" as compile
+
+  frontend --> app
+  app --> navbar
+  app --> pseudocode
+  app --> warnings
+  app --> compile
+}
+
+package "Backend" {
+  [FastAPI Server] as backend
+  component "main.py" as main
+  component "app.py" as api_gateway
+
+  backend --> main
+  main --> api_gateway
+
+  package "Routes" {
+    component "compile.py" as compile_route
+    component "convertPseudo.py" as pseudocode_route
+    component "warnings.py" as warnings_route
+    component "translatePseudo.py" as translate_route
+    component "shareCode.py" as share_route
+    component "flowchart.py" as flowchart_route
+
+    api_gateway --> compile_route
+    api_gateway --> pseudocode_route
+    api_gateway --> warnings_route
+    api_gateway --> translate_route
+    api_gateway --> share_route
+    api_gateway --> flowchart_route
+  }
+
+  package "Services" {
+    component "pylint.py" as pylint
+    component "pseudo_code.py" as pseudo_service
+    component "hackerearth_compile.py" as hackerearth
+    component "flowchart.py" as flowchart_service
+
+    compile_route --> hackerearth
+    pseudocode_route --> pseudo_service
+    warnings_route --> pylint
+    flowchart_route --> flowchart_service
+  }
+}
+
+[External Services] as externals
+component "HackerEarth API" as hackerearth_api
+component "Google Translate" as google_translate
+component "SQLite Database" as sqlite
+
+hackerearth --> hackerearth_api
+translate_route --> google_translate
+share_route --> sqlite
+
+frontend --> backend : REST API Calls
+
+@enduml
+```

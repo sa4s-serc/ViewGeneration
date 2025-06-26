@@ -1,0 +1,46 @@
+```plantuml
+@startuml duanfuxiang0_MysqlMigrationTool
+
+actor User
+participant "Main Program" as Main
+participant "Canal (go-mysql)" as Canal
+participant "RowEventHandler" as Handler
+participant "BinlogParser" as Parser
+participant "DAO Layer" as DAO
+database "Source MySQL" as SourceDB
+database "Target MySQL" as TargetDB
+
+User -> Main: Start migration
+Main -> Canal: Initialize canal with config
+Main -> Handler: Register event handler
+Main -> Canal: Start binlog streaming
+
+Canal -> SourceDB: Connect to binlog
+SourceDB --> Canal: Stream binlog events
+
+Canal -> Handler: OnRow(event)
+Handler -> Parser: ParseRowEvent(event)
+Parser -> Handler: Return parsed data (structs)
+
+alt Insert operation
+    Handler -> DAO: InsertToNew(struct)
+    DAO -> TargetDB: Execute INSERT
+    TargetDB --> DAO: Result
+    DAO --> Handler: Success/Failure
+else Update operation
+    Handler -> DAO: UpdateToNew(struct)
+    DAO -> TargetDB: Execute UPDATE
+    TargetDB --> DAO: Result
+    DAO --> Handler: Success/Failure
+else Delete operation
+    Handler -> DAO: DeleteFromNew(struct)
+    DAO -> TargetDB: Execute DELETE
+    TargetDB --> DAO: Result
+    DAO --> Handler: Success/Failure
+end
+
+Handler --> Canal: Ack event
+Canal --> Main: Continue streaming
+
+@enduml
+```

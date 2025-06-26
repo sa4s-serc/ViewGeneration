@@ -1,0 +1,60 @@
+```plantuml
+@startuml qnib_qframe
+
+package "Data Sources" {
+    component "File Collector" as file_collector
+    component "TCP Collector" as tcp_collector
+    component "Docker Collector" as docker_collector
+}
+
+component "QChan" as qchan {
+    interface "Broadcast Channel"
+}
+
+package "Processing Pipeline" {
+    component "Grok Filter" as grok_filter
+    component "Container Metadata Enricher" as metadata_enricher
+}
+
+package "Data Destinations" {
+    component "Log Handler" as log_handler
+    component "InfluxDB Handler" as influxdb_handler
+    component "Elasticsearch Handler" as es_handler
+}
+
+component "Configuration" as config {
+    database "YAML Config"
+    database "Environment Vars"
+}
+
+file_collector --> qchan : "publish data"
+tcp_collector --> qchan : "publish data"
+docker_collector --> qchan : "publish data"
+
+qchan --> grok_filter : "subscribe"
+qchan --> metadata_enricher : "subscribe"
+
+grok_filter --> qchan : "publish processed"
+metadata_enricher --> qchan : "publish enriched"
+
+qchan --> log_handler : "subscribe"
+qchan --> influxdb_handler : "subscribe"
+qchan --> es_handler : "subscribe"
+
+config --> file_collector : "configure"
+config --> tcp_collector : "configure"
+config --> docker_collector : "configure"
+config --> grok_filter : "configure"
+config --> metadata_enricher : "configure"
+config --> log_handler : "configure"
+config --> influxdb_handler : "configure"
+config --> es_handler : "configure"
+
+note right of qchan
+    Uses grafov/bcast for broadcast
+    message distribution between
+    pipeline components
+end note
+
+@enduml
+```

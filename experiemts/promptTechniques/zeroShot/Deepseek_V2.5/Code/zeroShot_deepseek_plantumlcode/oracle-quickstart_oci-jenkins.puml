@@ -1,0 +1,74 @@
+```plantuml
+@startuml oracle-quickstart_oci-jenkins
+
+skinparam monochrome true
+skinparam nodesep 20
+skinparam ranksep 20
+
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
+
+component "Jenkins Controller" as jenkins_controller {
+    file "setup.sh" as setup_script
+    database "Jenkins Configuration" as jenkins_config
+}
+
+component "Jenkins Agent" as jenkins_agent {
+    file "config.sh" as agent_script
+}
+
+component "OCI Bastion Service" as bastion_service {
+    interface "SSH Gateway" as bastion_ssh
+}
+
+component "Load Balancer" as load_balancer {
+    interface "HTTPS" as lb_https
+}
+
+component "OCI VCN" as vcn {
+    component "Public Subnet" as public_subnet
+    component "Private Subnet" as private_subnet
+    
+    public_subnet -[hidden]-> private_subnet
+}
+
+cloud "Internet" as internet {
+    interface "SSH/HTTP/HTTPS" as internet_ports
+}
+
+jenkins_controller -[#black]-> jenkins_agent : "SSH/Agent Protocol"
+jenkins_controller --> jenkins_config : Reads/Writes
+jenkins_controller --> setup_script : Executes
+jenkins_agent --> agent_script : Executes
+
+bastion_service --> jenkins_controller : "SSH Access"
+bastion_service --> jenkins_agent : "SSH Access"
+
+load_balancer --> jenkins_controller : "HTTP Traffic"
+lb_https --> internet_ports : "Public Access"
+
+internet --> bastion_service : "SSH Access"
+internet --> load_balancer : "Web Access"
+
+jenkins_controller -[#black]-> private_subnet : "Deployed in"
+jenkins_agent -[#black]-> private_subnet : "Deployed in"
+bastion_service -[#black]-> public_subnet : "Deployed in"
+load_balancer -[#black]-> public_subnet : "Deployed in"
+
+note right of jenkins_controller
+  Performance: Uses OCI Flexible Shapes
+  for scalable CPU/memory
+end note
+
+note right of load_balancer
+  High Availability: Distributes traffic
+  across multiple controllers
+end note
+
+note left of bastion_service
+  Security: Provides secure SSH access
+  to private instances
+end note
+
+@enduml
+```

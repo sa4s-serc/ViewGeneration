@@ -1,0 +1,34 @@
+```plantuml
+@startuml McOrts_taller-iot-sensor_radiactividad
+
+actor User
+participant "ESP8266 (WEMOS D1 mini Pro)" as ESP8266
+participant "Geiger Counter Module" as Geiger
+participant "Wi-Fi Network" as WiFi
+participant "MQTT Broker" as MQTT
+participant "Node-RED" as NodeRED
+participant "GMC.MAP Platform" as GMC
+
+User -> ESP8266: Power On
+ESP8266 -> WiFi: Connect (using settings.h)
+WiFi --> ESP8266: Connection Status
+ESP8266 -> MQTT: Connect (using settings.h)
+MQTT --> ESP8266: Connection ACK
+
+loop Every Measurement Interval
+    Geiger -> ESP8266: Radiation Pulse (Interrupt)
+    ESP8266 -> ESP8266: Count Pulses/Calculate CPM
+    ESP8266 -> MQTT: Publish CPM Data
+    MQTT -> NodeRED: Forward CPM Data
+    NodeRED -> GMC: Push to Mapping Platform
+end
+
+alt Remote Control Command
+    User -> MQTT: Publish LED Control Command
+    MQTT -> ESP8266: Forward Command
+    ESP8266 -> ESP8266: Process Command
+    ESP8266 -> ESP8266: Toggle LED
+end
+
+@enduml
+```

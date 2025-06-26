@@ -5,7 +5,7 @@ import json
 import glob
 import shutil
 # Initialize DeepSeek client
-client = OpenAI(api_key="", base_url="https://api.deepseek.com/v1")
+client = OpenAI(api_key="sk-a18b61e35db14879ba5f975c2efddb32", base_url="https://api.deepseek.com/v1")
 
 def get_plantuml_from_summary(summary, repo_name, concern, behavior, error_message=None, code=None):
     # Decide on diagram type based on behavior
@@ -100,7 +100,7 @@ def process_view(repo_name, summary, concern, behavior):
 
 
 def main():
-    input_jsonl = "../../../Architectural_knowledge_extraction/generated_summaries.jsonl"
+    input_jsonl = "../../../../Architectural_knowledge_extraction/generated_summaries.jsonl"
     column_name1 = "Repository Name"
     column_name2 = "summary"
     column_name3 = "Concern"
@@ -113,7 +113,7 @@ def main():
         print(f"Error reading JSONL file: {e}")
         return
 
-    for entry in entries[:5]:
+    for entry in entries:
         if all(key in entry for key in [column_name1, column_name2, column_name3, column_name4]):
             clean_repo_name = entry[column_name1].replace('/', '_').replace('\\', '_').rstrip('_')
             process_view(clean_repo_name, entry[column_name2], entry[column_name3], entry[column_name4])

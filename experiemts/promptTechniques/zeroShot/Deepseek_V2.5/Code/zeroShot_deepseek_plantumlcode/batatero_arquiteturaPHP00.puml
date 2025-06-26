@@ -1,0 +1,67 @@
+```plantuml
+@startuml batatero_arquiteturaPHP00
+
+package "CodeIgniter Application" {
+    [Front Controller\nindex.php] as front_controller
+    [Configuration Files\n(config.php, autoload.php, etc.)] as config_files
+    [Controllers] as controllers
+    [Facade] as facade
+    [Business Logic] as business_logic
+    [FactoryBusiness] as factory_business
+    [FactoryDAO] as factory_dao
+    [GenericDAO] as generic_dao
+    [DAOs] as daos
+
+    front_controller --> config_files
+    front_controller --> controllers
+    controllers --> facade
+    facade --> business_logic
+    business_logic --> factory_business
+    business_logic --> factory_dao
+    factory_business --> business_logic
+    factory_dao --> daos
+    daos --> generic_dao
+    generic_dao --> daos
+}
+
+package "CodeIgniter Core" {
+    [Core Libraries\n(Input, Security, Email, etc.)] as core_libraries
+    [Database Access\n(CI_DB_driver, Active Record)] as db_access
+    [Helper Functions] as helpers
+
+    core_libraries --> db_access
+    db_access --> helpers
+}
+
+package "Doctrine ORM" {
+    [EntityManager] as entity_manager
+    [UnitOfWork] as unit_of_work
+    [EntityRepository] as entity_repo
+    [ClassMetadata] as class_metadata
+    [QueryBuilder\nDQL] as query_builder
+    [DBAL\nDatabase Abstraction] as dbal
+    [Schema Management] as schema_mgmt
+    [Caching] as caching
+
+    entity_manager --> unit_of_work
+    entity_manager --> entity_repo
+    entity_manager --> class_metadata
+    entity_manager --> query_builder
+    entity_manager --> dbal
+    dbal --> schema_mgmt
+    query_builder --> caching
+}
+
+package "Symfony Components" {
+    [YAML Component] as yaml
+    [Console Component] as console
+}
+
+controllers --> core_libraries
+business_logic --> entity_manager
+daos --> dbal
+config_files --> yaml
+front_controller --> console
+
+@enduml
+```

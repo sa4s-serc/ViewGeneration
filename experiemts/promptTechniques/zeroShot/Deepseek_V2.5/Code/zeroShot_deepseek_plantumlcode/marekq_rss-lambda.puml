@@ -1,0 +1,34 @@
+```plantuml
+@startuml marekq_rss-lambda
+participant CloudWatch as "CloudWatch\n(Event Schedule)"
+participant StepFunction as "Step Function\n(rssblog)"
+participant LambdaCrawl as "Lambda\n(rsscrawl)"
+participant LambdaGetFeed as "Lambda\n(rssgetfeed)"
+participant DynamoDB as "DynamoDB"
+participant Comprehend as "AWS Comprehend"
+participant SES as "AWS SES"
+participant S3 as "S3"
+participant Algolia as "Algolia\n(Optional)"
+participant AppSync as "AppSync\n(Optional)"
+
+CloudWatch -> StepFunction : Triggers (scheduled)
+StepFunction -> LambdaCrawl : Invoke
+LambdaCrawl -> S3 : Check existing data
+S3 --> LambdaCrawl : Return existing data
+LambdaCrawl -> StepFunction : Return feed list
+StepFunction -> LambdaGetFeed : Invoke (parallel for each feed)
+LambdaGetFeed -> DynamoDB : Check for existing posts
+DynamoDB --> LambdaGetFeed : Return post status
+LambdaGetFeed -> Comprehend : Extract entities (tags)
+Comprehend --> LambdaGetFeed : Return entities
+LambdaGetFeed -> DynamoDB : Store post data
+LambdaGetFeed -> SES : Send notification (if enabled)
+LambdaGetFeed -> Algolia : Index post (if enabled)
+LambdaGetFeed -> S3 : Store public JSON (if enabled)
+LambdaGetFeed --> StepFunction : Return processing result
+StepFunction --> CloudWatch : Completion status
+
+AppSync -> DynamoDB : Query posts (if enabled)
+DynamoDB --> AppSync : Return post data
+@enduml
+```

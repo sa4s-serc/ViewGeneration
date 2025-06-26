@@ -1,0 +1,88 @@
+```plantuml
+@startuml leopardslab_gocloud
+
+package "Client Applications" {
+    [Client Application]
+}
+
+package "GoCloud Library" {
+    interface "GocloudInterface" as GocloudInterface {
+        + CreateNode()
+        + StartNode()
+        + StopNode()
+        + DeleteNode()
+        + ListNodes()
+    }
+
+    component "CloudProvider Factory" as CloudProvider {
+        + GetProvider()
+    }
+
+    component "Authentication" as Auth {
+        + Authenticate()
+        + SignRequests()
+    }
+
+    package "Core Services" {
+        component "Compute"
+        component "Storage"
+        component "Container"
+        component "DNS"
+        component "LoadBalancer"
+        component "Serverless"
+        component "Database"
+        component "MachineLearning"
+        component "Analytics"
+        component "Notification"
+        component "StreamProcessing"
+    }
+
+    package "Cloud Providers" {
+        component "AWS"
+        component "Google Cloud"
+        component "Azure"
+        component "DigitalOcean"
+        component "Alibaba Cloud"
+        component "Vultr"
+        component "OpenStack"
+        component "Rackspace"
+    }
+}
+
+[Client Application] --> CloudProvider : requests provider
+CloudProvider --> GocloudInterface : returns implementation
+
+GocloudInterface <|-- AWS
+GocloudInterface <|-- Google Cloud
+GocloudInterface <|-- Azure
+GocloudInterface <|-- DigitalOcean
+GocloudInterface <|-- Alibaba Cloud
+GocloudInterface <|-- Vultr
+GocloudInterface <|-- OpenStack
+GocloudInterface <|-- Rackspace
+
+AWS --> Auth : uses
+Google Cloud --> Auth : uses
+Azure --> Auth : uses
+DigitalOcean --> Auth : uses
+Alibaba Cloud --> Auth : uses
+Vultr --> Auth : uses
+OpenStack --> Auth : uses
+Rackspace --> Auth : uses
+
+AWS --> Compute : implements
+Google Cloud --> Storage : implements
+Azure --> Container : implements
+DigitalOcean --> DNS : implements
+Alibaba Cloud --> LoadBalancer : implements
+Vultr --> Serverless : implements
+OpenStack --> Database : implements
+Rackspace --> MachineLearning : implements
+
+note right of GocloudInterface
+    Unified interface for all
+    cloud provider operations
+end note
+
+@enduml
+```

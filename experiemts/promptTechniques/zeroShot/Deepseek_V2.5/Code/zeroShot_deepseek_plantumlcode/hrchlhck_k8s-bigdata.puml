@@ -1,0 +1,53 @@
+```plantuml
+@startuml hrchlhck_k8s-bigdata
+
+!define K8POD #FFD700
+!define K8SERVICE #FFA500
+!define APP #87CEEB
+!define STORAGE #98FB98
+
+node "Kubernetes Cluster" {
+    component "NameNode" as namenode <<K8POD>> {
+        component "Hadoop NameNode" as hdfs_nn <<APP>>
+        component "Spark Master" as spark_master <<APP>>
+        component "HiBench" as hibench <<APP>>
+    }
+
+    component "ResourceManager" as resourcemanager <<K8POD>> {
+        component "YARN ResourceManager" as yarn_rm <<APP>>
+    }
+
+    component "HistoryServer" as historyserver <<K8POD>> {
+        component "Spark HistoryServer" as spark_history <<APP>>
+    }
+
+    component "DataNode" as datanode <<K8POD>> {
+        component "HDFS DataNode" as hdfs_dn <<STORAGE>>
+        component "YARN NodeManager" as yarn_nm <<APP>>
+    }
+
+    database "Persistent Volume" as pv <<STORAGE>> {
+        component "HDFS Storage" as hdfs_storage <<STORAGE>>
+    }
+
+    component "NameNode Service" as nn_svc <<K8SERVICE>>
+    component "ResourceManager Service" as rm_svc <<K8SERVICE>>
+    component "HistoryServer Service" as hs_svc <<K8SERVICE>>
+    component "DataNode Service" as dn_svc <<K8SERVICE>>
+}
+
+hibench --> hdfs_nn : Uses
+hibench --> spark_master : Submits jobs
+hdfs_nn --> hdfs_dn : Manages
+spark_master --> yarn_rm : Requests resources
+yarn_rm --> yarn_nm : Manages
+hdfs_dn --> hdfs_storage : Stores data
+spark_history --> spark_master : Collects logs
+
+nn_svc --> namenode : Exposes
+rm_svc --> resourcemanager : Exposes
+hs_svc --> historyserver : Exposes
+dn_svc --> datanode : Exposes
+
+@enduml
+```

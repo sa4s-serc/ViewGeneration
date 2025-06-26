@@ -1,0 +1,37 @@
+```plantuml
+@startuml IBM_vpc-flowlogs-log-analysis
+actor User
+participant "IBM Cloud Functions" as ICF
+participant "COS Trigger" as COSTrigger
+participant "COS Bucket (Receiver)" as COSReceiver
+participant "handler.js" as Handler
+participant "IBM Log Analysis API" as LogAnalysis
+participant "COS Bucket (Archive)" as COSArchive
+
+User -> ICF: Deploy Function
+ICF -> COSTrigger: Configure COS Trigger
+COSTrigger -> ICF: Monitor COS Bucket
+
+loop On New Log File
+    COSReceiver -> COSTrigger: Object Created Event
+    COSTrigger -> Handler: Invoke Function (event)
+    
+    Handler -> COSReceiver: Get Object (log file)
+    COSReceiver --> Handler: Return compressed log
+    
+    Handler -> Handler: Decompress log
+    Handler -> Handler: Parse JSON
+    Handler -> Handler: Transform Data
+    
+    alt Forward to Log Analysis
+        Handler -> LogAnalysis: Send Logs (API Call)
+        LogAnalysis --> Handler: Response
+    end
+    
+    Handler -> COSArchive: Copy to Archive
+    Handler -> COSReceiver: Delete Original
+    
+    Handler --> ICF: Processing Complete
+end
+@enduml
+```

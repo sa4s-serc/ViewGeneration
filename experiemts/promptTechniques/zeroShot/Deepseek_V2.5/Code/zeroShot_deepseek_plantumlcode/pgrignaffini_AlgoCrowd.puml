@@ -1,0 +1,64 @@
+```plantuml
+@startuml pgrignaffini_AlgoCrowd
+
+package "Frontend (Next.js)" {
+    [Next.js Application] as frontend
+    component "pages/" as pages {
+        [Homepage]
+        [Create Project]
+        [Project Details]
+        [User Area]
+    }
+    component "components/" as components {
+        [Header]
+        [Footer]
+        [Project]
+        [CreateProjectForm]
+        [FundProject]
+        [DisplayProjects]
+    }
+    component "APIs/API.js" as api
+    component "context/AppContext.js" as context
+    component "constants/" as constants
+    component "utils/" as utils {
+        [ContractOperations.js]
+        [TxOperations.js]
+    }
+}
+
+package "Backend (Express.js)" {
+    [Express.js Server] as backend
+    component "server.js" as server
+    component "db.js" as db
+    component "dao.js" as dao
+    database "SQLite" as sqlite
+}
+
+package "Algorand Blockchain" {
+    [AlgoSigner] as algosigner
+    [Algod Client] as algod
+    component "Smart Contracts" as contracts {
+        [contracts.py]
+        [operations.py]
+        [util.py]
+    }
+}
+
+frontend --> api : uses
+frontend --> context : provides\nAlgod Client
+frontend --> components : composes
+frontend --> pages : routes to
+api --> backend : REST API calls
+backend --> server : handles requests
+server --> dao : data access
+dao --> db : manages
+db --> sqlite : persists data
+backend --> algod : interacts with
+algod --> contracts : executes
+contracts --> algosigner : requires\nsignatures
+context --> algod : manages
+utils --> contracts : utility\nfunctions
+constants --> contracts : provides\nTEAL code
+
+@enduml
+```

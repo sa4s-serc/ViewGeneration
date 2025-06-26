@@ -1,0 +1,46 @@
+```plantuml
+@startuml aurelien-m_raspberrypi-rustpy
+
+actor User as user
+participant "Web Browser" as browser
+participant "Rocket Web Server" as server
+participant "Python Controller" as python
+participant "Rust Hardware Library" as rust
+participant "Raspberry Pi GPIO" as gpio
+
+user -> browser : Accesses Web Interface
+browser -> server : HTTP GET / (Login Page)
+server --> browser : Login Form (login.html)
+
+user -> browser : Enters Credentials & Submits
+browser -> server : HTTP POST /login (Credentials)
+server -> server : Authenticate (users.txt)
+server --> browser : Redirect to /index (Dashboard)
+
+user -> browser : Selects LED Mode (e.g., Rainbow)
+browser -> server : WebSocket Connection (/ws)
+browser -> server : JSON Mode Request (via WS)
+
+server -> python : Spawns Controller Process (demo_controller_app.py)
+python -> rust : Initializes Hardware (via rpipy.py)
+rust -> gpio : GPIO Setup (rppal)
+
+loop Real-time Control
+    server -> python : Sends Mode Settings (JSON over ZMQ)
+    python -> rust : Calls Mode Functions (e.g., set_rainbow)
+    rust -> gpio : PWM/GPIO Manipulation
+    gpio --> rust : Hardware Feedback
+    rust --> python : Status Update
+    python -> server : Sends Status (JSON over ZMQ)
+    server -> browser : Pushes Update (WebSocket)
+end
+
+user -> browser : Adjusts Parameters
+browser -> server : WebSocket Message (New Params)
+server -> python : Forward Params (ZM)
+python -> rust : Update Hardware (e.g., change_speed)
+rust -> gpio : Adjust PWM
+... (feedback loop continues) ...
+
+@enduml
+```

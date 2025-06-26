@@ -1,0 +1,39 @@
+```plantuml
+@startuml coverage-robot_core
+
+actor GitHub as github
+participant "API Service" as api
+participant "Orchestrator Service" as orchestrator
+participant "Analyse Service" as analyse
+participant "Publish Service" as publish
+participant "DynamoDB" as dynamodb
+participant "S3" as s3
+participant "BigQuery" as bigquery
+
+github -> api : Webhook (PR event)
+activate api
+api -> dynamodb : Validate webhook
+api -> api : Enqueue event
+api -> orchestrator : Send event (via EventBridge)
+deactivate api
+
+activate orchestrator
+orchestrator -> dynamodb : Store event
+orchestrator -> analyse : Trigger analysis
+deactivate orchestrator
+
+activate analyse
+analyse -> s3 : Fetch coverage data
+analyse -> bigquery : Query historical data
+analyse -> analyse : Calculate metrics
+analyse -> dynamodb : Store results
+analyse -> publish : Send report data
+deactivate analyse
+
+activate publish
+publish -> github : Post coverage comment
+publish -> dynamodb : Update status
+deactivate publish
+
+@enduml
+```

@@ -1,0 +1,37 @@
+```plantuml
+@startuml castle-finance_vault-transaction-indexer
+participant EventBridge as "EventBridge\n(Scheduler)"
+participant IndexLambda as "index-transaction-ids\nLambda"
+participant SolscanAPI as "Solscan API"
+participant SNSTopic as "SNS Topic"
+participant DownloadLambda as "download-raw-transaction\nLambda"
+participant SQSQueue as "SQS Queue"
+participant DynamoDBRaw as "DynamoDB\n(Raw Transactions)"
+participant DynamoDBNorm as "DynamoDB\n(Normalized Transactions)"
+participant NormalizeLambda as "normalize-raw-transaction\nLambda"
+
+EventBridge -> IndexLambda: Scheduled trigger
+activate IndexLambda
+IndexLambda -> SolscanAPI: Fetch transaction IDs
+SolscanAPI --> IndexLambda: Return transaction IDs
+IndexLambda -> SNSTopic: Publish transaction IDs
+deactivate IndexLambda
+
+SNSTopic -> DownloadLambda: Notify new transactions
+activate DownloadLambda
+DownloadLambda -> SQSQueue: Poll for messages
+SQSQueue --> DownloadLambda: Return transaction IDs
+DownloadLambda -> SolscanAPI: Fetch raw transaction data
+SolscanAPI --> DownloadLambda: Return raw transaction
+DownloadLambda -> DynamoDBRaw: Store raw transaction
+deactivate DownloadLambda
+
+DynamoDBRaw -> NormalizeLambda: Stream new records
+activate NormalizeLambda
+NormalizeLambda -> DynamoDBRaw: Read raw transaction
+DynamoDBRaw --> NormalizeLambda: Return raw data
+NormalizeLambda -> NormalizeLambda: Normalize transaction data
+NormalizeLambda -> DynamoDBNorm: Store normalized transaction
+deactivate NormalizeLambda
+@enduml
+```

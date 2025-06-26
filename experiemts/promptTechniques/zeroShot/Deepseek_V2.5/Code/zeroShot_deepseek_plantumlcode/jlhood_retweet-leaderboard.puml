@@ -1,0 +1,24 @@
+```plantuml
+@startuml jlhood_retweet-leaderboard
+
+actor User
+participant "API Gateway" as APIGateway
+participant "GetLeaderboard\nLambda" as GetLeaderboard
+participant DynamoDB
+participant "TweetProcessor\nLambda" as TweetProcessor
+participant "Twitter Event\nSource" as TwitterSource
+
+User -> APIGateway : GET /leaderboard?limit={n}
+APIGateway -> GetLeaderboard : Invoke Lambda
+GetLeaderboard -> DynamoDB : Query Leaderboard table
+DynamoDB --> GetLeaderboard : Return sorted records
+GetLeaderboard --> APIGateway : Return JSON response
+APIGateway --> User : Display leaderboard
+
+TwitterSource -> TweetProcessor : Push tweet event (JSON)
+TweetProcessor -> TweetProcessor : Parse & filter tweet
+TweetProcessor -> DynamoDB : Update Leaderboard record
+DynamoDB --> TweetProcessor : Confirm update
+
+@enduml
+```

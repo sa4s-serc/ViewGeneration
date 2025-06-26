@@ -1,0 +1,43 @@
+```plantuml
+@startuml Taymindis_fcgi-function
+
+component "Web Server (Nginx/Apache)" as webserver {
+    component "FastCGI Interface" as fcgi_interface
+}
+
+component "FastCGI Function Handler" as ffunc {
+    component "Request Dispatcher" as dispatcher {
+        component "Function Mapper" as mapper
+        component "Thread Pool Manager" as thread_pool
+    }
+    
+    component "Memory Pool" as mem_pool
+    component "Platform Adapter" as platform_adapter
+}
+
+component "User Functions" as user_functions {
+    component "Profile Service" as profile_service
+    component "Other Handlers" as other_handlers
+}
+
+webserver --> ffunc : FastCGI protocol
+ffunc --> user_functions : Function calls
+
+dispatcher --> mapper : maps FN_HANDLER to\nfunction pointer
+dispatcher --> thread_pool : manages worker threads
+dispatcher --> mem_pool : allocates request memory
+dispatcher --> platform_adapter : OS-specific operations
+
+mapper --> user_functions : resolves handlers
+thread_pool --> user_functions : executes in threads
+
+note right of ffunc
+    Control Flow Highlights:
+    1. Web server forwards requests via FastCGI
+    2. Dispatcher routes to appropriate handler
+    3. Thread pool enables concurrent execution
+    4. Memory pool optimizes allocations
+end note
+
+@enduml
+```

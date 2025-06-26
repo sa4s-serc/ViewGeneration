@@ -1,0 +1,53 @@
+```plantuml
+@startuml pacmacro_pm-server-spring
+
+actor Client
+participant "PlayerController" as PC
+participant "PlayerManager" as PM
+participant "PlayerRegistry" as PR
+participant "PlayerRepository" as PRP
+participant "GameStateController" as GSC
+participant "GameStateManager" as GSM
+participant "GameStateRegistry" as GSR
+
+Client -> PC: POST /player/select (playerName)
+PC -> PM: selectPlayer(playerName)
+PM -> PR: isPlayerSelected(playerName)
+PR --> PM: false
+PM -> PR: selectPlayer(playerName)
+PR -> PRP: getPlayerByName(playerName)
+PRP --> PR: Player
+PR --> PM: Player
+PM --> PC: Player
+PC --> Client: 200 OK (PlayerDetailsResponse)
+
+Client -> GSC: GET /game/state
+GSC -> GSM: getGameState()
+GSM -> GSR: getGameState()
+GSR --> GSM: GameState
+GSM --> GSC: GameStateResponse
+GSC --> Client: 200 OK (GameStateResponse)
+
+Client -> PC: POST /player/location (LocationRequest)
+PC -> PM: updatePlayerLocation(LocationRequest)
+PM -> PR: updatePlayerLocation(LocationRequest)
+PR --> PM: Player
+PM --> PC: Player
+PC --> Client: 200 OK
+
+Client -> PC: POST /player/state (StateRequest)
+PC -> PM: updatePlayerState(StateRequest)
+PM -> PR: updatePlayerState(StateRequest)
+PR --> PM: Player
+PM --> PC: Player
+PC --> Client: 200 OK
+
+Client -> GSC: POST /game/start
+GSC -> GSM: startGame()
+GSM -> GSR: setGameInProgress()
+GSR --> GSM: void
+GSM --> GSC: void
+GSC --> Client: 200 OK
+
+@enduml
+```

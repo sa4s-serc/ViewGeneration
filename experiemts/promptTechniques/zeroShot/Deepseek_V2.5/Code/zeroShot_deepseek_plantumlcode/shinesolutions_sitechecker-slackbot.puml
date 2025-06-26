@@ -1,0 +1,44 @@
+```plantuml
+@startuml shinesolutions_sitechecker-slackbot
+
+component "Slack" as slack {
+    component "Outgoing Webhook" as webhook
+}
+
+component "API Gateway" as apigateway
+
+component "Master Lambda" as master {
+    component "bot.js" as bot
+    component "slack.js" as slackjs
+}
+
+component "Worker Lambda (Region 1)" as worker1 {
+    component "sitechecker.js" as sitechecker1
+}
+
+component "Worker Lambda (Region 2)" as worker2 {
+    component "sitechecker.js" as sitechecker2
+}
+
+component "Worker Lambda (Region N)" as workern {
+    component "sitechecker.js" as sitecheckern
+}
+
+slack -> apigateway : HTTP POST (Slack commands)
+apigateway -> master : Triggers
+master -> worker1 : Invokes (URL check)
+master -> worker2 : Invokes (URL check)
+master -> workern : Invokes (URL check)
+worker1 --> master : Returns status
+worker2 --> master : Returns status
+workern --> master : Returns status
+master -> slack : Sends formatted response
+
+note right of master
+    Serverless architecture
+    Deployed across AWS regions
+    Uses AWS Lambda and API Gateway
+end note
+
+@enduml
+```

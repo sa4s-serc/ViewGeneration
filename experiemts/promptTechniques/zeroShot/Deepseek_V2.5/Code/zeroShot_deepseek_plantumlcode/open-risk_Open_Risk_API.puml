@@ -1,0 +1,45 @@
+```plantuml
+@startuml open-risk_Open_Risk_API
+
+component "Client Applications" {
+    component "API Explorer (Python Client)" as client_explorer
+    component "LibreOffice Macros" as libreoffice_macros
+}
+
+component "Model Server" {
+    component "Flask Application" as flask_app
+    component "RDFlib" as rdflib
+    component "Concentration Metrics Library" as concentration_lib
+    database "Model Definitions (RDF)" as model_defs
+}
+
+component "Data Server" {
+    component "Python-Eve Application" as eve_app
+    database "MongoDB" as mongodb
+}
+
+component "OpenCPM Suite" {
+    component "NPL Concentration" as npl_concentration {
+        component "Model Server" as opencpm_model_server
+        component "Compute Engine" as compute_engine
+        component "Model Definitions" as opencpm_models
+    }
+}
+
+client_explorer --> flask_app : REST API (HTTP)
+client_explorer --> eve_app : REST API (HTTP)
+libreoffice_macros --> flask_app : REST API (HTTP)
+libreoffice_macros --> eve_app : REST API (HTTP)
+
+flask_app --> rdflib : Processes
+flask_app --> concentration_lib : Calls
+flask_app --> model_defs : Reads/Writes
+
+eve_app --> mongodb : Persists data
+
+opencpm_model_server --> compute_engine : Calls
+opencpm_model_server --> opencpm_models : Reads
+opencpm_model_server --> flask_app : Extends
+
+@enduml
+```

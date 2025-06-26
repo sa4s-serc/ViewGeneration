@@ -1,0 +1,76 @@
+```plantuml
+@startuml hex-js_nodejs-hexagonal-boilerplate-ts
+
+package "Core Business Logic" {
+    [Todo Model] as model
+    [Todo Service] as service
+    [Validation] as validation
+    [Error Handling] as error
+    [Maybe Monad] as monad
+}
+
+package "Adapters" {
+    [Todo Adapter] as adapter
+    [Adapter Factory] as factory
+}
+
+package "Ports" {
+    interface "Repository Port" as repo_port
+    interface "HTTP Port" as http_port
+    interface "SQS Port" as sqs_port
+    interface "Lambda Port" as lambda_port
+    interface "Logger Port" as logger_port
+}
+
+package "Infrastructure" {
+    [DynamoDB Repository] as dynamo
+    [Express HTTP Server] as express
+    [SQS Client] as sqs
+    [Lambda Handler] as lambda
+    [Pino Logger] as logger
+}
+
+package "AWS Services" {
+    [AWS DynamoDB] as aws_dynamo
+    [AWS SQS] as aws_sqs
+    [AWS Lambda] as aws_lambda
+}
+
+package "Local Development" {
+    [Localstack] as localstack
+    [Terraform] as terraform
+    [Docker Compose] as docker
+}
+
+model --> service
+validation --> service
+error --> service
+monad --> service
+
+service --> adapter
+factory --> adapter
+
+adapter --> repo_port
+adapter --> http_port
+adapter --> sqs_port
+adapter --> lambda_port
+adapter --> logger_port
+
+repo_port --> dynamo
+http_port --> express
+sqs_port --> sqs
+lambda_port --> lambda
+logger_port --> logger
+
+dynamo --> aws_dynamo
+sqs --> aws_sqs
+lambda --> aws_lambda
+
+localstack --> aws_dynamo
+localstack --> aws_sqs
+localstack --> aws_lambda
+terraform --> localstack
+docker --> localstack
+
+@enduml
+```

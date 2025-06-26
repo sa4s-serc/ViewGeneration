@@ -1,0 +1,48 @@
+```plantuml
+@startuml FudanOCR_FudanOCR
+
+package "FudanOCR System" {
+    [Main Entry Point] as main
+    [Configuration Manager] as config
+    [Data Handling] as data
+    [Model Training] as training
+    [Text Detection] as detection
+    [Text Recognition] as recognition
+    [Super Resolution] as superres
+    [Post Processing] as postproc
+    [Evaluation] as eval
+}
+
+main --> config : "reads YAML"
+main --> data : "loads datasets"
+main --> training : "executes training"
+
+data --> detection : "provides preprocessed data"
+data --> recognition : "provides preprocessed data"
+data --> superres : "provides preprocessed data"
+
+training --> detection : "trains models"
+training --> recognition : "trains models"
+training --> superres : "trains models"
+
+detection --> postproc : "outputs detected text"
+recognition --> postproc : "outputs recognized text"
+superres --> postproc : "outputs enhanced images"
+
+postproc --> eval : "sends results for metrics"
+eval --> config : "feedback for tuning"
+
+component "External Libraries" as libs {
+    [TensorFlow] as tf
+    [PyTorch] as torch
+    [Cython] as cython
+    [CUDA] as cuda
+}
+
+config ..> tf : "uses"
+config ..> torch : "uses"
+postproc ..> cython : "optimized NMS"
+postproc ..> cuda : "GPU acceleration"
+
+@enduml
+```

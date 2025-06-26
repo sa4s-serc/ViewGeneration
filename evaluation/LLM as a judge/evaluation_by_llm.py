@@ -33,14 +33,14 @@ def extract_and_compare_images(image_path1, image_path2, model):
     Return a JSON object in this exact structure:
     ```json
     {
-     "diagram1": {
+     "GroundTruth": {
      "components": [],
      "connectors": [],
      "annotations": [],
      "groups": [],
      "metadata": {}
      },
-     "diagram2": {
+     "GeneratedImage": {
      "components": [],
      "connectors": [],
      "annotations": [],
@@ -49,12 +49,12 @@ def extract_and_compare_images(image_path1, image_path2, model):
      },
      "comparison": {
      "common_components": [],
-     "unique_to_diagram1": [],
-     "unique_to_diagram2": [],
+     "unique_to_GroundTruth": [],
+     "unique_to_GeneratedImage": [],
      "common_connectors": [],
-     "unique_connectors_diagram1": [],
-     "unique_connectors_diagram2": [],
-     "explanation": "A detailed explanation highlighting similarities and differences between the two diagrams and also be as a judge and provide a score from 0 to 10 based on the quality of the diagrams and determine which diagram is better and why."
+     "unique_connectors_GroundTruth": [],
+     "unique_connectors_GeneratedImage": [],
+     "explanation": "A detailed explanation highlighting similarities and differences between the two diagrams and also please rate the generated image on a scale of 1 to 10 based on its accuracy and completeness, similarity compared to the ground truth and explain why you gave that rating."
      }
     }
     Provide ONLY this JSON output without additional text or explanations.
@@ -80,7 +80,7 @@ def extract_and_compare_images(image_path1, image_path2, model):
         
         return None
 
-def write_to_json(filename, data, output_dir="json_outputs"):
+def write_to_json(filename, data, output_dir="LLM_as_a_Judge_outputs"):
     os.makedirs(output_dir, exist_ok=True)
     json_path = os.path.join(output_dir, f"{filename}.json")
     with open(json_path, mode='w', encoding='utf-8') as json_file:
@@ -96,7 +96,7 @@ def main():
     model = genai.GenerativeModel("gemini-2.0-flash-exp")
     
     folder1 = "./initial_images"
-    folder2 = "./fewShot_deepseek_output_images"
+    folder2 = "./oneShot_deepseek_output_images"
     
 
     files1 = get_files_by_stem(folder1)

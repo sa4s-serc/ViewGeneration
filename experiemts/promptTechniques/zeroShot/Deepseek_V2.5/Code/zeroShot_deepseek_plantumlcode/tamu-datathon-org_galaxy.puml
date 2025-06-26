@@ -1,0 +1,32 @@
+```plantuml
+@startuml tamu-datathon-org_galaxy
+
+package "Galaxy System" {
+    [Router (Nginx)] as router
+    [Gatekeeper] as gatekeeper
+    [OBOS] as obos
+    [Gigabowser] as gigabowser
+}
+
+[User] as user
+
+user --> router : Accesses tamudatathon.com
+router --> gatekeeper : /auth/*
+router --> obos : /obos/*
+router --> gigabowser : /* (static content)
+
+gatekeeper ..> router : Provides auth services
+obos ..> router : Event management services
+gigabowser ..> router : Static website content
+
+cloud {
+    [Heroku] as heroku
+    [Docker] as docker
+}
+
+heroku --> gatekeeper : Hosts
+heroku --> obos : Hosts
+docker --> router : Builds & runs
+
+@enduml
+```

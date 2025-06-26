@@ -1,0 +1,21 @@
+```plantuml
+@startuml eProsima_Integration-Service
+
+participant "Client Application" as Client
+participant "Integration Service" as IS
+participant "System Handle (Fast DDS)" as FastDDS
+participant "System Handle (ROS2)" as ROS2
+participant "JSON-XTypes Converter" as Converter
+
+Client -> IS : Publish Data (JSON)
+IS -> Converter : Convert JSON to DynamicData
+Converter --> IS : DynamicData
+IS -> FastDDS : Route Data (DynamicData)
+FastDDS -> ROS2 : Transmit Data (Middleware format)
+ROS2 -> IS : Receive Data (Middleware format)
+IS -> Converter : Convert DynamicData to JSON
+Converter --> IS : JSON
+IS -> Client : Deliver Data (JSON)
+
+@enduml
+```

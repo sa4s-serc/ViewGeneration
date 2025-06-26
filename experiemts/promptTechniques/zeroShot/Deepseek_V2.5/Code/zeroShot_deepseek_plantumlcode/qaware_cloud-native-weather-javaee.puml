@@ -1,0 +1,45 @@
+```plantuml
+@startuml qaware_cloud-native-weather-javaee
+
+package "Cloud Native Weather (JavaEE)" {
+    [Weather REST API] as WeatherAPI
+    [Weather Service] as WeatherService
+    [Weather Repository] as WeatherRepo
+    [Weather Entity] as WeatherEntity
+    [OpenWeatherMap Client] as OWMClient
+    [Health Checks] as HealthChecks
+    [Metrics] as Metrics
+}
+
+database "PostgreSQL" as Postgres
+cloud "OpenWeatherMap API" as OWM
+
+WeatherAPI --> WeatherService : uses
+WeatherService --> WeatherRepo : uses
+WeatherService --> OWMClient : uses
+WeatherRepo --> WeatherEntity : maps to
+WeatherRepo --> Postgres : stores/fetches
+OWMClient --> OWM : calls
+HealthChecks --> Postgres : checks
+HealthChecks --> OWM : checks
+
+[Config] as Config
+Config --> WeatherAPI : configures
+Config --> WeatherService : configures
+Config --> OWMClient : configures
+
+node "Kubernetes Cluster" {
+    component "Payara Micro" as Payara {
+        WeatherAPI
+        WeatherService
+        WeatherRepo
+        WeatherEntity
+        OWMClient
+        HealthChecks
+        Metrics
+    }
+    Payara --> Config : reads from
+}
+
+@enduml
+```

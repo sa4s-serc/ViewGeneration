@@ -1,0 +1,46 @@
+```plantuml
+@startuml mincloud1501_MSA_miniProject
+
+!define K8S_ICON https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons/kubernetes.png
+!define DOCKER_ICON https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons/docker.png
+!define NGINX_ICON https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons/nginx.png
+!define GCP_ICON https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons/google_cloud-platform.png
+!define AWS_ICON https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons/amazonwebservices.png
+!define AZURE_ICON https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons/msazure.png
+
+node "Kubernetes Cluster" {
+    component "Master Node" as master <<K8S>> {
+        rectangle "API Server" as api
+        rectangle "Scheduler" as scheduler
+        rectangle "Controller Manager" as controller
+        rectangle "etcd" as etcd
+    }
+
+    component "Worker Node" as worker <<K8S>> {
+        rectangle "Kubelet" as kubelet
+        rectangle "Kube-Proxy" as kubeproxy
+        rectangle "Container Runtime" as runtime
+
+        component "Nginx Pod" as nginxpod <<Pod>> {
+            rectangle "Nginx Container" as nginx <<NGINX>> #lightblue
+            rectangle "Istio Sidecar" as istio #pink
+        }
+    }
+}
+
+component "Docker Registry" as dockerhub <<DOCKER>> #lightblue
+component "Cloud Providers" as cloud {
+    rectangle "GCP (GKE)" as gcp <<GCP>> #lightblue
+    rectangle "AWS (EKS)" as aws <<AWS>> #orange
+    rectangle "Azure (AKS)" as azure <<AZURE>> #blue
+}
+
+nginxpod --> dockerhub : "Pulls image"
+master --> worker : "Manages"
+worker --> master : "Reports status"
+
+nginxpod --> istio : "Traffic management"
+istio --> cloud : "Can deploy to"
+
+@enduml
+```

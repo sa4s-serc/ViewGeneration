@@ -1,0 +1,36 @@
+```plantuml
+@startuml GoogleCloudPlatform_gke-pubsub-websocket-adapter
+
+participant "Web Client" as client
+participant "Ingress" as ingress
+participant "WebSocket Service" as websocket
+participant "pulltop Container" as pulltop
+participant "Google Cloud Pub/Sub" as pubsub
+participant "Ephemeral Storage" as storage
+participant "Cron Job" as cron
+
+client -> ingress: HTTP Upgrade to WebSocket
+ingress -> websocket: Forward WebSocket connection
+websocket -> client: WebSocket handshake (101 Switching Protocols)
+
+group Pub/Sub Message Flow
+    pulltop -> pubsub: Subscribe to topic
+    pubsub -> pulltop: Push messages
+    pulltop -> storage: Write messages to buffer
+end
+
+group WebSocket Data Delivery
+    loop While connection active
+        websocket -> storage: Read latest messages
+        storage -> websocket: Return messages
+        websocket -> client: Send messages via WebSocket
+    end
+end
+
+group Buffer Maintenance
+    cron -> storage: Rotate JSON file
+    storage -> cron: Acknowledge rotation
+end
+
+@enduml
+```

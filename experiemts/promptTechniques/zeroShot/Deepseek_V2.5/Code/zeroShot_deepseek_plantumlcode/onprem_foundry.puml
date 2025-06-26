@@ -1,0 +1,47 @@
+```plantuml
+@startuml onprem_foundry
+
+package "Foundry System" {
+    [Furnace] as Furnace
+    [Object Storage] as ObjectStorage
+    [AUR] as AUR
+
+    component "Builder Interface" {
+        [Builder] as Builder
+        [MakepkgBuilder] as MakepkgBuilder
+        [BuilderWithMetrics] as BuilderWithMetrics
+    }
+
+    component "gRPC Service" {
+        [furnacepb] as furnacepb
+    }
+
+    component "Package Management" {
+        [pkgMap] as pkgMap
+        [buildQueue] as buildQueue
+    }
+
+    component "Monitoring" {
+        [Prometheus] as Prometheus
+        [pprof] as pprof
+    }
+
+    component "CLI" {
+        [Cobra] as Cobra
+    }
+}
+
+Furnace --> furnacepb : exposes
+Furnace --> Builder : uses
+Builder <|-- MakepkgBuilder : implements
+Builder <|-- BuilderWithMetrics : decorates
+Furnace --> pkgMap : manages
+Furnace --> buildQueue : processes
+Furnace --> AUR : fetches packages
+Furnace --> ObjectStorage : uploads packages
+Furnace --> Prometheus : reports metrics
+Furnace --> pprof : provides profiling
+Cobra --> Furnace : controls
+
+@enduml
+```

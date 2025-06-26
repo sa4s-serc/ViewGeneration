@@ -1,0 +1,35 @@
+```plantuml
+@startuml avarghesein_ActiveX.NET
+
+actor Client
+participant "COM Runtime" as COM
+participant "ActiveX.NET.Server" as Server
+participant "ActiveXServerContext" as Context
+participant "ActiveXServers" as Servers
+participant "DefaultActiveXFactory" as Factory
+participant "IActiveXServer Plugin" as Plugin
+
+Client -> COM : CoCreateInstance(CLSID)
+COM -> Server : DllGetClassObject(CLSID, IID_IClassFactory)
+Server -> Factory : CreateInstance(pUnkOuter, riid, ppv)
+Factory -> Context : Request COM Object Creation
+Context -> Servers : Get IActiveXServer instance
+Servers -> Plugin : MEF: CreateInstance()
+Plugin --> Servers : IActiveXServer instance
+Servers --> Context : IActiveXServer instance
+Context --> Factory : COM Object
+Factory --> Server : COM Object
+Server --> COM : IClassFactory reference
+COM --> Client : COM Object reference
+
+Client -> Plugin : COM Method Calls
+Plugin --> Client : Return Values
+
+Client -> COM : Release COM Object
+COM -> Plugin : Release()
+Plugin -> Context : UnLockActiveXServer()
+Context -> Servers : Notify Release
+Servers -> Plugin : Dispose if refcount=0
+
+@enduml
+```

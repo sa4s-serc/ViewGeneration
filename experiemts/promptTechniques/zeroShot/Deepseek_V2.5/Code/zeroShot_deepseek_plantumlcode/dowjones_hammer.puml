@@ -1,0 +1,29 @@
+```plantuml
+@startuml dowjones_hammer
+actor User
+participant SlackBot
+participant REST_API
+participant InitiationLambda
+participant SNS
+participant IdentificationLambda
+participant DynamoDB
+participant JIRA
+participant EC2
+participant AWS_Resources
+
+User -> SlackBot: Request security scan
+SlackBot -> REST_API: Trigger scan
+REST_API -> InitiationLambda: Start process
+InitiationLambda -> SNS: Publish scan event
+SNS -> IdentificationLambda: Invoke security checks
+loop For each AWS resource
+    IdentificationLambda -> AWS_Resources: Check security configuration
+    AWS_Resources --> IdentificationLambda: Return resource state
+    IdentificationLambda -> DynamoDB: Store issue details
+end
+IdentificationLambda --> EC2: Send results
+EC2 -> JIRA: Create tickets for issues
+EC2 -> SlackBot: Send notifications
+SlackBot --> User: Notify scan completion
+@enduml
+```

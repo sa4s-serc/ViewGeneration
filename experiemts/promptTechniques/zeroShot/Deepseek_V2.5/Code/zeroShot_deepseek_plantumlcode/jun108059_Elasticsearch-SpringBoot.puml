@@ -1,0 +1,34 @@
+```plantuml
+@startuml jun108059_Elasticsearch-SpringBoot
+
+component "Spring Boot Application" as app {
+    component "Admin Controller" as adminController
+    component "API Controller" as apiController
+    component "Index Service" as indexService
+    component "Elasticsearch Client" as esClient
+    component "Service Repository" as serviceRepo
+    component "Bulk Repository" as bulkRepo
+}
+
+database "MySQL Database" as mysql
+database "Elasticsearch Cluster" as es
+
+app --> mysql : JDBC\n(Spring JdbcTemplate)
+app --> es : REST API\n(Elasticsearch Client)
+
+adminController --> indexService : manages\nindexing
+apiController --> indexService : executes\nsearches
+indexService --> esClient : performs\nES operations
+indexService --> serviceRepo : accesses\nservice data
+indexService --> bulkRepo : accesses\nbulk data
+
+note right of app
+    Connectivity Highlights:
+    - JDBC for MySQL access
+    - REST API for Elasticsearch
+    - Internal Spring components
+    connected via DI
+end note
+
+@enduml
+```

@@ -1,0 +1,50 @@
+```plantuml
+@startuml Fenkey_irma
+
+package "IRMA Framework" {
+    component "irmacall (C Engine)" {
+        component "Request Handling" as req_handling
+        component "HTTP Client (Fetcher)" as http_client
+        component "Key-Value Storage" as kv_store
+        component "Logging System" as logging
+        component "SMTP Support" as smtp
+        component "Cryptography" as crypto
+        component "Fuse (Circuit Breaker)" as fuse
+        component "Buffer Management" as buffer_mgmt
+        component "Async DNS" as async_dns
+    }
+
+    component "irmakit (C# Framework)" {
+        component "Configuration System" as config
+        component "Session Management" as session_mgmt
+        component "Request/Response" as req_resp
+        component "Routing" as routing
+        component "Template Engine" as template_engine
+        component "Utilities" as utils
+        component "Code Generator" as code_gen
+    }
+
+    component "FastCGI Interface" as fastcgi
+    component "Web Server" as webserver
+    component "External Services" as external {
+        component "Memcached" as memcached
+        component "Redis" as redis
+        component "SMTP Server" as smtp_server
+    }
+}
+
+req_handling --> fastcgi
+http_client --> external
+kv_store --> memcached
+kv_store --> redis
+smtp --> smtp_server
+fastcgi --> webserver
+
+irmakit --> irmacall : "uses"
+session_mgmt --> kv_store
+template_engine --> external
+req_resp --> req_handling
+routing --> req_resp
+
+@enduml
+```

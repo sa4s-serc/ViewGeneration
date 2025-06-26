@@ -1,0 +1,57 @@
+```plantuml
+@startuml zeromicro_zero-doc
+
+package "Go-Zero Framework" {
+    [API Gateway] as api_gateway
+    [zRPC Framework] as zrpc
+    [Service Discovery] as service_discovery
+    [Adaptive Load Shedding] as load_shedding
+    [Circuit Breaker] as circuit_breaker
+    [Rate Limiting] as rate_limiting
+    [Caching Layer] as caching
+    [go-queue] as go_queue
+    [Concurrency Utilities] as concurrency
+    [Metrics & Monitoring] as metrics
+    [Distributed Tracing] as tracing
+    [Middleware] as middleware
+    [goctl Code Generator] as goctl
+    [Configuration] as config
+}
+
+package "Core Components" {
+    [API Handler] as handler
+    [Business Logic] as logic
+    [Data Model] as model
+    [Service Context] as svc_context
+}
+
+api_gateway --> zrpc : routes requests
+api_gateway --> middleware : applies
+zrpc --> service_discovery : discovers services
+zrpc --> load_shedding : protects
+zrpc --> circuit_breaker : implements
+zrpc --> rate_limiting : enforces
+zrpc --> caching : utilizes
+zrpc --> metrics : collects
+zrpc --> tracing : supports
+
+handler --> logic : calls
+logic --> model : accesses data
+logic --> svc_context : uses dependencies
+svc_context --> zrpc : holds client
+svc_context --> caching : manages
+svc_context --> metrics : includes
+
+goctl --> handler : generates
+goctl --> logic : generates
+goctl --> model : generates
+goctl --> config : uses
+
+go_queue --> caching : async processing
+concurrency --> caching : singleflight
+middleware --> metrics : collects
+middleware --> tracing : supports
+config --> svc_context : provides
+
+@enduml
+```

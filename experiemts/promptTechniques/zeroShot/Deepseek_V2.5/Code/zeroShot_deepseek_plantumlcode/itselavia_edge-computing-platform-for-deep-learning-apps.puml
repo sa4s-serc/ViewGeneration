@@ -1,0 +1,44 @@
+```plantuml
+@startuml elavia_edge-computing-platform-for-deep-learning-apps
+
+actor User
+participant "React Frontend" as Frontend
+participant "Flask Backend" as Backend
+participant "Model Manager (Go)" as ModelManager
+participant "Cloud Function (TFLite Converter)" as TFLiteConverter
+participant "GCS Bucket" as GCS
+participant "Kubernetes Cluster" as K8s
+participant "KubeEdge Node" as EdgeNode
+
+User -> Frontend: Uploads TensorFlow Model
+Frontend -> Backend: POST /api/models (with model file)
+Backend -> GCS: Stores model file
+Backend -> TFLiteConverter: Triggers conversion to TFLite
+TFLiteConverter -> GCS: Retrieves original model
+TFLiteConverter -> GCS: Stores converted TFLite model
+TFLiteConverter -> Backend: Notifies conversion completion
+
+User -> Frontend: Requests model deployment
+Frontend -> Backend: POST /api/deployments
+Backend -> ModelManager: Deploy model request
+ModelManager -> K8s: Creates namespace/service account
+ModelManager -> K8s: Deploys model service
+K8s -> EdgeNode: Schedules pod with TFLite model
+EdgeNode --> K8s: Pod status updates
+K8s --> ModelManager: Deployment status
+ModelManager --> Backend: Deployment confirmation
+Backend --> Frontend: Deployment success
+Frontend --> User: Shows deployment status
+
+User -> Frontend: Requests inference
+Frontend -> Backend: POST /api/inference (with input data)
+Backend -> GCS: Stores input data
+Backend -> K8s: Routes to model service
+K8s -> EdgeNode: Executes inference on model pod
+EdgeNode --> K8s: Returns inference results
+K8s --> Backend: Inference response
+Backend --> Frontend: Returns results
+Frontend --> User: Displays results
+
+@enduml
+```

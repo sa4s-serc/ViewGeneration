@@ -1,0 +1,74 @@
+```plantuml
+@startuml alextanhongpin_node-rest
+
+component "Express App" as app {
+    component "index.js" as index
+    component "Middleware" as middleware
+}
+
+component "Food Service" as foodService {
+    component "route.js" as route
+    component "model.js" as model
+    component "store.js" as store
+}
+
+component "Database" as database {
+    component "mysql2/promise" as mysql
+    component "Connection Pool" as pool
+}
+
+component "Configuration" as config {
+    component "convict" as convict
+    component "config/" as configFiles
+}
+
+component "Validation" as validation {
+    component "ajv" as ajv
+    component "schema/" as schemaFiles
+}
+
+component "Helpers" as helpers {
+    component "helper/index.js" as helper
+}
+
+component "Testing" as testing {
+    component "mocha" as mocha
+    component "chai" as chai
+    component "test/" as testFiles
+}
+
+component "Docker" as docker {
+    component "docker-compose.yml" as compose
+}
+
+app --> foodService
+app --> config
+app --> validation
+app --> helpers
+
+foodService --> database
+foodService --> validation
+
+route --> model
+model --> store
+store --> database
+
+database --> mysql
+database --> pool
+
+config --> convict
+config --> configFiles
+
+validation --> ajv
+validation --> schemaFiles
+
+helpers --> helper
+
+testing --> mocha
+testing --> chai
+testing --> testFiles
+
+docker --> compose
+
+@enduml
+```

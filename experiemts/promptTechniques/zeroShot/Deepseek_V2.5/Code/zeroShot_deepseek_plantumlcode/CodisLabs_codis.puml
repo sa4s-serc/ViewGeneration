@@ -1,0 +1,50 @@
+```plantuml
+@startuml CodisLabs_codis
+
+component "Client Applications" as clients
+
+component "Codis Proxy" as proxy {
+    component "Command Processor" as cmd_proc
+    component "Connection Pool" as conn_pool
+    component "Slot Mapper" as slot_mapper
+}
+
+component "Redis Cluster" as redis {
+    component "Redis Node 1" as node1
+    component "Redis Node 2" as node2
+    component "Redis Node N" as nodeN
+}
+
+component "Zookeeper/Etcd" as zk {
+    component "Configuration Store" as config_store
+    component "Cluster State" as cluster_state
+}
+
+component "Codis Dashboard" as dashboard {
+    component "Admin UI" as admin_ui
+    component "Cluster Manager" as cluster_mgr
+}
+
+component "Sentinel" as sentinel {
+    component "Monitoring" as monitoring
+    component "Failover" as failover
+}
+
+clients --> proxy : "Redis protocol"
+proxy --> redis : "Redis commands"
+proxy --> zk : "Configuration"
+dashboard --> zk : "Cluster config"
+dashboard --> proxy : "Management"
+sentinel --> redis : "Monitoring"
+sentinel --> dashboard : "Failover alerts"
+
+cmd_proc --> conn_pool : "Uses"
+cmd_proc --> slot_mapper : "Consults"
+slot_mapper --> config_store : "Reads mapping"
+cluster_mgr --> config_store : "Updates config"
+cluster_mgr --> cluster_state : "Monitors"
+monitoring --> redis : "Health checks"
+failover --> redis : "Promotes replicas"
+
+@enduml
+```

@@ -1,0 +1,45 @@
+```plantuml
+@startuml IBM_datastax-cassandra-clickstream
+
+actor User
+participant "Next.js Frontend" as Frontend
+participant "Next.js API Routes" as API
+participant "clicks.service.js" as Service
+participant "DataStax/Cassandra" as Database
+
+User -> Frontend: Browse products
+Frontend -> API: GET /api/products/[category]
+API -> Service: getProducts()
+Service -> Database: Query products
+Database --> Service: Product data
+Service --> API: Product data
+API --> Frontend: Product data
+Frontend -> User: Display products
+
+User -> Frontend: Add to cart
+Frontend -> API: POST /api/products/index (addToCart)
+API -> Service: addToCart(eventData)
+Service -> Database: Insert clickstream event
+Database --> Service: ACK
+Service --> API: Success
+API --> Frontend: Success
+Frontend -> User: Update cart UI
+
+User -> Frontend: View history
+Frontend -> API: GET /api/history
+API -> Service: getActivity(userId)
+Service -> Database: Query clickstream
+Database --> Service: Clickstream data
+Service --> API: Clickstream data
+API --> Frontend: Clickstream data
+Frontend -> User: Display history
+
+User -> Frontend: Authenticate
+Frontend -> API: POST /api/auth/[...nextauth]
+API -> Service: (auth handled by NextAuth)
+Service --> API: Auth response
+API --> Frontend: Auth status
+Frontend -> User: Update auth UI
+
+@enduml
+```

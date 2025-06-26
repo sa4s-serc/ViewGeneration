@@ -1,0 +1,52 @@
+Here's the PlantUML component diagram for `gr-corrsounder` focusing on the general architectural view:
+
+```plantuml
+@startuml IT-HF_gr-corrsounder
+
+package "GNU Radio Environment" {
+    component "GNU Radio Runtime" as gr_runtime
+    component "GNU Radio Companion" as grc
+}
+
+package "gr-corrsounder" {
+    component "C++ Signal Processing Blocks" as cpp_blocks {
+        component "Sequence Generation (FZC/MLS)" as seq_gen
+        component "Correlation" as correlator
+        component "Error Correction" as error_corr
+        component "Moving Average" as mov_avg
+        component "Sequence Gate" as seq_gate
+        component "RAM Disk File Sink" as ramdisk_sink
+        component "IR SNR Detection" as ir_snr
+    }
+
+    component "Python Bindings (SWIG)" as swig_bindings
+
+    component "pycorrsounder" {
+        component "Core Algorithms" as core_algs
+        component "Utilities" as utils
+    }
+
+    component "GRC Block Definitions" as grc_defs
+    component "Unit Tests" as unit_tests
+    component "Documentation Parser" as doc_parser
+}
+
+component "User Applications" as user_apps {
+    component "Example Flowgraphs" as examples
+    component "Custom Scripts" as scripts
+}
+
+gr_runtime --> cpp_blocks : uses
+grc --> grc_defs : loads
+cpp_blocks <-- swig_bindings : exposes
+swig_bindings --> pycorrsounder : integrates
+grc_defs --> cpp_blocks : references
+unit_tests --> cpp_blocks : verifies
+unit_tests --> pycorrsounder : verifies
+doc_parser --> cpp_blocks : documents
+user_apps --> gr_runtime : executes
+examples --> grc : uses
+scripts --> pycorrsounder : imports
+
+@enduml
+```

@@ -1,0 +1,104 @@
+Here's the corrected PlantUML component diagram for CMU-RERC-APT_tiramisu3-pr with a focus on control flow:
+
+```plantuml
+@startuml CMU-RERC-APT_tiramisu3-pr
+
+package "Mobile Client (Ionic/Angular)" {
+    component "AppComponent" as AppComponent
+    component "HomePage" as HomePage
+    component "RoutePage" as RoutePage
+    component "StopPage" as StopPage
+    
+    package "Services" {
+        component "LocationService" as LocationService
+        component "FavRoutesService" as FavRoutesService
+        component "FavStopsService" as FavStopsService
+        component "AlarmService" as AlarmService
+        component "SchedulesFromStopService" as SchedulesFromStopService
+        component "HandleSettingsService" as HandleSettingsService
+    }
+    
+    package "Notifications" {
+        component "PushNotifications" as PushNotifications
+        component "LocalNotifications" as LocalNotifications
+    }
+    
+    AppComponent --> HomePage : controls
+    AppComponent --> RoutePage : controls
+    AppComponent --> StopPage : controls
+    AppComponent --> LocationService : uses
+    AppComponent --> PushNotifications : registers
+    
+    HomePage --> FavRoutesService : queries
+    HomePage --> SchedulesFromStopService : requests
+    RoutePage --> FavStopsService : manages
+    StopPage --> AlarmService : triggers
+    
+    AlarmService --> LocalNotifications : creates
+    HandleSettingsService --> PushNotifications : configures
+}
+
+package "Java Frontend" {
+    component "SchedulesForLocationServlet" as SchedulesServlet
+    component "WriteFavRouteServlet" as WriteFavServlet
+    component "ReadFavRouteServlet" as ReadFavServlet
+    component "StatusLogServlet" as StatusLogServlet
+    component "ButtonLogServlet" as ButtonLogServlet
+    component "FocusLogServlet" as FocusLogServlet
+    
+    SchedulesServlet --> "OneBusAway" as OBA : queries
+    SchedulesServlet --> "DynamoDB" as DynamoDB : reads
+    
+    WriteFavServlet --> "PostgreSQL" as Postgres : writes
+    ReadFavServlet --> Postgres : reads
+    StatusLogServlet --> Postgres : logs
+    ButtonLogServlet --> Postgres : logs
+    FocusLogServlet --> Postgres : logs
+}
+
+package "Backend Processing" {
+    component "FeedGrabberPAAC" as FeedGrabberPAAC
+    component "FeedGrabberMTA" as FeedGrabberMTA
+    component "ObservationProcessor" as ObservationProcessor
+    component "DynamoCleaner" as DynamoCleaner
+    
+    FeedGrabberPAAC --> "AWS SQS" as SQS : pushes
+    FeedGrabberMTA --> SQS : pushes
+    SQS --> ObservationProcessor : notifies
+    ObservationProcessor --> DynamoDB : updates
+    DynamoCleaner --> DynamoDB : cleans
+}
+
+package "Prediction Engine" {
+    component "RoutePredictor" as Predictor
+    Predictor --> "RandomForest Model" as RFModel : uses
+    Predictor --> Postgres : reads
+}
+
+package "Alarm System" {
+    component "AlarmProcessor" as AlarmProcessor
+    component "AWSSendEmail" as AWSSendEmail
+    
+    AlarmProcessor --> Postgres : queries
+    AlarmProcessor --> AWSSendEmail : triggers
+    AWSSendEmail --> PushNotifications : sends
+    AWSSendEmail --> "AWS SES" as SES : uses
+}
+
+' Control Flow Relationships
+AppComponent --> SchedulesServlet : HTTP requests
+AppComponent --> WriteFavServlet : HTTP requests
+AppComponent --> ReadFavServlet : HTTP requests
+AppComponent --> StatusLogServlet : HTTP requests
+
+AlarmService --> AlarmProcessor : triggers
+AlarmProcessor --> PushNotifications : sends
+AlarmProcessor --> LocalNotifications : schedules
+
+FeedGrabberPAAC --> ObservationProcessor : via SQS
+FeedGrabberMTA --> ObservationProcessor : via SQS
+ObservationProcessor --> Predictor : provides training data
+SchedulesServlet --> Predictor : requests predictions
+
+@enduml
+```

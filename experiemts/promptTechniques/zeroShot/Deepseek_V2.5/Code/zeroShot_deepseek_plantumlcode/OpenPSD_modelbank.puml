@@ -1,0 +1,46 @@
+```plantuml
+@startuml OpenPSD_modelbank
+
+package "Presentation Layer" {
+    [ModelBankController] as Controller
+    [gRPC Server] as GRPCServer
+}
+
+package "Application Layer" {
+    [ModelBankUseCase] as UseCase
+}
+
+package "Domain Layer" {
+    [FinancialInstitution] as FI
+    [AccountHolder] as AH
+    [Account] as Account
+    [Consent] as Consent
+    [PaymentInstruction] as Payment
+    [LedgerEntry] as Ledger
+}
+
+package "Infrastructure Layer" {
+    [DbProvider] as DB
+    [PostgreSQL] as Postgres
+}
+
+Controller --> UseCase : <<uses>>\nvia InputPort
+UseCase --> Controller : <<notifies>>\nvia OutputPort
+
+UseCase --> DB : <<uses>>\nvia EntityGateway
+DB --> Postgres : <<persists to>>
+
+GRPCServer --> Controller : <<calls>>
+
+FI --* AH
+AH --* Account
+Account --* Ledger
+Payment --* Ledger
+Consent -- Account
+
+note right of UseCase: Core business logic\nfor payment processing\nand account management
+
+note bottom of Postgres: Stores all domain entities\nand transaction data
+
+@enduml
+```

@@ -1,0 +1,33 @@
+```plantuml
+@startuml kineviz-3D-human-pose-tracking_3d-ai-powered-pose-tracking
+
+actor User
+participant WebcamClient1
+participant WebcamClient2
+participant "Node.js Server" as Server
+participant "TensorFlow Model" as TFModel
+participant "Receiver Client" as Receiver
+participant "GraphXR" as GraphXR
+
+User -> WebcamClient1 : Starts capture
+User -> WebcamClient2 : Starts capture
+
+loop For each frame
+    WebcamClient1 -> TFModel : Send frame (PoseNet/MoveNet)
+    TFModel -> WebcamClient1 : Return 2D pose
+    WebcamClient2 -> TFModel : Send frame (PoseNet/MoveNet)
+    TFModel -> WebcamClient2 : Return 2D pose
+    
+    WebcamClient1 -> Server : Send 2D pose (Socket.IO)
+    WebcamClient2 -> Server : Send 2D pose (Socket.IO)
+    
+    Server -> Server : Combine 2D poses → 3D pose
+    Server -> Receiver : Broadcast 3D pose (Socket.IO)
+    Server -> GraphXR : Send 3D visualization data
+    
+    Receiver -> User : Display pose data
+    GraphXR -> User : Render 3D skeleton
+end
+
+@enduml
+```

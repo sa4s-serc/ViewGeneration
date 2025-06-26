@@ -1,0 +1,79 @@
+```plantuml
+@startuml thangchung_practical-dapr
+
+package "CoolStore.WebUI" {
+    [Blazor WebAssembly] as WebUI
+    WebUI --> [Bootstrap]
+    WebUI --> [HttpClient]
+}
+
+package "CoolStore.IdentityServer" {
+    [IdentityServer4] as IdentityServer
+    IdentityServer --> [Quickstart UI]
+    IdentityServer --> [InMemory Users]
+}
+
+package "Product Services" {
+    [ProductCatalogApi] as ProductCatalog
+    [InventoryApi] as Inventory
+
+    ProductCatalog --> [REST API]
+    ProductCatalog --> [gRPC]
+    ProductCatalog --> [GraphQL]
+    ProductCatalog --> [Domain Events]
+
+    Inventory --> [REST API]
+    Inventory --> [gRPC]
+    Inventory --> [GraphQL]
+}
+
+package "N8T Building Blocks" {
+    [N8T.Domain] as Domain
+    [N8T.Infrastructure] as Infrastructure
+
+    Domain --> [Aggregate Roots]
+    Domain --> [Domain Events]
+
+    Infrastructure --> [MediatR]
+    Infrastructure --> [Dapr Client]
+    Infrastructure --> [EF Core]
+    Infrastructure --> [Logging]
+}
+
+package "Infrastructure" {
+    [Dapr] as Dapr
+    [Redis] as Redis
+    [Zipkin] as Zipkin
+    [Seq] as Seq
+    [Kubernetes] as K8s
+}
+
+WebUI --> IdentityServer : Authentication
+WebUI --> ProductCatalog : API Calls
+WebUI --> Inventory : API Calls
+
+ProductCatalog --> Inventory : Service Calls
+Inventory --> ProductCatalog : Service Calls
+
+ProductCatalog --> Domain
+ProductCatalog --> Infrastructure
+Inventory --> Domain
+Inventory --> Infrastructure
+
+ProductCatalog --> Dapr
+Inventory --> Dapr
+WebUI --> Dapr
+
+Dapr --> Redis : State/PubSub
+Dapr --> Zipkin : Tracing
+
+Infrastructure --> Seq : Logging
+
+K8s --> WebUI : Hosts
+K8s --> IdentityServer : Hosts
+K8s --> ProductCatalog : Hosts
+K8s --> Inventory : Hosts
+K8s --> Dapr : Sidecars
+
+@enduml
+```

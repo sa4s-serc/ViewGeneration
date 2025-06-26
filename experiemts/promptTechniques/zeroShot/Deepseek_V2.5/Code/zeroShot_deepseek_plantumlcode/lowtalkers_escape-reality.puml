@@ -1,0 +1,51 @@
+```plantuml
+@startuml lowtalkers_escape-reality
+
+actor User
+participant "React Client" as Client
+participant "Node.js Server" as Server
+participant "AWS S3" as S3
+participant "MariaDB" as DB
+participant "Wikipedia API" as Wiki
+
+User -> Client: Uploads 360° image
+Client -> Server: POST /api/upload (image data)
+Server -> S3: Upload image file
+S3 --> Server: Return image URL
+Server -> DB: Store image metadata (url, user_id)
+DB --> Server: Confirm storage
+Server --> Client: Return success + image URL
+
+User -> Client: Selects VR scene
+Client -> Server: GET /api/scenes
+Server -> DB: Query scene data
+DB --> Server: Return scene list
+Server --> Client: Return scene data
+Client -> Client: Render VR scene (A-Frame)
+
+User -> Client: Adds comment (voice/text)
+Client -> Server: POST /api/comments (text/audio)
+Server -> DB: Store comment
+DB --> Server: Confirm storage
+Server --> Client: Return success
+
+User -> Client: Likes a photo
+Client -> Server: POST /api/likes (photo_id)
+Server -> DB: Update like count
+DB --> Server: Confirm update
+Server --> Client: Return updated count
+
+User -> Client: Searches Wikipedia
+Client -> Server: GET /api/wiki?query=...
+Server -> Wiki: Fetch Wikipedia articles
+Wiki --> Server: Return article data
+Server --> Client: Return formatted results
+
+User -> Client: Bookmarks article
+Client -> Server: POST /api/bookmarks (article_data)
+Server -> DB: Store bookmark
+DB --> Server: Confirm storage
+Server --> Client: Return success
+
+@enduml
+```

@@ -1,0 +1,56 @@
+@startuml IceFireDB_IceFireDB
+
+package "IceFireDB Core" {
+    [LevelDB Storage] as leveldb
+    [Redis Protocol Layer] as redis
+    [Raft Consensus (Uhaha)] as raft
+    [Transaction Manager] as tx
+    [Server Commands] as server
+}
+
+package "IceFireDB-SQLProxy" {
+    [MySQL Proxy] as mysql
+    [P2P Network (libp2p)] as p2p
+    [Storage Engine Interface] as storage
+    [Query Cache] as cache
+    [Connection Pool] as pool
+}
+
+package "Communication & Serialization" {
+    [gRPC] as grpc
+    [Protocol Buffers] as protobuf
+}
+
+package "Security" {
+    [Crypto (x/crypto)] as crypto
+    [Key Management] as keys
+}
+
+package "Monitoring" {
+    [OpenTelemetry] as otel
+    [Metrics] as metrics
+}
+
+leveldb --> redis : "stores data for"
+raft --> redis : "provides consensus for"
+tx --> redis : "manages transactions for"
+server --> redis : "implements commands for"
+
+mysql --> p2p : "uses for sync"
+mysql --> storage : "pluggable engines"
+mysql --> cache : "uses for query results"
+mysql --> pool : "manages connections"
+
+redis --> grpc : "communicates via"
+grpc --> protobuf : "uses for serialization"
+
+redis --> crypto : "uses for security"
+crypto --> keys : "manages"
+
+redis --> otel : "sends metrics to"
+otel --> metrics : "collects"
+
+storage ..> leveldb : "can use"
+
+@enduml
+```
