@@ -1,0 +1,49 @@
+sequenceDiagram
+    actor User
+    participant Frontend as Frontend (React)
+    participant WalletClient as Wallet Client
+    participant PredictionCardsAPI as PredictionCards API
+    participant Contract as PredictionCards Contract
+    participant OracleService as Oracle Service
+    participant ProcessService as Process Prediction Service
+    participant Aeternity as Aeternity Blockchain
+
+    User->>+Frontend: Create Prediction (asset, price, times, NFT images)
+    Frontend->>+WalletClient: Sign transaction
+    WalletClient->>+PredictionCardsAPI: create_prediction()
+    PredictionCardsAPI->>+Contract: create_prediction()
+    Contract-->>-PredictionCardsAPI: Prediction created event
+    PredictionCardsAPI-->>-WalletClient: Transaction receipt
+    WalletClient-->>-Frontend: Confirmation
+    Frontend-->>-User: Prediction created
+
+    User->>+Frontend: Rent NFT (select outcome, deposit funds)
+    Frontend->>+WalletClient: Sign transaction
+    WalletClient->>+PredictionCardsAPI: rent_nft()
+    PredictionCardsAPI->>+Contract: rent_nft()
+    Contract-->>-PredictionCardsAPI: NFT rented event
+    PredictionCardsAPI-->>-WalletClient: Transaction receipt
+    WalletClient-->>-Frontend: Confirmation
+    Frontend-->>-User: NFT rented
+
+    loop Periodically check predictions
+        ProcessService->>+Contract: Check for CLOSED predictions
+        Contract-->>-ProcessService: List of CLOSED predictions
+        ProcessService->>+OracleService: Request oracle query
+        OracleService->>+Aeternity: Query oracle for price
+        Aeternity-->>-OracleService: Current price data
+        OracleService->>+Contract: respond_oracle()
+        Contract-->>-OracleService: Oracle response processed
+        OracleService-->>-ProcessService: Oracle response confirmation
+        ProcessService->>+Contract: process_oracle_response()
+        Contract-->>-ProcessService: Winning outcome determined
+    end
+
+    User->>+Frontend: Claim rewards
+    Frontend->>+WalletClient: Sign transaction
+    WalletClient->>+PredictionCardsAPI: claim()
+    PredictionCardsAPI->>+Contract: claim()
+    Contract-->>-PredictionCardsAPI: Rewards distributed
+    PredictionCardsAPI-->>-WalletClient: Transaction receipt
+    WalletClient-->>-Frontend: Confirmation
+    Frontend-->>-User: Rewards claimed

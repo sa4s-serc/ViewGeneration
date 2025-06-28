@@ -1,0 +1,31 @@
+C4Component
+    title Component Diagram for lvyahui8_http-proxy
+
+    Container_Boundary(b1, "HTTP Proxy System") {
+        Component(proxy_server, "Proxy Server", "Core proxy functionality")
+        Component(http_proxy_server, "HttpProxyServer", "Main server class\nInitializes Netty server")
+        Component(client_handler, "ClientToProxyHandler", "Handles client requests\nApplies request filters")
+        Component(server_handler, "ProxyToServerInboundHandler", "Handles backend responses\nApplies response filters")
+        Component(entity_manager, "EntitysManager", "Manages proxy routing rules\nDynamic configuration")
+        Component(exception_handler, "GlobalExceptionHandler", "Centralized error handling")
+
+        Component(proxy_filters, "Proxy Filters", "Request/response processing")
+        Component(request_filters, "Request Filters", "AttackRequestFilter, etc.")
+        Component(response_filters, "Response Filters", "DefaultProxyResponseFilter, etc.")
+
+        Component(proxy_sdk, "Proxy SDK", "Basic SDK components")
+        Component(msg_system, "Message System", "MsgCode, MsgTranslater")
+        Component(response_model, "StandardResponse", "Standardized response format")
+    }
+
+    Container(test_client, "Test Client", "async-http-client", "Load testing client")
+    Container(test_server, "Test Server", "Jersey/Grizzly", "Backend test endpoints")
+
+    Rel(test_client, proxy_server, "Sends requests to", "HTTP")
+    Rel(proxy_server, test_server, "Forwards requests to", "HTTP")
+    Rel(proxy_server, proxy_filters, "Uses", "Applies filters")
+    Rel(proxy_server, proxy_sdk, "Uses", "Error handling/messaging")
+    Rel(entity_manager, proxy_filters, "Configures", "Filter rules")
+    Rel(client_handler, server_handler, "Coordinates with", "Request/response flow")
+
+    UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
