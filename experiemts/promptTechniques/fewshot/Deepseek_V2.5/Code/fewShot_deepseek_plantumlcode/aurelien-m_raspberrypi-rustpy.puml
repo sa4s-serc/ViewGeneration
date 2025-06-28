@@ -1,0 +1,76 @@
+@startuml
+skinparam backgroundColor #eeeeee
+skinparam componentStyle rectangle
+skinparam defaultTextAlignment center
+skinparam ArrowColor #333333
+skinparam ArrowThickness 1
+
+left to right direction
+
+actor "User" as User
+
+rectangle "Web Browser" as Browser {
+  [HTML/CSS/JS] as Frontend
+}
+
+rectangle "Rust Web Server (Rocket)" as WebServer {
+  [REST API] as API
+  [WebSocket] as WS
+  [Auth] as Auth
+  [Templates] as Templates
+}
+
+rectangle "Python Controller" as Python {
+  [rpipy.py] as RpiPy
+  [demo_controller_app.py] as Controller
+  [luminolib.py] as Luminolib
+  [cosmic.py|rainbow.py|demo.py] as Modes
+}
+
+rectangle "Rust Hardware Library" as RustLib {
+  [libraspberrypylib.so] as Lib
+  [GPIO Control] as GPIO
+}
+
+rectangle "Raspberry Pi" as RPi {
+  [LEDs] as LEDs
+  [Bluetooth] as BT
+}
+
+User --> Browser : Interacts with
+Browser --> WebServer : HTTP/WebSocket
+Frontend --> API : REST Calls
+Frontend --> WS : Real-time Updates
+
+WebServer --> Python : Commands/Config
+API --> Controller : Mode Settings
+WS --> Controller : Status Updates
+
+Python --> RustLib : Hardware Control
+RpiPy --> Lib : Calls
+Controller --> Modes : Mode Logic
+Modes --> Luminolib : Common Functions
+
+RustLib --> RPi : GPIO/PWM
+Lib --> GPIO : Hardware Access
+GPIO --> LEDs : Control Signals
+
+WebServer --> RPi : System Info
+Auth --> RPi : Bluetooth
+BT --> WebServer : Data
+
+note right of RustLib
+  Uses rppal crate
+  for GPIO control
+end note
+
+note right of Python
+  Uses cpython for
+  Rust-Python binding
+end note
+
+note right of WebServer
+  Uses Rocket framework
+  with Askama templates
+end note
+@enduml

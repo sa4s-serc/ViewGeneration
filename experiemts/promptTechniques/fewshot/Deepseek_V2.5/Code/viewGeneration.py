@@ -3,20 +3,18 @@ import subprocess
 from openai import OpenAI
 import json
 # Initialize DeepSeek client
-client = OpenAI(api_key="", base_url="https://api.deepseek.com/v1")
+client = OpenAI(api_key="sk-a18b61e35db14879ba5f975c2efddb32", base_url="https://api.deepseek.com/v1")
 
-def load_few_shot_example(behavior, json_path="examples.json"):
+def load_few_shot_example(json_path="examples.json"):
     try:
         with open(json_path, 'r', encoding='utf-8') as f:
-            examples = json.load(f)
-            # Filter examples based on behavior
-            return [ex for ex in examples if ex['behavior'] == behavior]
+            return json.load(f)
     except Exception as e:
         print(f"Error loading one-shot example: {e}")
         return None
 
 def get_plantuml_from_summary(summary, repo_name, concern, behavior, error_message=None, code=None):
-    examples = load_few_shot_example(behavior)
+    examples = load_few_shot_example()
 
     if not examples:
         return "Error: Failed to load examples for few-shot prompting."
@@ -142,7 +140,7 @@ def main():
     column_name2 = "summary"
     column_name3 = "Concern"
     column_name4 = "Behavior"
-
+    output_dir = "fewShot_deepseek_output_images"
     try:
         with open(input_jsonl, 'r', encoding='utf-8') as f:
             entries = [json.loads(line) for line in f]
@@ -150,9 +148,14 @@ def main():
         print(f"Error reading JSONL file: {e}")
         return
 
-    for entry in entries[:5]:
+    for entry in entries:
         if all(key in entry for key in [column_name1, column_name2, column_name3, column_name4]):
             clean_repo_name = entry[column_name1].replace('/', '_').replace('\\', '_').rstrip('_')
+            expected_output_path = os.path.join(output_dir, f"{clean_repo_name}.png")
+
+            if os.path.exists(expected_output_path):
+                print(f"Skipping {clean_repo_name} — already exists.")
+                continue
             process_view(clean_repo_name, entry[column_name2], entry[column_name3], entry[column_name4])
             print(f"Processed entry: {clean_repo_name}")
         else:

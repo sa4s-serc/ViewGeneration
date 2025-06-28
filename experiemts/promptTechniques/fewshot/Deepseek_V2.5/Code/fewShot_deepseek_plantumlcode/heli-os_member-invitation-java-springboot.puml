@@ -1,0 +1,54 @@
+@startuml heli-os_member-invitation-java-springboot
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<interface>> #d9e7fd
+  BackgroundColor<<domain>> #d8f5d3
+  BackgroundColor<<infra>> #fff1c9
+  BackgroundColor<<external>> #fddddd
+  Style roundrect
+}
+
+package "Interface Layer" <<interface>> {
+  [MemberInvitationApplication] as App
+  [InvitationRestController] as RestController
+  [ExceptionHandler] as ExceptionHandler
+  [DTOs] as DTOs
+  [Mappers] as Mappers
+}
+
+package "Domain Layer" <<domain>> {
+  [Member] as Member
+  [Invitation] as Invitation
+  [UseCase Interfaces] as UseCases
+  [Domain Services] as Services
+}
+
+package "Infrastructure Layer" <<infra>> {
+  [JPA Repositories] as JPA
+  [Redis Adapter] as Redis
+  [Database] as DB
+}
+
+package "External Systems" <<external>> {
+  [Redis] as ExtRedis
+  [Workspace Service] as Workspace
+}
+
+App --> RestController
+RestController --> DTOs
+RestController --> Mappers
+RestController --> ExceptionHandler
+DTOs <--> Mappers
+
+RestController --> UseCases
+UseCases --> Services
+Services --> Member
+Services --> Invitation
+
+Services --> JPA
+Services --> Redis
+JPA --> DB
+Redis --> ExtRedis
+
+Workspace --> Services
+@enduml

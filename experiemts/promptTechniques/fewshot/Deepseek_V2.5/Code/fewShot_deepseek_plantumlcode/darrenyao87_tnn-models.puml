@@ -1,0 +1,57 @@
+### Actual Output:
+@startuml darrenyao87_tnn-models
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<framework>> #d9e7fd
+  BackgroundColor<<model>> #d8f5d3
+  BackgroundColor<<data>> #fff1c9
+  BackgroundColor<<hardware>> #fddddd
+  Style roundrect
+}
+
+package "TNN Framework" <<framework>> {
+  [TNN Runtime] as TNNRuntime
+  [Model Optimizer] as Optimizer
+  [Graph Processor] as GraphProc
+}
+
+package "Model Definitions" <<model>> {
+  [*.tnnproto] as TNNProto
+  [*.tnnmodel] as TNNModel
+  [*.rapidproto] as RapidProto
+  [*.rapidmodel] as RapidModel
+}
+
+package "HiAI DDK" <<framework>> {
+  [Model Manager] as ModelManager
+  [AIPP Processor] as AIPP
+  [Tensor Handler] as TensorHandler
+}
+
+package "Hardware" <<hardware>> {
+  [NPU Accelerator] as NPU
+  [ION Memory] as ION
+}
+
+package "Supporting Data" <<data>> {
+  [vocab.txt] as Vocab
+  [keys.txt] as Keys
+  [anchors.txt] as Anchors
+}
+
+TNNRuntime --> TNNProto : loads
+TNNRuntime --> TNNModel : loads
+Optimizer --> RapidProto : generates
+Optimizer --> RapidModel : generates
+GraphProc --> TNNProto : processes
+ModelManager --> TNNRuntime : manages
+ModelManager --> AIPP : configures
+AIPP --> TensorHandler : processes
+TensorHandler --> ION : manages
+TensorHandler --> NPU : utilizes
+TNNRuntime --> NPU : executes on
+
+Vocab --> TNNRuntime : provides
+Keys --> TNNRuntime : provides
+Anchors --> TNNRuntime : provides
+@enduml

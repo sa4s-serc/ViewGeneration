@@ -1,0 +1,26 @@
+@startuml IBM_logdna-cos
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+rectangle "IBM CIS" as CIS
+rectangle "IBM COS\n(Source Bucket)" as COS_Source
+rectangle "Serverless\nFunction" as Function
+rectangle "IBM LogDNA" as LogDNA
+rectangle "IBM COS\n(Archive Bucket)" as COS_Archive
+
+CIS --> COS_Source : Logpush\n(Zipped JSON Logs)
+COS_Source --> Function : Object Created\nEvent Trigger
+Function --> COS_Source : Download Log File
+Function --> Function : Unzip & Parse Logs
+Function --> LogDNA : Send Logs in Batches\n(5000 logs per batch)
+Function --> COS_Archive : Archive Processed Logs
+Function --> COS_Source : Delete Original Log File
+
+note right of Function
+  Retry Mechanism for\nLogDNA API Failures
+end note
+@enduml

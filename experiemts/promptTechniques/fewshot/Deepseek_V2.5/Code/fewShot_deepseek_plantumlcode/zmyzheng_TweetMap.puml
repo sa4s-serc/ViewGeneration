@@ -1,0 +1,62 @@
+@startuml zmyzheng_TweetMap
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<processing>> #fff1c9
+  BackgroundColor<<storage>> #fddddd
+  BackgroundColor<<infra>> #d4f0f0
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend" <<frontend>> {
+  [Angular Web App] as Frontend
+  [Kibana Dashboard] as Kibana
+}
+
+package "Backend API" <<backend>> {
+  [REST API Server\n(Spring Boot)] as API
+  [TweetController] as Controller
+  [TweetService] as Service
+  [TweetRepository] as Repository
+  Controller --> Service
+  Service --> Repository
+}
+
+package "Processing" <<processing>> {
+  [Tweet Collector] as Collector
+  [Flink Processor] as Flink
+}
+
+package "Storage" <<storage>> {
+  [Elasticsearch] as ES
+  [Kafka Cluster] as Kafka
+}
+
+package "Infrastructure" <<infra>> {
+  [Kubernetes] as K8s
+  [Docker] as Docker
+}
+
+Frontend --> API : HTTP
+Kibana --> ES : Query
+API --> ES : Query/Index
+Collector --> Kafka : Produce
+Flink --> Kafka : Consume
+Flink --> ES : Index
+Collector --> Twitter : Stream API
+
+K8s --> Collector : Deploy
+K8s --> Flink : Deploy
+K8s --> API : Deploy
+Docker --> K8s : Containerize
+
+note right of Kafka
+  Event-driven message bus
+end note
+
+note right of ES
+  Indexed tweet storage
+end note
+@enduml

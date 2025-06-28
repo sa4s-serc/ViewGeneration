@@ -1,0 +1,46 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "API Consumer" as Consumer
+rectangle "Kubernetes API" as K8sAPI
+rectangle "Fabric Gateway Operator" as Operator
+rectangle "Skipper" as Skipper
+rectangle "StackSets" as StackSets
+rectangle "IAM Service" as IAM
+rectangle "Validation Webhook" as Webhook
+
+database "CRDs (FabricGateway)" as CRDs
+database "Ingress Resources" as Ingress
+
+Consumer --> Skipper : API Requests
+Skipper --> StackSets : Service Discovery
+Skipper --> IAM : AuthN/AuthZ
+
+Operator --> K8sAPI : Watches/Updates
+Operator --> CRDs : Reads Configuration
+Operator --> Ingress : Manages Resources
+Operator --> Webhook : Validates CRDs
+Operator --> StackSets : Service Discovery
+
+K8sAPI --> CRDs
+K8sAPI --> Ingress
+
+note right of Operator
+  Implements:
+  - Ingress Derivation Chain
+  - Zero-Downtime Updates
+  - Policy Enforcement
+end note
+
+note right of Skipper
+  Handles:
+  - Rate Limiting
+  - CORS
+  - Dynamic Filters
+end note
+@enduml

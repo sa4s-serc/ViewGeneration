@@ -1,0 +1,50 @@
+@startuml yuwen123441_NVMeAutomation
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<driver>> #d9e7fd
+  BackgroundColor<<logic>> #d8f5d3
+  BackgroundColor<<test>> #fff1c9
+  BackgroundColor<<system>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "System Layer" <<system>> {
+  rectangle "Linux Kernel" as Kernel
+  rectangle "NVMe Driver" as NVMeDriver
+  rectangle "ioctl Interface" as ioctl
+  Kernel --> NVMeDriver
+  NVMeDriver --> ioctl
+}
+
+package "Driver Layer" <<driver>> {
+  rectangle "Dynamic Library\n(nvme-ioctl.c)" as DynamicLib
+  rectangle "Python Wrapper\n(nvme.py)" as PythonWrapper
+  rectangle "Data Structures" as DataStructs
+  rectangle "Buffer Management" as BufferMgmt
+  DynamicLib --> PythonWrapper
+  PythonWrapper --> DataStructs
+  PythonWrapper --> BufferMgmt
+}
+
+package "Logic Layer" <<logic>> {
+  rectangle "Admin Commands" as Admin
+  rectangle "IO Commands" as IO
+  rectangle "Common Library" as CommonLib
+  PythonWrapper --> CommonLib
+  CommonLib --> Admin
+  CommonLib --> IO
+}
+
+package "Test Layer" <<test>> {
+  rectangle "Test Cases" as TestCases
+  rectangle "Test Suites" as TestSuites
+  rectangle "nosetests" as NoseTests
+  Admin --> TestCases
+  IO --> TestCases
+  TestCases --> TestSuites
+  TestSuites --> NoseTests
+}
+
+ioctl --> DynamicLib : C interface
+@enduml

@@ -1,0 +1,55 @@
+@startuml IBM_cognos-analytics-to-visualize-business-data
+skinparam rectangle {
+  BackgroundColor<<data>> #fff1c9
+  BackgroundColor<<processing>> #d8f5d3
+  BackgroundColor<<visualization>> #d9e7fd
+  BackgroundColor<<storage>> #d4f0f0
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+left to right direction
+
+rectangle "Node.js Data Generator" <<processing>> {
+  [create-product-data.js]
+  [data-util.js]
+  [save-product-reviews.js]
+}
+
+rectangle "Database Utilities" <<processing>> {
+  [database-util.js]
+  [query-constants.js]
+}
+
+rectangle "Data Storage" <<storage>> {
+  database "Db2 Warehouse"
+  database "Netezza Performance Server"
+}
+
+rectangle "IBM Cognos Analytics" <<visualization>> {
+  [Data Modules]
+  [Dashboards]
+  [Visualizations]
+}
+
+[create-product-data.js] --> [data-util.js] : uses
+[create-product-data.js] --> [save-product-reviews.js] : calls
+[generate-product-business-data.js] --> [create-product-data.js] : orchestrates
+[generate-product-business-data.js] --> [database-util.js] : uses
+[database-util.js] --> [query-constants.js] : uses
+[database-util.js] --> "Db2 Warehouse" : loads data
+[database-util.js] --> "Netezza Performance Server" : loads data
+"Db2 Warehouse" --> [Data Modules] : connects
+"Netezza Performance Server" --> [Data Modules] : connects
+[Data Modules] --> [Dashboards] : builds
+[Dashboards] --> [Visualizations] : creates
+
+note right of "Node.js Data Generator"
+  Generates sample business data
+  (stores, products, sales, inventory)
+end note
+
+note right of "IBM Cognos Analytics"
+  Creates interactive dashboards
+  for product performance analysis
+end note
+@enduml

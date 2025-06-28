@@ -1,0 +1,81 @@
+### Output:
+@startuml alfredcs_immersion_day_labs
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+actor "Data Scientist" as DS
+actor "End User" as EU
+
+rectangle "SageMaker Studio" as Studio {
+  rectangle "Notebook Instances" as Notebooks
+  rectangle "AutoML (Autopilot)" as Autopilot
+}
+
+rectangle "Training" {
+  rectangle "Training Jobs" as TrainJobs
+  rectangle "Hyperparameter Tuning" as HPO
+  rectangle "Feature Store" as FeatureStore
+}
+
+rectangle "Inference" {
+  rectangle "Real-time Endpoints" as RT
+  rectangle "Batch Transform" as Batch
+  rectangle "Async Inference" as Async
+}
+
+rectangle "Data Sources" {
+  database "S3 Buckets" as S3
+  rectangle "Hugging Face Datasets" as HFDatasets
+}
+
+rectangle "Models" {
+  rectangle "Hugging Face Hub" as HFHub
+  rectangle "Custom Models" as CustomModels
+}
+
+rectangle "Monitoring" {
+  rectangle "CloudWatch" as CW
+  rectangle "SageMaker Model Monitor" as Monitor
+}
+
+DS --> Notebooks
+DS --> Autopilot
+Notebooks --> TrainJobs
+Notebooks --> HPO
+Autopilot --> TrainJobs
+
+TrainJobs --> HFHub
+TrainJobs --> CustomModels
+HPO --> TrainJobs
+
+HFHub --> RT
+HFHub --> Batch
+HFHub --> Async
+CustomModels --> RT
+CustomModels --> Batch
+CustomModels --> Async
+
+RT --> EU
+Batch --> EU
+Async --> EU
+
+S3 --> Notebooks
+S3 --> TrainJobs
+HFDatasets --> Notebooks
+HFDatasets --> TrainJobs
+
+FeatureStore --> TrainJobs
+FeatureStore --> RT
+
+RT --> CW
+Batch --> CW
+Async --> CW
+RT --> Monitor
+Batch --> Monitor
+Async --> Monitor
+@enduml

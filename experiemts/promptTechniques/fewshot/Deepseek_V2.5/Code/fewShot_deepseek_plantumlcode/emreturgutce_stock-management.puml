@@ -1,0 +1,61 @@
+@startuml emreturgutce_stock-management
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<storage>> #fff1c9
+  BackgroundColor<<external>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend" <<frontend>> {
+  rectangle "Web UI" as WebUI
+  rectangle "Mobile App" as MobileApp
+}
+
+package "Backend" <<backend>> {
+  rectangle "Express API" as Express {
+    rectangle "Controllers" as Controllers
+    rectangle "Middleware" as Middleware
+    rectangle "Routes" as Routes
+  }
+
+  rectangle "Services" as Services {
+    rectangle "Auth Service" as Auth
+    rectangle "Data Service" as Data
+    rectangle "PDF Service" as PDF
+  }
+
+  Controllers --> Middleware
+  Controllers --> Routes
+  Controllers --> Services
+}
+
+package "Storage" <<storage>> {
+  database "PostgreSQL" as Postgres
+  database "Redis" as Redis
+  rectangle "AWS S3" as S3
+}
+
+package "External Services" <<external>> {
+  rectangle "Email Service" as Email
+  rectangle "Rate Limiter" as RateLimit
+}
+
+WebUI --> Express
+MobileApp --> Express
+
+Services --> Postgres
+Services --> Redis
+Services --> S3
+Services --> Email
+Services --> PDF
+
+Middleware --> RateLimit
+Middleware --> Auth
+
+Auth --> Redis
+Data --> Postgres
+PDF --> S3
+@enduml

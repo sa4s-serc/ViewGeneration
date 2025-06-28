@@ -1,0 +1,67 @@
+@startuml ertis-research_lwm2m-blockchain
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<blockchain>> #fff1c9
+  BackgroundColor<<lwm2m>> #fddddd
+  Style roundrect
+}
+left to right direction
+
+actor "Admin User" as Admin
+actor "IoT Device" as Device
+
+package "Frontend (Angular)" <<frontend>> {
+  rectangle "Anomaly Detection UI" as AnomalyUI
+  rectangle "Management UI" as ManagementUI
+}
+
+package "Backend (Spring Boot)" <<backend>> {
+  rectangle "REST API" as REST
+  rectangle "Anomaly Service" as AnomalyService
+  rectangle "Client Service" as ClientService
+  rectangle "User Service" as UserService
+  rectangle "Web3j Wrapper" as Web3j
+}
+
+package "Blockchain" <<blockchain>> {
+  rectangle "UserStore SC" as UserSC
+  rectangle "ClientStore SC" as ClientSC
+  rectangle "AnomalyStore SC" as AnomalySC
+  database "Ethereum Node" as EthNode
+}
+
+package "LwM2M System" <<lwm2m>> {
+  rectangle "LwM2M Server" as LwM2MServer
+  rectangle "Bootstrap Server" as Bootstrap
+  rectangle "LwM2M Client" as LwM2MClient
+}
+
+Admin --> ManagementUI
+ManagementUI --> REST
+Device --> LwM2MClient
+
+REST --> AnomalyService
+REST --> ClientService
+REST --> UserService
+
+AnomalyService --> Web3j
+ClientService --> Web3j
+UserService --> Web3j
+
+Web3j --> UserSC
+Web3j --> ClientSC
+Web3j --> AnomalySC
+UserSC --> EthNode
+ClientSC --> EthNode
+AnomalySC --> EthNode
+
+LwM2MClient --> LwM2MServer : CoAP
+LwM2MClient --> Bootstrap : CoAP
+Bootstrap --> ClientSC : Get Security Info
+LwM2MServer --> AnomalyService : Report Anomalies
+LwM2MServer --> ClientService : Register Clients
+
+AnomalyUI --> REST : Fetch Anomalies
+ManagementUI --> REST : Manage Users/Clients
+@enduml

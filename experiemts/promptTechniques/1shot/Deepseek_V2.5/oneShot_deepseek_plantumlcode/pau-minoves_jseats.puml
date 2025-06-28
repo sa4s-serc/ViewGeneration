@@ -1,48 +1,56 @@
-```plantuml
 @startuml pau-minoves_jseats
-rectangle "CLI" as CLI
-rectangle "SeatAllocatorLauncher" as Launcher
-rectangle "ProcessorConfig" as Config
-rectangle "SeatAllocatorProcessor" as Processor
-rectangle "SeatAllocatorResolver" as Resolver
-rectangle "Tally" as Tally
-rectangle "Result" as Result
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<model>> #d8f5d3
+  BackgroundColor<<methods>> #fddddd
+  BackgroundColor<<cli>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
 
-database "XML Config" as XMLConfig
-database "Vote Data" as VoteData
+package "Core Components" <<core>> {
+  rectangle "SeatAllocatorProcessor" as Processor
+  rectangle "ProcessorConfig" as Config
+  rectangle "SeatAllocatorResolver" as Resolver
+  Processor --> Config
+  Processor --> Resolver
+}
 
-CLI -> Launcher : execute()
-Launcher -> Config : loadFromXML(XMLConfig)
-Launcher -> Tally : loadFromFile(VoteData)
-Launcher -> Processor : process(Tally, Config)
+package "Model" <<model>> {
+  rectangle "Tally" as Tally
+  rectangle "Candidate" as Candidate
+  rectangle "Result" as Result
+  Tally --> Candidate
+  Processor --> Tally
+  Processor --> Result
+}
 
-Processor -> Config : getMethod()
-Processor -> Resolver : resolveMethod()
-Resolver --> Processor : SeatAllocatorMethod
+package "Allocation Methods" <<methods>> {
+  rectangle "SeatAllocationMethod" as Method
+  rectangle "Majority\nLargestRemainder\nHighestAverages" as Algorithms
+  Method <|-- Algorithms
+  Resolver --> Method
+  Processor --> Method
+}
 
-Processor -> Config : getFilters()
-Processor -> Resolver : resolveFilters()
-Resolver --> Processor : List<TallyFilter>
+package "CLI" <<cli>> {
+  rectangle "SeatAllocatorLauncher" as Launcher
+  rectangle "XML Parser" as XML
+  Launcher --> Processor
+  Launcher --> XML
+  XML --> Config
+}
 
-Processor -> SeatAllocatorMethod : compute(Tally)
-SeatAllocatorMethod --> Processor : Result
+package "Extensions" {
+  rectangle "TallyFilter" as Filter
+  rectangle "ResultDecorator" as Decorator
+  rectangle "TieBreaker" as TieBreaker
+  Resolver --> Filter
+  Resolver --> Decorator
+  Resolver --> TieBreaker
+  Processor --> Filter
+  Processor --> Decorator
+  Processor --> TieBreaker
+}
 
-Processor -> Config : getDecorators()
-Processor -> Resolver : resolveDecorators()
-Resolver --> Processor : List<ResultDecorator>
-
-Processor -> ResultDecorator : decorate(Result)
-ResultDecorator --> Processor : Result
-
-Processor --> Launcher : Result
-Launcher --> CLI : display(Result)
-
-note right of Processor
-  Applies filters -> computes seats -> applies decorators
-end note
-
-note right of Resolver
-  Dynamically resolves components\nbased on config names
-end note
 @enduml
-```

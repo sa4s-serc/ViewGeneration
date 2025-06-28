@@ -1,0 +1,59 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<middleware>> #d8f5d3
+  BackgroundColor<<backend>> #fff1c9
+  BackgroundColor<<db>> #d4f0f0
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+left to right direction
+
+actor "User" as User
+
+rectangle "Frontend" <<frontend>> {
+  [Browser] as Browser
+  [AJAX Calls] as AJAX
+}
+
+rectangle "Middleware" <<middleware>> {
+  [Koa.js] as Koa
+  [koa-compose] as Compose
+  [koa-convert] as Convert
+  [koa-generic-session] as Session
+  [koa-router] as Router
+}
+
+rectangle "Backend" <<backend>> {
+  [Controllers] as Controllers
+  [Services] as Services
+  [Models] as Models
+}
+
+database "MongoDB" <<db>> as MongoDB
+database "Redis" <<db>> as Redis
+
+User --> Browser
+Browser --> AJAX
+AJAX --> Koa
+
+Koa --> Compose
+Koa --> Convert
+Koa --> Session
+Koa --> Router
+
+Router --> Controllers
+Controllers --> Services
+Services --> Models
+Models --> MongoDB
+
+Session --> Redis
+
+note right of Koa
+  Middleware Chain:
+  1. Request Parsing
+  2. Authentication
+  3. Routing
+  4. Response Handling
+end note
+@enduml

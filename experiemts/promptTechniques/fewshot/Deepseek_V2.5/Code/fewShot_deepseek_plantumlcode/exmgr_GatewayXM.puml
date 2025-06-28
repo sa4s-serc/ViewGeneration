@@ -1,0 +1,44 @@
+### Output:
+@startuml
+skinparam rectangle {
+  BackgroundColor<<sensor>> #d9e7fd
+  BackgroundColor<<gateway>> #d8f5d3
+  BackgroundColor<<platform>> #fff1c9
+  BackgroundColor<<cloud>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Sensor Nodes" <<sensor>> {
+  rectangle "ESP8266/ESP32" as ESP
+  rectangle "ModBus Smart Meters" as ModBus
+  ESP --> "Mesh Network"
+  ModBus --> "RS485"
+}
+
+package "GatewayXM" <<gateway>> {
+  rectangle "Eclipse Kura" as Kura
+  rectangle "Agile-Stack" as AgileStack
+  rectangle "Kura-Tb-Bundle" as KuraBundle
+  rectangle "Artemis MQTT Broker" as MQTT
+  Kura --> AgileStack
+  Kura --> KuraBundle
+  KuraBundle --> MQTT
+}
+
+package "Cloud Platform" <<cloud>> {
+  rectangle "Resin.io (Balena)" as Resin
+  rectangle "Docker Containers" as Docker
+  Resin --> Docker
+}
+
+package "IoT Platform" <<platform>> {
+  rectangle "Thingsboard" as Thingsboard
+}
+
+"Mesh Network" --> Kura
+"RS485" --> Kura
+Kura --> MQTT
+MQTT --> Thingsboard
+Docker --> Kura
+@enduml

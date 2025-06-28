@@ -1,0 +1,79 @@
+@startuml becloudway_serverless-data-pipeline
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "Public API" as API
+
+rectangle "AWS" {
+  rectangle "S3\nRaw XML" as S3_XML
+  rectangle "S3\nProcessed JSON" as S3_JSON
+  rectangle "S3\nAnalytics Data" as S3_Analytics
+  rectangle "S3\nReference Data" as S3_Ref
+
+  rectangle "Lambda" {
+    rectangle "RetrieveXMLTrafficData" as Lambda_XML
+    rectangle "TransformTrafficDataToJson" as Lambda_Transform
+    rectangle "PublishTrafficData" as Lambda_Publish
+    rectangle "StreamProcessor" as Lambda_Stream
+    rectangle "StoreAnalyticsResults" as Lambda_Store
+    rectangle "AlertSaver" as Lambda_AlertSave
+    rectangle "AlertSender" as Lambda_AlertSend
+    rectangle "CurrentSituation" as Lambda_Current
+    rectangle "CurrentAlerts" as Lambda_Alerts
+    rectangle "PowerBiForwarder" as Lambda_PowerBI
+  }
+
+  rectangle "Kinesis" {
+    rectangle "Firehose" as Kinesis_Firehose
+    rectangle "Stream" as Kinesis_Stream
+    rectangle "Analytics" as Kinesis_Analytics
+  }
+
+  rectangle "DynamoDB" {
+    database "RealTimeAnalytics" as Dynamo_Analytics
+    database "TrafficJamAlerts" as Dynamo_Alerts
+  }
+
+  rectangle "SQS" {
+    queue "Dead Letter Queue" as SQS_DLQ
+  }
+}
+
+rectangle "External" {
+  rectangle "Slack" as Slack
+  rectangle "Power BI" as PowerBI
+  rectangle "Flask API" as FlaskAPI
+}
+
+API --> Lambda_XML
+Lambda_XML --> S3_XML
+S3_XML --> Lambda_Transform
+Lambda_Transform --> S3_JSON
+S3_JSON --> Lambda_Publish
+Lambda_Publish --> Kinesis_Firehose
+Lambda_Publish --> Kinesis_Stream
+Kinesis_Firehose --> S3_Analytics
+Kinesis_Stream --> Lambda_Stream
+Lambda_Stream --> Kinesis_Analytics
+Kinesis_Analytics --> Lambda_Store
+Lambda_Store --> Dynamo_Analytics
+Dynamo_Analytics --> Lambda_AlertSave
+Lambda_AlertSave --> Dynamo_Alerts
+Dynamo_Alerts --> Lambda_AlertSend
+Lambda_AlertSend --> Slack
+Lambda_AlertSend --> FlaskAPI
+Lambda_Current --> Dynamo_Analytics
+Lambda_Alerts --> Dynamo_Alerts
+Kinesis_Stream --> Lambda_PowerBI
+Lambda_PowerBI --> PowerBI
+
+SQS_DLQ --> Lambda_Stream
+SQS_DLQ --> Lambda_PowerBI
+SQS_DLQ --> Lambda_AlertSend
+
+S3_Ref --> Kinesis_Analytics
+@enduml

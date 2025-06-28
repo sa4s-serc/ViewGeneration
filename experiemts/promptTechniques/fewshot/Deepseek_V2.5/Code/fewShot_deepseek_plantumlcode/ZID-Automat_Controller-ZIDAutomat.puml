@@ -1,0 +1,51 @@
+### Actual Output:
+@startuml ZID-Automat_Controller-ZIDAutomat
+skinparam rectangle {
+  BackgroundColor<<hardware>> #f5f5f5
+  BackgroundColor<<controller>> #e6f3ff
+  BackgroundColor<<api>> #ffe6e6
+  BackgroundColor<<ui>> #e6ffe6
+  Style roundrect
+}
+left to right direction
+
+package "Hardware" <<hardware>> {
+  rectangle "QR Code Scanner" as QRScanner
+  rectangle "Ejection Mechanism" as Ejector
+  rectangle "NeoPixel LED Strip" as LED
+  rectangle "I2C LCD Screen" as LCD
+}
+
+package "Controller (ESP32)" <<controller>> {
+  rectangle "Main Loop" as MainLoop
+  rectangle "Borrow Manager" as BorrowM
+  rectangle "Eject Controller" as EjectCtrl
+  rectangle "Data Collector" as DataCollect
+  rectangle "Configuration" as Config
+}
+
+package "Backend API" <<api>> {
+  rectangle "Authentication" as AuthAPI
+  rectangle "QR Validation" as QRAPI
+  rectangle "Item Data" as ItemAPI
+  rectangle "Logging" as LogAPI
+}
+
+package "User Interface" <<ui>> {
+  rectangle "LCD Output" as LCDOut
+  rectangle "LED Feedback" as LEDFeedback
+}
+
+QRScanner --> BorrowM : QR Code Data
+BorrowM --> EjectCtrl : Eject Command
+EjectCtrl --> Ejector : GPIO Control
+BorrowM --> DataCollect : Log Events
+DataCollect --> LogAPI : POST Logs
+BorrowM --> QRAPI : Validate QR
+BorrowM --> ItemAPI : Get Item Data
+BorrowM --> AuthAPI : JWT Auth
+MainLoop --> BorrowM : Process Events
+Config --> MainLoop : Load Settings
+LCDOut --> LCD : Display Text
+LEDFeedback --> LED : Set Colors
+@enduml

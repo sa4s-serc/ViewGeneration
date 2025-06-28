@@ -1,0 +1,56 @@
+@startuml nightingaleproject_Reference-Client
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<integration>> #fddddd
+  BackgroundColor<<db>> #fff1c9
+  BackgroundColor<<external>> #d4f0f0
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+left to right direction
+
+actor "Jurisdiction User" as User
+
+package "Frontend (React)" <<frontend>> {
+  rectangle "UploadRecords.jsx" as Upload
+  rectangle "SubmitRecordsDashboard.jsx" as Dashboard
+  Upload --> Dashboard
+}
+
+package "Backend (.NET Core)" <<backend>> {
+  rectangle "RecordController" as Controller
+  rectangle "TimedHostedService" as BackgroundService
+  rectangle "VRDR.Client" as VRDRClient
+  Controller --> BackgroundService
+  BackgroundService --> VRDRClient
+}
+
+package "Database" <<db>> {
+  database "PostgreSQL" as DB
+  rectangle "MessageItem" as Message
+  rectangle "ResponseItem" as Response
+  rectangle "BaseEntity" as Base
+  Message -[hidden]-> Response
+  Response -[hidden]-> Base
+}
+
+package "External Systems" <<external>> {
+  rectangle "NVSS API Server" as NVSS
+  rectangle "FHIR Server" as FHIR
+}
+
+User --> Upload : Uploads VRDR records
+User --> Dashboard : Views message status
+
+Upload --> Controller : POST /api/record
+Dashboard --> Controller : GET /api/record/status
+
+Controller --> DB : Stores messages
+BackgroundService --> DB : Polls for new messages
+BackgroundService --> NVSS : Submits messages
+NVSS --> BackgroundService : Returns responses
+BackgroundService --> DB : Stores responses
+
+VRDRClient --> FHIR : Converts to/from FHIR
+@enduml

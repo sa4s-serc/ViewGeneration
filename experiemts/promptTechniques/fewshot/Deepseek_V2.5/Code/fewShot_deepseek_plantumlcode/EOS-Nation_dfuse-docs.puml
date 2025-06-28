@@ -1,0 +1,57 @@
+@startuml EOS-Nation_dfuse-docs
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<api>> #d9e7fd
+  BackgroundColor<<service>> #d8f5d3
+  BackgroundColor<<storage>> #fff1c9
+  BackgroundColor<<cli>> #fddddd
+  BackgroundColor<<chain>> #d4f0f0
+  Style roundrect
+}
+
+package "EOSIO Blockchains" <<chain>> {
+  [EOS Mainnet]
+  [WAX]
+  [Kylin]
+  [Jungle 4]
+}
+
+package "Core Services" <<service>> {
+  rectangle "mindreader" as mindreader
+  rectangle "relayer" as relayer
+  rectangle "search" as search
+  rectangle "dgraphql" as dgraphql
+}
+
+package "Storage" <<storage>> {
+  database "BigTable"
+  database "TiKV"
+  database "Badger"
+}
+
+package "API Layer" <<api>> {
+  rectangle "GraphQL API"
+  rectangle "REST API"
+}
+
+rectangle "dfuseeos CLI" <<cli>> as cli
+
+[EOS Mainnet] --> mindreader
+[WAX] --> mindreader
+[Kylin] --> mindreader
+[Jungle 4] --> mindreader
+
+mindreader --> relayer
+relayer --> search
+search --> dgraphql
+dgraphql --> "GraphQL API"
+dgraphql --> "REST API"
+
+mindreader --> "BigTable"
+relayer --> "TiKV"
+search --> "Badger"
+
+cli --> "GraphQL API"
+cli --> "REST API"
+cli --> mindreader
+@enduml

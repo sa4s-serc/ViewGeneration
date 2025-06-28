@@ -1,0 +1,55 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<queue>> #fddddd
+  BackgroundColor<<db>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+left to right direction
+
+rectangle "GitHub API" as GitHub #orange
+
+package "Crawler" <<backend>> {
+  rectangle "crawler.py" as Crawler
+  rectangle "github3.py" as GithubClient
+  Crawler --> GithubClient
+}
+
+package "RabbitMQ" <<queue>> {
+  rectangle "Analysis Queue" as RabbitMQ
+}
+
+package "Worker" <<backend>> {
+  rectangle "manager.py" as Manager
+  rectangle "Testability\n(radon)" as Testability
+  rectangle "Reusability\n(radon)" as Reusability
+  rectangle "Security\n(pylint)" as Security
+  rectangle "Usability\n(scikit-learn)" as Usability
+  Manager --> Testability
+  Manager --> Reusability
+  Manager --> Security
+  Manager --> Usability
+}
+
+database "MongoDB" <<db>> as MongoDB
+
+GitHub --> Crawler
+Crawler --> RabbitMQ
+RabbitMQ --> Manager
+Testability --> MongoDB
+Reusability --> MongoDB
+Security --> MongoDB
+Usability --> MongoDB
+
+note right of Crawler
+  Uses multiple GitHub accounts
+  to avoid rate limiting
+end note
+
+note left of Manager
+  Modular analysis tests
+  with main.py interface
+end note
+@enduml

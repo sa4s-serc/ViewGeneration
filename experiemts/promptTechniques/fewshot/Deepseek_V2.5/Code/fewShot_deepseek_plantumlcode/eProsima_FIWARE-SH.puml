@@ -1,0 +1,53 @@
+@startuml eProsima_FIWARE-SH
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+package "Integration Service" {
+  rectangle "SystemHandle" as SystemHandle #lightblue
+  rectangle "xtypes Data Model" as XTypes #lightblue
+}
+
+package "FIWARE SH" {
+  rectangle "NGSIV2Connector" as Connector #lightgreen
+  rectangle "Listener" as Listener #lightgreen
+  rectangle "Publisher" as Publisher #lightgreen
+  rectangle "Subscriber" as Subscriber #lightgreen
+  rectangle "Conversion" as Conversion #lightgreen
+}
+
+package "FIWARE Context Broker" {
+  rectangle "NGSIv2 API" as NGSIv2 #pink
+}
+
+database "YAML Config" as Config #lightyellow
+
+SystemHandle --> Config : reads
+SystemHandle --> Connector : manages
+SystemHandle --> Publisher : creates
+SystemHandle --> Subscriber : creates
+
+XTypes <--> Conversion : converts
+Conversion <--> Connector : translated data
+
+Connector --> NGSIv2 : HTTP requests
+Listener <-- NGSIv2 : notifications
+Listener --> Connector : forwards
+
+Publisher --> Connector : publish data
+Subscriber --> Connector : subscribe data
+
+note right of Connector
+  Handles entity creation,
+  attribute updates,
+  subscriptions
+end note
+
+note left of Listener
+  Async notification handling
+  using ASIO
+end note
+@enduml

@@ -1,0 +1,46 @@
+### Actual Output:
+@startuml jun108059_Elasticsearch-SpringBoot
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<db>> #fff1c9
+  BackgroundColor<<search>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend" <<frontend>> {
+  rectangle "Admin UI\n(Thymeleaf)" as AdminUI
+  rectangle "REST API" as RESTAPI
+}
+
+package "Backend" <<backend>> {
+  rectangle "Controller Layer" as Controllers {
+    [Admin Controllers]
+    [API Controller]
+  }
+  
+  rectangle "Service Layer" as Services {
+    [IndexService]
+  }
+  
+  rectangle "Repository Layer" as Repositories {
+    [ServiceRepository]
+    [BulkRepository]
+  }
+  
+  rectangle "Elasticsearch Client" as ESClient
+}
+
+database "MySQL" <<db>> as MySQL
+database "Elasticsearch" <<search>> as ES
+
+AdminUI --> Controllers : HTTP
+RESTAPI --> Controllers : HTTP
+Controllers --> Services
+Services --> Repositories
+Repositories --> MySQL
+Services --> ESClient
+ESClient --> ES
+@enduml

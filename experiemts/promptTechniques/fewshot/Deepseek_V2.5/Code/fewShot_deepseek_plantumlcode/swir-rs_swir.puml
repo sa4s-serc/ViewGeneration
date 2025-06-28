@@ -1,0 +1,64 @@
+### Actual Output:
+@startuml swir-rs_swir
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<integration>> #fddddd
+  BackgroundColor<<db>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend Interfaces" <<frontend>> {
+  rectangle "HTTP/HTTPS Server" as HttpServer
+  rectangle "gRPC Server" as GrpcServer
+}
+
+package "Core Logic" <<backend>> {
+  rectangle "HTTP Handler" as HttpHandler
+  rectangle "gRPC Handler" as GrpcHandler
+  rectangle "Service Invocation" as ServiceInvocation
+  rectangle "PubSub" as PubSub
+  rectangle "Persistence" as Persistence
+  rectangle "Service Discovery" as ServiceDiscovery
+  rectangle "Metrics & Tracing" as MetricsTracing
+  rectangle "Configuration" as Config
+
+  HttpServer --> HttpHandler
+  GrpcServer --> GrpcHandler
+  HttpHandler --> ServiceInvocation
+  HttpHandler --> PubSub
+  HttpHandler --> Persistence
+  GrpcHandler --> ServiceInvocation
+  GrpcHandler --> PubSub
+  GrpcHandler --> Persistence
+  ServiceInvocation --> ServiceDiscovery
+  MetricsTracing --> HttpHandler
+  MetricsTracing --> GrpcHandler
+  Config --> HttpHandler
+  Config --> GrpcHandler
+}
+
+package "Backend Services" <<integration>> {
+  rectangle "Kafka" as Kafka
+  rectangle "NATS" as Nats
+  rectangle "AWS Kinesis" as Kinesis
+  rectangle "Redis" as Redis
+  rectangle "DynamoDB" as DynamoDB
+  rectangle "mDNS" as Mdns
+
+  PubSub --> Kafka
+  PubSub --> Nats
+  PubSub --> Kinesis
+  Persistence --> Redis
+  Persistence --> DynamoDB
+  ServiceDiscovery --> Mdns
+  ServiceDiscovery --> DynamoDB
+}
+
+package "Monitoring" <<db>> {
+  rectangle "OpenTelemetry" as Otel
+  MetricsTracing --> Otel
+}
+@enduml

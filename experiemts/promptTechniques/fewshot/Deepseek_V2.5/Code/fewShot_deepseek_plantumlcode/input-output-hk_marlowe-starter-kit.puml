@@ -1,0 +1,62 @@
+### Actual Output:
+@startuml input-output-hk_marlowe-starter-kit
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+actor "Developer" as Dev
+rectangle "Jupyter Notebooks" as Jupyter
+rectangle "Marlowe CLI Tools" as CLI
+rectangle "dApp UI" as UI
+rectangle "Wallet (Nami/Eternl)" as Wallet
+
+package "Marlowe Runtime" {
+  rectangle "Proxy" as Proxy
+  rectangle "Chain Indexer" as ChainIndexer
+  rectangle "Chain Sync" as ChainSync
+  rectangle "Contract" as Contract
+  rectangle "Indexer" as Indexer
+  rectangle "Sync" as Sync
+  rectangle "Tx" as Tx
+  rectangle "Web Server" as WebServer
+}
+
+database "PostgreSQL" as Postgres
+cloud "Cardano Blockchain" as Cardano
+
+Dev --> Jupyter : Learns/Executes
+Dev --> CLI : Runs commands
+Dev --> UI : Interacts
+
+UI --> Wallet : CIP30/CIP45\nconnect/sign
+Wallet --> Cardano : Submit tx
+
+Jupyter --> WebServer : API calls
+CLI --> WebServer : API calls
+UI --> WebServer : API calls
+
+Proxy --> ChainIndexer
+Proxy --> ChainSync
+Proxy --> Contract
+Contract --> Indexer
+Contract --> Sync
+Contract --> Tx
+WebServer --> Proxy
+
+ChainIndexer --> Cardano : Queries
+ChainSync --> Cardano : Syncs
+Tx --> Cardano : Submits
+Indexer --> Postgres : Stores
+Sync --> Postgres : Stores
+
+note right of WebServer
+  REST API endpoints:
+  - Contract management
+  - Transaction construction
+  - UTxO queries
+end note
+@enduml

@@ -1,0 +1,53 @@
+@startuml s-sokolko_smev3_adapter_service
+skinparam rectangle {
+  BackgroundColor<<api>> #d9e7fd
+  BackgroundColor<<business>> #d8f5d3
+  BackgroundColor<<data>> #fff1c9
+  BackgroundColor<<integration>> #fddddd
+  BackgroundColor<<external>> #d4f0f0
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+left to right direction
+
+package "API Layer" <<api>> {
+  [HTTP Client] as Client
+  [Sanic App] as Sanic
+  [API Views] as Views
+}
+
+package "Business Logic" <<business>> {
+  [Query Processor] as Processor
+  [Schema Loader] as SchemaLoader
+}
+
+package "Data Layer" <<data>> {
+  [MongoDB] as MongoDB
+  [Document Models] as Models
+}
+
+package "Integration" <<integration>> {
+  [SMEV3 Adapter] as Adapter
+  [SOAP Client] as SOAP
+}
+
+package "External Systems" <<external>> {
+  [SMEV3 System] as SMEV3
+  [XSD Schemas] as XSD
+}
+
+Client --> Sanic : HTTP Requests
+Sanic --> Views : Routes
+Views --> Processor : Process queries
+Processor --> Adapter : Send requests
+Adapter --> SOAP : SOAP calls
+SOAP --> SMEV3 : SMEV3 API
+SMEV3 --> SOAP : Responses
+SOAP --> Adapter
+Adapter --> Processor : Process responses
+Processor --> Models : Store data
+Models --> MongoDB : Async operations
+Views --> SchemaLoader : Validate requests
+SchemaLoader --> XSD : Load schemas
+Processor --> SchemaLoader : Validate responses
+@enduml

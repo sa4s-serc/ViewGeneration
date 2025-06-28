@@ -1,0 +1,73 @@
+### Output:
+@startuml batatero_arquiteturaPHP00
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<business>> #d8f5d3
+  BackgroundColor<<data>> #fff1c9
+  BackgroundColor<<external>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Presentation Layer" <<frontend>> {
+  [Controller] as Controller
+  [Facade] as Facade
+  [Views] as Views
+  Controller --> Facade
+  Facade --> Views
+}
+
+package "Business Layer" <<business>> {
+  [Business Logic] as Business
+  [FactoryBusiness] as FactoryBusiness
+  Facade --> Business
+  Business --> FactoryBusiness
+}
+
+package "Data Access Layer" <<data>> {
+  [DAO] as DAO
+  [GenericDAO] as GenericDAO
+  [FactoryDAO] as FactoryDAO
+  Business --> DAO
+  DAO --> GenericDAO
+  GenericDAO --> FactoryDAO
+}
+
+package "Database" <<external>> {
+  database "RDBMS" as DB
+  DAO --> DB
+}
+
+package "Doctrine ORM" <<external>> {
+  [EntityManager] as EntityManager
+  [UnitOfWork] as UnitOfWork
+  [QueryBuilder] as QueryBuilder
+  EntityManager --> UnitOfWork
+  EntityManager --> QueryBuilder
+  QueryBuilder --> DB
+}
+
+package "CodeIgniter Core" <<external>> {
+  [Libraries] as Libraries
+  [Helpers] as Helpers
+  [Database] as CI_DB
+  Controller --> Libraries
+  Controller --> Helpers
+  CI_DB --> DB
+}
+
+note right of EntityManager
+  Handles:
+  - Object Management
+  - Schema Management
+  - Query Processing
+end note
+
+note right of CI_DB
+  Includes:
+  - Active Record
+  - Transactions
+  - Driver Support
+end note
+@enduml

@@ -1,0 +1,34 @@
+@startuml freenowtech_AndroidCI
+skinparam backgroundColor #ffffff
+skinparam rectangle {
+  BackgroundColor #f0f0f0
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+rectangle "Developer" as Dev
+
+rectangle "Git Repository" as Git
+
+rectangle "Jenkins\n(Master)" as Jenkins {
+  rectangle "Build Job" as Job
+  rectangle "Docker Plugin" as DockerPlugin
+  rectangle "Android Lint Plugin" as AndroidLint
+}
+
+rectangle "Docker Host" as Docker {
+  rectangle "Android SDK\nContainer" as AndroidContainer
+}
+
+rectangle "Build Artifacts" as Artifacts
+
+Dev --> Git : Commits code
+Git --> Jenkins : Triggers build
+Jenkins --> Job : Executes build
+Job --> DockerPlugin : Requests container
+DockerPlugin --> AndroidContainer : Spins up
+AndroidContainer --> Job : Executes build steps
+Job --> AndroidLint : Runs static analysis
+Job --> Artifacts : Stores outputs
+@enduml

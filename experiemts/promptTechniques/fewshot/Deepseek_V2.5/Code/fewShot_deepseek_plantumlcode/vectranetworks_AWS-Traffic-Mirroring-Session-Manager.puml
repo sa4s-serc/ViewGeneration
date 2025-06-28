@@ -1,0 +1,66 @@
+@startuml vectranetworks_AWS-Traffic-Mirroring-Session-Manager
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+actor "Administrator" as admin
+
+rectangle "CLI Interface" as cli {
+  [tap.py] as tap
+  [config_vpc.py] as config_vpc
+  [blacklist.py] as blacklist
+  [whitelist.py] as whitelist
+}
+
+rectangle "Core Logic" as core {
+  [SpileTapper.py] as spile_tapper
+  [Spile.py] as spile
+  [EC2ApiClient.py] as ec2_api
+}
+
+rectangle "Factories" as factories {
+  [NlbFactory.py] as nlb_factory
+  [NlbTargetFactory.py] as nlb_target_factory
+}
+
+rectangle "AWS Resources" as aws {
+  [EC2 Instances] as ec2
+  [VPC] as vpc
+  [Network Load Balancer] as nlb
+  [Traffic Mirroring] as mirroring
+}
+
+rectangle "Configuration" as config {
+  [TagConfig.py] as tag_config
+  [AWS Tags] as tags
+}
+
+admin --> cli
+cli --> core
+cli --> config
+
+tap --> spile_tapper
+spile_tapper --> spile
+spile --> ec2_api
+spile_tapper --> ec2_api
+
+ec2_api --> ec2
+ec2_api --> vpc
+ec2_api --> tags
+
+spile --> nlb_factory
+spile --> nlb_target_factory
+nlb_factory --> nlb
+nlb_target_factory --> mirroring
+
+config_vpc --> tag_config
+blacklist --> tag_config
+whitelist --> tag_config
+tag_config --> tags
+
+mirroring --> ec2
+@enduml

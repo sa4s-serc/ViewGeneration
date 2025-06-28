@@ -1,0 +1,50 @@
+### Actual Output:
+@startuml marekq_rss-lambda
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "User" as user
+
+rectangle "CloudWatch Events" as cw_events
+rectangle "Step Function" as step_function
+rectangle "Lambda\nrsscrawl" as lambda_crawl
+rectangle "Lambda\nrssgetfeed" as lambda_getfeed
+rectangle "Lambda\npagecount" as lambda_pagecount
+rectangle "DynamoDB" as dynamodb
+rectangle "S3" as s3
+rectangle "AppSync" as appsync
+rectangle "Algolia" as algolia
+rectangle "SES" as ses
+rectangle "Comprehend" as comprehend
+
+user --> lambda_pagecount : Manual Invoke
+cw_events --> step_function : Scheduled Trigger
+step_function --> lambda_crawl : Start Crawl
+lambda_crawl --> s3 : Check existing data
+lambda_crawl --> step_function : Feed URLs
+step_function --> lambda_getfeed : Process Feed (Fan-out)
+lambda_getfeed --> comprehend : Entity Recognition
+lambda_getfeed --> dynamodb : Store post data
+lambda_getfeed --> ses : Send Notification (optional)
+lambda_getfeed --> s3 : Store public JSON (optional)
+lambda_getfeed --> algolia : Index post (optional)
+dynamodb --> appsync : GraphQL API
+appsync --> user : Data Access
+
+note right of step_function
+  State Machine Orchestration
+  with Fan-out/Fan-in pattern
+end note
+
+note right of lambda_getfeed
+  Content Extraction Pipeline:
+  1. Fetch RSS feed
+  2. Extract content
+  3. Enrich with Comprehend
+  4. Store/Notify/Index
+end note
+@enduml

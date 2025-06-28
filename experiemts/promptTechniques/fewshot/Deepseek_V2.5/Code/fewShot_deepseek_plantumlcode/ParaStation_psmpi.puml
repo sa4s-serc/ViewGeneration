@@ -1,0 +1,72 @@
+### Output:
+@startuml ParaStation_psmpi
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<mpi>> #d9e7fd
+  BackgroundColor<<transport>> #d8f5d3
+  BackgroundColor<<optimization>> #fff1c9
+  BackgroundColor<<management>> #fddddd
+  BackgroundColor<<external>> #d4f0f0
+  Style roundrect
+}
+
+package "MPI Implementation" <<mpi>> {
+  rectangle "MPI Standard\n(MPI-4, Sessions)" as MPIStandard
+  rectangle "MPICH Core" as MPICH
+  rectangle "PSCOM\nCommunication Layer" as PSCOM
+  rectangle "UCG\nCollectives Framework" as UCG
+  rectangle "ROMIO\nMPI-IO" as ROMIO
+  rectangle "Yaksa\nData Handling" as Yaksa
+}
+
+package "Transport Layer" <<transport>> {
+  rectangle "TCP" as TCP
+  rectangle "RDMA\n(InfiniBand)" as RDMA
+  rectangle "Shared Memory\n(POSIX/XPMEM)" as SHMEM
+  rectangle "Multi-NIC Support" as MultiNIC
+}
+
+package "Optimizations" <<optimization>> {
+  rectangle "Zero-Copy" as ZeroCopy
+  rectangle "DMA Offloading" as DMA
+  rectangle "Data Sieving" as DataSieving
+  rectangle "Message Pipelining" as Pipelining
+}
+
+package "Process Management" <<management>> {
+  rectangle "Hydra" as Hydra
+  rectangle "PSMGMT" as PSMGMT
+  rectangle "PMIx" as PMIx
+}
+
+package "External Integrations" <<external>> {
+  rectangle "HCOLL" as HCOLL
+  rectangle "HWLOC" as HWLOC
+  rectangle "UCX" as UCX
+  rectangle "RoCE" as RoCE
+}
+
+MPIStandard --> MPICH
+MPICH --> PSCOM
+PSCOM --> TCP
+PSCOM --> RDMA
+PSCOM --> SHMEM
+PSCOM --> MultiNIC
+MPICH --> UCG
+MPICH --> ROMIO
+MPICH --> Yaksa
+
+PSCOM --> ZeroCopy
+PSCOM --> DMA
+PSCOM --> DataSieving
+PSCOM --> Pipelining
+
+MPICH --> Hydra
+MPICH --> PSMGMT
+MPICH --> PMIx
+
+MPICH --> HCOLL
+MPICH --> HWLOC
+PSCOM --> UCX
+RDMA --> RoCE
+@enduml

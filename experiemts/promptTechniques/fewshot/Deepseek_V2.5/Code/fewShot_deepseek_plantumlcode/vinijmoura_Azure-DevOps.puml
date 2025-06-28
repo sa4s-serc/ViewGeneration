@@ -1,0 +1,64 @@
+### Actual Output:
+@startuml vinijmoura_Azure-DevOps
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<extract>> #d9e7fd
+  BackgroundColor<<transform>> #d8f5d3
+  BackgroundColor<<load>> #fff1c9
+  BackgroundColor<<visualize>> #fddddd
+  BackgroundColor<<db>> #d4f0f0
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Data Extraction" <<extract>> {
+  rectangle "PowerShell Scripts" as PS
+  rectangle "Azure DevOps CLI" as AZ
+  rectangle "REST API" as API
+  PS --> AZ
+  PS --> API
+}
+
+package "Data Transformation" <<transform>> {
+  rectangle "JSON Parsing" as JSON
+  rectangle "Data Filtering" as Filter
+  rectangle "PSObject Creation" as PSO
+  PS --> JSON
+  JSON --> Filter
+  Filter --> PSO
+}
+
+package "Data Storage" <<load>> {
+  database "Azure SQL DB" as SQL
+  rectangle "Table Truncation" as Truncate
+  rectangle "Data Insertion" as Insert
+  PSO --> Truncate
+  Truncate --> Insert
+  Insert --> SQL
+}
+
+package "Data Visualization" <<visualize>> {
+  rectangle "Power BI Desktop" as PBI
+  rectangle "Custom Visuals" as Visuals
+  rectangle "Themes" as Themes
+  SQL --> PBI
+  Visuals --> PBI
+  Themes --> PBI
+}
+
+package "Configuration" {
+  rectangle "PAT Token" as PAT
+  rectangle "Org Name" as Org
+  rectangle "SQL Conn String" as Conn
+  PAT --> PS
+  Org --> PS
+  Conn --> PS
+}
+
+package "CI/CD" {
+  rectangle "GitHub Actions" as GH
+  rectangle "PSScriptAnalyzer" as PSA
+  GH --> PSA
+  PSA --> PS
+}
+@enduml

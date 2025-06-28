@@ -1,0 +1,72 @@
+@startuml victor369basu_Real-time-stock-market-prediction
+skinparam backgroundColor #eeeeee
+skinparam componentStyle rectangle
+skinparam defaultTextAlignment center
+skinparam linetype ortho
+
+rectangle "CSV Data Source" as CSV
+rectangle "Kafka" as Kafka {
+  rectangle "Stock Data Topic" as StockTopic
+  rectangle "Predictions Topic" as PredictTopic
+}
+
+rectangle "Data Processing" as Processing {
+  rectangle "producer.js" as Producer
+  rectangle "consumer.js" as Consumer
+  rectangle "ml_consumer.js" as MLConsumer
+  rectangle "pre_process.js" as Preprocessor
+}
+
+rectangle "Machine Learning" as ML {
+  rectangle "tf_train.js" as Trainer
+  rectangle "tf_validate.js" as Validator
+  rectangle "tf_model.js" as Model
+}
+
+rectangle "Web Interface" as Web {
+  rectangle "server.js" as Server
+  rectangle "Socket.IO" as Socket
+}
+
+database "MongoDB" as MongoDB
+
+CSV --> Producer
+Producer --> StockTopic
+StockTopic --> Consumer
+Consumer --> MongoDB
+StockTopic --> MLConsumer
+MLConsumer --> Preprocessor
+Preprocessor --> Model
+Model --> PredictTopic
+
+Trainer --> Model
+Validator --> Model
+MongoDB --> Trainer
+MongoDB --> Validator
+
+Server --> Socket
+Socket --> Web
+Server --> MongoDB
+Server --> Kafka
+
+note right of Kafka
+  Topics:
+  - stock-data
+  - predictions
+end note
+
+note left of Processing
+  Data Flow:
+  1. CSV to Kafka
+  2. Kafka to Preprocessing
+  3. Preprocessed to Model
+end note
+
+note right of ML
+  Training Flow:
+  1. Load data from MongoDB
+  2. Train model
+  3. Validate model
+  4. Save weights
+end note
+@enduml

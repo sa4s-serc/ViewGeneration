@@ -1,0 +1,48 @@
+### Output:
+@startuml qaware_cloud-native-weather-javaee
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<integration>> #fddddd
+  BackgroundColor<<db>> #fff1c9
+  BackgroundColor<<infra>> #d4f0f0
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend" <<frontend>> {
+  rectangle "REST Client" as Client
+}
+
+package "Backend (JavaEE)" <<backend>> {
+  rectangle "WeatherResource\n(JAX-RS)" as Resource
+  rectangle "WeatherService" as Service
+  rectangle "WeatherRepository" as Repository
+  rectangle "Health Checks" as Health
+  rectangle "Metrics" as Metrics
+  Resource --> Service
+  Service --> Repository
+  Resource --> Health
+  Resource --> Metrics
+}
+
+package "External Services" <<integration>> {
+  rectangle "OpenWeatherMap API" as OWM
+  rectangle "PostgreSQL" as DB
+}
+
+package "Infrastructure" <<infra>> {
+  rectangle "Kubernetes" as K8s
+  rectangle "Docker" as Docker
+  rectangle "GitHub Actions" as CI
+  rectangle "Tilt/Skaffold" as DevTools
+}
+
+Client --> Resource
+Service --> OWM : @Retry\n@Timeout\n@Fallback
+Repository --> DB
+K8s --> Docker
+CI --> K8s
+DevTools --> K8s
+@enduml

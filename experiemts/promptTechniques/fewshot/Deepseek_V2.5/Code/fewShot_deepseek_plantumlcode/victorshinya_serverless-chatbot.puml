@@ -1,0 +1,46 @@
+@startuml victorshinya_serverless-chatbot
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "User" as user
+
+rectangle "Web/Mobile Interface" as ui
+
+rectangle "IBM Cloud Functions" as ibmcf {
+  rectangle "assistant.js" as assistant
+  rectangle "mongodb.js" as mongodb
+}
+
+rectangle "Watson Assistant" as watson #lightblue
+
+database "MongoDB" as mongo #lightgreen
+
+user -> ui : Sends message
+ui -> ibmcf : Triggers function sequence
+ibmcf -> assistant : Processes request
+assistant -> watson : Sends user input
+watson -> assistant : Returns response
+assistant -> mongodb : Saves conversation
+mongodb -> mongo : Stores data
+mongodb -> assistant : Returns confirmation
+assistant -> ibmcf : Returns response
+ibmcf -> ui : Returns chatbot response
+ui -> user : Displays response
+
+note right of watson
+  NLP Processing:
+  - Intent recognition
+  - Entity extraction
+  - Dialog management
+end note
+
+note left of mongo
+  Optional storage:
+  - Conversation history
+  - Analysis data
+end note
+@enduml

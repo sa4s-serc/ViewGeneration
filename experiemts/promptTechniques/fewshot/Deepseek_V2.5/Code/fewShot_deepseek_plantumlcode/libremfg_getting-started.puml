@@ -1,0 +1,64 @@
+### Actual Output:
+@startuml libremfg_getting-started
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Dockerized Deployment" {
+  rectangle "Docker Compose" as DockerCompose
+}
+
+package "Data Storage" {
+  database "Dgraph" as Dgraph
+  database "InfluxDB" as InfluxDB
+}
+
+package "Communication" {
+  rectangle "MQTT Broker (EMQX)" as MQTT
+}
+
+package "Microservices" {
+  rectangle "Libre Core" as Core
+  rectangle "GraphQL Gateway" as Gateway
+  rectangle "GraphQL PubSub" as PubSub
+  rectangle "Workflow Engine" as Workflow
+}
+
+package "Visualization" {
+  rectangle "Grafana" as Grafana
+  rectangle "Dashboards" as Dashboards
+}
+
+package "User Interface" {
+  rectangle "Libre Admin UI" as AdminUI
+}
+
+package "Edge Agents" {
+  rectangle "Data Providers" as DataProviders
+}
+
+DockerCompose --> Core
+DockerCompose --> Gateway
+DockerCompose --> PubSub
+DockerCompose --> Workflow
+DockerCompose --> Grafana
+DockerCompose --> MQTT
+DockerCompose --> Dgraph
+DockerCompose --> InfluxDB
+
+Core --> Gateway
+Gateway --> Dgraph
+Gateway --> PubSub
+PubSub --> MQTT
+Workflow --> MQTT
+
+Grafana --> InfluxDB
+Grafana --> Dashboards
+AdminUI --> Gateway
+
+DataProviders --> MQTT
+@enduml

@@ -1,0 +1,58 @@
+### Output:
+@startuml numerica-ideas_ni-microservice-nodejs
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+actor "Client" as Client
+
+rectangle "API Gateway" as APIGW #lightblue
+
+rectangle "Microservice" as Microservice {
+  rectangle "Lambda Handler\n(lambda.ts)" as LambdaHandler #palegreen
+  rectangle "Express App\n(app.ts)" as ExpressApp #palegreen
+  rectangle "Routes\n(article.ts)" as Routes #lightyellow
+  rectangle "Controllers\n(article.ts)" as Controllers #lightyellow
+  rectangle "Services" as Services {
+    rectangle "Article Service" as ArticleService #mistyrose
+    rectangle "Cache Service" as CacheService #mistyrose
+    rectangle "Redis Pub/Sub" as RedisPubSub #mistyrose
+    rectangle "SNS Pub/Sub" as SNSPubSub #mistyrose
+  }
+  rectangle "Models\n(article.ts)" as Models #lightgrey
+}
+
+database "MongoDB" as MongoDB #tan
+database "Redis" as Redis #indianred
+queue "AWS SNS" as SNS #lightsalmon
+
+Client --> APIGW
+APIGW --> LambdaHandler : Lambda Deployment
+APIGW --> ExpressApp : Server Deployment
+
+LambdaHandler --> ExpressApp
+ExpressApp --> Routes
+Routes --> Controllers
+Controllers --> ArticleService
+ArticleService --> Models
+Models --> MongoDB
+
+ArticleService --> CacheService
+CacheService --> Redis
+
+ArticleService --> RedisPubSub : Server Mode
+RedisPubSub --> Redis
+
+ArticleService --> SNSPubSub : Lambda Mode
+SNSPubSub --> SNS
+
+note right of Microservice
+  Deployment Mode:
+  - Server: Uses Redis for pub/sub
+  - Lambda: Uses SNS for pub/sub
+end note
+@enduml

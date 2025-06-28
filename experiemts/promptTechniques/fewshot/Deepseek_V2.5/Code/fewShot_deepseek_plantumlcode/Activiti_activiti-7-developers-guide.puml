@@ -1,0 +1,65 @@
+@startuml Activiti_activiti-7-developers-guide
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<runtime>> #d8f5d3
+  BackgroundColor<<service>> #fff1c9
+  BackgroundColor<<integration>> #fddddd
+  BackgroundColor<<infra>> #d4f0f0
+  Style roundrect
+}
+
+package "Core Components" <<core>> {
+  [Activiti Core Engine] as CoreEngine
+  [BPMN Modeling App] as Modeler
+}
+
+package "Runtime Services" <<runtime>> {
+  [Runtime Bundle] as RuntimeBundle
+  [Cloud Connectors] as Connectors
+}
+
+package "Support Services" <<service>> {
+  [Query Service] as QueryService
+  [Audit Service] as AuditService
+  [Notification Service] as NotifService
+}
+
+package "Integration" <<integration>> {
+  [Gateway] as Gateway
+  [Keycloak SSO] as Keycloak
+}
+
+package "Infrastructure" <<infra>> {
+  [Kubernetes] as K8s
+  [Jenkins X] as JenkinsX
+  [Helm Charts] as Helm
+}
+
+Modeler --> CoreEngine : BPMN Definitions
+CoreEngine --> RuntimeBundle
+RuntimeBundle --> Connectors
+RuntimeBundle --> QueryService : Events
+RuntimeBundle --> AuditService : Events
+RuntimeBundle --> NotifService : Events
+
+Gateway --> RuntimeBundle
+Gateway --> QueryService
+Gateway --> NotifService
+Gateway --> Keycloak
+
+QueryService --> K8s
+AuditService --> K8s
+NotifService --> K8s
+RuntimeBundle --> K8s
+Connectors --> K8s
+
+JenkinsX --> Helm
+Helm --> K8s
+
+note right of K8s
+  Cloud-Native Deployment
+  Event-Driven Architecture
+  Stateless Services
+end note
+@enduml

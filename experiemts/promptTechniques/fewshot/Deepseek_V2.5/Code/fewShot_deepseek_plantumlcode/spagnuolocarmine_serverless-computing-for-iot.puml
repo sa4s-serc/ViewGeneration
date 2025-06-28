@@ -1,0 +1,53 @@
+### Actual Output:
+@startuml spagnuolocarmine_serverless-computing-for-iot
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "IoT Devices" {
+  rectangle "Temperature Sensor" as sensor
+}
+
+package "Message Broker" {
+  rectangle "RabbitMQ" as rabbitmq {
+    queue "AMQP Queue" as amqp_queue
+    queue "MQTT Topic" as mqtt_topic
+  }
+}
+
+package "Serverless Platform" {
+  rectangle "Nuclio" as nuclio {
+    rectangle "AMQP Producer\nFunction" as amqp_prod
+    rectangle "AMQP Consumer\nFunction" as amqp_cons
+    rectangle "MQTT Producer\nFunction" as mqtt_prod
+    rectangle "MQTT Consumer\nFunction" as mqtt_cons
+  }
+}
+
+package "Monitoring" {
+  rectangle "Logger" as logger
+}
+
+sensor --> amqp_prod : temperature data
+sensor --> mqtt_prod : temperature data
+
+amqp_prod --> amqp_queue : publish
+amqp_queue --> amqp_cons : consume
+amqp_cons --> logger : log data
+
+mqtt_prod --> mqtt_topic : publish
+mqtt_topic --> mqtt_cons : subscribe
+mqtt_cons --> logger : log data
+
+note right of rabbitmq
+  Supports both AMQP and MQTT protocols
+end note
+
+note right of nuclio
+  Functions deployed as Docker containers
+end note
+@enduml

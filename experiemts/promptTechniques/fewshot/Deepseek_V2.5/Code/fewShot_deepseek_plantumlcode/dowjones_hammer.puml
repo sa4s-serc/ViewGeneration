@@ -1,0 +1,63 @@
+@startuml dowjones_hammer
+skinparam rectangle {
+  BackgroundColor<<config>> #fff1c9
+  BackgroundColor<<aws>> #dff0ff
+  BackgroundColor<<logic>> #d8f5d3
+  BackgroundColor<<integration>> #fddddd
+  Style roundrect
+}
+left to right direction
+
+rectangle "Configuration Files" <<config>> {
+  [config.json]
+  [ticket_owners.json]
+  [whitelist.json]
+  [_data/*.yml]
+}
+
+rectangle "AWS Resources" <<aws>> {
+  [S3 Buckets]
+  [IAM Policies]
+  [RDS Instances]
+  [EC2 Instances]
+  [SQS Queues]
+  [EBS Volumes]
+}
+
+rectangle "Core Components" <<logic>> {
+  [Initiation Lambda] as InitLambda
+  [Identification Lambdas] as CheckLambdas
+  [Reporting EC2] as ReportEC2
+  [Remediation EC2] as RemediateEC2
+  [DynamoDB] as DDB
+}
+
+rectangle "Integrations" <<integration>> {
+  [JIRA]
+  [Slack Bot]
+  [REST API]
+}
+
+"Configuration Files" --> InitLambda
+"Configuration Files" --> CheckLambdas
+"Configuration Files" --> ReportEC2
+"Configuration Files" --> RemediateEC2
+
+InitLambda --> "SNS"
+"SNS" --> CheckLambdas
+
+CheckLambdas --> "AWS Resources" : Scan
+CheckLambdas --> DDB : Store Issues
+
+ReportEC2 --> DDB : Read Issues
+ReportEC2 --> JIRA : Create Tickets
+ReportEC2 --> "Slack Bot" : Notifications
+ReportEC2 --> "S3 Buckets" : Store Reports
+
+RemediateEC2 --> DDB : Read Issues
+RemediateEC2 --> "AWS Resources" : Fix Issues
+RemediateEC2 --> "S3 Buckets" : Backup Configs
+
+"REST API" --> DDB : Query Issues
+"Slack Bot" --> "REST API" : Trigger Scans
+@enduml

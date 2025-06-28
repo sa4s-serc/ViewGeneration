@@ -1,0 +1,78 @@
+@startuml NodleCode_n1
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+package "Hardware Layer" {
+  rectangle "Dialog DA14531 Dev Kit" as DA14531 #lightblue
+  rectangle "PCB Design" as PCB #lightblue {
+    rectangle "Gerber Files" as Gerber
+    rectangle "Drill Files" as Drill
+    rectangle "Panelization" as Panel
+  }
+}
+
+package "Firmware Layer" {
+  rectangle "iBeacon Firmware" as Firmware #lightgreen {
+    rectangle "BLE Stack" as BLE
+    rectangle "Peripheral Drivers" as Drivers
+    rectangle "Application Logic" as AppLogic
+  }
+  rectangle "SDK6" as SDK #lightgreen
+}
+
+package "Mobile Layer" {
+  rectangle "Nodle Mobile App" as MobileApp #pink {
+    rectangle "Beacon Detection" as Detection
+    rectangle "Cloud Integration" as CloudInt
+  }
+}
+
+package "Cloud Layer" {
+  rectangle "Nodle Cloud" as Cloud #orange {
+    rectangle "API Gateway" as API
+    rectangle "Data Storage" as Storage
+  }
+  rectangle "Python Script" as Python #orange
+}
+
+' Connections
+DA14531 --> PCB
+DA14531 --> Firmware
+Firmware --> SDK
+SDK --> BLE
+SDK --> Drivers
+Drivers --> AppLogic
+AppLogic --> MobileApp
+MobileApp --> Cloud
+Detection --> CloudInt
+CloudInt --> API
+API --> Storage
+Python --> API
+Python --> Storage
+
+note right of PCB
+  .GTL/.GBL - Copper Layers
+  .GTS/.GBS - Solder Mask
+  .GTO - Silkscreen
+  .GPT/.GBP - Paste Layers
+  .GM1/.GM13/.GM15 - Mechanical
+  .GKO - Keep-Out
+  .GD1/.GG1 - Drill Files
+end note
+
+note right of Firmware
+  ibeacon.c/h - Beacon logic
+  user_config.h - Configuration
+  scatter_da14531.sct - Memory map
+end note
+
+note right of Python
+  getBeaconInformation.py
+  - API authentication
+  - Beacon data retrieval
+end note
+@enduml

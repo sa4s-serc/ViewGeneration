@@ -1,4 +1,5 @@
 import os
+import csv
 from collections import defaultdict
 import cv2
 from image_similarity_measures.quality_metrics import (
@@ -6,8 +7,9 @@ from image_similarity_measures.quality_metrics import (
 )
 
 folderA = "./initial_images"
-folderB = "./fewShot_deepseek_output_images"
-output_file = "./image_similarity_results.txt"
+folderB = "./zeroShot_deepseek_output_images"
+output_csv = "./image_similarity_results.csv"
+
 def compare_images(img1, img2):
     return {
         "SSIM": ssim(img1, img2),
@@ -18,9 +20,6 @@ def compare_images(img1, img2):
         "UIQ": uiq(img1, img2),
     }
 
-
-
-# Build maps without extensions
 def build_stem_map(folder):
     stem_map = defaultdict(list)
     for fname in os.listdir(folder):
@@ -30,26 +29,31 @@ def build_stem_map(folder):
 
 mapA = build_stem_map(folderA)
 mapB = build_stem_map(folderB)
-common_stems = sorted(set(mapA.keys()) & set(mapB.keys()))
+all_stems = sorted(set(mapA.keys()).union(set(mapB.keys())))
 
-with open(output_file, 'w') as f:
-    for stem in common_stems:
-        filenameA = mapA[stem][0]
-        filenameB = mapB[stem][0]
-        pathA = os.path.join(folderA, filenameA)
-        pathB = os.path.join(folderB, filenameB)
+with open(output_csv, 'w', newline='') as csvfile:
+    writer = csv.writer(csvfile)
+    writer.writerow(["ImageName", "SSIM", "PSNR", "RMSE", "SAM", "SRE", "UIQ"])  # Header
 
-        imgA = cv2.imread(pathA)
-        imgB = cv2.imread(pathB)
-        imgB_resized = cv2.resize(imgB, (imgA.shape[1], imgA.shape[0]))
-        metrics = compare_images(imgA, imgB_resized)
+    for stem in all_stems:
+        if stem in mapA and stem in mapB:
+            filenameA = mapA[stem][0]
+            filenameB = mapB[stem][0]
+            pathA = os.path.join(folderA, filenameA)
+            pathB = os.path.join(folderB, filenameB)
 
-        f.write(f"🔍 {stem}\n")
-        for key, val in metrics.items():
-            f.write(f"{key}: {float(val):.4f}\n")
-        f.write("\n")
+            imgA = cv2.imread(pathA)
+            imgB = cv2.imread(pathB)
 
-    # Log unmatched
-    unmatchedA = set(mapA.keys()) - set(mapB.keys())
-    for stem in unmatchedA:
-        f.write(f"No match for {mapA[stem][0]} in {folderB}\n\n")
+            if imgA is None or imgB is None:
+                writer.writerow([stem] + ['NA'] * 6)
+                continue
+
+            imgB_resized = cv2.resize(imgB, (imgA.shape[1], imgA.shape[0]))
+            metrics = compare_images(imgA, imgB_resized)
+            writer.writerow([stem] + [f"{float(val):.4f}" for val in metrics.values()])
+            print(f"Compared {stem}: {metrics}")
+        else:
+            # Image unmatched in one folder
+            writer.writerow([stem] + ['NA'] * 6)
+            print(f"Image {stem} unmatched in one folder, skipping comparison.")

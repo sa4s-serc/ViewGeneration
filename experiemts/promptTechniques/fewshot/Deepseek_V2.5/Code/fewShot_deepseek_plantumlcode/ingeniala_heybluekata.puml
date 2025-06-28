@@ -1,0 +1,84 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<integration>> #fddddd
+  BackgroundColor<<db>> #fff1c9
+  BackgroundColor<<aws>> #f5d8f5
+  Style roundrect
+}
+left to right direction
+skinparam defaultTextAlignment center
+
+package "Frontend" <<frontend>> {
+  rectangle "Web App" as WebApp
+  rectangle "Mobile App" as MobileApp
+}
+
+package "Backend for Frontend" <<backend>> {
+  rectangle "Omnichannel BFF" as OmniBFF
+  rectangle "HeyBlue BFF Mobile" as MobileBFF
+  rectangle "BFF Web Container" as WebBFF
+}
+
+package "Core Services" <<backend>> {
+  rectangle "User Management" as UserMgmt
+  rectangle "Gamification Engine" as Gamification
+  rectangle "Commerce Service" as Commerce
+  rectangle "Content Management" as ContentMgmt
+  rectangle "Notification Service" as Notification
+}
+
+package "AWS Services" <<aws>> {
+  rectangle "API Gateway" as APIGW
+  rectangle "Cognito" as Cognito
+  rectangle "Lambda" as Lambda
+  rectangle "DynamoDB" as DynamoDB
+  rectangle "S3" as S3
+  rectangle "CloudFront" as CloudFront
+  rectangle "Kinesis" as Kinesis
+  rectangle "EventBridge" as EventBridge
+  rectangle "Athena" as Athena
+  rectangle "Glacier" as Glacier
+  rectangle "Metabase" as Metabase
+}
+
+package "External Systems" <<integration>> {
+  rectangle "Prismic CMS" as Prismic
+  rectangle "Retailer Systems" as Retailers
+  rectangle "Charity Systems" as Charities
+}
+
+WebApp --> WebBFF
+MobileApp --> MobileBFF
+WebBFF --> APIGW
+MobileBFF --> APIGW
+OmniBFF --> APIGW
+
+APIGW --> Lambda
+Lambda --> UserMgmt
+Lambda --> Gamification
+Lambda --> Commerce
+Lambda --> ContentMgmt
+Lambda --> Notification
+
+UserMgmt --> Cognito
+UserMgmt --> DynamoDB
+Gamification --> DynamoDB
+Commerce --> DynamoDB
+Notification --> Kinesis
+ContentMgmt --> Prismic
+ContentMgmt --> S3
+S3 --> CloudFront
+
+Kinesis --> EventBridge
+EventBridge --> Lambda
+
+DynamoDB --> S3
+S3 --> Athena
+Athena --> Metabase
+S3 --> Glacier
+
+Commerce --> Retailers
+Commerce --> Charities
+@enduml

@@ -1,39 +1,57 @@
-```plantuml
-@startuml lvyahui8_http-proxy
-component "Client" as Client
-component "HttpProxyServer" as ProxyServer {
-    component "ClientToProxyHandler" as ClientHandler
-    component "ProxyToServerInboundHandler" as ServerHandler
-    component "EntitysManager" as EntityManager
-    component "GlobalExceptionHandler" as ExceptionHandler
-    component "Filter System" as Filters {
-        component "ProxyRequestFilter" as RequestFilter
-        component "ProxyResponseFilter" as ResponseFilter
-    }
+@startuml ivyahui8_http-proxy
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<filter>> #d8f5d3
+  BackgroundColor<<config>> #fddddd
+  BackgroundColor<<test>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Proxy" <<core>> {
+  rectangle "HttpProxyServer" as Server
+  rectangle "ClientToProxyHandler" as ClientHandler
+  rectangle "ProxyToServerInboundHandler" as ServerHandler
+  rectangle "GlobalExceptionHandler" as ExceptionHandler
+  rectangle "EventLoopGroupManager" as EventLoop
+  Server --> ClientHandler
+  ClientHandler --> ServerHandler
+  ClientHandler --> ExceptionHandler
+  ServerHandler --> ExceptionHandler
+  Server --> EventLoop
 }
 
-component "Backend Server" as Backend
-component "Configuration" as Config {
-    file "entitys.json" as EntitiesFile
-    file "log4j2.xml" as LogConfig
+package "Filter System" <<filter>> {
+  rectangle "ProxyRequestFilter" as RequestFilter
+  rectangle "ProxyResponseFilter" as ResponseFilter
+  rectangle "AttackRequestFilter" as AttackFilter
+  rectangle "DefaultProxyResponseFilter" as DefaultFilter
+  ClientHandler --> RequestFilter
+  ServerHandler --> ResponseFilter
+  RequestFilter <|-- AttackFilter
+  ResponseFilter <|-- DefaultFilter
 }
 
-Client --> ProxyServer : HTTP Requests
-ProxyServer --> Backend : Proxied Requests
-Backend --> ProxyServer : Responses
+package "Configuration" <<config>> {
+  rectangle "EntitysManager" as EntityManager
+  rectangle "entitys.json" as ConfigFile
+  rectangle "MsgTranslater" as MsgTrans
+  rectangle "StandardResponse" as StdResponse
+  EntityManager --> ConfigFile
+  ExceptionHandler --> MsgTrans
+  ExceptionHandler --> StdResponse
+  ClientHandler --> EntityManager
+}
 
-ClientHandler --> EntityManager : Get routing rules
-ClientHandler --> RequestFilter : Apply filters
-ServerHandler --> ResponseFilter : Apply filters
-ServerHandler --> ExceptionHandler : Handle errors
+package "Testing" <<test>> {
+  rectangle "TestClientApp" as TestClient
+  rectangle "TestServerMain" as TestServer
+  rectangle "TestResource" as TestResource
+  TestClient --> Server
+  Server --> TestServer
+  TestServer --> TestResource
+}
 
-EntityManager --> EntitiesFile : Read/Reload
-ProxyServer --> LogConfig : Logging
-
-note right of Filters
-  Includes:
-  AttackRequestFilter
-  DefaultProxyResponseFilter
-end note
+database "Backend Servers" as Backends
+ServerHandler --> Backends
 @enduml
-```

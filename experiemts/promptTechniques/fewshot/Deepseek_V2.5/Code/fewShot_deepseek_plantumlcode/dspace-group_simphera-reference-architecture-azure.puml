@@ -1,0 +1,97 @@
+@startuml dspace-group_simphera-reference-architecture-azure
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+rectangle "Terraform" as Terraform {
+  rectangle "main.tf" as Main
+  rectangle "variables.tf" as Variables
+  rectangle "outputs.tf" as Outputs
+  rectangle "modules/" as Modules
+}
+
+rectangle "Azure" {
+  rectangle "Resource Group" as RG
+  
+  rectangle "Network" as Network {
+    rectangle "VNet" as VNet
+    rectangle "Subnets" as Subnets
+    rectangle "NSGs" as NSGs
+    rectangle "Private Link" as PrivateLink
+  }
+
+  rectangle "Compute" as Compute {
+    rectangle "AKS Cluster" as AKS
+    rectangle "GPU Node Pool" as GPU
+    rectangle "License Server VM" as LicenseVM
+    rectangle "Bastion Host" as Bastion
+  }
+
+  rectangle "Storage" as Storage {
+    rectangle "MinIO Storage" as MinIO
+    rectangle "Terraform State" as TFState
+  }
+
+  rectangle "Database" as DB {
+    rectangle "PostgreSQL" as PostgreSQL
+  }
+
+  rectangle "Security" as Security {
+    rectangle "Key Vault" as KeyVault
+    rectangle "Azure Policy" as Policy
+  }
+
+  rectangle "Monitoring" as Monitoring {
+    rectangle "Log Analytics" as LogAnalytics
+  }
+}
+
+rectangle "CI/CD" {
+  rectangle "GitHub Actions" as GitHubActions
+  rectangle "Pre-commit Hooks" as PreCommit
+}
+
+Terraform --> RG
+Main --> Network
+Main --> Compute
+Main --> Storage
+Main --> DB
+Main --> Security
+Main --> Monitoring
+
+Variables --> Main
+Outputs --> Main
+Modules --> Main
+
+Network --> VNet
+Network --> Subnets
+Network --> NSGs
+Network --> PrivateLink
+
+Compute --> AKS
+Compute --> GPU
+Compute --> LicenseVM
+Compute --> Bastion
+
+Storage --> MinIO
+Storage --> TFState
+
+DB --> PostgreSQL
+
+Security --> KeyVault
+Security --> Policy
+
+Monitoring --> LogAnalytics
+
+GitHubActions --> Terraform
+PreCommit --> Terraform
+
+AKS --> PostgreSQL : Private Link
+AKS --> MinIO : Private Link
+AKS --> KeyVault : Access Secrets
+LicenseVM --> KeyVault : Access Secrets
+Bastion --> LicenseVM : SSH Access
+@enduml

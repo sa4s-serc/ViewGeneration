@@ -1,0 +1,51 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "User" as User
+
+rectangle "Frontend (React)" as Frontend {
+  rectangle "Editor" as Editor
+  rectangle "Viewer" as Viewer
+  rectangle "Redux Store" as Redux
+}
+
+rectangle "Backend (Django)" as Backend {
+  rectangle "REST API" as API
+  rectangle "Models" as Models
+  rectangle "Serializers" as Serializers
+}
+
+database "PostgreSQL" as DB
+
+rectangle "Displays" as Displays {
+  rectangle "Raspberry Pi" as Pi
+  rectangle "Arduino" as Arduino
+  rectangle "Browser" as Browser
+}
+
+rectangle "Data Sources" as DataSources {
+  rectangle "Mock Data" as Mock
+  rectangle "External API" as ExternalAPI
+}
+
+User --> Editor : Create/Edit Layouts
+Editor --> Redux : Dispatch Actions
+Redux --> Viewer : State Updates
+Viewer --> Displays : Render Dashboard
+
+Frontend --> API : Fetch/Update Data
+API --> Models : CRUD Operations
+Models --> DB : Persist Data
+Serializers --> API : Data Conversion
+
+API --> DataSources : Poll Data
+Mock --> API : Push Time/Temp
+ExternalAPI --> API : Fetch Data
+
+Displays --> API : Register/Update
+@enduml

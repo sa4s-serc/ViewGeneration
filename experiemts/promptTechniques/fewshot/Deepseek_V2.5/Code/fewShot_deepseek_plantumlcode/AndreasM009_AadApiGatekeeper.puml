@@ -1,0 +1,57 @@
+@startuml AndreasM009_AadApiGatekeeper
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Client" {
+  actor "User"
+  rectangle "Browser"
+}
+
+package "Azure AD" {
+  rectangle "AAD Authentication"
+  rectangle "Token Issuance"
+}
+
+package "Gatekeeper (Sidecar)" {
+  rectangle "Reverse Proxy"
+  rectangle "Token Validation"
+  rectangle "Token Cache"
+  rectangle "Middleware Pipeline"
+  rectangle "/me Endpoint"
+  rectangle "/login Endpoint"
+}
+
+package "Backend API" {
+  rectangle "Protected API"
+}
+
+package "Kubernetes/Service Fabric" {
+  rectangle "Sidecar Container"
+  rectangle "API Container"
+}
+
+User --> Browser
+Browser --> AAD Authentication : OpenID Connect
+AAD Authentication --> Token Issuance
+Token Issuance --> Browser : JWT Token
+Browser --> Reverse Proxy : API Request (with token)
+Reverse Proxy --> Token Validation : Validate token
+Token Validation --> Token Cache : Check cache
+Token Cache --> Token Issuance : Fetch new token if needed
+Token Validation --> Middleware Pipeline : Forward if valid
+Middleware Pipeline --> Protected API : Proxied request
+Protected API --> Middleware Pipeline : Response
+Middleware Pipeline --> Browser : Response
+
+Browser --> /login Endpoint : Initiate auth flow
+/login Endpoint --> AAD Authentication : Redirect to AAD
+Browser --> /me Endpoint : Get user claims
+/me Endpoint --> Browser : Return claims
+
+Sidecar Container --> API Container : Local network
+@enduml

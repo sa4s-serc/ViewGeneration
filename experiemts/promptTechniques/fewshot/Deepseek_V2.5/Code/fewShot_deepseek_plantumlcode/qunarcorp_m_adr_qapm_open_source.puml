@@ -1,0 +1,55 @@
+@startuml qunarcorp_m_adr_qapm_open_source
+skinparam rectangle {
+  BackgroundColor<<monitoring>> #d9e7fd
+  BackgroundColor<<build>> #d8f5d3
+  BackgroundColor<<storage>> #fff1c9
+  BackgroundColor<<network>> #fddddd
+  BackgroundColor<<sample>> #d4f0f0
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+left to right direction
+
+package "Build Process" <<build>> {
+  rectangle "Gradle Plugin" as gradlePlugin
+  rectangle "AspectJ Transform" as aspectjTransform
+  gradlePlugin --> aspectjTransform : registers
+}
+
+package "Monitoring Library" <<monitoring>> {
+  rectangle "QAPM Core" as qapmCore
+  rectangle "Tracers" as tracers {
+    [FPS Tracer]
+    [Memory Tracer]
+    [CPU Tracer]
+    [Battery Tracer]
+  }
+  rectangle "WatchMan" as watchMan
+  rectangle "ApplicationLifeObserver" as lifeObserver
+  
+  qapmCore --> tracers : manages
+  qapmCore --> watchMan : controls
+  watchMan --> lifeObserver : observes
+}
+
+package "Data Storage" <<storage>> {
+  rectangle "Storage" as storage
+  rectangle "IStorage" as istorage
+  storage .up.|> istorage
+  tracers --> storage : stores data
+}
+
+package "Network" <<network>> {
+  rectangle "Network Instrumentation" as netInstrument
+  rectangle "Data Sender" as dataSender
+  netInstrument --> dataSender : sends
+  storage --> dataSender : provides data
+}
+
+package "Sample App" <<sample>> {
+  rectangle "Android App" as sampleApp
+  sampleApp --> qapmCore : initializes
+}
+
+aspectjTransform --> sampleApp : injects monitoring
+@enduml

@@ -1,0 +1,42 @@
+### Actual Output:
+@startuml marmarek_qubes-app-u2f
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+package "Browser VM" {
+  rectangle "Web Browser" as Browser
+  rectangle "CTAP Client" as Client
+  rectangle "HID Emulator" as HIDEmulator
+  rectangle "Qrexec Client" as QrexecClient
+}
+
+package "sys-usb VM" {
+  rectangle "CTAP Proxy" as Proxy
+  rectangle "Qrexec Server" as QrexecServer
+  rectangle "USB Stack" as USBStack
+  rectangle "Physical Token" as Token
+}
+
+package "Qubes OS" {
+  rectangle "Qrexec Policy" as Policy
+}
+
+Browser --> Client : CTAP Requests
+Client --> HIDEmulator : HID Emulation
+HIDEmulator --> QrexecClient : Forward Requests
+QrexecClient --> QrexecServer : Secure IPC
+QrexecServer --> Proxy : Process Requests
+Proxy --> USBStack : USB Commands
+USBStack --> Token : Physical Access
+
+Policy --> QrexecClient : Access Control
+Policy --> QrexecServer : Access Control
+
+note right of Token
+  CTAP1/U2F and CTAP2 protocols
+end note
+@enduml

@@ -1,0 +1,68 @@
+@startuml zeropaper_visual-fiha
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<extension>> #d9e7fd
+  BackgroundColor<<web>> #d8f5d3
+  BackgroundColor<<worker>> #fff1c9
+  BackgroundColor<<utils>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "VS Code Extension" <<extension>> {
+  rectangle "VFExtension" as VFExtension
+  rectangle "WebServer" as WebServer
+  rectangle "Redux Store" as Store
+  rectangle "Commands" as Commands
+  VFExtension --> WebServer
+  VFExtension --> Store
+  VFExtension --> Commands
+}
+
+package "WebViews" <<web>> {
+  rectangle "AudioView" as AudioView
+  rectangle "ControlView" as ControlView
+  rectangle "DisplaysView" as DisplaysView
+  rectangle "TimelineView" as TimelineView
+  WebServer --> AudioView
+  WebServer --> ControlView
+  WebServer --> DisplaysView
+  WebServer --> TimelineView
+}
+
+package "Display Workers" <<worker>> {
+  rectangle "DisplayWorker" as DisplayWorker
+  rectangle "Canvas2DLayer" as Canvas2D
+  rectangle "ThreeJSLayer" as ThreeJS
+  DisplayWorker --> Canvas2D
+  DisplayWorker --> ThreeJS
+}
+
+package "Utilities" <<utils>> {
+  rectangle "Com" as Com
+  rectangle "ScriptRunner" as ScriptRunner
+  rectangle "Scriptable" as Scriptable
+  rectangle "MathTools" as MathTools
+  rectangle "MiscTools" as MiscTools
+}
+
+WebServer --> Com
+DisplayWorker --> Com
+VFExtension --> Com
+
+DisplayWorker --> ScriptRunner
+ScriptRunner --> Scriptable
+
+Canvas2D --> MathTools
+ThreeJS --> MathTools
+Canvas2D --> MiscTools
+ThreeJS --> MiscTools
+
+note right of Com
+  Message passing system
+end note
+
+note right of Store
+  Single source of truth
+end note
+@enduml

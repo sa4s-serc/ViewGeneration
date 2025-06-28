@@ -1,0 +1,77 @@
+@startuml dwt0317_Search_Adserver
+skinparam backgroundColor #ffffff
+skinparam defaultTextAlignment center
+skinparam linetype ortho
+
+actor "User" as User
+
+rectangle "Frontend" {
+    [Search Interface] as SearchUI
+}
+
+rectangle "Backend" {
+    [ESServlet] as ESServlet
+    [BingServlet] as BingServlet
+    [AdRetrieval] as AdRetrieval
+    [RewritingHandler] as RewritingHandler
+    [ESHandler] as ESHandler
+    [DBPool] as DBPool
+}
+
+rectangle "External Services" {
+    [Bing Search API] as BingAPI
+    [Elasticsearch] as ES
+    [QueryRewritingService] as QRS
+    [AdRankingService] as ARS
+    [MariaDB] as DB
+    [Flume] as Flume
+}
+
+User -> SearchUI : Search Query
+SearchUI -> ESServlet : Process Query (local)
+SearchUI -> BingServlet : Process Query (Bing)
+
+ESServlet -> ESHandler : Get Results
+ESHandler -> ES : Search
+ESHandler --> ESServlet : Results
+
+BingServlet -> BingAPI : Search
+BingAPI --> BingServlet : Results
+
+ESServlet -> AdRetrieval : Get Ads
+BingServlet -> AdRetrieval : Get Ads
+
+AdRetrieval -> RewritingHandler : Rewrite Query
+RewritingHandler -> QRS : Rewrite
+QRS --> RewritingHandler : Rewritten Query
+RewritingHandler --> AdRetrieval : Rewritten Query
+
+AdRetrieval -> ESHandler : Get Ad Candidates
+ESHandler -> ES : Search Ads
+ES --> ESHandler : Ad Candidates
+ESHandler --> AdRetrieval : Ad Candidates
+
+AdRetrieval -> ARS : Rank Ads
+ARS --> AdRetrieval : Ranked Ads
+
+AdRetrieval -> DBPool : Check Budgets
+DBPool -> DB : Query
+DB --> DBPool : Budget Data
+DBPool --> AdRetrieval : Valid Ads
+
+AdRetrieval --> ESServlet : Final Ads
+AdRetrieval --> BingServlet : Final Ads
+
+ESServlet -> Flume : Log Impression
+BingServlet -> Flume : Log Impression
+
+ESServlet --> SearchUI : Results + Ads
+BingServlet --> SearchUI : Results + Ads
+
+User -> SearchUI : Click Ad
+SearchUI -> ESServlet : Track Click
+ESServlet -> DBPool : Deduct Budget
+DBPool -> DB : Update
+ESServlet -> Flume : Log Click
+
+@enduml

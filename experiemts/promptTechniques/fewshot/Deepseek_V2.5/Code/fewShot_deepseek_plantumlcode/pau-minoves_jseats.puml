@@ -1,0 +1,73 @@
+@startuml pau-minoves_jseats
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Input Sources" {
+  rectangle "XML Configuration" as xmlConfig
+  rectangle "Programmatic API" as apiInput
+  rectangle "CLI Arguments" as cliInput
+}
+
+package "Core Processing" {
+  rectangle "SeatAllocatorLauncher" as launcher
+  rectangle "ProcessorConfig" as config
+  rectangle "SeatAllocatorProcessor" as processor
+  rectangle "SeatAllocatorResolver" as resolver
+
+  package "Model" {
+    rectangle "Tally" as tally
+    rectangle "Candidate" as candidate
+    rectangle "Result" as result
+  }
+
+  package "Components" {
+    rectangle "SeatAllocationMethod" as method
+    rectangle "TallyFilter" as filter
+    rectangle "ResultDecorator" as decorator
+    rectangle "TieBreaker" as tieBreaker
+  }
+}
+
+package "Output" {
+  rectangle "Allocation Result" as output
+  rectangle "Logging (SLF4J)" as logging
+}
+
+xmlConfig --> config
+apiInput --> processor
+cliInput --> launcher
+
+launcher --> processor
+processor --> config
+processor --> resolver
+processor --> tally
+processor --> result
+
+resolver --> method
+resolver --> filter
+resolver --> decorator
+resolver --> tieBreaker
+
+tally --> candidate
+method --> result
+filter --> tally
+decorator --> result
+tieBreaker --> result
+
+processor --> output
+processor --> logging
+
+note right of method
+  Includes:
+  - Majority-based
+  - Largest Remainder
+  - Highest Averages
+  - Equal Proportions
+  - Ranked by Votes
+end note
+@enduml

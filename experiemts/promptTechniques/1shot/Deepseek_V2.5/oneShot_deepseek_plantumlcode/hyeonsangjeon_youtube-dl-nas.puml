@@ -1,57 +1,44 @@
-```plantuml
 @startuml hyeonsangjeon_youtube-dl-nas
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
 actor User
-participant "Web Interface" as UI
-participant "REST API" as API
-participant "WebSocket Server" as WS
-participant "Queue Manager" as QM
-participant "Download Worker" as DW
-database "Auth.json" as AUTH
-database "Download Storage" as STORAGE
-participant "yt-dlp/youtube-dl" as YT
 
-User -> UI : Login (credentials)
-UI -> AUTH : Verify credentials
-AUTH --> UI : Authentication result
-UI -> User : Display dashboard
+rectangle "Web Interface" as WebUI {
+}
 
-alt Web Interface
-    User -> UI : Submit download request
-    UI -> QM : Add to queue
-    QM -> DW : Notify new job
-    DW -> YT : Download video
-    YT --> DW : Download progress
-    DW -> WS : Send progress updates
-    WS -> UI : Real-time updates
-    DW -> STORAGE : Save downloaded file
-    DW -> QM : Mark job complete
-    QM -> WS : Notify completion
-    WS -> UI : Update status
-else REST API
-    User -> API : POST download request (with auth)
-    API -> AUTH : Verify credentials
-    AUTH --> API : Authentication result
-    API -> QM : Add to queue
-    QM -> DW : Notify new job
-    DW -> YT : Download video
-    YT --> DW : Download progress
-    DW -> STORAGE : Save downloaded file
-    DW -> QM : Mark job complete
-end
+rectangle "REST API" as API {
+}
 
-note right of AUTH
-  Basic authentication
-  (security concern)
-end note
+rectangle "youtube-dl-server.py" as Server {
+  rectangle "Download Queue" as Queue #palegreen
+  rectangle "Download Worker" as Worker #lightsteelblue
+  rectangle "WebSocket Handler" as WS #lightyellow
+}
 
-note right of QM
-  Asynchronous queue
-  (control flow)
-end note
+rectangle "External Services" as External {
+  rectangle "YouTube" as YouTube #aliceblue
+  rectangle "Proxy (if configured)" as Proxy #mistyrose
+}
 
-note right of WS
-  Real-time connectivity
-  (connectivity)
-end note
+' ========== Connections ==========
+User --> WebUI : Submit download request\nLogin
+User --> API : REST calls (authenticated)
+
+WebUI --> Server : HTTP requests
+API --> Server : HTTP requests
+
+Server --> Queue : Add download task
+Queue --> Worker : Process next task
+Worker --> YouTube : Download video via yt-dlp/youtube-dl
+Worker --> Proxy : Optional proxy connection
+
+Server --> WS : Real-time updates
+WS --> WebUI : WebSocket messages
+
+Server --> Server : Daily update scheduler\n(yt-dlp/youtube-dl)
 @enduml
-```

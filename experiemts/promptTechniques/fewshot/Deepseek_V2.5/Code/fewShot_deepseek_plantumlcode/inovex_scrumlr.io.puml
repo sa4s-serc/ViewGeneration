@@ -1,0 +1,61 @@
+@startuml inovex_scrumlr.io
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<integration>> #fddddd
+  BackgroundColor<<db>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend (React/TypeScript)" <<frontend>> {
+  rectangle "Board Component" as Board
+  rectangle "Column Component" as Column
+  rectangle "Note Component" as Note
+  rectangle "Redux Store" as Redux
+  rectangle "WebSocket Client" as WSClient
+  Board --> Column
+  Column --> Note
+  Board --> Redux
+  Board --> WSClient
+}
+
+package "Backend (Go)" <<backend>> {
+  rectangle "API Handlers" as API
+  rectangle "Services Layer" as Services
+  rectangle "Realtime (NATS/Redis)" as Realtime
+  rectangle "Auth Service" as Auth
+  API --> Services
+  Services --> Realtime
+  API --> Auth
+}
+
+package "Integrations" <<integration>> {
+  rectangle "Auth Providers" as AuthProviders
+  rectangle "WebSocket Server" as WSServer
+  Auth --> AuthProviders
+  Realtime --> WSServer
+}
+
+database "PostgreSQL" <<db>> as DB
+Services --> DB
+
+WSClient -[#blue]-> WSServer : Real-time updates
+WSServer -[#blue]-> WSClient : Events
+
+note right of Realtime
+  Uses Observer pattern
+  for real-time sync
+end note
+
+note right of Auth
+  Supports multiple
+  auth providers
+end note
+
+note right of Redux
+  Uses Thunk pattern
+  for async operations
+end note
+@enduml

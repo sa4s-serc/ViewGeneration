@@ -1,0 +1,52 @@
+@startuml ruoccofabrizio_azure-open-ai-embeddings-qna
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Streamlit Web App" as WebApp {
+  rectangle "OpenAI_Queries.py" as Queries
+}
+
+rectangle "Azure OpenAI Service" as OpenAI {
+  rectangle "Embeddings" as Embeddings
+  rectangle "GPT-3" as GPT3
+}
+
+rectangle "Vector Stores" as VectorStores {
+  rectangle "Azure Cognitive Search" as AzureSearch
+  rectangle "Redis" as Redis
+  rectangle "PGVector" as PGVector
+}
+
+rectangle "Batch Processing" as Batch {
+  rectangle "BatchStartProcessing" as StartProcessing
+  rectangle "BatchPushResults" as PushResults
+  rectangle "Azure Queue" as Queue
+  rectangle "Blob Storage" as Blob
+}
+
+User --> Queries
+Queries --> Embeddings : Generate query embeddings
+Embeddings --> AzureSearch : Search vectors
+Embeddings --> Redis : Search vectors
+Embeddings --> PGVector : Search vectors
+AzureSearch --> Queries : Return relevant chunks
+Redis --> Queries : Return relevant chunks
+PGVector --> Queries : Return relevant chunks
+Queries --> GPT3 : Generate answer with context
+GPT3 --> Queries : Return generated answer
+Queries --> User : Display answer
+
+StartProcessing --> Queue : Add messages
+Queue --> PushResults : Trigger processing
+PushResults --> Blob : Read documents
+PushResults --> Embeddings : Generate doc embeddings
+PushResults --> AzureSearch : Store vectors
+PushResults --> Redis : Store vectors
+PushResults --> PGVector : Store vectors
+@enduml

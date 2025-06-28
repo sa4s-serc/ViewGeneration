@@ -1,0 +1,69 @@
+### Actual Output:
+@startuml
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<integration>> #fddddd
+  BackgroundColor<<db>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Zserio Services" <<backend>> {
+  rectangle "Zserio Service Definitions" as ZserioDefs
+  rectangle "Zserio Generated Code" as ZserioCode
+  ZserioDefs --> ZserioCode
+}
+
+package "OpenAPI Generation" <<integration>> {
+  rectangle "zswag.gen CLI" as ZswagGen
+  rectangle "OpenAPI YAML" as OpenAPIYAML
+  ZserioDefs --> ZswagGen
+  ZswagGen --> OpenAPIYAML
+}
+
+package "Python Server" <<backend>> {
+  rectangle "OAServer (Flask/Connexion)" as OAServer
+  rectangle "Controller Modules" as Controllers
+  OpenAPIYAML --> OAServer
+  OAServer --> Controllers
+  Controllers --> ZserioCode
+}
+
+package "Clients" <<frontend>> {
+  rectangle "Python OAClient" as PyClient
+  rectangle "C++ OAClient (zswagcl)" as CppClient
+  rectangle "HTTP Library (httpcl)" as HttpLib
+  OpenAPIYAML --> PyClient
+  OpenAPIYAML --> CppClient
+  CppClient --> HttpLib
+  PyClient --> HttpLib
+}
+
+package "HTTP Communication" <<integration>> {
+  rectangle "REST API" as REST
+  OAServer --> REST
+  PyClient --> REST
+  CppClient --> REST
+}
+
+note right of ZswagGen
+  Generates OpenAPI specs from
+  Zserio service definitions
+end note
+
+note right of OAServer
+  Hosts Zserio services as
+  OpenAPI endpoints
+end note
+
+note right of PyClient
+  Generic Python client for
+  Zserio services via HTTP/REST
+end note
+
+note right of CppClient
+  C++ client library with
+  Zserio reflection support
+end note
+@enduml

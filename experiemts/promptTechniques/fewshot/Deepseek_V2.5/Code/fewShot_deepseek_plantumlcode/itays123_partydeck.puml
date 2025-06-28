@@ -1,0 +1,65 @@
+@startuml itays123_partydeck
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<game>> #fff1c9
+  BackgroundColor<<cloud>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend (React)" <<frontend>> {
+  rectangle "Panel" as Panel {
+    [Auth Components]
+    [Deck Management]
+    [Game Library]
+  }
+}
+
+package "Backend (Java)" <<backend>> {
+  rectangle "Server" as Server {
+    [WebSocket Handler]
+    [Game Controller]
+    [Game Service]
+    [State Builder]
+  }
+}
+
+package "Game Client (React)" <<game>> {
+  rectangle "Game" as Game {
+    [Game UI]
+    [Player Actions]
+  }
+}
+
+package "Cloud Infrastructure" <<cloud>> {
+  rectangle "Google Cloud Run" as CloudRun
+  rectangle "Google Cloud Build" as CloudBuild
+}
+
+Panel --> Server : REST API (game management)
+Server --> Game : WebSocket (real-time gameplay)
+Panel --> CloudRun : Deploys to
+Server --> CloudRun : Deploys to
+Game --> CloudRun : Deploys to
+CloudBuild --> CloudRun : CI/CD Pipeline
+
+note right of Server
+  Uses Spring Boot
+  WebSocket communication
+  Game state management
+end note
+
+note right of Panel
+  Manages decks/users
+  Game library
+  Tailwind CSS
+end note
+
+note left of Game
+  Real-time gameplay
+  Player interactions
+  Tailwind CSS
+end note
+@enduml

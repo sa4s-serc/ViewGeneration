@@ -1,0 +1,51 @@
+@startuml tamu-datathon-org_galaxy
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+rectangle "User" as User
+
+rectangle "tamudatathon.com" as Domain {
+  rectangle "Nginx Router" as Router #lightblue
+}
+
+rectangle "Backend Services" as Backend {
+  rectangle "Gatekeeper\n(Auth)" as Gatekeeper #lightgreen
+  rectangle "OBOS\n(Event Mgmt)" as OBOS #lightpink
+  rectangle "Gigabowser\n(Static Site)" as Gigabowser #lightyellow
+}
+
+rectangle "Deployment" as Deploy {
+  rectangle "Heroku" as Heroku #mistyrose
+  rectangle "Docker Compose\n(Local Dev)" as Docker #aliceblue
+}
+
+User --> Router
+Router --> Gatekeeper : /auth
+Router --> OBOS : /obos
+Router --> Gigabowser : /
+
+Gatekeeper --> Heroku
+OBOS --> Heroku
+Router --> Docker
+
+note right of Router
+  Routes configured via
+  environment variables
+  (GATEKEEPER_URL, etc.)
+end note
+
+note right of Gatekeeper
+  Handles authentication
+  and user data
+end note
+
+note right of OBOS
+  Event management
+  system
+end note
+@enduml

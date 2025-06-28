@@ -1,0 +1,58 @@
+### Actual Output:
+@startuml OAID_Tengine
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<utility>> #fff1c9
+  BackgroundColor<<integration>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+left to right direction
+
+package "Core Framework" <<core>> {
+  rectangle "Model Loader\n(TM2 format)" as ModelLoader
+  rectangle "Graph IR" as GraphIR
+  rectangle "Operator Library" as OpLib
+  rectangle "Device Abstraction\nLayer" as DeviceLayer
+  rectangle "Memory\nManagement" as MemoryMgmt
+  rectangle "Inference\nEngine" as InferenceEngine
+}
+
+package "Hardware Backends" <<backend>> {
+  rectangle "CPU\n(ARM NEON/x86)" as CPU
+  rectangle "GPU\n(Vulkan/OpenCL)" as GPU
+  rectangle "NPU\n(OpenDLA/TIM-VX)" as NPU
+  rectangle "Custom\nBackends" as Custom
+}
+
+package "Utilities" <<utility>> {
+  rectangle "Model Converter" as Converter
+  rectangle "Testing\nFramework" as Testing
+  rectangle "Python\nBindings" as Python
+  rectangle "Performance\nMonitoring" as PerfMon
+}
+
+package "External" <<integration>> {
+  rectangle "Input Models\n(ONNX/TF/Caffe)" as InputModels
+  rectangle "Output\nResults" as Output
+}
+
+ModelLoader --> GraphIR
+GraphIR --> InferenceEngine
+OpLib --> InferenceEngine
+DeviceLayer --> InferenceEngine
+MemoryMgmt --> InferenceEngine
+
+InferenceEngine --> CPU
+InferenceEngine --> GPU
+InferenceEngine --> NPU
+InferenceEngine --> Custom
+
+Converter --> InputModels
+Converter --> ModelLoader
+Testing --> GraphIR
+Testing --> Output
+Python --> InferenceEngine
+PerfMon --> InferenceEngine
+@enduml

@@ -1,0 +1,67 @@
+@startuml xinsongyan_talos_pal_locomotion_slmc
+skinparam backgroundColor #eeeeee
+skinparam defaultTextAlignment center
+skinparam linetype ortho
+
+actor "Operator" as Operator
+
+rectangle "ROS Master" as ROS {
+}
+
+rectangle "Locomotion Controller" as Controller {
+  component "DCM Controller" as DCM
+  component "Whole-Body Controller" as WBC
+  component "State Estimator" as Estimator
+  component "Safety Monitor" as Safety
+}
+
+rectangle "Plugin System" as Plugins {
+  component "WBC Plugin 1" as WBC1
+  component "WBC Plugin 2" as WBC2
+  component "WBC Plugin 3" as WBC3
+}
+
+rectangle "Robot Hardware" as Robot {
+  component "Actuators" as Actuators
+  component "Sensors" as Sensors
+}
+
+rectangle "Simulation" as Sim {
+  component "Gazebo" as Gazebo
+  component "PAL Physics" as PAL
+}
+
+Operator --> ROS : Commands/Params
+ROS --> Controller : ROS Topics
+Controller --> DCM
+Controller --> WBC
+Controller --> Estimator
+Controller --> Safety
+
+WBC --> Plugins : Dynamic Loading
+Plugins --> WBC1
+Plugins --> WBC2
+Plugins --> WBC3
+
+Estimator --> Sensors : Feedback
+Safety --> Sensors : Monitoring
+WBC --> Actuators : Commands
+
+Controller --> Sim : Optional
+Sim --> Gazebo
+Sim --> PAL
+
+note right of Safety
+  Monitors:
+  - COM position
+  - Foot contact
+  - Joint limits
+end note
+
+note left of Plugins
+  Plugin Types:
+  - WbcWeightedDynamicCopTALOS
+  - WalkingWBCTalosLowerBodyTorsoHead
+  - WalkingWBCTalosFixedUpperBody
+end note
+@enduml

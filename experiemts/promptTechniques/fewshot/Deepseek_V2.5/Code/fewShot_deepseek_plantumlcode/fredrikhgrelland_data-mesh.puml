@@ -1,0 +1,66 @@
+### Output:
+@startuml fredrikhgrelland_data-mesh
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<storage>> #d4f0f0
+  BackgroundColor<<query>> #fff1c9
+  BackgroundColor<<orchestration>> #d8f5d3
+  BackgroundColor<<discovery>> #d9e7fd
+  BackgroundColor<<ui>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Data Storage" <<storage>> {
+  rectangle "MinIO\n(S3-compatible)" as MinIO
+}
+
+package "Metadata" <<storage>> {
+  rectangle "Hive Metastore" as Hive
+}
+
+package "Query Engine" <<query>> {
+  rectangle "Presto" as Presto
+}
+
+package "SQL IDE" <<ui>> {
+  rectangle "SQLPad" as SQLPad
+}
+
+package "Orchestration" <<orchestration>> {
+  rectangle "Nomad" as Nomad
+}
+
+package "Service Discovery" <<discovery>> {
+  rectangle "Consul" as Consul
+  rectangle "Consul Connect" as Connect
+}
+
+package "IaC" <<orchestration>> {
+  rectangle "Terraform" as Terraform
+  rectangle "Ansible" as Ansible
+}
+
+package "Development" <<orchestration>> {
+  rectangle "Vagrant" as Vagrant
+}
+
+MinIO --> Hive : Stores metadata
+Hive --> Presto : Provides schema
+Presto --> MinIO : Queries data
+SQLPad --> Presto : Executes queries
+Nomad --> MinIO : Manages
+Nomad --> Hive : Manages
+Nomad --> Presto : Manages
+Nomad --> SQLPad : Manages
+Consul --> Nomad : Service discovery
+Connect --> Consul : Secure comms
+Terraform --> Nomad : Provisions
+Ansible --> Terraform : Orchestrates
+Vagrant --> Ansible : Provisions
+
+note right of Connect
+  Mutual TLS
+  Sidecar proxies
+end note
+@enduml

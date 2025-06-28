@@ -1,0 +1,88 @@
+@startuml Spiderpig86_SmoresUnderflow
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+actor "User" as user
+
+rectangle "Frontend" as frontend {
+  [React App] as react
+  [Redux] as redux
+  react --> redux
+}
+
+rectangle "Nginx" as nginx {
+  [Load Balancer] as lb
+  [Reverse Proxy] as rp
+  lb --> rp
+}
+
+rectangle "Microservices" {
+  rectangle "su-users" as users #lightblue
+  rectangle "su-accounts" as accounts #lightblue
+  rectangle "su-questions" as questions #lightblue
+  rectangle "su-search" as search #lightblue
+  rectangle "su-media" as media #lightblue
+  rectangle "qu-questions" as qqueue #lightgreen
+  rectangle "qu-answers" as aqueue #lightgreen
+}
+
+rectangle "Message Queue" {
+  [RabbitMQ] as rabbit
+}
+
+rectangle "Databases" {
+  [MongoDB] as mongo
+  [Redis] as redis
+  [ElasticSearch] as elastic
+}
+
+user --> frontend
+frontend --> nginx
+
+nginx --> users
+nginx --> accounts
+nginx --> questions
+nginx --> search
+nginx --> media
+
+questions --> rabbit
+aqueue --> rabbit
+qqueue --> rabbit
+
+qqueue --> mongo
+aqueue --> mongo
+users --> mongo
+accounts --> mongo
+questions --> mongo
+search --> mongo
+
+users --> redis
+accounts --> redis
+questions --> redis
+search --> redis
+
+search --> elastic
+qqueue --> elastic
+
+media --> [File Storage] as storage
+
+note right of rabbit
+  Asynchronous communication
+  for question/answer processing
+end note
+
+note right of redis
+  Caching layer for
+  frequently accessed data
+end note
+
+note right of elastic
+  Search indexing
+  and querying
+end note
+@enduml

@@ -1,0 +1,44 @@
+@startuml florianhoehn_sf-apex-rest-api
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<example>> #d8f5d3
+  BackgroundColor<<logging>> #fff1c9
+  BackgroundColor<<external>> #fddddd
+  BackgroundColor<<db>> #d4f0f0
+  Style roundrect
+}
+
+package "Core Components" <<core>> {
+  [RestWrapper] as RestWrapper
+  [RestResponse] as RestResponse
+  [RestCallout] as RestCallout
+  RestResponse --|> RestWrapper
+}
+
+package "Example Implementation" <<example>> {
+  [ExampleRatingRestResource] as ExampleResource
+  [ExampleRatingCallout] as ExampleCallout
+  ExampleResource --> RestResponse
+  ExampleCallout --> RestCallout
+}
+
+package "Logging" <<logging>> {
+  [RestLogBuilder] as LogBuilder
+  [Rest_Log__c] as LogObject
+  LogBuilder --> LogObject
+}
+
+package "External Systems" <<external>> {
+  [External REST API] as ExternalAPI
+}
+
+database "Salesforce Database" <<db>> as SFDB
+
+ExampleResource --> SFDB : Reads/Writes\nSObjects
+ExampleCallout --> ExternalAPI : HTTP Callout
+ExampleCallout --> LogBuilder : Creates logs
+ExampleResource --> LogBuilder : Creates logs
+RestCallout --> LogBuilder : Creates logs
+RestWrapper --> SFDB : Maps to/from\nSObjects
+@enduml

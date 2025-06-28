@@ -1,0 +1,71 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "User" as User
+actor "ML Engineer" as MLEngineer
+
+rectangle "Turing API" as API {
+  rectangle "REST API" as REST
+  rectangle "gRPC API" as GRPC
+}
+
+rectangle "Router Engine" as Router {
+  rectangle "HTTP/JSON Router" as HTTPRouter
+  rectangle "UPI/gRPC Router" as UDIRouter
+}
+
+rectangle "Experiment Engine" as Experiment {
+  rectangle "Standard Engine" as StdEngine
+  rectangle "Custom Engine" as CustomEngine
+  rectangle "Planout Engine" as PlanoutEngine
+  rectangle "Optimizely Engine" as OptimizelyEngine
+}
+
+rectangle "Batch Ensembler" as Batch {
+  rectangle "Spark on K8s" as Spark
+  rectangle "Job Manager" as JobManager
+}
+
+rectangle "Monitoring & Logging" as Monitoring {
+  rectangle "Prometheus" as Prom
+  rectangle "Jaeger" as Jaeger
+  rectangle "BigQuery" as BQ
+  rectangle "Kafka" as Kafka
+}
+
+database "Kubernetes" as K8s {
+  rectangle "Pods" as Pods
+  rectangle "Services" as Services
+}
+
+User --> REST
+MLEngineer --> GRPC
+
+REST --> Router
+GRPC --> Router
+
+Router --> Experiment
+Router --> Batch
+
+Experiment --> Monitoring
+Batch --> Monitoring
+
+Monitoring --> Prom
+Monitoring --> Jaeger
+Monitoring --> BQ
+Monitoring --> Kafka
+
+Router --> K8s
+Experiment --> K8s
+Batch --> K8s
+
+Monitoring --> K8s
+
+K8s --> Pods
+K8s --> Services
+@enduml

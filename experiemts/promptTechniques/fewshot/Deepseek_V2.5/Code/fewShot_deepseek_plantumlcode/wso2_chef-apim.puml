@@ -1,0 +1,64 @@
+@startuml wso2_chef-apim
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<chef>> #d9e7fd
+  BackgroundColor<<wso2>> #d8f5d3
+  BackgroundColor<<db>> #fff1c9
+  BackgroundColor<<infra>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Chef Server" <<chef>> {
+  rectangle "Cookbook Repository" as Cookbook
+  rectangle "Node Attributes" as Attributes
+  rectangle "Recipes" as Recipes
+  rectangle "Templates" as Templates
+  Cookbook --> Attributes
+  Cookbook --> Recipes
+  Cookbook --> Templates
+}
+
+package "Target Node" <<wso2>> {
+  rectangle "WSO2 API Manager" as WSO2 {
+    rectangle "Key Manager" as KeyManager
+    rectangle "Publisher" as Publisher
+    rectangle "Store" as Store
+    rectangle "Traffic Manager" as TrafficManager
+    rectangle "Gateway Manager" as GatewayManager
+    rectangle "Gateway Worker" as GatewayWorker
+  }
+  rectangle "Java Runtime" as Java
+}
+
+package "Database" <<db>> {
+  database "MySQL" as MySQL
+}
+
+package "Infrastructure" <<infra>> {
+  rectangle "Network" as Network
+  rectangle "Load Balancer" as LB
+}
+
+Chef Server -[dotted]-> Target Node : applies\nconfiguration
+Recipes -[dotted]-> Java : installs
+Recipes -[dotted]-> WSO2 : configures
+Templates -[dotted]-> WSO2 : generates\nconfigs
+
+KeyManager --> MySQL
+Publisher --> MySQL
+Store --> MySQL
+TrafficManager --> MySQL
+GatewayManager --> MySQL
+GatewayWorker --> MySQL
+
+GatewayManager --> Network
+GatewayWorker --> Network
+Store --> Network
+Publisher --> Network
+KeyManager --> Network
+TrafficManager --> Network
+
+GatewayManager --> LB
+GatewayWorker --> LB
+@enduml

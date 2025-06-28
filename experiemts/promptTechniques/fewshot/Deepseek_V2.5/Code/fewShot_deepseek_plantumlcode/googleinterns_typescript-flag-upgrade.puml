@@ -1,0 +1,76 @@
+### Output:
+@startuml googleinterns_typescript-flag-upgrade
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<manipulator>> #d8f5d3
+  BackgroundColor<<detector>> #fff1c9
+  BackgroundColor<<emitter>> #fddddd
+  BackgroundColor<<util>> #d4f0f0
+  Style roundrect
+}
+
+package "Core" <<core>> {
+  [index.ts] as Index
+  [runner.ts] as Runner
+  [parser.ts] as Parser
+  [types.ts] as Types
+}
+
+package "Manipulators" <<manipulator>> {
+  [no_implicit_returns_manipulator.ts]
+  [strict_null_checks_manipulator.ts]
+  [strict_property_initialization_manipulator.ts]
+  [no_implicit_any_manipulator.ts]
+}
+
+package "Error Detectors" <<detector>> {
+  [error_detector.ts]
+  [prod_error_detector.ts]
+}
+
+package "Emitters" <<emitter>> {
+  [in_place_emitter.ts]
+  [out_of_place_emitter.ts]
+}
+
+package "Loggers" <<emitter>> {
+  [console_logger.ts]
+  [stub_logger.ts]
+}
+
+package "Utils" <<util>> {
+  [util/*.ts]
+}
+
+package "Tests" {
+  [test/**/*_test.ts]
+}
+
+Index --> Runner
+Runner --> Parser
+Runner --> Types
+Runner --> Manipulators
+Runner --> ErrorDetectors
+Runner --> Emitters
+Runner --> Loggers
+
+Parser --> Types
+Manipulators --> Types
+ErrorDetectors --> Types
+Emitters --> Types
+Loggers --> Types
+
+Manipulators --> ErrorDetectors
+Manipulators --> Utils
+ErrorDetectors --> Utils
+
+Tests --> Index
+Tests --> Runner
+Tests --> Parser
+Tests --> Manipulators
+Tests --> ErrorDetectors
+Tests --> Emitters
+Tests --> Loggers
+Tests --> Utils
+@enduml

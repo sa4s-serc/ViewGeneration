@@ -1,0 +1,55 @@
+@startuml Enterprise-CMCS_macpro-appian-connector
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "Appian" as Appian
+rectangle "Kafka Connector" as Connector {
+  rectangle "Data Extraction" as Extract
+  rectangle "Data Transformation" as Transform
+  rectangle "Data Streaming" as Stream
+}
+
+package "AWS Infrastructure" {
+  rectangle "ECS" as ECS
+  rectangle "SNS" as SNS
+  rectangle "CloudWatch" as CloudWatch
+  rectangle "IAM" as IAM
+  rectangle "SSM Parameter Store" as SSM
+  rectangle "Secrets Manager" as Secrets
+}
+
+rectangle "BigMAC" as BigMAC
+
+package "CI/CD" {
+  rectangle "GitHub Actions" as GitHubActions
+  rectangle "Serverless Framework" as Serverless
+}
+
+package "Monitoring" {
+  rectangle "Security Hub" as SecurityHub
+  rectangle "DORA Metrics" as DORA
+}
+
+Appian --> Extract
+Extract --> Transform
+Transform --> Stream
+Stream --> BigMAC
+
+Connector --> ECS
+Connector --> SNS
+Connector --> CloudWatch
+Connector --> IAM
+Connector --> SSM
+Connector --> Secrets
+
+GitHubActions --> Connector
+Serverless --> Connector
+
+CloudWatch --> SNS
+SNS --> SecurityHub
+SecurityHub --> DORA
+@enduml

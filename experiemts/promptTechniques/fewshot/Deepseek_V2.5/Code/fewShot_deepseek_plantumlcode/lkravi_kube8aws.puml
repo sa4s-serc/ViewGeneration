@@ -1,0 +1,59 @@
+### Actual Output:
+@startuml lkravi_kube8aws
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "Admin User"
+
+rectangle "Terraform" as Terraform #orange {
+  rectangle "vpc.tf" as VPC
+  rectangle "servers.tf" as Servers
+  rectangle "load_balance.tf" as LB
+  rectangle "security.tf" as Security
+  rectangle "keys.tf" as Keys
+  rectangle "ansible_helper.tf" as AnsibleHelper
+}
+
+rectangle "AWS" {
+  rectangle "VPC" as AWSVPC {
+    rectangle "Public Subnet" as PublicSubnet {
+      rectangle "Bastion Host" as Bastion #lightblue
+    }
+    
+    rectangle "Private Subnet" as PrivateSubnet {
+      rectangle "Master Node" as Master #lightgreen
+      rectangle "Worker Nodes" as Workers #lightgreen
+    }
+    
+    rectangle "Network Load Balancer" as NLB #pink
+  }
+}
+
+rectangle "Ansible" as Ansible #purple {
+  rectangle "play.yml" as Playbook
+  rectangle "ansible_vars_file.yml" as VarsFile
+}
+
+"Admin User" --> Terraform
+Terraform --> AWSVPC
+
+VPC --> AWSVPC
+Servers --> Bastion
+Servers --> Master
+Servers --> Workers
+LB --> NLB
+Security --> AWSVPC
+Keys --> Bastion
+AnsibleHelper --> Bastion
+
+Bastion --> Ansible
+Ansible --> Master
+Ansible --> Workers
+
+NLB --> Master
+Master --> Workers
+@enduml

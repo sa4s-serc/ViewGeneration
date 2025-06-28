@@ -1,40 +1,39 @@
-```plantuml
 @startuml kryptokrauts_ae-prediction-cards
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
 actor User
-participant "Frontend" as FE
-participant "Wallet Client" as WC
-participant "PredictionCards API" as API
-participant "Smart Contract" as SC
-participant "Oracle Service" as OS
-participant "Process Prediction Service" as PPS
-participant "Aeternity Blockchain" as AE
 
-User -> FE: Create Prediction
-FE -> WC: Connect Wallet
-WC -> AE: Authenticate
-FE -> API: Submit Prediction
-API -> SC: create_prediction()
-SC -> AE: Store Prediction
+rectangle "Frontend" as FE {
+  rectangle "WalletClient" as Wallet
+  rectangle "PredictionCardsAPI" as API
+}
 
-User -> FE: Rent NFT
-FE -> API: rent_nft()
-API -> SC: rent_nft()
-SC -> AE: Update NFT Rental
+rectangle "Aeternity Blockchain" as Blockchain #mistyrose {
+  rectangle "PredictionCards\nSmart Contract" as Contract #palegreen
+}
 
-PPS -> SC: Monitor Predictions
-SC -> PPS: Prediction Closed Event
-PPS -> OS: Request Oracle Query
-OS -> SC: ask_for_winning_option()
-SC -> AE: Oracle Query
-AE -> OS: Oracle Response
-OS -> SC: process_oracle_response()
-SC -> PPS: Winning Outcome
-PPS -> SC: Update NFT Ownership
+rectangle "process-prediction-\nservice" as PredictionService #lightsteelblue
 
-User -> FE: Claim Rewards
-FE -> API: claim()
-API -> SC: claim()
-SC -> AE: Transfer Rewards
+rectangle "oracle-service" as OracleService #lightyellow
 
+rectangle "CoinGecko API" as CoinGecko #aliceblue
+
+' ========== Connections ==========
+User -> FE : Interacts with UI
+FE -> Wallet : Connect wallet\nSign transactions
+Wallet -> Blockchain : Deploy contract\nCall methods
+API -> Contract : Dry-run calls\nSubmit transactions
+
+PredictionService -> Blockchain : Poll for CLOSED predictions
+PredictionService -> Contract : Call ask_for_winning_option
+Contract -> OracleService : Oracle query
+OracleService -> CoinGecko : Fetch price data
+OracleService -> Contract : Submit oracle response
+Contract -> PredictionService : Trigger process_oracle_response
+Contract -> FE : Update prediction state (events)
 @enduml
-```

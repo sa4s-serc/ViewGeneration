@@ -1,44 +1,55 @@
-```plantuml
 @startuml domingo1021_Bunny-code
-rectangle "Client" as CLIENT
-rectangle "Nginx\\nReverse Proxy" as NGINX
-rectangle "Express\\nBackend" as EXPRESS
-rectangle "Socket.IO" as SOCKET
-rectangle "MySQL" as MYSQL
-rectangle "InfluxDB" as INFLUX
-rectangle "Redis" as REDIS
-rectangle "Docker\\nSandbox" as DOCKER
-rectangle "S3" as S3
-rectangle "CloudFront" as CLOUDFRONT
-rectangle "CloudWatch" as CLOUDWATCH
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
 
-CLIENT -> NGINX : HTTPS Requests
-NGINX -> EXPRESS : Proxy Requests
-EXPRESS -> MYSQL : CRUD Operations
-EXPRESS -> INFLUX : Time-Series Data
-EXPRESS -> REDIS : Caching/State
-EXPRESS -> SOCKET : Real-time Events
-SOCKET --> CLIENT : Push Updates
-EXPRESS -> DOCKER : Execute Code
-DOCKER --> EXPRESS : Execution Results
-EXPRESS -> S3 : Store Files
-S3 -> CLOUDFRONT : CDN Delivery
-EXPRESS -> CLOUDWATCH : Logs/Metrics
-CLIENT -> CLOUDFRONT : Static Assets
+actor User
 
-note right of NGINX
-  SSL Termination
-  Load Balancing
-end note
+rectangle "Frontend" as FE {
+}
 
-note right of EXPRESS
-  JWT Authentication
-  API Routing
-end note
+rectangle "Reverse Proxy\n(Nginx)" as Nginx #lightblue
 
-note right of DOCKER
-  Isolated Execution
-  Resource Limits
-end note
+rectangle "Backend\n(Node.js/Express)" as Backend #palegreen {
+  rectangle "API Routes" as API
+  rectangle "Socket.IO" as SocketIO
+}
+
+rectangle "Database Layer" as DB #mistyrose {
+  rectangle "MySQL" as MySQL
+  rectangle "InfluxDB" as InfluxDB
+  rectangle "Redis" as Redis
+}
+
+rectangle "Sandbox\n(Docker)" as Sandbox #lightyellow
+
+rectangle "Cloud Services" as Cloud #aliceblue {
+  rectangle "S3" as S3
+  rectangle "CloudFront" as CloudFront
+  rectangle "CloudWatch" as CloudWatch
+}
+
+' ========== Connections ==========
+User --> FE
+FE --> Nginx : HTTP/HTTPS requests
+FE --> Nginx : WebSocket connection
+
+Nginx --> Backend : Proxy requests
+Nginx --> Backend : Proxy WebSocket
+
+Backend --> DB : Data operations
+API --> MySQL : CRUD operations
+API --> InfluxDB : Time-series data
+SocketIO --> Redis : Real-time state
+
+Backend --> Sandbox : Execute user code
+Sandbox --> Backend : Execution results
+
+Backend --> Cloud : File storage & CDN
+API --> S3 : Store/retrieve files
+API --> CloudFront : Deliver content
+API --> CloudWatch : Logs & metrics
 @enduml
-```

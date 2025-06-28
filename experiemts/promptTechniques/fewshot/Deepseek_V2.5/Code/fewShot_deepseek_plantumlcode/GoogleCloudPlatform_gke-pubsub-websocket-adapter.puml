@@ -1,0 +1,40 @@
+@startuml GoogleCloudPlatform_gke-pubsub-websocket-adapter
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "Web Client" as Client
+
+rectangle "GKE Cluster" {
+  rectangle "Pod" {
+    rectangle "pulltop" as Pulltop #lightblue
+    rectangle "websocketd" as Websocketd #lightgreen
+    rectangle "Ephemeral Storage" as Storage #lightyellow
+    rectangle "Cron Job" as Cron #pink
+  }
+}
+
+rectangle "Google Cloud Pub/Sub" as PubSub #orange
+rectangle "Workload Identity" as WI #lightgrey
+
+Client --> Websocketd : WebSocket
+Websocketd --> Storage : Read
+Pulltop --> PubSub : Pull Messages
+Pulltop --> Storage : Write
+Cron --> Storage : Rotate JSON
+WI --> Pulltop : Authentication
+WI --> Websocketd : Authentication
+
+note right of Storage
+  Memory-mapped filesystem
+  Temporary message buffer
+end note
+
+note right of WI
+  Secure authentication
+  with Pub/Sub
+end note
+@enduml

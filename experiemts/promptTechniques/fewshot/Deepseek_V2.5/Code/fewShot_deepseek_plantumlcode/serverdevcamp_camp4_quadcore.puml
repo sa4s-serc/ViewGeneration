@@ -1,0 +1,79 @@
+@startuml serverdevcamp_camp4_quadcore
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<gateway>> #f0e6ff
+  BackgroundColor<<auth>> #ffebee
+  BackgroundColor<<data>> #e8f5e9
+  BackgroundColor<<processing>> #e3f2fd
+  BackgroundColor<<storage>> #fff8e1
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+actor "User" as user
+
+package "Frontend" <<frontend>> {
+  rectangle "React App" as react {
+    component "Infinite Scroll"
+    component "Column Views"
+    component "Auth Components"
+  }
+}
+
+package "API Gateway" <<gateway>> {
+  rectangle "Spring Cloud Gateway" as gateway {
+    component "JWT Validation"
+    component "Request Routing"
+  }
+}
+
+package "Authentication" <<auth>> {
+  rectangle "Auth Server" as auth {
+    component "JWT Generation"
+    component "Redis Token Store"
+  }
+  rectangle "Auth Front" as authFront
+}
+
+package "Data Services" <<data>> {
+  rectangle "Data Sending" as dataSend {
+    component "WebSocket"
+    component "REST API"
+  }
+  rectangle "User Activity" as userActivity
+}
+
+package "Data Pipeline" <<processing>> {
+  rectangle "Kafka" as kafka
+  rectangle "Spark Processing" as spark
+}
+
+package "Storage" <<storage>> {
+  database "Cassandra" as cassandra
+  database "Redis" as redis
+}
+
+cloud "Twitter API" as twitter
+
+user --> react
+react --> gateway : HTTP
+gateway --> auth : Validate JWT
+gateway --> authFront : Auth requests
+gateway --> dataSend : Data requests
+gateway --> userActivity : Activity requests
+
+auth --> redis : Refresh tokens
+authFront --> auth : Auth flow
+
+dataSend --> kafka : Publish tweets
+kafka --> spark : Consume
+spark --> cassandra : Store processed data
+spark --> dataSend : Push trends
+
+userActivity --> cassandra : User data
+dataSend --> cassandra : Tweet data
+
+twitter --> kafka : Stream tweets
+react <--> dataSend : WebSocket
+@enduml

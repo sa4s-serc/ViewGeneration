@@ -1,0 +1,72 @@
+@startuml quasirsg_Henry-M3
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<testing>> #fff1c9
+  BackgroundColor<<lib>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+actor "User" as User
+
+package "Frontend" <<frontend>> {
+  rectangle "Browser" as Browser
+}
+
+package "Backend" <<backend>> {
+  rectangle "Express Server" as Express {
+    rectangle "Routes" as Routes
+    rectangle "Middleware" as Middleware
+    rectangle "Controllers" as Controllers
+  }
+  
+  rectangle "Node.js Core" as NodeCore {
+    rectangle "HTTP Module" as HTTP
+    rectangle "Event Loop" as EventLoop
+    rectangle "Streams" as Streams
+  }
+  
+  Routes --> Middleware
+  Middleware --> Controllers
+  Controllers --> HTTP
+}
+
+package "Libraries" <<lib>> {
+  rectangle "Custom $Promise" as Promise
+  rectangle "Body-parser" as BodyParser
+}
+
+package "Testing" <<testing>> {
+  rectangle "Mocha/Chai" as Mocha
+  rectangle "Supertest" as Supertest
+  rectangle "Jasmine" as Jasmine
+}
+
+User --> Browser
+Browser --> Express : HTTP Requests
+Express --> Browser : HTTP Responses
+
+Middleware --> BodyParser
+Controllers --> Promise
+
+Promise --> EventLoop
+HTTP --> Streams
+
+Supertest --> Express
+Mocha --> Express
+Jasmine --> Promise
+
+note right of Promise
+  States: pending/fulfilled/rejected
+  Methods: then(), resolve(), all()
+end note
+
+note right of Middleware
+  Chain of execution:
+  1. Body-parser
+  2. Custom middleware
+  3. Route handlers
+end note
+@enduml

@@ -1,0 +1,52 @@
+@startuml DevOps-Represent_devopsgirls-bootcamp-cn-2
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<api>> #d8f5d3
+  BackgroundColor<<compute>> #fddddd
+  BackgroundColor<<storage>> #fff1c9
+  BackgroundColor<<infra>> #d4f0f0
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+actor User
+
+rectangle "React Frontend" <<frontend>> as Frontend {
+  [App.js]
+  [TodoList.js]
+  [NewTodoForm.js]
+}
+
+rectangle "AWS S3 Bucket" <<storage>> as S3 {
+  [Static Website]
+}
+
+rectangle "API Gateway" <<api>> as APIGW {
+  [REST API]
+  [/{proxy+}]
+}
+
+rectangle "Lambda Function" <<compute>> as Lambda {
+  [index.js]
+  [CRUD Operations]
+}
+
+database "DynamoDB" <<storage>> as DynamoDB {
+  [Todo Items]
+}
+
+rectangle "Serverless Framework" <<infra>> as Serverless {
+  [serverless.yml]
+}
+
+User --> Frontend
+Frontend --> S3
+Frontend --> APIGW : API Calls
+APIGW --> Lambda
+Lambda --> DynamoDB : Read/Write
+Serverless --> APIGW : Deploys
+Serverless --> Lambda : Deploys
+Serverless --> DynamoDB : Creates
+Serverless --> S3 : Configures
+@enduml

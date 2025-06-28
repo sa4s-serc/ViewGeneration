@@ -1,0 +1,71 @@
+@startuml CMU-RERC-APT_tiramisu3-pr
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<mobile>> #d9e7fd
+  BackgroundColor<<frontend>> #d8f5d3
+  BackgroundColor<<backend>> #fff1c9
+  BackgroundColor<<predictor>> #fddddd
+  BackgroundColor<<aws>> #d4f0f0
+  Style roundrect
+}
+
+package "Mobile Client (Ionic/Angular)" <<mobile>> {
+  [Mobile App] as MobileApp
+  component "FavRoutesService" as FavRoutes
+  component "AlarmService" as AlarmService
+  component "LocationService" as LocationService
+  component "Google Maps" as GoogleMaps
+  MobileApp --> FavRoutes
+  MobileApp --> AlarmService
+  MobileApp --> LocationService
+  MobileApp --> GoogleMaps
+}
+
+package "Java Frontend" <<frontend>> {
+  [SchedulesForLocationServlet] as SchedulesServlet
+  [WriteFavRouteServlet] as WriteFavServlet
+  [StatusLogServlet] as StatusLogServlet
+  [OneBusAway Integration] as OBA
+  database "PostgreSQL" as Postgres
+  SchedulesServlet --> OBA
+  WriteFavServlet --> Postgres
+  StatusLogServlet --> Postgres
+}
+
+package "Backend Processing" <<backend>> {
+  [FeedGrabberPAAC] as FeedGrabber
+  [ObservationProcessor] as ObsProcessor
+  [DynamoCleaner] as DynamoCleaner
+  FeedGrabber --> ObsProcessor
+  ObsProcessor --> DynamoCleaner
+}
+
+package "Prediction Engine" <<predictor>> {
+  [Random Forest Model] as RFModel
+  [route_predict/*.py] as PredictScripts
+  RFModel --> PredictScripts
+}
+
+package "AWS Infrastructure" <<aws>> {
+  [DynamoDB] as DynamoDB
+  [SQS] as SQS
+  [SES] as SES
+  ObsProcessor --> DynamoDB
+  FeedGrabber --> SQS
+  SQS --> ObsProcessor
+}
+
+package "Alarm System" {
+  [AlarmProcessor] as AlarmProcessor
+  [AWSSendEmail] as AWSSendEmail
+  AlarmProcessor --> AWSSendEmail
+  AWSSendEmail --> SES
+}
+
+MobileApp --> SchedulesServlet
+MobileApp --> WriteFavServlet
+MobileApp --> StatusLogServlet
+SchedulesServlet --> DynamoDB
+AlarmService --> AlarmProcessor
+RFModel --> MobileApp
+@enduml

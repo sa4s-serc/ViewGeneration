@@ -1,0 +1,73 @@
+@startuml KuangRD_Autonomous-Driving
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<ros>> #FFD700
+  BackgroundColor<<control>> #90EE90
+  BackgroundColor<<perception>> #87CEFA
+  BackgroundColor<<simulator>> #FFA07A
+  BackgroundColor<<data>> #D8BFD8
+  BackgroundColor<<external>> #FF6347
+}
+
+package "ROS Nodes" <<ros>> {
+  [Waypoint Loader] as WP_Loader
+  [Waypoint Updater] as WP_Updater
+  [DBW Controller] as DBW_Controller
+  [Traffic Light Detector] as TL_Detector
+}
+
+package "Control Systems" <<control>> {
+  [PID Controller] as PID
+  [Drive-by-Wire] as DBW
+}
+
+package "Perception" <<perception>> {
+  [CNN Classifier] as CNN
+  [Image Processor] as ImageProc
+}
+
+package "Simulator" <<simulator>> {
+  [Car Simulator] as Simulator
+}
+
+package "Data Handling" <<data>> {
+  [JSON Messages] as JSON
+  [HDF5 Weights] as HDF5
+}
+
+package "External Libraries" <<external>> {
+  [Eigen] as Eigen
+  [TensorFlow/Keras] as TF
+  [BLAS/LAPACK] as BLAS
+}
+
+WP_Loader --> WP_Updater : waypoints
+WP_Updater --> DBW_Controller : target waypoints
+DBW_Controller --> PID : control signals
+PID --> DBW : actuator commands
+DBW --> Simulator : vehicle control
+
+Simulator --> TL_Detector : camera images
+TL_Detector --> ImageProc : raw images
+ImageProc --> CNN : processed images
+CNN --> TL_Detector : traffic light state
+TL_Detector --> WP_Updater : traffic light info
+
+WP_Loader --> JSON : load waypoints
+CNN --> HDF5 : load model weights
+
+DBW_Controller --> Eigen : matrix ops
+CNN --> TF : inference
+TF --> BLAS : optimized ops
+
+note right of Eigen
+  Expression Templates
+  Template Metaprogramming
+  Device Abstraction
+end note
+
+note left of TF
+  CUDA acceleration
+  when available
+end note
+@enduml

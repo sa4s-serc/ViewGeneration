@@ -1,0 +1,47 @@
+@startuml yoshixmk_remarks
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+actor "User" as User
+
+rectangle "Chrome Extension" as ChromeExt {
+  rectangle "popup.html" as Popup
+  rectangle "record.js" as RecordJS
+  Popup --> RecordJS
+}
+
+rectangle "Deno Deploy" as DenoDeploy {
+  rectangle "server.ts" as Server
+  rectangle "handlers" as Handlers {
+    rectangle "homePage.jsx" as HomePage
+    rectangle "remarks.ts" as Remarks
+    rectangle "quotes.ts" as Quotes
+    rectangle "tripPage.jsx" as TripPage
+  }
+  rectangle "queryFauna.ts" as QueryFauna
+  Server --> Handlers
+  Handlers --> QueryFauna
+}
+
+database "FaunaDB" as FaunaDB {
+  rectangle "schema.gql" as Schema
+}
+
+rectangle "GitPress" as GitPress {
+  rectangle "source/*.md" as Markdown
+}
+
+User --> ChromeExt
+ChromeExt --> Server : POST remarks
+Server --> FaunaDB : GraphQL queries
+QueryFauna --> FaunaDB
+FaunaDB --> Schema
+Handlers --> GitPress : Fetch RSS feed
+GitPress --> Markdown
+
+@enduml

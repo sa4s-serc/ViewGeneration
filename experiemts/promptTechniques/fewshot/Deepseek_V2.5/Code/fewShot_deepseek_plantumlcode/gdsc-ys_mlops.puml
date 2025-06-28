@@ -1,0 +1,50 @@
+### Output:
+@startuml gdsc-ys_mlops
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+actor "ML Developer" as Dev
+actor "CI/CD System" as CI
+
+rectangle "Client Tools" as Client {
+  rectangle "MLflow Client" as MLClient
+  rectangle "Training Scripts" as Scripts
+}
+
+rectangle "MLflow Server" as Server {
+  rectangle "Tracking Server" as Tracking
+  rectangle "Model Registry" as Registry
+}
+
+rectangle "Infrastructure" {
+  rectangle "Nginx\nReverse Proxy" as Nginx
+  rectangle "MySQL" as MySQL
+  rectangle "AWS S3" as S3
+}
+
+rectangle "Deployment" {
+  rectangle "Docker\nContainer" as Docker
+  rectangle "Model\nService" as ModelService
+}
+
+Dev --> Client
+CI --> Client
+
+MLClient --> Nginx : HTTP/HTTPS
+Scripts --> Nginx : HTTP/HTTPS
+
+Nginx --> Tracking
+Tracking --> MySQL : Metadata
+Tracking --> S3 : Artifacts
+Tracking --> Registry : Model versions
+
+Registry --> Docker : Build image
+Docker --> ModelService : Deploy
+
+ModelService --> Tracking : Log metrics
+@enduml

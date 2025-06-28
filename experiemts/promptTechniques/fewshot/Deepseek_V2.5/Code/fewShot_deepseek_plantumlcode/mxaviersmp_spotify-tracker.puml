@@ -1,0 +1,48 @@
+@startuml mxaviersmp_spotify-tracker
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<api>> #d8f5d3
+  BackgroundColor<<etl>> #fddddd
+  BackgroundColor<<db>> #fff1c9
+  BackgroundColor<<infra>> #d4f0f0
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend" <<frontend>> {
+  rectangle "Streamlit App" as Streamlit
+}
+
+package "API" <<api>> {
+  rectangle "FastAPI" as FastAPI
+  rectangle "Lambda" as Lambda
+  rectangle "API Gateway" as APIGateway
+  FastAPI --> Lambda
+  Lambda --> APIGateway
+}
+
+package "ETL" <<etl>> {
+  rectangle "Airflow" as Airflow
+  rectangle "Spotify API" as SpotifyAPI
+  Airflow --> SpotifyAPI
+}
+
+package "Database" <<db>> {
+  database "PostgreSQL (RDS)" as Postgres
+}
+
+package "Infrastructure" <<infra>> {
+  rectangle "Serverless Framework" as Serverless
+  rectangle "GitHub Actions" as GitHubActions
+  rectangle "AWS Cloud" as AWS
+}
+
+Streamlit --> APIGateway
+APIGateway --> FastAPI
+FastAPI --> Postgres
+Airflow --> Postgres
+Serverless --> AWS
+GitHubActions --> Serverless
+GitHubActions --> Airflow
+@enduml

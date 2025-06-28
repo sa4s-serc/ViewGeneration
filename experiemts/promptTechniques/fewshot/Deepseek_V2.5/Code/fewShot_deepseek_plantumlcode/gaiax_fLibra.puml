@@ -1,0 +1,61 @@
+@startuml gaiax_fLibra
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<blockchain>> #d8f5d3
+  BackgroundColor<<storage>> #fff1c9
+  BackgroundColor<<search>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+left to right direction
+
+actor "User" as user
+
+package "Frontend (Nuxt.js)" <<frontend>> {
+  rectangle "UI Components" as ui
+  rectangle "Vuex Store" as vuex
+  rectangle "Firebase Plugin" as firebase_plugin
+  rectangle "Web3 Plugin" as web3_plugin
+  rectangle "IPFS Plugin" as ipfs_plugin
+  
+  ui --> vuex
+  ui --> firebase_plugin
+  ui --> web3_plugin
+  ui --> ipfs_plugin
+}
+
+package "Blockchain" <<blockchain>> {
+  rectangle "Libra Network" as libra
+  rectangle "Ethereum Smart Contracts" as ethereum
+  database "Flibra.sol" as flibra_contract
+  database "ItemDetail.sol" as item_contract
+  
+  ethereum --> flibra_contract
+  ethereum --> item_contract
+}
+
+package "Storage" <<storage>> {
+  rectangle "Firestore" as firestore
+  rectangle "IPFS" as ipfs
+}
+
+package "Search" <<search>> {
+  rectangle "Elasticsearch" as elasticsearch
+  rectangle "Node.js Service" as node_service
+  
+  node_service --> elasticsearch
+}
+
+user --> ui
+web3_plugin --> libra
+web3_plugin --> ethereum
+firebase_plugin --> firestore
+ipfs_plugin --> ipfs
+
+flibra_contract --> firestore
+item_contract --> firestore
+
+firestore --> node_service : onSnapshot
+node_service --> firestore
+
+@enduml

@@ -1,0 +1,72 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor<<api>> #d9e7fd
+  BackgroundColor<<service>> #d8f5d3
+  BackgroundColor<<connector>> #fddddd
+  BackgroundColor<<db>> #fff1c9
+  BackgroundColor<<monitoring>> #d4f0f0
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+left to right direction
+
+rectangle "User" as User
+
+package "DORA Metrics API" <<api>> {
+  rectangle "REST API (Gin-Gonic)" as API
+  rectangle "API Handlers" as Handlers
+  rectangle "Router" as Router
+  API --> Handlers
+  Handlers --> Router
+}
+
+package "Services" <<service>> {
+  rectangle "Metrics Calculation" as MetricsService
+  rectangle "Trigger Service" as TriggerService
+}
+
+package "Connectors" <<connector>> {
+  rectangle "GitLab API" as GitLab
+  rectangle "Prometheus" as Prometheus
+}
+
+package "Data Access" <<db>> {
+  rectangle "MongoDB DAO" as DAO
+  database "MongoDB" as MongoDB
+  DAO --> MongoDB
+}
+
+package "Monitoring" <<monitoring>> {
+  rectangle "Prometheus Metrics" as PromMetrics
+}
+
+User --> API
+API --> MetricsService
+MetricsService --> DAO
+DAO --> MetricsService
+MetricsService --> GitLab : Fetch repos/commits/pipelines
+MetricsService --> Prometheus : Query alerts
+TriggerService --> GitLab : Listen for events
+TriggerService --> Prometheus : Listen for alerts
+PromMetrics --> API : Collect HTTP metrics
+
+note right of API
+  Exposes endpoints for:
+  - Integrations
+  - Dataflows
+  - Metrics retrieval
+end note
+
+note right of MetricsService
+  Calculates:
+  - Deployment Frequency
+  - Lead Time
+  - Change Failure Rate
+  - MTTR
+end note
+
+note left of TriggerService
+  Future: Event-driven
+  metrics calculation
+end note
+@enduml

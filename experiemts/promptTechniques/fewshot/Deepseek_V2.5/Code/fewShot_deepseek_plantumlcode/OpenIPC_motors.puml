@@ -1,0 +1,62 @@
+@startuml OpenIPC_motors
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+package "Application Layer" {
+  rectangle "Camera Application" as CameraApp
+}
+
+package "API Layer" {
+  rectangle "Motors Daemon" as Daemon
+  rectangle "Unix Socket API" as SocketAPI
+}
+
+package "Driver Wrapper Layer" {
+  rectangle "GPIO Driver" as GPIODriver
+  rectangle "I2C Driver" as I2CDriver
+  rectangle "SPI Driver" as SPIDriver
+  rectangle "UART Driver" as UARTDriver
+}
+
+package "Kernel Layer" {
+  rectangle "Kernel Modules" as Kernel
+}
+
+package "Hardware Layer" {
+  rectangle "Motor Hardware" as MotorHW
+  rectangle "I2C Controller" as I2CHW
+  rectangle "SPI Controller" as SPIHW
+  rectangle "UART Interface" as UARTHW
+}
+
+CameraApp --> SocketAPI : Control Commands
+SocketAPI --> Daemon : Process Requests
+Daemon --> GPIODriver : Motor Control
+Daemon --> I2CDriver : Motor Control
+Daemon --> SPIDriver : Motor Control
+Daemon --> UARTDriver : Motor Control
+
+GPIODriver --> Kernel : ioctl
+I2CDriver --> Kernel : i2c-dev
+SPIDriver --> Kernel : SPI Commands
+UARTDriver --> Kernel : Serial Commands
+
+Kernel --> MotorHW : GPIO Control
+Kernel --> I2CHW : I2C Bus
+Kernel --> SPIHW : SPI Bus
+Kernel --> UARTHW : UART Protocol
+
+note right of Daemon
+  Implements Façade Pattern
+  to provide unified interface
+end note
+
+note right of GPIODriver
+  Implements Adapter Pattern
+  for hardware-specific control
+end note
+@enduml

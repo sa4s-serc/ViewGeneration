@@ -1,0 +1,75 @@
+@startuml OpenPSD_modelbank
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<entity>> #d9e7fd
+  BackgroundColor<<usecase>> #d8f5d3
+  BackgroundColor<<provider>> #fff1c9
+  BackgroundColor<<presentation>> #fddddd
+  BackgroundColor<<external>> #d4f0f0
+  Style roundrect
+}
+
+package "Entities" <<entity>> {
+  [FinancialInstitution]
+  [AccountHolder]
+  [Account]
+  [Consent]
+  [PaymentInstruction]
+  [LedgerEntry]
+}
+
+package "Use Cases" <<usecase>> {
+  [ModelBankUsecase]
+  [FinancialInstitutionProcessor]
+  [AccountHolderProcessor]
+  [AccountProcessor]
+  [PaymentProcessor]
+}
+
+package "Providers" <<provider>> {
+  [ModelBankEntityGateway]
+  [DbProvider]
+  [PostgreSQL]
+}
+
+package "Presentation" <<presentation>> {
+  [ModelBankController]
+  [gRPC Server]
+}
+
+package "External" <<external>> {
+  [Client Applications]
+}
+
+Client Applications --> gRPC Server
+gRPC Server --> ModelBankController
+ModelBankController --> ModelBankUsecase
+ModelBankUsecase --> ModelBankEntityGateway
+ModelBankEntityGateway --> DbProvider
+DbProvider --> PostgreSQL
+
+ModelBankUsecase --> FinancialInstitutionProcessor
+ModelBankUsecase --> AccountHolderProcessor
+ModelBankUsecase --> AccountProcessor
+ModelBankUsecase --> PaymentProcessor
+
+FinancialInstitutionProcessor --> FinancialInstitution
+AccountHolderProcessor --> AccountHolder
+AccountProcessor --> Account
+PaymentProcessor --> PaymentInstruction
+PaymentProcessor --> LedgerEntry
+AccountProcessor --> Consent
+
+note right of ModelBankEntityGateway
+  Implements Repository Pattern
+end note
+
+note right of ModelBankUsecase
+  Encapsulates Business Logic
+end note
+
+note right of ModelBankController
+  Handles Request/Response
+  Translation
+end note
+@enduml

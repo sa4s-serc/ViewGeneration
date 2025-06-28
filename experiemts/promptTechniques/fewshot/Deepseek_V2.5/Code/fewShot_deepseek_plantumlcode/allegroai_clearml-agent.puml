@@ -1,0 +1,58 @@
+### Actual Output:
+@startuml allegroai_clearml-agent
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<integration>> #d8f5d3
+  BackgroundColor<<monitoring>> #fff1c9
+  BackgroundColor<<external>> #fddddd
+  BackgroundColor<<db>> #d4f0f0
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Agent" <<core>> {
+  rectangle "Task Execution" as TaskExec
+  rectangle "Requirements Manager" as ReqMgr
+  rectangle "Configuration" as Config
+  rectangle "Docker Integration" as Docker
+  rectangle "Session Manager" as Session
+}
+
+package "Integrations" <<integration>> {
+  rectangle "Kubernetes" as K8s
+  rectangle "SLURM" as SLURM
+  rectangle "ClearML Server" as ClearmlServer
+}
+
+package "Monitoring" <<monitoring>> {
+  rectangle "Resource Monitor" as ResMon
+  rectangle "Task Status Reporter" as StatusReporter
+}
+
+package "External Systems" <<external>> {
+  rectangle "GPU (NVML)" as GPU
+  rectangle "Package Managers" as PkgMgr
+}
+
+database "Task Queue" <<db>> as TaskQueue
+database "Experiment Data" <<db>> as ExpData
+
+TaskExec --> ReqMgr
+TaskExec --> Docker
+TaskExec --> Config
+TaskExec --> Session
+TaskExec --> ResMon
+TaskExec --> StatusReporter
+
+ReqMgr --> PkgMgr
+Docker --> K8s
+ResMon --> GPU
+
+Session --> ClearmlServer
+ClearmlServer --> TaskQueue
+ClearmlServer --> ExpData
+
+K8s --> ClearmlServer
+SLURM --> ClearmlServer
+@enduml

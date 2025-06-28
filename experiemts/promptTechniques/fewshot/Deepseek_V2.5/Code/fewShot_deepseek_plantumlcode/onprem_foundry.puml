@@ -1,0 +1,52 @@
+### Output:
+@startuml onprem_foundry
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Client" {
+  rectangle "gRPC Client" as grpcClient
+}
+
+package "Foundry" {
+  rectangle "Furnace (gRPC Server)" as furnace {
+    rectangle "Build Queue" as buildQueue
+    rectangle "pkgMap" as pkgMap
+    rectangle "Builder Interface" as builderInterface
+  }
+
+  rectangle "Metrics Server" as metricsServer
+  rectangle "Health Checks" as healthChecks
+}
+
+package "Build System" {
+  rectangle "Arch Build System\n(makepkg)" as makepkg
+}
+
+package "Storage" {
+  rectangle "Object Storage" as objectStorage
+}
+
+package "AUR" {
+  rectangle "Arch User Repository" as aur
+}
+
+grpcClient --> furnace : BuildRequest\nBuildResponse
+furnace --> aur : Fetch package info
+furnace --> makepkg : Build package
+furnace --> objectStorage : Upload package
+furnace --> metricsServer : Expose metrics
+furnace --> healthChecks : Health status
+
+buildQueue --> pkgMap : Track state
+pkgMap --> buildQueue : Prevent duplicates
+builderInterface --> makepkg : MakepkgBuilder
+builderInterface --> metricsServer : BuilderWithMetrics
+
+metricsServer --> furnace : Collect metrics
+healthChecks --> furnace : Monitor health
+@enduml

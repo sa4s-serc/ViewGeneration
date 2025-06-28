@@ -1,0 +1,74 @@
+@startuml adityajain10_foot365-live-streaming-chatbot-prediction-app-on-aws
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<aws>> #fff1c9
+  BackgroundColor<<data>> #fddddd
+  Style roundrect
+}
+left to right direction
+
+actor "User" as user
+
+package "Frontend" <<frontend>> {
+  rectangle "Web UI\n(HTML/CSS/JS)" as webui
+  rectangle "API Gateway Client" as apiclient
+}
+
+package "Backend Services" <<backend>> {
+  rectangle "Standings Lambda" as standings
+  rectangle "Predictions Lambda" as predictions
+  rectangle "Chatbot Lambda" as chatbot
+  rectangle "Fixtures Lambda" as fixtures
+  rectangle "Live Scores Lambda" as livescores
+}
+
+package "AWS Services" <<aws>> {
+  rectangle "API Gateway" as apigw
+  rectangle "Cognito" as cognito
+  rectangle "S3" as s3
+  rectangle "SQS" as sqs
+  rectangle "SNS" as sns
+  rectangle "Lex" as lex
+  rectangle "SageMaker" as sagemaker
+}
+
+package "Data Stores" <<data>> {
+  rectangle "DynamoDB" as dynamodb
+  rectangle "ElasticSearch" as es
+}
+
+package "Kafka Infrastructure" {
+  rectangle "Kafka Producer" as producer
+  rectangle "Kafka Consumer" as consumer
+  database "Kafka" as kafka
+}
+
+user --> webui
+webui --> apiclient
+apiclient --> apigw
+
+apigw --> standings
+apigw --> predictions
+apigw --> chatbot
+apigw --> fixtures
+apigw --> livescores
+
+standings --> dynamodb
+predictions --> sagemaker
+chatbot --> lex
+chatbot --> sqs
+fixtures --> es
+livescores --> dynamodb
+
+sqs --> chatbot
+sns --> user
+lex --> chatbot
+
+producer --> kafka
+kafka --> consumer
+consumer --> dynamodb
+
+s3 --> dynamodb : triggers\nscrapeMatchData
+webui --> cognito : auth
+@enduml

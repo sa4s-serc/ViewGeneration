@@ -1,0 +1,84 @@
+@startuml pagopa_pn-infra
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "External Systems" {
+  actor "User"
+  rectangle "Celonis" as Celonis
+  rectangle "Slack" as Slack
+}
+
+package "AWS Infrastructure" {
+  rectangle "API Gateway" as APIGW
+  rectangle "Lambda\n(Reverse Proxy)" as LambdaProxy
+  rectangle "Lambda\n(Microservices)" as LambdaMS
+  rectangle "EventBridge" as EventBridge
+  rectangle "SNS" as SNS
+  rectangle "SQS" as SQS
+  rectangle "ECS/Fargate" as ECS
+  rectangle "DynamoDB" as DynamoDB
+  rectangle "CloudWatch" as CloudWatch
+  rectangle "Kinesis" as Kinesis
+  rectangle "S3" as S3
+  rectangle "Cognito" as Cognito
+  rectangle "SSM/Secrets Manager" as SSM
+  rectangle "WAF" as WAF
+  rectangle "CloudTrail" as CloudTrail
+  rectangle "AWS Backup" as Backup
+}
+
+package "Monitoring & Logging" {
+  rectangle "Alarms" as Alarms
+  rectangle "Dashboards" as Dashboards
+  rectangle "Logs" as Logs
+}
+
+User --> APIGW
+APIGW --> LambdaProxy
+LambdaProxy --> LambdaMS
+LambdaProxy --> ECS
+
+LambdaMS --> DynamoDB
+LambdaMS --> SQS
+LambdaMS --> EventBridge
+LambdaMS --> S3
+
+ECS --> DynamoDB
+ECS --> SQS
+ECS --> EventBridge
+
+EventBridge --> LambdaMS
+EventBridge --> SNS
+SNS --> Slack
+
+SQS --> LambdaMS
+SQS --> ECS
+
+CloudWatch --> Alarms
+CloudWatch --> Dashboards
+CloudWatch --> Logs
+
+Alarms --> SNS
+Logs --> Kinesis
+Logs --> S3
+
+DynamoDB --> Backup
+DynamoDB --> Kinesis
+
+Kinesis --> Celonis
+
+APIGW --> WAF
+APIGW --> Cognito
+
+LambdaMS --> SSM
+ECS --> SSM
+
+APIGW --> CloudTrail
+LambdaMS --> CloudTrail
+ECS --> CloudTrail
+@enduml

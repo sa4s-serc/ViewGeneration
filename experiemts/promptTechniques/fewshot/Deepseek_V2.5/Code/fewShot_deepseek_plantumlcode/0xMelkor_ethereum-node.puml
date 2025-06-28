@@ -1,0 +1,55 @@
+### Actual Output:
+@startuml 0xMelkor_ethereum-node
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Google Cloud Build" {
+  rectangle "cloudbuild.yaml" as CloudBuild
+  rectangle "Secret Manager" as SecretManager
+}
+
+package "GKE Cluster" {
+  rectangle "Geth (Execution Layer)" as Geth
+  rectangle "Lighthouse (Consensus Layer)" as Lighthouse
+  rectangle "InfluxDB (Metrics)" as InfluxDB
+  rectangle "Nginx (Reverse Proxy)" as Nginx
+}
+
+package "External Access" {
+  rectangle "RPC/WebSocket Clients" as Clients
+  rectangle "Monitoring Tools" as Monitoring
+}
+
+CloudBuild --> Geth : deploys
+CloudBuild --> Lighthouse : deploys
+CloudBuild --> InfluxDB : deploys
+CloudBuild --> Nginx : deploys
+
+SecretManager --> CloudBuild : injects secrets
+
+Geth --> InfluxDB : metrics
+Lighthouse --> InfluxDB : metrics
+
+Nginx --> Geth : proxies RPC/WS
+Nginx --> InfluxDB : proxies API
+
+Clients --> Nginx : HTTP/WS
+Monitoring --> Nginx : HTTP
+
+note right of InfluxDB
+  PersistentVolume: 500Gi
+end note
+
+note right of Geth
+  PersistentVolume: 2000Gi
+end note
+
+note right of Lighthouse
+  PersistentVolume: 500Gi
+end note
+@enduml

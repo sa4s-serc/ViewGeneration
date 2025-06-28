@@ -1,0 +1,47 @@
+@startuml IBM_datastax-cassandra-clickstream
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<db>> #fff1c9
+  BackgroundColor<<auth>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+left to right direction
+
+actor "User" as user
+
+package "Frontend (Next.js/React)" <<frontend>> {
+  rectangle "Pages" as pages
+  rectangle "Components" as components
+  rectangle "Redux Store" as redux
+  pages --> components
+  components --> redux
+}
+
+package "Backend (Next.js API)" <<backend>> {
+  rectangle "API Routes" as api
+  rectangle "Clickstream Service" as service
+  api --> service
+}
+
+package "Authentication" <<auth>> {
+  rectangle "NextAuth" as auth
+}
+
+database "DataStax/Cassandra" <<db>> as cassandra
+
+user --> pages
+user --> auth
+pages --> api
+api --> auth
+service --> cassandra
+redux --> api
+
+note right of service
+  Handles:
+  - addToCart
+  - trackPageBrowsing
+  - getActivity
+end note
+@enduml

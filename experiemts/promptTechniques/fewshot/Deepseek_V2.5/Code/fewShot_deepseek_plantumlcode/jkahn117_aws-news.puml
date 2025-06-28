@@ -1,0 +1,58 @@
+@startuml jkahn117_aws-news
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend" {
+  rectangle "Next.js App" as NextJS
+  rectangle "Amplify Console" as Amplify
+}
+
+package "Backend" {
+  rectangle "RSS Feeds" as RSS
+  rectangle "Lambda\n(Ruby/Node.js)" as Lambda
+  rectangle "EventBridge" as EventBridge
+  rectangle "Step Functions" as StepFunctions
+  rectangle "AppSync\nGraphQL API" as AppSync
+}
+
+package "Storage" {
+  rectangle "S3\n(Articles/Images)" as S3
+  rectangle "DynamoDB\n(Metadata)" as DynamoDB
+  rectangle "ElastiCache\n(Redis)" as Redis
+}
+
+package "Delivery" {
+  rectangle "CloudFront\nCDN" as CloudFront
+}
+
+package "Analytics" {
+  rectangle "Pinpoint" as Pinpoint
+  rectangle "Kinesis\nFirehose" as Kinesis
+  rectangle "S3\n(Analytics)" as AnalyticsS3
+}
+
+NextJS --> AppSync
+Amplify --> NextJS
+
+RSS --> Lambda
+Lambda --> DynamoDB
+Lambda --> S3
+Lambda --> EventBridge
+EventBridge --> StepFunctions
+StepFunctions --> Lambda
+
+AppSync --> DynamoDB
+AppSync --> Redis
+AppSync --> CloudFront
+
+NextJS --> Pinpoint
+Pinpoint --> Kinesis
+Kinesis --> AnalyticsS3
+
+CloudFront --> S3
+@enduml

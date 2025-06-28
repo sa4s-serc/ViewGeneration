@@ -1,0 +1,56 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor<<perception>> #d9e7fd
+  BackgroundColor<<planning>> #d8f5d3
+  BackgroundColor<<control>> #fff1c9
+  BackgroundColor<<infra>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+left to right direction
+
+package "Perception" <<perception>> {
+  rectangle "Camera" as Camera
+  rectangle "Traffic Light\nDetection Node" as TLNode
+  rectangle "Camera Info\nPublisher" as CamInfo
+  rectangle "HSV Color\nClassifier" as Classifier
+  Camera --> TLNode
+  TLNode --> Classifier
+  CamInfo --> TLNode
+}
+
+package "Planning" <<planning>> {
+  rectangle "Waypoint\nLoader" as WPLoader
+  rectangle "Waypoint\nUpdater" as WPUpdater
+  rectangle "Waypoint\nFollower" as WPFollower
+  rectangle "Pure Pursuit\nAlgorithm" as PurePursuit
+  WPLoader --> WPUpdater
+  WPUpdater --> WPFollower
+  WPFollower --> PurePursuit
+}
+
+package "Control" <<control>> {
+  rectangle "Twist Controller\n(DBW Node)" as DBWNode
+  rectangle "PID Controller" as PID
+  rectangle "Yaw Controller" as YawCtrl
+  rectangle "LowPass Filter" as LPF
+  DBWNode --> PID
+  DBWNode --> YawCtrl
+  DBWNode --> LPF
+}
+
+package "Infrastructure" <<infra>> {
+  rectangle "ROS Bridge" as ROSBridge
+  rectangle "Simulator\n(Udacity/CARLA)" as Simulator
+  rectangle "RVIZ\nVisualizer" as RVIZ
+  ROSBridge --> Simulator
+  RVIZ --> Simulator
+}
+
+' Cross-package connections
+TLNode --> WPUpdater : traffic_light_status
+WPFollower --> DBWNode : target_waypoints
+Simulator --> Camera : camera_image
+Simulator --> DBWNode : vehicle_state
+DBWNode --> Simulator : control_commands
+@enduml

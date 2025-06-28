@@ -1,0 +1,60 @@
+@startuml Connor1996_Pokemon
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<database>> #fff1c9
+  BackgroundColor<<network>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Client" <<frontend>> {
+  rectangle "Qt GUI" as GUI {
+    component "Login Widget"
+    component "Game Lobby"
+    component "Fight Widget"
+    component "User List"
+  }
+  rectangle "JSON Serialization" as JSON
+  rectangle "Socket Client" as ClientSocket
+}
+
+package "Server" <<backend>> {
+  rectangle "Multi-threaded\nServer" as Server
+  rectangle "Request Dispatcher" as Dispatcher
+  rectangle "Pokemon Factory" as Factory
+  rectangle "Game Logic" as GameLogic
+  rectangle "Socket Server" as ServerSocket
+}
+
+package "Database" <<database>> {
+  database "SQLite" as SQLite
+  rectangle "ORM Layer" as ORM
+}
+
+package "Network" <<network>> {
+  rectangle "JSON Protocol" as JSONProto
+}
+
+GUI --> JSON : Serialize/Deserialize
+JSON --> ClientSocket : Send/Receive
+ClientSocket --> JSONProto : TCP/IP
+JSONProto --> ServerSocket
+ServerSocket --> Dispatcher
+Dispatcher --> GameLogic
+Dispatcher --> Factory
+GameLogic --> ORM
+Factory --> ORM
+ORM --> SQLite
+
+note right of Server
+  Handles multiple clients
+  via threads
+end note
+
+note right of ORM
+  Uses reflection for
+  dynamic object creation
+end note
+@enduml

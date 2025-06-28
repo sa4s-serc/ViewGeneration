@@ -1,0 +1,52 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+rectangle "IBM Spectrum Scale Cluster" as GPFS {
+  rectangle "mm commands" as MM
+  rectangle "Security Data" as Data
+}
+
+rectangle "Collector Scripts" as Collector {
+  rectangle "security_posture.py" as SecurityPosture
+  rectangle "split_json_for_kibana.py" as SplitJSON
+}
+
+rectangle "Orchestration" as Orchestration {
+  rectangle "fetch_security_posture_and_upload_to_ES.sh" as FetchScript
+  rectangle "cronjob.py" as CronJob
+}
+
+rectangle "Elasticsearch" as ES
+rectangle "Kibana" as Kibana
+
+rectangle "Configuration" as Config {
+  rectangle "security-posture.conf" as ESConfig
+  rectangle "scale-clusters.conf" as ClusterConfig
+}
+
+GPFS --> SecurityPosture : Collects\nsecurity data
+SecurityPosture --> SplitJSON : Raw JSON
+SplitJSON --> FetchScript : Split JSON files
+FetchScript --> ES : Uploads via curl
+ES --> Kibana : Visualizes\nsecurity posture
+CronJob --> FetchScript : Triggers\nperiodically
+Config --> FetchScript : Provides\nconnection details
+Config --> SecurityPosture : Provides\ncluster details
+MM --> SecurityPosture : Executes\ncommands
+SecurityPosture --> Data : Parses\noutput
+
+note right of ES
+  Security Concern:
+  Credentials stored in config
+end note
+
+note right of FetchScript
+  Performance Concern:
+  Bulk uploads via curl
+end note
+@enduml
