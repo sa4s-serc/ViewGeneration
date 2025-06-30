@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 
 # Initialize DeepSeek client
-client = OpenAI(api_key="sk-a18b61e35db14879ba5f975c2efddb32", base_url="https://api.deepseek.com/v1")
+client = OpenAI(api_key="", base_url="https://api.deepseek.com/v1")
 
 def get_mermaid_from_summary(summary, repo_name, concern, behavior, error_message=None, code=None):
     # Decide on diagram type based on behavior

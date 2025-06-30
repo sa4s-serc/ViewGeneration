@@ -7,7 +7,7 @@ from image_similarity_measures.quality_metrics import (
 )
 
 folderA = "./initial_images"
-folderB = "./oneShot_deepseek_output_images"
+folderB = "./fewShot_deepseek_output_images"
 output_csv = "./image_similarity_results.csv"
 
 def compare_images(img1, img2):
@@ -34,9 +34,11 @@ all_stems = sorted(set(mapA.keys()).union(set(mapB.keys())))
 with open(output_csv, 'w', newline='') as csvfile:
     writer = csv.writer(csvfile)
     writer.writerow(["ImageName", "SSIM", "PSNR", "RMSE", "SAM", "SRE", "UIQ"])  # Header
+    c=0
 
     for stem in all_stems:
         if stem in mapA and stem in mapB:
+            c+=1
             filenameA = mapA[stem][0]
             filenameB = mapB[stem][0]
             pathA = os.path.join(folderA, filenameA)
@@ -52,7 +54,7 @@ with open(output_csv, 'w', newline='') as csvfile:
             imgB_resized = cv2.resize(imgB, (imgA.shape[1], imgA.shape[0]))
             metrics = compare_images(imgA, imgB_resized)
             writer.writerow([stem] + [f"{float(val):.4f}" for val in metrics.values()])
-            print(f"Compared {stem}: {metrics}")
+            print(f"Compared {stem}: {metrics},{c}")
         else:
             # Image unmatched in one folder
             writer.writerow([stem] + ['NA'] * 6)

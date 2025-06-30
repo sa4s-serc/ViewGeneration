@@ -8,46 +8,52 @@ left to right direction
 
 actor User
 
-rectangle "Frontend (React)" as FE {
-  rectangle "WalletClient.ts" as WalletClient
-  rectangle "PredictionCards.api.ts" as PredictionAPI
-  rectangle "state.ts (Redux)" as Redux
+rectangle "Frontend (React)" as Frontend {
+  rectangle "Wallet Client" as WalletClient
+  rectangle "PredictionCards API" as PredictionAPI
+  rectangle "State Management" as State
 }
 
 rectangle "Aeternity Blockchain" as Blockchain {
   rectangle "PredictionCards\nSmart Contract" as Contract
+  rectangle "Oracle" as Oracle
 }
 
-rectangle "Backend Services" {
-  rectangle "Oracle Service" as OracleService
+rectangle "Backend Services" as Backend {
   rectangle "Process Prediction\nService" as PredictionService
+  rectangle "Oracle Service" as OracleService
 }
 
-rectangle "External Services" {
+rectangle "External Services" as External {
   rectangle "CoinGecko API" as CoinGecko
   rectangle "IPFS" as IPFS
 }
 
-User --> FE
-FE --> WalletClient
-FE --> PredictionAPI
-PredictionAPI --> Contract : dry-run calls
-WalletClient --> Contract : signed transactions
-PredictionAPI --> IPFS : store/load NFT images
+' Frontend connections
+User --> Frontend
+Frontend --> WalletClient
+Frontend --> PredictionAPI
+PredictionAPI --> Contract
+WalletClient --> Blockchain
+State --> WalletClient
 
-PredictionService --> Contract : monitor predictions\ncall ask_for_winning_option
-Contract --> PredictionService : process_oracle_response
+' Backend services
+PredictionService --> Contract : poll for CLOSED predictions
 PredictionService --> OracleService : trigger oracle query
-OracleService --> Contract : respond to oracle query
+OracleService --> Oracle : register/extend oracle
 OracleService --> CoinGecko : fetch price data
+OracleService --> Oracle : respond to query
+Oracle --> Contract : process_oracle_response
 
-note right of Contract
-  Key functions:
-  - create_prediction
-  - rent_nft
-  - deposit_to_nft
-  - claim
-  - ask_for_winning_option
-  - process_oracle_response
+' External services
+Frontend --> IPFS : load NFT images
+Contract --> IPFS : store NFT metadata
+
+note right of OracleService
+  Periodically extends oracle TTL
+end note
+
+note right of PredictionService
+  Monitors blockchain for\nCLOSED predictions
 end note
 @enduml

@@ -1,5 +1,4 @@
-### Output:
-@startuml hyeonsangjeon_youtube-dl-nas
+@startuml
 skinparam rectangle {
   BackgroundColor #ffffff
   BorderColor black
@@ -7,51 +6,37 @@ skinparam rectangle {
 }
 left to right direction
 
-actor User
+actor "User" as user
+rectangle "Web Browser" as browser
+rectangle "REST API Client" as apiClient
 
-rectangle "Web Browser" as Browser {
-  rectangle "Login Page" as Login
-  rectangle "Queue Dashboard" as Dashboard
-  rectangle "WebSocket Client" as WSClient
+rectangle "youtube-dl-nas" as server {
+  rectangle "Bottle Web Server" as bottle
+  rectangle "WebSocket Handler" as ws
+  rectangle "Download Queue" as queue
+  rectangle "Download Worker" as worker
+  rectangle "Auth Manager" as auth
+  rectangle "Update Scheduler" as scheduler
 }
 
-rectangle "Web Server" as Server {
-  rectangle "Bottle Framework" as Bottle
-  rectangle "REST API" as API
-  rectangle "Auth Handler" as Auth
-  rectangle "Queue Manager" as Queue
-  rectangle "Download Worker" as Worker
-  rectangle "WebSocket Server" as WSServer
-  rectangle "Scheduler" as Scheduler
-}
+database "Auth.json" as authDB
+database "downfolder" as downloads
+cloud "YouTube" as youtube
 
-database "Auth.json" as AuthDB
-database "Downloaded Files" as Downloads
+user --> browser : Accesses UI
+apiClient --> bottle : REST API calls
+browser --> bottle : HTTP requests
+bottle --> auth : Authenticates
+auth --> authDB : Reads credentials
 
-cloud "YouTube" as YouTube
+bottle --> queue : Enqueues requests
+queue --> worker : Processes next item
+worker --> youtube : Downloads video
+worker --> downloads : Saves files
 
-User --> Browser
-Browser --> Login : Submit Credentials
-Login --> Auth : Verify
-Auth --> AuthDB : Check Credentials
+bottle --> ws : Registers connection
+worker --> ws : Sends progress updates
+ws --> browser : Real-time updates
 
-Browser --> Dashboard : View Queue
-Dashboard --> API : GET /queue
-API --> Queue : Get Status
-Queue --> API : Return Status
-API --> Dashboard : Display Status
-
-Browser --> WSClient : Connect
-WSClient --> WSServer : Establish Connection
-Worker --> WSServer : Progress Updates
-WSServer --> WSClient : Push Notifications
-
-Browser --> API : POST /download
-API --> Queue : Add Request
-Queue --> Worker : Process Next
-Worker --> YouTube : Download Video
-Worker --> Downloads : Save File
-Worker --> Queue : Update Status
-
-Scheduler --> Worker : Daily Update yt-dlp
+scheduler --> worker : Updates yt-dlp
 @enduml

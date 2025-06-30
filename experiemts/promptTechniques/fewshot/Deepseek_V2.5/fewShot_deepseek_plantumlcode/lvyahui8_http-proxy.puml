@@ -1,6 +1,5 @@
 ### Actual Output:
-@startuml lvyahui8_http-proxy
-left to right direction
+@startuml
 skinparam rectangle {
   BackgroundColor<<client>> #d9e7fd
   BackgroundColor<<proxy>> #d8f5d3
@@ -9,6 +8,7 @@ skinparam rectangle {
   Style roundrect
 }
 skinparam defaultTextAlignment center
+left to right direction
 
 package "Client" <<client>> {
   [Web Browser] as Browser
@@ -19,38 +19,40 @@ package "HTTP Proxy" <<proxy>> {
   rectangle "HttpProxyServer" as ProxyServer
   rectangle "ClientToProxyHandler" as ClientHandler
   rectangle "ProxyToServerInboundHandler" as ServerHandler
-  rectangle "EntitysManager" as EntityManager
   rectangle "GlobalExceptionHandler" as ExceptionHandler
-  
+  rectangle "EntitysManager" as EntityManager
+  database "entitys.json" as ConfigFile <<config>>
+
   ProxyServer --> ClientHandler
   ClientHandler --> ServerHandler
-  ClientHandler --> EntityManager
   ClientHandler --> ExceptionHandler
-  
-  package "Filters" {
-    [ProxyRequestFilter] as RequestFilter
-    [ProxyResponseFilter] as ResponseFilter
-  }
-  
-  ClientHandler --> RequestFilter
-  ServerHandler --> ResponseFilter
+  EntityManager --> ConfigFile
+  ClientHandler --> EntityManager
+  ServerHandler --> EntityManager
 }
 
-package "Backend Server" <<server>> {
+package "Backend Servers" <<server>> {
+  [Application Server 1] as AppServer1
+  [Application Server 2] as AppServer2
   [Test Server] as TestServer
-  [Production Server] as ProdServer
-}
-
-package "Configuration" <<config>> {
-  [entitys.json] as ConfigFile
-  [log4j2.xml] as LogConfig
 }
 
 Browser --> ProxyServer
 TestClient --> ProxyServer
+ClientHandler --> AppServer1
+ClientHandler --> AppServer2
+ServerHandler --> AppServer1
+ServerHandler --> AppServer2
 ProxyServer --> TestServer
-ProxyServer --> ProdServer
 
-EntityManager --> ConfigFile
-ProxyServer --> LogConfig
+note right of EntityManager
+  Dynamically reloads
+  routing rules from
+  entitys.json
+end note
+
+note right of ExceptionHandler
+  Centralized error handling
+  with standardized responses
+end note
 @enduml

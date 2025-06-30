@@ -1,55 +1,73 @@
 @startuml pau-minoves_jseats
 left to right direction
 skinparam rectangle {
-  BackgroundColor<<core>> #d9e7fd
-  BackgroundColor<<model>> #d8f5d3
-  BackgroundColor<<methods>> #fff1c9
-  BackgroundColor<<cli>> #fddddd
-  BackgroundColor<<config>> #d4f0f0
+  BackgroundColor #ffffff
+  BorderColor black
   Style roundrect
 }
 skinparam defaultTextAlignment center
 
-package "Core Components" <<core>> {
-  rectangle "SeatAllocatorProcessor" as Processor
-  rectangle "SeatAllocatorResolver" as Resolver
+package "Input Sources" {
+  rectangle "XML Configuration" as xmlConfig
+  rectangle "Programmatic API" as apiInput
+  rectangle "CLI Arguments" as cliInput
 }
 
-package "Data Model" <<model>> {
-  rectangle "Tally" as Tally
-  rectangle "Candidate" as Candidate
-  rectangle "Result" as Result
+package "Core Processing" {
+  rectangle "SeatAllocatorLauncher" as launcher
+  rectangle "ProcessorConfig" as config
+  rectangle "SeatAllocatorProcessor" as processor
+  rectangle "SeatAllocatorResolver" as resolver
+
+  package "Model" {
+    rectangle "Tally" as tally
+    rectangle "Candidate" as candidate
+    rectangle "Result" as result
+  }
+
+  package "Components" {
+    rectangle "SeatAllocationMethod" as method
+    rectangle "TallyFilter" as filter
+    rectangle "ResultDecorator" as decorator
+    rectangle "TieBreaker" as tieBreaker
+  }
 }
 
-package "Allocation Methods" <<methods>> {
-  rectangle "Majority" as Majority
-  rectangle "LargestRemainder" as LR
-  rectangle "HighestAverages" as HA
-  rectangle "EqualProportions" as EP
-  rectangle "RankedByVotes" as RBV
+package "Output" {
+  rectangle "Allocation Result" as output
+  rectangle "Logging (SLF4J)" as logging
 }
 
-package "Configuration" <<config>> {
-  rectangle "ProcessorConfig" as Config
-  rectangle "XML Serialization" as XML
-}
+xmlConfig --> config
+apiInput --> processor
+cliInput --> launcher
 
-package "CLI Interface" <<cli>> {
-  rectangle "SeatAllocatorLauncher" as CLI
-  rectangle "CommandParser" as Parser
-}
+launcher --> processor
+processor --> config
+processor --> resolver
+processor --> tally
+processor --> result
 
-Processor --> Resolver : resolves
-Processor --> Tally : processes
-Processor --> Result : generates
-Resolver --> Majority : creates
-Resolver --> LR : creates
-Resolver --> HA : creates
-Resolver --> EP : creates
-Resolver --> RBV : creates
-Tally --> Candidate : contains
-Config --> XML : serializes/deserializes
-CLI --> Parser : uses
-CLI --> Processor : executes
-CLI --> Config : loads
+resolver --> method
+resolver --> filter
+resolver --> decorator
+resolver --> tieBreaker
+
+tally --> candidate
+method --> result
+filter --> tally
+decorator --> result
+tieBreaker --> result
+
+processor --> output
+processor --> logging
+
+note right of method
+  Includes:
+  - Majority-based
+  - Largest Remainder
+  - Highest Averages
+  - Equal Proportions
+  - Ranked by Votes
+end note
 @enduml
