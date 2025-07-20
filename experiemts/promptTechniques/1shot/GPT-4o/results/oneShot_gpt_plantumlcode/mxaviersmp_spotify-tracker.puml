@@ -1,0 +1,60 @@
+```plantuml
+@startuml mxaviersmp_spotify-tracker
+skinparam rectangle {
+  BackgroundColor<<api>> #d9e7fd
+  BackgroundColor<<etl>> #fddddd
+  BackgroundColor<<database>> #fff1c9
+  BackgroundColor<<serverless>> #d8f5d3
+  BackgroundColor<<cicd>> #f0d9ff
+  BackgroundColor<<ui>> #e8f8f5
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "API (FastAPI)" <<api>> {
+  rectangle "User Authentication\n(OAuth2)" as Auth
+  rectangle "User Data Retrieval\n(Tracks, Artists, Genres)" as UserData
+  rectangle "Admin Functions\n(User, Scope Mgmt)" as Admin
+  Auth --> UserData
+  UserData --> Admin
+}
+
+package "ETL (Apache Airflow)" <<etl>> {
+  rectangle "Extraction\n(Spotify Listening History)" as Extraction
+  rectangle "Transformation\n(Enrich Track, Artist Info)" as Transformation
+  rectangle "Loading\n(Database)" as Loading
+  Extraction --> Transformation
+  Transformation --> Loading
+}
+
+database "PostgreSQL\n(AWS RDS)" <<database>> as DB
+rectangle "ormar ORM\n(SQLAlchemy, asyncpg)" as ORM
+rectangle "Alembic Migrations" as Alembic
+Loading --> DB
+ORM --> DB
+Alembic --> DB
+
+package "Serverless Deployment\n(Serverless Framework)" <<serverless>> {
+  rectangle "AWS Lambda\n(FastAPI as Function)" as Lambda
+  rectangle "AWS API Gateway" as APIGateway
+  Lambda --> APIGateway
+}
+
+package "CI/CD (GitHub Actions)" <<cicd>> {
+  rectangle "Serverless Deployment" as Deployment
+  rectangle "Database Migration" as DBMigration
+  Deployment --> Lambda
+  DBMigration --> Alembic
+}
+
+package "UI (Streamlit)" <<ui>> {
+  rectangle "Data Interaction" as Interaction
+  rectangle "Data Visualization" as Visualization
+  Interaction --> Visualization
+}
+
+APIGateway --> Auth
+APIGateway --> UserData
+APIGateway --> Admin
+@enduml
+```

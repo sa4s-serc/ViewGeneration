@@ -1,0 +1,53 @@
+@startuml nrephi_jupyter-spark-hadoop-docker
+
+!define RECTANGLE component
+
+skinparam component {
+  BackgroundColor<<container>> LightBlue
+  BorderColor<<container>> Black
+}
+
+cloud "Docker Environment" {
+  [JupyterLab]<<container>>
+  [Spark Master]<<container>>
+  [Spark Worker 1]<<container>>
+  [Spark Worker 2]<<container>>
+  [Hadoop NameNode]<<container>>
+  [Hadoop DataNode]<<container>>
+  [Hive Metastore]<<container>>
+  [Hive Server]<<container>>
+  [PostgreSQL]<<container>>
+  [Hue]<<container>>
+  [MySQL]<<container>>
+}
+
+RECTANGLE "Shared Workspace" as workspace
+RECTANGLE "Custom Docker Network" as network
+
+[JupyterLab] -- workspace
+[Spark Master] -- workspace
+[Spark Worker 1] -- workspace
+[Spark Worker 2] -- workspace
+[Hadoop NameNode] -- workspace
+[Hadoop DataNode] -- workspace
+
+[JupyterLab] -- network
+[Spark Master] -- network
+[Spark Worker 1] -- network
+[Spark Worker 2] -- network
+[Hadoop NameNode] -- network
+[Hadoop DataNode] -- network
+[Hive Metastore] -- network
+[Hive Server] -- network
+[PostgreSQL] -- network
+[Hue] -- network
+[MySQL] -- network
+
+[Spark Master] -- [Spark Worker 1]
+[Spark Master] -- [Spark Worker 2]
+[Hadoop NameNode] -- [Hadoop DataNode]
+[Hive Metastore] -- [PostgreSQL]
+[Hive Server] -- [Hive Metastore]
+[Hue] -- [MySQL]
+
+@enduml

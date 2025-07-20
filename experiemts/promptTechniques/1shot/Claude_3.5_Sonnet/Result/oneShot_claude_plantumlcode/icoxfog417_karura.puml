@@ -1,0 +1,58 @@
+@startuml icoxfog417_karura
+
+actor User
+participant "Kintone UI\n(Master App & Plugin)" as KintoneUI
+participant "Karura Server" as Server
+participant "ModelManager" as ModelManager
+participant "ModelBuilder" as ModelBuilder
+participant "FieldManager" as FieldManager
+participant "DataSet" as DataSet
+database "Kintone API" as KintoneAPI
+database "Model Store" as ModelStore
+
+User -> KintoneUI: Configure ML task
+KintoneUI -> Server: POST /train
+activate Server
+
+Server -> ModelManager: build_model()
+activate ModelManager
+
+ModelManager -> FieldManager: load()
+ModelManager -> DataSet: load_dataset()
+DataSet -> KintoneAPI: Fetch data
+KintoneAPI --> DataSet: Return data
+
+ModelManager -> ModelBuilder: build()
+activate ModelBuilder
+ModelBuilder -> ModelBuilder: select_model()
+ModelBuilder -> ModelBuilder: tune_parameters()
+ModelBuilder --> ModelManager: Return trained model
+deactivate ModelBuilder
+
+ModelManager -> ModelStore: Save model
+ModelManager --> Server: Return training results
+deactivate ModelManager
+
+Server --> KintoneUI: Return training status
+deactivate Server
+
+User -> KintoneUI: Request prediction
+KintoneUI -> Server: POST /predict
+activate Server
+
+Server -> ModelManager: predict()
+activate ModelManager
+ModelManager -> ModelStore: Load model
+ModelStore --> ModelManager: Return model
+ModelManager -> DataSet: load_dataset()
+DataSet -> KintoneAPI: Fetch data
+KintoneAPI --> DataSet: Return data
+ModelManager --> Server: Return prediction
+deactivate ModelManager
+
+Server --> KintoneUI: Return prediction results
+deactivate Server
+
+KintoneUI -> User: Display prediction
+
+@enduml

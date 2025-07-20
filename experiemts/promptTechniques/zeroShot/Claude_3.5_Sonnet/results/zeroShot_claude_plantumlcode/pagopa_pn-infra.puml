@@ -1,0 +1,29 @@
+@startuml
+participant "API Gateway" as API
+participant "Lambda Reverse Proxy" as LRP
+participant "EventBridge" as EB
+participant "Lambda Functions" as LF
+participant "ECS Microservices" as ECS
+participant "SQS Queues" as SQS
+participant "SNS Topics" as SNS
+participant "DynamoDB" as DDB
+participant "S3" as S3
+participant "CloudWatch" as CW
+
+API -> LRP: Route request
+LRP -> ECS: Forward to appropriate microservice
+ECS -> DDB: Read/Write data
+ECS -> S3: Store/Retrieve files
+ECS -> SQS: Send/Receive messages
+ECS -> SNS: Publish events
+SNS -> LF: Trigger Lambda function
+SNS -> EB: Route events
+EB -> LF: Trigger Lambda function
+EB -> ECS: Trigger microservice action
+LF -> DDB: Process data
+LF -> S3: Process files
+LF -> SQS: Send/Receive messages
+ECS -> CW: Send logs and metrics
+LF -> CW: Send logs and metrics
+CW -> SNS: Trigger alarms
+@enduml

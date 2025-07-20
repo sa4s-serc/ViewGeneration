@@ -1,0 +1,59 @@
+```plantuml
+@startuml cap-ntu_Video-to-Retail-Platform
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<processing>> #fddddd
+  BackgroundColor<<storage>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend (React)" <<frontend>> {
+  rectangle "Dashboard" as Dashboard
+  rectangle "Redux State Management" as Redux
+  rectangle "Material-UI Components" as MaterialUI
+  Dashboard --> Redux
+  Dashboard --> MaterialUI
+}
+
+package "Backend (Django)" <<backend>> {
+  rectangle "RESTful API" as RESTAPI
+  rectangle "gRPC API\n(Protobuf)" as gRPCAPI
+  rectangle "API Layer" as APILayer
+  APILayer --> RESTAPI
+  APILayer --> gRPCAPI
+}
+
+package "Video Processing" <<processing>> {
+  rectangle "HysiaDecode\n(FFmpeg, CUDA)" as HysiaDecode
+  rectangle "Multimodal Data Processing" as MultimodalProcessing
+  rectangle "System Monitoring" as SystemMonitoring
+  rectangle "Object Detection\n(SSD, Faster R-CNN)" as ObjectDetection
+  rectangle "Scene Recognition\n(Places365, SoundNet)" as SceneRecognition
+  rectangle "Face Recognition" as FaceRecognition
+  HysiaDecode --> MultimodalProcessing
+  MultimodalProcessing --> ObjectDetection
+  MultimodalProcessing --> SceneRecognition
+  MultimodalProcessing --> FaceRecognition
+  MultimodalProcessing --> SystemMonitoring
+}
+
+package "Storage and Data Handling" <<storage>> {
+  rectangle "SQLite Database" as SQLiteDB
+  rectangle "Pickle Files\n(Indexing)" as PickleFiles
+  SQLiteDB --> PickleFiles
+}
+
+package "Deployment" <<backend>> {
+  rectangle "Docker Container Management" as Docker
+  rectangle "Clipper Integration" as Clipper
+  Docker --> Clipper
+}
+
+Dashboard --> APILayer
+APILayer --> MultimodalProcessing
+APILayer --> SQLiteDB
+
+@enduml
+```

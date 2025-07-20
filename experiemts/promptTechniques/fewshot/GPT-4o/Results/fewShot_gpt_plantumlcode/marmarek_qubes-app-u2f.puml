@@ -1,0 +1,53 @@
+```plantuml
+@startuml marmarek_qubes-app-u2f
+skinparam rectangle {
+  BackgroundColor #f0f0f0
+  BorderColor black
+  Style roundrect
+}
+skinparam shadowing false
+skinparam linetype ortho
+
+actor User
+
+package "Qubes OS" {
+  package "Browser VM" {
+    rectangle "CTAPHID Emulation" as CTAPHID
+    rectangle "Qrexec Client" as QrexecClient
+    User --> CTAPHID
+  }
+
+  cloud "Qrexec IPC" as QrexecIPC
+
+  package "sys-usb VM" {
+    rectangle "Physical USB Device" as USBDevice
+    rectangle "CTAP Protocol Handlers" as ProtocolHandlers
+    rectangle "Qrexec Server" as QrexecServer
+    rectangle "Policy Enforcement" as PolicyEnforcement
+    rectangle "Systemd Services" as Systemd
+
+    QrexecServer --> ProtocolHandlers
+    ProtocolHandlers --> USBDevice
+  }
+}
+
+CTAPHID --> QrexecClient
+QrexecClient --> QrexecIPC
+QrexecIPC --> QrexecServer
+QrexecServer --> PolicyEnforcement
+Systemd --> ProtocolHandlers
+
+note right of ProtocolHandlers
+  CTAP1/U2F and CTAP2
+end note
+
+note right of Systemd
+  Manages CTAP Proxy Daemon
+end note
+
+note left of PolicyEnforcement
+  Qrexec Policy Files
+end note
+
+@enduml
+```

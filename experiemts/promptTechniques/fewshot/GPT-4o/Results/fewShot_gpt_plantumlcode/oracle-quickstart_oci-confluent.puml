@@ -1,0 +1,62 @@
+```plantuml
+@startuml oracle-quickstart_oci-confluent
+
+skinparam rectangle {
+  BackgroundColor #dff0ff
+  BorderColor black
+  Style roundrect
+}
+
+left to right direction
+
+package "OCI Infrastructure" {
+  rectangle "Virtual Network" as VNet
+  rectangle "Subnets" as Subnets
+  rectangle "Instances" as Instances
+  rectangle "Volumes" as Volumes
+  rectangle "Security Lists" as SecurityLists
+}
+
+package "Confluent Components" {
+  rectangle "Kafka Brokers" as KafkaBrokers
+  rectangle "Zookeeper" as Zookeeper
+  rectangle "Schema Registry" as SchemaRegistry
+  rectangle "REST Proxy" as RESTProxy
+  rectangle "Connect" as Connect
+  rectangle "KSQL" as KSQL
+  rectangle "Control Center\n(Enterprise Only)" as ControlCenter
+}
+
+package "Integration" {
+  rectangle "Oracle Object Storage" as ObjectStorage
+  rectangle "Autonomous Data Warehouse" as ADW
+  rectangle "Autonomous Transaction Processing" as ATP
+}
+
+package "Configuration & Scripts" {
+  rectangle "Terraform Modules" as TFModules
+  rectangle "Shell Scripts" as ShellScripts
+}
+
+VNet --> Subnets
+Subnets --> Instances
+Instances --> Volumes
+Instances --> SecurityLists
+
+Instances --> KafkaBrokers
+Instances --> Zookeeper
+Instances --> SchemaRegistry
+Instances --> RESTProxy
+Instances --> Connect
+Instances --> KSQL
+Instances --> ControlCenter
+
+Connect --> ObjectStorage : "S3 API"
+Connect --> ADW : "JDBC"
+Connect --> ATP : "JDBC"
+
+TFModules --> Instances
+ShellScripts --> Instances
+
+@enduml
+```

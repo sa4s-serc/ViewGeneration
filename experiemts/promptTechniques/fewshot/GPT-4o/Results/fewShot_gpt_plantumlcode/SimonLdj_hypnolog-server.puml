@@ -1,0 +1,53 @@
+```plantuml
+@startuml SimonLdj_hypnolog-server
+
+skinparam rectangle {
+  BackgroundColor #f0f0f0
+  BorderColor black
+  Style roundrect
+}
+
+left to right direction
+
+package "Server" {
+  rectangle "Node.js/Express\nServer" as Server
+  rectangle "Socket.IO" as SocketIO
+  rectangle "Ajv" as Ajv
+  rectangle "ConfigFactory" as ConfigFactory
+  rectangle "routes/logger.js\n(Log Route)" as LogRoute
+}
+
+package "Web UI" {
+  rectangle "HTML/CSS" as HTMLCSS #e0e0e0
+  rectangle "JavaScript\n(SystemJS, JQuery)" as JavaScript #e0e0e0
+  rectangle "client.html" as ClientHTML
+  rectangle "client.js" as ClientJS
+  rectangle "WindowsDispatcher" as WindowsDispatcher
+  rectangle "WindowsFilter" as WindowsFilter
+  rectangle "VisualizerDispatcher" as VisualizerDispatcher
+  rectangle "Visualizers\n(Plugins)" as Visualizers
+}
+
+package "Utilities" {
+  rectangle "hypnolog.sh\n(Command-line)" as HypnologCLI
+}
+
+Server --> SocketIO
+Server --> Ajv
+Server --> LogRoute
+Server --> ConfigFactory
+
+LogRoute --> SocketIO : real-time\nbroadcast
+LogRoute --> Server : /status endpoint
+
+JavaScript --> HTMLCSS
+ClientHTML --> JavaScript
+ClientJS --> WindowsDispatcher
+ClientJS --> VisualizerDispatcher
+WindowsDispatcher --> WindowsFilter
+VisualizerDispatcher --> Visualizers
+
+HypnologCLI -[hidden]--> Server : logs via\nHTTP POST
+
+@enduml
+```

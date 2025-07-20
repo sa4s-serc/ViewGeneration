@@ -1,0 +1,49 @@
+@startuml zalando-incubator_fabric-gateway
+
+actor "API Client" as client
+participant "Kubernetes API" as k8s
+participant "FabricGateway Operator" as operator
+participant "Skipper" as skipper
+participant "Backend Service" as backend
+database "Zalando IAM" as iam
+
+client -> k8s : Request API
+k8s -> operator : Notify FabricGateway CRD change
+activate operator
+
+operator -> operator : Validate FabricGateway resource
+operator -> operator : Generate Ingress resource
+operator -> k8s : Apply Ingress resource
+operator -> skipper : Update routes
+
+deactivate operator
+
+client -> skipper : API request
+activate skipper
+
+skipper -> iam : Authenticate (if required)
+iam --> skipper : Authentication result
+
+alt Authentication successful
+    skipper -> skipper : Authorize request
+    
+    alt Authorization successful
+        skipper -> skipper : Apply rate limiting
+        
+        alt Rate limit not exceeded
+            skipper -> backend : Forward request
+            backend --> skipper : Response
+            skipper --> client : API response
+        else Rate limit exceeded
+            skipper --> client : 429 Too Many Requests
+        end
+    else Authorization failed
+        skipper --> client : 403 Forbidden
+    end
+else Authentication failed
+    skipper --> client : 401 Unauthorized
+end
+
+deactivate skipper
+
+@enduml

@@ -1,0 +1,75 @@
+```plantuml
+@startuml kerollesroshdi_Cima-
+skinparam rectangle {
+  BackgroundColor<<app>> #d9e7fd
+  BackgroundColor<<data>> #d8f5d3
+  BackgroundColor<<domain>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "App Layer" <<app>> {
+  rectangle "AppDelegate.swift" as AppDelegate
+  rectangle "AppCoordinator.swift" as AppCoordinator
+  package "Scenes" {
+    rectangle "NowPlayingVC" as NowPlayingVC
+    rectangle "TopRatedVC" as TopRatedVC
+    rectangle "SearchVC" as SearchVC
+    rectangle "MovieDetailsVC" as MovieDetailsVC
+    rectangle "BrowseVM.swift" as BrowseVM
+    rectangle "SearchVM.swift" as SearchVM
+    rectangle "MovieDetailsVM.swift" as MovieDetailsVM
+  }
+  rectangle "BaseViewController.swift" as BaseVC
+  rectangle "TextyTabBar" as TextyTabBar
+  rectangle "StateView" as StateView
+}
+
+package "Data Layer" <<data>> {
+  rectangle "RemoteMoviesDataSource.swift" as RemoteDataSource
+  rectangle "MoviesService.swift" as MoviesService
+  rectangle "RxSwift+Moya+Extensions.swift" as MoyaExtensions
+  rectangle "MoviesRepositoryImpl.swift" as MoviesRepositoryImpl
+}
+
+package "Domain Layer" <<domain>> {
+  rectangle "MoviesRepository.swift" as MoviesRepository
+  package "UseCases" {
+    rectangle "BrowseUseCase" as BrowseUseCase
+    rectangle "SearchUseCase" as SearchUseCase
+    rectangle "MovieDetailsUseCase" as MovieDetailsUseCase
+  }
+  package "Entities" {
+    rectangle "Movie" as Movie
+    rectangle "MovieDetails" as MovieDetails
+    rectangle "Genre" as Genre
+    rectangle "AppError" as AppError
+    rectangle "Page" as Page
+  }
+}
+
+AppDelegate --> AppCoordinator
+AppCoordinator --> NowPlayingVC
+AppCoordinator --> TopRatedVC
+AppCoordinator --> SearchVC
+AppCoordinator --> MovieDetailsVC
+NowPlayingVC --> BrowseVM
+TopRatedVC --> BrowseVM
+SearchVC --> SearchVM
+MovieDetailsVC --> MovieDetailsVM
+BaseVC <-- BrowseVM
+BaseVC <-- SearchVM
+BaseVC <-- MovieDetailsVM
+BrowseVM --> BrowseUseCase
+SearchVM --> SearchUseCase
+MovieDetailsVM --> MovieDetailsUseCase
+BrowseUseCase --> MoviesRepository
+SearchUseCase --> MoviesRepository
+MovieDetailsUseCase --> MoviesRepository
+MoviesRepositoryImpl --> MoviesRepository
+MoviesRepositoryImpl --> RemoteDataSource
+RemoteDataSource --> MoviesService
+MoyaExtensions --> MoviesService
+StateView <-- AppError
+@enduml
+```

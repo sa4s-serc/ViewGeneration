@@ -1,0 +1,72 @@
+```plantuml
+@startuml greatfarmer_fifarm
+skinparam rectangle {
+  BackgroundColor<<controller>> #f5f5f5
+  BackgroundColor<<service>> #e0f7fa
+  BackgroundColor<<dataaccess>> #ffecb3
+  BackgroundColor<<util>> #f3e5f5
+  BackgroundColor<<config>> #e1bee7
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "FIFArm Application" {
+  package "Controllers" <<controller>> {
+    rectangle "IndexController" as IndexController
+    rectangle "PathController" as PathController
+    rectangle "JsonController" as JsonController
+  }
+
+  package "Services" <<service>> {
+    rectangle "HttpRequestService" as HttpRequestService
+    rectangle "MongoService" as MongoService
+    rectangle "LogService" as LogService
+  }
+
+  package "Data Access" <<dataaccess>> {
+    rectangle "Spring Data MongoDB" as MongoDB
+  }
+
+  package "Utility Classes" <<util>> {
+    rectangle "FileUtils" as FileUtils
+    rectangle "DateUtils" as DateUtils
+    rectangle "JsonUtils" as JsonUtils
+  }
+
+  package "Configuration" <<config>> {
+    rectangle "application.yml" as AppConfig
+    rectangle "logback.xml" as LogConfig
+    rectangle "RequestLoggingFilterConfig" as RequestLoggingConfig
+  }
+
+  package "Web Interface" {
+    rectangle "Thymeleaf Templates" as Templates
+    rectangle "Static Assets\n(CSS, JS, Images)" as StaticAssets
+  }
+
+  package "Scheduled Tasks" {
+    rectangle "Scheduler" as Scheduler
+  }
+}
+
+IndexController --> Templates
+PathController --> Templates
+JsonController --> MongoService
+JsonController --> HttpRequestService
+HttpRequestService --> MongoDB
+MongoService --> MongoDB
+
+Scheduler --> HttpRequestService
+
+RequestLoggingConfig --> LogService
+LogConfig --> LogService
+
+AppConfig --> HttpRequestService
+AppConfig --> MongoService
+
+FileUtils --> JsonController
+DateUtils --> Scheduler
+JsonUtils --> JsonController
+
+@enduml
+```

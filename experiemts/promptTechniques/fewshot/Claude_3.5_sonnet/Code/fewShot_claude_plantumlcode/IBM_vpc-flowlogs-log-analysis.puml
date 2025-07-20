@@ -1,0 +1,26 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam defaultTextAlignment center
+
+actor "COS Trigger" as trigger
+cloud "IBM Cloud" {
+  component "IBM Cloud Functions" {
+    [handler.js] as handler
+  }
+  database "COS" {
+    [Receiver Bucket] as receiver
+    [Archive Bucket] as archive
+  }
+  [IBM Log Analysis] as logAnalysis
+}
+
+trigger --> receiver : New log file
+receiver --> handler : Trigger event
+handler --> receiver : Retrieve log
+handler --> handler : Decompress & Parse
+handler --> handler : Transform data
+handler --> logAnalysis : Forward logs
+handler --> archive : Copy processed logs
+handler --> receiver : Delete original log
+
+@enduml

@@ -1,0 +1,55 @@
+@startuml qnib_qframe
+
+skinparam component {
+  BackgroundColor<<collector>> LightBlue
+  BackgroundColor<<filter>> LightGreen
+  BackgroundColor<<handler>> LightYellow
+}
+
+package "qnib_qframe" {
+  [Configuration] as config
+  [QChan] as qchan
+  
+  package "Collectors" <<collector>> {
+    [File Collector]
+    [TCP Collector]
+    [Docker Events Collector]
+  }
+  
+  package "Filters" <<filter>> {
+    [Grok Parser]
+    [Container Metadata Enricher]
+  }
+  
+  package "Handlers" <<handler>> {
+    [Log Writer]
+    [InfluxDB Writer]
+    [Elasticsearch Writer]
+  }
+}
+
+database "Data Sources" as sources
+database "Output Destinations" as destinations
+
+sources --> Collectors
+Collectors --> qchan
+qchan --> Filters
+Filters --> qchan
+qchan --> Handlers
+Handlers --> destinations
+
+config --> Collectors
+config --> Filters
+config --> Handlers
+
+note right of qchan
+  Broadcast mechanism
+  for data distribution
+end note
+
+note bottom of config
+  YAML configuration
+  controls pipeline behavior
+end note
+
+@enduml

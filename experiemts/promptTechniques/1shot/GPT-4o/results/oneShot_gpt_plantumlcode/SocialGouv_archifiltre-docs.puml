@@ -1,0 +1,73 @@
+```plantuml
+@startuml SocialGouv_archifiltre-docs
+skinparam sequence {
+    ActorBackgroundColor #f9f9f9
+    LifeLineBackgroundColor #f0f0f0
+    LifeLineBorderColor #000000
+    ParticipantBackgroundColor #ffffff
+    ParticipantBorderColor #000000
+    ArrowColor #000000
+    BoxBackgroundColor #f9f9f9
+    BoxBorderColor #000000
+}
+
+actor User
+
+box "Archifiltre Application" #LightBlue
+    participant "Main Process" as Main
+    participant "Renderer Process" as Renderer
+    participant "Node.js Worker" as Worker
+end box
+
+box "External Services" #LightPink
+    participant "File System" as FileSystem
+    participant "Sentry" as Sentry
+    participant "Matomo/Posthog" as Analytics
+    participant "Redis" as Redis
+end box
+
+box "Export Services" #LightGreen
+    participant "CSV Exporter" as CSVExporter
+    participant "Excel Exporter" as ExcelExporter
+    participant "RESIP Exporter" as RESIPExporter
+end box
+
+User -> Main: Start Application
+Main -> Renderer: Initialize UI
+
+User -> Renderer: Load File System
+Renderer -> Worker: Asynchronous File Processing
+Worker -> FileSystem: Retrieve File Metadata
+FileSystem -> Worker: Return File Metadata
+Worker -> Renderer: Return Processed Data
+
+User -> Renderer: Export Data (select format)
+alt Export to CSV
+    Renderer -> CSVExporter: Prepare CSV Data
+    CSVExporter -> Renderer: Return CSV File
+else Export to Excel
+    Renderer -> ExcelExporter: Prepare Excel Data
+    ExcelExporter -> Renderer: Return Excel File
+else Export to RESIP
+    Renderer -> RESIPExporter: Initiate RESIP Export
+    RESIPExporter -> Worker: Perform RESIP Export
+    Worker -> RESIPExporter: Return Export Result
+    RESIPExporter -> Renderer: Return RESIP File
+end
+
+User -> Renderer: Analyze Data
+Renderer -> Analytics: Send Usage Data
+Analytics -> Renderer: Acknowledge Data
+
+Renderer -> Sentry: Log Errors (if any)
+Sentry -> Renderer: Acknowledge Logs
+
+Renderer -> Redis: Queue Conversion Task
+Redis -> Worker: Perform Conversion
+Worker -> Redis: Return Conversion Result
+
+User -> Renderer: Interact with UI
+
+Main -> Renderer: Update Application (if available)
+@enduml
+```

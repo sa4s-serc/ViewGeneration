@@ -1,0 +1,48 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #EEEBDC
+  BorderColor #333333
+  RoundCorner 20
+}
+
+actor "Git Client" as client
+actor "Admin" as admin
+
+rectangle "Kubernetes Cluster" {
+  rectangle "git-auth-proxy" as proxy {
+    [Proxy Server] as server
+    [Authorizer] as auth
+    [TokenWriter] as tokenWriter
+    [Config Loader] as config
+  }
+  
+  database "Kubernetes Secrets" as secrets
+  
+  rectangle "Namespace 1" as ns1 {
+    [Pod 1] as pod1
+  }
+  
+  rectangle "Namespace 2" as ns2 {
+    [Pod 2] as pod2
+  }
+}
+
+cloud "Git Providers" {
+  [GitHub] as github
+  [Azure DevOps] as azureDevOps
+}
+
+admin -right-> config : Configures
+client -down-> server : Git requests
+server -right-> auth : Validates token
+auth -down-> secrets : Checks token
+tokenWriter -up-> secrets : Manages tokens
+config -down-> tokenWriter : Provides repo info
+
+server -down-> github : Forwards requests
+server -down-> azureDevOps : Forwards requests
+
+pod1 -up-> secrets : Reads token
+pod2 -up-> secrets : Reads token
+
+@enduml

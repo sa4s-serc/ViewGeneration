@@ -1,0 +1,76 @@
+@startuml thangchung_practical-dapr
+
+skinparam componentStyle rectangle
+skinparam linetype ortho
+
+!define RECTANGLE class
+
+rectangle "Client" {
+  [WebUI (Blazor WebAssembly)] as WebUI
+}
+
+rectangle "API Layer" {
+  [API Gateway (Ingress)] as APIGateway
+  [GraphQL API] as GraphAPI
+}
+
+rectangle "Microservices" {
+  [ProductCatalogApi] as ProductAPI
+  [InventoryApi] as InventoryAPI
+  [IdentityServer4] as IdentityServer
+}
+
+rectangle "Building Blocks" {
+  [N8T.Domain] as Domain
+  [N8T.Infrastructure] as Infrastructure
+}
+
+cloud "Dapr" {
+  [Service Invocation]
+  [State Management]
+  [Pub/Sub Messaging]
+}
+
+database "Persistence" {
+  [SQL Database] as SQL
+  [Redis] as Redis
+}
+
+rectangle "Observability" {
+  [Zipkin] as Zipkin
+  [Seq] as Seq
+}
+
+WebUI --> APIGateway
+APIGateway --> GraphAPI
+GraphAPI --> ProductAPI
+GraphAPI --> InventoryAPI
+GraphAPI --> IdentityServer
+
+ProductAPI --> Domain
+ProductAPI --> Infrastructure
+InventoryAPI --> Domain
+InventoryAPI --> Infrastructure
+IdentityServer --> Infrastructure
+
+ProductAPI --> [Service Invocation]
+InventoryAPI --> [Service Invocation]
+ProductAPI --> [State Management]
+InventoryAPI --> [State Management]
+ProductAPI --> [Pub/Sub Messaging]
+InventoryAPI --> [Pub/Sub Messaging]
+
+[State Management] --> Redis
+[Pub/Sub Messaging] --> Redis
+ProductAPI --> SQL
+InventoryAPI --> SQL
+IdentityServer --> SQL
+
+ProductAPI ..> Zipkin : logs
+InventoryAPI ..> Zipkin : logs
+IdentityServer ..> Zipkin : logs
+ProductAPI ..> Seq : logs
+InventoryAPI ..> Seq : logs
+IdentityServer ..> Seq : logs
+
+@enduml

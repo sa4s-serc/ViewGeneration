@@ -1,0 +1,34 @@
+```plantuml
+@startuml UnoSD_UnoCash
+
+actor User
+participant "Blazor Frontend" as Blazor
+participant "Azure Functions Backend" as Backend
+participant "Azure Blob Storage" as BlobStorage
+participant "Azure Form Recognizer" as FormRecognizer
+
+User -> Blazor: Access UnoCash Application
+Blazor -> Backend: Request Home Page Data
+Backend -> Backend: Process GetExpenses
+Backend -> Blazor: Return Expense Data
+
+User -> Blazor: Upload Receipt Image
+Blazor -> BlobStorage: Upload Image
+BlobStorage -> Blazor: Return Upload Success
+
+Blazor -> Backend: Request Receipt Processing (SAS Token)
+Backend -> BlobStorage: Generate SAS Token
+BlobStorage -> Backend: Return SAS Token
+Backend -> FormRecognizer: Analyze Receipt Image
+FormRecognizer -> Backend: Return Parsed Data
+
+Backend -> Backend: Cache Receipt Data
+Backend -> Blazor: Return Receipt Data
+
+User -> Blazor: Add/Edit Expense
+Blazor -> Backend: AddExpense/UpdateExpense
+Backend -> Backend: Process Expense Data
+Backend -> Blazor: Confirm Operation
+
+@enduml
+```

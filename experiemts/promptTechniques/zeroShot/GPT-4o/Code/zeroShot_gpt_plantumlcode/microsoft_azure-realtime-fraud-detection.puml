@@ -1,0 +1,43 @@
+```plantuml
+@startuml microsoft_azure-realtime-fraud-detection
+
+' Define components
+component "Azure Event Hub" as EventHub
+component "Azure Stream Analytics" as StreamAnalytics
+component "Azure Machine Learning" as MachineLearning
+component "Azure Functions" as Functions
+component "Azure Synapse Analytics" as Synapse
+component "Azure Cosmos DB" as CosmosDB
+component "Event Generator" as EventGenerator
+
+' Define relationships
+EventGenerator --> EventHub : Generates Events
+EventHub --> StreamAnalytics : Streams Events
+StreamAnalytics --> Synapse : Persists Data
+StreamAnalytics --> CosmosDB : Persists Data
+StreamAnalytics --> MachineLearning : Triggers Model Scoring
+MachineLearning --> Functions : Deploys Model
+Functions --> StreamAnalytics : Orchestrates Workflow
+Functions --> CosmosDB : Updates Fraud Detection Data
+
+' Highlight architecture concerns
+' Deployment
+package "Deployment" {
+  [ARM Templates] --> EventHub
+  [ARM Templates] --> StreamAnalytics
+  [ARM Templates] --> MachineLearning
+  [ARM Templates] --> Functions
+  [ARM Templates] --> Synapse
+  [ARM Templates] --> CosmosDB
+}
+
+' Performance
+package "Performance" {
+  EventHub -> StreamAnalytics : Real-time Processing
+  StreamAnalytics -> MachineLearning : Real-time Analysis
+  StreamAnalytics -> CosmosDB : Real-time Persistence
+  StreamAnalytics -> Synapse : Real-time Persistence
+}
+
+@enduml
+```

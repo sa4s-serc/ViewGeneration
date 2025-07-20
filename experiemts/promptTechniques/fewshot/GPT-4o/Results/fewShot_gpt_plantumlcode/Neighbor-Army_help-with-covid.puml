@@ -1,0 +1,61 @@
+```plantuml
+@startuml Neighbor-Army_help-with-covid
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+package "Frontend (Next.js)" {
+  rectangle "HomeContent" as HomeContent
+  rectangle "OfferHelp" as OfferHelp
+  rectangle "RequestHelp" as RequestHelp
+  rectangle "FirebaseAuth" as FirebaseAuth
+  rectangle "Nav" as Nav
+  rectangle "VolunteerConfirmation" as VolunteerConfirmation
+  rectangle "AddressInput\n(Google Maps API)" as AddressInput
+}
+
+package "Backend (Firebase Functions)" {
+  rectangle "Express App" as ExpressApp
+  rectangle "Task Management\n(Onfleet)" as TaskManagement
+  rectangle "Team Management\n(Firebase Firestore)" as TeamManagement
+  rectangle "Worker Management\n(Onfleet & Sendgrid)" as WorkerManagement
+  rectangle "Phone/Zipcode Verification\n(Twilio)" as PhoneVerification
+}
+
+package "External Services" {
+  rectangle "Onfleet API" as OnfleetAPI
+  rectangle "Sendgrid API" as SendgridAPI
+  rectangle "Google Maps API" as GoogleMapsAPI
+  rectangle "Twilio API" as TwilioAPI
+}
+
+User --> HomeContent
+User --> OfferHelp
+User --> RequestHelp
+User --> Nav
+User --> AddressInput
+
+HomeContent --> FirebaseAuth
+OfferHelp --> FirebaseAuth
+RequestHelp --> FirebaseAuth
+Nav --> FirebaseAuth
+VolunteerConfirmation --> FirebaseAuth
+AddressInput --> GoogleMapsAPI
+
+FirebaseAuth --> ExpressApp
+ExpressApp --> TaskManagement
+ExpressApp --> TeamManagement
+ExpressApp --> WorkerManagement
+ExpressApp --> PhoneVerification
+
+TaskManagement --> OnfleetAPI
+WorkerManagement --> OnfleetAPI
+WorkerManagement --> SendgridAPI
+PhoneVerification --> TwilioAPI
+@enduml
+```

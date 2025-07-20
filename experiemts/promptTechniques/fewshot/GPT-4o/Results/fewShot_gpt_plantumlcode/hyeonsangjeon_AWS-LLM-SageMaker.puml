@@ -1,0 +1,55 @@
+```plantuml
+@startuml hyeonsangjeon_AWS-LLM-SageMaker
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+package "AWS LLM SageMaker RAG Workflow" {
+  rectangle "Streamlit UI" {
+    rectangle "Q&A Chatbot Interface" as ChatbotUI #lightyellow
+  }
+
+  rectangle "Inference & Serving" {
+    rectangle "SageMaker Endpoint" as SagemakerEndpoint #lightblue
+    rectangle "DJLServing & DeepSpeed" as DJLServing #lightblue
+  }
+  
+  rectangle "Fine-Tuning & Model Management" {
+    rectangle "QLoRA Fine-Tuning" as QLoRA #lightgreen
+    rectangle "KoLLMSageMakerEndpoint" as KoLLEndpoint #lightgreen
+  }
+
+  rectangle "Retrieval & Embedding" {
+    rectangle "Amazon Opensearch" as Opensearch #lightpink
+    rectangle "FAISS Vector Search" as FAISS #lightpink
+  }
+  
+  rectangle "Utility Functions" {
+    rectangle "Inference Library" as InferenceLib #lightgray
+    rectangle "Prompter Class" as Prompter #lightgray
+    rectangle "Callback Handlers" as Callbacks #lightgray
+  }
+}
+
+User --> ChatbotUI : Interacts
+ChatbotUI --> SagemakerEndpoint : Query
+SagemakerEndpoint --> Opensearch : Retrieve Documents
+Opensearch --> SagemakerEndpoint : Return Documents
+SagemakerEndpoint --> DJLServing : Process Query
+DJLServing --> SagemakerEndpoint : Return Answer
+SagemakerEndpoint --> ChatbotUI : Display Answer
+
+QLoRA --> KoLLEndpoint : Fine-Tune Model
+KoLLEndpoint --> SagemakerEndpoint : Deploy Model
+
+InferenceLib --> SagemakerEndpoint : Manage Inference
+Prompter --> InferenceLib : Generate Prompts
+Callbacks --> InferenceLib : Stream Output
+FAISS --> Opensearch : Vector Search
+@enduml
+```

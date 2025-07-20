@@ -1,0 +1,58 @@
+```plantuml
+@startuml mateuseap_apache-airflow
+
+skinparam rectangle {
+  BackgroundColor<<core>> #e0f7fa
+  BackgroundColor<<deployment>> #ffecb3
+  BackgroundColor<<integration>> #dcedc8
+  BackgroundColor<<monitoring>> #f8bbd0
+  BackgroundColor<<dag>> #c5cae9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Apache Airflow Core" <<core>> {
+  rectangle "DAGs" as DAGs
+  rectangle "Operators" as Operators
+  rectangle "Task Instances" as TaskInstances
+  rectangle "Workflows" as Workflows
+  DAGs --> Operators
+  Operators --> TaskInstances
+  TaskInstances --> Workflows
+}
+
+package "Deployment" <<deployment>> {
+  rectangle "Docker" as Docker {
+    rectangle "Docker Compose Files" as DockerCompose
+    rectangle "Dockerfile" as Dockerfile
+  }
+  rectangle "Kubernetes Manifests" as Kubernetes
+  DockerCompose --> Dockerfile
+}
+
+package "Integration Components" <<integration>> {
+  rectangle "Hadoop (HDFS, Hive, Spark)" as Hadoop
+  rectangle "Postgres" as Postgres
+  rectangle "Redis" as Redis
+  rectangle "External Tools" as ExternalTools
+  DAGs --> Hadoop
+  DAGs --> Postgres
+  DAGs --> Redis
+  Workflows --> ExternalTools
+}
+
+package "Monitoring & Logging" <<monitoring>> {
+  rectangle "TIG Stack (Telegraf, InfluxDB, Grafana)" as TIG
+  rectangle "ELK Stack (Elasticsearch, Logstash, Kibana)" as ELK
+  DAGs --> TIG
+  DAGs --> ELK
+}
+
+package "DAG Examples" <<dag>> {
+  rectangle "forex_data_pipeline.py" as ForexDAG
+  rectangle "forex_processing.py" as ForexProcessing
+  ForexDAG --> ForexProcessing
+}
+
+@enduml
+```

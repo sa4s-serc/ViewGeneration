@@ -1,0 +1,32 @@
+```plantuml
+@startuml s-sokolko_smev3_adapter_service
+
+actor Client
+participant "Sanic App" as Sanic
+participant "Core" as Core
+participant "QueryProcessor" as QueryProc
+participant "Adapter" as Adapter
+participant "MongoDB" as MongoDB
+
+Client -> Sanic: HTTP POST /schedule_query/<тип_запроса>/
+Sanic -> Core: Validate Request
+Core -> QueryProc: Process Query
+QueryProc -> Adapter: Send SOAP Request
+Adapter -> SMEV3: Send Query
+SMEV3 -> Adapter: Receive Response
+Adapter -> QueryProc: Process Response
+QueryProc -> MongoDB: Save Data
+MongoDB -> QueryProc: Confirmation
+QueryProc -> Core: Return Response
+Core -> Sanic: Send HTTP Response
+Sanic -> Client: Query Scheduled
+
+Client -> Sanic: HTTP GET /get_document/<тип_запроса>/<идентификатор_запроса>/
+Sanic -> Core: Validate Request
+Core -> MongoDB: Retrieve Document
+MongoDB -> Core: Send Document
+Core -> Sanic: Send HTTP Response
+Sanic -> Client: Send Document
+
+@enduml
+```

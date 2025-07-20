@@ -1,0 +1,65 @@
+@startuml vectranetworks_AWS-Traffic-Mirroring-Session-Manager
+
+actor User
+participant "tap.py" as Tap
+participant "config_vpc.py" as ConfigVPC
+participant "blacklist.py/whitelist.py" as InstanceLists
+participant "ec2_api_client.py" as EC2Client
+participant "spile_tapper.py" as SpileTapper
+participant "spile.py" as Spile
+participant "tag_config.py" as TagConfig
+participant "nlb_factory.py" as NLBFactory
+participant "nlb_target_factory.py" as NLBTargetFactory
+participant "AWS EC2 API" as AWSEC2
+
+User -> Tap : Run script
+activate Tap
+
+Tap -> ConfigVPC : Configure VPCs
+activate ConfigVPC
+ConfigVPC -> TagConfig : Manage VPC tags
+ConfigVPC -> AWSEC2 : Update VPC configuration
+ConfigVPC --> Tap : VPC configuration complete
+deactivate ConfigVPC
+
+Tap -> InstanceLists : Manage instance lists
+activate InstanceLists
+InstanceLists -> TagConfig : Manage instance tags
+InstanceLists -> AWSEC2 : Update instance tags
+InstanceLists --> Tap : Instance lists updated
+deactivate InstanceLists
+
+loop For each configured VPC
+    Tap -> SpileTapper : Manage mirroring sessions
+    activate SpileTapper
+    
+    SpileTapper -> EC2Client : Get eligible instances
+    EC2Client -> AWSEC2 : List instances
+    AWSEC2 --> EC2Client : Instance list
+    EC2Client --> SpileTapper : Eligible instances
+    
+    loop For each eligible instance
+        SpileTapper -> Spile : Create/update/remove session
+        activate Spile
+        
+        Spile -> TagConfig : Get instance configuration
+        Spile -> NLBFactory : Create/get NLB if needed
+        NLBFactory -> AWSEC2 : Create/get NLB
+        
+        Spile -> NLBTargetFactory : Create mirror target
+        NLBTargetFactory -> AWSEC2 : Create mirror target
+        
+        Spile -> AWSEC2 : Create/update/remove mirroring session
+        
+        Spile --> SpileTapper : Session managed
+        deactivate Spile
+    end
+    
+    SpileTapper --> Tap : VPC mirroring sessions managed
+    deactivate SpileTapper
+end
+
+Tap -> User : Script execution complete
+deactivate Tap
+
+@enduml

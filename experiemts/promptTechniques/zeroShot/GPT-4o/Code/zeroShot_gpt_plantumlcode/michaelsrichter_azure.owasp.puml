@@ -1,0 +1,37 @@
+```plantuml
+@startuml michaelsrichter_azure.owasp
+
+actor Developer
+participant "ASP.NET MVC App" as ASP
+participant "Node.js App" as Node
+participant "ModSecurity" as ModSec
+participant "OWIN Middleware" as OWIN
+participant "Azure AD" as AzureAD
+participant "Azure ARM" as ARM
+
+Developer -> ASP: Deploy using ARM Template
+ASP -> ARM: Deploy Resources
+
+Developer -> ASP: Access Secure App
+ASP -> OWIN: Authenticate Request
+OWIN -> AzureAD: Validate Token
+AzureAD -> OWIN: Return Token
+OWIN -> ASP: Grant Access
+
+Developer -> Node: Access Node.js App
+Node -> ModSec: Inspect Request
+ModSec -> Node: Forward Request (if safe)
+
+ModSec -> Node: Block Request (if malicious)
+
+Node -> Developer: Return Response
+
+Developer -> ASP: Test Insecure App
+ASP -> ModSec: Inspect Request
+ModSec -> ASP: Block Request (if malicious)
+
+ModSec -> ASP: Allow Request (if safe)
+ASP -> Developer: Return Response
+
+@enduml
+```

@@ -1,0 +1,85 @@
+Here's a PlantUML sequence diagram representing the data flow in the smev3_adapter_service system:
+
+```plantuml
+@startuml s-sokolko_smev3_adapter_service
+
+participant "Client" as client
+participant "API Layer\n(views.py)" as api
+participant "QueryProcessor\n(processors/query.py)" as processor
+participant "Adapter\n(adapter.py)" as adapter
+participant "SMEV3 Adapter" as smev3
+database "MongoDB" as db
+participant "SchemaLoader\n(schema_loader/loader.py)" as loader
+
+client -> api : POST /schedule_query/<query_type>/
+activate api
+
+api -> processor : process_query(query_type, data)
+activate processor
+
+processor -> loader : load_schema(query_type)
+activate loader
+loader --> processor : schema
+deactivate loader
+
+processor -> adapter : send_request(query_type, data)
+activate adapter
+
+adapter -> smev3 : SOAP request
+activate smev3
+smev3 --> adapter : SOAP response
+deactivate smev3
+
+adapter --> processor : response
+deactivate adapter
+
+processor -> db : save_query(query)
+activate db
+db --> processor : query_id
+deactivate db
+
+processor --> api : query_id
+deactivate processor
+
+api --> client : query_id
+deactivate api
+
+...
+
+client -> api : GET /get_document/<query_type>/<query_id>/
+activate api
+
+api -> db : get_query(query_id)
+activate db
+db --> api : query
+deactivate db
+
+api -> processor : check_response(query)
+activate processor
+
+alt response not ready
+    processor -> adapter : get_response(query)
+    activate adapter
+    adapter -> smev3 : SOAP request
+    activate smev3
+    smev3 --> adapter : SOAP response
+    deactivate smev3
+    adapter --> processor : response
+    deactivate adapter
+
+    processor -> db : update_query(query, response)
+    activate db
+    db --> processor : updated_query
+    deactivate db
+end
+
+processor --> api : document or status
+deactivate processor
+
+api --> client : document or status
+deactivate api
+
+@enduml
+```
+
+This sequence diagram illustrates the data flow in the smev3_adapter_service system, focusing on two main operations: scheduling a query and retrieving a document. It shows the interactions between the client, API layer, QueryProcessor, Adapter, SMEV3 Adapter, MongoDB, and SchemaLoader components.

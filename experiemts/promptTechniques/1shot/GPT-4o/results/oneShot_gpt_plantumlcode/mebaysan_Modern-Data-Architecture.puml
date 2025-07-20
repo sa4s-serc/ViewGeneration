@@ -1,0 +1,53 @@
+```plantuml
+@startuml mebaysan_Modern-Data-Architecture
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Airbyte" as Airbyte #lightblue
+
+rectangle "Python Script" as PythonScript #lightgreen
+
+rectangle "PostgreSQL" as PostgreSQL #lightcoral
+
+rectangle "DBT" as DBT #lightyellow
+
+rectangle "Apache Superset" as Superset #lightsteelblue
+
+rectangle "Docker Compose" as DockerCompose #lightgray
+
+rectangle "Nginx" as Nginx #aliceblue
+
+' ========== Connections ==========
+User --> Airbyte : initiate data extraction
+User --> PythonScript : execute alternative data load
+
+' Data ingestion
+Airbyte --> PostgreSQL : load data from CSV
+PythonScript --> PostgreSQL : load data from CSV
+
+' Data transformation and modeling
+DBT --> PostgreSQL : transform and model data
+
+' Data visualization
+Superset --> PostgreSQL : query transformed data
+User --> Superset : access visualizations
+
+' Docker Compose orchestration
+DockerCompose --> Airbyte : deploy container
+DockerCompose --> PostgreSQL : deploy container
+DockerCompose --> DBT : deploy container
+DockerCompose --> Superset : deploy container
+DockerCompose --> Nginx : deploy container
+
+' Nginx reverse proxy
+User --> Nginx : access pgAdmin
+Nginx --> PostgreSQL : proxy requests to pgAdmin
+
+@enduml
+```

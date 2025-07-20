@@ -1,0 +1,55 @@
+@startuml duanfuxiang0_MysqlMigrationTool
+
+actor "Database Admin" as Admin
+
+participant "Main Program" as Main
+participant "Canal" as Canal
+participant "RowEventHandler" as Handler
+participant "BinlogParser" as Parser
+participant "Data Models" as Models
+database "Source MySQL" as SourceDB
+database "Target Database" as TargetDB
+
+Admin -> Main : Start migration
+activate Main
+
+Main -> Canal : Initialize and start
+activate Canal
+
+loop For each binlog event
+    Canal -> SourceDB : Read binlog
+    SourceDB --> Canal : Binlog event
+    Canal -> Handler : OnRow(e *canal.RowsEvent)
+    activate Handler
+    
+    Handler -> Parser : Parse(e)
+    activate Parser
+    Parser -> Parser : Convert data types
+    Parser -> Models : Map data to structs
+    Models --> Parser : Mapped data
+    Parser --> Handler : Parsed data
+    deactivate Parser
+    
+    alt Insert event
+        Handler -> Models : InsertToNew()
+    else Update event
+        Handler -> Models : UpdateToNew()
+    else Delete event
+        Handler -> Models : DeleteFromNew()
+    end
+    
+    Models -> TargetDB : Execute SQL
+    TargetDB --> Models : Confirmation
+    Models --> Handler : Operation result
+    
+    Handler --> Canal : Event handled
+    deactivate Handler
+end
+
+Canal --> Main : Migration complete
+deactivate Canal
+
+Main --> Admin : Migration finished
+deactivate Main
+
+@enduml

@@ -1,0 +1,61 @@
+```plantuml
+@startuml fredrikhgrelland_data-mesh
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor Developer
+
+rectangle "Vagrant Environment" as Vagrant {
+}
+
+rectangle "Nomad" as Orchestrator #lightsteelblue {
+  rectangle "MinIO\nData Storage" as MinIO #aliceblue
+  rectangle "Hive Metastore" as Hive #palegreen
+  rectangle "Presto\nQuery Engine" as Presto #lightyellow
+  rectangle "SQLPad\nSQL IDE" as SQLPad #mistyrose
+  rectangle "Example CSV Service" as CSVService #lavender
+}
+
+rectangle "Consul" as ServiceDiscovery #lightgrey
+
+rectangle "Terraform & Ansible" as IaC #lightcyan
+
+rectangle "GitHub Actions" as CI_CD #lightgreen
+
+' ========== Connections ==========
+Developer --> Vagrant : Initialize Environment
+Vagrant --> Orchestrator : Deploy Services with Nomad
+
+' Nomad orchestrating services
+Orchestrator <--> MinIO : Manage Data Storage
+Orchestrator <--> Hive : Manage Metadata
+Orchestrator <--> Presto : Query Data
+Orchestrator <--> SQLPad : Provide SQL Interface
+Orchestrator <--> CSVService : Example Data Service
+
+' Consul service discovery and security
+MinIO <--> ServiceDiscovery : Register Service
+Hive <--> ServiceDiscovery : Register Service
+Presto <--> ServiceDiscovery : Register Service
+SQLPad <--> ServiceDiscovery : Register Service
+CSVService <--> ServiceDiscovery : Register Service
+
+' Secure service communication
+MinIO <--> Hive : Secure Communication
+Hive <--> Presto : Secure Communication
+Presto <--> SQLPad : Secure Communication
+
+' IaC for consistent deployments
+IaC --> Orchestrator : Provision Nomad Jobs
+
+' CI/CD pipeline
+Developer --> CI_CD : Commit Changes
+CI_CD --> Vagrant : Trigger Automated Tests
+CI_CD --> IaC : Deploy Updates
+
+@enduml
+```

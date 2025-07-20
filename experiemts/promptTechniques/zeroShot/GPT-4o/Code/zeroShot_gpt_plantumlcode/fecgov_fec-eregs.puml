@@ -1,0 +1,29 @@
+```plantuml
+@startuml fecgov_fec-eregs
+
+actor User
+
+participant "Django Web Server" as Django
+participant "ElasticSearch" as ElasticSearch
+participant "PostgreSQL Database" as PostgreSQL
+participant "Cloud Foundry" as CloudFoundry
+participant "API Service" as API
+participant "CMS" as CMS
+
+User -> Django: Request Regulation Data
+Django -> PostgreSQL: Query regulation data
+PostgreSQL -> Django: Return regulation data
+Django -> ElasticSearch: Search regulations
+ElasticSearch -> Django: Return search results
+Django -> API: Fetch additional data
+API -> Django: Return API data
+Django -> CMS: Fetch content
+CMS -> Django: Return content
+Django -> User: Rendered regulations page
+
+User -> Django: Initiates deployment
+Django -> CloudFoundry: Deploy application
+CloudFoundry -> Django: Deployment logs
+
+@enduml
+```

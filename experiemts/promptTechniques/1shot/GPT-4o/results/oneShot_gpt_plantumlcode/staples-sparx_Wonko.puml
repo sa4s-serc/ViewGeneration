@@ -1,0 +1,44 @@
+```plantuml
+@startuml staples-sparx_Wonko
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "SparX Microservices" as Microservices
+
+rectangle "Wonko" as WonkoSystem #lightgrey {
+  rectangle "Kafka Integration" as KafkaIntegration #lightyellow {
+    rectangle "Kafka Consumer" as KafkaConsumer
+    rectangle "Kafka Producer" as KafkaProducer
+  }
+  rectangle "Prometheus Integration" as PrometheusIntegration #lightblue {
+    rectangle "Prometheus Metrics" as PrometheusMetrics
+  }
+  rectangle "Alert Processing" as AlertProcessing #lightcoral {
+    rectangle "PagerDuty API" as PagerDutyAPI
+  }
+  rectangle "Web Server" as WebServer #lightgreen
+}
+
+' ========== Connections ==========
+Microservices --> KafkaIntegration : Send Events
+
+' Kafka Consumer interaction
+KafkaConsumer --> KafkaIntegration : Consume Events
+KafkaIntegration --> AlertProcessing : Process Events
+
+' Prometheus integration
+PrometheusMetrics --> WebServer : Expose Metrics
+WebServer --> PrometheusIntegration : Provide Metrics Endpoint
+
+' Alert processing interaction
+AlertProcessing --> PagerDutyAPI : Trigger Alerts
+
+' Kafka Producer interaction
+KafkaProducer --> KafkaIntegration : Publish Alerts
+
+@enduml
+```

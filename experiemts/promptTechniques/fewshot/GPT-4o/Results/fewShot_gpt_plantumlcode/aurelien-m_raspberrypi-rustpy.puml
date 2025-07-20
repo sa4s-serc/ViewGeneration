@@ -1,0 +1,42 @@
+```plantuml
+@startuml aurelien-m_raspberrypi-rustpy
+skinparam defaultTextAlignment center
+skinparam linetype ortho
+
+actor "Browser" as Browser
+actor "User" as User
+
+rectangle "Raspberry Pi" as RaspberryPi {
+  rectangle "Rust Hardware Control" as RustControl {
+    [rppal - GPIO Control] as GPIO
+  }
+  rectangle "Python Interface (rpipy.py)" as PythonInterface
+  rectangle "Python Scripts" as PythonScripts {
+    [demo_controller_app.py] as DemoApp
+    [scriptcontrol/__init__.py] as ScriptControl
+    [luminolib.py] as LuminoLib
+  }
+}
+
+rectangle "Rocket Web Server" as WebServer {
+  [Web Server (main.rs)] as Server
+  [WebSocket Handling] as WebSocket
+}
+
+Browser --> WebServer : HTTP Request
+WebServer --> Browser : HTTP Response
+Browser --> User : Display GUI
+
+WebServer <--> WebSocket : Real-time Updates
+WebServer --> PythonInterface : Invoke Rust Functions
+PythonInterface --> RustControl : Hardware Control
+
+WebServer --> PythonScripts : Execute Control Scripts
+PythonScripts --> RaspberryPi : Control LEDs
+PythonScripts --> PythonInterface : Access Rust Library
+
+PythonScripts --> LuminoLib : Use Light Management
+PythonScripts --> ScriptControl : Mode Control
+
+@enduml
+```

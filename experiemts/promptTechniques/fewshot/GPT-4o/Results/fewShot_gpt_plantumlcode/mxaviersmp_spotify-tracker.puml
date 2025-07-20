@@ -1,0 +1,64 @@
+```plantuml
+@startuml mxaviersmp_spotify-tracker
+skinparam componentStyle rectangle
+skinparam linetype ortho
+skinparam defaultTextAlignment center
+
+actor "Spotify User" as User
+
+package "API Layer" {
+    rectangle "FastAPI Application" as FastAPI {
+        [OAuth2 Authentication] as Auth
+        [User Data Endpoints] as UserData
+        [Admin Functions] as Admin
+    }
+    [API Gateway] as APIGateway
+}
+
+package "ETL Layer" {
+    rectangle "Airflow" as Airflow {
+        [Spotify ETL DAG] as ETLDAG
+    }
+}
+
+package "Database Layer" {
+    database "PostgreSQL\n(AWS RDS)" as RDS {
+        [User Data] as UserDataDB
+        [Track Information] as TrackInfoDB
+        [Artist Details] as ArtistDetailsDB
+        [Play History] as PlayHistoryDB
+        [Genre Mappings] as GenreMappingsDB
+    }
+}
+
+package "UI Layer" {
+    rectangle "Streamlit App" as Streamlit {
+        [Data Interaction] as DataInteraction
+        [Data Visualization] as DataVisualization
+    }
+}
+
+package "Deployment & CI/CD" {
+    [Serverless Framework] as Serverless
+    [GitHub Actions] as GitHubActions
+}
+
+User --> Streamlit
+Streamlit --> DataInteraction
+Streamlit --> DataVisualization
+DataInteraction --> APIGateway
+APIGateway --> FastAPI
+FastAPI --> Auth
+FastAPI --> UserData
+FastAPI --> Admin
+FastAPI --> RDS
+
+Airflow --> ETLDAG
+ETLDAG --> RDS
+
+Serverless --> APIGateway
+GitHubActions --> Serverless
+GitHubActions --> RDS
+
+@enduml
+```

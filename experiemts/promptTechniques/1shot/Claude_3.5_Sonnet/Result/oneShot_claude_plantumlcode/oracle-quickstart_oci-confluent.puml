@@ -1,0 +1,64 @@
+@startuml oracle-quickstart_oci-confluent
+
+skinparam component {
+  BackgroundColor<<Terraform>> #CCFFCC
+  BackgroundColor<<OCI>> #FFCCCC
+  BackgroundColor<<Confluent>> #CCCCFF
+}
+
+package "Terraform Modules" <<Terraform>> {
+  [Variables Definition] as vars
+  [Network Configuration] as network
+  [Instance Definitions] as instances
+  [Data Sources] as datasources
+  [Outputs] as outputs
+}
+
+package "OCI Resources" <<OCI>> {
+  [Virtual Cloud Network] as vcn
+  [Subnets] as subnets
+  [Compute Instances] as compute
+  [Block Volumes] as volumes
+  [Security Lists] as seclist
+  [Object Storage] as objstorage
+  [Autonomous Database] as adb
+}
+
+package "Confluent Components" <<Confluent>> {
+  [Kafka Brokers] as brokers
+  [Zookeeper] as zk
+  [Schema Registry] as sr
+  [REST Proxy] as rest
+  [Kafka Connect] as connect
+  [KSQL] as ksql
+  [Control Center] as cc
+}
+
+cloud "Oracle Cloud Infrastructure" {
+  vcn --> subnets
+  subnets --> compute
+  compute --> volumes
+  seclist --> vcn
+}
+
+vars --> network
+network --> vcn
+instances --> compute
+datasources --> OCI Resources
+outputs --> Confluent Components
+
+compute ..> brokers
+compute ..> zk
+compute ..> sr
+compute ..> rest
+compute ..> connect
+compute ..> ksql
+compute ..> cc
+
+connect --> objstorage : "S3 Compatibility API"
+connect --> adb : "JDBC Sink"
+
+note right of objstorage : "Secured with\nS3 Compatibility API Key"
+note right of adb : "Secured with\nWallet Files"
+
+@enduml

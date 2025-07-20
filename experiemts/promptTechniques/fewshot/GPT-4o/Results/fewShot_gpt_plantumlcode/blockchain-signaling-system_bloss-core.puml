@@ -1,0 +1,51 @@
+```plantuml
+@startuml blockchain-signaling-system_bloss-core
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+actor "Network Administrator" as Admin
+
+rectangle "BloSS" {
+  rectangle "REST API" as BlossAPI
+  rectangle "Manager" as BlossManager
+}
+
+rectangle "Stalk" {
+  rectangle "Ryu Controller" as RyuController
+  rectangle "REST API" as StalkAPI
+  rectangle "Flow Statistics Manager" as FlowStatsManager
+}
+
+rectangle "Pollen" {
+  rectangle "Blockchain Interaction" as Blockchain
+  rectangle "Data Storage" as DataStorage
+  rectangle "Attack Reporting" as AttackReporting
+}
+
+rectangle "Ethereum Blockchain" as Ethereum
+rectangle "InfluxDB" as InfluxDB
+rectangle "IPFS" as IPFS
+
+Admin --> BlossAPI : Send attack report
+BlossAPI --> RyuController : Request attack detection
+RyuController --> FlowStatsManager : Gather flow statistics
+FlowStatsManager --> RyuController : Send statistics
+RyuController --> BlossManager : Notify potential attacker
+BlossManager --> Blockchain : Log attack on blockchain
+Blockchain --> Ethereum : Interact with smart contract
+
+BlossAPI --> StalkAPI : Request mitigation
+StalkAPI --> RyuController : Block attacker
+
+Blockchain --> DataStorage : Store attack data
+DataStorage --> InfluxDB : Store statistics data
+DataStorage --> IPFS : Store attack report and keys
+
+Blockchain --> AttackReporting : Process attack report
+AttackReporting --> DataStorage : Retrieve report data
+@enduml
+```

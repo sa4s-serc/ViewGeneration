@@ -1,0 +1,56 @@
+Here's a PlantUML sequence diagram representing the dynamic interactions of the Bytom Server system, focusing on performance and deployment aspects:
+
+```plantuml
+@startuml Bytom-Community_Bytom-Server
+
+participant "Client" as C
+participant "gRPC API" as API
+participant "Transaction Pool" as TP
+participant "Blockchain Core" as BC
+participant "P2P Network" as P2P
+participant "Bytom VM" as VM
+participant "Data Store" as DS
+participant "Mining Module" as MM
+
+C -> API: Submit Transaction
+activate API
+
+API -> TP: Add Transaction
+activate TP
+TP -> BC: Validate Transaction
+activate BC
+BC -> VM: Execute Contract (if needed)
+activate VM
+VM --> BC: Execution Result
+deactivate VM
+BC --> TP: Validation Result
+deactivate BC
+TP --> API: Transaction Added
+deactivate TP
+
+API --> C: Transaction Accepted
+
+P2P -> TP: Broadcast Transaction
+activate P2P
+TP -> BC: Process New Block
+activate BC
+BC -> DS: Store Block
+activate DS
+DS --> BC: Block Stored
+deactivate DS
+BC --> TP: Update UTXO Set
+deactivate BC
+TP --> P2P: Block Processed
+deactivate P2P
+
+MM -> BC: Generate Block Template
+activate MM
+BC --> MM: Block Template
+MM -> BC: Submit New Block
+BC -> P2P: Broadcast New Block
+P2P --> BC: Block Propagated
+BC --> MM: Block Accepted
+deactivate MM
+
+@enduml
+```

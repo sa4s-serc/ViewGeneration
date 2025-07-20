@@ -1,0 +1,47 @@
+```plantuml
+@startuml alfredcs_immersion_day_labs
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+actor "Data Scientist" as Scientist
+rectangle "AWS" {
+  rectangle "SageMaker" as SageMaker {
+    rectangle "Training" as Training
+    rectangle "Inference" as Inference
+    rectangle "Autopilot" as Autopilot
+    rectangle "Feature Store" as FeatureStore
+    rectangle "Pipelines" as Pipelines
+  }
+  rectangle "S3" as S3
+  rectangle "IAM" as IAM
+  rectangle "Lake Formation" as LakeFormation
+}
+
+package "Hugging Face" {
+  rectangle "Transformers"
+  rectangle "Datasets"
+  rectangle "Model Hub" as ModelHub
+}
+
+rectangle "ONNX Runtime" as ONNX
+
+Scientist --> SageMaker : Initiate Model Training
+Scientist --> "Transformers" : Load Pre-trained Models
+S3 --> "Datasets" : Store and Load Data
+Training --> "Transformers" : Fine-tune Models
+Training --> ONNX : Optimize Models
+Training --> FeatureStore : Store Features
+Inference --> FeatureStore : Access Features
+Inference --> "Transformers" : Deploy Models
+Inference --> ONNX : Accelerate Inference
+Pipelines --> Autopilot : Run MLOps Pipelines
+Pipelines --> IAM : Manage Access Control
+Pipelines --> LakeFormation : Data Governance
+"Model Hub" --> SageMaker : Retrieve/Push Models
+@enduml
+```

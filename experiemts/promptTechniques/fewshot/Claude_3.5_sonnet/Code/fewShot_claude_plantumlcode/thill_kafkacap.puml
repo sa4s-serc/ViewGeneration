@@ -1,0 +1,61 @@
+@startuml thill_kafkacap
+
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam ArrowColor #000000
+skinparam defaultTextAlignment center
+
+rectangle "Data Sources" as Sources {
+  [Aeron]
+  [Multicast]
+  [Websocket]
+}
+
+rectangle "Capture Devices" as CaptureDevices {
+  [AeronCaptureDevice]
+  [MulticastCaptureDevice]
+  [WebsocketCaptureDevice]
+}
+
+rectangle "Kafka" as Kafka {
+  [Capture Topics] as CaptureTopic
+  [Outbound Topic] as OutboundTopic
+}
+
+rectangle "Deduplicator" as Deduplicator {
+  [DedupStrategy]
+  [CaptureQueue]
+  [RecordPopulator]
+}
+
+rectangle "BufferedPublisher" as BufferedPublisher
+
+rectangle "RecoveryService" as RecoveryService
+
+Sources --> CaptureDevices : Capture messages
+CaptureDevices --> CaptureTopic : Write to separate topics
+CaptureTopic --> Deduplicator : Consume messages
+Deduplicator --> BufferedPublisher : Unique messages
+BufferedPublisher --> OutboundTopic : Publish
+RecoveryService <--> OutboundTopic : Read last committed offsets
+RecoveryService --> Deduplicator : Recover state
+
+note right of CaptureDevices
+  Multiple redundant
+  capture devices
+end note
+
+note right of Deduplicator
+  Kafka Consumer Group
+  ensures fault tolerance
+end note
+
+note right of BufferedPublisher
+  Mitigates back-pressure
+  and Kafka outages
+end note
+
+@enduml

@@ -1,0 +1,27 @@
+@startuml
+
+actor "Developer" as Dev
+participant "GitHub" as GH
+participant "GitHub Actions" as GHA
+participant "AWS ECS" as ECS
+participant "Appian" as AP
+participant "Kafka" as KF
+participant "BigMAC" as BM
+participant "AWS SNS" as SNS
+participant "AWS CloudWatch" as CW
+
+Dev -> GH : Push code changes
+GH -> GHA : Trigger CI/CD workflow
+GHA -> GHA : Run tests, security checks
+GHA -> ECS : Deploy Kafka Connector
+
+loop Continuous Operation
+    AP -> ECS : Data changes
+    ECS -> KF : Stream data changes
+    KF -> BM : Forward data to BigMAC
+end
+
+CW -> SNS : Trigger alert on issues
+SNS -> Dev : Send notification
+
+@enduml

@@ -1,0 +1,37 @@
+@startuml geovanegodoi_MicroServicesPOC
+
+actor "User" as user
+participant "API Gateway" as gateway
+participant "Catalog Service" as catalog
+participant "Customer Service" as customer
+participant "Order Service" as order
+queue "RabbitMQ" as rabbitmq
+database "MongoDB\n(Catalog)" as catalogdb
+database "MongoDB\n(Customer)" as customerdb
+database "MongoDB\n(Order)" as orderdb
+
+user -> gateway : Request
+gateway -> catalog : Forward request
+catalog -> catalogdb : CRUD operation
+catalog -> rabbitmq : Publish CatalogItemCreated event
+rabbitmq -> order : Consume CatalogItemCreated event
+order -> orderdb : Update local catalog
+
+gateway -> customer : Forward request
+customer -> customerdb : CRUD operation
+customer -> rabbitmq : Publish CustomerUpdated event
+rabbitmq -> order : Consume CustomerUpdated event
+order -> orderdb : Update local customer info
+
+gateway -> order : Forward request
+order -> orderdb : CRUD operation
+order -> rabbitmq : Publish OrderCreated event
+rabbitmq -> customer : Consume OrderCreated event
+customer -> customerdb : Update order history
+
+note right of rabbitmq
+  Asynchronous communication
+  between microservices
+end note
+
+@enduml

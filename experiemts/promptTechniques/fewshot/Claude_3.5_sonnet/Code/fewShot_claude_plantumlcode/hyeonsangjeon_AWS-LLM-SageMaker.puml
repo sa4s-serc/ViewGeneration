@@ -1,0 +1,37 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Streamlit UI" as UI
+
+rectangle "RAG System" {
+  rectangle "Query Processor" as QueryProcessor
+  rectangle "Amazon OpenSearch" as OpenSearch
+  rectangle "SageMaker Endpoint\n(Korean LLM)" as LLMEndpoint
+  rectangle "Embedding Model" as EmbeddingModel
+}
+
+database "Document Store" as DocStore
+
+User --> UI : Asks question
+UI --> QueryProcessor : Sends query
+
+QueryProcessor --> EmbeddingModel : Generate query embedding
+EmbeddingModel --> OpenSearch : Search similar documents
+OpenSearch --> DocStore : Retrieve relevant docs
+DocStore --> OpenSearch : Return docs
+OpenSearch --> QueryProcessor : Return relevant context
+
+QueryProcessor --> LLMEndpoint : Send query + context
+LLMEndpoint --> QueryProcessor : Generate response
+
+QueryProcessor --> UI : Return answer
+UI --> User : Display response
+
+@enduml

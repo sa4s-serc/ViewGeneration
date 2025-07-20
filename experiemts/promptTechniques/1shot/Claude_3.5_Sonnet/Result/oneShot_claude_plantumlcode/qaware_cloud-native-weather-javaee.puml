@@ -1,0 +1,43 @@
+@startuml qaware_cloud-native-weather-javaee
+
+skinparam component {
+  BackgroundColor<<API>> LightBlue
+  BackgroundColor<<Service>> LightGreen
+  BackgroundColor<<Repository>> LightYellow
+  BackgroundColor<<Entity>> LightPink
+  BackgroundColor<<External>> LightGray
+  BackgroundColor<<Config>> LightCyan
+}
+
+[PayaraMicroWeatherResource] <<API>>
+[PayaraMicroWeatherService] <<Service>>
+[PayaraMicroWeatherRepository] <<Repository>>
+[PayaraMicroWeather] <<Entity>>
+[OpenWeatherMapConnector] <<Service>>
+[OpenWeatherMap] <<External>>
+[MicroProfile Config] <<Config>>
+[Health Checks] <<API>>
+[Metrics Endpoint] <<API>>
+database "PostgreSQL"
+
+PayaraMicroWeatherResource --> PayaraMicroWeatherService
+PayaraMicroWeatherService --> PayaraMicroWeatherRepository
+PayaraMicroWeatherService --> OpenWeatherMapConnector
+PayaraMicroWeatherRepository --> PayaraMicroWeather
+PayaraMicroWeatherRepository --> PostgreSQL
+OpenWeatherMapConnector --> OpenWeatherMap
+OpenWeatherMapConnector ..> MicroProfile Config
+PayaraMicroWeatherService ..> MicroProfile Config
+
+note right of OpenWeatherMapConnector
+  @Fallback
+  @Retry
+  @Timeout
+end note
+
+note right of Health Checks
+  PayaraMicroWeatherLivenessCheck
+  PayaraMicroWeatherReadinessCheck
+end note
+
+@enduml

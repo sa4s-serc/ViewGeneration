@@ -1,0 +1,65 @@
+```plantuml
+@startuml AndreasM009_AadApiGatekeeper
+
+package "AndreasM009_AadApiGatekeeper" {
+    component "AadApiGatekeeper" {
+        [AuthProxyMiddleware]
+        [AuthBackChannelHandler]
+        [AzureAdAuthenticationBuilderExtension]
+        [AadAuthenticationOptions]
+        [AuthProxyOptions]
+        [InMemoryTokenCache]
+    }
+
+    component "Controllers" {
+        [MeController]
+        [LoginController]
+    }
+
+    component "ASP.NET Core" {
+        [Startup]
+        [Program]
+    }
+
+    component "Deployment" {
+        [Dockerfile]
+        [K8s Deployment YAML]
+        [Service Fabric Mesh Deployment]
+    }
+
+    component "Example API" {
+        [MyApi]
+        [EchoController]
+    }
+}
+
+package "Azure AD" {
+    [Azure AD]
+}
+
+package "Client" {
+    [Client App]
+}
+
+[AuthProxyMiddleware] --> [AuthBackChannelHandler]
+[AuthBackChannelHandler] --> [AzureAdAuthenticationBuilderExtension]
+[AuthProxyMiddleware] --> [InMemoryTokenCache]
+[AuthProxyMiddleware] --> [Controllers]
+[AzureAdAuthenticationBuilderExtension] --> [Azure AD]
+[InMemoryTokenCache] --> [Azure AD]
+
+[MeController] --> [LoginController]
+[LoginController] --> [Azure AD]
+[LoginController] --> [InMemoryTokenCache]
+
+[AuthProxyMiddleware] --> [Example API]
+[MyApi] --> [EchoController]
+
+[Dockerfile] --> [Deployment]
+[K8s Deployment YAML] --> [Deployment]
+[Service Fabric Mesh Deployment] --> [Deployment]
+
+[Client App] --> [AuthProxyMiddleware]
+
+@enduml
+```

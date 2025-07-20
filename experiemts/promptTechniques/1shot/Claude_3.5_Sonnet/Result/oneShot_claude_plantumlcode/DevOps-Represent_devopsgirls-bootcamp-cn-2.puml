@@ -1,0 +1,46 @@
+@startuml DevOps-Represent_devopsgirls-bootcamp-cn-2
+
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<aws>> #ffe6cc
+  BackgroundColor<<deployment>> #e6ccff
+  Style roundrect
+}
+
+rectangle "User" as user
+
+rectangle "Frontend (React)" <<frontend>> {
+  [App.js]
+  [TodoList.js]
+  [NewTodoForm.js]
+  [config.js]
+  [client.js]
+  [render.js]
+}
+
+rectangle "AWS Services" <<aws>> {
+  [S3 Bucket] as s3
+  [API Gateway] as api
+  [Lambda Function] as lambda
+  [DynamoDB] as dynamo
+}
+
+rectangle "Deployment" <<deployment>> {
+  [Serverless Framework] as sls
+  [serverless.yml] as yml
+}
+
+user --> [App.js]
+[App.js] --> s3 : Hosted on
+s3 --> api : Routes requests to
+api --> lambda : Invokes
+lambda --> dynamo : CRUD operations
+
+sls --> yml : Uses
+yml --> s3 : Defines
+yml --> api : Defines
+yml --> lambda : Defines
+yml --> dynamo : Defines
+
+@enduml

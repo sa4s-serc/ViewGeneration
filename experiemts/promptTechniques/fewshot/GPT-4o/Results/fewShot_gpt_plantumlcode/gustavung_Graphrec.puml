@@ -1,0 +1,44 @@
+```plantuml
+@startuml gustavung_Graphrec
+left to right direction
+skinparam rectangle {
+  BackgroundColor #f7f7f7
+  BorderColor black
+  Style roundrect
+}
+
+package "Android Application" {
+  rectangle "MainActivity" as MainActivity
+  rectangle "CameraActivity" as CameraActivity
+  rectangle "ResultActivity" as ResultActivity
+  rectangle "ImageUploadTask" as ImageUploadTask
+  rectangle "CameraPreview" as CameraPreview
+  rectangle "SurfaceOverlay" as SurfaceOverlay
+}
+
+package "Flask Server" {
+  rectangle "server.py" as ServerPy
+  rectangle "graph_classifier.py" as GraphClassifierPy
+  rectangle "graph_images.py" as GraphImagesPy
+  rectangle "generate_data.py" as GenerateDataPy
+  rectangle "cn.py" as CNPy
+}
+
+package "Neural Network" {
+  rectangle "TensorFlow CNN" as TensorFlowCNN
+}
+
+MainActivity --> CameraActivity
+CameraActivity --> ResultActivity
+MainActivity --> ImageUploadTask
+ImageUploadTask --> ServerPy : HTTP POST
+ServerPy --> GraphClassifierPy
+GraphClassifierPy --> TensorFlowCNN
+GraphImagesPy --> GraphClassifierPy
+GenerateDataPy --> GraphImagesPy
+CNPy --> TensorFlowCNN
+
+ServerPy --> MainActivity : Classification Result
+
+@enduml
+```

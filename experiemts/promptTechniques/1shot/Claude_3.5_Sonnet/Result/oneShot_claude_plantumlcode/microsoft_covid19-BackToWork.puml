@@ -1,0 +1,37 @@
+@startuml microsoft_covid19-BackToWork
+
+actor Employee
+actor HR
+
+participant "Healthcare Bot" as Bot
+participant "Azure Functions" as Functions
+database "Azure SQL Database" as DB
+participant "SendGrid" as SendGrid
+participant "Microsoft Teams" as Teams
+
+Employee -> Bot: Input health data
+Bot -> Bot: Assess health status
+Bot -> Functions: Send assessment result
+
+Functions -> DB: Store user data
+Functions -> DB: Retrieve user data
+
+HR -> Functions: Request employee status
+
+alt Employee cleared
+    Functions -> SendGrid: Send clearance email with QR code
+    Functions -> Teams: Send clearance notification
+else Employee not cleared
+    Functions -> SendGrid: Send non-clearance email
+    Functions -> Teams: Send non-clearance notification
+end
+
+Employee -> Functions: Request lab test info
+Functions -> DB: Retrieve lab test info
+Functions --> Employee: Return lab test info
+
+HR -> Functions: Trigger notifications
+Functions -> DB: Retrieve employee statuses
+Functions -> SendGrid: Send batch notifications
+
+@enduml

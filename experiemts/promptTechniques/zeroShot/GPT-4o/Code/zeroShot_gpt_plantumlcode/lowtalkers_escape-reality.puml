@@ -1,0 +1,52 @@
+```plantuml
+@startuml lowtalkers_escape-reality
+
+actor User
+participant "React Client" as ReactClient
+participant "Node.js Server" as Server
+participant "MariaDB" as Database
+participant "AWS S3" as S3
+participant "Wikipedia API" as WikipediaAPI
+
+User -> ReactClient: Login
+ReactClient -> Server: POST /api/login
+Server -> Database: Validate User Credentials
+Database -> Server: User Credentials Validated
+Server -> ReactClient: Authentication Token
+
+User -> ReactClient: Explore Scenes
+ReactClient -> Server: GET /api/scenes
+Server -> Database: Fetch Scene Data
+Database -> Server: Scene Data
+Server -> ReactClient: Scene Data
+
+User -> ReactClient: Upload Image
+ReactClient -> S3: Upload Image
+S3 -> ReactClient: Image URL
+ReactClient -> Server: POST /api/images
+Server -> Database: Store Image Metadata
+Database -> Server: Acknowledgement
+Server -> ReactClient: Image Upload Success
+
+User -> ReactClient: Comment on Image
+ReactClient -> Server: POST /api/comments
+Server -> Database: Store Comment
+Database -> Server: Acknowledgement
+Server -> ReactClient: Comment Success
+
+User -> ReactClient: Like Image
+ReactClient -> Server: POST /api/likes
+Server -> Database: Update Like Count
+Database -> Server: Acknowledgement
+Server -> ReactClient: Like Success
+
+User -> ReactClient: Bookmark Article
+ReactClient -> WikipediaAPI: Fetch Article
+WikipediaAPI -> ReactClient: Article Content
+ReactClient -> Server: POST /api/bookmarks
+Server -> Database: Store Bookmark
+Database -> Server: Acknowledgement
+Server -> ReactClient: Bookmark Success
+
+@enduml
+```

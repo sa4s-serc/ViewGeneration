@@ -1,0 +1,52 @@
+@startuml
+
+title Deployment Sequence for ML Workflow in Amazon SageMaker
+
+actor "Data Scientist" as DS
+participant "SageMaker Studio" as SMS
+participant "SageMaker Training Job" as SMTJ
+participant "S3 Bucket" as S3
+participant "SageMaker Model" as SMM
+participant "SageMaker Endpoint" as SME
+participant "CloudWatch" as CW
+
+DS -> SMS : Initiate ML workflow
+activate SMS
+
+SMS -> S3 : Upload training data
+activate S3
+S3 --> SMS : Confirm upload
+deactivate S3
+
+SMS -> SMTJ : Configure and start training job
+activate SMTJ
+SMTJ -> S3 : Fetch training data
+S3 --> SMTJ : Provide data
+SMTJ -> SMTJ : Train/fine-tune model
+SMTJ -> S3 : Save trained model artifacts
+S3 --> SMTJ : Confirm save
+SMTJ --> SMS : Training complete
+deactivate SMTJ
+
+SMS -> SMM : Create model
+activate SMM
+SMM -> S3 : Fetch model artifacts
+S3 --> SMM : Provide artifacts
+SMM --> SMS : Model created
+deactivate SMM
+
+SMS -> SME : Deploy model to endpoint
+activate SME
+SME -> SMM : Load model
+SMM --> SME : Model loaded
+SME --> SMS : Endpoint active
+deactivate SME
+
+SMS -> CW : Configure monitoring
+activate CW
+CW --> SMS : Monitoring set up
+deactivate CW
+
+SMS --> DS : Deployment complete
+
+@enduml

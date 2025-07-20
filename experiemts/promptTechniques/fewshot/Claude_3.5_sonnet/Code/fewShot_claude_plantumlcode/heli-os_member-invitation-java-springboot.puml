@@ -1,0 +1,60 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Interface Layer" {
+  [REST Controllers] as RC
+  [DTOs] as DTO
+  [Mappers] as MAP
+  [Exception Handlers] as EH
+}
+
+package "Domain Layer" {
+  [Use Case Interfaces] as UCI
+  [Domain Services] as DS
+  [Domain Objects] as DO
+}
+
+package "Infrastructure Layer" {
+  database "Relational Database" as RDB
+  database "Redis" as REDIS
+  
+  package "Database Persistence" {
+    [JPA Entities] as JPA
+    [JPA Repositories] as JPAR
+  }
+  
+  package "Redis Persistence" {
+    [Redis Adapter] as RA
+  }
+}
+
+package "Commons" {
+  [Common Models] as CM
+  [Utility Functions] as UF
+}
+
+RC --> DTO
+RC --> MAP
+RC --> UCI
+EH --> RC
+
+UCI --> DS
+DS --> DO
+DS --> CM
+DS --> UF
+
+JPAR --> RDB
+RA --> REDIS
+
+DS --> JPAR
+DS --> RA
+
+MAP --> DO
+MAP --> DTO
+
+@enduml

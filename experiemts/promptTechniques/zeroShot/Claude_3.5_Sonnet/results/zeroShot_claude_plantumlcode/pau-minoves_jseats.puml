@@ -1,0 +1,43 @@
+```plantuml
+@startuml pau-minoves_jseats
+
+[SeatAllocatorLauncher] as CLI
+[SeatAllocatorProcessor] as Processor
+[ProcessorConfig] as Config
+[SeatAllocatorResolver] as Resolver
+
+package "Allocation Methods" {
+    [MajorityMethods]
+    [LargestRemainderMethods]
+    [HighestAveragesMethods]
+    [EqualProportionsMethods]
+    [RankedByVotesMethods]
+}
+
+package "Customization" {
+    [TallyFilters]
+    [ResultDecorators]
+    [TieBreakers]
+}
+
+package "Data Model" {
+    [Tally]
+    [Candidate]
+    [Result]
+}
+
+CLI --> Processor : executes
+Processor --> Config : uses
+Processor --> Resolver : uses
+Resolver --> "Allocation Methods" : resolves
+Resolver --> Customization : resolves
+Processor --> "Data Model" : processes
+
+Config ..> "Allocation Methods" : configures
+Config ..> Customization : configures
+
+"Data Model" <-- "Allocation Methods" : manipulates
+"Data Model" <-- Customization : manipulates
+
+@enduml
+```

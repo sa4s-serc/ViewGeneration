@@ -1,0 +1,56 @@
+```plantuml
+@startuml 0xMelkor_ethereum-node
+skinparam rectangle {
+  BackgroundColor<<ethereum>> #d9e7fd
+  BackgroundColor<<metrics>> #f0e68c
+  BackgroundColor<<proxy>> #ffdab9
+  BackgroundColor<<ci_cd>> #d3d3d3
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Ethereum Node" <<ethereum>> {
+  rectangle "Geth\n(Execution Layer)" as Geth
+  rectangle "Lighthouse\n(Consensus Layer)" as Lighthouse
+  Geth --> Lighthouse
+}
+
+package "Metrics Collection" <<metrics>> {
+  rectangle "InfluxDB" as InfluxDB
+  InfluxDB -[hidden]-> Geth
+}
+
+package "Reverse Proxy" <<proxy>> {
+  rectangle "Nginx" as Nginx
+  Nginx --> Geth : RPC, WebSocket
+  Nginx --> InfluxDB
+}
+
+package "CI/CD Pipeline" <<ci_cd>> {
+  rectangle "Google Cloud Build" as CloudBuild
+  CloudBuild -[hidden]-> Geth
+}
+
+package "Kubernetes Orchestration" {
+  rectangle "Kubernetes Cluster" as K8s
+  Geth --> K8s
+  Lighthouse --> K8s
+  InfluxDB --> K8s
+  Nginx --> K8s
+}
+
+rectangle "Google Cloud Secret Manager" as SecretManager
+rectangle "Persistent Storage" as Storage
+
+Geth --> Storage
+Lighthouse --> Storage
+InfluxDB --> Storage
+
+CloudBuild --> Geth : Deploys
+CloudBuild --> Lighthouse : Deploys
+CloudBuild --> InfluxDB : Deploys
+CloudBuild --> Nginx : Deploys
+
+SecretManager --> CloudBuild : Secret Injection
+@enduml
+```

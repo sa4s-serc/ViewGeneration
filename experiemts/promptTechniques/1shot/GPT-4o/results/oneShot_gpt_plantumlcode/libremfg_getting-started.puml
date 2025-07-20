@@ -1,0 +1,49 @@
+```plantuml
+@startuml libremfg_getting-started
+skinparam rectangle {
+  BackgroundColor<<microservice>> #d9e7fd
+  BackgroundColor<<database>> #d8f5d3
+  BackgroundColor<<ui>> #fddddd
+  BackgroundColor<<broker>> #fff1c9
+  BackgroundColor<<engine>> #f0e68c
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Libre Platform Microservices" <<microservice>> {
+  rectangle "Libre Core" as Core
+  rectangle "Libre Gateway" as Gateway
+  rectangle "GraphQL Pub/Sub" as GraphQLPubSub
+  rectangle "Libre Administration UI" as AdminUI <<ui>>
+  Core --> Gateway
+  Gateway --> GraphQLPubSub
+}
+
+package "Databases" <<database>> {
+  rectangle "Dgraph" as Dgraph
+  rectangle "InfluxDB" as InfluxDB
+}
+
+package "Visualization and Tools" <<ui>> {
+  rectangle "Grafana Dashboards" as Grafana
+  rectangle "PackML Simulator" as PackML
+}
+
+package "MQTT & Communication" <<broker>> {
+  rectangle "MQTT Broker (EMQX)" as MQTT
+}
+
+package "Workflow Management" <<engine>> {
+  rectangle "Workflow Engine" as WorkflowEngine
+}
+
+Core --> Dgraph
+GraphQLPubSub --> Dgraph
+GraphQLPubSub --> InfluxDB
+AdminUI --> GraphQLPubSub
+Grafana --> InfluxDB
+MQTT --> Core
+MQTT --> WorkflowEngine
+WorkflowEngine --> Core
+@enduml
+```

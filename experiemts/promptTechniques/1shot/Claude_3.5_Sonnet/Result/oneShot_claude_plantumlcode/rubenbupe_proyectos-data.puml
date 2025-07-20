@@ -1,0 +1,49 @@
+@startuml rubenbupe_proyectos-data
+
+skinparam componentStyle uml2
+
+cloud "Google Cloud Platform" {
+  frame "Kubernetes Cluster" {
+    node "Ingress" as ingress
+    
+    package "Frontend" {
+      [Next.js App] as frontend
+    }
+    
+    package "Backend" {
+      [Flask API] as api
+      [Node.js Metrics API] as metrics
+    }
+    
+    database "MongoDB" as mongodb
+    queue "RabbitMQ" as rabbitmq
+    
+    [cert-manager] as certmanager
+  }
+}
+
+actor User
+
+User --> ingress : HTTPS
+ingress --> frontend : Route
+ingress --> api : Route
+ingress --> metrics : Route
+
+frontend --> api : REST API calls
+api --> mongodb : Read/Write
+api --> rabbitmq : Publish events
+
+metrics --> rabbitmq : Consume events
+metrics --> mongodb : Read/Write
+
+certmanager --> ingress : Manage TLS certificates
+
+cloud "External Services" {
+  [Positionstack API] as positionstack
+  [Let's Encrypt] as letsencrypt
+}
+
+api --> positionstack : Geocoding requests
+certmanager --> letsencrypt : Request certificates
+
+@enduml

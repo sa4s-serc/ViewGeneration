@@ -1,0 +1,50 @@
+@startuml itays123_partydeck
+
+skinparam component {
+  BackgroundColor<<Frontend>> LightBlue
+  BackgroundColor<<Backend>> LightGreen
+}
+
+cloud "Google Cloud Platform" {
+  [Google Cloud Run]
+  [Google Cloud Build]
+}
+
+component "Panel" <<Frontend>> {
+  [React Components]
+  [Auth Management]
+  [Deck Management]
+  [Game Library]
+}
+
+component "Game" <<Frontend>> {
+  [Game UI]
+  [WebSocket Client]
+}
+
+component "Server" <<Backend>> {
+  [Spring Boot Application]
+  [WebSocket Handler]
+  [Game Controller]
+  [Game Service]
+  [State Builder]
+}
+
+database "Database" {
+  [Game Data]
+  [User Data]
+}
+
+[Panel] --> [Google Cloud Run] : deployed on
+[Game] --> [Google Cloud Run] : deployed on
+[Server] --> [Google Cloud Run] : deployed on
+
+[Google Cloud Build] --> [Panel] : builds
+[Google Cloud Build] --> [Game] : builds
+[Google Cloud Build] --> [Server] : builds
+
+[Panel] --> [Server] : REST API
+[Game] <--> [Server] : WebSocket
+[Server] --> [Database] : persists data
+
+@enduml

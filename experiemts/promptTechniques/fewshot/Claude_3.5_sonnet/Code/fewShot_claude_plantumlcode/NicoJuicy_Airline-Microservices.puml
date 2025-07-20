@@ -1,0 +1,55 @@
+Here's a PlantUML component diagram representing the Airline-Microservices architecture:
+
+@startuml NicoJuicy_Airline-Microservices
+
+skinparam componentStyle rectangle
+skinparam linetype ortho
+
+cloud "External Clients" as clients
+
+package "API Gateway" {
+  [YARP Reverse Proxy] as gateway
+}
+
+package "Microservices" {
+  [Identity Service] as identity
+  [Flight Service] as flight
+  [Passenger Service] as passenger
+  [Reservation Service] as reservation
+}
+
+package "Shared Components" {
+  [Building Blocks] as buildingBlocks
+}
+
+database "Databases" {
+  [Identity DB] as identityDB
+  [Flight DB] as flightDB
+  [Passenger DB] as passengerDB
+  [Reservation DB] as reservationDB
+}
+
+[RabbitMQ] as rabbitmq
+
+clients --> gateway
+gateway --> identity
+gateway --> flight
+gateway --> passenger
+gateway --> reservation
+
+identity --> identityDB
+flight --> flightDB
+passenger --> passengerDB
+reservation --> reservationDB
+
+identity ..> buildingBlocks
+flight ..> buildingBlocks
+passenger ..> buildingBlocks
+reservation ..> buildingBlocks
+
+identity <--> rabbitmq
+flight <--> rabbitmq
+passenger <--> rabbitmq
+reservation <--> rabbitmq
+
+@enduml

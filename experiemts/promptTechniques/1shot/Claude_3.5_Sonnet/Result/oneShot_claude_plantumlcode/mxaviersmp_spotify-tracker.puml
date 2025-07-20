@@ -1,0 +1,34 @@
+@startuml mxaviersmp_spotify-tracker
+
+skinparam component {
+  BackgroundColor<<API>> LightBlue
+  BackgroundColor<<ETL>> LightGreen
+  BackgroundColor<<DB>> LightYellow
+  BackgroundColor<<UI>> LightPink
+  BackgroundColor<<Deployment>> LightGray
+}
+
+cloud "AWS" {
+  component "API Gateway" as APIGateway
+  component "Lambda" as Lambda
+  database "RDS (PostgreSQL)" as RDS
+}
+
+component "FastAPI Application" as FastAPI <<API>>
+component "Apache Airflow" as Airflow <<ETL>>
+component "Streamlit App" as Streamlit <<UI>>
+component "Serverless Framework" as Serverless <<Deployment>>
+component "GitHub Actions" as GitHubActions <<Deployment>>
+
+[FastAPI] ..> Lambda : deployed to
+APIGateway --> Lambda : routes requests
+[FastAPI] --> RDS : stores data
+Airflow --> RDS : loads data
+Airflow --> [Spotify API] : fetches data
+Streamlit --> APIGateway : interacts with API
+Serverless ..> Lambda : manages deployment
+Serverless ..> APIGateway : configures
+GitHubActions --> Serverless : triggers deployment
+GitHubActions --> RDS : runs migrations
+
+@enduml

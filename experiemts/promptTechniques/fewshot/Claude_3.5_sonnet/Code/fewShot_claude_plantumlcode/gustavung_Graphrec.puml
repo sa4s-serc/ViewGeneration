@@ -1,0 +1,60 @@
+@startuml gustavung_Graphrec
+
+skinparam component {
+  BackgroundColor LightSkyBlue
+  BorderColor Black
+  ArrowColor Black
+}
+
+skinparam database {
+  BackgroundColor LightYellow
+  BorderColor Black
+}
+
+skinparam rectangle {
+  BackgroundColor LightGreen
+  BorderColor Black
+}
+
+rectangle "Android Application" {
+  [MainActivity]
+  [CameraActivity]
+  [ResultActivity]
+  [ImageUploadTask]
+  [CameraPreview]
+  [SurfaceOverlay]
+}
+
+rectangle "Flask Server" {
+  [server.py]
+  [graph_classifier.py]
+  [graph_images.py]
+  [generate_data.py]
+  [cn.py]
+}
+
+rectangle "Neural Network" {
+  [CNN Model]
+}
+
+database "Synthetic Data" {
+  [Training Images]
+}
+
+[MainActivity] --> [CameraActivity]
+[CameraActivity] --> [ResultActivity]
+[CameraActivity] --> [CameraPreview]
+[CameraActivity] --> [SurfaceOverlay]
+[ResultActivity] --> [ImageUploadTask]
+
+[ImageUploadTask] --> [server.py] : HTTP POST
+
+[server.py] --> [graph_classifier.py]
+[graph_classifier.py] --> [CNN Model]
+[graph_images.py] --> [CNN Model]
+[generate_data.py] --> [Training Images]
+[cn.py] --> [CNN Model]
+
+[Training Images] --> [graph_classifier.py]
+
+@enduml

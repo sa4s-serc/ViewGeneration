@@ -1,0 +1,65 @@
+@startuml swir-rs_swir
+
+skinparam component {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<messaging>> #fddddd
+  BackgroundColor<<persistence>> #fff1c9
+  BackgroundColor<<discovery>> #e6e6fa
+}
+
+[HTTP Server] <<frontend>>
+[gRPC Server] <<frontend>>
+[Service Invocation Handler] <<backend>>
+[PubSub Handler] <<backend>>
+[Persistence Handler] <<backend>>
+[Configuration] <<backend>>
+[Metrics & Tracing] <<backend>>
+
+package "Messaging" <<messaging>> {
+  [Kafka Handler]
+  [NATS Handler]
+  [AWS Kinesis Handler]
+}
+
+package "Persistence" <<persistence>> {
+  [Redis Store]
+  [DynamoDB Store]
+}
+
+package "Service Discovery" <<discovery>> {
+  [mDNS]
+  [DynamoDB Discovery]
+}
+
+[HTTP Server] --> [Service Invocation Handler]
+[HTTP Server] --> [PubSub Handler]
+[HTTP Server] --> [Persistence Handler]
+
+[gRPC Server] --> [Service Invocation Handler]
+[gRPC Server] --> [PubSub Handler]
+[gRPC Server] --> [Persistence Handler]
+
+[Service Invocation Handler] --> [mDNS]
+[Service Invocation Handler] --> [DynamoDB Discovery]
+
+[PubSub Handler] --> [Kafka Handler]
+[PubSub Handler] --> [NATS Handler]
+[PubSub Handler] --> [AWS Kinesis Handler]
+
+[Persistence Handler] --> [Redis Store]
+[Persistence Handler] --> [DynamoDB Store]
+
+[Configuration] ..> [HTTP Server] : configures
+[Configuration] ..> [gRPC Server] : configures
+[Configuration] ..> [Messaging] : configures
+[Configuration] ..> [Persistence] : configures
+[Configuration] ..> [Service Discovery] : configures
+
+[Metrics & Tracing] ..> [HTTP Server] : monitors
+[Metrics & Tracing] ..> [gRPC Server] : monitors
+[Metrics & Tracing] ..> [Service Invocation Handler] : monitors
+[Metrics & Tracing] ..> [PubSub Handler] : monitors
+[Metrics & Tracing] ..> [Persistence Handler] : monitors
+
+@enduml

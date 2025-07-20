@@ -1,0 +1,25 @@
+```plantuml
+@startuml McOrts_taller-iot-sensor_radiactividad
+
+actor User
+
+participant "ESP8266" as ESP
+participant "Geiger Counter Module" as GCM
+participant "MQTT Broker" as MQTT
+participant "Node-RED" as NR
+participant "GMC.MAP" as GMC
+
+User -> ESP: Configure Wi-Fi & MQTT settings
+ESP -> GCM: Start pulse detection
+GCM -> ESP: Pulse detected
+ESP -> ESP: Calculate CPM
+ESP -> MQTT: Publish CPM data
+MQTT -> NR: Forward CPM data
+NR -> GMC: Send data for visualization
+
+User -> MQTT: Send LED control command
+MQTT -> ESP: Receive LED control command
+ESP -> ESP: Toggle LED state
+
+@enduml
+```

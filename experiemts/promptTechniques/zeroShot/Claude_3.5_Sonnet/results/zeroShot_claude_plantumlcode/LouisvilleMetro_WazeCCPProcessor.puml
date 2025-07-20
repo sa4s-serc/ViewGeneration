@@ -1,0 +1,49 @@
+Here's a PlantUML sequence diagram representing the control flow of the LouisvilleMetro_WazeCCPProcessor system:
+
+```plantuml
+@startuml LouisvilleMetro_WazeCCPProcessor
+
+participant "Waze CCP Data Feed" as WazeFeed
+participant "waze-data-download\nLambda" as DownloadLambda
+participant "S3 Bucket" as S3
+participant "SNS Topic" as SNS
+participant "waze-data-process\nLambda" as ProcessLambda
+participant "SQS Queue" as SQS
+participant "Specialized Processing\nLambdas" as SpecializedLambdas
+participant "Aurora PostgreSQL" as DB
+participant "API Gateway" as APIGateway
+participant "waze-data-api\nLambda" as APILambda
+participant "Client" as Client
+
+activate DownloadLambda
+DownloadLambda -> WazeFeed: Fetch data
+WazeFeed --> DownloadLambda: Return data
+DownloadLambda -> S3: Store JSON files
+DownloadLambda -> SNS: Notify data retrieval
+deactivate DownloadLambda
+
+S3 -> ProcessLambda: Trigger event
+activate ProcessLambda
+ProcessLambda -> S3: Retrieve JSON files
+ProcessLambda -> SQS: Enqueue processing tasks
+deactivate ProcessLambda
+
+SQS -> SpecializedLambdas: Trigger processing
+activate SpecializedLambdas
+SpecializedLambdas -> DB: Store processed data
+SpecializedLambdas --> SQS: Processing complete
+deactivate SpecializedLambdas
+
+Client -> APIGateway: Request data
+activate APIGateway
+APIGateway -> APILambda: Forward request
+activate APILambda
+APILambda -> DB: Query data
+DB --> APILambda: Return data
+APILambda --> APIGateway: Return response
+deactivate APILambda
+APIGateway --> Client: Deliver response
+deactivate APIGateway
+
+@enduml
+```

@@ -1,0 +1,41 @@
+@startuml open-risk_Open_Risk_API
+
+skinparam component {
+  BackgroundColor<<server>> LightBlue
+  BackgroundColor<<client>> LightGreen
+  BackgroundColor<<library>> LightYellow
+  BackgroundColor<<database>> LightGray
+}
+
+cloud "Deployment Environment" {
+  component "Model Server" <<server>> {
+    [Flask]
+    [RDFlib]
+    [Concentration Metrics Library]
+  }
+
+  component "Data Server" <<server>> {
+    [Python-Eve]
+  }
+
+  database "MongoDB" <<database>>
+
+  component "API Explorer" <<client>> {
+    [Python Client]
+  }
+
+  component "OpenCPM" <<library>> {
+    [NPL Concentration Metrics]
+  }
+
+  [RESTful API]
+}
+
+[Model Server] --> [RESTful API] : exposes
+[Data Server] --> [RESTful API] : exposes
+[API Explorer] --> [RESTful API] : consumes
+[OpenCPM] --> [RESTful API] : utilizes
+
+[Data Server] --> MongoDB : uses
+
+@enduml

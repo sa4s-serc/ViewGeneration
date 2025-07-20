@@ -1,0 +1,64 @@
+```plantuml
+@startuml microsoft_covid19-BackToWork
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor Employee
+
+rectangle "Azure Functions" as AF {
+  rectangle "PostUserInfo" as PostUserInfo
+  rectangle "PostSymptomsInfo" as PostSymptomsInfo
+  rectangle "PostLabTestInfo" as PostLabTestInfo
+  rectangle "PostRequestStatus" as PostRequestStatus
+  rectangle "GetUserInfo" as GetUserInfo
+  rectangle "GetSymptomsInfo" as GetSymptomsInfo
+  rectangle "GetLabTestInfo" as GetLabTestInfo
+  rectangle "GetRequestStatus" as GetRequestStatus
+  rectangle "TriggerNotification" as TriggerNotification
+}
+
+rectangle "Azure SQL Database" as SQLDB #lightsteelblue
+
+rectangle "Microsoft Healthcare Bot" as HealthcareBot #lightyellow
+
+rectangle "SendGrid" as SendGrid #aliceblue
+
+rectangle "Microsoft Teams" as Teams #mistyrose
+
+' ========== Interactions ==========
+Employee -> PostUserInfo : submit personal info
+PostUserInfo -> SQLDB : store user information
+
+Employee -> PostSymptomsInfo : submit symptoms
+PostSymptomsInfo -> SQLDB : store symptoms information
+
+Employee -> PostLabTestInfo : submit lab results
+PostLabTestInfo -> SQLDB : store lab test information
+
+Employee -> PostRequestStatus : request return-to-work clearance
+PostRequestStatus -> HealthcareBot : evaluate health status
+HealthcareBot -> SQLDB : update request status based on evaluation
+
+TriggerNotification -> SQLDB : fetch cleared employee data
+TriggerNotification -> SendGrid : send email notifications with QR code
+
+Employee -> GetUserInfo : request personal info
+GetUserInfo -> SQLDB : retrieve user information
+
+Employee -> GetSymptomsInfo : request symptoms info
+GetSymptomsInfo -> SQLDB : retrieve symptoms information
+
+Employee -> GetLabTestInfo : request lab test info
+GetLabTestInfo -> SQLDB : retrieve lab test information
+
+Employee -> GetRequestStatus : check return-to-work status
+GetRequestStatus -> SQLDB : retrieve request status
+
+TriggerNotification -> Teams : send Microsoft Teams notifications (if programmatically triggered)
+
+@enduml
+```

@@ -1,0 +1,33 @@
+@startuml dowjones_hammer
+
+actor "AWS Admin" as Admin
+participant "REST API" as API
+participant "Slack Bot" as SlackBot
+participant "Initiation Lambda" as InitLambda
+participant "SNS" as SNS
+participant "Identification Lambda" as IdLambda
+participant "EC2 Instance" as EC2
+database "DynamoDB" as DDB
+participant "AWS Resources" as AWSRes
+participant "JIRA" as JIRA
+participant "Slack" as Slack
+
+Admin -> API : Trigger scan
+API -> InitLambda : Invoke
+InitLambda -> SNS : Publish event
+SNS -> IdLambda : Trigger identification
+IdLambda -> AWSRes : Check security configuration
+IdLambda -> DDB : Store identified issues
+IdLambda -> SNS : Publish completion event
+SNS -> EC2 : Trigger reporting/remediation
+EC2 -> DDB : Fetch issues
+EC2 -> JIRA : Create/update tickets
+EC2 -> Slack : Send notifications
+EC2 -> AWSRes : Apply automatic remediations
+EC2 -> DDB : Update issue status
+
+Admin -> SlackBot : Request status
+SlackBot -> DDB : Fetch latest results
+SlackBot -> Admin : Return status
+
+@enduml

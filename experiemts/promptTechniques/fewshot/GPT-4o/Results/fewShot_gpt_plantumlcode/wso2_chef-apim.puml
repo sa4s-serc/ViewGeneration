@@ -1,0 +1,50 @@
+```plantuml
+@startuml wso2_chef-apim
+left to right direction
+skinparam rectangle {
+  BackgroundColor #d9e7fd
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Chef Cookbook" {
+  rectangle "attributes/default.rb\n(Attributes Configuration)" as Attributes
+  rectangle "recipes/default.rb\n(Main Recipe)" as MainRecipe
+  rectangle "recipes/java_installation.rb\n(Java Setup)" as JavaRecipe
+  rectangle "recipes/wso2_apim_installation.rb\n(WSO2 API Manager Setup)" as APIMRecipe
+  rectangle "recipes/apply_template.rb\n(Template Application)" as TemplateRecipe
+  rectangle "templates/*\n(Configuration Templates)" as Templates
+}
+
+package "WSO2 API Manager" {
+  rectangle "Key Manager" as KeyManager
+  rectangle "Publisher" as Publisher
+  rectangle "Store" as Store
+  rectangle "Traffic Manager" as TrafficManager
+  rectangle "Gateway Manager" as GatewayManager
+  rectangle "Gateway Worker" as GatewayWorker
+}
+
+package "Infrastructure" {
+  rectangle "Java" as Java
+  rectangle "MySQL Database" as MySQL
+}
+
+Attributes --> MainRecipe
+MainRecipe --> JavaRecipe
+MainRecipe --> APIMRecipe
+MainRecipe --> TemplateRecipe
+TemplateRecipe --> Templates
+
+JavaRecipe --> Java
+APIMRecipe --> KeyManager
+APIMRecipe --> Publisher
+APIMRecipe --> Store
+APIMRecipe --> TrafficManager
+APIMRecipe --> GatewayManager
+APIMRecipe --> GatewayWorker
+
+APIMRecipe --> MySQL
+@enduml
+```

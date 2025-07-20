@@ -1,0 +1,47 @@
+```plantuml
+@startuml SafeBreach-Labs_hAFL2
+
+package "hAFL2 Fuzzing Framework" {
+
+    component "Core Fuzzing Implementation" {
+        [kAFL Fuzzer] --> [Master]
+        [Master] --> [Slave]
+        [Slave] --> [QEMU/KVM]
+        [QEMU/KVM] --> [Intel PT]
+        [kAFL GUI]
+        [kAFL GUI] --> [Master]
+    }
+
+    component "Hyper-V Fuzzing" {
+        [Linux Host] --> [QEMU]
+        [QEMU] --> [Root Partition Windows VM]
+        [Root Partition Windows VM] --> [Child Partition Windows VM]
+    }
+
+    component "Communication & Monitoring" {
+        [CPHarness.sys] --> [VMSwitch.sys]
+        [CrashMonitoringDriver.sys] --> [Fuzzer]
+        [Hypercalls]
+        [Hypercalls] --> [KVM]
+    }
+
+    component "Code Coverage" {
+        [Intel PT] --> [KVM Modifications]
+    }
+
+    component "Redqueen Instrumentation" {
+        [Redqueen Logic] --> [Program Execution]
+        [Program Execution] --> [Symbolic Execution]
+    }
+
+    [Linux Host] --> [kAFL Fuzzer]
+    [kAFL Fuzzer] --> [Hypercalls]
+    [Hypercalls] --> [Intel PT]
+    [Intel PT] --> [Program Execution]
+
+    [Program Execution] --> [CrashMonitoringDriver.sys]
+
+}
+
+@enduml
+```

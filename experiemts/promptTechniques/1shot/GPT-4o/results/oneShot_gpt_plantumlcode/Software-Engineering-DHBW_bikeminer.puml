@@ -1,0 +1,56 @@
+```plantuml
+@startuml Software-Engineering-DHBW_bikeminer
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<db>> #fff1c9
+  BackgroundColor<<container>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+actor User
+
+package "Frontend" <<frontend>> {
+  rectangle "Legacy Android App" as AndroidApp
+  rectangle "Flutter App" as FlutterApp
+  User --> AndroidApp
+  User --> FlutterApp
+}
+
+package "Backend" <<backend>> {
+  rectangle "FastAPI Server" as FastAPI
+  FastAPI --[#black,dashed]--> AndroidApp : "REST API"
+  FastAPI --[#black,dashed]--> FlutterApp : "REST API"
+}
+
+package "Data Storage" <<db>> {
+  database "MariaDB" as MariaDB
+  FastAPI --> MariaDB : "SQLAlchemy ORM"
+}
+
+package "Containerization" <<container>> {
+  rectangle "Docker & Compose" as Docker
+  FastAPI --> Docker
+  MariaDB --> Docker
+}
+
+note right of User
+  - Interacts with apps
+  - Uses GPS data
+  - Earns BikeCoins
+end note
+
+note right of FastAPI
+  - User management
+  - Ride data processing
+  - JWT Auth
+end note
+
+note bottom of MariaDB
+  - Stores user data
+  - Stores ride history
+end note
+
+@enduml
+```

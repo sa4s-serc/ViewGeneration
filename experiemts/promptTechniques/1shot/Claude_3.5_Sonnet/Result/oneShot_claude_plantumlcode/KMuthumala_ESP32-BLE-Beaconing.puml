@@ -1,0 +1,28 @@
+@startuml KMuthumala_ESP32-BLE-Beaconing
+
+actor "BLE Beacons" as Beacons
+participant "ESP32" as ESP32
+participant "WiFi Router" as WiFi
+participant "MQTT Broker" as MQTT
+participant "Subscriber" as Sub
+
+loop Every scan interval
+    Beacons -> ESP32: Broadcast BLE signals
+    ESP32 -> ESP32: Scan for BLE devices
+    ESP32 -> ESP32: Extract MAC and RSSI
+    ESP32 -> ESP32: Format data as JSON
+    
+    alt WiFi connected
+        ESP32 -> WiFi: Send MQTT publish request
+        WiFi -> MQTT: Forward MQTT publish
+        MQTT -> Sub: Deliver beacon data
+    else WiFi disconnected
+        ESP32 -> ESP32: Attempt WiFi reconnection
+    end
+    
+    alt MQTT disconnected
+        ESP32 -> ESP32: Attempt MQTT reconnection
+    end
+end
+
+@enduml

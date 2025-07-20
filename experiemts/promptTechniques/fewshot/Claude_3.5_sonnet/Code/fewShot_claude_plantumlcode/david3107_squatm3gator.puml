@@ -1,0 +1,75 @@
+@startuml david3107_squatm3gator
+
+skinparam componentStyle rectangle
+skinparam defaultTextAlignment center
+
+!define RECTANGLE(x) rectangle "<b>x</b>" as x
+
+actor User
+
+package "Frontend" {
+    RECTANGLE(UI)
+    RECTANGLE(SocketIO_Client)
+}
+
+package "Backend" {
+    RECTANGLE(Flask_App)
+    RECTANGLE(API_Endpoints)
+    RECTANGLE(SocketIO_Server)
+    RECTANGLE(Job_Queue)
+    
+    package "Domain Generation" {
+        RECTANGLE(HomoglyphAttack)
+        RECTANGLE(Flipper)
+        RECTANGLE(RemoveOneLetter)
+        RECTANGLE(TldSelector)
+    }
+    
+    RECTANGLE(GoDaddy_Checker)
+    RECTANGLE(WHOIS_Lookup)
+}
+
+database "Redis" {
+    RECTANGLE(Message_Queue)
+    RECTANGLE(Session_Store)
+}
+
+cloud "External Services" {
+    RECTANGLE(GoDaddy_API)
+    RECTANGLE(WHOIS_Service)
+}
+
+User --> UI
+UI --> API_Endpoints : HTTP
+UI <--> SocketIO_Client : WebSocket
+SocketIO_Client <--> SocketIO_Server : WebSocket
+
+Flask_App --> API_Endpoints
+Flask_App --> SocketIO_Server
+Flask_App --> Job_Queue
+
+Job_Queue --> Message_Queue : Enqueue Jobs
+Message_Queue --> HomoglyphAttack : Dequeue Jobs
+Message_Queue --> Flipper : Dequeue Jobs
+Message_Queue --> RemoveOneLetter : Dequeue Jobs
+Message_Queue --> TldSelector : Dequeue Jobs
+
+HomoglyphAttack --> GoDaddy_Checker
+Flipper --> GoDaddy_Checker
+RemoveOneLetter --> GoDaddy_Checker
+TldSelector --> GoDaddy_Checker
+
+GoDaddy_Checker --> GoDaddy_API : Check Availability
+WHOIS_Lookup --> WHOIS_Service : Lookup Info
+
+Flask_App --> Session_Store : Manage Sessions
+
+note right of Job_Queue
+  Asynchronous processing
+end note
+
+note bottom of GoDaddy_API
+  Requires API Keys
+end note
+
+@enduml

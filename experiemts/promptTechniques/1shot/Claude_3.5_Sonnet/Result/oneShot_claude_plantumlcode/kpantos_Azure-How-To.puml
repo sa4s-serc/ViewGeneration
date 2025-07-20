@@ -1,0 +1,39 @@
+@startuml kpantos_Azure-How-To
+
+skinparam component {
+  BackgroundColor<<Azure>> #CCFFCC
+  BackgroundColor<<OnPrem>> #FFCCCC
+}
+
+package "Azure" <<Azure>> {
+  [Azure Application Gateway] as AppGateway
+  [Web Application Firewall (WAF)] as WAF
+  [Azure App Service] as AppService
+  [Azure AD Application Proxy] as AppProxy
+  [Azure API Management] as APIM
+  [Azure AD] as AzureAD
+}
+
+package "On-Premises" <<OnPrem>> {
+  [On-Premises API] as OnPremAPI
+  [Active Directory] as AD
+}
+
+cloud "Internet" {
+  [Let's Encrypt] as LetsEncrypt
+}
+
+[Bot Application] ..> AppService : hosted on
+AppGateway --> WAF : integrates
+WAF --> AppService : protects
+LetsEncrypt ..> AppGateway : provides SSL/TLS
+
+AppProxy --> OnPremAPI : enables remote access
+APIM --> AppProxy : manages API
+AzureAD <--> AD : syncs with
+
+[Azure AD Connect] as ADConnect
+ADConnect --> AD : synchronizes
+ADConnect --> AzureAD : synchronizes
+
+@enduml

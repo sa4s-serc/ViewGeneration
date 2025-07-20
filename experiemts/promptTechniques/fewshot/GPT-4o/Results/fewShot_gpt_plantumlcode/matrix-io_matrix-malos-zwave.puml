@@ -1,0 +1,61 @@
+```plantuml
+@startuml matrix-io_matrix-malos-zwave
+skinparam componentStyle rectangle
+skinparam backgroundColor #ffffff
+skinparam ArrowColor black
+skinparam ArrowThickness 1
+
+package "MATRIX Core (MALOS)" {
+  component "MALOS\nFacade" as MALOSFacade
+}
+
+package "Z-Wave System" {
+  component "Z/IP Gateway" as ZIPGateway
+  component "Z-Wave\nModule" as ZWaveModule
+}
+
+package "matrix-io_matrix-malos-zwave" {
+  component "malos_zwave\nMicroservice" as MalosZWave
+  component "Driver Manager" as DriverManager
+  component "Command Classes\n(Z/IP Protocol)" as CommandClasses
+}
+
+package "Inter-Process Communication" {
+  component "ZeroMQ\nMessaging" as ZeroMQ
+  component "Protocol Buffers\nSerialization" as ProtoBuf
+}
+
+package "JavaScript Utilities" {
+  component "addnode.js" as AddNodeJS
+  component "list.js" as ListJS
+  component "removenode.js" as RemoveNodeJS
+  component "simpleTest.js" as SimpleTestJS
+  component "test_zwave_accel.js" as TestZwaveAccelJS
+}
+
+MALOSFacade --> MalosZWave : communicates
+MalosZWave --> ZIPGateway : interacts
+ZIPGateway --> ZWaveModule : controls
+MalosZWave --> DriverManager : manages
+MalosZWave --> CommandClasses : uses
+
+DriverManager --> ZIPGateway
+CommandClasses --> ZIPGateway
+
+AddNodeJS -[hidden]--> ZeroMQ
+ListJS -[hidden]--> ZeroMQ
+RemoveNodeJS -[hidden]--> ZeroMQ
+SimpleTestJS -[hidden]--> ZeroMQ
+TestZwaveAccelJS -[hidden]--> ZeroMQ
+
+AddNodeJS --> MalosZWave : control nodes
+ListJS --> MalosZWave : list nodes
+RemoveNodeJS --> MalosZWave : remove nodes
+SimpleTestJS --> MalosZWave : test interactions
+TestZwaveAccelJS --> MalosZWave : event-driven actions
+
+MalosZWave --> ZeroMQ : message passing
+MalosZWave --> ProtoBuf : data serialization
+
+@enduml
+```

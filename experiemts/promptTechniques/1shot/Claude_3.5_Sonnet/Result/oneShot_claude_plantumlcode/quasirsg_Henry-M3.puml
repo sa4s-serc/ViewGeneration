@@ -1,0 +1,46 @@
+@startuml quasirsg_Henry-M3
+
+actor Client
+
+participant "Express.js Server" as Express
+participant "Router" as Router
+participant "Middleware" as Middleware
+participant "Request Handler" as Handler
+participant "Database" as DB
+participant "Promise" as Promise
+
+Client -> Express : HTTP Request
+activate Express
+
+Express -> Router : Route Request
+activate Router
+
+Router -> Middleware : Apply Middleware
+activate Middleware
+Middleware --> Router : Modified Request
+deactivate Middleware
+
+Router -> Handler : Handle Request
+activate Handler
+
+Handler -> Promise : Async Operation
+activate Promise
+
+Promise -> DB : Database Query
+activate DB
+DB --> Promise : Query Result
+deactivate DB
+
+Promise --> Handler : Resolved Data
+deactivate Promise
+
+Handler --> Router : Response
+deactivate Handler
+
+Router --> Express : Processed Response
+deactivate Router
+
+Express -> Client : HTTP Response
+deactivate Express
+
+@enduml

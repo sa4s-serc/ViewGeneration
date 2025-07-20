@@ -1,0 +1,43 @@
+```plantuml
+@startuml SimonLdj_hypnolog-server
+
+package "HypnoLog Server" {
+    [Server] --> [Routes]
+    [Server] --> [Socket.IO]
+    [Server] --> [Ajv]
+
+    [Routes] --> [Logger Route]
+    [Routes] --> [Index Route]
+
+    [Logger Route] --> [Ajv]
+    [Logger Route] --> [Socket.IO]
+}
+
+package "Web UI" {
+    [Client HTML] --> [Client JS]
+    [Client JS] --> [WindowsDispatcher]
+    [Client JS] --> [ConfigFactory]
+    [Client JS] --> [VisualizerDispatcher]
+}
+
+package "Visualizers" {
+    [VisualizerDispatcher] --> [Visualizers]
+}
+
+package "Windows" {
+    [WindowsDispatcher] --> [Windows]
+    [WindowsDispatcher] --> [WindowsFilter]
+    [Windows] --> [Visualizers]
+}
+
+package "Configuration" {
+    [ConfigFactory] --> [Config Files]
+}
+
+[Server] -down-> [Web UI] : Real-time data\n(Socket.IO)
+[Server] -down-> [Configuration] : Loads configuration\nfiles
+[Server] -down-> [Visualizers] : Visualizes data
+[Server] -down-> [Windows] : Manages data streams
+
+@enduml
+```

@@ -1,0 +1,47 @@
+@startuml tarhses_esp-alarm-clock
+
+participant "Main Task" as Main
+participant "Alarm Task" as Alarm
+participant "Display Task" as Display
+participant "Sound Task" as Sound
+participant "Network Task" as Network
+participant "Potentiometer Task" as Pot
+participant "Storage" as Storage
+participant "Event Loop" as EventLoop
+
+Main -> Storage: Initialize SD card
+Main -> Storage: Read config.json
+Main -> Network: Initialize WiFi
+Main -> Pot: Initialize potentiometers
+Main -> Sound: Initialize audio
+Main -> Display: Initialize E-Paper display
+Main -> Alarm: Initialize alarm logic
+
+loop Continuously
+    Pot -> EventLoop: Post potentiometer readings
+    EventLoop -> Alarm: Receive potentiometer readings
+    Alarm -> Display: Update alarm time
+    
+    Network -> EventLoop: Post time updates
+    EventLoop -> Display: Receive time updates
+    Display -> Display: Render time and icons
+    
+    alt Alarm triggered
+        Alarm -> Sound: Play random audio file
+        Alarm -> Display: Update alarm status
+    end
+    
+    alt Button pressed
+        EventLoop -> Alarm: Handle button press
+        Alarm -> Sound: Stop or snooze alarm
+        Alarm -> Display: Update alarm status
+    end
+    
+    alt WiFi disconnected
+        Network -> Network: Attempt reconnection
+        Network -> EventLoop: Post WiFi status
+        EventLoop -> Display: Update WiFi icon
+    end
+end
+
+@enduml

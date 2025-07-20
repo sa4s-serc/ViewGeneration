@@ -1,0 +1,52 @@
+```plantuml
+@startuml padok-team_dojo-terraform-aws-security
+skinparam rectangle {
+  BackgroundColor<<iac>> #d9e7fd
+  BackgroundColor<<bootstrap>> #d8f5d3
+  BackgroundColor<<solution>> #fddddd
+  BackgroundColor<<vscode>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Infrastructure as Code" <<iac>> {
+  rectangle "main.tf" as MainTF
+  rectangle "output.tf" as OutputTF
+  rectangle "variables.tf" as VariablesTF
+  rectangle "network.tf" as NetworkTF
+  rectangle "prd.tfvars & dev.tfvars" as EnvTFVars
+  rectangle "_providers.tf" as ProvidersTF
+  rectangle "_backend.tf" as BackendTF
+  rectangle "web/install_apache.sh.tpl" as InstallApacheTPL
+}
+
+package "Bootstrap" <<bootstrap>> {
+  rectangle "main.tf" as BootstrapMainTF
+  rectangle "output.tf" as BootstrapOutputTF
+  rectangle "env.tfvars.tpl" as EnvTFVarsTPL
+}
+
+package "Solution" <<solution>> {
+  rectangle "step_*/*" as StepSolutions
+}
+
+package "VSCode Remote Boxes" <<vscode>> {
+  rectangle "vscode-box/*" as VSCodeBox
+}
+
+MainTF --> OutputTF
+MainTF --> VariablesTF
+MainTF --> NetworkTF
+MainTF --> EnvTFVars
+MainTF --> ProvidersTF
+MainTF --> BackendTF
+MainTF --> InstallApacheTPL
+
+BootstrapMainTF --> BootstrapOutputTF
+BootstrapOutputTF --> EnvTFVarsTPL
+
+MainTF --> BootstrapMainTF
+MainTF --> StepSolutions
+MainTF --> VSCodeBox
+@enduml
+```

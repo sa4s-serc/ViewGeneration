@@ -1,0 +1,43 @@
+@startuml eqbal_CarND_Capstone_CarX
+
+actor Driver
+participant "Traffic Light\nDetection Node" as TLD
+participant "Waypoint Loader" as WPL
+participant "Waypoint Updater" as WPU
+participant "Waypoint Follower" as WPF
+participant "Twist Controller\n(DBW)" as TC
+participant "Vehicle/Simulator" as VS
+
+Driver -> VS : Start car
+activate VS
+
+VS -> TLD : Camera images
+activate TLD
+TLD -> TLD : Detect traffic lights
+TLD --> WPU : Traffic light status
+deactivate TLD
+
+WPL -> WPL : Load waypoints from CSV
+activate WPL
+WPL --> WPU : Waypoint data
+deactivate WPL
+
+activate WPU
+WPU -> WPU : Update waypoints
+WPU --> WPF : Updated waypoints
+deactivate WPU
+
+activate WPF
+WPF -> WPF : Calculate target trajectory
+WPF --> TC : Target trajectory
+deactivate WPF
+
+activate TC
+TC -> TC : Calculate control commands
+TC --> VS : Steering, throttle, brake commands
+deactivate TC
+
+VS -> VS : Update vehicle state
+VS --> Driver : Vehicle feedback
+
+@enduml

@@ -1,0 +1,81 @@
+```plantuml
+@startuml inIT-HF_gr-corrsounder
+
+' Define skin parameters
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<python>> #d8f5d3
+  BackgroundColor<<testing>> #fddddd
+  BackgroundColor<<grc>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Components (C++ & SWIG)" <<core>> {
+  rectangle "Sequence Generation\n(FZC, MLS)" as SeqGen
+  rectangle "Correlation" as Correlation
+  rectangle "Error Correction" as ErrorCorrection
+  rectangle "Moving Average" as MovingAverage
+  rectangle "Sequence Gate" as SequenceGate
+  rectangle "Ramdisk File Sink" as FileSink
+  rectangle "IR SNR" as IRSNR
+  rectangle "Overflow Detection\nand Management" as OverflowDetection
+}
+
+package "Python Bindings & Utilities" <<python>> {
+  rectangle "SWIG Interface" as SWIG
+  rectangle "Python Utilities\n(pycorrsounder)" as PyUtilities
+  rectangle "Python Module\nDefinitions" as PyModule
+}
+
+package "GNU Radio Companion Integration" <<grc>> {
+  rectangle "XML Block Descriptions" as XMLBlocks
+}
+
+package "Documentation & Parsing" <<grc>> {
+  rectangle "Doxygen Parsing\n(doxyxml)" as DoxygenParsing
+}
+
+package "Testing Framework" <<testing>> {
+  rectangle "Unit Tests for Core" as UnitTestsCore
+  rectangle "Standalone Tests\n(pycorrsounder)" as StandaloneTests
+}
+
+' Define relationships between components
+SeqGen --> Correlation
+Correlation --> ErrorCorrection
+ErrorCorrection --> MovingAverage
+MovingAverage --> SequenceGate
+SequenceGate --> FileSink
+FileSink --> IRSNR
+OverflowDetection --> SequenceGate
+
+SWIG --> SeqGen
+SWIG --> Correlation
+SWIG --> ErrorCorrection
+SWIG --> MovingAverage
+SWIG --> SequenceGate
+SWIG --> FileSink
+SWIG --> IRSNR
+
+PyUtilities --> SeqGen
+PyUtilities --> Correlation
+
+XMLBlocks --> SequenceGate
+XMLBlocks --> FileSink
+XMLBlocks --> IRSNR
+
+DoxygenParsing --> SWIG
+
+UnitTestsCore --> SeqGen
+UnitTestsCore --> Correlation
+UnitTestsCore --> ErrorCorrection
+UnitTestsCore --> MovingAverage
+UnitTestsCore --> SequenceGate
+UnitTestsCore --> FileSink
+UnitTestsCore --> IRSNR
+
+StandaloneTests --> PyUtilities
+
+@enduml
+```

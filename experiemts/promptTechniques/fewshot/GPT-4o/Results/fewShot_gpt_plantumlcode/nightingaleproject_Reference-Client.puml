@@ -1,0 +1,43 @@
+```plantuml
+@startuml nightingaleproject_Reference-Client
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "User" as User
+
+package "React UI" {
+  rectangle "UploadRecords" as UploadRecords #lightblue
+  rectangle "SubmitRecordsDashboard" as SubmitRecordsDashboard #lightblue
+}
+
+package "ASP.NET Core Backend" {
+  rectangle "RecordController\n(REST API)" as RecordController #lightgreen
+  rectangle "TimedHostedService\n(Background Service)" as TimedHostedService #lightgreen
+  rectangle "AppDbContext\n(Database Access)" as AppDbContext #lightgreen
+}
+
+package "NVSS API" {
+  rectangle "NVSS API Server" as NvssApiServer #lightcoral
+}
+
+database "PostgreSQL" as PostgreSQL #ffcc99
+
+User --> UploadRecords
+User --> SubmitRecordsDashboard
+
+UploadRecords --> RecordController : upload VRDR records
+SubmitRecordsDashboard --> RecordController : query message status
+
+RecordController --> AppDbContext : store/retrieve messages
+RecordController --> TimedHostedService : notify new message
+
+TimedHostedService --> AppDbContext : poll for new messages
+TimedHostedService --> NvssApiServer : submit VRDR messages
+NvssApiServer --> TimedHostedService : send message responses
+TimedHostedService --> AppDbContext : update message status
+@enduml
+```

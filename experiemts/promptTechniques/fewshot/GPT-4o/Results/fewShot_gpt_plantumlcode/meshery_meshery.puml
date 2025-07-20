@@ -1,0 +1,67 @@
+```plantuml
+@startuml meshery_meshery
+left to right direction
+
+skinparam rectangle {
+  BackgroundColor #f2f2f2
+  BorderColor black
+  Style roundrect
+}
+
+package "Meshery Architecture" {
+  rectangle "Meshery Server" as Server #d9e7fd
+  rectangle "Meshery UI\n(React & Next.js)" as UI #d9e7fd
+  rectangle "mesheryctl\n(Command-Line Interface)" as CLI #d9e7fd
+  rectangle "Meshery Operator" as Operator #d8f5d3
+  rectangle "Meshery Adapter" as Adapter #fddddd
+  rectangle "MeshSync" as MeshSync #d8f5d3
+  rectangle "Event Broker\n(NATS)" as Broker #fddddd
+  rectangle "GraphQL API Layer" as GraphQLAPI #fddddd
+  rectangle "Data Models" as DataModels #fff1c9
+  rectangle "MeshKit" as MeshKit #fff1c9
+}
+
+package "Deployment and Configuration" {
+  rectangle "Configuration Management" as ConfigMgmt #fddddd
+  rectangle "Installation Guides" as InstallGuides #fddddd
+}
+
+package "Extensibility and Integrations" {
+  rectangle "Adapters" as Adapters #fddddd
+  rectangle "Remote Providers" as RemoteProviders #fddddd
+  rectangle "Integrations" as Integrations #fddddd
+}
+
+package "Tooling and Documentation" {
+  rectangle "Static Site Generation\n(Hugo)" as StaticSite #fddddd
+  rectangle "Dynamic UI Rendering" as DynamicUI #fddddd
+  rectangle "GitHub Actions for CI/CD" as GitHubActions #fddddd
+  rectangle "Community Engagement" as CommunityEngagement #fddddd
+}
+
+Server <--> Adapter : gRPC
+Server <--> GraphQLAPI
+Server --> Broker
+Server --> MeshKit
+Server <--> DataModels
+Server <--> MeshSync
+Server <--> Operator
+UI --> GraphQLAPI
+CLI --> Server
+Operator --> MeshSync
+MeshSync --> Broker
+Operator --> Server
+Adapter --> Server
+RemoteProviders --> Server
+Integrations --> Server
+
+StaticSite --> Tooling and Documentation
+DynamicUI --> UI
+GitHubActions --> Tooling and Documentation
+CommunityEngagement --> Tooling and Documentation
+
+ConfigMgmt --> Server
+InstallGuides --> Deployment and Configuration
+
+@enduml
+```

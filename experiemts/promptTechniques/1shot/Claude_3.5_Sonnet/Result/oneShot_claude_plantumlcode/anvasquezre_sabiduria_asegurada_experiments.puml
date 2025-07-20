@@ -1,0 +1,39 @@
+@startuml anvasquezre_sabiduria_asegurada_experiments
+
+actor User
+participant "Chainlit Frontend" as Frontend
+participant "Langchain Agent" as Agent
+participant "Policy Search Tool" as PolicyTool
+participant "Web Search Tool" as WebTool
+participant "Greeting Tool" as GreetingTool
+database "Qdrant Vector DB" as Qdrant
+participant "Data Preloader" as Preloader
+cloud "S3 Bucket" as S3
+
+User -> Frontend : Ask question
+Frontend -> Agent : Process question
+
+Agent -> GreetingTool : Check if greeting
+GreetingTool --> Agent : Return greeting (if applicable)
+
+Agent -> PolicyTool : Search policy information
+PolicyTool -> Qdrant : Query vector database
+Qdrant --> PolicyTool : Return relevant policy info
+PolicyTool --> Agent : Return policy answer
+
+Agent -> WebTool : Search web for news
+WebTool -> WebTool : Perform Google search
+WebTool --> Agent : Return web results
+
+Agent --> Frontend : Compile final answer
+Frontend --> User : Display response
+
+User -> Frontend : Provide feedback
+Frontend -> Qdrant : Store feedback
+
+Preloader -> S3 : Download policy PDFs
+S3 --> Preloader : Return PDF files
+Preloader -> Preloader : Process PDFs\n(split, embed)
+Preloader -> Qdrant : Load processed data
+
+@enduml

@@ -1,0 +1,56 @@
+```plantuml
+@startuml jquku_Matrix-Chatbot
+skinparam linetype ortho
+skinparam defaultTextAlignment center
+
+actor "User" as user
+
+rectangle "Matrix Homeserver" as server {
+  rectangle "Event Queue" as eventQueue
+}
+
+rectangle "Matrix Chatbot" as chatbot {
+  rectangle "Main Entry" as mainModule {
+    rectangle "Matrix Client" as matrixClient
+    rectangle "Event Handlers" as eventHandlers
+  }
+
+  rectangle "NLP Pipeline" as nlp {
+    rectangle "nltk & autocorrect" as nlpLibs
+  }
+
+  rectangle "Knowledge Base" as knowledgeBase {
+    database "PostgreSQL" as postgres
+  }
+
+  rectangle "Message Evaluation" as msgEval {
+    rectangle "Intent Detection"
+    rectangle "Domain Identification"
+  }
+
+  rectangle "Response Management" as responseMgmt
+
+  rectangle "Database Service" as dbService
+
+  rectangle "Configuration" as config {
+    file "config.yaml"
+    rectangle "Config Parser" as configParser
+  }
+}
+
+user -> matrixClient : Send Message
+matrixClient -> eventQueue : Queue Message Event
+eventQueue -> eventHandlers : Dispatch Event
+eventHandlers -> msgEval : Evaluate Message
+msgEval -> nlp : Process with NLP
+msgEval -> knowledgeBase : Query Knowledge Base
+knowledgeBase -> dbService : Database Interaction
+msgEval -> responseMgmt : Generate Response
+responseMgmt -> matrixClient : Send Response
+
+configParser -> config : Read Config
+configParser -> matrixClient : Configure Matrix Client
+configParser -> dbService : Configure Database Service
+
+@enduml
+```

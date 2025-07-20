@@ -1,0 +1,39 @@
+@startuml florianhoehn_sf-apex-rest-api
+
+package "REST API Framework" {
+  [RestWrapper]
+  [RestResponse]
+  [RestCallout]
+  [RestLogBuilder]
+  [Rest_Log__c]
+}
+
+package "Example Implementation" {
+  [ExampleRatingRestResource]
+  [ExampleRatingCallout]
+}
+
+package "External Systems" {
+  [Rating Service]
+}
+
+package "Salesforce Core" {
+  [Account]
+  [Opportunity]
+}
+
+RestWrapper <|-- RestResponse
+RestCallout --> RestWrapper : uses
+RestCallout --> RestLogBuilder : logs with
+RestLogBuilder --> Rest_Log__c : creates
+
+ExampleRatingRestResource --> RestResponse : uses
+ExampleRatingCallout --> RestCallout : extends
+ExampleRatingCallout --> "Rating Service" : calls
+ExampleRatingCallout --> Account : updates
+ExampleRatingCallout --> Opportunity : updates
+
+ExampleRatingRestResource --> Account : reads/writes
+ExampleRatingRestResource --> Opportunity : reads/writes
+
+@enduml

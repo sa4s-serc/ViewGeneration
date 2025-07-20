@@ -1,0 +1,36 @@
+```plantuml
+@startuml balajich_resilience4j-helloworld
+
+actor User
+
+rectangle "Service A" {
+  component "GreetingController" as GC_A
+  component "Resilience4j" as R4j_A
+}
+
+rectangle "Service B" {
+  component "GreetingController" as GC_B
+  component "Resilience4j" as R4j_B
+}
+
+rectangle "Monitoring" {
+  component "Prometheus" as Prometheus
+  component "Grafana" as Grafana
+}
+
+User -> GC_A : Request
+GC_A -> R4j_A : Apply Resilience Patterns
+R4j_A -> GC_B : Forward Request
+GC_B -> R4j_B : Apply Resilience Patterns
+R4j_B -> GC_A : Response
+GC_A -> User : Response
+
+GC_A -> Prometheus : Metrics
+R4j_A -> Prometheus : Metrics
+R4j_B -> Prometheus : Metrics
+
+Prometheus -> Grafana : Data
+User -> Grafana : View Dashboard
+
+@enduml
+```

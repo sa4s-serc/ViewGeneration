@@ -1,0 +1,52 @@
+@startuml blentle_hikarikeeper
+
+skinparam component {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<client>> #d8f5d3
+  BackgroundColor<<server>> #fddddd
+  BackgroundColor<<discovery>> #fff1c9
+  BackgroundColor<<storage>> #e6e6e6
+}
+
+package "HikariKeeper" {
+  component "HikariKeeper Core" <<core>> {
+    [Raft Consensus]
+    [Metadata Management]
+    [RPC Interface]
+  }
+  
+  component "HikariKeeper Client" <<client>> {
+    [Client API]
+    [HikariClientFactory]
+  }
+  
+  component "HikariKeeper Server" <<server>> {
+    [BootstrapServer]
+    [HikariKeeperServer]
+  }
+  
+  component "Discovery Service" <<discovery>> {
+    [DiscoveryClient]
+    [ServiceInstance]
+  }
+  
+  database "RocksDB" <<storage>> {
+    [Metadata Storage]
+  }
+  
+  component "Spring Boot Starter" {
+    [HikariServerAutoConfiguration]
+  }
+}
+
+[Client API] --> [HikariClientFactory]
+[HikariClientFactory] --> [DiscoveryClient]
+[BootstrapServer] --> [HikariKeeperServer]
+[HikariKeeperServer] --> [Raft Consensus]
+[HikariKeeperServer] --> [Metadata Management]
+[Raft Consensus] --> [RPC Interface]
+[Metadata Management] --> [Metadata Storage]
+[HikariServerAutoConfiguration] --> [HikariKeeperServer]
+[DiscoveryClient] --> [ServiceInstance]
+
+@enduml

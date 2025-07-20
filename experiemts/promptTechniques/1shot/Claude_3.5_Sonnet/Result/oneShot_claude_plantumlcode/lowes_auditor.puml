@@ -1,0 +1,59 @@
+@startuml lowes_auditor
+
+skinparam component {
+  BackgroundColor<<client>> #ADD1B2
+  BackgroundColor<<app>> #94D1E4
+  BackgroundColor<<core>> #FFF2B2
+  BackgroundColor<<infrastructure>> #E3B7EB
+}
+
+cloud "Client Applications" {
+  [Spring Boot App] <<client>>
+  [Standalone App] <<client>>
+}
+
+package "Auditor Framework" {
+  [Client Library] <<client>>
+  [Spring Boot Starter] <<client>>
+  
+  package "Application Server" <<app>> {
+    [ConsumerService]
+    [AuditEventRepositoryService]
+    [Application]
+  }
+  
+  package "Core" <<core>> {
+    [DTOs]
+    [Mappers]
+    [JsonObject]
+  }
+  
+  [OpenAPI Specs] <<core>>
+}
+
+cloud "Infrastructure" {
+  queue "Kafka" <<infrastructure>>
+  database "Elasticsearch" <<infrastructure>>
+}
+
+[Spring Boot App] --> [Spring Boot Starter]
+[Standalone App] --> [Client Library]
+[Client Library] --> Kafka : Produces events
+[Spring Boot Starter] --> Kafka : Produces events
+
+[ConsumerService] --> Kafka : Consumes events
+[AuditEventRepositoryService] --> Elasticsearch : Stores events
+[Application] --> [ConsumerService]
+[Application] --> [AuditEventRepositoryService]
+
+[ConsumerService] ..> [DTOs]
+[AuditEventRepositoryService] ..> [DTOs]
+[ConsumerService] ..> [Mappers]
+[AuditEventRepositoryService] ..> [Mappers]
+[ConsumerService] ..> [JsonObject]
+[AuditEventRepositoryService] ..> [JsonObject]
+
+[Client Library] ..> [OpenAPI Specs] : Generated from
+[DTOs] ..> [OpenAPI Specs] : Generated from
+
+@enduml

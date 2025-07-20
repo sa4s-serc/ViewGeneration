@@ -1,0 +1,58 @@
+```plantuml
+@startuml madderle_Capstone-Realtime-Streaming-Analytics
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+actor "User" as user
+
+package "Data Ingestion" {
+  rectangle "Twitter Service\n(Twitter.py)" as TwitterService #orange
+  rectangle "IEX Service" as IEXService #orange
+  rectangle "Manager Service\n(Manager.py)" as ManagerService #orange
+}
+
+package "Data Storage" {
+  database "MongoDB" as MongoDB #lightblue
+  database "Redis" as Redis #lightblue
+  rectangle "S3 Storage" as S3Storage #lightblue
+}
+
+package "Data Analysis" {
+  rectangle "Model Development\n(Daily_Model_Development.py)" as ModelDevelopment #lightgreen
+  rectangle "Model Deployment\n(Daily_Model_Deployment.py)" as ModelDeployment #lightgreen
+  rectangle "EDA\n(Stock-Tweets-EDA.ipynb)" as EDA #lightgreen
+}
+
+package "Data Processing" {
+  rectangle "Data Service\n(dataservice/api/views.py)" as DataService #yellow
+}
+
+package "Infrastructure & Automation" {
+  rectangle "AWS Kinesis" as AWSKinesis #lightgrey
+  rectangle "Scheduled Tasks" as ScheduledTasks #lightgrey
+}
+
+user --> TwitterService : Request Tweets
+user --> IEXService : Request Stock Data
+
+TwitterService --> MongoDB : Store Tweets
+IEXService --> MongoDB : Store Stock Data
+ManagerService --> Redis : Communicate Status
+
+AWSKinesis --> MongoDB : Stream Data
+ScheduledTasks --> MongoDB : Retrieve Data
+
+ModelDevelopment --> S3Storage : Upload Models
+ModelDeployment --> S3Storage : Load Models
+ModelDeployment --> MongoDB : Fetch/Store Data
+ModelDeployment --> Redis : Update/Fetch Feature Flags
+
+DataService --> MongoDB : Expose Data
+EDA --> MongoDB : Analyze Data
+@enduml
+```

@@ -1,0 +1,34 @@
+```plantuml
+@startuml exmgr_GatewayXM
+
+package "exmgr_GatewayXM" {
+    [GatewayXM-Agile-Stack] <<Container>> 
+    [GatewayXM-Kura-Tb-Bundle] <<Container>>
+    [GatewayXM-Sensor-Node] <<Container>>
+}
+
+package "External Systems" {
+    [Thingsboard IoT Platform] <<External>>
+    [ModBus Smart Meters] <<External>>
+    [ESP8266/ESP32 Sensor Nodes] <<External>>
+}
+
+[GatewayXM-Agile-Stack] --> [GatewayXM-Kura-Tb-Bundle] : includes
+[GatewayXM-Kura-Tb-Bundle] --> [Thingsboard IoT Platform] : forwards data
+[GatewayXM-Sensor-Node] --> [GatewayXM-Agile-Stack] : connects via mesh
+[ESP8266/ESP32 Sensor Nodes] --> [GatewayXM-Sensor-Node] : OTA updates
+
+[ModBus Smart Meters] --> [GatewayXM-Agile-Stack] : data collection
+
+package "Architectural Patterns" {
+    [Service-Oriented Architecture] <<Pattern>>
+    [Dependency Injection] <<Pattern>>
+    [Publish-Subscribe] <<Pattern>>
+}
+
+[GatewayXM-Agile-Stack] .up.> [Service-Oriented Architecture] : follows
+[GatewayXM-Kura-Tb-Bundle] .up.> [Dependency Injection] : uses
+[GatewayXM-Sensor-Node] .up.> [Publish-Subscribe] : implements
+
+@enduml
+```

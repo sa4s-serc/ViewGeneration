@@ -1,0 +1,55 @@
+@startuml kubescape_host-scanner
+
+skinparam component {
+  BackgroundColor<<API>> LightBlue
+  BackgroundColor<<Sensor>> LightGreen
+  BackgroundColor<<Utility>> LightYellow
+}
+
+[HTTP API Server] as API <<API>>
+[Sensor Functions] as Sensor <<Sensor>>
+[Utility Functions] as Util <<Utility>>
+[Host Filesystem] as FS
+[Container Runtime] as CR
+
+component "Kubescape Host Scanner" {
+  API - [Negroni Middleware]
+  API --> Sensor : invokes
+  Sensor --> Util : uses
+  Util --> FS : accesses
+  Util --> CR : inspects
+}
+
+cloud "Kubernetes Cluster" {
+  [DaemonSet] as DS
+}
+
+DS --> [Kubescape Host Scanner] : runs as
+
+note right of API
+  Endpoints:
+  - /healthz
+  - /readyz
+  - /osrelease
+  - /kubeletinfo
+  - etc.
+end note
+
+note right of Sensor
+  Collects:
+  - OS details
+  - Network config
+  - Container runtime info
+  - Kubelet & Kube-proxy configs
+  - Control plane details
+  - Linux Security Hardening
+  - Cloud Provider info
+end note
+
+note bottom of [Kubescape Host Scanner]
+  Configured via:
+  - Environment variables
+  - File-based configs
+end note
+
+@enduml

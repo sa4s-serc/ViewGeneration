@@ -1,0 +1,54 @@
+@startuml spikecodes_stotra
+
+skinparam rectangle {
+  BackgroundColor #EEEBDC
+  ArrowColor #222222
+  BorderColor #666666
+}
+
+actor User
+
+rectangle "AWS" {
+  rectangle "AWS Amplify" {
+    [React Frontend]
+  }
+  
+  rectangle "EC2" {
+    [Node.js/Express Backend]
+  }
+  
+  database "MongoDB Atlas" {
+    [User Data]
+    [Transactions]
+    [Positions]
+  }
+}
+
+cloud "External APIs" {
+  [Yahoo Finance API]
+  [Alpha Vantage API]
+  [NewsFilter API]
+}
+
+User --> [React Frontend] : Interacts
+[React Frontend] --> [Node.js/Express Backend] : API Requests
+[Node.js/Express Backend] --> [React Frontend] : API Responses
+
+[Node.js/Express Backend] --> [MongoDB Atlas] : CRUD Operations
+[Node.js/Express Backend] --> [Yahoo Finance API] : Fetch Stock Data
+[Node.js/Express Backend] --> [Alpha Vantage API] : Fetch Stock Data
+[Node.js/Express Backend] --> [NewsFilter API] : Fetch News
+
+note right of [Node.js/Express Backend]
+  Caching with node-cache
+  JWT Authentication
+  Rate Limiting
+end note
+
+note right of [React Frontend]
+  Chakra UI Components
+  React Router
+  Highcharts for Charts
+end note
+
+@enduml

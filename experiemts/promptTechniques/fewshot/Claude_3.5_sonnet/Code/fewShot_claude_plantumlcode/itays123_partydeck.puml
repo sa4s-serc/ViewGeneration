@@ -1,0 +1,47 @@
+@startuml itays123_partydeck
+
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<cloud>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+rectangle "Panel\n(React Frontend)" <<frontend>> as Panel {
+  rectangle "Authentication" as PanelAuth
+  rectangle "Deck Management" as DeckManagement
+  rectangle "Game Library" as GameLibrary
+  rectangle "Game Initiation" as GameInitiation
+}
+
+rectangle "Game\n(React Frontend)" <<frontend>> as Game {
+  rectangle "WebSocket Client" as GameWS
+  rectangle "Game UI" as GameUI
+  rectangle "Player Actions" as PlayerActions
+}
+
+rectangle "Server\n(Java Backend)" <<backend>> as Server {
+  rectangle "REST API" as RestAPI
+  rectangle "WebSocket Handler" as WSHandler
+  rectangle "Game Logic" as GameLogic
+  rectangle "State Management" as StateManagement
+}
+
+cloud "Google Cloud Platform" <<cloud>> as GCP {
+  rectangle "Cloud Run" as CloudRun
+  rectangle "Cloud Build" as CloudBuild
+}
+
+Panel --> RestAPI : HTTP
+Game --> WSHandler : WebSocket
+RestAPI --> GameLogic
+WSHandler --> GameLogic
+GameLogic --> StateManagement
+
+CloudRun --> Panel
+CloudRun --> Game
+CloudRun --> Server
+CloudBuild --> CloudRun : Deploy
+
+@enduml

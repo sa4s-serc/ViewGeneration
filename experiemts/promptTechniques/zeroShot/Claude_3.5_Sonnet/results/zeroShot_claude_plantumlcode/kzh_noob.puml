@@ -1,0 +1,81 @@
+```plantuml
+@startuml kzh_noob
+
+!define KUBERNETES #F0F0F0
+!define DOCKER #B3E5FC
+
+cloud "Kubernetes Cluster" as k8s KUBERNETES {
+    node "Frontend Pod" as frontend DOCKER {
+        [Frontend Service]
+    }
+    
+    node "Auth Pod" as auth DOCKER {
+        [Auth Service]
+    }
+    
+    node "Problems Pod" as problems DOCKER {
+        [Problems Service]
+    }
+    
+    node "Submissions Pod" as submissions DOCKER {
+        [Submissions Service]
+    }
+    
+    node "Executor Pod" as executor DOCKER {
+        [Executor Service]
+        [Docker-in-Docker]
+    }
+    
+    node "RabbitMQ Pod" as rabbitmq DOCKER {
+        [RabbitMQ]
+    }
+    
+    node "MongoDB Pod" as mongodb DOCKER {
+        [MongoDB]
+    }
+    
+    node "Redis Pod" as redis DOCKER {
+        [Redis]
+    }
+    
+    node "Jaeger Pod" as jaeger DOCKER {
+        [Jaeger]
+    }
+    
+    node "Ingress Controller" as ingress DOCKER {
+        [Nginx Ingress]
+    }
+}
+
+actor "User" as user
+
+user --> ingress : HTTP/WebSocket
+
+ingress --> frontend
+ingress --> auth
+ingress --> problems
+ingress --> submissions
+
+frontend --> auth : Authenticate
+frontend --> problems : Fetch Problems
+frontend --> submissions : Submit Code
+
+auth --> redis : Manage Sessions
+auth --> mongodb : Store User Data
+
+problems --> mongodb : Store/Retrieve Problems
+
+submissions --> rabbitmq : Publish Submissions
+submissions --> mongodb : Store Submissions
+
+executor --> rabbitmq : Consume Submissions
+executor --> [Docker-in-Docker] : Execute Code
+
+[Frontend Service] --> jaeger : Send Traces
+[Auth Service] --> jaeger : Send Traces
+[Problems Service] --> jaeger : Send Traces
+[Submissions Service] --> jaeger : Send Traces
+[Executor Service] --> jaeger : Send Traces
+
+@enduml
+```

@@ -1,0 +1,39 @@
+```plantuml
+@startuml input-output-hk_marlowe-starter-kit
+
+actor Developer
+participant "Jupyter Notebook" as JN
+participant "Marlowe Runtime" as MR
+participant "Wallet (CIP30/CIP45)" as Wallet
+participant "Docker Environment" as Docker
+
+Developer -> JN: Start Jupyter Notebook
+JN -> Docker: Verify Environment Setup
+Docker -> MR: Check Marlowe Runtime Health
+JN -> Developer: Environment Verified
+
+Developer -> JN: Run setup/01-setup-keys.ipynb
+JN -> Wallet: Create Addresses and Signing Keys
+Wallet -> JN: Addresses and Keys Setup
+JN -> Developer: Keys Created
+
+Developer -> JN: Run dApp Example
+JN -> Wallet: Connect Wallet
+Wallet -> JN: Provide Wallet Address
+JN -> MR: Create Marlowe Contract
+MR -> JN: Contract Created
+JN -> Wallet: Sign Transaction
+Wallet -> MR: Submit Transaction
+MR -> JN: Transaction Submitted
+
+Developer -> JN: Run Command-Line Tool
+JN -> MR: Query Contract Status
+MR -> JN: Contract Status
+
+Developer -> Docker: Deploy via Docker Compose
+Docker -> MR: Start Services (Node, Runtime, etc.)
+Docker -> JN: Start Jupyter Notebook
+JN -> Developer: Notebook Ready for Interaction
+
+@enduml
+```

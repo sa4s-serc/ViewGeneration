@@ -1,0 +1,39 @@
+@startuml kpantos_Azure-How-To
+
+!define AZURE_PUML https://raw.githubusercontent.com/plantuml-stdlib/Azure-PlantUML/master/dist
+
+!includeurl AZURE_PUML/AzureCommon.puml
+!includeurl AZURE_PUML/Compute/AzureAppService.puml
+!includeurl AZURE_PUML/Security/AzureApplicationGateway.puml
+!includeurl AZURE_PUML/Integration/AzureAPIManagement.puml
+!includeurl AZURE_PUML/Identity/AzureActiveDirectory.puml
+!includeurl AZURE_PUML/Identity/AzureActiveDirectoryConnect.puml
+!includeurl AZURE_PUML/Identity/AzureADApplicationProxy.puml
+
+' Bot Scenario
+component "Bot Application" as BotApp
+AzureAppService(AppService, "Azure App Service", "Hosts Bot")
+AzureApplicationGateway(AppGateway, "Application Gateway", "With WAF")
+
+' Kerberos API Scenario
+component "On-Premises API" as OnPremAPI
+AzureAPIManagement(APIM, "API Management")
+AzureActiveDirectory(AzureAD, "Azure AD")
+AzureActiveDirectoryConnect(ADConnect, "Azure AD Connect")
+AzureADApplicationProxy(AppProxy, "AD Application Proxy")
+
+' Connections
+AppGateway --> AppService : Routes traffic
+AppService --> BotApp : Hosts
+
+AppProxy --> OnPremAPI : Secures access
+APIM --> AppProxy : Manages API
+AzureAD <--> ADConnect : Syncs
+ADConnect --> OnPremAPI : Syncs with on-prem AD
+
+' External connections
+actor "External Users" as Users
+Users --> AppGateway : Accesses Bot
+Users --> APIM : Accesses API
+
+@enduml

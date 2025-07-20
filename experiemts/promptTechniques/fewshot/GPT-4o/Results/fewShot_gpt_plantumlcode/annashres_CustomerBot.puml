@@ -1,0 +1,49 @@
+```plantuml
+@startuml annashres_CustomerBot
+left to right direction
+skinparam rectangle {
+  BackgroundColor #f0f0f0
+  BorderColor black
+  Style roundrect
+}
+skinparam componentStyle rectangle
+skinparam defaultTextAlignment center
+
+package "User Channels" {
+  rectangle "Webchat"
+  rectangle "Email"
+  rectangle "Emulator"
+}
+
+package "Azure Bot Service" {
+  rectangle "Bot Framework" as BotFramework
+  rectangle "Bot Logic\n(messages/bot.js)" as BotLogic
+  rectangle "Display Logic\n(messages/botdisplay.js)" as DisplayLogic
+  rectangle "Restify Server\n(messages/index.js)" as RestifyServer
+}
+
+package "Azure Services" {
+  rectangle "Azure SQL Database" as SQLDatabase
+  rectangle "Azure Functions"
+}
+
+package "Power BI" {
+  rectangle "Dashboard"
+}
+
+actor User
+
+User --> BotFramework : Interact
+Webchat --> RestifyServer
+Email --> RestifyServer
+Emulator --> RestifyServer
+
+RestifyServer --> BotLogic
+BotLogic --> SQLDatabase : Store/Retrieve Data
+BotLogic --> DisplayLogic : Format Data
+BotLogic --> Azure Functions : Invoke
+BotLogic --> Dashboard : Update
+
+DisplayLogic --> BotFramework : Render Adaptive Cards
+@enduml
+```

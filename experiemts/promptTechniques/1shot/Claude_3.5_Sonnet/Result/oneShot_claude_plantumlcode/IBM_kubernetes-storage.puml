@@ -1,0 +1,35 @@
+@startuml IBM_kubernetes-storage
+
+actor "User/Student" as user
+participant "Kubernetes Cluster" as k8s
+participant "IBM Cloud" as ibm
+database "Block Storage" as block
+database "Object Storage" as object
+database "File Storage" as file
+
+user -> k8s : Deploy Guestbook application
+activate k8s
+
+k8s -> ibm : Request storage provisioning
+activate ibm
+
+ibm -> block : Provision Block Storage
+ibm -> object : Provision Object Storage
+ibm -> file : Provision File Storage
+
+ibm --> k8s : Storage provisioned
+deactivate ibm
+
+k8s -> k8s : Create PersistentVolume (PV)
+k8s -> k8s : Create PersistentVolumeClaim (PVC)
+
+k8s -> k8s : Schedule pods with storage
+
+k8s -> block : Mount Block Storage
+k8s -> object : Mount Object Storage (with s3fs)
+k8s -> file : Mount File Storage
+
+k8s --> user : Application deployed with storage
+deactivate k8s
+
+@enduml

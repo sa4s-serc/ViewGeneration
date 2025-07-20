@@ -1,0 +1,78 @@
+```plantuml
+@startuml FPriv_factom-harmony-connect-python-sdk
+skinparam componentStyle rectangle
+skinparam linetype ortho
+
+package "Factom SDK" {
+    [FactomClient] <<Facade>> 
+    [ChainsClient]
+    [EntriesClient]
+    [IdentitiesClient]
+    [ApiInfoClient]
+    [ReceiptsClient]
+    [AnchorsClient]
+    [Utils]
+    [KeyCommon]
+    [ValidateSignatureUtil]
+    [CommonUtil]
+    [Request Handler]
+
+    [FactomClient] --> [ChainsClient]
+    [FactomClient] --> [EntriesClient]
+    [FactomClient] --> [IdentitiesClient]
+    [FactomClient] --> [ApiInfoClient]
+    [FactomClient] --> [ReceiptsClient]
+    [FactomClient] --> [AnchorsClient]
+    [FactomClient] --> [Request Handler]
+
+    [ChainsClient] --> [ValidateSignatureUtil]
+    [EntriesClient] --> [ValidateSignatureUtil]
+    [IdentitiesClient] --> [KeyCommon]
+    
+    [Request Handler] --> [Utils]
+    [Request Handler] --> [CommonUtil]
+
+    [Utils] --> [KeyCommon]
+}
+
+package "Sample Application" {
+    [simulate_notary.py]
+}
+
+[simulate_notary.py] --> [FactomClient]
+
+note right of FactomClient
+  Central access point for all SDK functionalities.
+  Manages API connection and provides access to client components.
+end note
+
+note right of ChainsClient
+  Handles chain-related operations.
+end note
+
+note right of EntriesClient
+  Manages entry-related operations within a chain.
+end note
+
+note right of IdentitiesClient
+  Manages identity-related operations.
+end note
+
+note right of ApiInfoClient
+  Retrieves general information about the Connect API.
+end note
+
+note right of ReceiptsClient
+  Retrieves receipts for entries.
+end note
+
+note right of AnchorsClient
+  Retrieves anchor information for directory blocks.
+end note
+
+note right of Request Handler
+  Manages low-level HTTP communication with the API.
+end note
+
+@enduml
+```

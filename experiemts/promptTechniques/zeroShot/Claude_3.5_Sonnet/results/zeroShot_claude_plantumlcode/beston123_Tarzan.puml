@@ -1,0 +1,48 @@
+@startuml beston123_Tarzan
+
+component "Client" as client
+component "Server" as server
+component "Registry (Zookeeper)" as registry
+component "Message Broker (RocketMQ)" as messagebroker
+component "Redis" as redis
+component "Database" as database
+
+package "tarzan-mq" {
+    [RocketMQMessageNotifier]
+    [RocketMQTransactionChecker]
+}
+
+package "tarzan-rpc" {
+    [RpcClient]
+    [RpcServer]
+}
+
+package "tarzan-server" {
+    [ServerStartup]
+    [ConfigManager]
+    [ScheduledServiceManager]
+    [MessageResendService]
+    [ServerController]
+}
+
+package "tarzan-store" {
+    [RocketMQStoreService]
+}
+
+client --> RpcClient : sends requests
+server --> RpcServer : handles requests
+client --> RocketMQMessageNotifier : sends messages
+server --> RocketMQTransactionChecker : checks transactions
+server --> ServerStartup : initializes
+ServerStartup --> ConfigManager : manages config
+ServerStartup --> ScheduledServiceManager : manages scheduled tasks
+ScheduledServiceManager --> MessageResendService : resends failed messages
+server --> ServerController : handles client requests
+server --> RocketMQStoreService : persists data
+RocketMQMessageNotifier --> messagebroker : publishes messages
+RocketMQTransactionChecker --> messagebroker : checks message status
+ServerStartup --> registry : registers services
+ServerController --> redis : acquires locks
+RocketMQStoreService --> database : stores/retrieves data
+
+@enduml

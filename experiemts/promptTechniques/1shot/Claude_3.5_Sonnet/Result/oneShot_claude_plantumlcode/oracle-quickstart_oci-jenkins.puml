@@ -1,0 +1,70 @@
+@startuml
+!define RECTANGLE class
+
+skinparam rectangle {
+    BackgroundColor<<OCI>> #FFEBCD
+    BackgroundColor<<Jenkins>> #E6E6FA
+    BorderColor Black
+    ArrowColor Black
+}
+
+rectangle "OCI Resources" <<OCI>> {
+    RECTANGLE VCN
+    RECTANGLE "Public Subnet" as PublicSubnet
+    RECTANGLE "Private Subnet" as PrivateSubnet
+    RECTANGLE "Load Balancer" as LB
+    RECTANGLE "Internet Gateway" as IG
+    RECTANGLE "NAT Gateway" as NAT
+    RECTANGLE "Security Lists" as SecLists
+}
+
+rectangle "Jenkins Cluster" <<Jenkins>> {
+    RECTANGLE "Jenkins Controller" as Controller
+    RECTANGLE "Jenkins Agent 1" as Agent1
+    RECTANGLE "Jenkins Agent 2" as Agent2
+    RECTANGLE "Jenkins Agent N" as AgentN
+}
+
+rectangle "Access Management" <<OCI>> {
+    RECTANGLE "Bastion Host/Service" as Bastion
+}
+
+VCN -[hidden]-> PublicSubnet
+VCN -[hidden]-> PrivateSubnet
+PublicSubnet -[hidden]-> PrivateSubnet
+
+LB --> Controller : "Route traffic"
+Controller --> Agent1 : "Manage"
+Controller --> Agent2 : "Manage"
+Controller --> AgentN : "Manage"
+
+Bastion --> Controller : "Secure access"
+Bastion --> Agent1 : "Secure access"
+Bastion --> Agent2 : "Secure access"
+Bastion --> AgentN : "Secure access"
+
+IG --> PublicSubnet : "Internet access"
+NAT --> PrivateSubnet : "Outbound internet"
+SecLists --> VCN : "Network security"
+
+note right of Controller
+  Deployed in Private Subnet
+  Flexible Instance Shape
+end note
+
+note right of Agent1
+  Deployed in Private Subnet
+  Flexible Instance Shape
+end note
+
+note bottom of LB
+  Deployed in Public Subnet
+  Ensures High Availability
+end note
+
+note bottom of Bastion
+  Option 1: Bastion Host
+  Option 2: OCI Bastion Service
+end note
+
+@enduml

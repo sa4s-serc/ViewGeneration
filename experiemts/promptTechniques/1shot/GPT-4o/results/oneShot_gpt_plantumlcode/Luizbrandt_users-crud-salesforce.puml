@@ -1,0 +1,34 @@
+```plantuml
+@startuml Luizbrandt_users-crud-salesforce
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor Client
+
+rectangle "MuleSoft API" as MuleAPI #lightblue {
+  rectangle "API Kit Router" as Router
+  rectangle "Mule Flows" as Flows
+}
+
+rectangle "Salesforce" as Salesforce #lightyellow {
+  rectangle "Custom_User__c Object" as CustomUser
+}
+
+' ========== Connections ==========
+Client --> Router : HTTP Requests\n(Create/Read/Update/Delete)
+
+' API Kit Router interactions
+Router --> Flows : Route to CRUD operations\nbased on RAML spec
+
+' Mule Flows interactions
+Flows --> Salesforce : Interact with Salesforce\nCRUD on Custom_User__c
+
+' Error Handling and Data Transformation
+Flows --> Flows : Handle errors\nTransform data with DataWeave
+
+@enduml
+```

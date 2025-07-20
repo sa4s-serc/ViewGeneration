@@ -1,0 +1,42 @@
+```plantuml
+@startuml OpiumProtocol_opium-protocol-v2
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+package "Opium Protocol v2" {
+  rectangle "Registry" as Registry #lightgray 
+  rectangle "Core" as Core #lightblue
+  rectangle "OpiumProxyFactory" as Factory #lightgray
+  rectangle "SyntheticAggregator" as SyntheticAggregator #lightblue
+  rectangle "OracleAggregator" as OracleAggregator #lightgray
+  rectangle "TokenSpender" as TokenSpender #lightblue
+  rectangle "Position Token" as PositionToken #lightgray
+}
+
+package "External Systems" {
+  rectangle "Oracle" as Oracle #lightyellow
+  rectangle "ERC20 Tokens" as ERC20Token #lightyellow
+}
+
+User --> Core : Create Derivative
+Core --> Registry : Fetch Contract Addresses
+Core --> SyntheticAggregator : Validate Derivative Logic
+Core --> OracleAggregator : Fetch Price Feed
+OracleAggregator --> Oracle : Query Price Data
+SyntheticAggregator --> OracleAggregator : Cache Derivative Data
+Core --> Factory : Deploy Position Tokens
+Factory --> PositionToken : Create LONG/SHORT Tokens
+User --> PositionToken : Trade Derivative (LONG/SHORT)
+PositionToken --> ERC20Token : Transfer Tokens
+User --> TokenSpender : Approve Token Transfer
+TokenSpender --> ERC20Token : Manage Allowances
+User --> Core : Settle Derivative
+Core --> SyntheticAggregator : Determine Payout
+@enduml
+```

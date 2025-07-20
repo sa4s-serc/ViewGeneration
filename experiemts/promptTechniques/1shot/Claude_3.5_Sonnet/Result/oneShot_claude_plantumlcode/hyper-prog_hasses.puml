@@ -1,0 +1,37 @@
+@startuml hyper-prog_hasses
+
+actor "Web Client" as client
+participant "Web Server\n(Apache/Nginx)" as webserver
+participant "hasses Server" as hasses
+database "Client Data Store" as datastore
+participant "SSL Layer" as ssl
+participant "epoll" as epoll
+
+client -> webserver : HTTP Request
+webserver -> hasses : Forward SSE Request
+activate hasses
+
+hasses -> datastore : Store Client Info
+hasses -> ssl : Initialize SSL (if configured)
+hasses -> epoll : Register Client Socket
+
+loop Event Loop
+    epoll -> hasses : Event Notification
+    alt New Client Connection
+        hasses -> hasses : Handle SSE Handshake
+        hasses -> client : Send SSE Headers
+    else Data from Web Server
+        webserver -> hasses : Send Message via FIFO/TCP
+        hasses -> datastore : Lookup Subscribed Clients
+        hasses -> ssl : Encrypt Message (if SSL)
+        hasses -> client : Send SSE Message
+    else Client Disconnection
+        hasses -> datastore : Remove Client Info
+        hasses -> epoll : Unregister Client Socket
+    end
+end
+
+hasses -> webserver : Status Updates
+deactivate hasses
+
+@enduml

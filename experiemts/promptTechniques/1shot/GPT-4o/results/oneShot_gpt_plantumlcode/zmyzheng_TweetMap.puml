@@ -1,0 +1,80 @@
+```plantuml
+@startuml zmyzheng_TweetMap
+skinparam rectangle {
+  BackgroundColor<<collector>> #e3f7fc
+  BackgroundColor<<kafka>> #f9f7cc
+  BackgroundColor<<flink>> #f0d9ff
+  BackgroundColor<<elasticsearch>> #ffebcc
+  BackgroundColor<<restapi>> #d9e7fd
+  BackgroundColor<<frontend>> #d8f5d3
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+actor "User" as user
+
+package "Tweet Collector" <<collector>> {
+  rectangle "SocialMediaCollector" as SMC
+  rectangle "Sinkable Interface" as Sinkable
+  rectangle "KafkaSink" as KafkaSink
+  SMC --> Sinkable
+  Sinkable --> KafkaSink
+  KafkaSink -> "Kafka Cluster" <<kafka>>
+}
+
+package "Kafka Cluster" <<kafka>> {
+  rectangle "Message Queue" as MQ
+  KafkaSink --> MQ
+}
+
+package "Flink Processor" <<flink>> {
+  rectangle "StreamProcessor.java" as StreamProc
+  rectangle "StreamProcessingDriver.java" as StreamProcDrv
+  rectangle "KafkaEsProcessor.java" as KafkaEsProc
+  rectangle "TweetKafkaEsProcessor.java" as TweetKafkaEsProc
+  MQ --> StreamProc
+  StreamProc --> StreamProcDrv
+  StreamProcDrv --> KafkaEsProc
+  KafkaEsProc --> TweetKafkaEsProc
+  TweetKafkaEsProc -> "Elasticsearch" <<elasticsearch>>
+}
+
+package "Elasticsearch" <<elasticsearch>> {
+  rectangle "Data Store" as DataStore
+  TweetKafkaEsProc --> DataStore
+}
+
+package "REST API Server" <<restapi>> {
+  rectangle "TweetController" as TweetCtrl
+  rectangle "TopicController" as TopicCtrl
+  rectangle "TweetService" as TweetServ
+  rectangle "TopicService" as TopicServ
+  rectangle "TweetRepository" as TweetRepo
+  rectangle "EsOperationRepository" as EsOpRepo
+  rectangle "MapStruct Mappers" as Mappers
+  DataStore --> TweetRepo
+  DataStore --> EsOpRepo
+  TweetCtrl --> TweetServ
+  TopicCtrl --> TopicServ
+  TweetServ --> TweetRepo
+  TopicServ --> EsOpRepo
+  TweetServ --> Mappers
+  TopicServ --> Mappers
+  TweetCtrl -> user
+  TopicCtrl -> user
+}
+
+package "Frontend Visualization" <<frontend>> {
+  rectangle "Angular App" as AngularApp
+  rectangle "src/index.html" as IndexHtml
+  rectangle "src/main.ts" as MainTs
+  rectangle "Components" as Components
+  AngularApp --> IndexHtml
+  AngularApp --> MainTs
+  AngularApp --> Components
+  Components -> "Kibana" <<elasticsearch>>
+}
+
+user --> AngularApp
+@enduml
+```

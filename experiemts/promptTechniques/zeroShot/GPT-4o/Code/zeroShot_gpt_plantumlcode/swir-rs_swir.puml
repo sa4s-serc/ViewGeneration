@@ -1,0 +1,52 @@
+```plantuml
+@startuml swir-rs_swir
+
+package "SWIR Sidecar Service" {
+    component "Main" as main <<Application Entry Point>> {
+        [Configuration] --> [Metrics and Tracing]
+        [Metrics and Tracing] --> [HTTP Server]
+        [Metrics and Tracing] --> [gRPC Server]
+    }
+
+    package "Frontend Handlers" {
+        [HTTP Handler] --> [PubSub]
+        [HTTP Handler] --> [Persistence]
+        [HTTP Handler] --> [Service Invocation]
+        [gRPC Handler] --> [PubSub]
+        [gRPC Handler] --> [Persistence]
+        [gRPC Handler] --> [Service Invocation]
+    }
+
+    package "Backend Handlers" {
+        component "PubSub" {
+            [Kafka Handler] --> [PubSub]
+            [NATS Handler] --> [PubSub]
+            [AWS Kinesis Handler] --> [PubSub]
+        }
+        
+        component "Persistence" {
+            [Redis Store] --> [Persistence]
+            [DynamoDB Store] --> [Persistence]
+        }
+
+        component "Service Invocation" {
+            [Service Discovery] --> [Service Invocation]
+        }
+    }
+
+    package "Utilities" {
+        [Config] --> [Main]
+        [Metric Utils] --> [Metrics and Tracing]
+        [Tracing Utils] --> [Metrics and Tracing]
+        [Structs] --> [Main]
+    }
+}
+
+[HTTP Server] --> [HTTP Handler]
+[gRPC Server] --> [gRPC Handler]
+
+[Service Discovery] --> [mDNS]
+[Service Discovery] --> [DynamoDB]
+
+@enduml
+```

@@ -1,0 +1,54 @@
+```plantuml
+@startuml hyeonsangjeon_AWS-LLM-SageMaker
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Streamlit UI" as StreamlitUI #lightblue {
+}
+
+rectangle "Amazon SageMaker" as SageMaker #lightgreen {
+  rectangle "SageMaker Endpoint\n(LLM Serving)" as SageMakerEndpoint
+}
+
+rectangle "Amazon Opensearch" as OpenSearch #lightcoral {
+  rectangle "Document Retriever" as DocRetriever
+}
+
+rectangle "Local Environment" as LocalEnv #lightyellow {
+  rectangle "FAISS\n(Vector Store)" as FAISS
+}
+
+rectangle "Utilities" as Utils #aliceblue {
+  rectangle "Inference Library" as InferenceLib
+  rectangle "Prompter Class" as Prompter
+}
+
+' ========== Connections ==========
+User --> StreamlitUI
+
+' Streamlit UI interactions
+StreamlitUI --> SageMakerEndpoint : send queries
+StreamlitUI --> OpenSearch : retrieve document embeddings
+
+' Amazon Opensearch interactions
+DocRetriever --> OpenSearch : fetch relevant documents
+
+' SageMaker Endpoint interactions
+SageMakerEndpoint --> SageMaker : generate response\nbased on query and retrieved docs
+SageMakerEndpoint --> Utils : use InferenceLib\nfor prompt management
+
+' Utilities interactions
+Prompter --> InferenceLib : build prompts
+InferenceLib --> SageMakerEndpoint : invoke endpoint
+
+' Local Environment interactions
+LocalEnv --> FAISS : test local embedding search
+
+@enduml
+```

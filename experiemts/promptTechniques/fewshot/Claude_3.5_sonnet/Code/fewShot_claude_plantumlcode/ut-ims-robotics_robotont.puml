@@ -1,0 +1,83 @@
+@startuml ut-ims-robotics_robotont
+
+skinparam componentStyle rectangle
+skinparam defaultTextAlignment center
+
+package "robotont_driver" {
+  [SerialCommunication]
+  [HardwareInterface]
+  [OdometryCalculation]
+}
+
+package "robotont_teleop" {
+  [TeleopNode]
+  [JoystickControl]
+  [KeyboardControl]
+}
+
+package "robotont_training" {
+  [TrainingExercises]
+  [ARTagTracking]
+}
+
+package "robotont_description" {
+  [URDFModels]
+  [Meshes]
+  [Materials]
+}
+
+package "robotont_sensors" {
+  [LaserScanProcessing]
+}
+
+cloud "ROS Core" {
+  [ROSTopics]
+  [ROSServices]
+  [ParameterServer]
+  [TFLibrary]
+}
+
+package "Navigation Stack" {
+  [MoveBase]
+  [Costmaps]
+  [LocalPlanner]
+}
+
+package "Perception" {
+  [Cartographer]
+  [HectorMapping]
+  [RTABMap]
+}
+
+package "Simulation" {
+  [GazeboSimulation]
+}
+
+[RealsenseD435]
+
+robotont_driver --> ROSTopics
+robotont_teleop --> ROSTopics
+robotont_training --> ROSTopics
+robotont_sensors --> ROSTopics
+Navigation Stack --> ROSTopics
+Perception --> ROSTopics
+
+SerialCommunication --> HardwareInterface
+HardwareInterface --> OdometryCalculation
+
+TeleopNode --> JoystickControl
+TeleopNode --> KeyboardControl
+
+LaserScanProcessing --> ROSTopics : LaserScanSplit
+
+URDFModels --> GazeboSimulation
+Meshes --> GazeboSimulation
+Materials --> GazeboSimulation
+
+RealsenseD435 --> Perception
+
+ROSTopics --> ParameterServer
+ROSTopics --> TFLibrary
+ROSServices --> ParameterServer
+
+@enduml

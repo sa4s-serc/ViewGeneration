@@ -1,0 +1,65 @@
+@startuml NeuralDev-io_arclytics_simcct
+
+!define RECTANGLE class
+
+skinparam class {
+    BackgroundColor<<Frontend>> LightBlue
+    BackgroundColor<<Backend>> LightGreen
+    BackgroundColor<<Database>> Yellow
+    BackgroundColor<<Infrastructure>> LightGray
+    BackgroundColor<<Service>> Orange
+}
+
+rectangle "Kubernetes Cluster" {
+    RECTANGLE "SimCCT Service" <<Backend>> {
+        [Flask API]
+        [User Management]
+        [Celery Tasks]
+    }
+
+    RECTANGLE "Client" <<Frontend>> {
+        [React App]
+        [Redux Store]
+    }
+
+    RECTANGLE "Jupyter Service" <<Service>>
+    RECTANGLE "Celery Worker" <<Service>>
+
+    database "MongoDB" <<Database>>
+    database "Redis" <<Database>>
+
+    RECTANGLE "Logging" <<Service>> {
+        [Fluentd]
+        [Elasticsearch]
+        [Kibana]
+    }
+
+    RECTANGLE "Monitoring" <<Service>> {
+        [Elastic APM]
+    }
+}
+
+cloud "Google Kubernetes Engine" <<Infrastructure>> {
+    [Cloud Build]
+    [Container Registry]
+}
+
+[Docker] <<Infrastructure>>
+[Skaffold] <<Infrastructure>>
+
+Client --> SimCCT_Service : REST API
+SimCCT_Service --> MongoDB : Data Persistence
+SimCCT_Service --> Redis : Caching & Session
+Celery_Worker --> Redis : Message Queue
+SimCCT_Service --> Celery_Worker : Async Tasks
+SimCCT_Service --> Jupyter_Service : Data Analysis
+SimCCT_Service --> Logging : Log Data
+SimCCT_Service --> Monitoring : Performance Metrics
+
+Docker --> "Kubernetes Cluster" : Containerization
+Skaffold --> "Kubernetes Cluster" : Development
+"Google Kubernetes Engine" --> "Kubernetes Cluster" : Production Deployment
+Cloud_Build --> Container_Registry : Build & Push
+Container_Registry --> "Kubernetes Cluster" : Pull Images
+
+@enduml

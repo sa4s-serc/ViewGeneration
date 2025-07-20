@@ -1,0 +1,46 @@
+```plantuml
+@startuml qunarcorp_m_adr_qapm_open_source
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor Developer
+
+rectangle "QAPM Gradle Plugin" as GradlePlugin {
+  rectangle "QBuildPlugin" as QBuildPlugin
+  rectangle "AspectJAppTransform" as AspectJAppTransform
+}
+
+rectangle "QAPM Library" as QAPMLibrary {
+  rectangle "QAPM" as QAPM
+  rectangle "Configuration Manager" as ConfigManager
+  rectangle "Performance Tracers" as Tracers {
+    rectangle "Network Tracer" as NetworkTracer
+    rectangle "FPS Tracer" as FPSTracer
+    rectangle "Memory Tracer" as MemoryTracer
+    rectangle "CPU Tracer" as CPUTracer
+    rectangle "Battery Tracer" as BatteryTracer
+  }
+  rectangle "Data Storage" as DataStorage
+  rectangle "Network Instrumentation" as NetworkInstrumentation
+}
+
+Developer -> QBuildPlugin : Build Application
+QBuildPlugin -> AspectJAppTransform : Apply Transform
+AspectJAppTransform -> QAPMLibrary : Inject Monitoring Code
+
+QAPM -> ConfigManager : Initialize
+QAPM -> Tracers : Start Monitoring
+Tracers -> FPSTracer : Monitor UI Rendering
+Tracers -> NetworkTracer : Track Network Activity
+Tracers -> MemoryTracer : Track Memory Usage
+Tracers -> CPUTracer : Monitor CPU Utilization
+Tracers -> BatteryTracer : Monitor Battery Consumption
+
+Tracers -> DataStorage : Store Collected Data
+NetworkInstrumentation -> DataStorage : Send Data to Endpoint
+@enduml
+```

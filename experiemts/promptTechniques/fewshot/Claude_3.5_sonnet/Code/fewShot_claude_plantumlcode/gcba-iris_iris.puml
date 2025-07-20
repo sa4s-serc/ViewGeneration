@@ -1,0 +1,62 @@
+@startuml gcba-iris_iris
+
+skinparam rectangle {
+  BackgroundColor #EEEBDC
+  BorderColor #333333
+  RoundCorner 20
+}
+
+rectangle "Dock" as Dock {
+  [Listen for messages]
+  [Parse messages]
+  [Encode responses]
+}
+
+rectangle "Dispatcher" as Dispatcher {
+  [Route messages]
+  [Bootstrap flows]
+  [Compile jobs]
+}
+
+rectangle "Handler" as Handler {
+  [Process data]
+  [Generate response]
+}
+
+rectangle "Hook" as Hook {
+  [Pre-processing]
+  [Post-processing]
+}
+
+rectangle "Thread Pool" as ThreadPool {
+  [Concurrent execution]
+}
+
+rectangle "Flow" as Flow {
+  [Define message path]
+}
+
+rectangle "CLI" as CLI {
+  [Project initialization]
+  [Flow management]
+  [Execution commands]
+}
+
+rectangle "Configuration" as Config {
+  [Manage settings]
+  [Validate config]
+}
+
+Dock -right-> Dispatcher : Send parsed messages
+Dispatcher -down-> Handler : Route messages
+Dispatcher -down-> Hook : Pre/Post processing
+Handler -left-> Dispatcher : Return response
+Hook -left-> Dispatcher : Modify data
+Dispatcher -up-> Dock : Send response
+Flow -down-> Dispatcher : Define pipeline
+ThreadPool -up-> Dispatcher : Execute flows
+CLI -down-> Flow : Manage
+CLI -down-> Config : Use
+Config -right-> Dispatcher : Configure
+
+@enduml

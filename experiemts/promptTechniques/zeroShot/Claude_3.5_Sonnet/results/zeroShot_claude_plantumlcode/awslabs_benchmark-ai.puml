@@ -1,0 +1,63 @@
+Here's a PlantUML sequence diagram representing the control flow of the Benchmark AI (BAI) system based on the provided repository summary:
+
+```plantuml
+@startuml awslabs_benchmark-ai
+
+participant "User" as user
+participant "bai-bff" as bff
+participant "Kafka" as kafka
+participant "executor" as executor
+participant "watcher" as watcher
+participant "fetcher-dispatcher" as fetcher
+participant "Kubernetes" as k8s
+participant "metrics-pusher" as metrics
+participant "cloudwatch-exporter" as cw
+
+user -> bff: Submit benchmark job
+activate bff
+bff -> bff: Validate TOML descriptor
+bff -> kafka: Publish job submission event
+deactivate bff
+
+kafka -> executor: Consume job submission event
+activate executor
+executor -> executor: Translate descriptor to K8s resources
+executor -> k8s: Create job resources
+executor -> kafka: Publish job created event
+deactivate executor
+
+kafka -> watcher: Consume job created event
+activate watcher
+watcher -> k8s: Monitor job status
+watcher -> kafka: Publish status updates
+deactivate watcher
+
+kafka -> fetcher: Consume job created event
+activate fetcher
+fetcher -> k8s: Create fetcher job
+fetcher -> kafka: Publish data fetched event
+deactivate fetcher
+
+kafka -> executor: Consume data fetched event
+activate executor
+executor -> k8s: Update job with data location
+deactivate executor
+
+k8s -> metrics: Start metrics collection
+activate metrics
+metrics -> kafka: Push metrics
+deactivate metrics
+
+kafka -> cw: Consume metrics
+activate cw
+cw -> cw: Export metrics to CloudWatch
+deactivate cw
+
+watcher -> kafka: Publish job completed event
+kafka -> bff: Consume job completed event
+activate bff
+bff -> user: Return job results
+deactivate bff
+
+@enduml
+```

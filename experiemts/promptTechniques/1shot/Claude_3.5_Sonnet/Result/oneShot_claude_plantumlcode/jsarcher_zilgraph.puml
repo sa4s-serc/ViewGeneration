@@ -1,0 +1,61 @@
+@startuml jsarcher_zilgraph
+
+skinparam component {
+  BackgroundColor<<data_acquisition>> LightBlue
+  BackgroundColor<<storage>> LightYellow
+  BackgroundColor<<processing>> LightGreen
+  BackgroundColor<<visualization>> LightPink
+  BackgroundColor<<proxy>> LightGray
+}
+
+cloud "Zilliqa Blockchain" as blockchain
+
+component "Zilcrawler" <<data_acquisition>> as zilcrawler
+component "Elasticsearch" <<storage>> as elasticsearch
+component "MongoDB" <<storage>> as mongodb
+component "Data Aggregator" <<processing>> as aggregator
+component "Bokeh Server" <<visualization>> as bokeh
+component "Kibana" <<visualization>> as kibana
+component "Nginx Reverse Proxy" <<proxy>> as nginx
+
+[zilcrawler] --> blockchain : Fetches data
+[zilcrawler] --> elasticsearch : Stores raw data
+elasticsearch --> [aggregator] : Queries data
+[aggregator] --> mongodb : Stores aggregated data
+mongodb --> [bokeh] : Retrieves data for charts
+elasticsearch --> [kibana] : Provides data for dashboards
+[nginx] --> [bokeh] : Proxies requests
+[nginx] --> [kibana] : Proxies requests
+
+actor "User" as user
+user --> [nginx] : Accesses dashboard
+
+note right of zilcrawler
+  Implemented in zilswap/zilcrawl.py
+  and initiated via zilswap/crawler.py
+end note
+
+note right of elasticsearch
+  Configured in etc/elasticsearch/elasticsearch.yml
+end note
+
+note right of aggregator
+  Includes zilswap/zillog.py for
+  data collection and aggregation
+end note
+
+note right of bokeh
+  Generates charts using pie/main.py,
+  table/main.py, and associated templates
+end note
+
+note right of kibana
+  Configured via etc/kibana/kibana.yml
+end note
+
+note right of nginx
+  Configured in etc/nginx/conf.d/zilgraph.io.conf
+  Handles SSL, redirects, and security
+end note
+
+@enduml

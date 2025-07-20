@@ -1,0 +1,47 @@
+```plantuml
+@startuml Luizbrandt_users-crud-salesforce
+
+actor Client
+
+participant "API Kit Router" as Router
+participant "Mule Flows" as Flows
+participant "DataWeave" as DW
+participant "Salesforce Connector" as SFConn
+participant "Secure Properties" as SecProps
+participant "Error Handler" as ErrHandler
+
+Client -> Router: Request CRUD operation
+Router -> Flows: Route to appropriate Mule flow
+Flows -> SecProps: Retrieve Salesforce credentials
+SecProps --> Flows: Return credentials
+
+alt Create Operation
+    Flows -> DW: Transform request data
+    DW --> Flows: Return transformed data
+    Flows -> SFConn: Create Custom_User__c
+    SFConn --> Flows: Return create result
+else Read Operation
+    Flows -> SFConn: Read Custom_User__c
+    SFConn --> Flows: Return user data
+    Flows -> DW: Transform response data
+    DW --> Flows: Return transformed data
+else Update Operation
+    Flows -> DW: Transform request data
+    DW --> Flows: Return transformed data
+    Flows -> SFConn: Update Custom_User__c
+    SFConn --> Flows: Return update result
+else Delete Operation
+    Flows -> SFConn: Delete Custom_User__c
+    SFConn --> Flows: Return delete result
+end
+
+Flows -> Client: Return result
+
+alt Error Handling
+    Flows -> ErrHandler: Handle error scenario
+    ErrHandler --> Flows: Return error response
+    Flows -> Client: Return error to client
+end
+
+@enduml
+```

@@ -1,0 +1,55 @@
+```plantuml
+@startuml alexandredev3_nodejs-clean-architeture
+skinparam componentStyle rectangle
+left to right direction
+skinparam defaultTextAlignment center
+
+package "User Authentication and Management API" {
+  rectangle "Express" as express
+  rectangle "TypeORM" as typeorm
+  rectangle "Redis" as redis
+  rectangle "Tsyringe" as tsyringe
+  rectangle "Postgres\nDatabase" as postgres #lightblue
+
+  package "Modules" {
+    package "Users" {
+      rectangle "Services" as userServices
+      rectangle "Controllers" as userControllers
+      rectangle "Repositories" as userRepositories
+      rectangle "Entities" as userEntities
+    }
+  }
+
+  package "Middleware" {
+    rectangle "Rate Limiter" as rateLimiter
+  }
+
+  package "Config" {
+    rectangle "Redis Config" as redisConfig
+    rectangle "Auth Config" as authConfig
+  }
+
+  package "Shared" {
+    rectangle "App Error" as appError
+    rectangle "Environment Utils" as envUtils
+  }
+
+  express --> userControllers
+  userControllers --> userServices
+  userServices --> userRepositories
+  userRepositories --> userEntities
+  userRepositories --> typeorm
+  userRepositories --> redis
+  userRepositories --> postgres
+
+  express --> rateLimiter
+  rateLimiter --> redisConfig
+
+  tsyringe --> userServices
+  tsyringe --> envUtils
+  tsyringe --> redisConfig
+  tsyringe --> authConfig
+  tsyringe --> appError
+}
+@enduml
+```

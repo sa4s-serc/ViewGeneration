@@ -1,0 +1,39 @@
+```plantuml
+@startuml microsoft_covid19-BackToWork
+
+actor User
+participant "Healthcare Bot" as Bot
+participant "Azure Function\nPostUserInfo" as PostUserInfo
+participant "Azure Function\nPostSymptomsInfo" as PostSymptomsInfo
+participant "Azure Function\nPostLabTestInfo" as PostLabTestInfo
+participant "Azure SQL Database" as Database
+participant "Azure Function\nTriggerNotification" as TriggerNotification
+participant "Notification System" as Notification
+
+User -> Bot: Enter Personal Info
+Bot -> PostUserInfo: Send Personal Info
+PostUserInfo -> Database: Store Personal Info
+Database -> PostUserInfo: Ack
+PostUserInfo -> Bot: Ack
+
+User -> Bot: Enter Symptoms Info
+Bot -> PostSymptomsInfo: Send Symptoms Info
+PostSymptomsInfo -> Database: Store Symptoms Info
+Database -> PostSymptomsInfo: Ack
+PostSymptomsInfo -> Bot: Ack
+
+User -> Bot: Enter Lab Test Info
+Bot -> PostLabTestInfo: Send Lab Test Info
+PostLabTestInfo -> Database: Store Lab Test Info
+Database -> PostLabTestInfo: Ack
+PostLabTestInfo -> Bot: Ack
+
+Bot -> Bot: Assess Health Status
+
+alt Cleared
+    Bot -> TriggerNotification: Trigger Notification
+    TriggerNotification -> Notification: Send Email with QR Code
+end
+
+@enduml
+```

@@ -1,0 +1,37 @@
+```plantuml
+@startuml turkcellcloud_jupyter-openshift
+left to right direction
+
+skinparam rectangle {
+  BackgroundColor #dff0ff
+  BorderColor black
+  Style roundrect
+}
+
+package "OpenShift 3.11" {
+  rectangle "JupyterHub" as JupyterHub #d9e7fd
+  rectangle "JupyterLab" as JupyterLab #d9e7fd
+  rectangle "KubeSpawner" as KubeSpawner #d9e7fd
+  rectangle "LDAP Authenticator" as LDAP #d9e7fd
+  rectangle "PostgreSQL" as PostgreSQL #d9e7fd
+  rectangle "Persistent Volume" as PersistentVolume #fff1c9
+  rectangle "Network Policies" as NetworkPolicies #fff1c9
+  rectangle "Idle Server Culling" as IdleCulling #d8f5d3
+  rectangle "Active Directory/LDAP" as ADLDAP #fddddd
+}
+
+actor "User" as User
+
+User --> JupyterHub : Access
+JupyterHub --> JupyterLab : Interface
+JupyterHub --> KubeSpawner : Manage Pods
+JupyterHub --> LDAP : Authenticate
+JupyterHub --> PostgreSQL : Store Data
+JupyterHub --> IdleCulling : Shutdown Inactive
+JupyterHub --> PersistentVolume : Data Storage
+
+KubeSpawner --> NetworkPolicies : Apply
+LDAP --> ADLDAP : Authenticate Users
+
+@enduml
+```

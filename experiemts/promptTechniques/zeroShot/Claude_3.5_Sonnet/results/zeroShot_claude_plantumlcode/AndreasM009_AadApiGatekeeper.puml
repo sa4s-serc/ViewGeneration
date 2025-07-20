@@ -1,0 +1,45 @@
+@startuml AndreasM009_AadApiGatekeeper
+
+!define RECTANGLE component
+
+skinparam component {
+  BackgroundColor<<External>> LightGray
+  BorderColor<<External>> Gray
+}
+
+cloud "Azure" {
+  [Azure Active Directory]<<External>>
+}
+
+node "Kubernetes / Service Fabric Mesh" {
+  package "API Pod / Service" {
+    [AadApiGatekeeper] as Gatekeeper
+    [Backend API] as API
+    
+    interface "Proxy Port" as ProxyPort
+    interface "API Port" as APIPort
+    
+    Gatekeeper - ProxyPort
+    API - APIPort
+  }
+}
+
+[Client Application]<<External>>
+
+Client Application --> ProxyPort : HTTP Requests
+Gatekeeper --> APIPort : Proxied Requests
+Gatekeeper <--> [Azure Active Directory] : Token Validation\nOn-Behalf-Of Flow
+
+RECTANGLE "Gatekeeper Components" {
+  [Reverse Proxy]
+  [Token Cache]
+  [Authentication Middleware]
+  [Authorization Middleware]
+}
+
+Gatekeeper ..> [Reverse Proxy]
+Gatekeeper ..> [Token Cache]
+Gatekeeper ..> [Authentication Middleware]
+Gatekeeper ..> [Authorization Middleware]
+
+@enduml

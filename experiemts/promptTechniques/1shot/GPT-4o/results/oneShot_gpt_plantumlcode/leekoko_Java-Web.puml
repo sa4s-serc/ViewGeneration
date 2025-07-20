@@ -1,0 +1,50 @@
+```plantuml
+@startuml leekoko_Java-Web
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Frontend" as FE {
+  rectangle "HTML/CSS/JavaScript" as HTML
+  rectangle "jQuery Library" as jQuery
+}
+
+rectangle "Backend" as BE {
+  rectangle "Java Servlets/Spring Boot" as JavaServer
+  rectangle "Dubbo RPC" as Dubbo
+  rectangle "Security" as Security
+  rectangle "Tomcat Server" as Tomcat
+}
+
+rectangle "Data Storage" as DS {
+  rectangle "Redis" as Redis
+  rectangle "MySQL" as MySQL
+}
+
+rectangle "Dubbo Registry" as DubboRegistry
+
+' ========== Connections ==========
+User --> FE
+
+' Frontend interactions
+FE --> BE : HTTP Requests\nForm Submissions\nAJAX Calls
+HTML <--> jQuery : DOM Manipulation\nEvent Handling\nAJAX
+
+' Backend interactions
+JavaServer --> DS : Database Operations\nvia MySQL
+JavaServer --> Redis : Caching Operations
+JavaServer --> Security : Authentication\nAuthorization
+JavaServer --> Dubbo : RPC Calls for Service\nInvocation
+DubboRegistry <--> Dubbo : Service Registration\nService Discovery
+
+' Tomcat interactions
+User --> Tomcat : Client Requests
+Tomcat --> BE : Forward Requests\nto Servlets
+
+@enduml
+```

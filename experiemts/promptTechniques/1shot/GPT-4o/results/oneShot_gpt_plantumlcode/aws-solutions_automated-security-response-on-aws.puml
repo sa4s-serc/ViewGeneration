@@ -1,0 +1,54 @@
+```plantuml
+@startuml aws-solutions_automated-security-response-on-aws
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "AWS Security Hub" as SecurityHub #lightyellow
+
+rectangle "EventBridge" as EventBridge #lightblue
+
+rectangle "Orchestrator\n(Step Function)" as Orchestrator #lightgreen
+
+rectangle "SSM Automation\nDocuments" as SSMAutomation #lightcoral
+
+rectangle "Custom Actions" as CustomActions #lightgrey
+
+rectangle "Lambda Functions" as LambdaFunctions #lightpink
+
+rectangle "CloudWatch" as CloudWatch #aliceblue
+
+rectangle "SQS" as SQS #beige
+
+rectangle "External Ticketing\nSystems (Jira, ServiceNow)" as Ticketing #lightsteelblue
+
+' ========== Connections ==========
+User --> SecurityHub : View findings\nTrigger custom actions
+
+' Security Hub interactions
+SecurityHub --> EventBridge : Send findings
+EventBridge --> Orchestrator : Trigger remediation workflow
+
+' Orchestrator interactions
+Orchestrator --> SSMAutomation : Initiate SSM documents
+Orchestrator --> LambdaFunctions : Execute remediation logic
+
+' Lambda Functions interactions
+LambdaFunctions --> SecurityHub : Update finding status
+LambdaFunctions --> CloudWatch : Log metrics and outcomes
+LambdaFunctions --> SQS : Queue remediation tasks
+LambdaFunctions --> Ticketing : Create tickets post-remediation
+
+' Custom Actions interactions
+CustomActions --> EventBridge : Trigger via custom action
+
+' CloudWatch interactions
+CloudWatch --> User : Monitor metrics and alerts
+
+@enduml
+```

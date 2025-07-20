@@ -1,0 +1,50 @@
+```plantuml
+@startuml zalando-incubator_fabric-gateway
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "API Gateway" as APIGateway {
+  rectangle "FabricGateway CRD" as CRD
+  rectangle "IngressDerivationChain" as IngressChain
+}
+
+rectangle "Kubernetes" as Kubernetes #lightblue {
+  rectangle "Ingress Resources" as Ingress
+  rectangle "StackSets" as StackSets
+}
+
+rectangle "Webhook Service" as WebhookService #lightyellow {
+  rectangle "Validation Webhook" as ValidationWebhook
+  rectangle "Sync Webhook" as SyncWebhook
+}
+
+rectangle "Zalando IAM" as IAM #mistyrose
+
+rectangle "E2E Test Suite" as E2ETest #lightsteelblue
+
+' ========== Connections ==========
+User --> APIGateway : configure API\nusing FabricGateway CRD
+
+' API Gateway interactions
+APIGateway --> Kubernetes : manage Ingress\nresources via CRD
+IngressChain --> Ingress : derive Ingress\nfrom CRD
+APIGateway --> IAM : authenticate and authorize\nrequests
+
+' Webhook interactions
+CRD --> ValidationWebhook : trigger validation
+IngressChain --> SyncWebhook : synchronize states
+
+' Service Discovery
+APIGateway --> StackSets : discover\nbackend services
+
+' E2E Test Suite interactions
+E2ETest --> Kubernetes : deploy test apps as microservices
+E2ETest --> APIGateway : perform end-to-end tests
+@enduml
+```

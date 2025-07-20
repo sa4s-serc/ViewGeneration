@@ -1,0 +1,68 @@
+```plantuml
+@startuml swir-rs_swir
+
+[SWIR Sidecar Service] as SWIR
+
+package "Frontend Handlers" {
+  [HTTP Handler] as HTTP
+  [gRPC Handler] as GRPC
+}
+
+package "Core Services" {
+  [PubSub Service] as PubSub
+  [Persistence Service] as Persistence
+  [Service Invocation] as SI
+}
+
+package "Messaging Handlers" {
+  [Kafka Handler] as Kafka
+  [NATS Handler] as NATS
+  [AWS Kinesis Handler] as Kinesis
+}
+
+package "Persistence Handlers" {
+  [Redis Store] as Redis
+  [DynamoDB Store] as DynamoDB
+}
+
+package "Service Discovery" {
+  [mDNS Discovery] as mDNS
+  [DynamoDB Discovery] as DynamoDBDiscovery
+}
+
+package "Observability" {
+  [Metrics] as Metrics
+  [Tracing] as Tracing
+}
+
+[Configuration] as Config
+
+SWIR --> HTTP
+SWIR --> GRPC
+SWIR --> PubSub
+SWIR --> Persistence
+SWIR --> SI
+SWIR --> Config
+SWIR --> Metrics
+SWIR --> Tracing
+
+HTTP --> PubSub
+HTTP --> Persistence
+HTTP --> SI
+
+GRPC --> PubSub
+GRPC --> Persistence
+GRPC --> SI
+
+PubSub --> Kafka
+PubSub --> NATS
+PubSub --> Kinesis
+
+Persistence --> Redis
+Persistence --> DynamoDB
+
+SI --> mDNS
+SI --> DynamoDBDiscovery
+
+@enduml
+```

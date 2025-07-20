@@ -1,0 +1,37 @@
+@startuml hotshot07_distributed_systems
+
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<db>> #fff1c9
+  BackgroundColor<<deployment>> #ffd9d9
+  Style roundrect
+}
+
+rectangle "GitHub Actions" <<deployment>> as GHA
+rectangle "DockerHub" <<deployment>> as DockerHub
+rectangle "Kubernetes Cluster" <<deployment>> as K8s {
+  rectangle "Frontend Pod" <<frontend>> as FrontendPod {
+    rectangle "React App" as ReactApp
+  }
+  
+  rectangle "Backend Pods" <<backend>> as BackendPods {
+    rectangle "Authentication Service" as AuthService
+    rectangle "Account Management Service" as AccountService
+    rectangle "Athlete Availability Service" as AvailabilityService
+    rectangle "Test Scheduling Service" as SchedulingService
+    rectangle "Result Reporting Service" as ReportingService
+  }
+  
+  rectangle "API Gateway" as APIGateway
+}
+
+database "DynamoDB" <<db>> as DynamoDB
+
+GHA --> DockerHub : Push images
+DockerHub --> K8s : Pull images
+ReactApp --> APIGateway : HTTP requests
+APIGateway --> BackendPods : Route requests
+BackendPods --> DynamoDB : CRUD operations
+
+@enduml

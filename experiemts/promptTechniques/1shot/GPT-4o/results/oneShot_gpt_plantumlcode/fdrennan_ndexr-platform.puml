@@ -1,0 +1,69 @@
+```plantuml
+@startuml fdrennan_ndexr-platform
+skinparam packageStyle rectangle
+
+package "Data Ingestion & Storage" {
+  [PRAW Library] --> [PostgreSQL]
+  [PRAW Library] --> [py_redditor/*]
+}
+
+package "API and User Interface" {
+  [R Plumber API] --> [redditor-api/plumber.R]
+  [Shiny Application] --> [redditor-shiny.Rproj]
+}
+
+package "Workflow Orchestration" {
+  [Airflow] --> [airflow/airflower/dags/*]
+}
+
+package "AWS Infrastructure Management" {
+  [AWS S3]
+  [AWS EC2]
+  [AWS SNS]
+  [biggr/R/*] --> [AWS S3]
+  [biggr/R/*] --> [AWS EC2]
+  [biggr/R/*] --> [AWS SNS]
+  [Spark Master/Slave Nodes] --> [AWS EC2]
+}
+
+package "Search Functionality" {
+  [Elasticsearch]
+}
+
+package "System Monitoring" {
+  [Glances] --> [EC2 Instances]
+  [Glances] --> [Lenovo]
+  [Glances] --> [XPS]
+  [Glances] --> [Poweredge]
+}
+
+package "Docker & Configuration" {
+  [DockerfileApi]
+  [DockerfileRpy]
+  [DockerfileShiny]
+  [docker-compose.yaml]
+  [.env]
+  [nginx/nginx.conf]
+  [renv/settings.dcf]
+}
+
+package "Infrastructure Setup" {
+  [postgres_installer.sh] --> [PostgreSQL]
+}
+
+package "Project Management" {
+  [README.md]
+  [redditor.Rproj]
+  [biggr.Rproj]
+  [redditor-shiny.Rproj]
+  [renv/activate.R]
+}
+
+[PostgreSQL] --> [AWS S3]
+[PostgreSQL] --> [Elasticsearch]
+[DockerfileApi] --> [R Plumber API]
+[DockerfileShiny] --> [Shiny Application]
+[DockerfileRpy] --> [Airflow]
+
+@enduml
+```

@@ -1,0 +1,38 @@
+```plantuml
+@startuml freenowtech_AndroidCI
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor Developer
+
+rectangle "Jenkins Master" as JenkinsMaster #lightblue {
+}
+
+rectangle "Docker Host" as DockerHost #lightgreen {
+  rectangle "Jenkins Agent\n(Docker Container)" as JenkinsAgent #lightyellow
+  rectangle "Android SDK\n(Docker Image)" as AndroidSDK #aliceblue
+}
+
+rectangle "Android Project" as AndroidProject #mistyrose
+
+' ========== Connections ==========
+Developer --> JenkinsMaster : trigger build
+
+' Jenkins Master interactions
+JenkinsMaster --> DockerHost : schedule build job
+JenkinsMaster --> JenkinsAgent : communicate build tasks
+
+' Jenkins Agent interactions
+JenkinsAgent --> AndroidSDK : utilize for build & test
+JenkinsAgent --> AndroidProject : checkout source code\n execute build & test
+
+' Docker Host interactions
+DockerHost --> JenkinsAgent : provision container
+DockerHost <--> JenkinsMaster : manage container lifecycle
+
+@enduml
+```

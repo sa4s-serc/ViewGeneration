@@ -1,0 +1,69 @@
+```plantuml
+@startuml WeBankFinTech_DeFiBus
+
+skinparam rectangle {
+  BackgroundColor<<broker>> #f5f5dc
+  BackgroundColor<<manager>> #d3f5d8
+  BackgroundColor<<processor>> #f5d8e4
+  BackgroundColor<<component>> #f5f3d8
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "DeFiBus Broker" <<broker>> {
+  rectangle "DeFiBrokerController" as BrokerController
+  rectangle "DeFiBusBrokerConfig" as BrokerConfig
+}
+
+package "Managers" <<manager>> {
+  rectangle "DeFiProducerManager" as ProducerManager
+  rectangle "DeFiConsumerManager" as ConsumerManager
+  rectangle "ConsumeQueueManager" as QueueManager
+  rectangle "MessageRedirectManager" as RedirectManager
+  rectangle "DeFiTopicConfigManager" as TopicConfigManager
+  rectangle "ClientRebalanceResultManager" as RebalanceResultManager
+  rectangle "ConsumeQueueAccessLockManager" as AccessLockManager
+}
+
+package "Processors" <<processor>> {
+  rectangle "DeFiSendMessageProcessor" as SendMessageProcessor
+  rectangle "DeFiReplyMessageProcessor" as ReplyMessageProcessor
+  rectangle "DeFiPullMessageProcessor" as PullMessageProcessor
+  rectangle "DeFiAdminBrokerProcessor" as AdminBrokerProcessor
+}
+
+package "Components" <<component>> {
+  rectangle "DeFiPluginMessageStore" as PluginMessageStore
+  rectangle "QueueListeningMonitor" as ListeningMonitor
+  rectangle "AdjustQueueNumStrategy" as QueueNumStrategy
+  rectangle "DeFiBusBroker2Client" as Broker2Client
+}
+
+BrokerController --> ProducerManager
+BrokerController --> ConsumerManager
+BrokerController --> QueueManager
+BrokerController --> RedirectManager
+BrokerController --> TopicConfigManager
+BrokerController --> RebalanceResultManager
+BrokerController --> AccessLockManager
+
+BrokerController --> SendMessageProcessor
+BrokerController --> ReplyMessageProcessor
+BrokerController --> PullMessageProcessor
+BrokerController --> AdminBrokerProcessor
+
+BrokerController --> PluginMessageStore
+BrokerController --> ListeningMonitor
+BrokerController --> QueueNumStrategy
+BrokerController --> Broker2Client
+
+QueueManager --> AccessLockManager
+QueueManager --> QueueNumStrategy
+
+SendMessageProcessor --> QueueManager
+SendMessageProcessor --> RedirectManager
+
+ReplyMessageProcessor --> Broker2Client
+
+@enduml
+```

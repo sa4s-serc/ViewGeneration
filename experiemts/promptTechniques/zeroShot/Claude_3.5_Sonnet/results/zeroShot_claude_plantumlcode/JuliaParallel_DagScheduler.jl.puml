@@ -1,0 +1,71 @@
+@startuml JuliaParallel_DagScheduler.jl
+
+component "DagScheduler" {
+  [RunEnv]
+  [Scheduler]
+  [ExecutionEngine]
+  [QueueManager]
+  interface "MetadataStore" as MetadataStoreInterface
+}
+
+component "Node 1" {
+  [Broker 1]
+  [Executor 1.1]
+  [Executor 1.2]
+}
+
+component "Node 2" {
+  [Broker 2]
+  [Executor 2.1]
+  [Executor 2.2]
+}
+
+database "FoundationDB" {
+  [FDBMetaStore]
+}
+
+[RunEnv] --> [Scheduler] : configures
+[RunEnv] --> [ExecutionEngine] : initializes
+[RunEnv] --> [QueueManager] : sets up
+
+[Scheduler] --> [QueueManager] : assigns tasks
+[Scheduler] --> MetadataStoreInterface : reads/updates metadata
+
+[ExecutionEngine] --> [Broker 1] : coordinates
+[ExecutionEngine] --> [Broker 2] : coordinates
+
+[Broker 1] --> [Executor 1.1] : assigns tasks
+[Broker 1] --> [Executor 1.2] : assigns tasks
+[Broker 2] --> [Executor 2.1] : assigns tasks
+[Broker 2] --> [Executor 2.2] : assigns tasks
+
+[Executor 1.1] --> MetadataStoreInterface : updates state
+[Executor 1.2] --> MetadataStoreInterface : updates state
+[Executor 2.1] --> MetadataStoreInterface : updates state
+[Executor 2.2] --> MetadataStoreInterface : updates state
+
+MetadataStoreInterface <|.. [FDBMetaStore] : implements
+
+note right of [Scheduler]
+  Prioritizes data locality
+  and resource optimization
+end note
+
+note right of [ExecutionEngine]
+  Handles fault tolerance
+  and asynchronous execution
+end note
+
+note right of [QueueManager]
+  Implements queue-based
+  task stealing for
+  improved performance
+end note
+
+note right of MetadataStoreInterface
+  Tracks DAG execution state,
+  result locations, and
+  reference counts
+end note
+
+@enduml

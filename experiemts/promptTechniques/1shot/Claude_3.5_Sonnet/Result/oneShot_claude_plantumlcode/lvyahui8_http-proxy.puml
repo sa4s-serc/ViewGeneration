@@ -1,0 +1,56 @@
+@startuml lvyahui8_http-proxy
+
+skinparam component {
+  BackgroundColor<<core>> LightBlue
+  BackgroundColor<<test>> LightGreen
+  BackgroundColor<<config>> LightYellow
+}
+
+package "HTTP Proxy Service" {
+  [HttpProxyServer] <<core>>
+  [ClientToProxyHandler] <<core>>
+  [ProxyToServerInboundHandler] <<core>>
+  [EntitysManager] <<core>>
+  [GlobalExceptionHandler] <<core>>
+  
+  package "Filters" {
+    [ProxyRequestFilter] <<core>>
+    [ProxyResponseFilter] <<core>>
+    [AttackRequestFilter] <<core>>
+    [DefaultProxyResponseFilter] <<core>>
+  }
+  
+  package "Message Handling" {
+    [MsgTranslater] <<core>>
+    [StandardResponse] <<core>>
+    [MsgCode] <<core>>
+  }
+  
+  [entitys.json] <<config>>
+  [log4j2.xml] <<config>>
+}
+
+package "Test Modules" {
+  [TestClientApp] <<test>>
+  [TestServerMain] <<test>>
+  [TestResource] <<test>>
+}
+
+[HttpProxyServer] --> [ClientToProxyHandler]
+[HttpProxyServer] --> [ProxyToServerInboundHandler]
+[HttpProxyServer] --> [EntitysManager]
+[HttpProxyServer] --> [GlobalExceptionHandler]
+
+[ClientToProxyHandler] --> [ProxyRequestFilter]
+[ProxyToServerInboundHandler] --> [ProxyResponseFilter]
+
+[EntitysManager] ..> [entitys.json] : reads
+
+[GlobalExceptionHandler] --> [MsgTranslater]
+[GlobalExceptionHandler] --> [StandardResponse]
+[GlobalExceptionHandler] --> [MsgCode]
+
+[TestClientApp] ..> [HttpProxyServer] : tests
+[TestServerMain] ..> [TestResource] : uses
+
+@enduml

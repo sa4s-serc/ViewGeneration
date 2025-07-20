@@ -1,0 +1,69 @@
+```plantuml
+@startuml minism_hotel
+skinparam rectangle {
+  BackgroundColor<<master>> #d9e7fd
+  BackgroundColor<<spawner>> #d8f5d3
+  BackgroundColor<<shared>> #fddddd
+  BackgroundColor<<config>> #fff1c9
+  BackgroundColor<<proto>> #e7e9f1
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Master Server (hotel-master)" <<master>> {
+  rectangle "REST API" as RestAPI
+  rectangle "RPC Server (gRPC)" as RpcServer
+  rectangle "Session Management\n(SessionStore Singleton)" as SessionManagement
+  rectangle "Database (SQLite)" as Database
+  rectangle "Reaper" as Reaper
+  RestAPI --> SessionManagement
+  RpcServer --> SessionManagement
+  SessionManagement --> Database
+  Reaper --> Database
+}
+
+package "Spawner (hotel-spawner)" <<spawner>> {
+  rectangle "RPC Server (gRPC)" as SpawnerRpcServer
+  rectangle "Game Server Management" as GameServerManagement
+  rectangle "Master Server Communication" as MasterComm
+  SpawnerRpcServer --> MasterComm
+  GameServerManagement --> SpawnerRpcServer
+}
+
+package "Shared Libraries" <<shared>> {
+  rectangle "Configuration Loading" as ConfigLoading
+  rectangle "Environment Variable Handling" as EnvHandling
+  rectangle "Logging" as Logging
+  rectangle "Crypto" as Crypto
+  rectangle "Common Utilities" as CommonUtils
+}
+
+package "Configuration" <<config>> {
+  rectangle "Master Config" as MasterConfig
+  rectangle "Spawner Config" as SpawnerConfig
+}
+
+package "Communication (Protobuf)" <<proto>> {
+  rectangle "gRPC Messages & Services" as GrpcMessages
+}
+
+package "Build & Deployment" <<shared>> {
+  rectangle "Makefile" as Makefile
+  rectangle "Docker Compose" as DockerCompose
+  rectangle "Spawner Deployment Example" as SpawnerDeployExample
+}
+
+package "Testing" <<shared>> {
+  rectangle "Integration Tests (Python)" as IntegrationTests
+}
+
+GrpcMessages --> RpcServer
+GrpcMessages --> SpawnerRpcServer
+MasterConfig --> RestAPI
+SpawnerConfig --> GameServerManagement
+DockerCompose --> RestAPI
+DockerCompose --> SpawnerRpcServer
+Makefile --> DockerCompose
+IntegrationTests --> RestAPI
+@enduml
+```

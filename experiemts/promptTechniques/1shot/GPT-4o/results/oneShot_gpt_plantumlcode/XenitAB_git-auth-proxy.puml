@@ -1,0 +1,51 @@
+```plantuml
+@startuml XenitAB_git-auth-proxy
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor GitClient
+
+rectangle "Git-Auth-Proxy" as Proxy {
+  rectangle "Proxy Server" as ProxyServer
+  rectangle "Token Writer" as TokenWriter
+  rectangle "Authorizer" as Authorizer
+  rectangle "Configuration Loader" as ConfigLoader
+}
+
+rectangle "Kubernetes" as Kubernetes #aliceblue {
+  rectangle "Secrets" as Secrets
+}
+
+rectangle "Git Providers" as GitProviders #lightyellow {
+  rectangle "GitHub" as GitHub
+  rectangle "Azure DevOps" as AzureDevOps
+}
+
+rectangle "Prometheus" as Prometheus #lightsteelblue
+
+' ========== Interactions ==========
+GitClient -> ProxyServer : Git request (clone/API)
+ProxyServer -> Authorizer : Validate token and permissions
+Authorizer -> Secrets : Check token for repository access
+Secrets -> Authorizer : Token validation result
+Authorizer -> ProxyServer : Authorization decision
+ProxyServer -> GitProviders : Forward request if authorized
+GitProviders -> ProxyServer : Respond with data or errors
+ProxyServer -> GitClient : Return result
+
+' Configuration loading
+ConfigLoader -> ProxyServer : Load configuration on startup
+
+' Token management
+TokenWriter -> Secrets : Monitor and update tokens
+Secrets -> TokenWriter : Notify on token changes
+
+' Metrics
+ProxyServer -> Prometheus : Expose metrics endpoint
+
+@enduml
+```

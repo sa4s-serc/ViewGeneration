@@ -1,0 +1,53 @@
+@startuml 0xMelkor_ethereum-node
+
+!define RECTANGLE class
+
+skinparam rectangle {
+    BackgroundColor<<GKE>> LightBlue
+    BackgroundColor<<K8s>> LightGreen
+    BackgroundColor<<External>> LightYellow
+}
+
+rectangle "Google Kubernetes Engine (GKE)" <<GKE>> {
+    rectangle "Kubernetes Cluster" <<K8s>> {
+        RECTANGLE "Geth Pod" as Geth
+        RECTANGLE "Lighthouse Pod" as Lighthouse
+        RECTANGLE "InfluxDB Pod" as InfluxDB
+        RECTANGLE "Nginx Pod" as Nginx
+        
+        Geth -[hidden]right- Lighthouse
+        Lighthouse -[hidden]down- InfluxDB
+        InfluxDB -[hidden]left- Nginx
+    }
+    
+    RECTANGLE "Persistent Volumes" as PV {
+        RECTANGLE "Geth Data" as GethPV
+        RECTANGLE "Lighthouse Data" as LighthousePV
+        RECTANGLE "InfluxDB Data" as InfluxDBPV
+    }
+    
+    Geth ..> GethPV : uses
+    Lighthouse ..> LighthousePV : uses
+    InfluxDB ..> InfluxDBPV : uses
+}
+
+cloud "External Access" <<External>> {
+    RECTANGLE "RPC Clients" as RPCClients
+    RECTANGLE "WebSocket Clients" as WSClients
+    RECTANGLE "Monitoring Tools" as MonitoringTools
+}
+
+Nginx <-- RPCClients : HTTP
+Nginx <-- WSClients : WebSocket
+Nginx <-- MonitoringTools : HTTP
+
+Nginx --> Geth : proxies requests
+Nginx --> InfluxDB : proxies requests
+
+Geth <--> Lighthouse : communicates
+Geth --> InfluxDB : sends metrics
+
+RECTANGLE "Google Cloud Build" as CloudBuild <<External>>
+CloudBuild --> "Kubernetes Cluster" : deploys to
+
+@enduml

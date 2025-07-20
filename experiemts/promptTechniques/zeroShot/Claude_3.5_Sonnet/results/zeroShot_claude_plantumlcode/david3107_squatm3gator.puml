@@ -1,0 +1,50 @@
+@startuml david3107_squatm3gator
+
+!define RECTANGLE class
+
+skinparam component {
+  BackgroundColor<<Security>> LightYellow
+  BorderColor<<Security>> DarkGoldenRod
+}
+
+[Frontend] as UI <<Security>>
+[Backend] as API <<Security>>
+[Redis] <<Security>>
+[Worker] as Worker
+[GoDaddy API] as GoDaddy
+
+package "Attack Modules" {
+  [HomoglyphAttack]
+  [Flipper]
+  [RemoveOneLetter]
+}
+
+[WHOIS Lookup] as WHOIS
+[TLD Selector] as TLD
+
+UI -down-> API : HTTPS
+API -down-> Redis : Secure Job Enqueue
+Redis -down-> Worker : Secure Job Dequeue
+Worker -down-> Attack Modules
+Worker -down-> GoDaddy : Check Availability
+Worker -down-> WHOIS : Lookup Info
+Worker -down-> TLD : Select TLDs
+
+API -up-> UI : WebSocket (SSL)
+
+note right of Redis
+  Secure message queue
+  for job processing
+end note
+
+note right of API
+  Input validation and
+  rate limiting
+end note
+
+note bottom of UI
+  HTTPS for secure
+  communication
+end note
+
+@enduml

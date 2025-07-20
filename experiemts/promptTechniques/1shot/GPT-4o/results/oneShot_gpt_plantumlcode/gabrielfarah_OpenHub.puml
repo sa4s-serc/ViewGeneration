@@ -1,0 +1,55 @@
+```plantuml
+@startuml gabrielfarah_OpenHub
+skinparam rectangle {
+  BackgroundColor<<crawler>> #f0e68c
+  BackgroundColor<<worker>> #add8e6
+  BackgroundColor<<queue>> #d3d3d3
+  BackgroundColor<<db>> #98fb98
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+actor "GitHub" as GitHub
+actor "Admin" as Admin
+
+package "Crawler" <<crawler>> {
+  rectangle "crawler.py" as CrawlerPy
+  rectangle "github3.py" as GitHub3
+  CrawlerPy --> GitHub3 : "Use"
+}
+
+package "RabbitMQ" <<queue>> {
+  rectangle "Task Queue" as TaskQueue
+}
+
+package "Workers" <<worker>> {
+  rectangle "manager.py" as ManagerPy
+  package "Analysis Modules" {
+    rectangle "Security" as Security
+    rectangle "Testability" as Testability
+    rectangle "Reusability" as Reusability
+    rectangle "Usability" as Usability
+  }
+  ManagerPy --> Security : "Run"
+  ManagerPy --> Testability : "Run"
+  ManagerPy --> Reusability : "Run"
+  ManagerPy --> Usability : "Run"
+}
+
+database "MongoDB" <<db>> as MongoDB
+
+== Sequence Flow ==
+
+GitHub -> CrawlerPy : "Fetch Repositories"
+CrawlerPy -> TaskQueue : "Publish Tasks"
+TaskQueue -> ManagerPy : "Consume Tasks"
+ManagerPy -> GitHub : "Download Repository"
+ManagerPy -> Security : "Analyze Security"
+ManagerPy -> Testability : "Analyze Testability"
+ManagerPy -> Reusability : "Analyze Reusability"
+ManagerPy -> Usability : "Analyze Usability"
+ManagerPy -> MongoDB : "Update Analysis Results"
+
+Admin -> MongoDB : "Query Analysis Data"
+@enduml
+```

@@ -1,0 +1,51 @@
+```plantuml
+@startuml alexandredev3_nodejs-clean-architeture
+skinparam rectangle {
+  BackgroundColor<<api>> #d9e7fd
+  BackgroundColor<<data>> #d8f5d3
+  BackgroundColor<<cache>> #fddddd
+  BackgroundColor<<auth>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "API Layer (Express)" <<api>> {
+  rectangle "Routing" as Routing
+  rectangle "Middleware\n(Rate Limiting, Validation)" as Middleware
+  rectangle "Controllers" as Controllers
+  Controllers --> Routing
+  Middleware --> Routing
+}
+
+package "Business Logic" <<api>> {
+  rectangle "Services\n(Create, Authenticate, List Users)" as Services
+  rectangle "DTOs" as DTOs
+  rectangle "Error Handling" as ErrorHandling
+  Controllers --> Services
+  Services --> DTOs
+  Services --> ErrorHandling
+}
+
+package "Data Access Layer (TypeORM)" <<data>> {
+  rectangle "User Repository" as UserRepository
+  rectangle "Entities" as Entities
+  rectangle "Database Connection" as DBConnection
+  Services --> UserRepository
+  UserRepository --> Entities
+  DBConnection --> Entities
+}
+
+package "Cache Layer (Redis)" <<cache>> {
+  rectangle "Cache Provider" as CacheProvider
+  Services --> CacheProvider
+}
+
+package "Authentication" <<auth>> {
+  rectangle "JWT Token Generation" as JWT
+  rectangle "Hashing\n(bcryptjs)" as Hashing
+  Services --> JWT
+  Services --> Hashing
+}
+
+@enduml
+```

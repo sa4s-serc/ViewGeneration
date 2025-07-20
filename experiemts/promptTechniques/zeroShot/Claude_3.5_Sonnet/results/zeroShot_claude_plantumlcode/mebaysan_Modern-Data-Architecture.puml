@@ -1,0 +1,54 @@
+Here's a PlantUML sequence diagram representing the deployment process for the Modern Data Architecture system:
+
+```plantuml
+@startuml mebaysan_Modern-Data-Architecture
+
+actor User
+participant "Docker Compose" as DockerCompose
+participant "Airbyte Container" as Airbyte
+participant "PostgreSQL Container" as PostgreSQL
+participant "DBT Container" as DBT
+participant "Superset Container" as Superset
+participant "Nginx Container" as Nginx
+
+User -> DockerCompose : Start deployment
+activate DockerCompose
+
+DockerCompose -> PostgreSQL : Deploy and start
+activate PostgreSQL
+DockerCompose <-- PostgreSQL : Started
+
+DockerCompose -> Airbyte : Deploy and start
+activate Airbyte
+DockerCompose <-- Airbyte : Started
+
+DockerCompose -> DBT : Deploy and start
+activate DBT
+DockerCompose <-- DBT : Started
+
+DockerCompose -> Superset : Deploy and start
+activate Superset
+DockerCompose <-- Superset : Started
+
+DockerCompose -> Nginx : Deploy and start
+activate Nginx
+DockerCompose <-- Nginx : Started
+
+User <-- DockerCompose : Deployment complete
+
+Airbyte -> PostgreSQL : Extract and load data
+PostgreSQL --> Airbyte : Data loaded
+
+DBT -> PostgreSQL : Transform data
+PostgreSQL --> DBT : Data transformed
+
+Superset -> PostgreSQL : Query data
+PostgreSQL --> Superset : Return query results
+
+User -> Nginx : Access Superset dashboard
+Nginx -> Superset : Proxy request
+Superset --> Nginx : Return dashboard
+Nginx --> User : Display dashboard
+
+@enduml
+```

@@ -7,7 +7,7 @@ from image_similarity_measures.quality_metrics import (
 )
 
 folderA = "./initial_images"
-folderB = "./zeroShot_deepseek_output_images"
+folderB = "./zeroShot_gpt_output_images"
 output_csv = "./image_similarity_results.csv"
 
 def compare_images(img1, img2):

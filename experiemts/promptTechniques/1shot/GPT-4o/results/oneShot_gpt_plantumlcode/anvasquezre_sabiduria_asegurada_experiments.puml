@@ -1,0 +1,49 @@
+```plantuml
+@startuml anvasquezre_sabiduria_asegurada_experiments
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Chainlit Frontend" as FE #lightblue {
+}
+
+rectangle "Langchain Agent" as Agent #lightgrey {
+}
+
+rectangle "Qdrant Vector\nDatabase" as Qdrant #lightpink {
+}
+
+rectangle "Data Preloader" as Preloader #lightyellow {
+}
+
+rectangle "Google Search\nAPI" as GoogleAPI #lightgreen {
+}
+
+rectangle "S3 Bucket" as S3 #aliceblue {
+}
+
+' ========== Connections ==========
+User --> FE : Ask question
+
+' Frontend interactions
+FE --> Agent : Send question
+
+' Agent interactions
+Agent --> Qdrant : Query for policy information
+Agent --> GoogleAPI : Query for news
+Agent --> FE : Send response
+
+' Data preloader interactions
+Preloader --> S3 : Download policy PDFs
+Preloader --> Qdrant : Load embeddings
+
+' Deployment and connectivity
+Agent --> Preloader : Update embeddings
+Preloader --> FE : Notify new data available
+@enduml
+```

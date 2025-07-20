@@ -1,0 +1,28 @@
+@startuml
+!theme plain
+skinparam dpi 300
+skinparam defaultTextAlignment center
+
+actor "Web Client" as Client
+participant "Web Server\n(Apache/Nginx)" as WebServer
+participant "hasses Server" as Hasses
+database "Client Data Store" as DataStore
+
+Client -> WebServer : HTTP Request
+WebServer -> Hasses : Forward SSE Request
+Hasses -> DataStore : Store Client Connection
+Hasses --> Client : SSE Handshake Response
+
+loop Event Loop
+    WebServer -> Hasses : Send Message via FIFO/TCP
+    Hasses -> DataStore : Retrieve Subscribed Clients
+    loop For each subscribed client
+        Hasses -> Client : Send SSE Message
+    end
+end
+
+Client -> WebServer : Close Connection
+WebServer -> Hasses : Connection Closed
+Hasses -> DataStore : Remove Client Connection
+
+@enduml

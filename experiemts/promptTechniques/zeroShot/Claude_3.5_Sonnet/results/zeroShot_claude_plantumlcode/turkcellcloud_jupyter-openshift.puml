@@ -1,0 +1,66 @@
+@startuml turkcellcloud_jupyter-openshift
+
+!define RECTANGLE component
+
+skinparam component {
+  BackgroundColor<<security>> LightYellow
+  BorderColor<<security>> Orange
+}
+
+cloud "OpenShift Cluster" {
+  [OpenShift Router]
+  
+  package "JupyterHub Namespace" {
+    [JupyterHub Pod] <<security>>
+    [PostgreSQL Pod]
+    [KubeSpawner]
+    [Idle Server Culler]
+    
+    database "Persistent Volume" {
+      [User Data]
+    }
+  }
+  
+  package "User Namespace" {
+    [Jupyter Notebook Pod 1]
+    [Jupyter Notebook Pod 2]
+    [Jupyter Notebook Pod N]
+  }
+  
+  RECTANGLE "Network Policy" <<security>> as NP
+  
+  RECTANGLE "LDAP/Active Directory" <<security>> as LDAP
+}
+
+[OpenShift Router] --> [JupyterHub Pod] : HTTPS
+[JupyterHub Pod] --> LDAP : Authenticate
+[JupyterHub Pod] --> [KubeSpawner] : Spawn notebooks
+[JupyterHub Pod] --> [PostgreSQL Pod] : Store state
+[KubeSpawner] --> [Jupyter Notebook Pod 1]
+[KubeSpawner] --> [Jupyter Notebook Pod 2]
+[KubeSpawner] --> [Jupyter Notebook Pod N]
+[Jupyter Notebook Pod 1] --> [User Data] : Read/Write
+[Jupyter Notebook Pod 2] --> [User Data] : Read/Write
+[Jupyter Notebook Pod N] --> [User Data] : Read/Write
+[Idle Server Culler] --> [KubeSpawner] : Manage idle servers
+
+NP -[hidden]-> [Jupyter Notebook Pod 1]
+NP -[hidden]-> [Jupyter Notebook Pod 2]
+NP -[hidden]-> [Jupyter Notebook Pod N]
+
+note right of [JupyterHub Pod]
+  Handles authentication,
+  spawning, and proxying
+end note
+
+note right of NP
+  Restricts network traffic
+  to notebook pods
+end note
+
+note bottom of [Idle Server Culler]
+  Automatically shuts down
+  inactive notebook servers
+end note
+
+@enduml

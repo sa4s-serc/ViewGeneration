@@ -1,0 +1,53 @@
+@startuml onprem_foundry
+
+skinparam component {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<furnace>> #d8f5d3
+  BackgroundColor<<builder>> #fddddd
+  BackgroundColor<<storage>> #fff1c9
+}
+
+component "Main Application" <<core>> {
+  [cmd/foundry/main.go]
+  [cmd/foundry/config.go]
+  [cmd/foundry/furnace.go]
+}
+
+component "Furnace" <<furnace>> {
+  [pkg/furnace/furnace.go]
+  [pkg/furnace/map.go]
+  [pkg/furnace/schedule.go]
+  [pkg/furnace/furnacepb/furnace.proto]
+}
+
+component "Builder" <<builder>> {
+  [pkg/furnace/builder/builder.go]
+  interface "Builder"
+  [MakepkgBuilder]
+  [BuilderWithMetrics]
+}
+
+component "Object Storage" <<storage>> {
+  [Built Packages]
+}
+
+database "pkgMap" {
+  [Package States]
+}
+
+cloud "AUR" {
+  [Package Information]
+}
+
+[cmd/foundry/main.go] --> [pkg/furnace/furnace.go] : initializes
+[pkg/furnace/furnace.go] --> [pkg/furnace/map.go] : uses
+[pkg/furnace/furnace.go] --> [pkg/furnace/schedule.go] : uses
+[pkg/furnace/furnace.go] --> Builder : uses
+Builder <|.. [MakepkgBuilder]
+Builder <|.. [BuilderWithMetrics]
+[pkg/furnace/furnace.go] --> [Package States] : manages
+[pkg/furnace/furnace.go] --> [Package Information] : retrieves
+[MakepkgBuilder] --> [Built Packages] : uploads
+[pkg/furnace/furnacepb/furnace.proto] ..> [pkg/furnace/furnace.go] : defines gRPC interface
+
+@enduml

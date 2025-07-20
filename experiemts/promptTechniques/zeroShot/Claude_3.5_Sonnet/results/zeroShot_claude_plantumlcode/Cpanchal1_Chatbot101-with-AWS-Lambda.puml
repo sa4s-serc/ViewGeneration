@@ -1,0 +1,22 @@
+@startuml
+participant "Webex Teams" as WebexTeams
+participant "API Gateway" as APIGateway
+participant "AWS Lambda" as Lambda
+participant "icanhazdadjoke.com API" as JokeAPI
+participant "Webex Teams API" as WebexAPI
+
+WebexTeams -> APIGateway: Webhook request (bot mention)
+APIGateway -> Lambda: Invoke Lambda function
+activate Lambda
+
+Lambda -> JokeAPI: GET request
+JokeAPI --> Lambda: JSON response with joke
+Lambda -> Lambda: Parse joke from response
+
+Lambda -> WebexAPI: POST request with joke
+WebexAPI --> Lambda: Confirmation
+
+Lambda --> APIGateway: Success message
+deactivate Lambda
+APIGateway --> WebexTeams: HTTP response
+@enduml

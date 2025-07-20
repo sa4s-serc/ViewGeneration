@@ -1,0 +1,54 @@
+@startuml padok-team_dojo-terraform-aws-security
+
+!define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v14.0/dist
+!includeurl AWSPuml/AWSCommon.puml
+!includeurl AWSPuml/Compute/EC2.puml
+!includeurl AWSPuml/NetworkingContentDelivery/VPC.puml
+!includeurl AWSPuml/NetworkingContentDelivery/ElasticLoadBalancing.puml
+!includeurl AWSPuml/SecurityIdentityCompliance/IAM.puml
+!includeurl AWSPuml/SecurityIdentityCompliance/Shield.puml
+
+component "Terraform Configuration" {
+    [main.tf]
+    [variables.tf]
+    [network.tf]
+    [output.tf]
+}
+
+component "Environment Configuration" {
+    [dev.tfvars]
+    [prd.tfvars]
+}
+
+component "Bootstrap" {
+    [bootstrap/main.tf]
+    [bootstrap/output.tf]
+}
+
+component "VSCode Remote Box" {
+    [vscode-box]
+}
+
+VPC(vpc, "VPC", "Isolated Network")
+EC2(ec2, "EC2 Instances", "Web Servers")
+ElasticLoadBalancing(elb, "Load Balancer", "Traffic Distribution")
+IAM(iam, "IAM", "Access Control")
+Shield(shield, "Security Groups", "Network Filtering")
+
+[main.tf] --> vpc : defines
+[main.tf] --> ec2 : provisions
+[main.tf] --> elb : configures
+[network.tf] --> shield : sets up
+[variables.tf] --> [main.tf] : parameterizes
+[dev.tfvars] --> [variables.tf] : dev config
+[prd.tfvars] --> [variables.tf] : prod config
+vpc --> ec2 : contains
+elb --> ec2 : routes to
+shield --> ec2 : protects
+iam --> ec2 : manages access
+[bootstrap/main.tf] --> vpc : creates
+[bootstrap/output.tf] --> [dev.tfvars] : generates
+[bootstrap/output.tf] --> [prd.tfvars] : generates
+[vscode-box] --> [Terraform Configuration] : interacts with
+
+@enduml

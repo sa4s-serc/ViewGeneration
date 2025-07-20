@@ -1,0 +1,45 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+rectangle "Brickman UI" as UI
+
+package "Open Roberta Lab EV3 Connector" {
+  rectangle "Service\n(roberta.lab.Service)" as Service
+  rectangle "Connector\n(roberta.lab.Connector)" as Connector
+  rectangle "AbortHandler" as AbortHandler
+  rectangle "GfxMode" as GfxMode
+  rectangle "Hal\n(roberta.ev3.Hal)" as Hal
+}
+
+rectangle "ev3dev OS" as EV3Dev
+rectangle "EV3 Hardware" as Hardware
+
+cloud "Open Roberta Lab Server" as Server
+
+UI <--> Service : DBus
+Service --> Connector : manages
+Service --> AbortHandler : manages
+Service --> GfxMode : manages
+Connector --> Hal : uses
+Connector <--> Server : HTTP
+AbortHandler --> EV3Dev : monitors key presses
+GfxMode --> EV3Dev : manages tty
+Hal --> EV3Dev : interacts
+EV3Dev --> Hardware : controls
+
+note right of Connector
+  Downloads and executes
+  Python code
+end note
+
+note right of Hal
+  Abstracts hardware access
+  (motors, sensors, display, LEDs, sound)
+end note
+
+@enduml

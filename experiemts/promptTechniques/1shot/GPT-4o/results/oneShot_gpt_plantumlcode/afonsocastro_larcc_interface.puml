@@ -1,0 +1,43 @@
+```plantuml
+@startuml afonsocastro_larcc_interface
+skinparam rectangle {
+  BackgroundColor<<ros>> #d9e7fd
+  BackgroundColor<<control>> #d8f5d3
+  BackgroundColor<<model>> #fddddd
+  BackgroundColor<<camera>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "ROS System" <<ros>> {
+  rectangle "UR Robot Driver\n(ur_robot_driver)" as URDriver
+  rectangle "MoveIt Integration\n(ur10e_moveit_config)" as MoveIt
+  rectangle "Realsense Camera\n(realsense2_camera)" as RealSense
+  URDriver --> MoveIt
+  RealSense --> MoveIt
+}
+
+package "Control Interface" <<control>> {
+  rectangle "UR10e Control Interface" as UR10eControl
+  rectangle "Gripper Control\n(ROBOTIQ 2F-140)" as GripperControl
+  rectangle "Analytical Kinematics\n(ur_kinematics)" as Kinematics
+  UR10eControl --> GripperControl
+  UR10eControl --> Kinematics
+}
+
+package "Workcell Modeling" <<model>> {
+  rectangle "URDF/Xacro Models\n(larcc_cell_description)" as URDF
+  rectangle "3D Meshes\n(ur_description/meshes/ur10e/visual)" as Meshes
+  URDF --> Meshes
+}
+
+package "Camera Integration" <<camera>> {
+  rectangle "RealSense Launch\n(realsense_launch)" as RealSenseLaunch
+  RealSense --> RealSenseLaunch
+}
+
+UR10eControl --> URDriver
+MoveIt --> Kinematics
+URDF --> MoveIt
+@enduml
+```

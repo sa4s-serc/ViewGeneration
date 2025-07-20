@@ -1,0 +1,58 @@
+```plantuml
+@startuml lkravi_kube8aws
+
+skinparam rectangle {
+  BackgroundColor<<terraform>> #e0f7fa
+  BackgroundColor<<ansible>> #f1f8e9
+  BackgroundColor<<aws>> #ffe0b2
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "AWS Infrastructure" <<aws>> {
+  rectangle "VPC" as VPC
+  rectangle "Subnets" as Subnets
+  rectangle "Security Groups" as SecurityGroups
+  rectangle "EC2 Instances\n(Bastion, Masters, Workers)" as EC2
+  rectangle "Network Load Balancer" as NLB
+}
+
+package "Terraform Configuration" <<terraform>> {
+  rectangle "vpc.tf" as VPC_TF
+  rectangle "servers.tf" as Servers_TF
+  rectangle "load_balance.tf" as LoadBalance_TF
+  rectangle "security.tf" as Security_TF
+  rectangle "keys.tf" as Keys_TF
+  rectangle "ansible_helper.tf" as AnsibleHelper_TF
+  rectangle "outputs.tf" as Outputs_TF
+  rectangle "providers.tf" as Providers_TF
+  rectangle "vars.tf" as Vars_TF
+}
+
+package "Ansible Configuration" <<ansible>> {
+  rectangle "play.yml" as Playbook
+  rectangle "ansible_vars_file.yml" as AnsibleVars
+  rectangle "templates/inventry.tftpl" as InventoryTemplate
+}
+
+VPC_TF --> VPC
+Servers_TF --> EC2
+LoadBalance_TF --> NLB
+Security_TF --> SecurityGroups
+Keys_TF --> EC2
+AnsibleHelper_TF --> EC2
+Outputs_TF --> EC2
+Providers_TF --> AWS
+Vars_TF --> AWS
+
+InventoryTemplate --> AnsibleHelper_TF
+Playbook --> AnsibleHelper_TF
+AnsibleVars --> Playbook
+
+EC2 --> NLB
+Subnets --> VPC
+SecurityGroups --> EC2
+AWS --> VPC
+
+@enduml
+```

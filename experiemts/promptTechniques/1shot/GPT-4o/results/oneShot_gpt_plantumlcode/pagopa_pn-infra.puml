@@ -1,0 +1,72 @@
+```plantuml
+@startuml pagopa_pn-infra
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "API Gateway" as APIGateway #lightblue {
+}
+
+rectangle "Lambda Functions" as LambdaFunctions #lightyellow {
+  rectangle "Reverse Proxy\nLambda" as ReverseProxyLambda
+}
+
+rectangle "ECS Cluster" as ECSCluster #lightgreen {
+  rectangle "Microservices" as Microservices
+}
+
+rectangle "EventBridge" as EventBridge #orange
+
+rectangle "SQS Queues" as SQSQueues #lightgrey
+
+rectangle "SNS Topics" as SNSTopics #lavender
+
+rectangle "CloudWatch" as CloudWatch #lightcoral
+
+rectangle "DynamoDB" as DynamoDB #lightgoldenrodyellow
+
+rectangle "S3 Buckets" as S3Buckets #aliceblue
+
+rectangle "Kinesis Streams" as KinesisStreams #thistle
+
+rectangle "Cognito" as Cognito #palegreen
+
+' ========== Connections ==========
+User --> APIGateway : send request
+
+' API Gateway interactions
+APIGateway --> LambdaFunctions : invoke Lambda
+APIGateway --> Cognito : authenticate user
+
+' Lambda interactions
+LambdaFunctions --> ECSCluster : route request\nvia Reverse Proxy
+LambdaFunctions --> EventBridge : trigger events
+LambdaFunctions --> S3Buckets : read/write data
+LambdaFunctions --> KinesisStreams : stream logs
+LambdaFunctions --> CloudWatch : log data
+
+' ECS Cluster interactions
+ECSCluster --> SQSQueues : send/receive messages
+ECSCluster --> SNSTopics : publish/subscribe
+ECSCluster --> DynamoDB : read/write data
+
+' EventBridge interactions
+EventBridge --> LambdaFunctions : trigger based on events
+EventBridge --> SQSQueues : route events
+
+' SQS Queues interactions
+SQSQueues --> LambdaFunctions : trigger based on messages
+
+' SNS Topics interactions
+SNSTopics --> LambdaFunctions : notify based on topics
+
+' CloudWatch interactions
+CloudWatch --> SNSTopics : send alarms/notifications
+
+@enduml
+```

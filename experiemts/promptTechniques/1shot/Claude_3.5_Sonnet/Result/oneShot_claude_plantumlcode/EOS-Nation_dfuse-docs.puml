@@ -1,0 +1,44 @@
+@startuml
+skinparam component {
+  BackgroundColor<<API>> #d9e7fd
+  BackgroundColor<<Core>> #d8f5d3
+  BackgroundColor<<Storage>> #fff1c9
+  BackgroundColor<<Integration>> #fddddd
+}
+
+[GraphQL API] <<API>>
+[Search API] <<API>>
+[Authentication] <<API>>
+
+[dfuseeos CLI] <<Core>>
+[Data Indexer] <<Core>>
+[Streaming Engine] <<Core>>
+[Fork Handler] <<Core>>
+
+database "BigTable" <<Storage>>
+database "TiKV" <<Storage>>
+database "Badger" <<Storage>>
+
+[nodeos] <<Integration>>
+
+[GraphQL API] --> [Authentication]
+[Search API] --> [Authentication]
+[GraphQL API] --> [Data Indexer]
+[GraphQL API] --> [Streaming Engine]
+[Search API] --> [Data Indexer]
+
+[dfuseeos CLI] --> [Data Indexer]
+[dfuseeos CLI] --> [Streaming Engine]
+[dfuseeos CLI] --> [Fork Handler]
+
+[Data Indexer] --> BigTable
+[Data Indexer] --> TiKV
+[Data Indexer] --> Badger
+
+[Streaming Engine] --> [Fork Handler]
+[Fork Handler] --> [nodeos]
+
+[Data Indexer] --> [nodeos]
+[Streaming Engine] --> [nodeos]
+
+@enduml

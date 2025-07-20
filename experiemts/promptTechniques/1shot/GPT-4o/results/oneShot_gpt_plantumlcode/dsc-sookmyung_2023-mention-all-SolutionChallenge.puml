@@ -1,0 +1,84 @@
+```plantuml
+@startuml dsc-sookmyung_2023-mention-all-SolutionChallenge
+
+skinparam rectangle {
+  BackgroundColor<<android>> #d9e7fd
+  BackgroundColor<<ios>> #fddddd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<firebase>> #fff1c9
+  BackgroundColor<<gcp>> #f0f3f5
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+actor User
+
+package "Mobile Applications" {
+  package "Android Application (Kotlin)" <<android>> {
+    rectangle "CameraOverlayView" as CameraOverlay
+    rectangle "EducationViewModel" as EducationVM
+    rectangle "DispatchViewController" as DispatchVC
+    rectangle "CustomNoticeView" as CustomNotice
+    rectangle "CallViewModel" as CallVM
+    rectangle "Retrofit API" as RetrofitAPI
+    rectangle "Firebase Integration" as FirebaseAndroid
+    rectangle "Google Maps" as MapsAndroid
+    rectangle "ML Kit (TensorFlow Lite)" as MLKit
+    MLKit --> EducationVM
+    MLKit --> CameraOverlay
+    FirebaseAndroid --> RetrofitAPI
+    MapsAndroid --> DispatchVC
+    RetrofitAPI --> "Backend" : RESTful API
+  }
+
+  package "iOS Application (Swift)" <<ios>> {
+    rectangle "CameraOverlayView.swift" as CameraOverlayIOS
+    rectangle "EducationViewModel.swift" as EducationVMIOS
+    rectangle "DispatchViewController.swift" as DispatchVCIOS
+    rectangle "CustomNoticeView.swift" as CustomNoticeIOS
+    rectangle "CallViewModel.swift" as CallVMIOS
+    rectangle "Combine" as Combine
+    CameraOverlayIOS --> EducationVMIOS
+    Combine --> DispatchVCIOS
+    DispatchVCIOS --> "Backend" : RESTful API
+    DispatchVCIOS --> MapsAndroid
+  }
+}
+
+package "Backend (Java - Spring Boot)" <<backend>> {
+  rectangle "AuthController.java" as AuthController
+  rectangle "AuthService.java" as AuthService
+  rectangle "EducationController.java" as EducationController
+  rectangle "EducationProgressService.java" as EducationProgressService
+  rectangle "CprCallController.java" as CprCallController
+  rectangle "DispatchService.java" as DispatchService
+  rectangle "FirebaseCloudMessageUtil.java" as FirebaseCloudMessageUtil
+  rectangle "AddressService.java" as AddressService
+  AuthController --> AuthService
+  EducationController --> EducationProgressService
+  CprCallController --> DispatchService
+  DispatchService --> FirebaseCloudMessageUtil
+  AddressService --> DispatchService
+  FirebaseCloudMessageUtil --> "Firebase Cloud Messaging"
+}
+
+package "Firebase Services" <<firebase>> {
+  rectangle "Firebase Authentication" as FirebaseAuth
+  rectangle "Firebase Cloud Messaging" as FirebaseMessaging
+  FirebaseAuth --> AuthService
+  FirebaseMessaging --> FirebaseCloudMessageUtil
+}
+
+package "GCP Deployment" <<gcp>> {
+  rectangle "Google Kubernetes Engine (GKE)" as GKE
+  rectangle "Google Maps API" as GoogleMaps
+  GoogleMaps --> MapsAndroid
+  GoogleMaps --> DispatchVCIOS
+  GKE --> "Backend"
+}
+
+User -> CameraOverlay : "Uses"
+User -> CameraOverlayIOS : "Uses"
+
+@enduml
+```

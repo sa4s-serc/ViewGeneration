@@ -1,0 +1,49 @@
+```plantuml
+@startuml EOS-Nation_dfuse-docs
+skinparam rectangle {
+  BackgroundColor<<service>> #d9e7fd
+  BackgroundColor<<cli>> #d8f5d3
+  BackgroundColor<<data>> #fddddd
+  BackgroundColor<<api>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "dfuse Services" <<service>> {
+  rectangle "mindreader" as Mindreader
+  rectangle "relayer" as Relayer
+  rectangle "search" as Search
+  rectangle "dgraphql" as DGraphql
+  Mindreader --> Relayer
+  Relayer --> Search
+  Search --> DGraphql
+}
+
+package "CLI Tool" <<cli>> {
+  rectangle "dfuseeos CLI" as CLI
+  CLI --> Mindreader
+  CLI --> Relayer
+  CLI --> Search
+  CLI --> DGraphql
+}
+
+package "Data Storage Options" <<data>> {
+  rectangle "BigTable" as BigTable
+  rectangle "TiKV" as TiKV
+  rectangle "Badger" as Badger
+  Mindreader --> BigTable
+  Relayer --> TiKV
+  Search --> Badger
+}
+
+package "APIs" <<api>> {
+  rectangle "GraphQL API" as GraphQL
+  rectangle "nodeos Integration" as Nodeos
+  rectangle "Multi-Chain Support" as MultiChain
+  DGraphql --> GraphQL
+  DGraphql --> Nodeos
+  DGraphql --> MultiChain
+}
+
+@enduml
+```

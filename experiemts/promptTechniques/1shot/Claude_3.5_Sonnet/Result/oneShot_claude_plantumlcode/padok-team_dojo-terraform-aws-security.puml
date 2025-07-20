@@ -1,0 +1,66 @@
+@startuml padok-team_dojo-terraform-aws-security
+
+!define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v15.0/dist
+!include AWSPuml/AWSCommon.puml
+!include AWSPuml/Compute/EC2.puml
+!include AWSPuml/NetworkingContentDelivery/VPC.puml
+!include AWSPuml/NetworkingContentDelivery/ElasticLoadBalancing.puml
+!include AWSPuml/SecurityIdentityCompliance/IAM.puml
+
+skinparam component {
+  BackgroundColor<<Terraform>> #E1F5FE
+  BorderColor<<Terraform>> #01579B
+}
+
+rectangle "Terraform Configuration" as TerraformConfig <<Terraform>> {
+  [main.tf]
+  [variables.tf]
+  [output.tf]
+  [network.tf]
+  [_providers.tf]
+  [_backend.tf]
+}
+
+rectangle "Environment Configs" as EnvConfigs <<Terraform>> {
+  [dev.tfvars]
+  [prd.tfvars]
+}
+
+rectangle "Bootstrap" as Bootstrap <<Terraform>> {
+  [bootstrap/main.tf]
+  [bootstrap/output.tf]
+}
+
+VPC(vpc, "VPC", "Network isolation")
+EC2(ec2_dev, "EC2 Instances (Dev)", "Web servers")
+EC2(ec2_prd, "EC2 Instances (Prod)", "Web servers")
+ElasticLoadBalancing(elb, "Load Balancer", "Traffic distribution")
+IAM(securitygroups, "Security Groups", "Network filtering")
+
+TerraformConfig --> vpc : creates
+TerraformConfig --> ec2_dev : deploys
+TerraformConfig --> ec2_prd : deploys
+TerraformConfig --> elb : configures
+TerraformConfig --> securitygroups : defines
+
+EnvConfigs --> TerraformConfig : parameterizes
+
+Bootstrap --> vpc : initializes
+Bootstrap --> EnvConfigs : generates
+
+note right of securitygroups
+  Implements network
+  security measures
+end note
+
+note bottom of elb
+  Enhances security
+  and distributes traffic
+end note
+
+note left of EnvConfigs
+  Separates dev and
+  prod environments
+end note
+
+@enduml

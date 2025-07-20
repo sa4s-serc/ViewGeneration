@@ -1,0 +1,45 @@
+```plantuml
+@startuml coverage-robot_core
+
+actor GitHub as gh
+actor User as user
+
+gh -> api : POST Webhook
+activate api
+api -> WebhookHandler : handleWebhook()
+activate WebhookHandler
+WebhookHandler -> WebhookHandler : validateWebhook()
+WebhookHandler -> orchestrator : enqueueWebhookEvent()
+deactivate WebhookHandler
+deactivate api
+
+orchestrator -> EventProcessor : processEvent()
+activate EventProcessor
+EventProcessor -> EventStoreService : updateEventStore()
+activate EventStoreService
+EventStoreService -> DynamoDB : storeEvent()
+deactivate EventStoreService
+EventProcessor -> analyse : triggerAnalysis()
+deactivate EventProcessor
+
+analyse -> CachingCoverageAnalyserService : analyzeCoverage()
+activate CachingCoverageAnalyserService
+CachingCoverageAnalyserService -> CoverageReport : fetchData()
+activate CoverageReport
+CoverageReport -> QueryService : executeQuery()
+activate QueryService
+QueryService -> BigQuery : runSQLQuery()
+deactivate QueryService
+deactivate CoverageReport
+CachingCoverageAnalyserService -> publish : publishReport()
+deactivate CachingCoverageAnalyserService
+
+publish -> GitHub : POST Coverage Report
+deactivate orchestrator
+
+user -> api : Request Badge
+api -> DynamoDB : Fetch Coverage Data
+api -> user : Return SVG Badge
+
+@enduml
+```

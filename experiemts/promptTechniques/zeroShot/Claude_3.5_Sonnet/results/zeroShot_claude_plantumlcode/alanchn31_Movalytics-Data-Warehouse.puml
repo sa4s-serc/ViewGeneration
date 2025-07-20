@@ -1,0 +1,25 @@
+@startuml
+!theme plain
+title Data Flow in Movalytics Data Warehouse
+
+participant "Kaggle API" as Kaggle
+participant "FRED API" as FRED
+participant "S3 Bucket" as S3
+participant "Apache Airflow" as Airflow
+participant "Apache Spark" as Spark
+participant "Amazon Redshift" as Redshift
+
+Airflow -> Kaggle : Extract MovieLens dataset
+Kaggle --> Airflow : Return movie data
+Airflow -> FRED : Extract CPI dataset
+FRED --> Airflow : Return CPI data
+Airflow -> S3 : Store raw data
+Airflow -> Spark : Trigger data transformation
+Spark -> S3 : Read raw data
+S3 --> Spark : Return raw data
+Spark -> Spark : Transform data
+Spark -> Redshift : Load data to staging tables
+Airflow -> Redshift : Execute SQL for dimension tables
+Airflow -> Redshift : Perform data quality checks
+Redshift --> Airflow : Return check results
+@enduml

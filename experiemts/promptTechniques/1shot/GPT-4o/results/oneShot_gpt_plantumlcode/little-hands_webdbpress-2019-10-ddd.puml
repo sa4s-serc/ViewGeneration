@@ -1,0 +1,70 @@
+```plantuml
+@startuml little-hands_webdbpress-2019-10-ddd
+skinparam rectangle {
+  BackgroundColor<<application>> #d9e7fd
+  BackgroundColor<<domain>> #d8f5d3
+  BackgroundColor<<data>> #fddddd
+  BackgroundColor<<shared>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Application Services" <<application>> {
+  rectangle "ScreeningApplicationServiceV1" as AppServiceV1
+  rectangle "ScreeningApplicationServiceV2" as AppServiceV2
+  rectangle "ScreeningApplicationServiceV3" as AppServiceV3
+  rectangle "ScreeningApplicationServiceV4" as AppServiceV4
+}
+
+package "Domain Layer" <<domain>> {
+  rectangle "ScreeningV1 - ScreeningV4" as Screening
+  rectangle "InterviewV1 - InterviewV4" as Interview
+  rectangle "EmailAddress" as EmailAddress
+  rectangle "ScreeningId" as ScreeningId
+  rectangle "ScreeningStatusV1 - ScreeningStatusV4" as ScreeningStatus
+  rectangle "ScreeningStepResult" as ScreeningStepResult
+}
+
+package "Data Access Layer" <<data>> {
+  rectangle "ScreeningDao" as ScreeningDao
+  rectangle "InterviewDao" as InterviewDao
+  rectangle "ScreeningRepository" as ScreeningRepository
+  rectangle "ScreeningJdbcRepository" as ScreeningJdbcRepository
+}
+
+package "Shared Components" <<shared>> {
+  rectangle "ApplicationException" as ApplicationException
+  rectangle "Const" as Const
+}
+
+rectangle "Entry Point\nDddSampleApplication" as EntryPoint
+rectangle "Testing\nDddSampleApplicationTests" as Testing
+
+AppServiceV1 --> Screening
+AppServiceV2 --> Screening
+AppServiceV3 --> Screening
+AppServiceV4 --> Screening
+
+Screening --> ScreeningDao
+Screening --> ScreeningRepository
+Interview --> InterviewDao
+
+ScreeningRepository --> ScreeningJdbcRepository
+
+EmailAddress --> Screening
+ScreeningId --> Screening
+ScreeningStatus --> Screening
+
+ApplicationException --> AppServiceV1
+ApplicationException --> AppServiceV2
+ApplicationException --> AppServiceV3
+ApplicationException --> AppServiceV4
+
+EntryPoint --> AppServiceV1
+EntryPoint --> AppServiceV2
+EntryPoint --> AppServiceV3
+EntryPoint --> AppServiceV4
+
+Testing --> EntryPoint
+@enduml
+```

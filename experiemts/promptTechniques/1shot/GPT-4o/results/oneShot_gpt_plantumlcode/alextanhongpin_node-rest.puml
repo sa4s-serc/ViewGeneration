@@ -1,0 +1,48 @@
+```plantuml
+@startuml alextanhongpin_node-rest
+skinparam rectangle {
+  BackgroundColor<<core>> #d8f5d3
+  BackgroundColor<<infrastructure>> #fddddd
+  BackgroundColor<<config>> #fff1c9
+  BackgroundColor<<helpers>> #e7e7e7
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Layer" <<core>> {
+  rectangle "Food Model" as FoodModel
+  rectangle "Food Service" as FoodService
+  FoodService --> FoodModel
+}
+
+package "Infrastructure Layer" <<infrastructure>> {
+  rectangle "Express App" as ExpressApp
+  rectangle "Food Route" as FoodRoute
+  rectangle "Database Connection\n(mysql2/promise)" as DBConnection
+  rectangle "Store (Repository)" as Store
+  ExpressApp --> FoodRoute
+  FoodRoute --> FoodService
+  Store --> DBConnection
+  FoodModel --> Store
+}
+
+package "Configuration Management" <<config>> {
+  rectangle "Convict Config" as Config
+  Config -up-|> ExpressApp
+  Config -up-|> DBConnection
+}
+
+package "Schema Validation" <<helpers>> {
+  rectangle "AJV Schema Validation" as SchemaValidation
+  SchemaValidation -up-|> FoodModel
+}
+
+package "Error Handling" <<helpers>> {
+  rectangle "Helper Functions\n(Ok, Err)" as Helpers
+  Helpers -up-|> ExpressApp
+}
+
+database "MySQL" as MySQL
+DBConnection --> MySQL
+@enduml
+```

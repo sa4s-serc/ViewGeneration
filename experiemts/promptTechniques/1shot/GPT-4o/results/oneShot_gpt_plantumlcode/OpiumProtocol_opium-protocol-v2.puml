@@ -1,0 +1,51 @@
+```plantuml
+@startuml OpiumProtocol_opium-protocol-v2
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Frontend" as FE {
+}
+
+rectangle "Ethereum Blockchain" as Blockchain #mistyrose {
+  rectangle "Core\nContract" as CoreContract #palegreen
+  rectangle "SyntheticAggregator" as SyntheticAggregator #lightsteelblue
+  rectangle "OracleAggregator" as OracleAggregator #lightyellow
+  rectangle "OpiumProxyFactory" as OpiumProxyFactory #lightcoral
+  rectangle "Registry\nContract" as RegistryContract #lightgoldenrodyellow
+  rectangle "TokenSpender" as TokenSpender #lightcyan
+}
+
+' User interactions
+User --> FE
+
+' Frontend interactions
+FE <--> Blockchain : create/trade/settle derivatives\nvia CoreContract
+FE <--> Blockchain : fetch derivative data\nvia SyntheticAggregator
+
+' Core Contract interactions
+CoreContract <--> SyntheticAggregator : get margin requirements\nand payout details
+CoreContract <--> OracleAggregator : fetch price feeds\nfor settlement
+CoreContract <--> RegistryContract : pull configurations and addresses
+CoreContract <--> TokenSpender : manage ERC20 allowances and transfers
+
+' OpiumProxyFactory interactions
+FE --> OpiumProxyFactory : deploy ERC20 position tokens
+OpiumProxyFactory --> CoreContract : manage position creation and burning
+
+' Registry interactions
+RegistryContract <--> CoreContract : provide core addresses and parameters
+RegistryContract <--> SyntheticAggregator : provide addresses for synthetic derivatives
+RegistryContract <--> OracleAggregator : provide oracle contract addresses
+RegistryContract <--> TokenSpender : manage whitelisted contracts
+
+' OracleAggregator interactions
+OracleAggregator --> Blockchain : cache oracle data
+
+@enduml
+```

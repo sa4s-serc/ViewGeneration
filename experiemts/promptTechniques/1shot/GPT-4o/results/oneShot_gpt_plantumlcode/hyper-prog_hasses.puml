@@ -1,0 +1,38 @@
+```plantuml
+@startuml hyper-prog_hasses
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor WebServer
+
+rectangle "hasses SSE Server" as HassesServer #lightgrey {
+  rectangle "hasses.c" as HassesMain #lightblue
+  rectangle "chat.c/h" as ChatModule #lightgreen
+  rectangle "cdata.c/h" as CDataModule #lightcoral
+  rectangle "cio.c/h" as CIOModule #lightyellow
+}
+
+actor Client
+
+' ========== Connections ==========
+WebServer --> HassesMain : send message via FIFO/TCP
+HassesMain <-> ChatModule : manage SSE connections
+ChatModule <-> CDataModule : manage client data
+CIOModule <-> HassesMain : handle I/O operations
+
+' ========== Dynamic Behavior ==========
+WebServer -> HassesMain : forward message
+HassesMain -> CIOModule : notify I/O readiness
+CIOModule -> HassesMain : trigger event loop
+HassesMain -> ChatModule : parse and handle SSE request
+ChatModule -> CDataModule : query and update client status
+ChatModule -> Client : send SSE message
+Client -> ChatModule : SSE connection request
+ChatModule -> HassesMain : respond to SSE handshake
+
+@enduml
+```

@@ -1,0 +1,56 @@
+```plantuml
+@startuml balajich_resilience4j-helloworld
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Service A" as ServiceA #lightblue {
+}
+
+rectangle "Service B" as ServiceB #lightcoral {
+  rectangle "PrimeNumberController" as PrimeNumberController #lightyellow
+}
+
+rectangle "Resilience4j Library" as Resilience4j #lightgreen {
+  rectangle "Circuit Breaker" as CircuitBreaker #palegreen
+  rectangle "Rate Limiter" as RateLimiter #paleblue
+  rectangle "Bulkhead" as Bulkhead #palegoldenrod
+  rectangle "Retry" as Retry #lightsalmon
+  rectangle "TimeLimiter" as TimeLimiter #lightpink
+}
+
+rectangle "Monitoring" as Monitoring #aliceblue {
+  rectangle "Prometheus" as Prometheus
+  rectangle "Grafana" as Grafana
+}
+
+' ========== Connections ==========
+User --> ServiceA : Send Request
+
+' Service A interactions
+ServiceA --> Resilience4j : Apply Resilience Patterns
+ServiceA --> ServiceB : REST API Call
+ServiceA --> Monitoring : Send Metrics
+
+' Resilience4j interactions
+ServiceA <--> CircuitBreaker : Check / Fallback
+ServiceA <--> RateLimiter : Limit requests
+ServiceA <--> Bulkhead : Isolate calls
+ServiceA <--> Retry : Retry failed requests
+ServiceA <--> TimeLimiter : Limit call time
+
+' Service B interactions
+ServiceB --> PrimeNumberController : Calculate Prime Numbers
+ServiceB --> Monitoring : Send Metrics
+
+' Monitoring interactions
+Prometheus --> Grafana : Provide Data
+Grafana --> User : Display Metrics Dashboard
+
+@enduml
+```

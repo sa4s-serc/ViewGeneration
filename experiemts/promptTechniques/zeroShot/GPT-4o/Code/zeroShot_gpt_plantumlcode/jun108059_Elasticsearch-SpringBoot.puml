@@ -1,0 +1,49 @@
+```plantuml
+@startuml jun108059_Elasticsearch-SpringBoot
+
+package "Spring Boot Application" {
+    [YjparkApplication] --> [SpringConfig]
+    [YjparkApplication] --> [APIController]
+    [YjparkApplication] --> [HomeController]
+    [YjparkApplication] --> [ServiceManagementController]
+}
+
+package "Configuration" {
+    [SpringConfig] --> [ESConfig]
+    [SpringConfig] --> [application.yml]
+}
+
+package "Repository Layer" {
+    [JdbcTemplateServiceRepository] --> [MySQL Database]
+    [JdbcTemplateBulkRepository] --> [MySQL Database]
+    [ElasticsearchClient] --> [Elasticsearch]
+}
+
+package "Service Layer" {
+    [IndexService] --> [ElasticsearchClient]
+    [IndexService] --> [JdbcTemplateServiceRepository]
+}
+
+package "Controller Layer" {
+    [APIController] --> [IndexService]
+    [ServiceManagementController] --> [IndexService]
+    [HomeController] --> [ServiceManagementController]
+}
+
+package "Elasticsearch" {
+    [Elasticsearch Client] --> [Elasticsearch]
+}
+
+package "Database" {
+    [MySQL Database]
+}
+
+[APIController] --> [REST API]
+[HomeController] --> [Thymeleaf Templates]
+
+note right of [Elasticsearch]
+    High-Level REST Client
+end note
+
+@enduml
+```

@@ -1,0 +1,46 @@
+```plantuml
+@startuml mincloud1501_MSA_miniProject
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "Developer"
+
+cloud "Docker Hub" as DockerHub
+cloud "Google Kubernetes Engine (GKE)" as GKE
+
+package "Local Development" {
+  rectangle "Nginx Web Server" as Nginx #lightblue
+  rectangle "Docker" as Docker #lightyellow
+  rectangle "Dockerfile" as Dockerfile #lightyellow
+  rectangle "index.html" as IndexHTML #lightyellow
+
+  Developer --> Dockerfile
+  Developer --> IndexHTML
+  Dockerfile --> Nginx
+  IndexHTML --> Nginx
+  Nginx --> Docker
+  Docker --> DockerHub : push
+}
+
+package "Kubernetes Cluster" {
+  rectangle "Kubernetes" as Kubernetes #lightgreen
+  rectangle "Deployments" as Deployments #lightgreen
+  rectangle "Services" as Services #lightgreen
+  rectangle "Istio" as Istio #lightpink
+
+  Kubernetes --> Deployments
+  Kubernetes --> Services
+  Deployments --> Nginx
+  Services --> Nginx
+  Istio --> Nginx
+}
+
+Developer --> Docker : build
+DockerHub --> GKE : pull
+GKE --> Kubernetes
+@enduml
+```

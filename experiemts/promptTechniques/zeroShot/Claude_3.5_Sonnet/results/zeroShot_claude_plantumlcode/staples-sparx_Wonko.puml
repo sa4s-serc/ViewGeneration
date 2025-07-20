@@ -1,0 +1,23 @@
+@startuml
+participant "SparX Service" as Service
+participant "Kafka" as Kafka
+participant "Wonko" as Wonko
+participant "Prometheus" as Prometheus
+participant "PagerDuty" as PagerDuty
+
+Service -> Kafka: Publish event
+Kafka -> Wonko: Consume event
+activate Wonko
+
+Wonko -> Wonko: Process event
+Wonko -> Wonko: Create/Update metrics
+
+alt Alert condition met
+    Wonko -> PagerDuty: Send alert
+end
+
+Prometheus -> Wonko: Scrape metrics
+Wonko --> Prometheus: Return metrics
+
+deactivate Wonko
+@enduml

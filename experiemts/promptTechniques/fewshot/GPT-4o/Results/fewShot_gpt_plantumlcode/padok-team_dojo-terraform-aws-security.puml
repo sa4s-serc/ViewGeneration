@@ -1,0 +1,75 @@
+```plantuml
+@startuml padok-team_dojo-terraform-aws-security
+skinparam componentStyle rectangle
+skinparam defaultTextAlignment center
+skinparam linetype ortho
+
+package "AWS" {
+  package "VPC" {
+    rectangle "Subnets" as Subnets
+    rectangle "Security Groups" as SecGroups
+  }
+  
+  rectangle "Load Balancer" as LoadBalancer
+  rectangle "EC2 Instances" as EC2
+}
+
+rectangle "Terraform" as TF
+rectangle "VSCode Environment" as VSCode
+
+package "Terraform Configurations" {
+  component "main.tf" as MainTF
+  component "network.tf" as NetworkTF
+  component "variables.tf" as VariablesTF
+  component "dev.tfvars" as DevTFVars
+  component "prd.tfvars" as PrdTFVars
+  component "output.tf" as OutputTF
+  component "_providers.tf" as ProvidersTF
+  component "_backend.tf" as BackendTF
+}
+
+package "Bootstrap" {
+  component "main.tf" as BootstrapMainTF
+  component "output.tf" as BootstrapOutputTF
+  component "env.tfvars.tpl" as EnvTFVarsTpl
+}
+
+package "Solution Examples" {
+  component "step_*/" as SolutionSteps
+}
+
+package "VSCode Environment Setup" {
+  component "vscode-box/" as VSCodeBox
+}
+
+TF --> MainTF
+TF --> NetworkTF
+TF --> VariablesTF
+TF --> DevTFVars
+TF --> PrdTFVars
+TF --> OutputTF
+TF --> ProvidersTF
+TF --> BackendTF
+TF --> LoadBalancer
+TF --> EC2
+TF --> SecGroups
+
+MainTF --> EC2
+NetworkTF --> SecGroups
+OutputTF --> TF
+DevTFVars --> TF
+PrdTFVars --> TF
+ProvidersTF --> TF
+BackendTF --> TF
+
+BootstrapMainTF --> Subnets
+BootstrapMainTF --> SecGroups
+BootstrapOutputTF --> TF
+EnvTFVarsTpl --> TF
+
+VSCode --> VSCodeBox
+
+SolutionSteps --> TF
+
+@enduml
+```

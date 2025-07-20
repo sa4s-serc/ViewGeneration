@@ -1,0 +1,39 @@
+```plantuml
+@startuml jinnerbichler_flash-home
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Home Assistant" as HA {
+}
+
+rectangle "Coffee Machine Client" as CoffeeClient #lightyellow
+
+rectangle "Flash Server" as FlashServer #lightsteelblue {
+  rectangle "Coffee Machine Flash Server" as CMFlashServer #aliceblue
+  rectangle "Provider Flash Server" as ProviderFlashServer #aliceblue
+}
+
+rectangle "IOTA Testnet" as IOTANetwork #mistyrose
+
+' ========== Connections ==========
+User --> HA : trigger actions (make coffee,\ninitialize/fund/close channel)
+
+' Home Assistant interactions
+HA <--> CoffeeClient : MQTT communication\n(trigger coffee actions, receive status)
+
+' Coffee Machine Client interactions
+CoffeeClient --> CMFlashServer : initiate payment\nsign transactions
+CMFlashServer --> ProviderFlashServer : sign transactions\nsettle payments
+
+' Flash Server interactions
+CMFlashServer <--> IOTANetwork : interact with Tangle\n(create/close channels)
+ProviderFlashServer <--> IOTANetwork : interact with Tangle\n(process transactions)
+
+@enduml
+```

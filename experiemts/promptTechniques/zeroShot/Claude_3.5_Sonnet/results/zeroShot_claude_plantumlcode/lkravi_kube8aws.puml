@@ -1,0 +1,56 @@
+@startuml lkravi_kube8aws
+
+!define AWSPUML https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v14.0/dist
+!include AWSPUML/AWSCommon.puml
+!include AWSPUML/Compute/EC2.puml
+!include AWSPUML/NetworkingContentDelivery/VPC.puml
+!include AWSPUML/NetworkingContentDelivery/ElasticLoadBalancing.puml
+!include AWSPUML/SecurityIdentityCompliance/IAM.puml
+
+skinparam component {
+  BackgroundColor<<AWS>> White
+  BorderColor<<AWS>> #FF9900
+  FontColor<<AWS>> Black
+}
+
+component "AWS Cloud" <<AWS>> {
+    VPC(vpc, "VPC", "Virtual Private Cloud")
+    
+    node "Public Subnet" {
+        EC2(bastion, "Bastion Host", "EC2 Instance")
+    }
+    
+    node "Private Subnet" {
+        EC2(master1, "Master Node 1", "EC2 Instance")
+        EC2(master2, "Master Node 2", "EC2 Instance")
+        EC2(master3, "Master Node 3", "EC2 Instance")
+        EC2(worker1, "Worker Node 1", "EC2 Instance")
+        EC2(worker2, "Worker Node 2", "EC2 Instance")
+    }
+    
+    ElasticLoadBalancing(nlb, "Network Load Balancer", "API Server Endpoint")
+}
+
+IAM(sshkey, "SSH Key Pair", "Access Control")
+
+actor "Administrator" as admin
+
+admin --> bastion : SSH Access
+bastion --> master1 : Ansible Configuration
+bastion --> master2 : Ansible Configuration
+bastion --> master3 : Ansible Configuration
+bastion --> worker1 : Ansible Configuration
+bastion --> worker2 : Ansible Configuration
+
+nlb --> master1 : Route API Traffic
+nlb --> master2 : Route API Traffic
+nlb --> master3 : Route API Traffic
+
+sshkey --> bastion : Secure Access
+sshkey --> master1 : Secure Access
+sshkey --> master2 : Secure Access
+sshkey --> master3 : Secure Access
+sshkey --> worker1 : Secure Access
+sshkey --> worker2 : Secure Access
+
+@enduml

@@ -1,0 +1,28 @@
+@startuml TestHaters_ctflow
+
+actor User
+participant "VS Code" as VSCode
+participant "CTFLOW Extension" as Extension
+participant "Webview UI" as WebviewUI
+participant "Compiler" as Compiler
+participant "Cypress" as Cypress
+database "Firebase" as Firebase
+
+User -> VSCode : Open VS Code
+VSCode -> Extension : Load CTFLOW extension
+Extension -> WebviewUI : Initialize React-based UI
+User -> WebviewUI : Interact with drag-and-drop interface
+WebviewUI -> WebviewUI : Update visual test flow
+WebviewUI -> Firebase : Sync changes (if collaborative)
+User -> WebviewUI : Request test compilation
+WebviewUI -> Compiler : Send test flow data
+Compiler -> Compiler : Generate Cypress code
+Compiler -> Extension : Return generated code
+Extension -> VSCode : Create/update .cy.js file
+User -> Extension : Execute test
+Extension -> Cypress : Run generated test
+Cypress -> Extension : Return test results
+Extension -> WebviewUI : Display test results
+WebviewUI -> User : Show test outcome
+
+@enduml

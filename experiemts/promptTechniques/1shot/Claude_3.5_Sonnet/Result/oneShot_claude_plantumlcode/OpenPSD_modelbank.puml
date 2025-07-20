@@ -1,0 +1,49 @@
+@startuml OpenPSD_modelbank
+skinparam component {
+  BackgroundColor<<Domain>> LightYellow
+  BackgroundColor<<Application>> LightGreen
+  BackgroundColor<<Infrastructure>> LightBlue
+  BackgroundColor<<Presentation>> LightPink
+}
+
+package "Domain Layer" <<Domain>> {
+  [Entities] as Entities
+}
+
+package "Application Layer" <<Application>> {
+  [Use Cases] as UseCases
+  interface "ModelBankUsecaseInputPort" as UsecaseInput
+  interface "ModelBankUsecaseOutputPort" as UsecaseOutput
+}
+
+package "Infrastructure Layer" <<Infrastructure>> {
+  [DB Provider] as DBProvider
+  interface "ModelBankEntityGateway" as EntityGateway
+  [gRPC Server] as GRPCServer
+}
+
+package "Presentation Layer" <<Presentation>> {
+  [Model Bank Controller] as Controller
+  interface "ModelBankControllerInputPort" as ControllerInput
+  interface "ModelBankControllerOutputPort" as ControllerOutput
+}
+
+database "PostgreSQL" as DB
+
+Entities -[hidden]-> UseCases
+UseCases -[hidden]-> DBProvider
+DBProvider -[hidden]-> Controller
+
+UseCases ..> UsecaseInput : implements
+UseCases ..> UsecaseOutput : uses
+Controller ..> ControllerInput : implements
+Controller ..> ControllerOutput : uses
+DBProvider ..> EntityGateway : implements
+
+Controller --> UsecaseInput : uses
+UseCases --> EntityGateway : uses
+DBProvider --> DB : interacts
+
+GRPCServer --> Controller : uses
+
+@enduml

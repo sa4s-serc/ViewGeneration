@@ -1,0 +1,49 @@
+@startuml
+skinparam componentStyle uml2
+skinparam defaultTextAlignment center
+
+actor "Network Admin" as admin
+actor "Attacker" as attacker
+
+rectangle "SDN Network" {
+  [OpenFlow Switch] as switch
+}
+
+package "BloSS Core" {
+  [Stalk] as stalk
+  [Pollen] as pollen
+  [BloSS Manager] as bloss
+  
+  database "InfluxDB" as influxdb
+  database "IPFS" as ipfs
+}
+
+cloud "Ethereum Blockchain" {
+  [Smart Contracts] as contracts
+}
+
+attacker --> switch : Malicious Traffic
+switch <--> stalk : OpenFlow Protocol
+stalk --> influxdb : Store Flow Stats
+stalk --> pollen : Report Attack
+pollen <--> ipfs : Store/Retrieve Reports
+pollen <--> contracts : Interact
+bloss <--> pollen : Query/Update
+admin --> bloss : Configure/Monitor
+
+note right of stalk
+  Monitors traffic
+  Detects attacks
+end note
+
+note right of pollen
+  Manages blockchain
+  Encrypts data
+end note
+
+note right of bloss
+  Handles mitigation
+  Exposes API
+end note
+
+@enduml

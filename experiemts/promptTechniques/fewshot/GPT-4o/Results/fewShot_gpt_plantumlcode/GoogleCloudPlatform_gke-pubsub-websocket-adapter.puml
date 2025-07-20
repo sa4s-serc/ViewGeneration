@@ -1,0 +1,49 @@
+```plantuml
+@startuml GoogleCloudPlatform_gke-pubsub-websocket-adapter
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "Client"
+
+cloud "Google Cloud" as gc {
+  rectangle "Google Kubernetes Engine (GKE)" as GKE {
+    package "Adapter Pod" {
+      rectangle "pulltop\nCLI Tool" as pulltop #lightblue
+      rectangle "websocketd\nWebSocket Server" as websocketd #lightblue
+      rectangle "Ephemeral POSIX Storage" as posixStorage #lightblue
+    }
+  }
+
+  rectangle "Google Cloud Pub/Sub" as pubsub #lightyellow
+
+  rectangle "Workload Identity" as wi #lightgreen
+}
+
+rectangle "Kubernetes Ingress" as ingress #lightpink
+
+cloud "Infrastructure as Code" as iac {
+  rectangle "Terraform" as terraform #lightgrey
+  rectangle "Skaffold" as skaffold #lightgrey
+  rectangle "Kpt" as kpt #lightgrey
+}
+
+Client --> ingress : WebSocket Request
+ingress --> websocketd : WebSocket Connection
+websocketd --> posixStorage : Store Messages
+posixStorage --> websocketd : Retrieve Messages
+pulltop --> pubsub : Pull Messages
+pulltop --> posixStorage : Store Messages
+websocketd --> posixStorage : Buffer Messages
+
+GKE --> wi : Secure Auth
+pubsub --> wi : Secure Auth
+
+terraform --> GKE : Provision Infrastructure
+skaffold --> GKE : Deploy Containers
+kpt --> GKE : Manage Configurations
+@enduml
+```

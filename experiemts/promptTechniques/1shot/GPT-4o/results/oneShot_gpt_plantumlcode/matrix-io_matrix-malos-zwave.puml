@@ -1,0 +1,56 @@
+```plantuml
+@startuml matrix-io_matrix-malos-zwave
+skinparam rectangle {
+  BackgroundColor<<zwave>> #d9e7fd
+  BackgroundColor<<malos>> #d8f5d3
+  BackgroundColor<<tools>> #fddddd
+  BackgroundColor<<scripts>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Z-Wave Abstraction Layer" <<zwave>> {
+  rectangle "Z-Wave Driver\n(driver_zwave.cpp/h)" as ZWaveDriver
+  rectangle "Z/IP Gateway\nConnection" as ZIPGateway
+  rectangle "Security Features" as Security
+  rectangle "Sensor & Switch\nControl" as SensorSwitch
+  rectangle "Schedule Management" as Schedule
+  rectangle "Screen Management" as Screen
+  ZIPGateway --> ZWaveDriver
+  Security --> ZWaveDriver
+  SensorSwitch --> ZWaveDriver
+  Schedule --> ZWaveDriver
+  Screen --> ZWaveDriver
+}
+
+package "MALOS Integration" <<malos>> {
+  rectangle "MALOS Core\nIntegration" as MALOSCore
+  rectangle "Driver Manager" as DriverManager
+  rectangle "Hardware Abstraction" as HardwareAbstraction
+  MALOSCore --> ZWaveDriver
+  DriverManager --> MALOSCore
+  HardwareAbstraction --> MALOSCore
+}
+
+package "JavaScript Utilities" <<tools>> {
+  rectangle "addnode.js" as AddNode
+  rectangle "list.js" as ListNode
+  rectangle "removenode.js" as RemoveNode
+  rectangle "simpleTest.js" as SimpleTest
+  rectangle "test_zwave_accel.js" as TestZWaveAccel
+  AddNode --> ZWaveDriver
+  ListNode --> ZWaveDriver
+  RemoveNode --> ZWaveDriver
+  SimpleTest --> ZWaveDriver
+  TestZWaveAccel --> ZWaveDriver
+}
+
+package "Service Architecture" <<scripts>> {
+  rectangle "Systemd Service" as SystemdService
+  rectangle "Build & Deployment" as BuildDeployment
+  SystemdService --> ZWaveDriver
+  BuildDeployment --> SystemdService
+}
+
+@enduml
+```

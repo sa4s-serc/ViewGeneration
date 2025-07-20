@@ -1,0 +1,65 @@
+@startuml lkravi_kube8aws
+
+!define AWSPUML https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v15.0/dist
+!include AWSPUML/AWSCommon.puml
+!include AWSPUML/Compute/EC2.puml
+!include AWSPUML/NetworkingContentDelivery/VPC.puml
+!include AWSPUML/NetworkingContentDelivery/ElasticLoadBalancing.puml
+
+skinparam component {
+  BackgroundColor<<Terraform>> #LightBlue
+  BackgroundColor<<Ansible>> #LightGreen
+}
+
+rectangle "AWS Cloud" {
+  VPC(vpc, "VPC", "")
+  
+  rectangle "Public Subnet" {
+    EC2(bastion, "Bastion Host", "")
+    ElasticLoadBalancing(nlb, "Network Load Balancer", "")
+  }
+  
+  rectangle "Private Subnet" {
+    EC2(master1, "Kubernetes Master", "")
+    EC2(master2, "Kubernetes Master", "")
+    EC2(master3, "Kubernetes Master", "")
+    EC2(worker1, "Kubernetes Worker", "")
+    EC2(worker2, "Kubernetes Worker", "")
+  }
+}
+
+component "Terraform" <<Terraform>> {
+  [vpc.tf]
+  [servers.tf]
+  [load_balance.tf]
+  [security.tf]
+  [keys.tf]
+  [ansible_helper.tf]
+}
+
+component "Ansible" <<Ansible>> {
+  [play.yml]
+  [ansible_vars_file.yml]
+}
+
+Terraform --> vpc : creates
+Terraform --> bastion : provisions
+Terraform --> master1 : provisions
+Terraform --> master2 : provisions
+Terraform --> master3 : provisions
+Terraform --> worker1 : provisions
+Terraform --> worker2 : provisions
+Terraform --> nlb : configures
+
+bastion --> Ansible : executes
+Ansible --> master1 : configures
+Ansible --> master2 : configures
+Ansible --> master3 : configures
+Ansible --> worker1 : configures
+Ansible --> worker2 : configures
+
+nlb --> master1 : routes traffic
+nlb --> master2 : routes traffic
+nlb --> master3 : routes traffic
+
+@enduml

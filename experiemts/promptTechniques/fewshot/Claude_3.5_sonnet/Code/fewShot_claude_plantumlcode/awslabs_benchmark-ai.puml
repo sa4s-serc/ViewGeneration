@@ -1,0 +1,50 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #EEEBDC
+  BorderColor #333333
+  FontColor #333333
+}
+skinparam arrow {
+  Color #333333
+  FontColor #333333
+}
+
+actor User
+rectangle "bai-bff" as BFF
+queue "Kafka" as Kafka
+rectangle "executor" as Executor
+rectangle "watcher" as Watcher
+rectangle "sm-executor" as SMExecutor
+rectangle "fetcher-dispatcher" as FetcherDispatcher
+rectangle "fetcher" as Fetcher
+rectangle "cloudwatch-exporter" as CloudWatchExporter
+rectangle "metrics-pusher" as MetricsPusher
+rectangle "metrics-extractor" as MetricsExtractor
+cloud "AWS" {
+  rectangle "EKS" as EKS
+  rectangle "SageMaker" as SageMaker
+  database "CloudWatch" as CloudWatch
+  database "S3" as S3
+}
+
+User -> BFF : Submit benchmark job
+BFF -> Kafka : Publish job submission event
+Kafka -> Executor : Consume job event
+Executor -> EKS : Create Kubernetes resources
+Executor -> SMExecutor : Create SageMaker job (if applicable)
+SMExecutor -> SageMaker : Execute job
+Kafka -> Watcher : Consume job event
+Watcher -> EKS : Monitor job status
+Watcher -> SageMaker : Monitor job status
+Watcher -> Kafka : Publish status updates
+FetcherDispatcher -> Fetcher : Dispatch data fetching job
+Fetcher -> S3 : Fetch datasets/models
+MetricsPusher -> Kafka : Push metrics
+MetricsExtractor -> Kafka : Extract and push metrics
+Kafka -> CloudWatchExporter : Consume metrics
+CloudWatchExporter -> CloudWatch : Export metrics
+BFF -> Kafka : Query job status
+Kafka -> BFF : Return job status
+BFF -> User : Report job status/results
+
+@enduml

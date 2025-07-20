@@ -1,0 +1,50 @@
+```plantuml
+@startuml vishipayyallore_blazorwasm-apim-api-sql-redis
+skinparam linetype ortho
+
+actor "User" as User
+
+package "Frontend (Blazor WebAssembly)" {
+  rectangle "UI Components" as UI
+  rectangle "Auth0" as Auth
+}
+
+package "Backend (ASP.NET Core API)" {
+  rectangle "BooksController" as Controller
+  rectangle "BooksBll" as Bll
+  rectangle "BookRepository" as Repo
+  rectangle "BookCacheRepository" as CacheRepo
+  rectangle "Swagger\n& CORS" as Swagger
+  rectangle "Dependency Injection" as DI
+  rectangle "API Versioning" as APIVersioning
+}
+
+package "Data Layer" {
+  database "SQL Server" as SQL
+  rectangle "Redis Cache" as Redis
+}
+
+package "CI/CD" {
+  rectangle "GitHub Actions" as Actions
+}
+
+User --> UI : "Interacts"
+UI --> Auth : "Authenticate"
+UI --> Controller : "API Requests"
+
+Controller --> Bll : "Business Logic"
+Bll --> CacheRepo : "Check Cache"
+CacheRepo --> Redis : "Retrieve/Store Data"
+
+Bll --> Repo : "Access Data"
+Repo --> SQL : "Query/Update Data"
+
+Controller --> Swagger : "API Docs"
+Controller --> APIVersioning : "Manage Versions"
+Controller --> DI : "Resolve Dependencies"
+
+Actions --> SQL : "Deploy DB Changes"
+Actions --> Redis : "Deploy Cache Changes"
+Actions --> Controller : "Deploy API Changes"
+@enduml
+```

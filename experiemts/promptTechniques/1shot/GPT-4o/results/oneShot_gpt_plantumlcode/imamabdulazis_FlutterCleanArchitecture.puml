@@ -1,0 +1,59 @@
+```plantuml
+@startuml imamabdulazis_FlutterCleanArchitecture
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<data>> #d8f5d3
+  BackgroundColor<<domain>> #fddddd
+  BackgroundColor<<presentation>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Layer" <<core>> {
+  rectangle "Networking\n(http_client, http_retrier)" as Networking
+  rectangle "Device-specific\n(Connection, Notifications)" as Device
+  rectangle "Error Handling\n(failure, exception,\nsentry_exceptions)" as Errors
+}
+
+package "Data Layer" <<data>> {
+  rectangle "Data Sources" as DataSources
+  rectangle "Models" as Models
+  rectangle "Repository Implementations" as RepoImpl
+}
+
+package "Domain Layer" <<domain>> {
+  rectangle "Entities" as Entities
+  rectangle "Use Cases\n(CheckBindStatus, Login,\nGetPreferredLanguage, UpdateLanguage)" as UseCases
+  rectangle "Repository Interfaces" as RepoInterfaces
+}
+
+package "Presentation Layer" <<presentation>> {
+  rectangle "UI Components\n(Screens, Widgets)" as UIComponents
+  rectangle "BLoCs" as BLoCs
+}
+
+rectangle "lib/main.dart\n(Application Entry)" as MainEntry <<core>>
+rectangle "lib/app.dart\n(Main App Widget)" as MainApp <<presentation>>
+rectangle "lib/routes.dart\n(Application Routes)" as Routes <<presentation>>
+rectangle "lib/features/di/InjectionContainer.dart\n(Dependency Injection)" as DI <<core>>
+
+Networking --> Errors
+Networking --> Device
+DataSources --> Models
+DataSources --> RepoImpl
+RepoImpl --> RepoInterfaces
+RepoInterfaces --> Entities
+RepoInterfaces --> UseCases
+UIComponents --> BLoCs
+BLoCs --> UseCases
+
+MainEntry --> MainApp
+MainApp --> Routes
+MainApp --> DI
+MainApp --> UIComponents
+MainApp --> Networking
+MainApp --> Errors
+
+MainApp --> Device
+@enduml
+```

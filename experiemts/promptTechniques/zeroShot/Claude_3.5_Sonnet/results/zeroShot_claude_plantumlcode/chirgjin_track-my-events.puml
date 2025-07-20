@@ -1,0 +1,44 @@
+@startuml chirgjin_track-my-events
+
+participant "Frontend" as FE
+participant "Gateway Service" as GW
+participant "User Service" as US
+participant "Tracking Service" as TS
+participant "Redis" as RD
+participant "PostgreSQL" as DB
+
+FE -> GW: User registration request
+GW -> US: Forward registration request
+US -> DB: Create user record
+DB --> US: Confirm user creation
+US --> GW: Registration response
+GW --> FE: Registration confirmation
+
+FE -> GW: User login request
+GW -> US: Forward login request
+US -> DB: Verify credentials
+DB --> US: Credentials verified
+US --> GW: Login response with tokens
+GW --> FE: Login confirmation and tokens
+
+FE -> GW: Request API key
+GW -> US: Forward API key request
+US -> DB: Generate and store API key
+DB --> US: API key generated
+US --> GW: API key response
+GW --> FE: API key
+
+FE -> GW: Track event (via SDK)
+GW -> RD: Publish event data
+RD -> TS: Event data received
+TS -> DB: Store event data
+DB --> TS: Confirm data storage
+
+FE -> GW: Request dashboard data
+GW -> TS: Forward dashboard data request
+TS -> DB: Fetch event statistics
+DB --> TS: Event statistics
+TS --> GW: Dashboard data response
+GW --> FE: Dashboard data
+
+@enduml

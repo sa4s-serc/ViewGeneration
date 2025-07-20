@@ -1,0 +1,69 @@
+```plantuml
+@startuml IceFireDB_IceFireDB
+left to right direction
+skinparam rectangle {
+  BackgroundColor #f9f9f9
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "IceFireDB Core" {
+  rectangle "Redis Protocol Layer" as RedisLayer
+  rectangle "LevelDB / BoltDB" as Storage
+  rectangle "Uhaha (Raft)" as Uhaha
+  rectangle "Server Commands" as ServerCommands
+  RedisLayer --> Storage
+  RedisLayer --> Uhaha
+  RedisLayer --> ServerCommands
+}
+
+package "IceFireDB-SQLProxy" {
+  rectangle "MySQL Proxy" as SQLProxy
+  rectangle "P2P Network\n(libp2p)" as P2PNetwork
+  rectangle "Connection Pooling" as ConnectionPooling
+  rectangle "User Authentication" as UserAuth
+  rectangle "Storage Engines\n(LevelDB, CRDT, etc.)" as StorageEngines
+  rectangle "Metrics (Ristretto)" as Metrics
+  SQLProxy --> P2PNetwork
+  SQLProxy --> ConnectionPooling
+  SQLProxy --> UserAuth
+  SQLProxy --> StorageEngines
+  SQLProxy --> Metrics
+}
+
+package "Serialization & Communication" {
+  rectangle "gogo/protobuf" as Protobuf
+  rectangle "gRPC" as gRPC
+  rectangle "HTTP/2 (x/net/http2)" as HTTP2
+  Protobuf --> gRPC
+  gRPC --> HTTP2
+}
+
+package "Security & Cryptography" {
+  rectangle "BLAKE2b, SHA-3" as Hashing
+  rectangle "Curve25519, Poly1305" as Encryption
+  rectangle "Key Management" as KeyManagement
+  Hashing --> Encryption
+  Encryption --> KeyManagement
+}
+
+package "Observability" {
+  rectangle "OpenTelemetry" as OpenTelemetry
+  rectangle "Tracing, Metrics, Logs" as TelemetryComponents
+  rectangle "Exporters" as Exporters
+  OpenTelemetry --> TelemetryComponents
+  OpenTelemetry --> Exporters
+}
+
+package "System & Tooling" {
+  rectangle "Go AST & Formatting" as GoTools
+  rectangle "Low Level Syscalls\n(x/sys)" as Syscalls
+  GoTools --> Syscalls
+}
+
+RedisLayer --> SQLProxy
+SQLProxy --> Protobuf
+gRPC --> OpenTelemetry
+@enduml
+```

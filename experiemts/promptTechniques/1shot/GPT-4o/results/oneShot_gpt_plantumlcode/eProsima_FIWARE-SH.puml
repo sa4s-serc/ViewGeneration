@@ -1,0 +1,40 @@
+```plantuml
+@startuml eProsima_FIWARE-SH
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "Integration Service" as IS
+
+rectangle "System Handle (SH)" as SH {
+  rectangle "NGSIV2Connector" as Connector #lightsteelblue
+  rectangle "Listener" as Listener #lightyellow
+  rectangle "Publisher" as Publisher #aliceblue
+  rectangle "Subscriber" as Subscriber #mistyrose
+}
+
+rectangle "FIWARE Context Broker" as FIWARE #palegreen
+
+' ========== Connections ==========
+IS --> SH : Initialize System Handle
+
+' System Handle interactions
+SH --> Connector : Configure connection to FIWARE\nvia YAML file
+SH --> Listener : Start listening for notifications\nusing asio
+
+' Connector interactions
+Connector --> FIWARE : Create entity / Update attributes\nRegister/Unregister subscriptions\nvia NGSIv2 API
+FIWARE --> Connector : Send notifications
+
+' Listener interactions
+Listener --> Connector : Forward received notifications
+
+' Publisher and Subscriber interactions
+Publisher --> Connector : Publish data to FIWARE\nvia NGSIv2
+Subscriber --> Connector : Subscribe and receive data\nfrom FIWARE
+
+@enduml
+```

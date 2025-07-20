@@ -1,0 +1,77 @@
+```plantuml
+@startuml itselavia_edge-computing-platform-for-deep-learning-apps
+
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+package "Frontend (React)" <<frontend>> {
+  rectangle "UI Components" as UIComp
+  rectangle "Project Management" as ProjMgmt
+  rectangle "Cluster Status" as ClusStatus
+  UIComp --> ProjMgmt
+  UIComp --> ClusStatus
+}
+
+package "Backend (Flask)" <<backend>> {
+  rectangle "Main Service" as MainService
+  rectangle "Auth Service" as AuthService
+  rectangle "Project Service" as ProjectService
+  rectangle "Database Interactions" as DbInteract
+}
+
+package "Model Management" <<modelmgmt>> {
+  rectangle "Model Manager (Go)" as ModelManager
+  rectangle "Deployment Management" as DeployMgmt
+  rectangle "Scaling Management" as ScaleMgmt
+}
+
+package "Cloud Infrastructure" <<cloudinfra>> {
+  rectangle "GCP VM Instances" as GCPVM
+  rectangle "Google Cloud Storage" as GCS
+  rectangle "Terraform IaC" as Terraform
+  rectangle "Kubernetes" as Kubernetes
+  GCPVM --> Kubernetes
+  GCS --> Kubernetes
+}
+
+package "Edge Computing" <<edge>> {
+  rectangle "KubeEdge" as KubeEdge
+  rectangle "Edge Nodes" as EdgeNodes
+  KubeEdge --> EdgeNodes
+}
+
+package "Model Optimization" <<optimization>> {
+  rectangle "TensorRT Inference" as TensorRT
+  rectangle "TensorFlow Lite Conversion" as TFLiteConv
+  TensorRT --> TFLiteConv
+}
+
+User --> UIComp
+
+UIComp --> MainService
+MainService --> AuthService
+MainService --> ProjectService
+MainService --> DbInteract
+
+ProjectService --> ModelManager
+ModelManager --> DeployMgmt
+ModelManager --> ScaleMgmt
+
+Terraform --> GCPVM
+Kubernetes --> DeployMgmt
+Kubernetes --> ScaleMgmt
+
+DeployMgmt --> TensorRT
+DeployMgmt --> TFLiteConv
+
+KubeEdge --> Kubernetes
+KubeEdge <-- EdgeNodes
+
+@enduml
+```

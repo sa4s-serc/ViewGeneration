@@ -1,0 +1,85 @@
+@startuml Azure_AzureStack-QuickStart-Templates
+
+skinparam component {
+  BackgroundColor<<template>> #ECECFF
+  BackgroundColor<<script>> #CCFFCC
+  BackgroundColor<<config>> #FFFFCC
+}
+
+package "AzureStack-QuickStart-Templates" {
+  [ARM Templates] <<template>> as ARM
+  [PowerShell Scripts] <<script>> as PS
+  [Shell Scripts] <<script>> as SH
+  [Configuration Files] <<config>> as CFG
+  [README.md] as README
+  [Validation Scripts] <<script>> as VAL
+
+  component "Deployment Solutions" {
+    [VM Management]
+    [High Availability Solutions]
+    [Networking]
+    [Ethereum Consortium Blockchain]
+    [Mesos Cluster]
+    [Active Directory]
+    [Remote Desktop Services]
+    [App Service File Server]
+  }
+
+  component "Infrastructure Components" {
+    [Virtual Machines]
+    [Virtual Networks]
+    [Load Balancers]
+    [Storage]
+    [Key Vault]
+  }
+
+  component "Application Platforms" {
+    [Docker Swarm]
+    [Service Fabric]
+    [Hadoop]
+  }
+
+  component "Performance Testing" {
+    [VM Bootstorm]
+    [IOStorm]
+  }
+}
+
+cloud "Azure" {
+  [Azure Resources]
+}
+
+cloud "Azure Stack" {
+  [Azure Stack Resources]
+}
+
+ARM --> [Deployment Solutions]
+ARM --> [Infrastructure Components]
+ARM --> [Application Platforms]
+PS --> [Deployment Solutions]
+SH --> [Deployment Solutions]
+CFG --> [Application Platforms]
+VAL --> ARM : validates
+
+[Deployment Solutions] --> [Azure Resources]
+[Deployment Solutions] --> [Azure Stack Resources]
+[Infrastructure Components] --> [Azure Resources]
+[Infrastructure Components] --> [Azure Stack Resources]
+[Application Platforms] --> [Azure Resources]
+[Application Platforms] --> [Azure Stack Resources]
+[Performance Testing] --> [Azure Resources]
+[Performance Testing] --> [Azure Stack Resources]
+
+note right of [ARM Templates]
+  Addresses deployment and connectivity concerns
+end note
+
+note right of [Key Vault]
+  Addresses security concerns
+end note
+
+note right of [Performance Testing]
+  Addresses performance concerns
+end note
+
+@enduml

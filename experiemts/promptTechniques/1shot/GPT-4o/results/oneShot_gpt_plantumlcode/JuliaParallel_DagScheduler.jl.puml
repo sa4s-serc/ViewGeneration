@@ -1,0 +1,50 @@
+```plantuml
+@startuml JuliaParallel_DagScheduler.jl
+skinparam rectangle {
+  BackgroundColor<<core>> #f5f5f5
+  BackgroundColor<<execution>> #d9e7fd
+  BackgroundColor<<scheduling>> #d8f5d3
+  BackgroundColor<<meta>> #fddddd
+  BackgroundColor<<plugin>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "DagScheduler.jl" <<core>> {
+  rectangle "Common Utilities" as Common
+}
+
+package "Execution" <<execution>> {
+  rectangle "Execution Engine" as Engine
+  rectangle "Task Queue" as Queue
+  Common --> Engine
+  Engine --> Queue
+}
+
+package "Scheduling" <<scheduling>> {
+  rectangle "Scheduler Logic" as Scheduler
+  Common --> Scheduler
+}
+
+package "Meta Stores" <<meta>> {
+  rectangle "ShmemMetaStore" as ShmemMeta
+  rectangle "SimpleMetaStore" as SimpleMeta
+  rectangle "FDBMetaStore" as FDBMeta
+  Common --> ShmemMeta
+  Common --> SimpleMeta
+  Common --> FDBMeta
+}
+
+package "Dagger.jl Plugin" <<plugin>> {
+  rectangle "Plugin Integration" as Plugin
+  Common --> Plugin
+}
+
+rectangle "RemoteMonitor" as RemoteMonitor
+rectangle "FoundationDB" as FoundationDB
+
+Common --> RemoteMonitor
+FDBMeta --> FoundationDB
+
+@enduml
+```

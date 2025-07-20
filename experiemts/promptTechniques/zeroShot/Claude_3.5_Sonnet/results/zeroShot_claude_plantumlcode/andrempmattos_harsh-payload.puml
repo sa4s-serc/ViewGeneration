@@ -1,0 +1,58 @@
+@startuml
+
+component "FreeRTOS" as RTOS
+component "Peripheral Drivers" as Drivers
+component "System Services Driver" as SysServices
+component "Experiment Algorithms" as ExpAlgo
+component "OBC Communication (FSP)" as OBCComm
+component "Raspberry Pi Software Wrapper" as RaspWrapper
+
+package "Hardware Abstraction Layer" as HAL {
+  component GPIO
+  component UART
+  component SPI
+  component RTC
+  component PDMA
+  component "Watchdog Timer"
+  component Timer
+  component CAN
+  component NVM
+  component I2C
+}
+
+package "FPGA Fabric" as FPGA {
+  component "AXI/AHB Interconnect"
+  component "Memory Subsystem"
+  component "Clocking and Reset"
+  component "Peripheral Interfaces"
+}
+
+RTOS --> Drivers : uses
+RTOS --> ExpAlgo : schedules
+RTOS --> OBCComm : manages
+
+Drivers --> HAL : interfaces
+SysServices --> HAL : uses
+ExpAlgo --> HAL : accesses
+OBCComm --> HAL : communicates
+
+RaspWrapper --> HAL : abstracts
+
+HAL --> FPGA : controls
+
+note right of RTOS
+  Handles task scheduling
+  and resource management
+end note
+
+note bottom of ExpAlgo
+  Implements memory testing
+  and latch-up detection
+end note
+
+note right of OBCComm
+  Implements FloripaSat Protocol
+  for OBC communication
+end note
+
+@enduml

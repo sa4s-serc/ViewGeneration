@@ -1,0 +1,69 @@
+```plantuml
+@startuml Fenkey_irma
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<framework>> #d8f5d3
+  BackgroundColor<<storage>> #fddddd
+  BackgroundColor<<utility>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "irmacall Core Engine (C)" <<core>> {
+  rectangle "Request Handling" as RequestHandling
+  rectangle "HTTP Client (Fetcher)" as HTTPClient
+  rectangle "Key-Value Storage\nAbstraction (kvstore_t)" as KVStorage
+  rectangle "Logging System" as Logging
+  rectangle "SMTP Support" as SMTP
+  rectangle "Cryptography\n(OpenSSL)" as Cryptography
+  rectangle "Fuse (Circuit Breaker)" as Fuse
+  rectangle "Buffer Management" as BufferMgmt
+  rectangle "Asynchronous DNS\nResolution (c-ares)" as AsyncDNS
+  RequestHandling --> HTTPClient
+  RequestHandling --> KVStorage
+  RequestHandling --> Logging
+  RequestHandling --> SMTP
+  RequestHandling --> Cryptography
+  RequestHandling --> Fuse
+  RequestHandling --> BufferMgmt
+  RequestHandling --> AsyncDNS
+}
+
+package "irmakit Framework (C#)" <<framework>> {
+  rectangle "Configuration System\n(Config.cs)" as ConfigSystem
+  rectangle "Session Management" as SessionMgmt
+  rectangle "Request & Response\nHandling" as ReqRespHandling
+  rectangle "Attribute-Driven Routing" as Routing
+  rectangle "Template Engine\nIntegration" as TemplateEngine
+  rectangle "Utilities" as Utilities
+  rectangle "Code Generation\n(AppGenerator.cs)" as CodeGeneration
+  ConfigSystem --> SessionMgmt
+  SessionMgmt --> ReqRespHandling
+  ReqRespHandling --> Routing
+  Routing --> TemplateEngine
+  Utilities --> TemplateEngine
+  CodeGeneration --> Utilities
+}
+
+package "Storage" <<storage>> {
+  rectangle "Memcached" as Memcached
+  rectangle "Redis" as Redis
+  KVStorage --> Memcached
+  KVStorage --> Redis
+  SessionMgmt --> Memcached
+  SessionMgmt --> Redis
+}
+
+package "Utilities" <<utility>> {
+  rectangle "Encryption (Aes, Des, Rsa)" as Encryption
+  rectangle "QR Code Generation\n(QRCoder)" as QRCodeGen
+  rectangle "IP Range Checking (Cidr)" as IPRangeCheck
+  rectangle "HTTP Requests (Fetcher)" as HTTPUtil
+  Utilities --> Encryption
+  Utilities --> QRCodeGen
+  Utilities --> IPRangeCheck
+  Utilities --> HTTPUtil
+}
+
+@enduml
+```

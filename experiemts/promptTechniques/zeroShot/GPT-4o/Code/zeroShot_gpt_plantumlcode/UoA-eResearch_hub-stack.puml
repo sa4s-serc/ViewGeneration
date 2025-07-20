@@ -1,0 +1,48 @@
+```plantuml
+@startuml UoA-eResearch_hub-stack
+
+actor User
+
+participant "ResearchHub Website (Frontend)" as Frontend
+participant "GraphQL API (cer-graphql)" as GraphQLAPI
+participant "Search Proxy (hub-search-proxy)" as SearchProxy
+participant "Contentful"
+participant "Elasticsearch"
+participant "AWS S3"
+participant "CloudFront"
+participant "AWS Lambda"
+participant "Jenkins"
+participant "Terraform"
+participant "AWS"
+
+== User Access Flow ==
+User -> Frontend: Access ResearchHub Website
+Frontend -> CloudFront: Request static assets
+CloudFront -> AWS S3: Fetch static assets
+AWS S3 -> CloudFront: Deliver assets
+CloudFront -> User: Rendered assets
+
+== Data Fetching ==
+User -> Frontend: Request content
+Frontend -> GraphQLAPI: Fetch content via GraphQL
+GraphQLAPI -> Contentful: Proxy request for content
+Contentful -> GraphQLAPI: Return content data
+GraphQLAPI -> Frontend: Deliver content data
+
+== Search Functionality ==
+User -> Frontend: Initiate search query
+Frontend -> SearchProxy: Send search request
+SearchProxy -> Elasticsearch: Query Elasticsearch
+Elasticsearch -> SearchProxy: Return search results
+SearchProxy -> Frontend: Deliver search results
+
+== Content Update ==
+Contentful -> SearchProxy: Notify content update
+SearchProxy -> Elasticsearch: Update index with new content
+
+== CI/CD Deployment ==
+Jenkins -> Terraform: Trigger infrastructure updates
+Terraform -> AWS: Deploy infrastructure changes
+
+@enduml
+```

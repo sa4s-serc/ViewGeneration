@@ -1,0 +1,61 @@
+```plantuml
+@startuml aws-solutions_automated-security-response-on-aws
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "AWS User"
+
+package "AWS Security Hub" {
+  rectangle "Security Findings" as Findings
+}
+
+package "Event Handling" {
+  rectangle "EventBridge" as EventBridge #lightblue
+  rectangle "SQS Queue" as SQS #lightblue
+  rectangle "Custom Actions" as CustomActions #lightblue
+}
+
+package "Orchestration & Automation" {
+  rectangle "Orchestrator\n(Step Function)" as Orchestrator #lightyellow
+  rectangle "SSM Automation\n(Runbooks)" as SSM #lightyellow
+  rectangle "Lambda Functions" as Lambda #lightyellow
+}
+
+package "Remediation & Logging" {
+  rectangle "Remediation Actions\n(Playbooks)" as Playbooks #lightgreen
+  rectangle "CloudWatch\nLogging & Metrics" as CloudWatch #lightgreen
+  rectangle "IAM Roles & Policies" as IAM #lightgreen
+}
+
+package "Infrastructure as Code" {
+  rectangle "AWS CDK" as CDK #lightpink
+  rectangle "CloudFormation Stacks" as CFN #lightpink
+}
+
+AWS User --> Findings
+Findings --> CustomActions
+Findings --> EventBridge
+
+EventBridge --> SQS
+SQS --> Orchestrator
+Orchestrator --> SSM
+Orchestrator --> Lambda
+Lambda --> Playbooks
+
+Playbooks --> CloudWatch
+CloudWatch --> AWS User
+
+CDK --> CFN
+CFN --> Orchestrator
+CFN --> Lambda
+CFN --> SSM
+
+Lambda --> IAM
+IAM --> Lambda
+
+@enduml
+```

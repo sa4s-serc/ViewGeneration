@@ -1,0 +1,51 @@
+```plantuml
+@startuml de1ux_statlord
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Frontend (React)" as FE {
+  rectangle "Editor" as Editor
+  rectangle "Viewer" as Viewer
+  rectangle "Redux Store" as ReduxStore
+}
+
+rectangle "Backend (Django REST Framework)" as BE #lightsteelblue {
+  rectangle "API" as API
+  rectangle "Models" as Models
+  rectangle "Views" as Views
+}
+
+rectangle "Display Devices" as Displays #lightyellow {
+  rectangle "E-paper Display"
+  rectangle "OLED Display"
+  rectangle "Browser"
+}
+
+' ========== Connections ==========
+User --> FE : Interact with\nEditor/Viewer
+
+' Frontend interactions
+Editor --> ReduxStore : Update state\nwith layout changes
+Viewer --> ReduxStore : Fetch state\nfor display rendering
+FE --> API : API requests for\nmanaging gauges, displays, layouts
+
+' Backend interactions
+API --> Views : Handle requests\nfor CRUD operations
+Views --> Models : Interact with\nDatabase
+Models --> Views : Return data to\nViews
+
+' Display interactions
+FE --> Displays : Push display data\nfor rendering
+Displays --> Viewer : Render dashboard\non device
+
+' Data Streaming
+API --> FE : Send updated\ndata values
+FE --> Displays : Push data\nfor rendering
+@enduml
+```

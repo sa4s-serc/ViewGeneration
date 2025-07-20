@@ -1,0 +1,51 @@
+```plantuml
+@startuml dich1_bookshelf-web
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<api>> #fddddd
+  BackgroundColor<<db>> #fff1c9
+  BackgroundColor<<deployment>> #e0e0e0
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend" <<frontend>> {
+  rectangle "HTML Templates" as HTML
+  rectangle "JavaScript\n(jQuery, jQuery UI)" as JS
+  rectangle "Main Entry Point\n(index.html)" as EntryPoint
+  HTML --> JS
+  EntryPoint --> HTML
+  EntryPoint --> JS
+}
+
+package "Backend (Ruby on Rails)" <<backend>> {
+  rectangle "Controllers" as Controllers
+  rectangle "Models\n(Book, Lending, User, Genre)" as Models
+  rectangle "Views" as Views
+  Controllers --> Models
+  Controllers --> Views
+}
+
+package "API" <<api>> {
+  rectangle "REST API\n(Books, Lendings)" as RESTAPI
+  Controllers --> RESTAPI
+  JS --> RESTAPI
+}
+
+database "MySQL Database" <<db>> as DB
+Models --> DB
+
+package "Deployment and Configuration" <<deployment>> {
+  rectangle "Docker\n(Dockerfile, docker-compose)" as Docker
+  rectangle "CI/CD (CircleCI)" as CICD
+  rectangle "Environment\nVariables" as EnvVars
+  rectangle "Capistrano\n(Deployment)" as Capistrano
+  Docker --> CICD
+  CICD --> Docker
+  EnvVars --> DB
+  Capistrano --> Docker
+}
+
+@enduml
+```

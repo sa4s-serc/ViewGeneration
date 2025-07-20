@@ -1,0 +1,40 @@
+@startuml lovasoa_SuperLogger
+
+!define RECTANGLE class
+
+rectangle "Agent" {
+    [SystemInfo]
+    [TCPServer]
+}
+
+rectangle "Logstash" {
+    [TCP Input]
+    [JSON Codec]
+    [Elasticsearch Output]
+}
+
+cloud "Network" {
+    [TCP Connection]
+}
+
+rectangle "Elasticsearch" {
+    [Data Storage]
+    [Indexing Engine]
+}
+
+rectangle "Kibana" {
+    [Visualization Layer]
+    [Dashboard Creator]
+}
+
+[SystemInfo] --> [TCPServer] : Provides data
+[TCPServer] --> [TCP Connection] : Sends data
+[TCP Connection] --> [TCP Input] : Receives data
+[TCP Input] --> [JSON Codec] : Processes data
+[JSON Codec] --> [Elasticsearch Output] : Enriches data
+[Elasticsearch Output] --> [Data Storage] : Stores data
+[Data Storage] --> [Indexing Engine] : Indexes data
+[Indexing Engine] --> [Visualization Layer] : Provides data
+[Visualization Layer] --> [Dashboard Creator] : Creates visualizations
+
+@enduml

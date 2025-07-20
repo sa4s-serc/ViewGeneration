@@ -1,0 +1,68 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "User" as user
+
+rectangle "Load Balancer (Nginx)" as nginx #lightblue
+
+rectangle "Frontend (React)" as frontend #lightgreen {
+  [React Components]
+  [Redux Store]
+}
+
+rectangle "Microservices" {
+  [su-users] as users #pink
+  [su-accounts] as accounts #pink
+  [su-questions] as questions #pink
+  [su-answers] as answers #pink
+  [su-search] as search #pink
+  [su-media] as media #pink
+}
+
+rectangle "Message Queue (RabbitMQ)" as rabbitmq #orange {
+  [qu-questions] as qquestions
+  [qu-answers] as qanswers
+  [qu-delete-questions] as qdelete
+}
+
+database "MongoDB" as mongodb #yellow
+database "Redis Cache" as redis #red
+database "ElasticSearch" as elasticsearch #purple
+
+user --> nginx
+nginx --> frontend
+frontend --> nginx
+
+nginx --> users
+nginx --> accounts
+nginx --> questions
+nginx --> answers
+nginx --> search
+nginx --> media
+
+users --> mongodb
+accounts --> mongodb
+questions --> mongodb
+answers --> mongodb
+media --> mongodb
+
+questions --> qquestions
+answers --> qanswers
+questions --> qdelete
+
+qquestions --> elasticsearch
+qanswers --> elasticsearch
+qdelete --> elasticsearch
+
+search --> elasticsearch
+
+users --> redis
+questions --> redis
+answers --> redis
+
+@enduml

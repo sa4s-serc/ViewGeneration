@@ -1,0 +1,55 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+rectangle "API Explorer\n(Python Client)" as APIExplorer
+
+package "Open Risk API" {
+  rectangle "Model Server\n(Flask)" as ModelServer {
+    rectangle "RDFlib" as RDFlib
+    rectangle "Concentration Metrics Library" as ConcentrationLib
+  }
+
+  rectangle "Data Server\n(Python-Eve)" as DataServer {
+    database "MongoDB" as MongoDB
+  }
+}
+
+cloud "OpenCPM" {
+  rectangle "NPL Concentration Metrics" as NPLConcentration
+  rectangle "Gini Index" as Gini
+  rectangle "HHI Index" as HHI
+  rectangle "Shannon Index" as Shannon
+}
+
+APIExplorer --> ModelServer : HTTP Requests
+APIExplorer --> DataServer : HTTP Requests
+
+ModelServer --> RDFlib : Uses
+ModelServer --> ConcentrationLib : Uses
+DataServer --> MongoDB : Stores Data
+
+ModelServer --> NPLConcentration : Implements
+NPLConcentration --> Gini : Includes
+NPLConcentration --> HHI : Includes
+NPLConcentration --> Shannon : Includes
+
+note right of ModelServer
+  Serves model descriptions
+  and calculation services
+end note
+
+note right of DataServer
+  Hosts portfolio data
+end note
+
+note bottom of OpenCPM
+  Open Credit Portfolio Management
+  Tools and libraries for risk modeling
+end note
+
+@enduml

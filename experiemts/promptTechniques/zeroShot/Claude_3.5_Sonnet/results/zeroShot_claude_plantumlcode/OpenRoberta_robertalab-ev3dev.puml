@@ -1,0 +1,47 @@
+@startuml OpenRoberta_robertalab-ev3dev
+
+!define RECTANGLE class
+
+skinparam component {
+  BackgroundColor LightBlue
+  BorderColor Black
+  ArrowColor Black
+}
+
+[Brickman UI] as UI
+[Open Roberta Lab Server] as Server
+
+package "Open Roberta Lab EV3 Connector" {
+  [Service] as Service
+  [Connector] as Connector
+  [Hal] as Hal
+  [AbortHandler] as AbortHandler
+  [GfxMode] as GfxMode
+}
+
+[ev3dev Library] as ev3dev
+
+UI -right-> Service : DBus
+Service -down-> Connector
+Connector -right-> Server : HTTP
+Connector -down-> Hal
+Hal -down-> ev3dev
+AbortHandler -up-> Connector : abort signal
+GfxMode -up-> Connector : display management
+
+note right of Connector
+  Manages network communication,
+  code download, and execution
+end note
+
+note left of Hal
+  Hardware Abstraction Layer
+  for EV3 components
+end note
+
+note bottom of AbortHandler
+  Monitors key presses
+  for program abortion
+end note
+
+@enduml

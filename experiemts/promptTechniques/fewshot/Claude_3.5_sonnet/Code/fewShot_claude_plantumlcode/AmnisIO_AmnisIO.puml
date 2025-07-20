@@ -1,0 +1,50 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #EEEBDC
+  BorderColor #333333
+  RoundCorner 20
+}
+skinparam component {
+  BackgroundColor #85BBF0
+  BorderColor #333333
+}
+skinparam database {
+  BackgroundColor #F0E68C
+  BorderColor #333333
+}
+skinparam arrow {
+  Color #333333
+}
+
+rectangle "Developer Environment" {
+  [TypeScript Code] as TSCode
+  [AmnisIO CLI] as CLI
+  database "Configuration Files" as Config
+}
+
+rectangle "Build Process" {
+  [typewriter Transpiler] as Transpiler
+  [PlatformIO] as PIO
+}
+
+rectangle "Target Environment" {
+  component "C Code" as CCode
+  component "rivulet Stream Library" as Rivulet
+  component "gyrus Board Abstraction" as Gyrus
+  [Hardware (e.g., Arduino UNO)] as Hardware
+}
+
+TSCode --> CLI : uses
+CLI --> Config : reads
+CLI --> Transpiler : invokes
+CLI --> PIO : manages
+
+Transpiler --> CCode : generates
+PIO --> CCode : compiles & deploys
+
+CCode --> Rivulet : uses
+CCode --> Gyrus : uses
+Gyrus --> Hardware : abstracts
+Rivulet --> Hardware : interacts with
+
+@enduml

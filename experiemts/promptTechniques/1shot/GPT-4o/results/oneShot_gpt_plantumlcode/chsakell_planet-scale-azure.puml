@@ -1,0 +1,51 @@
+```plantuml
+@startuml chsakell_planet-scale-azure
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<integration>> #fddddd
+  BackgroundColor<<db>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend (Angular)" <<frontend>> {
+  rectangle "Angular Modules" as Modules
+  rectangle "Angular Routes" as Routes
+  rectangle "Angular Entry Points" as EntryPoints
+  Modules --> Routes
+  EntryPoints --> Modules
+}
+
+package "Backend (.NET Core)" <<backend>> {
+  rectangle "Application Services" as Services
+  rectangle "Middleware & Routing" as Middleware
+  rectangle "Identity Providers" as Identity
+  rectangle "WebJobs" as WebJobs
+  Services --> Middleware
+  Middleware --> Identity
+  Services --> WebJobs
+}
+
+package "Integrations" <<integration>> {
+  rectangle "Azure Traffic Manager" as TrafficManager
+  rectangle "Azure CDN" as CDN
+  rectangle "Azure Redis Cache" as RedisCache
+  rectangle "Azure Service Bus" as ServiceBus
+  rectangle "Azure Search" as AzureSearch
+  rectangle "Azure AD B2C" as ADB2C
+  Middleware --> TrafficManager
+  Middleware --> CDN
+  Middleware --> RedisCache
+  Middleware --> ServiceBus
+  Middleware --> AzureSearch
+  Identity --> ADB2C
+}
+
+database "Azure SQL Server" <<db>> as SQL
+database "Azure Cosmos DB" <<db>> as CosmosDB
+Services --> SQL
+Services --> CosmosDB
+
+@enduml
+```

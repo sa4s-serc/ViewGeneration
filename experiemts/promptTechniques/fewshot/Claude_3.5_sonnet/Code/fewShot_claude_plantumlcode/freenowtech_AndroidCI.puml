@@ -1,0 +1,51 @@
+@startuml freenowtech_AndroidCI
+
+skinparam rectangle {
+  BackgroundColor #EEEBDC
+  BorderColor #333333
+  RoundCorner 20
+}
+
+actor "Developer" as dev
+cloud "GitHub" as github
+
+rectangle "Jenkins Server (v2.60.3-alpine)" as jenkins {
+  rectangle "Docker Plugin" as dockerPlugin
+  rectangle "Android Lint Plugin" as androidLintPlugin
+}
+
+rectangle "Docker Host" as dockerHost {
+  rectangle "Android SDK Image" as androidSDK
+  rectangle "Build Container 1" as container1
+  rectangle "Build Container 2" as container2
+}
+
+database "Artifacts" as artifacts
+
+dev --> github : Push code
+github --> jenkins : Trigger build
+jenkins --> dockerHost : Request container
+dockerHost --> jenkins : Provide container
+jenkins --> container1 : Execute build
+jenkins --> container2 : Execute tests
+container1 --> artifacts : Store build artifacts
+container2 --> artifacts : Store test results
+jenkins --> dev : Notify build status
+
+note right of jenkins
+  Manages CI/CD pipeline
+  Schedules builds
+  Delegates to Docker containers
+end note
+
+note right of dockerHost
+  Provides isolated
+  build environments
+end note
+
+note bottom of artifacts
+  Stores APKs, reports, 
+  and other build outputs
+end note
+
+@enduml

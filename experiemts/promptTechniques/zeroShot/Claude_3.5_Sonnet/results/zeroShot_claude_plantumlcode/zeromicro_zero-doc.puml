@@ -1,0 +1,52 @@
+```plantuml
+@startuml zeromicro_zero-doc
+
+[API Gateway] as gateway
+[goctl] as goctl
+[zRPC] as zrpc
+[Caching] as cache
+[Rate Limiting] as ratelimit
+[go-queue] as queue
+[Metrics & Monitoring] as metrics
+[Distributed Tracing] as tracing
+[Middleware] as middleware
+[Service Discovery] as discovery
+[Load Shedding] as loadshed
+[Concurrency Utilities] as concurrency
+
+gateway --> zrpc : routes requests
+gateway --> middleware : uses
+gateway --> ratelimit : applies
+gateway --> metrics : collects
+
+goctl --> [.api files] : generates from
+goctl --> [.proto files] : generates from
+goctl --> [YAML configs] : generates
+
+zrpc --> discovery : uses
+zrpc --> loadshed : implements
+zrpc --> concurrency : uses
+
+cache --> [Redis] : uses
+
+ratelimit --> [Redis] : uses
+
+queue --> [Beanstalkd] : uses
+queue --> [Kafka] : uses
+
+metrics --> [Prometheus] : integrates
+metrics --> [Grafana] : visualizes
+
+tracing --> [Jaeger] : supports
+tracing --> [Zipkin] : supports
+
+middleware --> [JWT Auth] : includes
+middleware --> [Logging] : includes
+middleware --> tracing : includes
+middleware --> metrics : includes
+
+discovery --> [etcd] : uses
+discovery --> [Kubernetes] : uses
+
+@enduml
+```

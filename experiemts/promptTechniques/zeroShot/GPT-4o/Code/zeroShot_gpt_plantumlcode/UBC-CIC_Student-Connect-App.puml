@@ -1,0 +1,43 @@
+```plantuml
+@startuml UBC-CIC_Student-Connect-App
+
+actor User
+participant "React PWA" as PWA
+participant "AWS Cognito" as Auth
+participant "GraphQL API" as API
+participant "Lambda Function" as Lambda
+participant "DynamoDB" as DB
+participant "Elasticsearch" as ES
+participant "DynamoDB Stream" as Stream
+
+User -> PWA: Access Application
+PWA -> Auth: Sign-In/Sign-Up
+Auth -> PWA: Authentication Token
+
+PWA -> API: Fetch User Preferences
+API -> DB: Query User Preferences
+DB -> API: Return Preferences
+API -> PWA: Return Preferences
+
+PWA -> API: Fetch Data
+API -> Lambda: Trigger Data Fetch
+Lambda -> DB: Fetch Data from External Sources
+DB -> DB: Store Data
+DB -> Lambda: Return Data
+
+Lambda -> ES: Update ES Index
+ES -> Lambda: Acknowledge Update
+
+PWA -> API: Query for Recommendations
+API -> ES: Query Documents for User Interests
+ES -> API: Return Documents
+API -> PWA: Return Recommendations
+
+Stream -> Lambda: Trigger on Data Change
+Lambda -> ES: Sync ES with DB
+ES -> Lambda: Confirm Sync
+
+PWA -> User: Display Personalized Content
+
+@enduml
+```

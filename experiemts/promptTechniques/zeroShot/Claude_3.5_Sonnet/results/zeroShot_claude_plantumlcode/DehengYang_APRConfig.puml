@@ -1,0 +1,106 @@
+Here's a PlantUML sequence diagram representing the control flow for the APRConfig system:
+
+```plantuml
+@startuml DehengYang_APRConfig
+
+actor User
+participant "Run_d4j_1.py" as Main
+participant "Config" as Config
+participant "DatasetFactory" as DatasetFactory
+participant "Defects4j" as Dataset
+participant "LocalizerFactory" as LocalizerFactory
+participant "Gzoltar" as Localizer
+participant "AprFactory" as AprFactory
+participant "AprTool" as AprTool
+participant "Main_parse.py" as Parser
+
+User -> Main: Execute
+activate Main
+
+Main -> Config: Load configuration
+activate Config
+Config --> Main: Configuration loaded
+deactivate Config
+
+Main -> DatasetFactory: Create dataset
+activate DatasetFactory
+DatasetFactory -> Dataset: Initialize
+activate Dataset
+Dataset --> DatasetFactory: Dataset ready
+DatasetFactory --> Main: Dataset instance
+deactivate DatasetFactory
+
+Main -> LocalizerFactory: Create localizer
+activate LocalizerFactory
+LocalizerFactory -> Localizer: Initialize
+activate Localizer
+Localizer --> LocalizerFactory: Localizer ready
+LocalizerFactory --> Main: Localizer instance
+deactivate LocalizerFactory
+
+Main -> Dataset: Get bugs
+activate Dataset
+Dataset --> Main: Bug list
+deactivate Dataset
+
+loop For each bug
+    Main -> Dataset: Checkout bug
+    activate Dataset
+    Dataset --> Main: Bug checked out
+    deactivate Dataset
+
+    Main -> Localizer: Localize fault
+    activate Localizer
+    Localizer --> Main: Suspicious statements
+    deactivate Localizer
+
+    Main -> AprFactory: Create APR tool
+    activate AprFactory
+    AprFactory -> AprTool: Initialize
+    activate AprTool
+    AprTool --> AprFactory: APR tool ready
+    AprFactory --> Main: APR tool instance
+    deactivate AprFactory
+
+    Main -> AprTool: Generate patches
+    activate AprTool
+    AprTool --> Main: Generated patches
+    deactivate AprTool
+
+    loop For each patch
+        Main -> Dataset: Apply patch
+        activate Dataset
+        Dataset --> Main: Patch applied
+        deactivate Dataset
+
+        Main -> Dataset: Run tests
+        activate Dataset
+        Dataset --> Main: Test results
+        deactivate Dataset
+
+        alt Patch fixes bug
+            Main -> Dataset: Record successful patch
+            activate Dataset
+            Dataset --> Main: Patch recorded
+            deactivate Dataset
+        else Patch fails
+            Main -> Dataset: Revert patch
+            activate Dataset
+            Dataset --> Main: Patch reverted
+            deactivate Dataset
+        end
+    end
+end
+
+Main -> Parser: Parse repair data
+activate Parser
+Parser --> Main: CSV output
+deactivate Parser
+
+Main --> User: Execution complete
+deactivate Main
+
+@enduml
+```
+
+This sequence diagram illustrates the control flow of the APRConfig system, showing the interactions between the main components during the automated program repair process.

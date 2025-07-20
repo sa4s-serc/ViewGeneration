@@ -1,0 +1,43 @@
+```plantuml
+@startuml icoxfog417_karura
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Kintone Environment" as Kintone {
+  rectangle "Karura Master App" as MasterApp
+  rectangle "Karura Client Plugin" as ClientPlugin
+}
+
+rectangle "Karura Server" as Server #lightsteelblue {
+  rectangle "REST API" as API
+  rectangle "Model Building Pipeline" as ModelPipeline
+}
+
+' ========== Connections ==========
+User --> Kintone
+
+' Kintone interactions
+User --> MasterApp : Configure ML task
+User --> ClientPlugin : Start training / Get predictions
+
+' Karura Server interactions
+MasterApp --> API : Send training / prediction requests
+ClientPlugin --> API : Send training / prediction requests
+
+' Model Building Pipeline interactions
+API --> ModelPipeline : /train
+API --> ModelPipeline : /predict
+ModelPipeline --> API : Return predictions/results
+
+' Data and Model Management
+ModelPipeline --> ModelPipeline : Data extraction from Kintone\nFeature engineering\nModel selection and training
+ModelPipeline --> ModelPipeline : Model evaluation\nModel persistence
+
+@enduml
+```

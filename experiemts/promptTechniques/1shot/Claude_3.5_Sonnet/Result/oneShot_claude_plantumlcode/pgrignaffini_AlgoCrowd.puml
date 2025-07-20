@@ -1,0 +1,46 @@
+@startuml pgrignaffini_AlgoCrowd
+
+skinparam component {
+  BackgroundColor<<Frontend>> LightBlue
+  BackgroundColor<<Backend>> LightGreen
+  BackgroundColor<<Blockchain>> LightYellow
+}
+
+package "Frontend (Next.js)" <<Frontend>> {
+  [Pages]
+  [Components]
+  [API.js]
+  [AppContext]
+  [Constants]
+  [Utils]
+}
+
+package "Backend (Express.js)" <<Backend>> {
+  [server.js]
+  [db.js]
+  [dao.js]
+}
+
+package "Algorand Blockchain" <<Blockchain>> {
+  [Smart Contracts]
+  [PyTeal]
+}
+
+database "SQLite" {
+  [Project Data]
+}
+
+[Pages] --> [Components]
+[Pages] --> [API.js]
+[Components] --> [API.js]
+[Components] --> [AppContext]
+[API.js] --> [server.js] : HTTP
+[AppContext] --> [Smart Contracts] : via AlgoSigner
+[Utils] --> [Smart Contracts] : Interact
+[server.js] --> [dao.js]
+[dao.js] --> [db.js]
+[db.js] --> [Project Data]
+[server.js] --> [Smart Contracts] : Deploy/Interact
+[Smart Contracts] --> [PyTeal] : Compiled from
+
+@enduml

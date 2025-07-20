@@ -1,0 +1,28 @@
+```plantuml
+@startuml dowjones_hammer
+
+actor Admin
+participant "Initiation Lambda" as InitiationLambda
+participant "SNS" as SNS
+participant "Identification Lambda" as IdentificationLambda
+participant "DynamoDB" as DynamoDB
+participant "EC2 Reporting/Remediation" as EC2
+participant "JIRA" as JIRA
+participant "Slack" as Slack
+participant "S3" as S3
+
+Admin -> InitiationLambda: Trigger security audit
+InitiationLambda -> SNS: Publish event
+SNS -> IdentificationLambda: Trigger identification
+IdentificationLambda -> DynamoDB: Store identified issues
+IdentificationLambda -> EC2: Notify for reporting/remediation
+
+EC2 -> JIRA: Create JIRA tickets
+EC2 -> Slack: Send notifications
+EC2 -> DynamoDB: Retrieve issue details
+EC2 -> S3: Backup pre-remediation configurations
+EC2 -> AWS: Perform remediation actions
+EC2 -> S3: Upload CSV report
+
+@enduml
+```

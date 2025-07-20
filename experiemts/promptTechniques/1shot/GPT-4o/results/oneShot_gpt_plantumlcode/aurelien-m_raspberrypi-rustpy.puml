@@ -1,0 +1,58 @@
+```plantuml
+@startuml aurelien-m_raspberrypi-rustpy
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Web Browser" as Browser #lightgrey {
+  rectangle "GUI\nTemplates" as Templates #lavender
+}
+
+rectangle "Web Server\n(Rocket Framework)" as WebServer #lightblue {
+  rectangle "main.rs\n(Routing, Auth, WebSockets)" as MainRS #lightsteelblue
+  rectangle "helper.rs\n(Raspberry, ScriptController)" as HelperRS #lightsteelblue
+  rectangle "users.txt\n(User Auth Data)" as UsersTXT #lightsteelblue
+}
+
+rectangle "Python Control\nScripts" as PythonScripts #lightyellow {
+  rectangle "demo_controller_app.py\n(Main Controller)" as DemoController #khaki
+  rectangle "scriptcontrol/\n(Modes & Serial Comms)" as ScriptControl #khaki
+}
+
+rectangle "Rust Library\n(rpi_python)" as RustLib #lightcoral {
+  rectangle "lib.rs\n(GPIO Control)" as LibRS #salmon
+}
+
+rectangle "Bluetooth Module" as Bluetooth #lightgreen
+
+rectangle "Raspberry Pi\nHardware" as RaspberryPi #lightpink {
+  rectangle "LEDs" as LEDs #mistyrose
+}
+
+' ========== Connections ==========
+User --> Browser : Access GUI
+
+Browser --> WebServer : HTTP Request
+WebServer --> Browser : HTTP Response
+
+Templates --> MainRS : Render UI
+MainRS --> HelperRS : Handle Requests\nControl Scripts & Hardware
+MainRS --> UsersTXT : Verify User Credentials
+
+HelperRS --> PythonScripts : Send Control Commands
+PythonScripts --> RustLib : Invoke GPIO Functions
+RustLib --> RaspberryPi : Control LEDs
+
+HelperRS --> Bluetooth : Send/Receive Data
+
+Bluetooth --> RaspberryPi : Retrieve System Info
+
+PythonScripts --> ScriptControl : Manage LED Modes\nSerial Communication
+
+@enduml
+```

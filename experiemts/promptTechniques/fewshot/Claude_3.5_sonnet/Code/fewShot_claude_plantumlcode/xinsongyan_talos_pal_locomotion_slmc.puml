@@ -1,0 +1,46 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #EEEBDC
+  BorderColor #333333
+  RoundCorner 20
+}
+skinparam arrow {
+  Color #666666
+  FontColor #333333
+}
+
+rectangle "ROS Environment" as ROS {
+  rectangle "DCM Controller" as DCM
+  rectangle "Whole-Body Controller (WBC)" as WBC {
+    rectangle "WbcWeightedDynamicCopTALOS" as WBC1
+    rectangle "WalkingWBCTalosLowerBodyTorsoHead" as WBC2
+    rectangle "WalkingWBCTalosFixedUpperBody" as WBC3
+  }
+  rectangle "State Estimation" as StateEstimation
+  rectangle "Safety Layer" as SafetyLayer
+  rectangle "Walking Pattern Generator" as WalkingPattern
+}
+
+rectangle "Robot Hardware / Simulation" as Robot
+
+actor "User / Higher-level Control" as User
+
+User --> WalkingPattern : Set walking goals
+WalkingPattern --> DCM : Generate trajectory
+DCM --> WBC : Provide reference
+StateEstimation --> WBC : Provide feedback
+WBC --> SafetyLayer : Output commands
+SafetyLayer --> Robot : Send safe commands
+Robot --> StateEstimation : Sensor data
+
+note right of WBC
+  Dynamically loaded
+  using pluginlib
+end note
+
+note bottom of SafetyLayer
+  Monitors COM, foot contact,
+  and joint limits
+end note
+
+@enduml

@@ -1,0 +1,34 @@
+@startuml ertis-research_lwm2m-blockchain
+
+!define RECTANGLE class
+
+' Components
+RECTANGLE "Angular Anomaly Detection App" as AngularApp
+RECTANGLE "Spring Boot Backend" as SpringBackend
+RECTANGLE "LwM2M Server" as LwM2MServer
+RECTANGLE "LwM2M Bootstrap Server" as BootstrapServer
+RECTANGLE "LwM2M Client" as LwM2MClient
+RECTANGLE "Ethereum Blockchain" as Blockchain {
+    RECTANGLE "UserStore Contract" as UserStore
+    RECTANGLE "ClientStore Contract" as ClientStore
+    RECTANGLE "AnomalyStore Contract" as AnomalyStore
+}
+
+' Connections
+AngularApp <--> SpringBackend : REST API
+SpringBackend <--> Blockchain : Web3j
+LwM2MServer <--> SpringBackend : REST API
+LwM2MServer <--> LwM2MClient : CoAP
+BootstrapServer <--> LwM2MClient : CoAP
+BootstrapServer <--> Blockchain : Web3j
+LwM2MServer <--> Blockchain : Web3j
+
+' Control flow
+AngularApp -[#blue,dashed]-> SpringBackend : User actions
+SpringBackend -[#blue,dashed]-> Blockchain : Store/Retrieve data
+LwM2MClient -[#blue,dashed]-> LwM2MServer : Report data
+LwM2MServer -[#blue,dashed]-> SpringBackend : Trigger anomaly detection
+BootstrapServer -[#blue,dashed]-> LwM2MClient : Configure
+LwM2MClient -[#blue,dashed]-> BootstrapServer : Request configuration
+
+@enduml

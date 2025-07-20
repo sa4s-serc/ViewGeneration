@@ -1,0 +1,30 @@
+```plantuml
+@startuml jlhood_retweet-leaderboard
+
+actor User
+entity "API Gateway" as APIGateway
+entity "TweetProcessor Lambda" as TweetProcessorLambda
+entity "GetLeaderboard Lambda" as GetLeaderboardLambda
+entity "DynamoDB Leaderboard Table" as DynamoDB
+
+User -> APIGateway: Request Leaderboard with optional 'limit'
+APIGateway -> GetLeaderboardLambda: Invoke GetLeaderboard
+GetLeaderboardLambda -> DynamoDB: Query leaderboard data
+DynamoDB --> GetLeaderboardLambda: Return leaderboard data
+GetLeaderboardLambda --> APIGateway: Return formatted leaderboard data
+APIGateway --> User: Display leaderboard
+
+note right of User: User views leaderboard
+
+== Tweet Processing Flow ==
+
+entity "Twitter Event Source" as Twitter
+
+Twitter -> TweetProcessorLambda: Trigger with tweet JSON
+TweetProcessorLambda -> TweetProcessorLambda: Parse tweet JSON
+TweetProcessorLambda -> TweetProcessorLambda: Filter tweet (not native retweet, at least 1 retweet)
+TweetProcessorLambda -> DynamoDB: Update leaderboard with retweet count
+DynamoDB --> TweetProcessorLambda: Acknowledge update
+
+@enduml
+```

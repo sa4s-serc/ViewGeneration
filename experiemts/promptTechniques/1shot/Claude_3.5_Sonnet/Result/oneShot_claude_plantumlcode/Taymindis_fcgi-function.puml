@@ -1,0 +1,28 @@
+@startuml Taymindis_fcgi-function
+
+skinparam component {
+  BackgroundColor<<core>> LightBlue
+  BackgroundColor<<config>> LightGreen
+  BackgroundColor<<handler>> LightYellow
+  BackgroundColor<<external>> LightGray
+}
+
+[FastCGI Server] <<external>>
+[Application Logic] <<external>>
+
+package "fcgi-function Framework" {
+  [ffunc.c] <<core>> as Core
+  [ffunc.h] <<config>> as Config
+  [Function Handlers] <<handler>> as Handlers
+  [Memory Pool] <<core>> as MemPool
+  [Thread Management] <<core>> as ThreadMgmt
+}
+
+FastCGI Server --> Core : HTTP Requests
+Core --> Config : Read Configuration
+Core --> MemPool : Allocate/Free Memory
+Core --> ThreadMgmt : Manage Threads
+Core --> Handlers : Dispatch Requests
+Handlers --> Application Logic : Execute Functions
+
+@enduml

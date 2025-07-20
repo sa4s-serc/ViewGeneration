@@ -1,0 +1,26 @@
+@startuml GoogleCloudPlatform_gke-pubsub-websocket-adapter
+
+actor "WebSocket Client" as Client
+participant "Ingress" as Ingress
+participant "WebSocket Service" as Service
+box "GKE Pod" #LightBlue
+    participant "websocketd" as Websocketd
+    participant "pulltop" as Pulltop
+    participant "Ephemeral Storage" as Storage
+end box
+participant "Google Cloud Pub/Sub" as PubSub
+
+Client -> Ingress: Connect via WebSocket
+Ingress -> Service: Route request
+Service -> Websocketd: Establish WebSocket connection
+
+loop Message Streaming
+    Pulltop -> PubSub: Pull messages
+    Pulltop -> Storage: Store messages
+    Websocketd -> Storage: Read messages
+    Websocketd -> Service: Stream messages
+    Service -> Ingress: Forward messages
+    Ingress -> Client: Send messages via WebSocket
+end
+
+@enduml

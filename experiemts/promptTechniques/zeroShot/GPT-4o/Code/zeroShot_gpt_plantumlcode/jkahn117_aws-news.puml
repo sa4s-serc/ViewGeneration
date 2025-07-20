@@ -1,0 +1,40 @@
+```plantuml
+@startuml jkahn117_aws-news
+
+actor User
+participant "Next.js Frontend" as Frontend
+participant "AWS CloudFront" as CloudFront
+participant "AWS AppSync" as AppSync
+participant "AWS Lambda (Content Serving)" as ContentLambda
+participant "Amazon ElastiCache (Redis)" as ElastiCache
+participant "Amazon S3" as S3
+participant "Amazon DynamoDB" as DynamoDB
+participant "Amazon EventBridge" as EventBridge
+participant "AWS Lambda (Image Processing)" as ImageLambda
+participant "Kinesis Data Firehose" as KinesisFirehose
+participant "Amazon Pinpoint" as Pinpoint
+
+User -> Frontend: Access Website
+Frontend -> CloudFront: Request Content
+CloudFront -> AppSync: Query Articles
+AppSync -> ElastiCache: Check Cache
+alt Cache Hit
+    ElastiCache -> AppSync: Return Cached Articles
+else Cache Miss
+    AppSync -> ContentLambda: Fetch Articles
+    ContentLambda -> DynamoDB: Query Metadata
+    ContentLambda -> S3: Retrieve Article Content
+    ContentLambda -> ElastiCache: Update Cache
+    ContentLambda -> AppSync: Return Articles
+end
+AppSync -> CloudFront: Deliver Content
+CloudFront -> Frontend: Serve Content
+Frontend -> Pinpoint: Send User Interaction Data
+Pinpoint -> KinesisFirehose: Stream Data
+Frontend -> EventBridge: Trigger `article_created` Event
+EventBridge -> ImageLambda: Process Images
+ImageLambda -> S3: Store Processed Images
+ImageLambda -> DynamoDB: Update Image Metadata
+
+@enduml
+```

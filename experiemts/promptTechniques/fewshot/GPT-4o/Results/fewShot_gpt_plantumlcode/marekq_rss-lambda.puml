@@ -1,0 +1,59 @@
+```plantuml
+@startuml marekq_rss-lambda
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "User"
+
+package "AWS Services" {
+  rectangle "S3\nStore & Retrieve JSON" as S3 #orange
+  rectangle "DynamoDB\nStore Blog Data" as DynamoDB #brown
+  rectangle "SES\nSend Notifications" as SES #yellow
+  rectangle "AppSync\nGraphQL API" as AppSync #lightblue
+  rectangle "Algolia\nSearch Index" as Algolia #lightgreen
+  rectangle "Step Functions\nOrchestrator" as StepFunctions #pink
+  rectangle "Comprehend\nEntity Recognition" as Comprehend #lightyellow
+}
+
+package "Lambdas" {
+  rectangle "GetFeed\nLambda" as GetFeed #lightgrey
+  rectangle "Crawl\nLambda" as Crawl #lightgrey
+  rectangle "PageCount\nLambda" as PageCount #lightgrey
+}
+
+package "Processing" {
+  rectangle "Content Extraction\n(readability-lxml)" as ContentExtraction #lightgrey
+  rectangle "RSS Feed\n(feedparser)" as RSSFeed #lightgrey
+}
+
+'S3 and Feed interaction
+GetFeed --> RSSFeed
+GetFeed --> ContentExtraction
+GetFeed --> Comprehend
+GetFeed --> DynamoDB
+GetFeed --> SES
+
+'S3 and Comprehend interaction
+Crawl --> RSSFeed
+Crawl --> S3
+Crawl --> StepFunctions
+
+'S3 and Algolia interaction
+PageCount --> DynamoDB
+
+'S3 and AppSync interaction
+AppSync --> DynamoDB
+Algolia --> DynamoDB
+
+User --> AppSync
+
+' Step Functions interaction
+StepFunctions --> GetFeed
+StepFunctions --> Crawl
+
+@enduml
+```

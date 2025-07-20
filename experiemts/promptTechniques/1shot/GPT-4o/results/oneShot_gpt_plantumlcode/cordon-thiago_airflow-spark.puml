@@ -1,0 +1,63 @@
+```plantuml
+@startuml cordon-thiago_airflow-spark
+skinparam rectangle {
+  BackgroundColor<<spark>> #f2f2f2
+  BackgroundColor<<integration>> #e6f7ff
+  BackgroundColor<<container>> #e8f5e9
+  BackgroundColor<<language>> #fff3e0
+  BackgroundColor<<pipeline>> #e8eaf6
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Spark Core Components" <<spark>> {
+  rectangle "RDDs" as RDDs
+  rectangle "DataFrames" as DataFrames
+  rectangle "Spark SQL" as SparkSQL
+  rectangle "MLlib" as MLlib
+  rectangle "Spark Streaming" as SparkStreaming
+  rectangle "GraphX" as GraphX
+  RDDs --> DataFrames
+  DataFrames --> SparkSQL
+  SparkSQL --> MLlib
+  MLlib --> SparkStreaming
+  SparkStreaming --> GraphX
+}
+
+package "Integration Technologies" <<integration>> {
+  rectangle "Apache Airflow" as Airflow
+  rectangle "Kubernetes" as Kubernetes
+  rectangle "PostgreSQL" as PostgreSQL
+  rectangle "Java Interoperability" as JavaInterop
+}
+
+package "Containerization & Orchestration" <<container>> {
+  rectangle "Docker" as Docker
+  rectangle "Deployment Scripts" as DeploymentScripts
+  Docker --> DeploymentScripts
+}
+
+package "Language Support" <<language>> {
+  rectangle "Python" as Python
+  rectangle "Scala" as Scala
+  rectangle "R (SparkR)" as R
+}
+
+package "Pipeline Orchestration" <<pipeline>> {
+  rectangle "Airflow DAGs" as AirflowDAGs
+  rectangle "Jupyter Notebooks" as JupyterNotebooks
+  Airflow --> AirflowDAGs
+  JupyterNotebooks --> DataFrames
+}
+
+Docker --> Airflow
+Airflow --> "Spark Core Components"
+Kubernetes --> "Spark Core Components"
+PostgreSQL --> SparkSQL
+JavaInterop --> MLlib
+Python --> "Spark Core Components"
+Scala --> "Spark Core Components"
+R --> "Spark Core Components"
+
+@enduml
+```

@@ -1,0 +1,45 @@
+@startuml mateuseap_apache-airflow
+
+skinparam component {
+  BackgroundColor<<Airflow>> LightBlue
+  BackgroundColor<<Database>> LightYellow
+  BackgroundColor<<Processing>> LightGreen
+  BackgroundColor<<Storage>> LightGray
+  BackgroundColor<<Monitoring>> LightPink
+}
+
+[Apache Airflow] <<Airflow>> as Airflow
+[PostgreSQL] <<Database>> as Postgres
+[Redis] <<Database>> as Redis
+[Hadoop HDFS] <<Storage>> as HDFS
+[Hive] <<Processing>> as Hive
+[Spark] <<Processing>> as Spark
+[Elasticsearch] <<Monitoring>> as Elasticsearch
+[Logstash] <<Monitoring>> as Logstash
+[Kibana] <<Monitoring>> as Kibana
+[Telegraf] <<Monitoring>> as Telegraf
+[InfluxDB] <<Monitoring>> as InfluxDB
+[Grafana] <<Monitoring>> as Grafana
+
+component "Docker Environment" {
+  [Airflow Web Server] <<Airflow>>
+  [Airflow Scheduler] <<Airflow>>
+  [Airflow Worker] <<Airflow>>
+}
+
+Airflow --> [Airflow Web Server]
+Airflow --> [Airflow Scheduler]
+Airflow --> [Airflow Worker]
+Airflow --> Postgres : Metadata Storage
+Airflow --> Redis : Message Broker
+Airflow --> HDFS : Data Storage
+Airflow --> Hive : Data Processing
+Airflow --> Spark : Data Processing
+Airflow --> Elasticsearch : Logging
+Airflow --> Logstash : Log Processing
+Elasticsearch --> Kibana : Log Visualization
+Airflow --> Telegraf : Metrics Collection
+Telegraf --> InfluxDB : Metrics Storage
+InfluxDB --> Grafana : Metrics Visualization
+
+@enduml

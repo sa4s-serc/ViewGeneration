@@ -1,0 +1,58 @@
+@startuml balajich_resilience4j-helloworld
+
+skinparam rectangle {
+  BackgroundColor #EEEBDC
+  BorderColor #333333
+  FontColor #333333
+}
+
+actor "User" as user
+rectangle "JMeter" as jmeter
+
+rectangle "Service A" {
+  [Circuit Breaker] as cb
+  [Rate Limiter] as rl
+  [Bulkhead] as bh
+  [Retry] as retry
+  [Time Limiter] as tl
+}
+
+rectangle "Service B" {
+  [Slow Response] as slow
+  [Error Response] as error
+}
+
+rectangle "Fallback\nMechanism" as fallback
+
+cloud "Monitoring" {
+  [Prometheus] as prom
+  [Grafana] as graf
+}
+
+user -> jmeter : Initiates load test
+jmeter -> cb : Sends requests
+cb -> rl : Passes requests
+rl -> bh : Limits rate
+bh -> retry : Manages concurrency
+retry -> tl : Retries if needed
+tl -> slow : Calls with time limit
+tl -> error : Calls with time limit
+
+cb <-- slow : Slow response
+cb <-- error : Error response
+
+cb --> fallback : Circuit open
+rl --> fallback : Rate exceeded
+bh --> fallback : Concurrency limit reached
+retry --> fallback : Max retries reached
+tl --> fallback : Time limit exceeded
+
+cb --> prom : Metrics
+rl --> prom : Metrics
+bh --> prom : Metrics
+retry --> prom : Metrics
+tl --> prom : Metrics
+
+prom --> graf : Data for visualization
+
+@enduml

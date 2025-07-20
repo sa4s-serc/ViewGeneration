@@ -1,0 +1,44 @@
+@startuml matrix-io_matrix-malos-zwave
+
+skinparam component {
+  BackgroundColor<<core>> #DDDDFF
+  BackgroundColor<<driver>> #DDFFDD
+  BackgroundColor<<tool>> #FFDDDD
+  BackgroundColor<<script>> #FFFFDD
+}
+
+[MATRIX Core (MALOS)] as MALOS <<core>>
+[malos_zwave] as MalosZwave <<core>>
+[Z-Wave Driver] as ZwaveDriver <<driver>>
+[Z/IP Gateway] as ZIPGateway
+[Z-Wave Module] as ZwaveModule
+[Protocol Buffers] as ProtoBuf
+[0MQ] as ZeroMQ
+
+component "Tools" {
+  [zwave_proto_gen] <<tool>>
+  [zwave_json_gen] <<tool>>
+}
+
+component "JavaScript Utilities" {
+  [addnode.js] <<script>>
+  [list.js] <<script>>
+  [removenode.js] <<script>>
+  [simpleTest.js] <<script>>
+  [test_zwave_accel.js] <<script>>
+}
+
+MalosZwave -down-> ZwaveDriver : uses
+MalosZwave -up-> MALOS : integrates with
+MalosZwave -right-> ProtoBuf : uses
+MalosZwave -left-> ZeroMQ : uses
+
+ZwaveDriver -down-> ZIPGateway : communicates with
+ZIPGateway -down-> ZwaveModule : controls
+
+ProtoBuf <-up- Tools : generates
+
+JavaScript Utilities -up-> ZeroMQ : uses
+JavaScript Utilities -up-> ProtoBuf : uses
+
+@enduml

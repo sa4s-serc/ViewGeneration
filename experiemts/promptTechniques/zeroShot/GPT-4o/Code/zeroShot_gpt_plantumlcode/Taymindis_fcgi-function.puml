@@ -1,0 +1,51 @@
+```plantuml
+@startuml Taymindis_fcgi-function
+
+package "FastCGI Function Handler Framework" {
+
+    component "fcgiapp Library" as fcgiapp
+    component "ffunc" {
+        component "ffunc.c" as ffuncC
+        component "ffunc.h" as ffuncH
+    }
+    component "examples" {
+        component "profile_service.c" as exampleC
+        component "profile_service.cpp" as exampleCpp
+    }
+    component "DockerExample" {
+        component "Dockerfile"
+        component "Nginx Config" as nginxConfig
+        component "Startup Script" as startScript
+    }
+
+    fcgiapp -[hidden]--> ffuncC
+    fcgiapp -[hidden]--> ffuncH
+
+    ffuncC --> fcgiapp : "Utilizes"
+    ffuncC --> ffuncH : "Includes"
+    ffuncH --> "Function Mapping" : "Defines"
+    ffuncC --> "Request Handling" : "Handles"
+    ffuncC --> "Multi-threading" : "Manages"
+    ffuncC --> "Configuration" : "Initializes"
+    exampleC --> ffuncC : "Uses"
+    exampleCpp --> ffuncC : "Uses"
+    startScript --> "Dockerfile" : "Runs"
+    nginxConfig --> startScript : "Configures"
+    
+    note left of ffuncC
+        - Maps HTTP requests to C functions
+        - Handles memory pool and threading
+        - Platform-specific adaptations
+    end note
+
+    note right of "Function Mapping"
+        Uses Strategy Pattern with function pointers
+    end note
+
+    note right of "Multi-threading"
+        Improves concurrency
+    end note
+}
+
+@enduml
+```

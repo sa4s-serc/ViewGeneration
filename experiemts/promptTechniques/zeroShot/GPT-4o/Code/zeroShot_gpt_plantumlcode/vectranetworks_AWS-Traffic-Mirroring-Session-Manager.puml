@@ -1,0 +1,41 @@
+```plantuml
+@startuml vectranetworks_AWS-Traffic-Mirroring-Session-Manager
+
+actor User
+
+participant "tap.py" as Tap
+participant "config_vpc.py" as ConfigVPC
+participant "ec2_api_client.py" as EC2ApiClient
+participant "spile_tapper.py" as SpileTapper
+participant "spile.py" as Spile
+participant "blacklist.py" as Blacklist
+participant "whitelist.py" as Whitelist
+participant "nlb_factory.py" as NlbFactory
+participant "nlb_target_factory.py" as NlbTargetFactory
+
+User -> Tap: Run tap.py
+Tap -> ConfigVPC: Load VPC Configurations
+ConfigVPC -> EC2ApiClient: Fetch VPC Data
+EC2ApiClient --> ConfigVPC: Return VPC Data
+Tap -> SpileTapper: Discover Instances
+SpileTapper -> EC2ApiClient: List Nitro EC2 Instances
+EC2ApiClient --> SpileTapper: Return Instance List
+SpileTapper -> Blacklist: Check Instance Blacklist
+Blacklist --> SpileTapper: Blacklist Status
+SpileTapper -> Whitelist: Check Instance Whitelist
+Whitelist --> SpileTapper: Whitelist Status
+
+alt Instance Eligible
+    SpileTapper -> Spile: Manage Sessions
+    Spile -> EC2ApiClient: Create Traffic Mirroring Session
+    Spile -> NlbTargetFactory: Create Mirror Target
+    NlbTargetFactory -> NlbFactory: Create NLB
+    NlbFactory --> NlbTargetFactory: Return NLB
+    NlbTargetFactory --> Spile: Return Mirror Target
+    Spile --> SpileTapper: Session Managed
+end
+
+Tap -> Tap: Iterate Next VPC
+
+@enduml
+```

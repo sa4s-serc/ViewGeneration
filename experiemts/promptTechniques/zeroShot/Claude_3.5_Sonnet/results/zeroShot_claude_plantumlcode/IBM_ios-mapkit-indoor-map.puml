@@ -1,0 +1,55 @@
+@startuml IBM_ios-mapkit-indoor-map
+
+participant "iOS App" as App
+participant "ViewController" as VC
+participant "FloorplanOverlay" as FO
+participant "CoordinateConverter" as CC
+participant "Backend" as BE
+database "MongoDB" as DB
+
+App -> VC : initialize()
+activate VC
+
+VC -> BE : GET /api/pages
+activate BE
+BE -> DB : Query pages
+DB --> BE : Return pages data
+BE --> VC : Return pages data
+deactivate BE
+
+VC -> FO : create(with: pdfData)
+activate FO
+FO -> CC : create()
+activate CC
+CC --> FO : return converter
+deactivate CC
+FO --> VC : return overlay
+deactivate FO
+
+VC -> VC : addOverlay(floorplanOverlay)
+
+VC -> BE : GET /api/events
+activate BE
+BE -> DB : Query events
+DB --> BE : Return events data
+BE --> VC : Return events data
+deactivate BE
+
+VC -> VC : generateHeatmap(events)
+
+loop For each user interaction
+    App -> VC : mapView(_:regionDidChangeAnimated:)
+    VC -> VC : adjustMapView()
+end
+
+App -> VC : triggerEvent()
+VC -> BE : POST /api/triggers
+activate BE
+BE -> DB : Save trigger
+DB --> BE : Confirm save
+BE --> VC : Confirm trigger saved
+deactivate BE
+
+VC -> VC : updateHeatmap()
+
+@enduml

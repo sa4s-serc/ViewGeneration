@@ -1,0 +1,46 @@
+@startuml victor369basu_Real-time-stock-market-prediction
+
+actor User
+participant "producer.js" as Producer
+participant "Kafka" as Kafka
+participant "consumer.js" as Consumer
+participant "ml_consumer.js" as MLConsumer
+participant "pre_process.js" as Preprocessor
+participant "tf_model.js" as TFModel
+database "MongoDB" as MongoDB
+participant "tf_train.js" as Trainer
+participant "tf_validate.js" as Validator
+participant "server.js" as Server
+
+User -> Server: Request model training/validation
+Server -> Trainer: Initiate training
+Trainer -> MongoDB: Fetch historical data
+MongoDB --> Trainer: Return data
+Trainer -> TFModel: Train model
+TFModel --> Trainer: Return trained model
+Trainer -> MongoDB: Save model weights
+
+Server -> Validator: Initiate validation
+Validator -> MongoDB: Fetch test data
+MongoDB --> Validator: Return data
+Validator -> TFModel: Load model
+Validator -> TFModel: Validate model
+Validator -> MongoDB: Store performance metrics
+
+Producer -> Kafka: Stream stock data
+Kafka --> Consumer: Consume data
+Consumer -> MongoDB: Store data
+
+Kafka --> MLConsumer: Consume data
+MLConsumer -> Preprocessor: Preprocess data
+Preprocessor --> MLConsumer: Return preprocessed data
+MLConsumer -> TFModel: Load model
+MLConsumer -> TFModel: Generate prediction
+MLConsumer -> MongoDB: Log prediction
+
+User -> Server: Request real-time prediction
+Server -> MongoDB: Fetch latest prediction
+MongoDB --> Server: Return prediction
+Server --> User: Display prediction
+
+@enduml

@@ -1,0 +1,52 @@
+```plantuml
+@startuml castle-finance_vault-transaction-indexer
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "Scheduled Event" as Scheduler
+
+rectangle "AWS CDK Infrastructure" as CDK {
+}
+
+rectangle "Lambda Functions" as Lambdas {
+  rectangle "index-transaction-ids" as IndexLambda
+  rectangle "download-raw-transaction" as DownloadLambda
+  rectangle "normalize-raw-transaction" as NormalizeLambda
+}
+
+rectangle "AWS Services" as AWS {
+  rectangle "SNS Topic" as SNSTopic
+  rectangle "SQS Queue" as SQSQueue
+  rectangle "DynamoDB" as DynamoDB {
+    rectangle "Raw Transactions Table" as RawTable
+    rectangle "Normalized Transactions Table" as NormTable
+  }
+  rectangle "EventBridge" as EventBridge
+}
+
+rectangle "Solscan API" as Solscan
+
+' ========== Connections ==========
+Scheduler --> EventBridge : trigger
+
+' Indexing process
+EventBridge --> IndexLambda : trigger
+
+IndexLambda --> Solscan : fetch transaction IDs
+IndexLambda --> SNSTopic : publish transaction IDs
+
+' Downloading process
+SNSTopic --> DownloadLambda : fan-out transaction IDs
+DownloadLambda --> Solscan : fetch raw transaction data
+DownloadLambda --> RawTable : store raw data
+
+' Normalization process
+RawTable --> NormalizeLambda : trigger on data insert
+NormalizeLambda --> NormTable : store normalized data
+
+@enduml
+```

@@ -1,0 +1,48 @@
+```plantuml
+@startuml DJMcK_aws-lake-training
+
+actor User
+participant "FDA S3 Bucket" as FDAS3
+participant "AWS S3 Raw Zone" as RawS3
+participant "AWS S3 Landing Zone" as LandingS3
+participant "AWS S3 Curated Zone" as CuratedS3
+participant "AWS EMR (Spark)" as EMR
+participant "AWS Glue" as Glue
+participant "AWS Athena" as Athena
+participant "AWS Lambda" as Lambda
+participant "AWS Step Functions" as StepFunctions
+participant "AWS Comprehend Medical" as Comprehend
+
+User -> FDAS3: Request Data
+FDAS3 -> RawS3: Transfer Raw Data
+
+RawS3 -> EMR: Trigger Data Transformation
+EMR -> LandingS3: Store Transformed Data
+
+LandingS3 -> EMR: Trigger Data Curation
+EMR -> CuratedS3: Store Curated Data
+
+CuratedS3 -> Glue: Metadata Catalog Update
+
+User -> Athena: Query Data
+Athena -> User: Return Query Results
+
+CuratedS3 -> Lambda: Trigger Indications Extraction
+Lambda -> StepFunctions: Start Workflow
+
+StepFunctions -> Lambda: Invoke configure_count.py
+Lambda -> Comprehend: Extract Medical Entities
+
+Comprehend -> CuratedS3: Store Extracted Entities
+CuratedS3 -> Lambda: Invoke query_athena.py
+Lambda -> Athena: Query Indications
+
+Athena -> Lambda: Return Indications
+StepFunctions -> Lambda: Invoke iterator.py
+Lambda -> StepFunctions: Determine Iteration Need
+
+StepFunctions -> Lambda: Complete Workflow
+Lambda -> User: Notify Completion
+
+@enduml
+```

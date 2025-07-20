@@ -1,0 +1,72 @@
+@startuml inIT-HF_gr-corrsounder
+
+skinparam component {
+  BackgroundColor<<C++>> LightBlue
+  BackgroundColor<<Python>> LightGreen
+  BackgroundColor<<XML>> LightYellow
+}
+
+package "gr-corrsounder" {
+  [GNU Radio Integration] as GRI
+
+  package "C++ Core" <<C++>> {
+    [Channel Sounding Blocks] as CSB
+    [Sequence Generation] as SG
+    [Correlation] as Corr
+    [Error Correction] as EC
+    [Moving Average] as MA
+    [Sequence Gate] as SeqGate
+    [Ramdisk File Sink] as RFS
+    [IR SNR] as SNR
+    [Overflow Detection] as OD
+    [FZC Sequence Processing] as FZC
+  }
+
+  package "Python Layer" <<Python>> {
+    [SWIG Bindings] as SWIG
+    [Python Block Wrappers] as PBW
+    [pycorrsounder] as PCS
+  }
+
+  package "GNU Radio Companion" <<XML>> {
+    [GRC Block Definitions] as GRC
+  }
+
+  package "Documentation" {
+    [Doxygen XML Parser] as DXP
+  }
+
+  package "Testing" {
+    [Unit Tests] as UT
+  }
+
+  package "Examples & Apps" {
+    [GRC Flowgraphs] as GRCF
+    [Python Scripts] as PS
+  }
+}
+
+GRI --> CSB
+GRI --> SWIG
+SWIG --> PBW
+PBW --> CSB
+PCS --> SG
+PCS --> Corr
+GRC --> PBW
+DXP ..> CSB : parses
+UT --> CSB
+UT --> PCS
+GRCF ..> GRC : uses
+PS ..> PBW : uses
+
+CSB --> SG
+CSB --> Corr
+CSB --> EC
+CSB --> MA
+CSB --> SeqGate
+CSB --> RFS
+CSB --> SNR
+CSB --> OD
+CSB --> FZC
+
+@enduml

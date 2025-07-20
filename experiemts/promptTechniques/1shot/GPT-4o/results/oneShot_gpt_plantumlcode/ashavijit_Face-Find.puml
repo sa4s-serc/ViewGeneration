@@ -1,0 +1,60 @@
+```plantuml
+@startuml ashavijit_Face-Find
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Frontend" as FE {
+  rectangle "Bootstrap UI" as UI
+}
+
+rectangle "Django Backend" as BE {
+  rectangle "people/models.py" as Models
+  rectangle "people/forms.py" as Forms
+  rectangle "people/views.py" as Views
+  rectangle "Azure Face API" as AzureAPI #lightyellow
+  rectangle "Email Service" as EmailService #lightblue
+}
+
+rectangle "Database" as DB #lightgrey
+
+' ========== Connections ==========
+User --> UI : Interacts with\nresponsive UI
+
+UI --> FE : Uses Bootstrap CSS\nfor styling
+
+FE --> BE : Sends HTTP requests
+
+BE --> DB : CRUD operations on\nMissingPerson and ReportedPerson
+
+Views --> Models : Interacts with\nmodels for data retrieval
+
+Views --> Forms : Validates data using\nDjango forms
+
+Views --> AzureAPI : Sends requests for\nface ID generation and matching
+
+AzureAPI --> Views : Sends matching results
+
+Views --> EmailService : Sends notifications\nwhen matches found
+
+EmailService --> User : Sends email alerts
+
+' ========== Interactions ==========
+User -> UI : Accesses the site
+UI -> FE : Loads Bootstrap CSS
+FE -> Views : HTTP request to view page
+Views -> Models : Query missing persons
+Models -> DB : Fetch data
+Views -> Forms : Validate data
+Forms -> Views : Return validation results
+Views -> AzureAPI : Call for face recognition
+AzureAPI -> Views : Return recognition results
+Views -> EmailService : Send notification email
+EmailService -> User : Receive match notification
+@enduml
+```

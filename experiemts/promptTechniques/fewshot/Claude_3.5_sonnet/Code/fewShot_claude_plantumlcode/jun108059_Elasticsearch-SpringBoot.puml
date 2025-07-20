@@ -1,0 +1,47 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+rectangle "Web Browser" as WebBrowser
+
+package "Spring Boot Application" {
+  rectangle "Controller Layer" {
+    [Admin Controllers] as AdminControllers
+    [API Controller] as APIController
+  }
+  
+  rectangle "Service Layer" {
+    [Index Service] as IndexService
+  }
+  
+  rectangle "Repository Layer" {
+    [Service Repository] as ServiceRepository
+    [Bulk Repository] as BulkRepository
+  }
+  
+  rectangle "Elasticsearch Client" as ESClient
+}
+
+database "MySQL" as MySQL
+database "Elasticsearch" as Elasticsearch
+
+WebBrowser --> AdminControllers : HTTP
+WebBrowser --> APIController : HTTP
+
+AdminControllers --> IndexService
+APIController --> IndexService
+
+IndexService --> ServiceRepository
+IndexService --> BulkRepository
+IndexService --> ESClient
+
+ServiceRepository --> MySQL : JDBC
+BulkRepository --> MySQL : JDBC
+
+ESClient --> Elasticsearch : REST
+
+@enduml

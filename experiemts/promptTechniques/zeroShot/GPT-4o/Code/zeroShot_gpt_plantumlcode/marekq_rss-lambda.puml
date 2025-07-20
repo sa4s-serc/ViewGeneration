@@ -1,0 +1,35 @@
+```plantuml
+@startuml marekq_rss-lambda
+
+actor User
+
+User -> "CloudWatch Event": "Trigger Step Function"
+"CloudWatch Event" -> "Step Function": "Start Execution"
+
+"Step Function" -> "rsscrawl Lambda": "Invoke rsscrawl Function"
+"rsscrawl Lambda" -> S3: "Check Existing Data"
+S3 -> "rsscrawl Lambda": "Return Data Check Result"
+
+"rsscrawl Lambda" -> "rssgetfeed Lambda": "Invoke rssgetfeed Function"
+"rssgetfeed Lambda" -> "feeds.txt": "Read RSS Feed URLs"
+"rssgetfeed Lambda" -> "readability-lxml": "Extract Blog Content"
+"rssgetfeed Lambda" -> "AWS Comprehend": "Perform Entity Recognition"
+"AWS Comprehend" -> "rssgetfeed Lambda": "Return Recognized Entities"
+
+"rssgetfeed Lambda" -> DynamoDB: "Store Blog Data"
+DynamoDB -> "rssgetfeed Lambda": "Confirm Data Storage"
+
+"rssgetfeed Lambda" -> SES: "Send Notification Email"
+SES -> "rssgetfeed Lambda": "Confirm Email Sent"
+
+"Step Function" -> "rssgetfeed Lambda": "Wait for Completion"
+
+"Step Function" -> "Algolia": "Index Blog Posts"
+"Step Function" -> "AppSync": "Publish Data to API"
+"Step Function" -> S3: "Store JSON of Blog Posts"
+
+User -> "lambda-pagecount Lambda": "Invoke Manually"
+"lambda-pagecount Lambda" -> DynamoDB: "Update Article Count"
+
+@enduml
+```

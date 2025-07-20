@@ -1,0 +1,42 @@
+```plantuml
+@startuml hyeonsangjeon_youtube-dl-nas
+skinparam backgroundColor #ffffff
+skinparam sequenceParticipantBackgroundColor #f3f3f3
+skinparam sequenceParticipantBorderColor #000000
+skinparam lifelineBackgroundColor #f3f3f3
+skinparam lifelineBorderColor #000000
+
+actor User
+participant "Web Interface\n(Bottle)" as WebInterface
+participant "REST API\n(Bottle)" as RestAPI
+participant "Queue Manager" as QueueManager
+participant "Download Worker\n(yt-dlp/youtube-dl)" as DownloadWorker
+participant "WebSocket" as WebSocket
+database "Auth.json" as Auth
+
+User -> WebInterface: Access Login Page
+WebInterface -> Auth: Validate Credentials
+Auth --> WebInterface: Authentication Success/Failure
+WebInterface -> User: Login Success/Failure
+
+User -> WebInterface: Submit Download Request
+WebInterface -> QueueManager: Add Request to Queue
+
+WebInterface -> WebSocket: Open Connection
+WebSocket -> User: Real-time Updates
+
+User -> RestAPI: Submit Download Request (ID/Password)
+RestAPI -> Auth: Validate Credentials
+Auth --> RestAPI: Authentication Success/Failure
+RestAPI -> QueueManager: Add Request to Queue (if authenticated)
+
+loop Process Queue
+    QueueManager -> DownloadWorker: Fetch Request
+    DownloadWorker -> QueueManager: Download Status
+    QueueManager -> WebSocket: Notify Status/Progress
+end
+
+WebSocket -> User: Notify Completion
+
+@enduml
+```

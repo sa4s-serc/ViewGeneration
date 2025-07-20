@@ -1,0 +1,25 @@
+@startuml thill_kafkacap
+
+participant "Capture Device 1" as CD1
+participant "Capture Device 2" as CD2
+participant "Kafka (Capture Topics)" as KafkaCapture
+participant "Deduplicator" as Dedup
+participant "CaptureQueue" as Queue
+participant "DedupStrategy" as Strategy
+participant "RecordPopulator" as Populator
+participant "Kafka (Outbound Topic)" as KafkaOutbound
+participant "RecoveryService" as Recovery
+
+CD1 -> KafkaCapture : Write messages
+CD2 -> KafkaCapture : Write messages
+KafkaCapture -> Dedup : Consume messages
+Dedup -> Queue : Buffer messages
+Dedup -> Strategy : Apply deduplication
+Strategy -> Dedup : Return unique messages
+Dedup -> Populator : Create Kafka records
+Populator -> Dedup : Return populated records
+Dedup -> KafkaOutbound : Write unique messages
+Recovery -> KafkaOutbound : Read last committed offsets
+Recovery -> Dedup : Recover deduplication state
+
+@enduml

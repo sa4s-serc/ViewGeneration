@@ -1,0 +1,44 @@
+```plantuml
+@startuml nikmis_xentrace-analysis
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+left to right direction
+
+actor "User"
+
+package "Xen Performance Analysis Tool" {
+  rectangle "xentrace-analysis.c" as XTraceAnalysis #lightgrey
+  rectangle "src/Reader.c" as Reader #lightblue
+  rectangle "src/EventHandler.c" as EventHandler #lightgreen
+  rectangle "src/Event.c" as Event #lightyellow
+  rectangle "include/Trace.h" as Trace #lightpink
+  rectangle "examples/*/" as Examples #lightpurple
+}
+
+User --> XTraceAnalysis
+
+XTraceAnalysis --> Reader : Launches & manages
+Reader --> EventHandler : Distributes parsed events
+EventHandler --> Examples : Invokes registered handlers
+Reader --> Event : Parses events
+Event --> Trace : Uses trace event IDs
+
+Examples <..> "include/list.h" : Uses linked lists
+
+note right of EventHandler
+  Event-driven architecture
+  - Modular design
+  - Observer Pattern
+end note
+
+note right of Examples
+  Strategy Pattern
+  - Different analyses
+end note
+
+@enduml
+```

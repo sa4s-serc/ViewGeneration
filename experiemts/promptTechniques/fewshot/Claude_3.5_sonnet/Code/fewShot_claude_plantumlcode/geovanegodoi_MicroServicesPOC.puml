@@ -1,0 +1,47 @@
+@startuml geovanegodoi_MicroServicesPOC
+
+skinparam rectangle {
+  BackgroundColor #EEEBDC
+  BorderColor #333333
+  RoundCorner 20
+}
+
+actor "Client" as client
+
+rectangle "API Gateway" as gateway
+
+rectangle "Catalog Service" as catalog {
+  database "MongoDB" as catalogDB
+}
+
+rectangle "Customer Service" as customer {
+  database "MongoDB" as customerDB
+}
+
+rectangle "Order Service" as order {
+  database "MongoDB" as orderDB
+}
+
+queue "RabbitMQ" as rabbitmq
+
+client --> gateway
+gateway --> catalog : HTTP
+gateway --> customer : HTTP
+gateway --> order : HTTP
+
+catalog <--> rabbitmq : Publish/Subscribe
+customer <--> rabbitmq : Publish/Subscribe
+order <--> rabbitmq : Publish/Subscribe
+
+catalog --> catalogDB : CRUD
+customer --> customerDB : CRUD
+order --> orderDB : CRUD
+
+note right of rabbitmq
+  Events:
+  - CatalogItemCreated
+  - CustomerUpdated
+  - OrderCreated
+end note
+
+@enduml

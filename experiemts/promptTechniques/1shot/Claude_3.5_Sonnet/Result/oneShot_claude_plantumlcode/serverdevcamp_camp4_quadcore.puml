@@ -1,0 +1,43 @@
+@startuml serverdevcamp_camp4_quadcore
+
+actor User
+participant "React Frontend" as Frontend
+participant "API Gateway" as Gateway
+participant "AuthServer" as Auth
+participant "UserActivity" as UserActivity
+participant "DataPipeline" as DataPipeline
+participant "DataProcessing" as DataProcessing
+participant "DataSending" as DataSending
+database Cassandra
+queue Kafka
+database Redis
+database MongoDB
+
+User -> Frontend : Interact
+Frontend -> Gateway : API Request
+
+Gateway -> Auth : Validate JWT
+
+alt Valid JWT
+    Gateway -> UserActivity : User Actions
+    Gateway -> DataSending : Request Data
+else Invalid JWT
+    Gateway -> Auth : Authenticate
+    Auth -> Redis : Store Refresh Token
+    Auth --> Gateway : JWT
+    Gateway --> Frontend : JWT
+end
+
+DataPipeline -> Kafka : Ingest Twitter Data
+Kafka -> DataProcessing : Stream Data
+DataProcessing -> Spark : Process Data
+Spark -> Cassandra : Store Processed Data
+
+UserActivity -> MongoDB : Store User Actions
+DataSending -> Cassandra : Fetch Data
+DataSending -> Redis : Set Socket Token
+DataSending --> Frontend : WebSocket Data
+
+Frontend -> User : Display Data
+
+@enduml

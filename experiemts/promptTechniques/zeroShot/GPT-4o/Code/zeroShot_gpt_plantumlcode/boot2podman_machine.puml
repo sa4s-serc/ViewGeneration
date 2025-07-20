@@ -1,0 +1,47 @@
+```plantuml
+@startuml boot2podman_machine
+
+actor User
+
+participant "CLI" as CLI
+participant "Libmachine" as Libmachine
+participant "Driver" as Driver
+participant "Provisioner" as Provisioner
+participant "Host" as Host
+
+User -> CLI: execute `create`
+CLI -> Libmachine: NewHost()
+Libmachine -> Driver: Create()
+Driver -> Host: Initialize VM
+Host -> Provisioner: Provision VM
+Provisioner -> Driver: Configure Podman
+Driver -> Libmachine: Return VM Details
+Libmachine -> CLI: Return Success
+
+User -> CLI: execute `start`
+CLI -> Libmachine: Load()
+Libmachine -> Driver: Start()
+Driver -> Host: Boot VM
+Host -> Provisioner: Verify Podman
+Provisioner -> Driver: Check Status
+Driver -> Libmachine: Return Status
+Libmachine -> CLI: Return Success
+
+User -> CLI: execute `stop`
+CLI -> Libmachine: Load()
+Libmachine -> Driver: Stop()
+Driver -> Host: Power Down VM
+Host -> Provisioner: Ensure Shutdown
+Provisioner -> Driver: Confirm Stop
+Driver -> Libmachine: Return Status
+Libmachine -> CLI: Return Success
+
+User -> CLI: execute `rm`
+CLI -> Libmachine: Load()
+Libmachine -> Driver: Remove()
+Driver -> Host: Delete VM
+Driver -> Libmachine: Return Removal Status
+Libmachine -> CLI: Return Success
+
+@enduml
+```

@@ -1,0 +1,51 @@
+@startuml zmyzheng_TweetMap
+
+skinparam component {
+  BackgroundColor<<microservice>> LightBlue
+  BackgroundColor<<queue>> LightGreen
+  BackgroundColor<<database>> LightYellow
+  BackgroundColor<<frontend>> LightPink
+}
+
+cloud "Twitter API" as twitter
+
+component "Tweet Collector" <<microservice>> as collector
+component "Kafka" <<queue>> as kafka
+component "Flink Processor" <<microservice>> as flink
+component "Elasticsearch" <<database>> as elasticsearch
+component "REST API Server" <<microservice>> as api
+component "Frontend Visualization" <<frontend>> as frontend
+
+twitter --> collector : Stream tweets
+collector --> kafka : Push tweets
+kafka --> flink : Consume tweets
+flink --> elasticsearch : Store processed tweets
+elasticsearch <--> api : Query/Store data
+api <--> frontend : REST API calls
+
+note right of collector
+  Deployed via Kubernetes
+  (tweet-collector.yaml)
+end note
+
+note right of flink
+  Processes tweets:
+  - Parse
+  - Filter
+  - Transform
+end note
+
+note right of api
+  Spring Boot:
+  - Controllers
+  - Services
+  - Repositories
+end note
+
+note right of frontend
+  Angular app:
+  - Tweet trends
+  - Geographical heatmap
+end note
+
+@enduml

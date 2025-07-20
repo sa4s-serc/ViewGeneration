@@ -1,0 +1,95 @@
+```plantuml
+@startuml ParaStation_psmpi
+skinparam rectangle {
+  BackgroundColor<<layer>> #d9e7fd
+  BackgroundColor<<component>> #fddddd
+  BackgroundColor<<integration>> #d8f5d3
+  BackgroundColor<<feature>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "PSMPI Architecture" <<layer>> {
+  rectangle "MPI Standard Implementation" as MPIStandard <<component>>
+  rectangle "MPICH Base" as MPICH <<component>>
+  rectangle "Custom Communication Layer (pscom)" as PSCOM <<component>>
+  rectangle "Collectives Framework (UCG)" as UCG <<component>>
+  rectangle "Process Management" as ProcessMgmt <<component>>
+  rectangle "Networking Module (TCP)" as Networking <<component>>
+  rectangle "Data Transport Technologies" as DataTransport <<component>>
+  
+  MPIStandard --> MPICH
+  MPICH --> PSCOM
+  PSCOM --> Networking
+  PSCOM --> DataTransport
+  ProcessMgmt --> MPICH
+  UCG --> MPIStandard
+}
+
+package "Key Components and Libraries" <<layer>> {
+  rectangle "PSCOM" as PSCOMLib <<component>>
+  rectangle "HCOLL & HWLOC" as HCOLL_HWLOC <<component>>
+  rectangle "ROMIO" as ROMIO <<component>>
+  rectangle "Yaksa" as Yaksa <<component>>
+  
+  PSCOMLib --> PSCOM
+  HCOLL_HWLOC --> PSCOMLib
+  ROMIO --> MPICH
+  Yaksa --> MPICH
+}
+
+package "Data Type Handling" <<feature>> {
+  rectangle "Derived Datatypes" as DerivedTypes <<feature>>
+  rectangle "C/Fortran Interoperability" as CTypeInterop <<feature>>
+  rectangle "External32 Representation" as External32 <<feature>>
+
+  DerivedTypes --> MPIStandard
+  CTypeInterop --> MPIStandard
+  External32 --> MPIStandard
+}
+
+package "Performance Optimizations" <<feature>> {
+  rectangle "Shared Memory Transfers" as SharedMemory <<feature>>
+  rectangle "RDMA Support" as RDMA <<feature>>
+  rectangle "Multi-NIC Support" as MultiNIC <<feature>>
+  rectangle "Data Sieving" as DataSieving <<feature>>
+  rectangle "DMA and Zero Copy" as DMAZeroCopy <<feature>>
+
+  SharedMemory --> PSCOM
+  RDMA --> DataTransport
+  MultiNIC --> Networking
+  DataSieving --> ROMIO
+  DMAZeroCopy --> DataTransport
+}
+
+package "Error Handling and Fault Tolerance" <<feature>> {
+  rectangle "Custom Error Handlers" as ErrorHandlers <<feature>>
+  rectangle "ULFM Support" as ULFM <<feature>>
+
+  ErrorHandlers --> MPIStandard
+  ULFM --> MPIStandard
+}
+
+package "Test Suite and Documentation" <<integration>> {
+  rectangle "MPICH Test Suite" as TestSuite <<integration>>
+  rectangle "Jenkins CI/CD" as Jenkins <<integration>>
+  rectangle "Comprehensive API Documentation" as APIDocs <<integration>>
+
+  TestSuite --> MPIStandard
+  Jenkins --> TestSuite
+  APIDocs --> MPIStandard
+}
+
+package "Third-party Components" <<integration>> {
+  rectangle "Hwloc" as Hwloc <<integration>>
+  rectangle "PMIx" as PMIx <<integration>>
+  rectangle "UCX" as UCX <<integration>>
+  rectangle "RoCE" as RoCE <<integration>>
+
+  Hwloc --> HCOLL_HWLOC
+  PMIx --> ProcessMgmt
+  UCX --> PSCOM
+  RoCE --> DataTransport
+}
+@enduml
+```

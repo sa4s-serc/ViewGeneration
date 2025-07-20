@@ -1,0 +1,37 @@
+@startuml gregoryjohnsonjg6_angular-dotnet-core-docker
+
+actor User
+
+participant "Angular Frontend" as Frontend
+participant "NGINX Load Balancer" as NGINX
+participant "ASP.NET Core Web API" as Backend
+database "PostgreSQL" as DB
+
+User -> Frontend : Access application
+Frontend -> NGINX : HTTP request
+NGINX -> Backend : Route request
+
+alt User Registration
+    Backend -> Backend : Validate registration data
+    Backend -> DB : Create user account
+    Backend --> User : Return registration result
+end
+
+alt User Login
+    Backend -> Backend : Authenticate credentials
+    Backend -> Backend : Generate JWT token
+    Backend --> User : Return JWT token
+end
+
+alt Contact Management
+    User -> Frontend : Perform CRUD operation
+    Frontend -> NGINX : API request with JWT
+    NGINX -> Backend : Forward request
+    Backend -> Backend : Validate JWT
+    Backend -> Backend : Process request (CQRS)
+    Backend -> DB : Execute database operation
+    DB --> Backend : Return data
+    Backend --> User : Return operation result
+end
+
+@enduml

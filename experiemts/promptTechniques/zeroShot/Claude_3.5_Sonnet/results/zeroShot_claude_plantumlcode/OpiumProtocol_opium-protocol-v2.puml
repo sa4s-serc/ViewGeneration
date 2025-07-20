@@ -1,0 +1,31 @@
+@startuml
+participant User
+participant Core
+participant Registry
+participant SyntheticAggregator
+participant OracleAggregator
+participant OpiumProxyFactory
+participant TokenSpender
+
+User -> Core: createPosition()
+Core -> Registry: getAddress()
+Registry --> Core: return address
+Core -> SyntheticAggregator: validateInput()
+SyntheticAggregator --> Core: validation result
+Core -> OpiumProxyFactory: createPositionTokens()
+OpiumProxyFactory --> Core: token addresses
+Core -> TokenSpender: pullTokens()
+TokenSpender --> Core: transfer result
+Core --> User: position created
+
+User -> Core: executePosition()
+Core -> Registry: getAddress()
+Registry --> Core: return address
+Core -> OracleAggregator: getData()
+OracleAggregator --> Core: oracle data
+Core -> SyntheticAggregator: getPositionPayout()
+SyntheticAggregator --> Core: payout amount
+Core -> TokenSpender: pushTokens()
+TokenSpender --> Core: transfer result
+Core --> User: position executed
+@enduml

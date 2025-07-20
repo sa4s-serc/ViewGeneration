@@ -1,0 +1,42 @@
+```plantuml
+@startuml lvyahui8_http-proxy
+
+package "HTTP Proxy Service" {
+    [HttpProxyServer] --> [EntitysManager]
+    [HttpProxyServer] --> [ClientToProxyHandler]
+    [ClientToProxyHandler] --> [ProxyToServerInboundHandler]
+
+    [ProxyToServerInboundHandler] --> [ProxyResponseFilter]
+    [ClientToProxyHandler] --> [ProxyRequestFilter]
+
+    package "Filter Layer" {
+        [ProxyRequestFilter] <|.. [AttackRequestFilter]
+        [ProxyResponseFilter] <|.. [DefaultProxyResponseFilter]
+    }
+    
+    package "Configuration" {
+        [EntitysManager] --> [entitys.json]
+    }
+
+    package "Networking" {
+        [HttpProxyServer] --> [Netty]
+    }
+
+    package "Exception Handling" {
+        [HttpProxyServer] --> [GlobalExceptionHandler]
+        [GlobalExceptionHandler] --> [MsgTranslater]
+        [GlobalExceptionHandler] --> [StandardResponse]
+    }
+}
+
+package "Testing" {
+    [TestClientApp] --> [HttpProxyServer]
+    [TestServerMain] --> [TestResource]
+}
+
+package "Logging" {
+    [HttpProxyServer] --> [log4j2.xml]
+}
+
+@enduml
+```

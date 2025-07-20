@@ -1,0 +1,29 @@
+@startuml ndsev_zswag
+
+[zswag.gen] as Generator
+[OAServer] as Server
+[OAClient (Python)] as PyClient
+[OAClient (C++)] as CppClient
+[httpcl] as HttpLib
+[Zserio] as Zserio
+[OpenAPI] as OpenAPI
+[Flask/Connexion] as FlaskConnexion
+[cpp-httplib] as CppHttpLib
+
+Generator --> OpenAPI : generates
+Generator --> Zserio : reads
+
+Server --> FlaskConnexion : uses
+Server --> Zserio : integrates
+Server --> OpenAPI : implements
+
+PyClient --> OpenAPI : consumes
+PyClient --> Zserio : uses reflection
+
+CppClient --> OpenAPI : consumes
+CppClient --> Zserio : uses reflection
+CppClient --> HttpLib : uses
+
+HttpLib --> CppHttpLib : wraps
+
+@enduml

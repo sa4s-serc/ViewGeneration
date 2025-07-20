@@ -1,0 +1,54 @@
+Here's a PlantUML sequence diagram representing the deployment and data flow of the system:
+
+```plantuml
+@startuml aurelien-m_raspberrypi-rustpy
+
+participant "Web Browser" as Browser
+participant "Rust Web Server" as WebServer
+participant "Python Controller" as PythonController
+participant "Rust Library" as RustLib
+participant "Raspberry Pi Hardware" as Hardware
+
+Browser -> WebServer: HTTP Request
+activate WebServer
+
+WebServer -> WebServer: Authenticate User
+
+alt Authentication Successful
+    WebServer -> Browser: Serve Web Interface
+    Browser -> WebServer: WebSocket Connection
+    activate Browser
+
+    loop User Interaction
+        Browser -> WebServer: Send LED Control Command
+        WebServer -> PythonController: Forward Command
+        activate PythonController
+
+        PythonController -> RustLib: Call Hardware Functions
+        activate RustLib
+
+        RustLib -> Hardware: Control LEDs
+        activate Hardware
+        Hardware --> RustLib: Hardware Status
+        deactivate Hardware
+
+        RustLib --> PythonController: Operation Result
+        deactivate RustLib
+
+        PythonController --> WebServer: Update Status
+        deactivate PythonController
+
+        WebServer --> Browser: Real-time Update (WebSocket)
+    end
+
+    Browser -> WebServer: Close WebSocket
+    deactivate Browser
+
+else Authentication Failed
+    WebServer -> Browser: Return Error
+end
+
+deactivate WebServer
+
+@enduml
+```

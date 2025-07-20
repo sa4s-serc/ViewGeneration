@@ -1,0 +1,38 @@
+@startuml ebu_PlugIt
+
+skinparam component {
+  BackgroundColor<<API>> LightBlue
+  BackgroundColor<<Client>> LightGreen
+}
+
+[GitHub Repository] as Repo
+[Analysis Client] as Client <<Client>>
+[Google Gemini API] as GeminiAPI <<API>>
+[Rate Limit Handler] as RateHandler
+[Token Usage Monitor] as TokenMonitor
+
+Repo --> Client : Repository content
+Client --> GeminiAPI : API requests
+GeminiAPI --> Client : API responses
+Client --> RateHandler : 429 errors
+RateHandler --> Client : Retry logic
+Client --> TokenMonitor : Usage data
+
+note right of GeminiAPI
+  Rate Limit:
+  - Model: gemini-2.0-flash
+  - Quota: generate_content_free_tier_input_token_count
+  - HTTP Status: 429 (Too Many Requests)
+end note
+
+note bottom of RateHandler
+  - Implements backoff strategy
+  - Retry delays: 10-12 seconds
+end note
+
+note bottom of TokenMonitor
+  Tracks token consumption
+  to prevent quota violations
+end note
+
+@enduml

@@ -1,0 +1,68 @@
+```plantuml
+@startuml pacmacro_pm-server-spring
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor Client
+
+rectangle "Pac Macro Game Server" as Server {
+  rectangle "Controller Layer" as Controllers #lightblue {
+    rectangle "AdminController" as AdminController
+    rectangle "PlayerController" as PlayerController
+    rectangle "GameStateController" as GameStateController
+    rectangle "PacdotController" as PacdotController
+    rectangle "TagController" as TagController
+  }
+
+  rectangle "Manager Layer" as Managers #lightgreen {
+    rectangle "AdminManager" as AdminManager
+    rectangle "PlayerManager" as PlayerManager
+    rectangle "GameStateManager" as GameStateManager
+    rectangle "PacdotManager" as PacdotManager
+    rectangle "TagManager" as TagManager
+  }
+
+  rectangle "Registry Layer" as Registries #lightyellow {
+    rectangle "PlayerRegistry" as PlayerRegistry
+    rectangle "GameStateRegistry" as GameStateRegistry
+    rectangle "PacdotRegistry" as PacdotRegistry
+    rectangle "TagRegistry" as TagRegistry
+  }
+
+  rectangle "Repository Layer" as Repositories #lightgrey {
+    rectangle "PlayerRepository" as PlayerRepository
+    rectangle "PacdotRepository" as PacdotRepository
+  }
+}
+
+' ========== Interactions ==========
+
+Client -> AdminController : HTTP Request
+AdminController -> AdminManager : handle request
+AdminManager -> GameStateRegistry : manage game state
+AdminManager -> PlayerRegistry : manage players
+
+Client -> PlayerController : HTTP Request
+PlayerController -> PlayerManager : handle request
+PlayerManager -> PlayerRegistry : update player data
+PlayerManager -> PlayerRepository : update player storage
+
+Client -> GameStateController : HTTP Request
+GameStateController -> GameStateManager : handle request
+GameStateManager -> GameStateRegistry : update game state
+
+Client -> PacdotController : HTTP Request
+PacdotController -> PacdotManager : handle request
+PacdotManager -> PacdotRegistry : manage pacdots
+PacdotManager -> PacdotRepository : update pacdot storage
+
+Client -> TagController : HTTP Request
+TagController -> TagManager : handle request
+TagManager -> TagRegistry : manage tags
+
+@enduml
+```

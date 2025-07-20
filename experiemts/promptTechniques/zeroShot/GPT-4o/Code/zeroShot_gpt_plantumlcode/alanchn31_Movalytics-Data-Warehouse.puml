@@ -1,0 +1,23 @@
+```plantuml
+@startuml alanchn31_Movalytics-Data-Warehouse
+
+actor User
+
+User -> Airflow: Start ETL Process
+Airflow -> BashOperator: Execute `load_staging_table.sh`
+BashOperator -> Spark: Run Data Transformation
+Spark -> S3: Read Data
+Spark -> S3: Write Transformed Data
+Spark -> Redshift: Load Data into Staging Tables
+
+Airflow -> PostgresOperator: Run SQL Scripts
+PostgresOperator -> Redshift: Upsert into Dimension Tables
+
+Airflow -> DataQualityOperator: Perform Data Quality Checks
+DataQualityOperator -> Redshift: Validate Data
+
+Docker -> Airflow: Initialize Environment
+Docker -> Airflow: Start Services
+
+@enduml
+```

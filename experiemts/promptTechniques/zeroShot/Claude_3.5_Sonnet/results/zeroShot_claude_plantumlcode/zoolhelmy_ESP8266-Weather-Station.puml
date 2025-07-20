@@ -1,0 +1,40 @@
+Here's a PlantUML sequence diagram representing the deployment behavior of the ESP8266 Weather Station system:
+
+```plantuml
+@startuml zoolhelmy_ESP8266-Weather-Station
+
+participant "ESP8266\nNodeMCU" as ESP
+participant "Sensors" as Sensors
+participant "ThingSpeak" as TS
+participant "OpenWRT\nRouter" as Router
+participant "GitHub\nRepository" as GitHub
+
+activate ESP
+ESP -> Sensors : Read sensor data
+activate Sensors
+Sensors --> ESP : Return sensor readings
+deactivate Sensors
+
+ESP -> TS : Publish data via MQTT
+activate TS
+TS --> ESP : Acknowledge
+deactivate TS
+
+ESP -> Router : Publish data via MQTT
+activate Router
+Router --> ESP : Acknowledge
+deactivate Router
+
+loop Every day
+    Router -> Router : Generate graphs from RRDTool data
+    Router -> GitHub : Push updated graphs
+    activate GitHub
+    GitHub --> Router : Confirm push
+    deactivate GitHub
+end
+
+ESP -> ESP : Start local HTTP server
+activate ESP
+
+@enduml
+```

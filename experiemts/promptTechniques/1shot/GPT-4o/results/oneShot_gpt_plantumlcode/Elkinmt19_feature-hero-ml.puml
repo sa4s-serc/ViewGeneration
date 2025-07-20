@@ -1,0 +1,52 @@
+```plantuml
+@startuml Elkinmt19_feature-hero-ml
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor DataEngineer
+
+rectangle "FeatureHeroML" as FHML {
+  rectangle "Feast" as Feast #lightsteelblue
+  rectangle "Redis" as Redis #mistyrose
+  rectangle "Parquet\nStorage" as Parquet #aliceblue
+  rectangle "Docker\nServices" as Docker #lightyellow
+}
+
+rectangle "DataPipeline" as DataPipeline #palegreen {
+  rectangle "Data Fetch Script" as FetchScript
+  rectangle "Data Transform Script" as TransformScript
+  rectangle "Data Ingest Script" as IngestScript
+}
+
+rectangle "External Systems" as External {
+  rectangle "Data Source" as DataSource #lightgray
+  rectangle "Model Training\nSystem" as ModelTraining #lightgray
+}
+
+' ========== Connections ==========
+DataEngineer --> DataPipeline : Initiate data pipeline
+
+' DataPipeline interactions
+DataPipeline --> FetchScript : fetch data from DataSource
+FetchScript --> DataSource : request data
+DataSource --> FetchScript : return data
+
+DataPipeline --> TransformScript : transform fetched data
+TransformScript --> IngestScript : pass transformed data
+
+IngestScript --> Feast : ingest features
+
+' FeatureHeroML interactions
+Feast --> Redis : store features for online serving
+Feast --> Parquet : store features for offline use
+
+Redis --> ModelTraining : provide features for real-time predictions
+Parquet --> ModelTraining : provide features for batch model training
+
+Docker -> FHML : orchestrate services
+@enduml
+```

@@ -1,0 +1,61 @@
+```plantuml
+@startuml s-sokolko_smev3_adapter_service
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+actor "External Client" as client
+
+package "smev3_adapter_service" {
+  rectangle "API Layer" as apiLayer {
+    rectangle "Sanic App\n(smev_int/run.py)"
+    rectangle "HTTP Handlers\n(smev_int/views.py)"
+  }
+  
+  rectangle "Business Logic" as businessLogic {
+    rectangle "QueryProcessor\n(smev_int/processors/query.py)"
+  }
+
+  rectangle "Data Access" as dataAccess {
+    rectangle "MongoDB Models\n(smev_int/models.py)"
+    rectangle "MongoDB Connection\n(smev_int/core.py)"
+  }
+
+  rectangle "SMEV3 Integration" as smev3Integration {
+    rectangle "Adapter\n(smev_int/adapter.py)"
+  }
+
+  rectangle "Schema Management" as schemaManagement {
+    rectangle "XSD Loader\n(smev_int/schema_loader/loader.py)"
+  }
+}
+
+rectangle "MongoDB" as mongoDb #lightgray
+rectangle "SMEV3 Adapter" as smev3Adapter #lightgray
+
+' External Client interaction
+client --> apiLayer
+
+' API Layer interactions
+apiLayer --> businessLogic
+apiLayer --> dataAccess
+
+' Business Logic interactions
+businessLogic --> smev3Integration
+businessLogic --> dataAccess
+
+' Data Access interaction
+dataAccess --> mongoDb
+
+' SMEV3 Integration interaction
+smev3Integration --> smev3Adapter
+
+' Schema Management interaction
+smev3Integration --> schemaManagement
+
+@enduml
+```

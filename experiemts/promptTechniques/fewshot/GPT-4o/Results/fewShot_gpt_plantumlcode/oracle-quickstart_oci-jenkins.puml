@@ -1,0 +1,59 @@
+```plantuml
+@startuml oracle-quickstart_oci-jenkins
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+package "OCI" {
+  rectangle "VCN" {
+    rectangle "Subnet: Controller" as subnet_controller
+    rectangle "Subnet: Agents" as subnet_agents
+    rectangle "Subnet: Load Balancer" as subnet_lb
+    rectangle "Subnet: Bastion" as subnet_bastion
+  }
+}
+
+package "Jenkins Deployment" {
+  rectangle "Jenkins Controller" as jenkins_controller #orange
+  rectangle "Jenkins Agents" as jenkins_agents #lightblue
+  rectangle "Load Balancer" as lb #lightgreen
+  rectangle "Bastion Host" as bastion_host #lightyellow
+  rectangle "OCI Bastion Service" as bastion_service #lightyellow
+}
+
+package "Terraform Modules" {
+  rectangle "Jenkins Controller Module" as controller_module #lightgrey
+  rectangle "Jenkins Agent Module" as agent_module #lightgrey
+}
+
+package "Configuration & Scripts" {
+  rectangle "main.tf" as main_tf
+  rectangle "scripts/setup.sh" as setup_sh
+  rectangle "scripts/config.sh" as config_sh
+}
+
+subnet_controller --> jenkins_controller
+subnet_agents --> jenkins_agents
+subnet_lb --> lb
+subnet_bastion --> bastion_host
+subnet_bastion --> bastion_service
+
+jenkins_controller --> lb
+jenkins_agents --> jenkins_controller
+
+main_tf --> controller_module
+main_tf --> agent_module
+controller_module --> jenkins_controller
+agent_module --> jenkins_agents
+
+setup_sh --> jenkins_controller
+config_sh --> jenkins_agents
+
+bastion_host --> jenkins_controller
+bastion_service --> jenkins_controller
+
+@enduml
+```

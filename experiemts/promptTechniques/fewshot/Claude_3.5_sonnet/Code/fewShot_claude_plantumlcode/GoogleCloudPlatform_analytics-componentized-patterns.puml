@@ -1,0 +1,58 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam defaultTextAlignment center
+
+' Components
+component "Data Sources" as DataSources
+component "BigQuery" as BigQuery
+component "BigQuery ML" as BQML
+component "Kubeflow Pipelines" as KFP
+component "Vertex AI" as VertexAI
+component "Cloud Storage" as GCS
+component "AI Platform Prediction" as AIPlatform
+component "Custom ScaNN Service" as ScaNN
+component "Google Ads API" as GoogleAds
+component "Data Studio" as DataStudio
+
+' Data flow
+DataSources --> BigQuery : Import Data
+BigQuery --> BQML : Train Models
+BQML --> KFP : Orchestrate ML Workflows
+KFP --> VertexAI : Deploy Models
+KFP --> GCS : Store Artifacts
+KFP --> AIPlatform : Deploy Models
+KFP --> ScaNN : Build Index
+AIPlatform --> GoogleAds : Activate Predictions
+VertexAI --> GoogleAds : Activate Predictions
+BigQuery --> DataStudio : Visualize Results
+
+' Control flow
+KFP -[#red]-> BQML : Trigger Training
+KFP -[#red]-> GCS : Manage Artifacts
+KFP -[#red]-> AIPlatform : Manage Deployments
+KFP -[#red]-> VertexAI : Manage Deployments
+KFP -[#red]-> ScaNN : Trigger Index Build
+
+' Notes
+note right of BQML
+  - Matrix Factorization
+  - Propensity Models
+  - LTV Prediction
+  - Time Series Forecasting
+end note
+
+note right of KFP
+  Orchestrates:
+  - Data Preparation
+  - Model Training
+  - Evaluation
+  - Deployment
+end note
+
+note right of ScaNN
+  Real-time 
+  Item-to-Item 
+  Recommendations
+end note
+
+@enduml

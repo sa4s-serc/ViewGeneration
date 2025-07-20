@@ -1,0 +1,36 @@
+```plantuml
+@startuml ballerina-platform_asyncapi-tools
+
+[AsyncAPI CLI] as CLI
+[AsyncAPI/OpenAPI Parser] as Parser
+[Code Generator] as Generator
+[Ballerina Exporter] as Exporter
+[WebSocket Handler] as WSHandler
+[Authentication Manager] as AuthManager
+[Error Handler] as ErrorHandler
+[Data Type Mapper] as TypeMapper
+[Template Engine] as TemplateEngine
+
+database "API Definitions" as APIDefs
+database "Ballerina Code" as BallerinaCode
+
+CLI --> Parser : Parses input
+CLI --> Generator : Triggers generation
+CLI --> Exporter : Triggers export
+
+Parser --> APIDefs : Reads
+Parser --> Generator : Provides parsed data
+
+Generator --> TemplateEngine : Uses
+Generator --> TypeMapper : Uses
+Generator --> AuthManager : Configures auth
+Generator --> WSHandler : Configures WebSocket
+Generator --> BallerinaCode : Generates
+
+Exporter --> BallerinaCode : Reads
+Exporter --> APIDefs : Generates
+
+WSHandler --> ErrorHandler : Uses
+
+@enduml
+```

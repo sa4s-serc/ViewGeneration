@@ -1,0 +1,31 @@
+@startuml
+!define RECTANGLE class
+
+skinparam component {
+  BackgroundColor<<API>> LightBlue
+  BackgroundColor<<Service>> LightGreen
+  BackgroundColor<<Database>> LightYellow
+  BackgroundColor<<External>> LightGray
+}
+
+rectangle "qaware_cloud-native-weather-javaee" {
+  [Weather REST API] <<API>> as API
+  [Weather Service] <<Service>> as Service
+  [Weather Repository] <<Service>> as Repository
+  [PostgreSQL] <<Database>> as DB
+  [OpenWeatherMap Connector] <<Service>> as Connector
+  [Health Checks] <<Service>> as Health
+  [Metrics] <<Service>> as Metrics
+}
+
+[OpenWeatherMap API] <<External>> as ExternalAPI
+
+API --> Service : uses
+Service --> Repository : uses
+Service --> Connector : uses
+Repository --> DB : persists
+Connector --> ExternalAPI : fetches data
+API --> Health : exposes
+API --> Metrics : exposes
+
+@enduml

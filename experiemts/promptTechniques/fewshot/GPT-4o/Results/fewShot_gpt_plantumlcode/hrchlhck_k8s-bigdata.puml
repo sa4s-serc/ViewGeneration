@@ -1,0 +1,73 @@
+```plantuml
+@startuml hrchlhck_k8s-bigdata
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+package "Kubernetes Cluster" {
+  rectangle "NameNode +\nSpark Master\n+ HiBench" as NameNodeMaster #lightblue
+
+  rectangle "DataNode +\nNodeManager" as DataNode1 #lightyellow
+  rectangle "DataNode +\nNodeManager" as DataNode2 #lightyellow
+  rectangle "DataNode +\nNodeManager" as DataNode3 #lightyellow
+
+  rectangle "ResourceManager" as ResourceManager #lightgreen
+  rectangle "HistoryServer" as HistoryServer #lightgreen
+}
+
+package "Docker Images" {
+  rectangle "Hadoop Base Image" as HadoopBase #lightgray
+  rectangle "Apache Spark Image" as SparkBase #lightgray
+}
+
+package "Configuration" {
+  rectangle "Environment Variables"
+  rectangle "ConfigMaps"
+  rectangle "Python Scripts"
+}
+
+node "Kubernetes" {
+  rectangle "Services" as K8sServices
+  rectangle "StatefulSets" as K8sStatefulSets
+}
+
+NameNodeMaster --> DataNode1
+NameNodeMaster --> DataNode2
+NameNodeMaster --> DataNode3
+
+NameNodeMaster --> ResourceManager
+ResourceManager --> DataNode1
+ResourceManager --> DataNode2
+ResourceManager --> DataNode3
+
+K8sServices --> NameNodeMaster
+K8sServices --> ResourceManager
+K8sServices --> HistoryServer
+K8sServices --> DataNode1
+K8sServices --> DataNode2
+K8sServices --> DataNode3
+
+K8sStatefulSets --> DataNode1
+K8sStatefulSets --> DataNode2
+K8sStatefulSets --> DataNode3
+
+HadoopBase --> NameNodeMaster
+HadoopBase --> DataNode1
+HadoopBase --> DataNode2
+HadoopBase --> DataNode3
+HadoopBase --> ResourceManager
+HadoopBase --> HistoryServer
+
+SparkBase --> NameNodeMaster
+
+Configuration --> NameNodeMaster
+Configuration --> DataNode1
+Configuration --> DataNode2
+Configuration --> DataNode3
+Configuration --> ResourceManager
+Configuration --> HistoryServer
+@enduml
+```

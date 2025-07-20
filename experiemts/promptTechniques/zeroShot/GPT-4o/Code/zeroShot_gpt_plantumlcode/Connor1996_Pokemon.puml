@@ -1,0 +1,52 @@
+```plantuml
+@startuml Connor1996_Pokemon
+
+package "Client" {
+    [Qt GUI] <<Qt_Framework>>
+    [ClientSocket] <<Cpp>>
+    [JSON Communication] <<JSON>>
+    [ORM Client] <<Cpp>>
+    [Pokemon Logic Client] <<Cpp>>
+
+    [Qt GUI] --> [ClientSocket]
+    [Qt GUI] --> [Pokemon Logic Client]
+    [ClientSocket] --> [JSON Communication]
+    [JSON Communication] --> [Server]
+    [ORM Client] --> [SQLite]
+    [Pokemon Logic Client] --> [ORM Client]
+}
+
+package "Server" {
+    [ServerSocket] <<Cpp>>
+    [RequestDispatcher] <<Cpp>>
+    [ORM Server] <<Cpp>>
+    [Pokemon Logic Server] <<Cpp>>
+
+    [ServerSocket] --> [RequestDispatcher]
+    [RequestDispatcher] --> [JSON Communication]
+    [RequestDispatcher] --> [ORM Server]
+    [Pokemon Logic Server] --> [ORM Server]
+    [ORM Server] --> [SQLite]
+}
+
+package "Database" {
+    [SQLite] <<SQLite>>
+}
+
+package "Testing" {
+    [Catch2 Framework] <<Catch2>>
+}
+
+[JSON Communication] --> [JSON]
+[ServerSocket] --> [Client]
+[ClientSocket] --> [Server]
+
+[Testing] --> [Pokemon Logic Client]
+[Testing] --> [Pokemon Logic Server]
+[Testing] --> [ServerSocket]
+[Testing] --> [ClientSocket]
+[Testing] --> [ORM Client]
+[Testing] --> [ORM Server]
+
+@enduml
+```

@@ -1,0 +1,36 @@
+@startuml xydo1990_mlops_zoomcamp_homework
+
+participant "Data Exploration\n(Jupyter Notebook)" as Jupyter
+participant "Data Downloader" as Downloader
+participant "Model Trainer" as Trainer
+participant MLflow
+participant "Batch Prediction\nService" as BatchService
+participant "Stream Prediction\nService" as StreamService
+participant Prefect
+participant Evidently
+participant "CI/CD Pipeline" as CICD
+
+Jupyter -> Downloader : Initiate data download
+Downloader -> Downloader : Download data from Kaggle
+Downloader --> Jupyter : Return downloaded data
+
+Jupyter -> Trainer : Initiate model training
+Trainer -> MLflow : Log experiment
+Trainer -> Trainer : Train model
+Trainer -> MLflow : Register model
+
+MLflow -> BatchService : Deploy model
+MLflow -> StreamService : Deploy model
+
+Prefect -> BatchService : Schedule batch prediction
+BatchService -> Evidently : Send prediction results
+
+StreamService -> Evidently : Send streaming predictions
+
+Evidently -> Evidently : Monitor model performance\nand detect drift
+
+CICD -> CICD : Run tests
+CICD -> BatchService : Deploy updates
+CICD -> StreamService : Deploy updates
+
+@enduml

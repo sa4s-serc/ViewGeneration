@@ -1,0 +1,54 @@
+```plantuml
+@startuml calmato_gran-book
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<api>> #fddddd
+  BackgroundColor<<database>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Web Admin Panel (Nuxt.js)" <<frontend>> {
+  rectangle "Vuex Store Modules" as VuexModules
+  rectangle "Vue.js Components" as VueComponents
+  rectangle "Nuxt.js Plugins" as NuxtPlugins
+  rectangle "Layouts" as Layouts
+  rectangle "Pages" as Pages
+  VuexModules --> VueComponents
+  VueComponents --> NuxtPlugins
+  VueComponents --> Layouts
+  Layouts --> Pages
+}
+
+package "Backend" <<backend>> {
+  rectangle "Domain Models\n(Books, Authors, Reviews)" as DomainModels
+  rectangle "Application Services\n(Books, Bookshelves, Reviews)" as AppServices
+  rectangle "Infrastructure\n(Book Repository, Validation)" as Infrastructure
+  rectangle "API Gateway" as APIGateway
+  DomainModels --> AppServices
+  AppServices --> Infrastructure
+  AppServices --> APIGateway
+}
+
+package "API" <<api>> {
+  rectangle "Auth API" as AuthAPI
+  rectangle "User API" as UserAPI
+  rectangle "Book API" as BookAPI
+  rectangle "Chat API" as ChatAPI
+  rectangle "gRPC Services\n(User, Book, Chat)" as GRPC
+  APIGateway --> AuthAPI
+  APIGateway --> UserAPI
+  APIGateway --> BookAPI
+  APIGateway --> ChatAPI
+  AuthAPI --> GRPC
+  UserAPI --> GRPC
+  BookAPI --> GRPC
+  ChatAPI --> GRPC
+}
+
+database "Relational Database" <<database>> as Database
+Infrastructure --> Database
+
+@enduml
+```

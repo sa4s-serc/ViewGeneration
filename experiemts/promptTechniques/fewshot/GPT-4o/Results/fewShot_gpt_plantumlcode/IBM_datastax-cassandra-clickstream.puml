@@ -1,0 +1,47 @@
+```plantuml
+@startuml IBM_datastax-cassandra-clickstream
+
+skinparam backgroundColor #ffffff
+skinparam linetype ortho
+skinparam rectangle {
+  BackgroundColor #dff0d8
+  BorderColor black
+  Style roundrect
+}
+skinparam actorStyle awesome
+
+participant "User" as user
+participant "Next.js Frontend" as frontend
+participant "Next.js API Routes" as api
+participant "Clickstream Service\n(clicks.service.js)" as service
+database "DSE/Cassandra" as db
+
+actor user
+user -> frontend : Browse E-commerce\nSite
+frontend -> api : [GET] /products
+api -> db : Fetch Products
+db --> api : Return Products
+api --> frontend : Render Products
+
+user -> frontend : Add to Cart
+frontend -> api : [POST] /products/addToCart
+api -> service : addToCart(userId, productId)
+service -> db : Insert Cart Event
+db --> service : Acknowledgment
+service --> api : Acknowledgment
+
+user -> frontend : View Clickstream History
+frontend -> api : [GET] /history
+api -> service : getActivity(userId)
+service -> db : Fetch Clickstream Data
+db --> service : Clickstream Data
+service --> api : Clickstream Data
+api --> frontend : Render History
+
+api -> service : trackPageBrowsing(userId, pageId)
+service -> db : Insert Page View Event
+db --> service : Acknowledgment
+service --> api : Acknowledgment
+
+@enduml
+```

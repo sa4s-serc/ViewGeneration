@@ -1,0 +1,66 @@
+@startuml florianhoehn_sf-apex-rest-api
+
+package "Core Classes" {
+  abstract class RestWrapper {
+    +toJSON(): String
+    +fromJSON(jsonString: String)
+  }
+  
+  class RestResponse {
+    -success: Boolean
+    -message: String
+    -errors: List<String>
+    +addError(error: String)
+  }
+  
+  abstract class RestCallout {
+    #endpoint: String
+    #headers: Map<String, String>
+    #setEndpoint()
+    #setHeaders()
+    +makeCallout(): HttpResponse
+  }
+  
+  class RestLogBuilder {
+    -log: Rest_Log__c
+    +setEndpoint(endpoint: String)
+    +setRequestBody(body: String)
+    +setResponseBody(body: String)
+    +setError(error: String)
+    +build(): Rest_Log__c
+  }
+}
+
+package "Example Implementation" {
+  class ExampleRatingRestResource {
+    +doGet()
+    +doPost()
+  }
+  
+  class ExampleRatingCallout {
+    -callout: RestCallout
+    +getRating(accountId: Id): String
+    +sendBatchOfAccounts(accountIds: List<Id>)
+  }
+  
+  class ExampleAccountWrapper {
+    -account: Account
+    +toJSON(): String
+    +fromJSON(jsonString: String)
+  }
+}
+
+package "Custom Objects" {
+  object "Rest_Log__c" as RestLog
+}
+
+RestWrapper <|-- RestResponse
+RestWrapper <|-- ExampleAccountWrapper
+RestCallout <-- ExampleRatingCallout
+RestLogBuilder --> RestLog : creates
+
+ExampleRatingRestResource --> ExampleAccountWrapper : uses
+ExampleRatingCallout --> RestCallout : uses
+ExampleRatingCallout --> RestLogBuilder : uses
+
+@enduml

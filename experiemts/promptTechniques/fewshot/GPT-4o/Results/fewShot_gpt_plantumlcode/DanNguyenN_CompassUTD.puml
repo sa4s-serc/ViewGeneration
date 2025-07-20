@@ -1,0 +1,50 @@
+```plantuml
+@startuml DanNguyenN_CompassUTD
+left to right direction
+skinparam rectangle {
+  BackgroundColor #f8f9fa
+  BorderColor #2c3e50
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+skinparam linetype ortho
+
+package "CompassUTD Application" {
+  
+  rectangle "API Layer" {
+    [FastAPI Application\nmain.py] as FastAPI
+  }
+
+  rectangle "Inference Layer" {
+    [CompassInference\ninference.py] as Inference
+  }
+
+  package "Tool Layer" {
+    [Google Search\nTools] as GoogleSearch
+    [RateMyProfessor\nTools] as RMPTools
+  }
+
+  package "Web Scraping Layer" {
+    [Text Extractor\ntext_extractor.py] as TextExtractor
+  }
+
+  Inference --> GoogleSearch
+  Inference --> RMPTools
+}
+
+package "External Services" {
+  rectangle "Google's PaLM 2\n(Vertex AI)" as PaLM
+  rectangle "MongoDB" as MongoDB
+}
+
+package "User Interface" {
+  actor User
+}
+
+User --> FastAPI
+FastAPI --> Inference
+Inference --> PaLM : NLP
+Inference --> MongoDB : Chat History
+GoogleSearch --> TextExtractor
+@enduml
+```

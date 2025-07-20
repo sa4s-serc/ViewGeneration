@@ -1,0 +1,81 @@
+```plantuml
+@startuml AhmedAbdelGawadFarag_Shams-Personal-Assistant
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Shams_Android" as AndroidApp {
+  rectangle "MainActivity" as MainActivity
+  rectangle "BotManager" as BotManager
+  rectangle "DialogManager" as DialogManager
+  rectangle "RecordingManager" as RecordingManager
+  rectangle "Provider Classes" as Providers {
+    rectangle "CalendarManager" as CalendarManager
+    rectangle "ContactManager" as ContactManager
+    rectangle "EmailManager" as EmailManager
+    rectangle "WebSearchManager" as WebSearchManager
+    rectangle "OpenAppManager" as OpenAppManager
+    rectangle "NotificationProvider" as NotificationProvider
+    rectangle "ArabicTranslationManager" as ArabicTranslationManager
+  }
+}
+
+rectangle "NER Server" as NERServer #lightyellow {
+  rectangle "app.py" as NERApp
+  rectangle "ner_model/tagger.py" as Tagger
+  rectangle "ner_model/helpers.py" as NERHelpers
+  rectangle "assistant_functions/call_contact.py" as CallContact
+}
+
+rectangle "Main Server" as MainServer #lightsteelblue {
+  rectangle "app.py" as MainApp
+  rectangle "helpers.py" as MainHelpers
+  rectangle "asr/speech_to_text.py" as SpeechToText
+  rectangle "asr/text_to_speech.py" as TextToSpeech
+  rectangle "trained_model/intent_classifier.py" as IntentClassifier
+  rectangle "translation/translation.py" as Translation
+  rectangle "trained_model/intents.py" as Intents
+  rectangle "trained_model/preprocess.py" as Preprocess
+}
+
+rectangle "Google Cloud" as GoogleCloud #aliceblue {
+  rectangle "Speech-to-Text API" as STTApi
+  rectangle "Text-to-Speech API" as TTSApi
+}
+
+' ========== Connections ==========
+User --> MainActivity
+
+' Android app interactions
+MainActivity --> BotManager : process user input
+BotManager --> DialogManager : manage dialog
+BotManager --> Providers : execute specific actions
+MainActivity --> RecordingManager : record voice
+
+' Communication with NER Server
+BotManager --> NERServer : request NER
+
+' NER Server interactions
+NERApp --> Tagger : perform NER tagging
+Tagger --> NERHelpers : preprocess data
+
+' Communication with Main Server
+BotManager --> MainServer : send intent request
+
+' Main Server interactions
+MainApp --> IntentClassifier : classify intent
+MainApp --> Intents : execute intent logic
+MainApp --> SpeechToText : convert speech to text
+SpeechToText --> GoogleCloud : use STTApi
+MainApp --> TextToSpeech : convert text to speech
+TextToSpeech --> GoogleCloud : use TTSApi
+MainApp --> Translation : perform translation
+MainApp --> MainHelpers : assist on tasks
+
+@enduml
+```

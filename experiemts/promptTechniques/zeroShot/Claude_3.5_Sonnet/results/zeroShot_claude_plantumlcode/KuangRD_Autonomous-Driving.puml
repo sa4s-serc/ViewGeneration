@@ -1,0 +1,43 @@
+@startuml
+
+!define RECTANGLE class
+
+package "Autonomous Driving System" {
+    RECTANGLE "Waypoint Loader" as WL
+    RECTANGLE "Waypoint Updater" as WU
+    RECTANGLE "DBW Controller" as DBWC
+    RECTANGLE "Traffic Light Detector" as TLD
+    RECTANGLE "Traffic Light Classifier" as TLC
+    RECTANGLE "PID Controller" as PID
+    RECTANGLE "ROS Node Manager" as RNM
+    RECTANGLE "JSON Parser" as JP
+    RECTANGLE "WebSocket Handler" as WSH
+}
+
+package "External Libraries" {
+    RECTANGLE "Eigen" as Eigen
+    RECTANGLE "TensorFlow/Keras" as TF
+    RECTANGLE "uWS" as uWS
+    RECTANGLE "nlohmann::json" as JSON
+    RECTANGLE "ROS" as ROS
+}
+
+WL --> RNM : publishes
+WU --> RNM : subscribes/publishes
+DBWC --> RNM : subscribes/publishes
+TLD --> RNM : subscribes/publishes
+TLC --> RNM : provides classification
+PID --> DBWC : provides control
+
+RNM --> ROS : uses
+JP --> JSON : uses
+WSH --> uWS : uses
+
+TLC --> TF : uses
+DBWC --> Eigen : uses for computations
+WU --> Eigen : uses for computations
+
+RNM --> JP : parses messages
+RNM --> WSH : handles communication
+
+@enduml

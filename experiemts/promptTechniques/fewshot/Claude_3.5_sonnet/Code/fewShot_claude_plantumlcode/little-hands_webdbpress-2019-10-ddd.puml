@@ -1,0 +1,60 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam linetype ortho
+
+package "Application Layer" {
+  [ScreeningApplicationServiceV4]
+}
+
+package "Domain Layer" {
+  [ScreeningV4]
+  [InterviewV4]
+  [ScreeningStatusV4]
+  [EmailAddress]
+  [ScreeningId]
+  [Interviews]
+  [ScreeningStepResult]
+}
+
+package "Infrastructure Layer" {
+  [ScreeningRepository]
+  [ScreeningJdbcRepository]
+  [ScreeningDao]
+  [InterviewDao]
+}
+
+package "Shared" {
+  [ApplicationException]
+  [Const]
+}
+
+[ScreeningApplicationServiceV4] --> [ScreeningV4]
+[ScreeningApplicationServiceV4] --> [ScreeningRepository]
+[ScreeningV4] --> [InterviewV4]
+[ScreeningV4] --> [ScreeningStatusV4]
+[ScreeningV4] --> [EmailAddress]
+[ScreeningV4] --> [ScreeningId]
+[ScreeningV4] --> [Interviews]
+[ScreeningV4] --> [ScreeningStepResult]
+[ScreeningRepository] <|.. [ScreeningJdbcRepository]
+[ScreeningJdbcRepository] --> [ScreeningDao]
+[ScreeningJdbcRepository] --> [InterviewDao]
+
+note right of [ScreeningApplicationServiceV4]
+  Entry point for domain logic
+end note
+
+note right of [ScreeningV4]
+  Rich domain model with
+  encapsulated business rules
+end note
+
+note right of [ScreeningRepository]
+  Abstraction for data access
+end note
+
+note bottom of [Shared]
+  Common utilities and exceptions
+end note
+
+@enduml

@@ -3,7 +3,7 @@ import subprocess
 from openai import OpenAI
 import json
 # Initialize DeepSeek client
-client = OpenAI(api_key="sk-a18b61e35db14879ba5f975c2efddb32", base_url="https://api.deepseek.com/v1")
+client = OpenAI(api_key="", base_url="https://api.deepseek.com/v1")
 
 def load_few_shot_example(json_path="examples.json"):
     try:

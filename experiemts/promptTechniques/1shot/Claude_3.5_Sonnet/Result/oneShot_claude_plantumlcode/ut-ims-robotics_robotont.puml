@@ -1,0 +1,53 @@
+@startuml ut-ims-robotics_robotont
+
+skinparam component {
+  BackgroundColor<<driver>> LightBlue
+  BackgroundColor<<teleop>> LightGreen
+  BackgroundColor<<training>> LightYellow
+  BackgroundColor<<description>> LightPink
+  BackgroundColor<<sensors>> LightCyan
+}
+
+[robotont_driver] <<driver>> as driver
+[robotont_teleop] <<teleop>> as teleop
+[robotont_training] <<training>> as training
+[robotont_description] <<description>> as description
+[robotont_sensors] <<sensors>> as sensors
+
+cloud "ROS Core" as ros
+
+component "Hardware" {
+  [Robotont Robot]
+  [Realsense D435]
+}
+
+component "External Libraries" {
+  [ar_track_alvar]
+  [move_base]
+  [Cartographer]
+  [Hector Mapping]
+  [RTAB-Map]
+}
+
+component "Simulation" {
+  [Gazebo]
+}
+
+driver -down-> [Robotont Robot] : Serial Communication
+driver -up-> ros : Odometry
+teleop -up-> ros : Control Commands
+training -up-> ros : Exercise Scripts
+description -up-> ros : URDF Models
+sensors -up-> ros : Processed LaserScan
+
+ros -down-> [Robotont Robot] : Control
+ros -down-> [Realsense D435] : Perception
+ros -down-> Gazebo : Simulation
+
+ros -- [ar_track_alvar]
+ros -- [move_base]
+ros -- [Cartographer]
+ros -- [Hector Mapping]
+ros -- [RTAB-Map]
+
+@enduml

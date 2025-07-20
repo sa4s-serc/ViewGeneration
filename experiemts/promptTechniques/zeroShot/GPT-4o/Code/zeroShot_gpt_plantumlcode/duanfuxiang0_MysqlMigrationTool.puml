@@ -1,0 +1,36 @@
+```plantuml
+@startuml duanfuxiang0_MysqlMigrationTool
+
+actor User
+
+participant "incremental_data_migration.go" as IncrementalMigration
+participant "canal.Canal" as Canal
+participant "RowEventHandler" as RowEventHandler
+participant "BinlogParser" as BinlogParser
+participant "core/dao.go" as DAO
+participant "Source MySQL Database" as SourceDB
+participant "Destination Database" as DestDB
+
+User -> IncrementalMigration: Start Migration
+
+IncrementalMigration -> Canal: Initialize binlog listener
+Canal -> SourceDB: Connect and listen for binlog events
+
+loop Binlog Event Detected
+    Canal -> RowEventHandler: Notify binlog event
+    RowEventHandler -> BinlogParser: Parse binlog row event
+    BinlogParser -> DAO: Map row data to structs (e.g., User)
+    
+    alt Insert Event
+        DAO -> DestDB: InsertToNew(User)
+    else Update Event
+        DAO -> DestDB: UpdateToNew(User)
+    else Delete Event
+        DAO -> DestDB: DeleteFromNew(User)
+    end
+
+    RowEventHandler -> User: Notify success/failure
+end
+
+@enduml
+```

@@ -1,0 +1,51 @@
+@startuml batatero_arquiteturaPHP00
+
+skinparam component {
+  BackgroundColor<<CodeIgniter>> #DDDDFF
+  BackgroundColor<<Doctrine>> #FFDDDD
+  BackgroundColor<<Symfony>> #DDFFDD
+}
+
+package "CodeIgniter Application" {
+  [Front Controller (index.php)]<<CodeIgniter>> as FC
+  [Controllers]<<CodeIgniter>> as CTRL
+  [Facades]<<CodeIgniter>> as FAC
+  [Business Logic]<<CodeIgniter>> as BL
+  [Data Access Objects]<<CodeIgniter>> as DAO
+  [Factory (Business/DAO)]<<CodeIgniter>> as FACT
+  [Core Libraries]<<CodeIgniter>> as CL
+  [Helpers]<<CodeIgniter>> as HELP
+}
+
+package "Doctrine ORM" {
+  [EntityManager]<<Doctrine>> as EM
+  [UnitOfWork]<<Doctrine>> as UOW
+  [ClassMetadata]<<Doctrine>> as CM
+  [QueryBuilder]<<Doctrine>> as QB
+  [DBAL]<<Doctrine>> as DBAL
+}
+
+package "Symfony Components" {
+  [YAML]<<Symfony>> as YAML
+  [Console]<<Symfony>> as CONSOLE
+}
+
+database "Database" as DB
+
+FC --> CTRL
+CTRL --> FAC
+FAC --> BL
+BL --> DAO
+BL ..> FACT
+DAO ..> FACT
+CTRL --> CL
+CTRL --> HELP
+
+EM --> UOW
+EM --> CM
+EM --> QB
+EM --> DBAL
+
+DBAL --> DB
+
+@enduml

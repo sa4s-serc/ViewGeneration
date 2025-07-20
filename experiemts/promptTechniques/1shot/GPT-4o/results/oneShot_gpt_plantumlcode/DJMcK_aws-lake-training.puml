@@ -1,0 +1,62 @@
+```plantuml
+@startuml DJMcK_aws-lake-training
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "AWS S3" as S3 #aliceblue {
+  rectangle "Raw Zone" as RawZone
+  rectangle "Landing Zone" as LandingZone
+  rectangle "Curated Zone" as CuratedZone
+}
+
+rectangle "EMR (Spark)" as EMR #lightsteelblue
+
+rectangle "AWS Glue" as Glue #lightyellow
+
+rectangle "AWS Athena" as Athena #lightgreen
+
+rectangle "AWS Comprehend Medical" as Comprehend #lightpink
+
+rectangle "Lambda Functions" as Lambda #lavender {
+  rectangle "configure_count.py" as ConfigureCount
+  rectangle "call_comprehend.py" as CallComprehend
+  rectangle "query_athena.py" as QueryAthena
+  rectangle "iterator.py" as Iterator
+}
+
+rectangle "AWS Step Functions" as StepFunctions #lightcoral
+
+' ========== Connections ==========
+User --> S3 : Upload FDA data
+
+' Data Ingestion and Transformation
+S3 --> EMR : Ingest data from Raw Zone\nTransform data with Spark scripts
+EMR --> S3 : Save transformed data to Landing Zone
+
+' Data Curation
+EMR --> S3 : Further transform data\nSave to Curated Zone
+
+' Data Cataloging
+S3 --> Glue : Crawl Curated Zone\nCreate metadata catalog
+
+' Data Querying
+Glue --> Athena : Query data with SQL
+
+' NLP with Comprehend Medical
+Athena --> QueryAthena : Retrieve drug indications
+QueryAthena --> Comprehend : Extract medical entities
+
+' Serverless Workflow
+StepFunctions --> Lambda : Orchestrate Lambda functions
+Lambda --> ConfigureCount : Setup processing counts
+Lambda --> CallComprehend : Invoke Comprehend Medical
+Lambda --> Iterator : Check if more iterations needed
+
+@enduml
+```

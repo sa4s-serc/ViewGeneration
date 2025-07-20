@@ -1,0 +1,62 @@
+@startuml
+participant "Client" as C
+participant "Service A" as SA
+participant "Service B" as SB
+participant "Circuit Breaker" as CB
+participant "Rate Limiter" as RL
+participant "Bulkhead" as BH
+participant "Retry" as R
+
+C -> SA: Request
+activate SA
+
+SA -> RL: Check rate limit
+activate RL
+RL --> SA: Allow/Deny
+deactivate RL
+
+alt Rate limit not exceeded
+    SA -> CB: Check circuit state
+    activate CB
+    CB --> SA: Closed
+    deactivate CB
+
+    alt Circuit closed
+        SA -> BH: Check concurrency
+        activate BH
+        BH --> SA: Allow
+        deactivate BH
+
+        alt Concurrency allowed
+            SA -> SB: Forward request
+            activate SB
+            
+            alt Service B responds
+                SB --> SA: Response
+            else Service B fails
+                SB --> SA: Error
+                SA -> R: Initiate retry
+                activate R
+                loop Max retries not reached
+                    R -> SB: Retry request
+                    SB --> R: Response/Error
+                end
+                R --> SA: Final result
+                deactivate R
+            end
+            
+            deactivate SB
+        else Concurrency limit reached
+            SA -> SA: Execute fallback
+        end
+    else Circuit open
+        SA -> SA: Execute fallback
+    end
+else Rate limit exceeded
+    SA -> SA: Execute fallback
+end
+
+SA --> C: Response
+deactivate SA
+
+@enduml

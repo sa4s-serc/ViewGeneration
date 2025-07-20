@@ -1,0 +1,44 @@
+```
+@startuml xinsongyan_talos_pal_locomotion_slmc
+skinparam rectangle {
+  BackgroundColor #F7F7F7
+  BorderColor black
+  Style roundrect
+}
+skinparam linetype ortho
+
+actor "Operator" as Operator
+
+package "TALOS Robot Locomotion Controller" {
+  rectangle "ROS Node\n(Main Controller)" as MainController
+  rectangle "WBC Plugins" as WBC
+  rectangle "DCM Controller" as DCM
+  rectangle "State Estimator" as StateEstimator
+  rectangle "Safety Layer" as Safety
+  rectangle "Simulation Environment" as Simulation
+  rectangle "Real Robot" as RealRobot
+}
+
+package "Configuration Files" {
+  rectangle "YAML Configs" as YAML
+}
+
+Operator --> MainController : Initiates Control
+
+MainController --> WBC : Loads Plugins via pluginlib
+MainController --> DCM : Generates Trajectories
+MainController --> StateEstimator : Receives Feedback
+MainController --> Safety : Monitors State
+
+MainController --> Simulation : Simulated Execution
+MainController --> RealRobot : Real-world Execution
+
+MainController --> YAML : Loads Parameters
+YAML --> WBC
+YAML --> DCM
+YAML --> StateEstimator
+YAML --> Safety
+
+Safety --> MainController : Alerts/Adjustments
+@enduml
+```

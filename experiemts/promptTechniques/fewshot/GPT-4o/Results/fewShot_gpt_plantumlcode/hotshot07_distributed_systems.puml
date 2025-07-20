@@ -1,0 +1,58 @@
+```plantuml
+@startuml hotshot07_distributed_systems
+left to right direction
+skinparam rectangle {
+  BackgroundColor #f8f8f8
+  BorderColor black
+  Style roundrect
+}
+skinparam componentStyle rectangle
+
+actor "User" as user
+
+package "Frontend" {
+  rectangle "React UI" as react_ui #d9e7fd
+}
+
+package "API Gateway" {
+  rectangle "API Gateway" as api_gateway #fddddd
+}
+
+package "Backend Services" {
+  package "User Auth Service" {
+    rectangle "Flask API" as auth_api #d8f5d3
+    rectangle "JWT Authentication" as jwt_auth #d8f5d3
+    rectangle "DynamoDB Access" as auth_dynamo #fff1c9
+  }
+  
+  package "Athlete Service" {
+    rectangle "Flask API" as athlete_api #d8f5d3
+    rectangle "DynamoDB Access" as athlete_dynamo #fff1c9
+  }
+  
+  package "Test Scheduling Service" {
+    rectangle "Flask API" as test_api #d8f5d3
+    rectangle "DynamoDB Access" as test_dynamo #fff1c9
+  }
+}
+
+package "Data Storage" {
+  database "DynamoDB" as dynamo_db #fff1c9
+}
+
+user --> react_ui
+react_ui --> api_gateway
+api_gateway --> auth_api
+api_gateway --> athlete_api
+api_gateway --> test_api
+
+auth_api --> jwt_auth
+auth_api --> auth_dynamo
+athlete_api --> athlete_dynamo
+test_api --> test_dynamo
+
+auth_dynamo --> dynamo_db
+athlete_dynamo --> dynamo_db
+test_dynamo --> dynamo_db
+@enduml
+```

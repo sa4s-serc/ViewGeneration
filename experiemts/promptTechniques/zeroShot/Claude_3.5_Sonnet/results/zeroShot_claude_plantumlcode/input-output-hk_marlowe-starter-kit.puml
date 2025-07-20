@@ -1,0 +1,58 @@
+@startuml input-output-hk_marlowe-starter-kit
+
+actor User
+participant "Web UI" as UI
+participant "Controller.js" as Controller
+participant "Wallet (CIP30/CIP45)" as Wallet
+participant "Marlowe Runtime" as Runtime
+database "Cardano Blockchain" as Blockchain
+
+User -> UI: Interact with dApp
+activate UI
+
+UI -> Controller: Trigger action
+activate Controller
+
+Controller -> Wallet: Connect wallet
+activate Wallet
+Wallet --> Controller: Return connection
+deactivate Wallet
+
+Controller -> Wallet: Get address
+activate Wallet
+Wallet --> Controller: Return address
+deactivate Wallet
+
+Controller -> Runtime: Create contract
+activate Runtime
+Runtime -> Blockchain: Submit transaction
+Blockchain --> Runtime: Confirm
+Runtime --> Controller: Return contract ID
+deactivate Runtime
+
+Controller -> Wallet: Sign deposit transaction
+activate Wallet
+Wallet --> Controller: Return signed transaction
+deactivate Wallet
+
+Controller -> Runtime: Submit deposit
+activate Runtime
+Runtime -> Blockchain: Submit transaction
+Blockchain --> Runtime: Confirm
+Runtime --> Controller: Return status
+deactivate Runtime
+
+Controller -> Runtime: Query contract state
+activate Runtime
+Runtime -> Blockchain: Query
+Blockchain --> Runtime: Return state
+Runtime --> Controller: Return contract state
+deactivate Runtime
+
+Controller -> UI: Update display
+deactivate Controller
+
+UI -> User: Show updated state
+deactivate UI
+
+@enduml

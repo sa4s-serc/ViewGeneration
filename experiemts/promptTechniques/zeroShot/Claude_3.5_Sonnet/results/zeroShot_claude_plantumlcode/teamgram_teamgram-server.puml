@@ -1,0 +1,67 @@
+```plantuml
+@startuml teamgram_teamgram-server
+
+!define RECTANGLE class
+
+skinparam component {
+  BackgroundColor<<External>> LightGray
+  BorderColor<<External>> Gray
+}
+
+[Client] as client
+
+package "Teamgram Server" {
+  [BFF Layer] as bff
+  [Message Service] as msg
+  [Chat Service] as chat
+  [User Service] as user
+  [Auth Service] as auth
+  [Media Service] as media
+  [Username Service] as username
+  [Dialog Service] as dialog
+  [Updates Service] as updates
+  [ID Generation Service] as idgen
+}
+
+cloud "External Services" {
+  [Kafka] <<External>>
+  [Redis] <<External>>
+  [MySQL] <<External>>
+  [MinIO] <<External>>
+  [Etcd] <<External>>
+}
+
+client --> bff : HTTP/gRPC
+
+bff --> msg
+bff --> chat
+bff --> user
+bff --> auth
+bff --> media
+bff --> username
+bff --> dialog
+bff --> updates
+
+msg --> Kafka
+chat --> MySQL
+user --> Redis
+auth --> Redis
+media --> MinIO
+username --> MySQL
+dialog --> MySQL
+updates --> Kafka
+idgen --> Redis
+
+bff --> Etcd : Service Discovery
+msg --> Etcd : Service Discovery
+chat --> Etcd : Service Discovery
+user --> Etcd : Service Discovery
+auth --> Etcd : Service Discovery
+media --> Etcd : Service Discovery
+username --> Etcd : Service Discovery
+dialog --> Etcd : Service Discovery
+updates --> Etcd : Service Discovery
+idgen --> Etcd : Service Discovery
+
+@enduml
+```

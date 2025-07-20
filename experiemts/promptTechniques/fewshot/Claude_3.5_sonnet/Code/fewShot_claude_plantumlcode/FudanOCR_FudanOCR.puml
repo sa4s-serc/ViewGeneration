@@ -1,0 +1,70 @@
+@startuml FudanOCR_FudanOCR
+
+skinparam component {
+  BackgroundColor LightSkyBlue
+  BorderColor Black
+  ArrowColor Black
+}
+
+package "FudanOCR" {
+  [Configuration (YAML)]
+
+  package "Data Handling" {
+    [Data Loaders]
+    [Data Augmentation]
+    [LMDB Dataset Creator]
+  }
+
+  package "Text Detection" {
+    [EAST]
+    [AdvancedEAST]
+    [PSENet]
+    [PixelLink]
+    [LSN]
+    [TextSnake]
+    [RRPN]
+  }
+
+  package "Text Recognition" {
+    [CRNN]
+    [MORAN]
+    [GRCNN]
+    [DAN]
+    [HARN]
+    [SAR]
+    [RARE]
+    [CAPSOCR]
+  }
+
+  [Super-Resolution]
+
+  package "Core Engine" {
+    [Training Loop]
+    [Evaluation Metrics]
+    [Post-processing]
+  }
+
+  package "Custom Operations" {
+    [ROIAlign]
+    [RROIAlign]
+    [ROIPool]
+    [FrozenBatchNorm2d]
+    [Custom Loss Functions]
+  }
+
+  [Configuration (YAML)] --> [Data Handling]
+  [Configuration (YAML)] --> [Text Detection]
+  [Configuration (YAML)] --> [Text Recognition]
+  [Configuration (YAML)] --> [Super-Resolution]
+  [Configuration (YAML)] --> [Core Engine]
+
+  [Data Handling] --> [Core Engine]
+  [Text Detection] --> [Core Engine]
+  [Text Recognition] --> [Core Engine]
+  [Super-Resolution] --> [Core Engine]
+  [Custom Operations] --> [Core Engine]
+
+  [Core Engine] --> [Custom Operations]
+}
+
+@enduml

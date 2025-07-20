@@ -1,0 +1,40 @@
+```plantuml
+@startuml alfredcs_immersion_day_labs
+
+actor User
+
+box "AWS Services" #LightBlue
+    participant S3
+    participant SageMaker
+    participant FeatureStore
+    participant IAM
+end box
+
+box "Hugging Face" #LightYellow
+    participant "Model Hub" as ModelHub
+    participant "Transformers" as Transformers
+end box
+
+User -> S3: Upload Dataset
+User -> SageMaker: Initiate Model Training
+SageMaker -> Transformers: Load Pre-trained Model
+Transformers -> SageMaker: Return Model
+
+User -> SageMaker: Fine-tune Model
+SageMaker -> ModelHub: Pull Tokenizer
+ModelHub -> SageMaker: Return Tokenizer
+SageMaker -> SageMaker: Train and Optimize Model
+
+User -> SageMaker: Deploy Model for Inference
+SageMaker -> SageMaker: Set up Inference Endpoint
+
+User -> SageMaker: Perform Real-time Inference
+SageMaker -> FeatureStore: Retrieve Features
+FeatureStore -> SageMaker: Return Features
+SageMaker -> User: Return Inference Results
+
+User -> IAM: Set Access Control
+IAM -> SageMaker: Apply Policies
+
+@enduml
+```

@@ -1,0 +1,42 @@
+```plantuml
+@startuml DevOps-Represent_devopsgirls-bootcamp-cn-2
+
+!define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v15.0/dist
+!include AWSPuml/AWSCommon.puml
+!include AWSPuml/Storage/SimpleStorageService.puml
+!include AWSPuml/ApplicationIntegration/APIGateway.puml
+!include AWSPuml/Compute/Lambda.puml
+!include AWSPuml/Database/DynamoDB.puml
+
+cloud "AWS Cloud" {
+    SimpleStorageService(s3, "S3 Bucket", "Static Website Hosting")
+    APIGateway(apiGateway, "API Gateway", "Request Routing")
+    Lambda(lambda, "Lambda Function", "Application Logic")
+    DynamoDB(dynamodb, "DynamoDB", "Data Storage")
+}
+
+actor "User" as user
+
+user -right-> s3 : Accesses
+s3 -right-> apiGateway : Sends API Requests
+apiGateway -down-> lambda : Invokes
+lambda -left-> dynamodb : CRUD Operations
+
+note bottom of s3
+  Hosts React UI
+end note
+
+note bottom of apiGateway
+  Proxy pattern /{proxy+}
+end note
+
+note bottom of lambda
+  Handles GET, PUT, DELETE
+end note
+
+note bottom of dynamodb
+  Stores todo items
+end note
+
+@enduml
+```

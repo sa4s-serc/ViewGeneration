@@ -1,0 +1,37 @@
+```plantuml
+@startuml Sanperolo_The-Intelligent-Bike
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+package "Hardware Interface" {
+  rectangle "Sensors" as sensors
+  rectangle "MQTT Publisher" as mqttPublisher
+  sensors --> mqttPublisher
+}
+
+package "Backend" {
+  rectangle "Django API" as djangoAPI
+  rectangle "MQTT Subscriber" as mqttSubscriber
+  rectangle "Database\n(PostgreSQL/SQLite)" as database
+  mqttSubscriber --> database
+  djangoAPI --> database
+  mqttSubscriber --> djangoAPI
+}
+
+package "Frontend" {
+  rectangle "Angular Dashboard" as angularDashboard
+  rectangle "Node.js Server" as nodeServer
+  angularDashboard --> nodeServer
+}
+
+actor "User" as user
+
+user --> angularDashboard
+nodeServer --> djangoAPI
+
+@enduml
+```

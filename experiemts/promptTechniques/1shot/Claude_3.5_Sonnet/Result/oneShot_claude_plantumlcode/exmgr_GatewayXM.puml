@@ -1,0 +1,39 @@
+@startuml exmgr_GatewayXM
+
+skinparam component {
+  BackgroundColor<<IoT>> LightBlue
+  BackgroundColor<<Gateway>> LightGreen
+  BackgroundColor<<Cloud>> LightYellow
+}
+
+[ESP8266/ESP32 Sensor Nodes] as SensorNodes <<IoT>>
+[ModBus Smart Meters] as ModBus <<IoT>>
+
+package "GatewayXM" <<Gateway>> {
+  [Eclipse Kura] as Kura
+  [Artemis MQTT Broker] as Artemis
+  [Kura-Tb Bundle] as KuraTb
+  [Docker Containers] as Docker
+}
+
+cloud "Thingsboard IoT Platform" as Thingsboard <<Cloud>>
+
+SensorNodes -down-> Artemis : Publish data
+ModBus -down-> Kura : Send data
+Artemis -right-> KuraTb : Subscribe
+Kura -right-> KuraTb : Asset data
+KuraTb -up-> Thingsboard : Forward data
+Docker -[hidden]up- Kura
+
+note right of GatewayXM
+  Managed by Resin.io (Balena)
+  Supports OTA updates
+end note
+
+note bottom of SensorNodes
+  Mesh network
+  Arduino-based firmware
+  OTA update support
+end note
+
+@enduml

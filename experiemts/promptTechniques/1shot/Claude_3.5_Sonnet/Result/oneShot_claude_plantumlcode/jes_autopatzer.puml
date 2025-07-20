@@ -1,0 +1,26 @@
+@startuml jes_autopatzer
+
+actor User
+participant "React UI" as UI
+participant "Electron App" as Electron
+participant "Perl Script" as Perl
+participant "Teensy (Arduino)" as Teensy
+participant "Stepper Motors" as Motors
+participant "Hall Effect Sensors" as Sensors
+participant "Electromagnet" as Magnet
+participant "Lichess API" as Lichess
+
+User -> UI : Interact
+UI <-> Electron : User actions/updates
+Electron <-> Lichess : WebSocket connection
+Electron <-> Perl : Send/receive commands
+Perl <-> Teensy : Serial communication
+Teensy -> Motors : Control movement
+Teensy -> Magnet : Activate/deactivate
+Teensy <- Sensors : Read piece positions
+Teensy -> Perl : Send board state
+Perl -> Electron : Update board state
+Electron -> UI : Update display
+UI -> User : Show game state
+
+@enduml

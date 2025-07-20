@@ -1,0 +1,52 @@
+```plantuml
+@startuml Taymindis_fcgi-function
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "HTTP Client" as Client
+
+package "FastCGI Server" {
+  rectangle "Nginx / Apache" as WebServer
+}
+
+package "FastCGI Function Handler Framework" {
+  rectangle "ffunc.c" as FFuncC {
+    rectangle "Request Handling" as RequestHandling
+    rectangle "Memory Pool Management" as MemoryPool
+    rectangle "Socket Handling" as SocketHandling
+    rectangle "Thread Management" as ThreadManagement
+    rectangle "Function Mapping" as FunctionMapping
+  }
+  rectangle "ffunc.h" as FFuncH {
+    rectangle "ffunc_pool"
+    rectangle "ffunc_session_t"
+    rectangle "ffunc_config_t"
+  }
+}
+
+package "User Application" {
+  rectangle "Example Handlers" as Handlers {
+    rectangle "getProfile()"
+    rectangle "postError()"
+    rectangle "postProfile()"
+  }
+}
+
+Client --> WebServer : HTTP Request
+WebServer --> RequestHandling : FastCGI Request
+RequestHandling --> FunctionMapping : Identify Handler
+FunctionMapping --> Handlers : Execute Function
+Handlers --> RequestHandling : Response
+RequestHandling --> WebServer : FastCGI Response
+WebServer --> Client : HTTP Response
+
+FFuncC --> FFuncH : Uses
+RequestHandling --> MemoryPool : Allocate/Deallocate
+RequestHandling --> ThreadManagement : Manage Threads
+RequestHandling --> SocketHandling : Socket Operations
+@enduml
+```

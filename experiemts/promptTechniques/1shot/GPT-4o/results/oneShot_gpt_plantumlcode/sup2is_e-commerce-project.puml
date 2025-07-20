@@ -1,0 +1,64 @@
+```plantuml
+@startuml sup2is_e-commerce-project
+
+skinparam rectangle {
+  BackgroundColor<<gateway>> #ffd700
+  BackgroundColor<<service>> #add8e6
+  BackgroundColor<<database>> #ffcccb
+  BackgroundColor<<infrastructure>> #d3d3d3
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "API Gateway" <<gateway>> {
+  rectangle "Zuul" as Zuul
+  rectangle "JwtAuthenticateFilter" as JwtFilter
+  Zuul --> JwtFilter
+}
+
+package "Microservices" <<service>> {
+  rectangle "Member Service" as MemberService
+  rectangle "Order Service" as OrderService
+  rectangle "Product Service" as ProductService
+  rectangle "Authentication Service" as AuthenticationService
+
+  MemberService --> OrderService : communicate
+  OrderService --> ProductService : Feign Client
+  AuthenticationService --> JwtFilter : issue JWT
+}
+
+package "Databases" <<database>> {
+  rectangle "H2 / MySQL" as Databases
+  rectangle "Redis" as Redis
+  rectangle "Kafka" as Kafka
+  MemberService --> Databases
+  OrderService --> Databases
+  ProductService --> Databases
+  ProductService --> Redis : cache stock
+  MemberService --> Redis : cache member info
+  ProductService --> Kafka : inventory updates
+}
+
+package "Infrastructure" <<infrastructure>> {
+  rectangle "Eureka Server" as Eureka
+  rectangle "Config Server" as ConfigServer
+  rectangle "Zipkin & Sleuth" as Zipkin
+  Zuul --> Eureka : service discovery
+  MemberService --> Eureka : service discovery
+  OrderService --> Eureka : service discovery
+  ProductService --> Eureka : service discovery
+  AuthenticationService --> Eureka : service discovery
+  Zuul --> ConfigServer : config management
+  MemberService --> ConfigServer : config management
+  OrderService --> ConfigServer : config management
+  ProductService --> ConfigServer : config management
+  AuthenticationService --> ConfigServer : config management
+  Zuul --> Zipkin : tracing
+  MemberService --> Zipkin : tracing
+  OrderService --> Zipkin : tracing
+  ProductService --> Zipkin : tracing
+  AuthenticationService --> Zipkin : tracing
+}
+
+@enduml
+```

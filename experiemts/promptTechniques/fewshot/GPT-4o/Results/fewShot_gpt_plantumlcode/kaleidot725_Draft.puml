@@ -1,0 +1,66 @@
+```plantuml
+@startuml kaleidot725_Draft
+skinparam rectangle {
+  BackgroundColor<<app>> #d9e7fd
+  BackgroundColor<<data>> #ffebcc
+  BackgroundColor<<domain>> #d8f5d3
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+left to right direction
+
+package "App Module" <<app>> {
+  rectangle "ComposeMainActivity" as ComposeMainActivity
+  rectangle "EmomemoApp" as EmomemoApp
+  rectangle "Jetpack Compose UI" as ComposeUI
+  rectangle "Navigation Compose" as NavigationCompose
+  rectangle "ViewModels" as ViewModels
+  ComposeMainActivity --> ComposeUI
+  ComposeMainActivity --> NavigationCompose
+  ComposeUI --> ViewModels
+}
+
+package "Domain Module" <<domain>> {
+  rectangle "Use Cases" as UseCases
+  rectangle "Notebook Domain Model" as NotebookDomain
+  rectangle "Memo Domain Model" as MemoDomain
+  UseCases --> NotebookDomain
+  UseCases --> MemoDomain
+}
+
+package "Data Module" <<data>> {
+  rectangle "Room Database" as RoomDB
+  rectangle "Notebook Repository" as NotebookRepo
+  rectangle "Memo Repository" as MemoRepo
+  RoomDB --> NotebookRepo
+  RoomDB --> MemoRepo
+}
+
+package "Dependency Injection" {
+  rectangle "Koin" as Koin
+  EmomemoApp --> Koin
+  Koin --> ViewModels
+  Koin --> UseCases
+}
+
+package "Asynchronous Programming" {
+  rectangle "Kotlin Coroutines & Flows" as Coroutines
+  ViewModels --> Coroutines
+  NotebookRepo --> Coroutines
+  MemoRepo --> Coroutines
+}
+
+package "Testing" {
+  rectangle "JUnit Tests" as JUnit
+}
+
+package "Continuous Integration" {
+  rectangle "GitHub Actions" as GitHubActions
+  GitHubActions --> JUnit
+}
+
+ComposeUI --> UseCases
+UseCases --> NotebookRepo
+UseCases --> MemoRepo
+@enduml
+```

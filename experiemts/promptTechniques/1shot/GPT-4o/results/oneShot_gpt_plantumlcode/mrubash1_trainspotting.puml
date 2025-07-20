@@ -1,0 +1,41 @@
+```plantuml
+@startuml mrubash1_trainspotting
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Raspberry Pi" as RaspberryPi {
+  rectangle "Video_Camera" as VideoCamera
+  rectangle "Video_Sensor" as VideoSensor
+  rectangle "Video_Detector" as VideoDetector
+}
+
+rectangle "TensorFlow Model" as TensorFlowModel #lightblue
+
+rectangle "Data Storage & Analysis" as DataStorage #lightyellow
+
+' ========== Connections ==========
+User --> RaspberryPi
+
+' Video capture and processing
+RaspberryPi -> VideoCamera : capture video
+VideoCamera -> VideoSensor : add frames to input_deque
+
+' Image processing and classification
+VideoSensor -> VideoDetector : process frames for motion detection
+VideoDetector -> TensorFlowModel : classify objects
+TensorFlowModel -> VideoDetector : return classification results
+
+' Train detection and direction analysis
+VideoDetector -> VideoDetector : detect train motion\n determine direction
+
+' Data storage and visualization
+VideoDetector -> DataStorage : store motion data, detection events
+DataStorage -> User : visualize motion data, detection events
+@enduml
+```

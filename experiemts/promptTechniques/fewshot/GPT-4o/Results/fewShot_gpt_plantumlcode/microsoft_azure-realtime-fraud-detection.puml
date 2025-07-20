@@ -1,0 +1,34 @@
+```plantuml
+@startuml microsoft_azure-realtime-fraud-detection
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+package "Azure Services" {
+  rectangle "Azure Event Hub" as EventHub #orange
+  rectangle "Azure Stream Analytics" as StreamAnalytics #lightblue
+  rectangle "Azure Machine Learning" as MachineLearning #lightgreen
+  rectangle "Azure Functions" as AzureFunctions #lightcoral
+  rectangle "Azure Synapse Analytics" as Synapse #lightgoldenrodyellow
+  rectangle "Azure Cosmos DB" as CosmosDB #lightpink
+}
+
+actor "Event Generator" as EventGen
+
+rectangle "Fraud Detection Process" {
+  EventGen --> EventHub : Simulate Transaction Events
+  EventHub --> StreamAnalytics : Ingest Events
+  StreamAnalytics --> MachineLearning : Enrich with Fraud Scores
+  MachineLearning --> AzureFunctions : Deploy and Score Model
+  AzureFunctions --> StreamAnalytics : Orchestrate Workflow
+  StreamAnalytics --> Synapse : Persist Data for Analysis
+  StreamAnalytics --> CosmosDB : Persist Data for Storage
+  AzureFunctions --> CosmosDB : Benford's Law & Fraud Ring Detection
+}
+
+CosmosDB --> AzureFunctions : Trigger on Fraud Detection
+@enduml
+```

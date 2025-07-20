@@ -1,0 +1,79 @@
+Here's a PlantUML sequence diagram representing the control flow of the jlhood_retweet-leaderboard system:
+
+```plantuml
+@startuml jlhood_retweet-leaderboard
+
+participant "Twitter Event Source" as TES
+participant "TweetProcessorHandler" as TPH
+participant "TweetProcessor" as TP
+participant "Tweet" as T
+participant "Leaderboard" as LB
+participant "DynamoDB" as DDB
+participant "API Gateway" as APIG
+participant "GetLeaderboardHandler" as GLH
+participant "Client" as C
+
+TES -> TPH: Invoke with tweet JSON
+activate TPH
+
+TPH -> TP: processTweet(tweetJson)
+activate TP
+
+TP -> T: parse(tweetJson)
+activate T
+T --> TP: Tweet object
+deactivate T
+
+TP -> TP: filterTweet(tweet)
+TP -> TP: convertToRetweetCount(tweet)
+
+TP -> LB: updateLeaderboard(retweetCount)
+activate LB
+
+LB -> DDB: getItem(username)
+activate DDB
+DDB --> LB: LeaderboardRecord
+deactivate DDB
+
+LB -> LB: updateRecord(record, retweetCount)
+
+LB -> DDB: putItem(updatedRecord)
+activate DDB
+DDB --> LB: Confirmation
+deactivate DDB
+
+LB --> TP: Update confirmation
+deactivate LB
+
+TP --> TPH: Processing complete
+deactivate TP
+
+TPH --> TES: Lambda execution complete
+deactivate TPH
+
+C -> APIG: GET /leaderboard
+activate APIG
+
+APIG -> GLH: Invoke
+activate GLH
+
+GLH -> LB: getLeaderboard(limit)
+activate LB
+
+LB -> DDB: scan()
+activate DDB
+DDB --> LB: All LeaderboardRecords
+deactivate DDB
+
+LB -> LB: sortAndLimitRecords()
+LB --> GLH: Sorted leaderboard
+deactivate LB
+
+GLH --> APIG: JSON response
+deactivate GLH
+
+APIG --> C: Leaderboard data
+deactivate APIG
+
+@enduml
+```

@@ -1,0 +1,47 @@
+```plantuml
+@startuml gregoryjohnsonjg6_angular-dotnet-core-docker
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Frontend\n(Angular)" as FE #lightcyan {
+}
+
+rectangle "Backend\n(ASP.NET Core Web API)" as BE #lightpink {
+  rectangle "WebApi" as WebApi
+  rectangle "Application" as Application
+  rectangle "Domain" as Domain
+  rectangle "Infrastructure.Persistence" as Persistence
+  rectangle "Infrastructure.Identity" as Identity
+}
+
+rectangle "Database\n(PostgreSQL)" as DB #lightgrey {
+}
+
+rectangle "Load Balancer\n(NGINX)" as LB #lightyellow
+
+' ========== Connections ==========
+User --> FE : Access UI
+
+' Frontend interactions
+FE --> LB : HTTP Requests
+
+' Load Balancer interactions
+LB --> WebApi : Route Requests
+
+' Backend interactions
+WebApi --> Application : Process Request
+Application --> Domain : Validate and Execute
+Application --> Persistence : Data Access
+Application --> Identity : Authenticate User
+
+' Database interactions
+Persistence --> DB : Query/Insert/Update/Delete
+
+@enduml
+```

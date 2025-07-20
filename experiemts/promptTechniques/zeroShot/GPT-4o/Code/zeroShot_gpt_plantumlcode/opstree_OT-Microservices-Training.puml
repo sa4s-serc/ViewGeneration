@@ -1,0 +1,59 @@
+```plantuml
+@startuml opstree_OT-Microservices-Training
+
+actor User
+
+participant "Frontend" as Frontend
+participant "Gateway" as Gateway
+participant "Employee Service" as EmployeeService
+participant "Attendance Service" as AttendanceService
+participant "Salary Service" as SalaryService
+participant "Notification Service" as NotificationService
+participant "MySQL Database" as MySQL
+participant "Elasticsearch" as Elasticsearch
+
+User -> Frontend: Access Application
+Frontend -> Gateway: API Request (Employee, Attendance, Salary)
+activate Gateway
+
+Gateway -> EmployeeService: Request Employee Data
+activate EmployeeService
+EmployeeService -> MySQL: Query Employee Data
+activate MySQL
+MySQL -> EmployeeService: Return Employee Data
+deactivate MySQL
+EmployeeService -> Gateway: Return Employee Data
+deactivate EmployeeService
+
+Gateway -> AttendanceService: Request Attendance Data
+activate AttendanceService
+AttendanceService -> MySQL: Query Attendance Records
+activate MySQL
+MySQL -> AttendanceService: Return Attendance Records
+deactivate MySQL
+AttendanceService -> Gateway: Return Attendance Data
+deactivate AttendanceService
+
+Gateway -> SalaryService: Request Salary Data
+activate SalaryService
+SalaryService -> MySQL: Query Salary Information
+activate MySQL
+MySQL -> SalaryService: Return Salary Information
+deactivate MySQL
+SalaryService -> Gateway: Return Salary Data
+deactivate SalaryService
+
+Gateway -> Frontend: Aggregate and Return Data
+deactivate Gateway
+
+Frontend -> NotificationService: Request Notification
+activate NotificationService
+NotificationService -> Elasticsearch: Query Employee Notifications
+activate Elasticsearch
+Elasticsearch -> NotificationService: Return Notification Data
+deactivate Elasticsearch
+NotificationService -> Frontend: Send Notification to User
+deactivate NotificationService
+
+@enduml
+```

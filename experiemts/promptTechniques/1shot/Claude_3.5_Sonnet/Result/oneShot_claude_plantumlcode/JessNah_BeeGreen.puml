@@ -1,0 +1,47 @@
+@startuml JessNah_BeeGreen
+
+actor User
+participant "Chrome Extension" as Extension
+participant "Client Website" as Client
+participant "LoopBack 4 Server" as Server
+database "IBM Cloudant DB" as DB
+
+User -> Extension : Open e-commerce site
+activate Extension
+Extension -> Extension : Inject content script
+Extension -> Server : Request product data
+activate Server
+Server -> DB : Query product info
+DB --> Server : Return product data
+Server --> Extension : Send product data
+Extension -> Extension : Display sustainability score
+Extension -> Extension : Suggest alternatives
+deactivate Server
+
+User -> Extension : Contribute review/score
+activate Server
+Extension -> Server : Send user contribution
+Server -> DB : Store contribution
+DB --> Server : Confirm storage
+Server --> Extension : Confirm submission
+deactivate Server
+
+User -> Client : Access dashboard
+activate Client
+Client -> Server : Request user data
+activate Server
+Server -> DB : Query user info
+DB --> Server : Return user data
+Server --> Client : Send user data
+Client -> Client : Display dashboard
+deactivate Server
+
+User -> Client : Contribute to database
+Client -> Server : Send contribution
+activate Server
+Server -> DB : Store contribution
+DB --> Server : Confirm storage
+Server --> Client : Confirm submission
+deactivate Server
+
+@enduml

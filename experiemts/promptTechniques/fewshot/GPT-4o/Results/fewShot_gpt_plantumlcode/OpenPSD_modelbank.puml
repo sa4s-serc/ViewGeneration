@@ -1,0 +1,58 @@
+```plantuml
+@startuml OpenPSD_modelbank
+skinparam rectangle {
+  BackgroundColor<<entities>> #d9e7fd
+  BackgroundColor<<usecases>> #d8f5d3
+  BackgroundColor<<providers>> #fff1c9
+  BackgroundColor<<grpc>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Entities" <<entities>> {
+  rectangle "Financial Institution" as FinancialInstitution
+  rectangle "Account Holder" as AccountHolder
+  rectangle "Account" as Account
+  rectangle "Consent" as Consent
+  rectangle "Ledger Entry" as LedgerEntry
+  rectangle "Payment Instruction" as PaymentInstruction
+  rectangle "Payment Transaction" as PaymentTransaction
+}
+
+package "Use Cases" <<usecases>> {
+  rectangle "ModelBank Usecase" as ModelBankUsecase
+  rectangle "Financial Institution Processor" as FinancialInstitutionProcessor
+  rectangle "Account Holder Processor" as AccountHolderProcessor
+  rectangle "Account Processor" as AccountProcessor
+}
+
+package "Providers" <<providers>> {
+  rectangle "ModelBank Controller" as ModelBankController
+  rectangle "DB Provider" as DbProvider
+}
+
+package "gRPC" <<grpc>> {
+  rectangle "gRPC Server" as gRPCServer
+  rectangle "modelbank.proto" as modelbankProto
+}
+
+FinancialInstitution --> ModelBankUsecase
+AccountHolder --> ModelBankUsecase
+Account --> ModelBankUsecase
+Consent --> ModelBankUsecase
+LedgerEntry --> ModelBankUsecase
+PaymentInstruction --> ModelBankUsecase
+PaymentTransaction --> ModelBankUsecase
+
+ModelBankUsecase --> FinancialInstitutionProcessor
+ModelBankUsecase --> AccountHolderProcessor
+ModelBankUsecase --> AccountProcessor
+ModelBankUsecase --> DbProvider : uses
+
+ModelBankController --> ModelBankUsecase
+ModelBankController --> modelbankProto : maps to/from
+
+gRPCServer --> ModelBankController
+gRPCServer --> modelbankProto
+@enduml
+```

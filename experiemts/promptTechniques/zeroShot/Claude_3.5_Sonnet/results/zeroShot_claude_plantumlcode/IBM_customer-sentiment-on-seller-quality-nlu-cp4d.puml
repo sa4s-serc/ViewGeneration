@@ -1,0 +1,44 @@
+@startuml IBM_customer-sentiment-on-seller-quality-nlu-cp4d
+
+actor User
+participant "Jupyter Notebook" as Notebook
+database "Db2 Database" as DB2
+participant "Watson NLU" as NLU
+participant "Embedded Dashboard" as Dashboard
+
+User -> Notebook: Execute notebook
+activate Notebook
+
+Notebook -> DB2: Connect and fetch data
+activate DB2
+DB2 --> Notebook: Return customer review data
+deactivate DB2
+
+loop For each review
+    Notebook -> NLU: Send review text for analysis
+    activate NLU
+    NLU --> Notebook: Return sentiment and emotion scores
+    deactivate NLU
+end
+
+Notebook -> Notebook: Calculate seller ratings
+
+Notebook -> DB2: Store processed data
+activate DB2
+DB2 --> Notebook: Confirm data storage
+deactivate DB2
+
+Notebook -> Dashboard: Update visualization data
+activate Dashboard
+Dashboard --> Notebook: Confirm update
+deactivate Dashboard
+
+Notebook --> User: Display results
+deactivate Notebook
+
+User -> Dashboard: Interact with dashboard
+activate Dashboard
+Dashboard --> User: Show interactive visualizations
+deactivate Dashboard
+
+@enduml

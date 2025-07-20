@@ -1,0 +1,44 @@
+```plantuml
+@startuml chsakell_planet-scale-azure
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+package "User Interface" {
+  rectangle "Angular Application" as AngularApp #d9e7fd
+}
+
+package "Backend Services" {
+  rectangle "ASP.NET Core WebAPI" as WebAPI #d8f5d3
+  rectangle "Order Processing\nWebJob" as WebJob #d8f5d3
+}
+
+package "Azure Services" {
+  rectangle "Azure Traffic Manager" as TrafficManager #fddddd
+  rectangle "Azure CDN" as CDN #fddddd
+  rectangle "Azure Redis Cache" as RedisCache #fddddd
+  rectangle "Azure Service Bus" as ServiceBus #fddddd
+  rectangle "Azure SQL Server" as SQLServer #fff1c9
+  rectangle "Azure Cosmos DB" as CosmosDB #fff1c9
+  rectangle "Azure Search" as AzureSearch #fff1c9
+}
+
+actor "User"
+
+User --> AngularApp
+AngularApp --> WebAPI
+WebAPI --> SQLServer
+WebAPI --> CosmosDB
+WebAPI --> RedisCache
+WebAPI --> ServiceBus
+WebAPI --> AzureSearch
+
+ServiceBus --> WebJob
+
+TrafficManager --> AngularApp
+CDN --> AngularApp
+@enduml
+```

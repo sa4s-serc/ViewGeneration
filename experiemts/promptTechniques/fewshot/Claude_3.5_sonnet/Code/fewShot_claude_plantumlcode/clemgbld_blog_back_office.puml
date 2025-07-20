@@ -1,0 +1,58 @@
+@startuml clemgbld_blog_back_office
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+rectangle "Frontend (React)" {
+  [App] as App
+  [Redux Store] as Store
+  [React Router] as Router
+  [RichTextEditor (Plate)] as Editor
+  
+  rectangle "Core" {
+    [Articles Module] as ArticlesModule
+    [Auth Module] as AuthModule
+    [Emails Module] as EmailsModule
+  }
+  
+  rectangle "UI Components" {
+    [Title]
+    [Input]
+    [Button]
+    [Modal]
+    [Header]
+    [Spinner]
+  }
+}
+
+rectangle "Infrastructure" {
+  [RestAuthService] as RestAuth
+  [RestArticlesService] as RestArticles
+  [RestEmailsService] as RestEmails
+  [LocalStorageService] as LocalStorage
+}
+
+cloud "External Services" {
+  [API Server] as API
+}
+
+App --> Store : uses
+App --> Router : uses
+App --> Editor : uses
+Store --> ArticlesModule : manages
+Store --> AuthModule : manages
+Store --> EmailsModule : manages
+
+ArticlesModule --> RestArticles : calls
+AuthModule --> RestAuth : calls
+EmailsModule --> RestEmails : calls
+AuthModule --> LocalStorage : uses
+
+RestAuth --> API : communicates
+RestArticles --> API : communicates
+RestEmails --> API : communicates
+
+@enduml

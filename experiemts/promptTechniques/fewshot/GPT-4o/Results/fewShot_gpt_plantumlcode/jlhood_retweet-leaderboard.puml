@@ -1,0 +1,31 @@
+```plantuml
+@startuml jlhood_retweet-leaderboard
+skinparam linetype ortho
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+
+actor "Twitter Event Source" as Twitter
+
+rectangle "AWS Cloud" {
+  rectangle "Lambda\nTweetProcessor" as TweetProcessor #lightblue
+  rectangle "DynamoDB\nLeaderboard Table" as LeaderboardTable #lightgreen
+  rectangle "Lambda\nGetLeaderboard" as GetLeaderboard #lightblue
+  rectangle "API Gateway\n/leaderboard" as APIGateway #lightyellow
+}
+
+rectangle "UI" {
+  rectangle "Leaderboard HTML Page" as LeaderboardUI #lightpink
+}
+
+Twitter --> TweetProcessor : Tweet JSON
+TweetProcessor --> LeaderboardTable : Update Retweet Counts
+LeaderboardUI --> APIGateway : HTTP Request
+APIGateway --> GetLeaderboard : Invoke
+GetLeaderboard --> LeaderboardTable : Retrieve Leaderboard
+GetLeaderboard --> APIGateway : Return Leaderboard JSON
+APIGateway --> LeaderboardUI : HTTP Response
+@enduml
+```

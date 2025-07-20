@@ -1,0 +1,44 @@
+Here's a PlantUML sequence diagram representing the control flow in the eProsima Integration Service:
+
+```plantuml
+@startuml eProsima_Integration-Service
+
+participant "Configuration Parser" as CP
+participant "Integration Service Core" as ISC
+participant "System Handle Factory" as SHF
+participant "System Handle A" as SHA
+participant "System Handle B" as SHB
+participant "Data Converter" as DC
+
+activate CP
+CP -> ISC : Parse YAML configuration
+activate ISC
+
+ISC -> SHF : Create System Handles
+activate SHF
+SHF --> ISC : Return System Handles
+deactivate SHF
+
+ISC -> SHA : Initialize
+activate SHA
+SHA --> ISC : Initialization complete
+deactivate SHA
+
+ISC -> SHB : Initialize
+activate SHB
+SHB --> ISC : Initialization complete
+deactivate SHB
+
+ISC -> ISC : Set up routes
+
+loop For each message
+    SHA -> ISC : Receive message
+    ISC -> DC : Convert message (JSON to xtypes)
+    activate DC
+    DC --> ISC : Converted message
+    deactivate DC
+    ISC -> SHB : Forward converted message
+end
+
+@enduml
+```

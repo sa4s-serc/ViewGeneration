@@ -1,0 +1,36 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #EEEBDC
+  BorderColor #333333
+  FontColor #000000
+}
+
+actor "Web Client" as client
+actor "Web Server" as webserver
+
+rectangle "hasses Server" {
+  rectangle "epoll Event Loop" as epoll
+  rectangle "Client Management" as clientmgmt
+  rectangle "Message Routing" as msgrouting
+  rectangle "SSE Handler" as ssehandler
+  rectangle "I/O Layer (cio)" as cio
+  rectangle "Configuration" as config
+}
+
+database "Client Data" as clientdata
+file "FIFO / TCP Socket" as fifo
+file "Log File" as logfile
+file "hasses.conf" as conffile
+
+client -> ssehandler : SSE Connection
+webserver -> fifo : Send Message
+fifo -> msgrouting : Receive Message
+epoll <-> cio : Manage I/O
+epoll -> clientmgmt : Update Client Status
+clientmgmt <-> clientdata : Manage Client Info
+msgrouting -> ssehandler : Route Message
+ssehandler -> cio : Send to Client
+config <- conffile : Read Settings
+cio -> logfile : Write Logs
+
+@enduml

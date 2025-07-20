@@ -1,0 +1,30 @@
+```plantuml
+@startuml tamu-datathon-org_galaxy
+actor User
+
+boundary "Galaxy Gateway" as Gateway
+control "Router Service (Nginx)" as Router
+control "Gatekeeper (Auth)" as Gatekeeper
+control "Obos (Event Management)" as Obos
+control "Gigabowser (Static)" as Gigabowser
+
+User -> Gateway : Access tamudatathon.com
+Gateway -> Router : Route based on URL path
+
+alt Authentication
+    Router -> Gatekeeper : /auth
+    Gatekeeper -> Router : Auth Response
+end
+
+alt Event Management
+    Router -> Obos : /events
+    Obos -> Router : Event Response
+end
+
+alt Static Content
+    Router -> Gigabowser : /static
+    Gigabowser -> Router : Static Content
+end
+
+@enduml
+```

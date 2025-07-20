@@ -1,0 +1,46 @@
+```plantuml
+@startuml Simon-0711_ta_lyrics_sentiment_classification
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+actor User
+
+package "Frontend (React)" as FE {
+  rectangle "UI Components" as UI
+  rectangle "HTTP Services" as HTTP
+}
+
+package "Backend (FastAPI)" as BE {
+  rectangle "API Endpoints" as Endpoints
+  rectangle "Lyrics Processing" as Processing
+  rectangle "CNN Model" as CNN
+  rectangle "Elasticsearch Interactions" as ESInteractions
+  rectangle "LyricsGenius API Interaction" as GeniusAPI
+}
+
+database "Elasticsearch" as Elasticsearch #lightyellow
+
+rectangle "LyricsGenius API" as Genius #lightpink
+
+User --> UI : Enter song info
+UI --> HTTP : API requests
+HTTP --> Endpoints : API calls
+
+Endpoints --> Processing : Lyrics Preprocessing
+Endpoints --> GeniusAPI : Fetch lyrics if necessary
+GeniusAPI --> Genius : Fetch lyrics
+Genius --> GeniusAPI : Return lyrics
+Processing --> CNN : Sentiment Classification
+CNN --> ESInteractions : Query similar songs
+
+ESInteractions --> Elasticsearch : Store/Retrieve lyrics
+Elasticsearch --> ESInteractions : Return data
+
+Endpoints --> UI : Return results
+@enduml
+```

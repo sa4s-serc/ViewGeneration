@@ -1,0 +1,60 @@
+```plantuml
+@startuml marekq_rss-lambda
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "CloudWatch" as CloudWatch #lightgrey
+
+rectangle "AWS Lambda" as Lambda #lightblue {
+  rectangle "rsscrawl\nLambda Function" as RssCrawl
+  rectangle "rssgetfeed\nLambda Function" as RssGetFeed
+  rectangle "pagecount\nLambda Function" as PageCount
+}
+
+rectangle "AWS Step Function" as StepFunction #lightgreen
+
+rectangle "AWS DynamoDB" as DynamoDB #lightyellow
+
+rectangle "AWS S3" as S3 #aliceblue
+
+rectangle "AWS SES" as SES #lightpink
+
+rectangle "AWS Comprehend" as Comprehend #lightcoral
+
+rectangle "AppSync" as AppSync #lightsteelblue
+
+rectangle "Algolia" as Algolia #lightgoldenrodyellow
+
+' ========== Connections ==========
+User --> CloudWatch : Configure Schedule
+
+CloudWatch --> StepFunction : Trigger Step Function
+
+StepFunction --> RssCrawl : Start Execution
+
+RssCrawl --> S3 : Check for existing data
+RssCrawl --> StepFunction : Continue Flow
+
+StepFunction --> RssGetFeed : Invoke for each feed
+
+RssGetFeed --> Comprehend : Perform Entity Recognition
+RssGetFeed --> DynamoDB : Store blog post data
+RssGetFeed --> SES : Send notification (if enabled)
+RssGetFeed --> Algolia : Index data (if enabled)
+RssGetFeed --> S3 : Store JSON (if enabled)
+
+User --> AppSync : Query for blog data
+
+User --> Algolia : Search for blog posts
+
+StepFunction --> PageCount : Invoke manually
+
+PageCount --> DynamoDB : Update article count
+@enduml
+```

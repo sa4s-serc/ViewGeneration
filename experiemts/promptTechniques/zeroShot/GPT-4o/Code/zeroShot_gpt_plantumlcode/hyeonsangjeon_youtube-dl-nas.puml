@@ -1,0 +1,43 @@
+```plantuml
+@startuml hyeonsangjeon_youtube-dl-nas
+
+actor User
+participant "Web Interface" as WebInterface
+participant "REST API" as RESTAPI
+participant "WebSocket Server" as WebSocketServer
+participant "Auth Module" as AuthModule
+participant "Download Queue" as DownloadQueue
+participant "Download Worker" as DownloadWorker
+participant "yt-dlp/youtube-dl" as Downloader
+
+User -> WebInterface: Request Login
+WebInterface -> AuthModule: Validate Credentials
+AuthModule --> WebInterface: Authentication Success
+
+User -> WebInterface: Submit Download Request
+alt login required
+    WebInterface -> AuthModule: Validate Credentials
+    AuthModule --> WebInterface: Authentication Success
+end
+WebInterface -> RESTAPI: Forward Download Request
+RESTAPI -> AuthModule: Validate API Credentials
+AuthModule --> RESTAPI: Authentication Success
+RESTAPI -> DownloadQueue: Enqueue Download Request
+
+DownloadQueue -> DownloadWorker: Dequeue and Process Request
+DownloadWorker -> Downloader: Execute Download Command
+Downloader --> DownloadWorker: Download Success/Failure
+
+DownloadWorker -> WebSocketServer: Notify Download Status
+WebSocketServer -> WebInterface: Update Download Status
+WebInterface -> User: Display Download Status
+
+User -> WebInterface: Request Download Queue Status
+WebInterface -> WebSocketServer: Connect WebSocket
+WebSocketServer -> DownloadQueue: Fetch Queue Status
+DownloadQueue --> WebSocketServer: Return Queue Status
+WebSocketServer -> WebInterface: Send Queue Status
+WebInterface -> User: Display Queue Status
+
+@enduml
+```

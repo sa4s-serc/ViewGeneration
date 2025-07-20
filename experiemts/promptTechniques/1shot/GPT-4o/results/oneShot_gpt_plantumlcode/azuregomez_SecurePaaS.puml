@@ -1,0 +1,37 @@
+```plantuml
+@startuml azuregomez_SecurePaaS
+skinparam componentStyle rectangle
+skinparam backgroundColor #f9f9f9
+skinparam component {
+  BackgroundColor<<managed>> #d9e7fd
+  BackgroundColor<<network>> #d8f5d3
+  BackgroundColor<<security>> #fddddd
+  BackgroundColor<<script>> #fff1c9
+}
+
+package "Azure PaaS Deployment" {
+  component "Azure App Service" <<managed>> as AppService
+  component "Azure SQL Database" <<managed>> as SQLDB
+  component "Azure Web Application Firewall (WAF)" <<security>> as WAF
+  component "Azure Firewall" <<security>> as Firewall
+  component "Azure Private Link" <<network>> as PrivateLink
+  component "Secret Management" <<security>> as SecretManagement
+
+  AppService -down-> WAF
+  AppService -right-> Firewall
+  Firewall -right-> PrivateLink
+  PrivateLink -down-> SQLDB
+  SQLDB -left-> SecretManagement
+}
+
+package "Deployment Scripts" {
+  component "azuredeploy.ps1" <<script>> as AzureDeploy
+  component "enablefirewallroute.ps1" <<script>> as FirewallRoute
+}
+
+AzureDeploy -down-> AppService
+AzureDeploy -down-> SQLDB
+FirewallRoute -right-> Firewall
+
+@enduml
+```

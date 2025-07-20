@@ -1,0 +1,82 @@
+Based on the provided summary of the Emomemo app, I'll create a PlantUML diagram that illustrates the overall architecture and key components of the application. This diagram will show both static structure and dynamic interactions.
+
+@startuml kaleidot725_Draft
+
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+
+package "Presentation Layer" {
+  [ComposeMainActivity] as CMA
+  [Navigation Compose] as NC
+  [ViewModels] as VM
+  [Jetpack Compose UI] as UI
+  [TextEditor] as TE
+}
+
+package "Domain Layer" {
+  [Use Cases] as UC
+  [Domain Models] as DM
+}
+
+package "Data Layer" {
+  [Repositories] as Repo
+  database "Room Database" as RoomDB
+}
+
+cloud "Koin DI Container" as Koin
+
+actor User
+
+' Static relationships
+User --> UI
+CMA --> NC
+NC --> UI
+UI --> VM
+UI ..> TE : uses
+VM --> UC
+UC --> Repo
+Repo --> RoomDB
+Koin ..> VM : injects
+Koin ..> UC : injects
+Koin ..> Repo : injects
+
+' Dynamic interactions
+UI -[#blue]-> VM : Intent
+VM -[#blue]-> UI : State/SideEffect
+VM -[#blue]-> UC : Execute
+UC -[#blue]-> Repo : CRUD operations
+Repo -[#blue]-> RoomDB : Query/Update
+RoomDB -[#blue]-> Repo : Results
+Repo -[#blue]-> UC : Data
+UC -[#blue]-> VM : Results
+
+note right of UI
+  Jetpack Compose
+  components for notebooks,
+  memos, and CRUD operations
+end note
+
+note right of VM
+  Implements MVI pattern
+  using orbit-mvi
+end note
+
+note right of UC
+  Encapsulates business logic
+  e.g., CreateMemoUseCase,
+  GetNotebooksUseCase
+end note
+
+note right of Repo
+  Abstracts data access
+  NotebookRepository,
+  MemoRepository
+end note
+
+note bottom of Koin
+  Dependency Injection
+  for ViewModels, Use Cases,
+  and Repositories
+end note
+
+@enduml

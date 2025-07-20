@@ -1,0 +1,50 @@
+```plantuml
+@startuml Connor1996_Pokemon
+skinparam rectangle {
+  BackgroundColor<<client>> #d9e7fd
+  BackgroundColor<<server>> #d8f5d3
+  BackgroundColor<<data>> #fff1c9
+  BackgroundColor<<communication>> #fddddd
+  BackgroundColor<<gui>> #e5e4f1
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Client Side" <<client>> {
+  rectangle "Qt GUI\n(Widget, StackWidget,\nGameLobby, etc.)" as GUI <<gui>>
+  rectangle "Pokemon Class\nHierarchy\n(Pokemon, PokemonFactory)" as PokemonClasses
+  rectangle "ORM\n(ormlite.h)" as ORM
+  rectangle "Client Socket\n(client.cpp)" as ClientSocket
+  GUI --> PokemonClasses
+  PokemonClasses --> ORM
+  ClientSocket --> GUI
+}
+
+package "Server Side" <<server>> {
+  rectangle "Server Socket\n(server.cpp)" as ServerSocket
+  rectangle "Request Dispatcher\n(dispatch.h/.cpp)" as Dispatcher
+  rectangle "Reflector\n(reflector.h)" as Reflector
+  ServerSocket --> Dispatcher
+  Dispatcher --> Reflector
+}
+
+package "Communication" <<communication>> {
+  rectangle "JSON Communication" as JSON
+  rectangle "Socket Implementation\n(socket.h)" as SocketImpl
+  ClientSocket --> JSON
+  ServerSocket --> JSON
+  ClientSocket --> SocketImpl
+  ServerSocket --> SocketImpl
+}
+
+package "Data Persistence" <<data>> {
+  rectangle "SQLite Database\n(sqlite3.h/c)" as SQLite
+  rectangle "Data Models\n(model/*.h)" as DataModels
+  ORM --> SQLite
+  DataModels --> ORM
+}
+
+database "SQLite DB" as Database
+SQLite --> Database
+@enduml
+```

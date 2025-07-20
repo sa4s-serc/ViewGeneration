@@ -1,0 +1,66 @@
+```plantuml
+@startuml thangchung_practical-dapr
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<identity>> #fddddd
+  BackgroundColor<<buildingblock>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend (WebUI)" <<frontend>> {
+  rectangle "Blazor WebAssembly" as Blazor
+  rectangle "Bootstrap Styling" as Bootstrap
+  rectangle "GraphQL\n(StrawberryShake)" as GraphQL
+  Blazor --> Bootstrap
+  Blazor --> GraphQL
+}
+
+package "Backend Services" <<backend>> {
+  rectangle "ProductCatalogApi" as ProductApi
+  rectangle "InventoryApi" as InventoryApi
+  rectangle "REST/gRPC/GraphQL\nEndpoints" as Endpoints
+  rectangle "Domain Events" as DomainEvents
+  ProductApi --> Endpoints
+  InventoryApi --> Endpoints
+  ProductApi --> DomainEvents
+  InventoryApi --> DomainEvents
+}
+
+package "IdentityServer4" <<identity>> {
+  rectangle "Authentication & Authorization" as Auth
+  rectangle "OpenID Connect/OAuth2.0" as OIDC
+  rectangle "Quickstart UI" as QuickstartUI
+  Auth --> OIDC
+  Auth --> QuickstartUI
+}
+
+package "N8T Building Blocks" <<buildingblock>> {
+  rectangle "N8T.Domain" as Domain
+  rectangle "N8T.Infrastructure" as Infrastructure
+  rectangle "Aggregate Roots" as Aggregate
+  rectangle "Domain Events" as DomainEventsBB
+  rectangle "MediatR Integration" as MediatR
+  Domain --> Aggregate
+  Domain --> DomainEventsBB
+  Infrastructure --> MediatR
+}
+
+package "Infrastructure & Deployment" {
+  rectangle "Kubernetes & Tye" as K8sTye
+  rectangle "Dapr" as Dapr
+  rectangle "Redis (State Mgmt & Pub/Sub)" as Redis
+  rectangle "CI/CD (GitHub Actions)" as CICD
+  rectangle "Observability (Zipkin, Seq)" as Observability
+  K8sTye --> Dapr
+  Dapr --> Redis
+  K8sTye --> CICD
+  K8sTye --> Observability
+}
+
+Blazor --> ProductApi
+Blazor --> InventoryApi
+Blazor --> Auth
+@enduml
+```

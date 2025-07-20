@@ -1,0 +1,50 @@
+```plantuml
+@startuml gcba-iris_iris
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "CLI" as CLI #aliceblue
+rectangle "Main Entry Point\n(index.js)" as MainEntry #lightyellow
+
+rectangle "Dispatcher" as Dispatcher #lightsteelblue {
+}
+
+rectangle "Dock" as Dock #palegreen
+rectangle "Handler" as Handler #thistle
+rectangle "Hook" as Hook #wheat
+
+rectangle "Thread Pool" as ThreadPool #mistyrose
+
+rectangle "Logger" as Logger #lightgray
+
+' ========== Connections ==========
+User --> CLI : Initialize Iris / Execute Command
+
+CLI --> MainEntry : Run iris.js
+
+MainEntry --> Dispatcher : Initialize / Register Flows
+
+Dock --> Dispatcher : Send parsed data objects
+
+Dispatcher --> Hook : Execute input hooks
+
+Dispatcher --> Handler : Route data for processing
+
+Handler --> Dispatcher : Send response back
+
+Dispatcher --> Hook : Execute output hooks
+
+Dispatcher --> ThreadPool : Assign job for concurrent execution
+
+ThreadPool --> Dispatcher : Execute data flows in parallel
+
+MainEntry --> Logger : Log information and errors
+
+@enduml
+```

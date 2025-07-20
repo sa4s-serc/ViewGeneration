@@ -1,0 +1,56 @@
+@startuml IBM_datastax-cassandra-clickstream
+
+actor User
+participant "Next.js Frontend" as Frontend
+participant "Next.js API Routes" as APIRoutes
+participant "clicks.service.js" as ClicksService
+database "DSE/Cassandra" as Database
+
+User -> Frontend : Interacts with e-commerce site
+activate Frontend
+
+Frontend -> APIRoutes : API requests (e.g., /api/products)
+activate APIRoutes
+
+alt User signs in
+    Frontend -> APIRoutes : POST /api/auth/[...nextauth]
+    APIRoutes --> Frontend : Authentication response
+end
+
+Frontend -> APIRoutes : GET /api/products
+APIRoutes --> Frontend : Product data
+
+User -> Frontend : Views product / category
+Frontend -> ClicksService : trackPageBrowsing()
+activate ClicksService
+ClicksService -> Database : Insert page view data
+Database --> ClicksService : Confirmation
+ClicksService --> Frontend : Tracking complete
+deactivate ClicksService
+
+User -> Frontend : Adds product to cart
+Frontend -> APIRoutes : POST /api/products (add to cart)
+APIRoutes -> ClicksService : addToCart()
+activate ClicksService
+ClicksService -> Database : Insert add-to-cart data
+Database --> ClicksService : Confirmation
+ClicksService --> APIRoutes : Cart update complete
+APIRoutes --> Frontend : Updated cart data
+deactivate ClicksService
+
+User -> Frontend : Views clickstream history
+Frontend -> APIRoutes : GET /api/history
+APIRoutes -> ClicksService : getActivity()
+activate ClicksService
+ClicksService -> Database : Query clickstream data
+Database --> ClicksService : Clickstream history
+ClicksService --> APIRoutes : Activity data
+APIRoutes --> Frontend : Clickstream history
+deactivate ClicksService
+
+Frontend --> User : Display updated UI
+
+deactivate APIRoutes
+deactivate Frontend
+
+@enduml

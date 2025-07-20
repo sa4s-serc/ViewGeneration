@@ -1,0 +1,30 @@
+```plantuml
+@startuml tamu-datathon-org_galaxy
+skinparam componentStyle rectangle
+
+package "TAMU Datathon Galaxy" {
+    rectangle "nginx-based Router" as Router #lightgrey
+    rectangle "Gatekeeper Authentication" as Gatekeeper #lightgreen
+    rectangle "Obos Event Management" as Obos #lightblue
+    rectangle "Gigabowser Static Site" as Gigabowser #lightyellow
+    rectangle "Other Backend Services" as OtherServices #lightpink
+
+    [User] --> Router
+
+    Router --> Gatekeeper : Authenticate
+    Router --> Obos : Route /event
+    Router --> Gigabowser : Route /static
+    Router --> OtherServices : Route /other
+
+    package "Deployment" {
+        rectangle "Heroku" as Heroku
+        rectangle "Docker Compose" as DockerCompose
+    }
+
+    Gatekeeper --> Heroku
+    Obos --> Heroku
+    Router --> DockerCompose
+}
+
+@enduml
+```

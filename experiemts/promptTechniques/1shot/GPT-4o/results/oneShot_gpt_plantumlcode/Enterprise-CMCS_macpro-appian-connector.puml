@@ -1,0 +1,57 @@
+```plantuml
+@startuml Enterprise-CMCS_macpro-appian-connector
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor Developer
+
+rectangle "GitHub" as GitHub {
+  rectangle "GitHub Actions" as GitHubActions
+}
+
+rectangle "AWS" as AWS {
+  rectangle "ECS" as ECS
+  rectangle "SNS" as SNS
+  rectangle "CloudWatch" as CloudWatch
+  rectangle "SSM Parameter Store" as SSM
+  rectangle "Secrets Manager" as SecretsManager
+}
+
+rectangle "Enterprise-CMCS_macpro-appian-connector" as Connector #lightblue {
+  rectangle "run script" as RunScript
+  rectangle "src/services" as Services
+}
+
+rectangle "Jira" as Jira
+
+' ========== Connections ==========
+Developer --> GitHub : Push changes
+
+' GitHub Actions interactions
+GitHub --> GitHubActions : Trigger CI/CD workflows
+GitHubActions --> AWS : Deploy services via Serverless Framework
+
+' AWS interactions
+ECS --> CloudWatch : Log application performance
+ECS --> SNS : Send alert notifications
+SNS --> Developer : Notify about ECS failures
+CloudWatch --> Developer : Provide performance insights
+
+' Configuration interactions
+Connector --> SSM : Retrieve configuration parameters
+Connector --> SecretsManager : Access sensitive data
+
+' Jira interactions
+GitHubActions --> Jira : Sync security findings
+GitHubActions --> Jira : Create comments for PRs
+
+' run script interactions
+Developer --> RunScript : Execute development tasks
+RunScript --> Services : Deploy/test/destroy services
+
+@enduml
+```

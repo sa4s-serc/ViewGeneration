@@ -1,0 +1,68 @@
+```plantuml
+@startuml googleinterns_typescript-flag-upgrade
+
+skinparam rectangle {
+  BackgroundColor<<cli>> #fddddd
+  BackgroundColor<<core>> #d8f5d3
+  BackgroundColor<<manipulator>> #d9e7fd
+  BackgroundColor<<detector>> #fff1c9
+  BackgroundColor<<emitter>> #ffebcd
+  BackgroundColor<<logger>> #ffffe0
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "CLI Entry Point" <<cli>> {
+  rectangle "src/index.ts" as Index
+}
+
+package "Core Components" <<core>> {
+  rectangle "Runner" as Runner
+  rectangle "Project" as Project
+  rectangle "Parser" as Parser
+  rectangle "Logger" as Logger
+}
+
+package "Manipulators" <<manipulator>> {
+  rectangle "Manipulator" as Manipulator
+  rectangle "NoImplicitReturnsManipulator" as NoImplicitReturns
+  rectangle "StrictNullChecksManipulator" as StrictNullChecks
+}
+
+package "Error Detectors" <<detector>> {
+  rectangle "ErrorDetector" as ErrorDetector
+  rectangle "ProdErrorDetector" as ProdErrorDetector
+}
+
+package "Emitters" <<emitter>> {
+  rectangle "Emitter" as Emitter
+  rectangle "InPlaceEmitter" as InPlaceEmitter
+  rectangle "OutOfPlaceEmitter" as OutOfPlaceEmitter
+}
+
+package "Loggers" <<logger>> {
+  rectangle "ConsoleLogger" as ConsoleLogger
+  rectangle "StubLogger" as StubLogger
+}
+
+Index --> Runner
+Runner --> Project
+Runner --> Parser
+Runner --> Manipulator
+Runner --> ErrorDetector
+Runner --> Emitter
+Runner --> Logger
+
+Manipulator <|-- NoImplicitReturns
+Manipulator <|-- StrictNullChecks
+
+ErrorDetector <|-- ProdErrorDetector
+
+Emitter <|-- InPlaceEmitter
+Emitter <|-- OutOfPlaceEmitter
+
+Logger <|-- ConsoleLogger
+Logger <|-- StubLogger
+
+@enduml
+```

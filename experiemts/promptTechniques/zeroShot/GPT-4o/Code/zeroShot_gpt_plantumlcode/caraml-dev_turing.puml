@@ -1,0 +1,37 @@
+```plantuml
+@startuml caraml-dev_turing
+
+actor User
+
+box "Turing Platform" #LightBlue
+    participant "API Server" as API
+    participant "Router Manager" as RouterMgr
+    participant "Ensembler Manager" as EnsemblerMgr
+    participant "Experiment Engine" as ExpEngine
+    participant "Batch Ensembling Job Manager" as BatchMgr
+    participant "Alerting System" as AlertSys
+    participant "Logging & Monitoring" as LogMon
+    participant "Infrastructure Controller" as InfraCtrl
+end box
+
+User -> API: Initiate API Request
+API -> RouterMgr: Manage Router Request
+RouterMgr -> ExpEngine: (Optional) Execute Experiment
+ExpEngine --> RouterMgr: Experiment Result
+RouterMgr -> EnsemblerMgr: Manage Ensembler Request
+EnsemblerMgr -> BatchMgr: Submit Batch Job
+BatchMgr -> InfraCtrl: Deploy Spark Job on Kubernetes
+InfraCtrl -> BatchMgr: Job Deployment Status
+BatchMgr -> EnsemblerMgr: Job Completion Status
+EnsemblerMgr --> RouterMgr: Ensembler Response
+RouterMgr -> API: Router Response
+API --> User: API Response
+
+API -> AlertSys: Trigger Alert
+AlertSys --> API: Alert Confirmation
+
+API -> LogMon: Log Request
+LogMon --> API: Log Confirmation
+
+@enduml
+```

@@ -1,0 +1,33 @@
+```plantuml
+@startuml mcuking_offline-package-webpack-plugin
+
+actor Developer
+participant "OfflinePackagePlugin" as Plugin
+participant "Webpack Compiler" as Compiler
+participant "JSZip" as JSZip
+participant "mime-types" as MimeTypes
+
+Developer -> Plugin: Configure Plugin Options
+Plugin -> Compiler: Apply Plugin
+
+activate Compiler
+Compiler -> Plugin: Emit Hook
+activate Plugin
+
+Plugin -> Plugin: Filter Files
+alt File is included
+    Plugin -> JSZip: Add File to Zip
+end
+
+Plugin -> MimeTypes: Detect MIME Type
+Plugin -> Plugin: Generate index.json Manifest
+
+Plugin -> Compiler: Emit Files
+activate JSZip
+JSZip -> Compiler: Zip Archive
+deactivate JSZip
+
+deactivate Plugin
+deactivate Compiler
+@enduml
+```

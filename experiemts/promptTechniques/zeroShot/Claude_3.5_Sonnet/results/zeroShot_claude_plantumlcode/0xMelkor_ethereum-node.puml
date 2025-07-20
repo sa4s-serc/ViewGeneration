@@ -1,0 +1,43 @@
+@startuml 0xMelkor_ethereum-node
+
+!define RECTANGLE component
+
+skinparam component {
+  BackgroundColor<<GKE>> LightBlue
+  BorderColor<<GKE>> DarkBlue
+}
+
+cloud "Google Cloud Platform" {
+  RECTANGLE "Google Kubernetes Engine (GKE)" <<GKE>> {
+    RECTANGLE "Kubernetes Cluster" {
+      RECTANGLE "Geth Pod" as GethPod
+      RECTANGLE "Lighthouse Pod" as LighthousePod
+      RECTANGLE "InfluxDB Pod" as InfluxDBPod
+      RECTANGLE "Nginx Pod" as NginxPod
+      
+      database "Geth PVC" as GethPVC
+      database "Lighthouse PVC" as LighthousePVC
+      database "InfluxDB PVC" as InfluxDBPVC
+      
+      GethPod --> GethPVC : uses
+      LighthousePod --> LighthousePVC : uses
+      InfluxDBPod --> InfluxDBPVC : uses
+      
+      NginxPod --> GethPod : proxies
+      NginxPod --> InfluxDBPod : proxies
+      GethPod --> InfluxDBPod : sends metrics
+    }
+  }
+  
+  RECTANGLE "Google Cloud Build" as CloudBuild
+  RECTANGLE "Google Cloud Secret Manager" as SecretManager
+}
+
+actor "External User" as User
+
+User --> NginxPod : accesses
+
+CloudBuild --> "Kubernetes Cluster" : deploys
+SecretManager --> CloudBuild : provides secrets
+
+@enduml

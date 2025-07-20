@@ -1,0 +1,58 @@
+Here's a PlantUML sequence diagram showing the dynamic interactions for connectivity in the eProsima FIWARE-SH system:
+
+```plantuml
+@startuml eProsima_FIWARE-SH
+
+participant "Integration Service" as IS
+participant "SystemHandle" as SH
+participant "Publisher" as PUB
+participant "Subscriber" as SUB
+participant "NGSIV2Connector" as CONN
+participant "Listener" as LIS
+participant "FIWARE Context Broker" as FCB
+
+IS -> SH : configure()
+activate SH
+SH -> CONN : create
+activate CONN
+SH -> LIS : create
+activate LIS
+LIS -> LIS : start_listening()
+
+IS -> SH : register_topic()
+SH -> PUB : create
+activate PUB
+SH -> SUB : create
+activate SUB
+
+IS -> PUB : publish(data)
+PUB -> CONN : publish_to_fiware(data)
+CONN -> FCB : HTTP POST (create/update entity)
+
+FCB -> LIS : notify(data)
+LIS -> CONN : on_data_received(data)
+CONN -> SUB : on_subscription_data(data)
+SUB -> IS : data_callback(data)
+
+IS -> SUB : subscribe()
+SUB -> CONN : subscribe_to_fiware()
+CONN -> FCB : HTTP POST (create subscription)
+
+FCB -> LIS : notify(subscribed_data)
+LIS -> CONN : on_data_received(subscribed_data)
+CONN -> SUB : on_subscription_data(subscribed_data)
+SUB -> IS : data_callback(subscribed_data)
+
+@enduml
+```
+
+This sequence diagram illustrates the connectivity behavior of the eProsima FIWARE-SH system, showing:
+
+1. System initialization and configuration
+2. Topic registration
+3. Publishing data from Integration Service to FIWARE Context Broker
+4. Receiving notifications from FIWARE Context Broker
+5. Subscribing to data from FIWARE Context Broker
+6. Handling incoming subscribed data
+
+The diagram accurately represents the runtime message flow between components and services as described in the system behavior.

@@ -1,0 +1,72 @@
+@startuml llvm_torch-mlir
+
+skinparam rectangle {
+  BackgroundColor #EEEBDC
+  ArrowColor #222222
+  BorderColor #666666
+}
+
+rectangle "PyTorch Model" as PyTorch
+
+package "Torch-MLIR" {
+  rectangle "Frontends" {
+    rectangle "Tracing-based (LTC)" as LTC
+    rectangle "TorchScript Importer" as TorchScript
+    rectangle "FX Graph Importer" as FX
+    rectangle "ONNX Importer" as ONNX
+  }
+  
+  rectangle "Torch Dialect" as TorchDialect
+  
+  rectangle "Transformation Passes" {
+    rectangle "Reify Shape/Dtype" as ReifyShapes
+    rectangle "Adjust Calling Conventions" as AdjustCalling
+    rectangle "Globalize Object Graph" as GlobalizeGraph
+    rectangle "Fuse Quantized Ops" as FuseOps
+    rectangle "Scalarize Shapes" as ScalarizeShapes
+    rectangle "Lower To Backend Contract" as LowerToBackend
+  }
+  
+  rectangle "Intermediate Dialects" {
+    rectangle "TMTensor Dialect" as TMTensor
+    rectangle "TorchConversion Dialect" as TorchConversion
+  }
+  
+  rectangle "Backend Targets" {
+    rectangle "Linalg-on-Tensors" as Linalg
+    rectangle "TOSA" as TOSA
+    rectangle "StableHLO" as StableHLO
+  }
+}
+
+rectangle "Hardware Targets" as Hardware
+
+PyTorch --> LTC
+PyTorch --> TorchScript
+PyTorch --> FX
+PyTorch --> ONNX
+
+LTC --> TorchDialect
+TorchScript --> TorchDialect
+FX --> TorchDialect
+ONNX --> TorchDialect
+
+TorchDialect --> ReifyShapes
+ReifyShapes --> AdjustCalling
+AdjustCalling --> GlobalizeGraph
+GlobalizeGraph --> FuseOps
+FuseOps --> ScalarizeShapes
+ScalarizeShapes --> LowerToBackend
+
+LowerToBackend --> TMTensor
+LowerToBackend --> TorchConversion
+
+TMTensor --> Linalg
+TorchConversion --> TOSA
+TorchConversion --> StableHLO
+
+Linalg --> Hardware
+TOSA --> Hardware
+StableHLO --> Hardware
+
+@enduml

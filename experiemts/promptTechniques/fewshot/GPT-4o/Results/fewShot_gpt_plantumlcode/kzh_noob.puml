@@ -1,0 +1,70 @@
+```plantuml
+@startuml kzh_noob
+left to right direction
+skinparam rectangle {
+  BackgroundColor #f3f3f3
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+skinparam linetype ortho
+
+package "Frontend" {
+  rectangle "Web UI\n(HTML, CSS, JS)" as WebUI
+  rectangle "Gin Web Framework" as Gin
+  WebUI --> Gin
+}
+
+package "Auth Service" {
+  rectangle "User Auth\n(Login/Signup)" as Auth
+}
+
+package "Problems Service" {
+  rectangle "Manage Problem\nDefinitions" as Problems
+}
+
+package "Submissions Service" {
+  rectangle "Receive Submissions\nSchedule Execution" as Submissions
+  rectangle "WebSocket\nFeedback" as WebSocket
+  Submissions --> WebSocket
+}
+
+package "Executor Service" {
+  rectangle "Execute Code\n(Docker-in-Docker)" as Executor
+}
+
+package "Infrastructure" {
+  rectangle "RabbitMQ\nMessage Queue" as RabbitMQ
+  rectangle "MongoDB\nDatabase" as MongoDB
+  rectangle "Redis\nSessions" as Redis
+  rectangle "Nginx Ingress" as Nginx
+  rectangle "Jaeger\nDistributed Tracing" as Jaeger
+}
+
+rectangle "API Gateway" as APIGateway
+
+WebUI --> APIGateway
+APIGateway --> Auth
+APIGateway --> Problems
+APIGateway --> Submissions
+APIGateway --> Redis
+APIGateway --> MongoDB
+
+Submissions --> RabbitMQ : Publish
+RabbitMQ --> Executor : Consume
+Executor --> RabbitMQ : Publish Results
+RabbitMQ --> Submissions : Consume Results
+
+Auth --> MongoDB
+Problems --> MongoDB
+Auth --> Redis
+
+APIGateway --> Nginx
+WebUI --> APIGateway
+
+Jaeger --> Auth
+Jaeger --> Problems
+Jaeger --> Submissions
+Jaeger --> Executor
+@enduml
+```

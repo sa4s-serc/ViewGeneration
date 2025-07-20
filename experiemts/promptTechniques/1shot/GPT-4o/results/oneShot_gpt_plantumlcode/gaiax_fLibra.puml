@@ -1,0 +1,43 @@
+```plantuml
+@startuml gaiax_fLibra
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Frontend (Nuxt.js)" as FE {
+}
+
+rectangle "Libra Blockchain" as LibraChain #mistyrose
+
+rectangle "Ethereum Blockchain" as EthereumChain #lightyellow {
+  rectangle "Smart Contracts\n(Flibra.sol, ItemDetail.sol)" as SmartContracts #palegreen
+}
+
+rectangle "Firestore" as Firestore #aliceblue
+
+rectangle "IPFS" as IPFS #lightblue
+
+rectangle "Elasticsearch Service" as Elasticsearch #lightsteelblue
+
+' ========== Connections ==========
+User --> FE
+
+' Frontend interactions
+FE <--> LibraChain : interact with Libra wallet\nfor transactions
+FE <--> EthereumChain : interact with\nsmart contracts
+FE <--> Firestore : fetch/store user/item data\nfetch/store reviews
+FE <--> IPFS : upload/download item and\nprofile images
+
+' Firestore interactions
+Firestore --> Elasticsearch : onSnapshot listeners\nupdate index
+
+' Elasticsearch interactions
+Elasticsearch --> Firestore : register new items\nremove sold items
+
+@enduml
+```

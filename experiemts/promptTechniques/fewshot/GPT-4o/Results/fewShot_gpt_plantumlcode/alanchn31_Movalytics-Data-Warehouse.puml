@@ -1,0 +1,54 @@
+```plantuml
+@startuml alanchn31_Movalytics-Data-Warehouse
+left to right direction
+skinparam rectangle {
+  BackgroundColor #dff0ff
+  BorderColor black
+  Style roundrect
+}
+skinparam ArrowColor Black
+skinparam defaultTextAlignment center
+
+actor "User" as User
+
+package "Containerization" {
+  rectangle "Docker" as Docker #ffcccc
+  rectangle "Docker Compose\nLocalExecutor" as DockerCompose #ffcccc
+}
+
+package "Orchestration" {
+  rectangle "Apache Airflow" as Airflow #ffcc99
+  rectangle "Airflow DAG\n(movies_dwh_dag.py)" as DAG #ffcc99
+}
+
+package "Data Processing" {
+  rectangle "Apache Spark" as Spark #ccffcc
+  rectangle "load_staging_movies.py" as LoadMovies #ccffcc
+  rectangle "load_staging_ratings.py" as LoadRatings #ccffcc
+}
+
+package "Data Storage" {
+  rectangle "Amazon S3" as S3 #e6e6ff
+  rectangle "Amazon Redshift" as Redshift #e6e6ff
+  database "PostgreSQL\n(Airflow Metadata)" as Postgres #e6e6ff
+}
+
+package "Data Quality" {
+  rectangle "DataQualityOperator" as DataQuality #ffebcc
+}
+
+User --> Docker
+Docker --> DockerCompose
+DockerCompose --> Airflow
+Airflow --> DAG
+DAG --> Spark
+Spark --> LoadMovies
+Spark --> LoadRatings
+LoadMovies --> S3
+LoadRatings --> S3
+S3 --> Redshift
+Redshift --> DataQuality
+DataQuality --> DAG
+DAG --> Postgres
+@enduml
+```

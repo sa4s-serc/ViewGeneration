@@ -1,0 +1,85 @@
+```plantuml
+@startuml teamgram_teamgram-server
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<service>> #fddddd
+  BackgroundColor<<storage>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend (BFF Layer)" <<frontend>> {
+  rectangle "app/bff/messages" as BFFMessages
+  rectangle "app/bff/privacysettings" as BFFPrivacy
+}
+
+package "Core Services" <<backend>> {
+  rectangle "chat" as Chat
+  rectangle "msg" as Msg
+  rectangle "user" as User
+  rectangle "authsession" as AuthSession
+  rectangle "code" as Code
+  rectangle "media" as Media
+  rectangle "dfs" as DFS
+  rectangle "username" as Username
+  rectangle "dialog" as Dialog
+  rectangle "updates" as Updates
+  rectangle "idgen" as IDGen
+}
+
+package "Communication & Messaging" <<service>> {
+  rectangle "Kafka" as Kafka
+  rectangle "gRPC (brpc)" as gRPC
+}
+
+package "Data Management" <<service>> {
+  rectangle "MySQL (DAL)" as MySQL
+  rectangle "Redis" as Redis
+  rectangle "MinIO" as MinIO
+  rectangle "Etcd" as Etcd
+}
+
+BFFMessages --> Msg
+BFFMessages --> User
+BFFPrivacy --> AuthSession
+BFFPrivacy --> Code
+
+Msg --> Kafka
+Chat --> Kafka
+User --> Redis
+AuthSession --> Redis
+Code --> Redis
+Media --> MinIO
+DFS --> MinIO
+Username --> MySQL
+Dialog --> MySQL
+Updates --> Kafka
+IDGen --> Redis
+
+Chat --> gRPC
+Msg --> gRPC
+User --> gRPC
+AuthSession --> gRPC
+Code --> gRPC
+Media --> gRPC
+DFS --> gRPC
+Username --> gRPC
+Dialog --> gRPC
+Updates --> gRPC
+IDGen --> gRPC
+
+Chat --> Etcd
+Msg --> Etcd
+User --> Etcd
+AuthSession --> Etcd
+Code --> Etcd
+Media --> Etcd
+DFS --> Etcd
+Username --> Etcd
+Dialog --> Etcd
+Updates --> Etcd
+IDGen --> Etcd
+
+@enduml
+```

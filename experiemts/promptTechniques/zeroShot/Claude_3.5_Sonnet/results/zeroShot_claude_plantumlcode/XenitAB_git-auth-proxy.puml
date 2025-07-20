@@ -1,0 +1,28 @@
+@startuml
+participant "Git Client" as Client
+participant "git-auth-proxy" as Proxy
+participant "Kubernetes API" as K8s
+participant "Git Provider\n(GitHub/Azure DevOps)" as GitProvider
+
+Client -> Proxy: Git request with token
+activate Proxy
+
+Proxy -> K8s: Validate token against secrets
+activate K8s
+K8s --> Proxy: Token validation result
+deactivate K8s
+
+alt Token is valid
+    Proxy -> Proxy: Authorize request
+    Proxy -> GitProvider: Forward authenticated request
+    activate GitProvider
+    GitProvider --> Proxy: Response
+    deactivate GitProvider
+    Proxy --> Client: Forward response
+else Token is invalid
+    Proxy --> Client: 401 Unauthorized
+end
+
+deactivate Proxy
+
+@enduml

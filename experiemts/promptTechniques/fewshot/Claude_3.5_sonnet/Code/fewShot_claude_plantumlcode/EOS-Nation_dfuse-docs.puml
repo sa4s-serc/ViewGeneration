@@ -1,0 +1,54 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #EEEBDC
+  BorderColor #333333
+  FontName Helvetica
+}
+
+rectangle "Client Applications" as Client
+
+package "dfuse Platform" {
+  [GraphQL API] as GraphQL
+  [Search API] as Search
+  [Authentication & Authorization] as Auth
+  [dfuseeos CLI] as CLI
+
+  package "Data Processing Pipeline" {
+    [mindreader] as Mindreader
+    [relayer] as Relayer
+    [search indexer] as Indexer
+    [dgraphql] as DGraphQL
+  }
+
+  database "Data Storage" {
+    [BigTable]
+    [TiKV]
+    [Badger]
+  }
+}
+
+cloud "EOSIO Blockchain" {
+  [nodeos] as Nodeos
+}
+
+Client --> GraphQL
+Client --> Search
+Client --> Auth
+
+CLI --> Mindreader
+CLI --> Relayer
+CLI --> Indexer
+CLI --> DGraphQL
+
+Mindreader --> Nodeos : Reads blockchain data
+Mindreader --> Relayer : Streams data
+Relayer --> Indexer : Passes data for indexing
+Indexer --> "Data Storage" : Stores indexed data
+DGraphQL --> "Data Storage" : Queries data
+GraphQL --> DGraphQL : Serves queries
+Search --> Indexer : Executes searches
+
+Auth --> GraphQL : Secures
+Auth --> Search : Secures
+
+@enduml

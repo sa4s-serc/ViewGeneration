@@ -1,0 +1,40 @@
+@startuml s-sokolko_smev3_adapter_service
+
+actor Client
+participant "API Layer\n(views.py)" as API
+participant "QueryProcessor\n(processors/query.py)" as QueryProcessor
+participant "Adapter\n(adapter.py)" as Adapter
+participant "Model\n(models.py)" as Model
+database MongoDB
+participant "SMEV3 Adapter" as SMEV3
+
+Client -> API: HTTP Request
+activate API
+
+API -> QueryProcessor: Process Query
+activate QueryProcessor
+
+QueryProcessor -> Adapter: Send SMEV3 Request
+activate Adapter
+
+Adapter -> SMEV3: SOAP Request
+SMEV3 --> Adapter: SOAP Response
+
+Adapter --> QueryProcessor: Response Data
+deactivate Adapter
+
+QueryProcessor -> Model: Save Query Data
+activate Model
+
+Model -> MongoDB: Store Data
+MongoDB --> Model: Confirmation
+Model --> QueryProcessor: Data Saved
+deactivate Model
+
+QueryProcessor --> API: Query Processed
+deactivate QueryProcessor
+
+API --> Client: HTTP Response
+deactivate API
+
+@enduml

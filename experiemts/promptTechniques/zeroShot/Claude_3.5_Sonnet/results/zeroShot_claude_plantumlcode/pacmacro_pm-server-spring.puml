@@ -1,0 +1,73 @@
+@startuml pacmacro_pm-server-spring
+
+participant "Client" as C
+participant "PlayerController" as PC
+participant "PlayerManager" as PM
+participant "PlayerRegistry" as PR
+participant "GameStateController" as GSC
+participant "GameStateManager" as GSM
+participant "GameStateRegistry" as GSR
+participant "TagController" as TC
+participant "TagManager" as TM
+participant "TagRegistry" as TR
+
+C -> PC: POST /player/select
+activate PC
+PC -> PM: selectPlayer()
+activate PM
+PM -> PR: addPlayer()
+PR --> PM: player added
+PM --> PC: player selected
+deactivate PM
+PC --> C: 200 OK
+deactivate PC
+
+C -> GSC: POST /game/start
+activate GSC
+GSC -> GSM: startGame()
+activate GSM
+GSM -> GSR: setGameState(IN_PROGRESS)
+GSR --> GSM: game state updated
+GSM --> GSC: game started
+deactivate GSM
+GSC --> C: 200 OK
+deactivate GSC
+
+C -> PC: POST /player/location
+activate PC
+PC -> PM: updatePlayerLocation()
+activate PM
+PM -> PR: updatePlayerLocation()
+PR --> PM: location updated
+PM --> PC: location updated
+deactivate PM
+PC --> C: 200 OK
+deactivate PC
+
+C -> TC: POST /tag
+activate TC
+TC -> TM: registerTag()
+activate TM
+TM -> TR: addTag()
+TR --> TM: tag added
+TM -> GSM: checkGameEnd()
+GSM -> GSR: setGameState(FINISHED)
+GSR --> GSM: game state updated
+GSM --> TM: game ended
+TM --> TC: tag registered, game ended
+deactivate TM
+TC --> C: 200 OK
+deactivate TC
+
+C -> GSC: GET /game/state
+activate GSC
+GSC -> GSM: getGameState()
+activate GSM
+GSM -> GSR: getGameState()
+GSR --> GSM: current game state
+GSM --> GSC: game state
+deactivate GSM
+GSC --> C: 200 OK (game state)
+deactivate GSC
+
+@enduml

@@ -1,0 +1,53 @@
+```plantuml
+@startuml MyEMS_myems
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<service>> #fddddd
+  BackgroundColor<<db>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend (AngularJS 1.x)" <<frontend>> {
+  rectangle "Main UI\n(index.html)" as MainUI
+  rectangle "AngularJS App\n(app/*)" as AngularApp
+  rectangle "UI Router\n(config.router.js)" as UIRouter
+  MainUI --> AngularApp
+  AngularApp --> UIRouter
+}
+
+package "Backend (Falcon API)" <<backend>> {
+  rectangle "API Core\n(core/*.py)" as APICore
+  rectangle "Reporting Modules\n(reports/*.py)" as Reports
+  rectangle "Config\n(config.py)" as APIConfig
+  rectangle "Falcon API\n(app.py)" as FalconAPI
+  FalconAPI --> APICore
+  FalconAPI --> Reports
+  FalconAPI --> APIConfig
+}
+
+package "Services" <<service>> {
+  rectangle "Aggregation Service\n(aggregation/main.py)" as Aggregation
+  rectangle "Normalization Service\n(normalization/main.py)" as Normalization
+  rectangle "Modbus TCP Service\n(modbus-tcp/main.py)" as ModbusTCP
+  rectangle "Data Cleaning Scripts\n(clean_energy_value.py,\nclean_digital_value.py)" as CleaningScripts
+  Aggregation --> Normalization
+  Normalization --> ModbusTCP
+  ModbusTCP --> CleaningScripts
+}
+
+database "MySQL Databases" <<db>> as MySQLDB {
+  rectangle "System DB"
+  rectangle "Energy DB"
+  rectangle "Billing DB"
+  rectangle "Historical DB"
+  rectangle "Carbon DB"
+}
+
+FalconAPI --> MySQLDB
+Aggregation --> MySQLDB
+Normalization --> MySQLDB
+
+@enduml
+```

@@ -1,0 +1,44 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "iOS App" as iOS {
+  rectangle "ViewController" as VC
+  rectangle "FloorplanOverlay" as FO
+  rectangle "FloorplanOverlayRenderer" as FOR
+  rectangle "CoordinateConverter" as CC
+  rectangle "VisibleMapRegionDelegate" as VMRD
+  rectangle "CustomPolygons" as CP
+}
+
+rectangle "Backend (Node.js)" as Backend {
+  rectangle "Express Server" as ES
+  rectangle "API Routes" as AR
+  rectangle "Mongoose Models" as MM
+  rectangle "PDF Generator" as PG
+}
+
+database "MongoDB" as DB
+
+User --> VC : Interacts
+VC --> FO : Uses
+VC --> FOR : Uses
+VC --> CC : Uses
+VC --> VMRD : Delegates to
+VC --> CP : Uses
+
+VC --> ES : HTTP Requests
+ES --> AR : Routes to
+AR --> MM : Uses
+MM --> DB : Queries/Updates
+AR --> PG : Generates PDF
+
+ES --> VC : HTTP Responses
+
+@enduml

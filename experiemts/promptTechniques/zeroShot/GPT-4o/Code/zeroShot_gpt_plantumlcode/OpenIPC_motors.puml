@@ -1,0 +1,23 @@
+```plantuml
+@startuml OpenIPC_motors
+
+actor User as user
+participant "Camera Application" as app
+participant "Motors Daemon" as daemon
+participant "Driver Wrapper" as wrapper
+participant "Hardware Interface" as hardware
+
+user -> app : Request motor control
+app -> daemon : Send motor command
+daemon -> wrapper : Select appropriate driver
+wrapper -> hardware : Send hardware-specific command
+
+note over hardware : Controls motor movement
+
+hardware -> wrapper : Confirm execution
+wrapper -> daemon : Acknowledge command
+daemon -> app : Send confirmation to application
+app -> user : Notify user of success
+
+@enduml
+```

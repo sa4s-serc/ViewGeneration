@@ -1,0 +1,50 @@
+```plantuml
+@startuml mebaysan_Modern-Data-Architecture
+skinparam rectangle {
+  BackgroundColor #f5f5f5
+  BorderColor #bbbbbb
+  Style roundrect
+}
+skinparam linetype ortho
+
+actor "User" as user
+
+package "Modern Data Architecture" {
+  
+  rectangle "Data Ingestion" as ingestion {
+    rectangle "Airbyte" as airbyte
+    rectangle "Python Script" as script
+  }
+
+  rectangle "Data Warehousing" as warehousing {
+    rectangle "PostgreSQL" as postgres
+    rectangle "pgAdmin" as pgadmin
+    rectangle "Nginx" as nginx
+  }
+
+  rectangle "Data Transformation" as transformation {
+    rectangle "DBT" as dbt
+  }
+
+  rectangle "Data Visualization" as visualization {
+    rectangle "Apache Superset" as superset
+  }
+}
+
+user --> airbyte : Ingest Data
+user --> script : Ingest Data (Alternative)
+
+airbyte --> postgres : Load Data
+script --> postgres : Load Data
+
+postgres --> dbt : Transformed Data
+dbt --> superset : Visualized Data
+
+user --> superset : View Dashboards
+
+pgadmin --> postgres : Administer
+
+nginx --> pgadmin : Reverse Proxy
+
+@enduml
+```

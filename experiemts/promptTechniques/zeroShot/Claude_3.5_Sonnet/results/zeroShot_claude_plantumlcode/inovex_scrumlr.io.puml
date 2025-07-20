@@ -1,0 +1,53 @@
+@startuml
+participant "Frontend" as FE
+participant "API Layer" as API
+participant "Authentication" as Auth
+participant "Board Service" as BoardSvc
+participant "Note Service" as NoteSvc
+participant "WebSocket" as WS
+participant "Database" as DB
+participant "NATS/Redis" as NR
+
+FE -> API: User logs in
+API -> Auth: Authenticate user
+Auth --> API: Authentication result
+API --> FE: Login response
+
+FE -> API: Create new board
+API -> BoardSvc: Create board
+BoardSvc -> DB: Save board
+DB --> BoardSvc: Board created
+BoardSvc --> API: Board details
+API --> FE: Board creation response
+
+FE -> WS: Connect to board
+WS -> BoardSvc: Register user to board
+BoardSvc -> NR: Publish user joined event
+NR --> FE: Broadcast user joined
+
+FE -> API: Add note to board
+API -> NoteSvc: Create note
+NoteSvc -> DB: Save note
+DB --> NoteSvc: Note saved
+NoteSvc -> NR: Publish note added event
+NR --> FE: Broadcast note added
+
+FE -> API: Vote on note
+API -> NoteSvc: Update note votes
+NoteSvc -> DB: Save updated note
+DB --> NoteSvc: Note updated
+NoteSvc -> NR: Publish vote update event
+NR --> FE: Broadcast vote update
+
+FE -> API: Export board data
+API -> BoardSvc: Get board data
+BoardSvc -> DB: Retrieve board and notes
+DB --> BoardSvc: Board data
+BoardSvc --> API: Formatted board data
+API --> FE: Board export file
+
+FE -> WS: Disconnect from board
+WS -> BoardSvc: Unregister user from board
+BoardSvc -> NR: Publish user left event
+NR --> FE: Broadcast user left
+@enduml

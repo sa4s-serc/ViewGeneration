@@ -1,0 +1,41 @@
+```plantuml
+@startuml kryptokrauts_ae-prediction-cards
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Frontend" as FE {
+}
+
+rectangle "aeternity blockchain" as Blockchain #mistyrose {
+  rectangle "PredictionCards\nSmart Contract" as Contract #palegreen
+}
+
+rectangle "process-prediction-\nservice" as PredictionService #lightsteelblue
+
+rectangle "oracle-service" as OracleService #lightyellow
+
+rectangle "IPFS" as IPFS #aliceblue
+
+' ========== Connections ==========
+User --> FE
+
+' Frontend interactions
+FE <--> Blockchain : create prediction\n deposit / rent NFT\n withdraw / claim rewards / get data\nvia dry-runs
+FE <--> IPFS : load GIFs of NFTs
+
+' process-prediction-service interactions
+PredictionService --> Blockchain : poll for predictions with state "CLOSED"\ncall "ask_for_winning_option"
+Blockchain --> PredictionService : call "process_oracle_response"\nif oracle responded
+
+' oracle-service interactions
+OracleService --> Blockchain : poll for oracle queries
+OracleService --> Blockchain : respond to query with outcome (higher/lower)
+OracleService --> OracleService : get price from coingecko API\n determine outcome
+@enduml
+```

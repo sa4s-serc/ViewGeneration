@@ -1,0 +1,77 @@
+```plantuml
+@startuml Activiti_activiti-7-developers-guide
+skinparam rectangle {
+  BackgroundColor<<core>> #d3e4f8
+  BackgroundColor<<runtime>> #f8d3e8
+  BackgroundColor<<connectors>> #e8f8d3
+  BackgroundColor<<query>> #f8efd3
+  BackgroundColor<<audit>> #d3f8f1
+  BackgroundColor<<notification>> #f8d3d3
+  BackgroundColor<<gateway>> #f8d3f8
+  BackgroundColor<<identity>> #e8d3f8
+  BackgroundColor<<integration>> #f8e8d3
+  BackgroundColor<<deployment>> #f8f3d3
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Activiti Core" <<core>> {
+  rectangle "BPMN Engine" as Engine
+}
+
+package "Activiti Cloud Runtime Bundle" <<runtime>> {
+  rectangle "Process Execution" as Execution
+  Engine --> Execution
+}
+
+package "Activiti Cloud Connectors" <<connectors>> {
+  rectangle "Service Integrations" as ServiceIntegrations
+  Execution --> ServiceIntegrations
+}
+
+package "Activiti Cloud Query Service" <<query>> {
+  rectangle "Read-Only Data Access" as ReadOnlyAccess
+  Execution --> ReadOnlyAccess
+}
+
+package "Activiti Cloud Audit Service" <<audit>> {
+  rectangle "Event Persistence" as EventPersistence
+  Execution --> EventPersistence
+}
+
+package "Activiti Cloud Notification Service" <<notification>> {
+  rectangle "Real-Time Updates" as RealTimeUpdates
+  Execution --> RealTimeUpdates
+}
+
+package "Gateway" <<gateway>> {
+  rectangle "Service Entry Point" as EntryPoint
+  EntryPoint --> Execution
+  EntryPoint --> ReadOnlyAccess
+  EntryPoint --> EventPersistence
+  EntryPoint --> RealTimeUpdates
+}
+
+package "Identity Management / SSO" <<identity>> {
+  rectangle "Authentication & Authorization" as Authentication
+  EntryPoint --> Authentication
+}
+
+package "Spring Cloud Integration" <<integration>> {
+  rectangle "Asynchronous Communication" as AsyncCommunication
+  rectangle "Kubernetes Integration" as K8sIntegration
+  rectangle "Routing" as Routing
+  Execution --> AsyncCommunication
+  Execution --> K8sIntegration
+  EntryPoint --> Routing
+}
+
+package "Deployment Tools" <<deployment>> {
+  rectangle "Helm Charts" as HelmCharts
+  rectangle "Jenkins X" as JenkinsX
+  HelmCharts --> Execution
+  JenkinsX --> Execution
+}
+
+@enduml
+```

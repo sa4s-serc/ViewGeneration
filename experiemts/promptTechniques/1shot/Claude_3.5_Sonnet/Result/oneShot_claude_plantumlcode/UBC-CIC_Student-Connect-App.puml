@@ -1,0 +1,43 @@
+@startuml UBC-CIC_Student-Connect-App
+
+actor User
+participant "React Frontend" as Frontend
+participant "AWS Cognito" as Cognito
+participant "GraphQL API" as GraphQL
+participant "Lambda Functions" as Lambda
+database "DynamoDB" as DynamoDB
+database "Elasticsearch" as ES
+participant "S3 Data Lake" as S3
+participant "External Data Sources" as ExternalSources
+
+User -> Frontend : Access app
+Frontend -> Cognito : Authenticate
+Cognito --> Frontend : Auth token
+
+User -> Frontend : Complete survey
+Frontend -> GraphQL : Submit preferences
+GraphQL -> DynamoDB : Store preferences
+
+loop Periodic data fetch
+    Lambda -> ExternalSources : Fetch new data
+    ExternalSources --> Lambda : Return data
+    Lambda -> DynamoDB : Store data
+    DynamoDB --> Lambda : Confirm storage
+    Lambda -> S3 : Archive data
+end
+
+DynamoDB -> Lambda : Stream changes
+Lambda -> ES : Update index
+
+User -> Frontend : Request personalized content
+Frontend -> GraphQL : Query content
+GraphQL -> ES : Search for relevant content
+ES --> GraphQL : Return matched content
+GraphQL --> Frontend : Deliver personalized content
+Frontend --> User : Display content
+
+User -> Frontend : Save preferred item
+Frontend -> GraphQL : Store preference
+GraphQL -> DynamoDB : Update user preferences
+
+@enduml

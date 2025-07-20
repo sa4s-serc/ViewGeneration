@@ -1,0 +1,41 @@
+```plantuml
+@startuml zoolhelmy_ESP8266-Weather-Station
+
+actor User
+
+participant "ESP8266 NodeMCU" as ESP8266
+participant "MQTT Broker" as MQTT
+participant "ThingSpeak"
+participant "OpenWRT Router" as OpenWRT
+participant "GitHub Repository" as GitHub
+
+User -> ESP8266: Trigger Data Acquisition
+
+ESP8266 -> ESP8266: Gather Sensor Data
+
+ESP8266 -> MQTT: Publish Data (MQTT)
+
+MQTT -> ThingSpeak: Forward Data
+
+MQTT -> OpenWRT: Forward Data
+
+OpenWRT -> "mosquitto-subscribe.sh": Invoke Script
+
+"mosquitto-subscribe.sh" -> "Temporary Files": Write Data
+
+OpenWRT -> "collectd-rrdtool-publish.sh": Invoke Script
+
+"collectd-rrdtool-publish.sh" -> "RRDTool Database": Update Database
+
+OpenWRT -> "rrdtool-graph-github.sh": Daily Cron Job
+
+"rrdtool-graph-github.sh" -> "RRDTool Database": Generate Graphs
+
+"rrdtool-graph-github.sh" -> GitHub: Push Graphs
+
+User -> ESP8266: Access Local HTTP Server
+
+ESP8266 -> User: Display Real-time Readings
+
+@enduml
+```

@@ -1,0 +1,38 @@
+```plantuml
+@startuml Cpanchal1_Chatbot101-with-AWS-Lambda
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor WebexUser
+
+rectangle "Webex Teams" as WebexTeams #lightyellow {
+  rectangle "Webhook" as Webhook #lightgoldenrodyellow
+}
+
+rectangle "AWS" as AWS #lightblue {
+  rectangle "API Gateway" as APIGateway #aliceblue
+  rectangle "Lambda Function" as LambdaFunction #lightsteelblue
+}
+
+rectangle "External API" as ExternalAPI #lightpink {
+  rectangle "icanhazdadjoke.com" as JokeAPI #mistyrose
+}
+
+' ========== Connections ==========
+WebexUser --> WebexTeams : mention bot to trigger
+
+WebexTeams --> Webhook : trigger webhook on mention
+Webhook --> APIGateway : send request to API Gateway
+APIGateway --> LambdaFunction : invoke Lambda function
+
+LambdaFunction --> JokeAPI : HTTP GET request for joke
+JokeAPI --> LambdaFunction : return joke as JSON
+
+LambdaFunction --> WebexTeams : post joke to room via Webex API
+
+@enduml
+```

@@ -1,0 +1,58 @@
+@startuml chsakell_planet-scale-azure
+
+!define AzurePuml https://raw.githubusercontent.com/plantuml-stdlib/Azure-PlantUML/master/dist
+
+!includeurl AzurePuml/AzureCommon.puml
+!includeurl AzurePuml/Networking/AzureTrafficManager.puml
+!includeurl AzurePuml/Networking/AzureCDN.puml
+!includeurl AzurePuml/Compute/AzureAppService.puml
+!includeurl AzurePuml/Databases/AzureRedisCache.puml
+!includeurl AzurePuml/Databases/AzureSqlDatabase.puml
+!includeurl AzurePuml/Databases/AzureCosmosDb.puml
+!includeurl AzurePuml/Integration/AzureServiceBus.puml
+!includeurl AzurePuml/AI/AzureCognitiveSearch.puml
+
+component "Planet-Scale Online Store" {
+    AzureTrafficManager(trafficManager, "Traffic Manager", "Global routing")
+    AzureCDN(cdn, "CDN", "Static content caching")
+    
+    package "Region 1" {
+        AzureAppService(webApp1, "Web App", "ASP.NET Core + Angular")
+        AzureRedisCache(redisCache1, "Redis Cache", "Shopping cart")
+        AzureSqlDatabase(sqlDb1, "SQL Database", "Transactional data")
+        AzureCosmosDb(cosmosDb1, "Cosmos DB", "Product catalog")
+        AzureServiceBus(serviceBus1, "Service Bus", "Order processing")
+        AzureCognitiveSearch(search1, "Azure Search", "Product search")
+    }
+    
+    package "Region 2" {
+        AzureAppService(webApp2, "Web App", "ASP.NET Core + Angular")
+        AzureRedisCache(redisCache2, "Redis Cache", "Shopping cart")
+        AzureSqlDatabase(sqlDb2, "SQL Database", "Transactional data")
+        AzureCosmosDb(cosmosDb2, "Cosmos DB", "Product catalog")
+        AzureServiceBus(serviceBus2, "Service Bus", "Order processing")
+        AzureCognitiveSearch(search2, "Azure Search", "Product search")
+    }
+}
+
+trafficManager --> webApp1
+trafficManager --> webApp2
+cdn --> webApp1
+cdn --> webApp2
+
+webApp1 --> redisCache1
+webApp1 --> sqlDb1
+webApp1 --> cosmosDb1
+webApp1 --> serviceBus1
+webApp1 --> search1
+
+webApp2 --> redisCache2
+webApp2 --> sqlDb2
+webApp2 --> cosmosDb2
+webApp2 --> serviceBus2
+webApp2 --> search2
+
+sqlDb1 <--> sqlDb2 : Geo-replication
+cosmosDb1 <--> cosmosDb2 : Geo-replication
+
+@enduml

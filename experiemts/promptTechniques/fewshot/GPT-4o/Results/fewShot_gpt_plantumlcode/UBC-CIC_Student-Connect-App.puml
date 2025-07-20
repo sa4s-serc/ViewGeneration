@@ -1,0 +1,64 @@
+```plantuml
+@startuml UBC-CIC_Student-Connect-App
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+actor User
+
+package "Frontend (ReactJS PWA)" {
+  rectangle "App.js\n(Routing, Auth, Data Coordination)" as AppJS
+  rectangle "Login.js\n(User Auth with Cognito)" as LoginJS
+  rectangle "Survey.js\n(User Preferences Collection)" as SurveyJS
+  rectangle "Redux Reducers\n(State Management)" as ReduxReducers
+  rectangle "Redux Actions\n(State Updates & Data Fetching)" as ReduxActions
+}
+
+package "Backend (AWS)" {
+  package "Lambda Functions" {
+    rectangle "get_events_data.py\n(Data Aggregation)" as GetEventsData
+    rectangle "get_news_data.py\n(Data Aggregation)" as GetNewsData
+    rectangle "es_hasher.py\n(ES-DynamoDB Sync)" as EsHasher
+    rectangle "document_stream_handler.py\n(Real-Time Sync)" as DocumentStreamHandler
+    rectangle "get_es_documents.py\n(ES Query)" as GetEsDocuments
+  }
+
+  rectangle "DynamoDB\n(Data Storage)" as DynamoDB
+  rectangle "Elasticsearch\n(Data Search)" as Elasticsearch
+  rectangle "S3 Bucket\n(Data Lake)" as S3
+  rectangle "Cognito\n(User Management)" as Cognito
+}
+
+package "Admin Console" {
+  rectangle "Kibana\n(Data Visualization)" as Kibana
+}
+
+User --> AppJS
+AppJS --> LoginJS
+AppJS --> SurveyJS
+AppJS --> ReduxReducers
+AppJS --> ReduxActions
+
+LoginJS --> Cognito
+SurveyJS --> GetEventsData
+SurveyJS --> GetNewsData
+ReduxActions --> DynamoDB
+ReduxActions --> Elasticsearch
+
+GetEventsData --> DynamoDB
+GetNewsData --> DynamoDB
+DynamoDB --> DocumentStreamHandler
+DocumentStreamHandler --> Elasticsearch
+EsHasher --> Elasticsearch
+GetEsDocuments --> Elasticsearch
+
+DynamoDB --> S3
+
+User --> Kibana
+
+@enduml
+```

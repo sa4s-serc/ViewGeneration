@@ -1,0 +1,72 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "DevOps Engineer" as DevOps
+
+rectangle "Chef Workstation" as ChefWS {
+  rectangle "Cookbook Repository" as Repo {
+    rectangle "metadata.rb" as Metadata
+    rectangle "attributes/default.rb" as Attributes
+    rectangle "recipes/" as Recipes {
+      rectangle "default.rb" as DefaultRecipe
+      rectangle "wso2_apim_installation.rb" as InstallRecipe
+      rectangle "apply_template.rb" as TemplateRecipe
+      rectangle "java_installation.rb" as JavaRecipe
+    }
+    rectangle "templates/" as Templates
+  }
+  rectangle "Berksfile" as Berksfile
+}
+
+rectangle "Chef Server" as ChefServer
+
+cloud "Target Environment" {
+  rectangle "Node 1: API Manager" as Node1 {
+    rectangle "WSO2 API Manager" as APIM1
+    rectangle "Java" as Java1
+  }
+  rectangle "Node 2: Key Manager" as Node2 {
+    rectangle "WSO2 Key Manager" as KM
+    rectangle "Java" as Java2
+  }
+  rectangle "Node 3: Gateway" as Node3 {
+    rectangle "WSO2 Gateway" as GW
+    rectangle "Java" as Java3
+  }
+}
+
+database "MySQL Database" as MySQL
+
+DevOps --> ChefWS : Develops and\nupdates cookbook
+ChefWS --> ChefServer : Uploads cookbook
+ChefServer --> Node1 : Applies recipes
+ChefServer --> Node2 : Applies recipes
+ChefServer --> Node3 : Applies recipes
+
+Node1 --> MySQL : Connects
+Node2 --> MySQL : Connects
+Node3 --> MySQL : Connects
+
+Repo --> Berksfile : References
+
+note right of Attributes
+  Defines configuration
+  parameters
+end note
+
+note right of Templates
+  ERB templates for
+  dynamic configuration
+end note
+
+note bottom of Recipes
+  Orchestrates installation
+  and configuration
+end note
+
+@enduml

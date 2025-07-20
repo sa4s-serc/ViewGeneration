@@ -1,0 +1,72 @@
+@startuml decentraland_catalyst
+skinparam componentStyle rectangle
+skinparam defaultTextAlignment center
+
+cloud "Decentraland Ecosystem" {
+  [The Graph] as Graph
+  [Blockchain] as Chain
+  [Third-Party Resolvers] as ThirdParty
+}
+
+package "Decentraland Catalyst Content Server" {
+  [API Layer] as API
+  [Business Logic] as Logic
+  [Data Access] as DataAccess
+  [External Services Integration] as ExternalIntegration
+  
+  database "PostgreSQL" as DB
+  
+  [Content Storage] as Storage
+  
+  [Caching Layer] as Cache
+  
+  [Synchronization] as Sync
+  
+  [Validation & Security] as Security
+}
+
+API --> Logic
+Logic --> DataAccess
+Logic --> ExternalIntegration
+Logic --> Cache
+Logic --> Sync
+Logic --> Security
+
+DataAccess --> DB
+DataAccess --> Storage
+
+ExternalIntegration --> Graph
+ExternalIntegration --> Chain
+ExternalIntegration --> ThirdParty
+
+Sync --> [Other Catalysts]: Snapshots
+
+[Clients] --> API: REST API
+
+note right of API
+  - Entity Retrieval
+  - Content Deployment
+  - Collections API
+  - Server Status
+end note
+
+note right of Logic
+  - Entity Management
+  - Deployment Handling
+  - Garbage Collection
+  - Rate Limiting
+end note
+
+note right of DataAccess
+  - Entity Queries
+  - Content Mappings
+  - Database Migrations
+end note
+
+note right of ExternalIntegration
+  - The Graph Queries
+  - Blockchain Interactions
+  - Third-Party Asset Resolution
+end note
+
+@enduml

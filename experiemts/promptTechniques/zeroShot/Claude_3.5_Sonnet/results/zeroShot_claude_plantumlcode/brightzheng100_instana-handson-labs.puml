@@ -1,0 +1,76 @@
+```plantuml
+@startuml
+!define RECTANGLE class
+
+skinparam component {
+  BackgroundColor<<VM>> LightBlue
+  BackgroundColor<<K8s>> LightGreen
+}
+
+rectangle "User Environment" {
+  [Web Browser]
+}
+
+cloud "Cloud/On-Premise Infrastructure" {
+  component "Instana Backend" <<VM>> {
+    [Instana Server]
+    [Cassandra DB]
+    [Elasticsearch]
+    [Kafka]
+  }
+  
+  component "Kubernetes Cluster" <<K8s>> {
+    [Kubeadm]
+    [Robot Shop App]
+    [Instana Agent]
+  }
+  
+  component "Virtual Machines" <<VM>> {
+    [VM 1]
+    [VM 2]
+    [Instana Agent] as VMAgent
+  }
+  
+  component "Docker Environment" <<VM>> {
+    [Docker Engine]
+    [Robot Shop Containers]
+    [Instana Agent] as DockerAgent
+  }
+}
+
+[Web Browser] --> [Instana Server] : Access UI
+
+[Instana Server] --> [Cassandra DB] : Store data
+[Instana Server] --> [Elasticsearch] : Index data
+[Instana Server] --> [Kafka] : Message queue
+
+[Instana Agent] --> [Instana Server] : Send metrics
+VMAgent --> [Instana Server] : Send metrics
+DockerAgent --> [Instana Server] : Send metrics
+
+[Kubeadm] --> [Robot Shop App] : Deploy
+[Docker Engine] --> [Robot Shop Containers] : Run
+
+note right of [Instana Server]
+  Deployed via stanctl,
+  manual install, or
+  Ansible playbook
+end note
+
+note bottom of [Instana Agent]
+  Monitors Kubernetes
+  resources and apps
+end note
+
+note bottom of VMAgent
+  Monitors VM
+  resources and apps
+end note
+
+note bottom of DockerAgent
+  Monitors Docker
+  containers and apps
+end note
+
+@enduml
+```

@@ -1,0 +1,65 @@
+@startuml coverage-robot_core
+
+actor "User/GitHub" as User
+participant "GitHub App" as GitHubApp
+participant "API Service" as API
+participant "Orchestrator" as Orchestrator
+participant "Analyse Service" as Analyse
+participant "Publish Service" as Publish
+database "S3" as S3
+database "DynamoDB" as DynamoDB
+database "BigQuery" as BigQuery
+queue "EventBridge" as EventBridge
+
+User -> GitHubApp : Trigger coverage analysis
+GitHubApp -> API : Send webhook
+
+activate API
+API -> API : Validate webhook
+API -> EventBridge : Enqueue webhook event
+deactivate API
+
+EventBridge -> Orchestrator : Process webhook event
+
+activate Orchestrator
+Orchestrator -> DynamoDB : Update event store
+Orchestrator -> S3 : Generate pre-signed URL
+Orchestrator -> EventBridge : Emit upload ready event
+deactivate Orchestrator
+
+User -> API : Upload coverage report
+API -> S3 : Store raw coverage data
+
+EventBridge -> Orchestrator : Process upload event
+
+activate Orchestrator
+Orchestrator -> S3 : Fetch coverage data
+Orchestrator -> Analyse : Trigger analysis
+deactivate Orchestrator
+
+activate Analyse
+Analyse -> BigQuery : Query historical data
+Analyse -> Analyse : Perform analysis
+Analyse -> DynamoDB : Store analysis results
+Analyse -> EventBridge : Emit analysis complete event
+deactivate Analyse
+
+EventBridge -> Orchestrator : Process analysis complete event
+
+activate Orchestrator
+Orchestrator -> Publish : Trigger publishing
+deactivate Orchestrator
+
+activate Publish
+Publish -> DynamoDB : Fetch analysis results
+Publish -> GitHubApp : Update PR with coverage data
+deactivate Publish
+
+User -> API : Request coverage badge
+activate API
+API -> DynamoDB : Fetch latest coverage data
+API -> API : Generate SVG badge
+API --> User : Return coverage badge
+deactivate API
+
+@enduml

@@ -1,0 +1,44 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #EEEBDC
+  BorderColor #333333
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+actor User
+
+rectangle "Frontend (React)" {
+  [App.js] as App
+  [Components] as Components
+  [Redux Store] as ReduxStore
+  [Web3.js] as Web3
+}
+
+rectangle "Smart Contracts" {
+  [LeeSeaNFT.sol] as NFTContract
+  [LeeSeaMarket.sol] as MarketContract
+  [#utility.yul] as YulUtility
+}
+
+database "Blockchain" {
+  [Ethereum Network] as Ethereum
+}
+
+cloud "External Services" {
+  [IPFS] as IPFS
+}
+
+User --> App
+App --> Components
+Components <--> ReduxStore : State\nManagement
+ReduxStore <--> Web3 : Contract\nInteractions
+Web3 <--> Ethereum : RPC Calls
+NFTContract --> Ethereum : Deployed On
+MarketContract --> Ethereum : Deployed On
+YulUtility ..> NFTContract : Low-level\nUtilities
+YulUtility ..> MarketContract : Low-level\nUtilities
+NFTContract --> IPFS : Metadata\nStorage
+MarketContract --> IPFS : Metadata\nStorage
+
+@enduml

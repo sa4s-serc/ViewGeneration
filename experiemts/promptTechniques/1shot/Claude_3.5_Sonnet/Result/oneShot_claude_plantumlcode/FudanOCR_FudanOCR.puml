@@ -1,0 +1,82 @@
+@startuml FudanOCR_FudanOCR
+
+skinparam component {
+  BackgroundColor<<Detection>> LightBlue
+  BackgroundColor<<Recognition>> LightGreen
+  BackgroundColor<<SuperResolution>> LightYellow
+  BackgroundColor<<DataHandling>> LightPink
+  BackgroundColor<<Training>> LightGray
+  BackgroundColor<<Utils>> LightCyan
+}
+
+package "FudanOCR" {
+  [Config Files] as Config
+
+  package "Text Detection" <<Detection>> {
+    [EAST]
+    [AdvancedEAST]
+    [PSENet]
+    [PixelLink]
+    [LSN]
+    [TextSnake]
+    [RRPN]
+  }
+
+  package "Text Recognition" <<Recognition>> {
+    [CRNN]
+    [MORAN]
+    [GRCNN]
+    [DAN]
+    [HARN]
+    [SAR]
+    [RARE]
+    [CAPSOCR]
+  }
+
+  package "Super-Resolution" <<SuperResolution>> {
+    [DocumentSRModel]
+  }
+
+  package "Data Handling" <<DataHandling>> {
+    [Data Loaders]
+    [Data Augmentation]
+    [Preprocessing]
+    [LMDB Dataset]
+  }
+
+  package "Training and Evaluation" <<Training>> {
+    [Training Loop]
+    [Evaluation Metrics]
+    [Early Stopping]
+  }
+
+  package "Post-processing" <<Utils>> {
+    [NMS]
+    [Confidence Filtering]
+    [Geometric Constraints]
+  }
+
+  package "Custom Layers" <<Utils>> {
+    [ROIAlign]
+    [RROIAlign]
+    [ROIPool]
+    [FrozenBatchNorm2d]
+    [Custom Loss Functions]
+  }
+
+  [main.py] --> Config
+  Config --> "Text Detection"
+  Config --> "Text Recognition"
+  Config --> "Super-Resolution"
+  Config --> "Data Handling"
+  Config --> "Training and Evaluation"
+
+  "Text Detection" --> "Post-processing"
+  "Text Recognition" --> "Post-processing"
+  "Text Detection" --> "Custom Layers"
+  "Text Recognition" --> "Custom Layers"
+  "Data Handling" --> "Training and Evaluation"
+  "Super-Resolution" --> "Training and Evaluation"
+}
+
+@enduml

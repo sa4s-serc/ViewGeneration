@@ -1,0 +1,40 @@
+@startuml cordon-thiago_airflow-spark
+
+!define RECTANGLE component
+
+RECTANGLE "Apache Airflow" as airflow {
+    [DAG Definitions]
+    [Spark Job Orchestration]
+}
+
+RECTANGLE "Apache Spark" as spark {
+    [Spark Core]
+    [Spark SQL]
+    [Spark MLlib]
+    [Spark Streaming]
+    [GraphX]
+}
+
+RECTANGLE "Kubernetes" as k8s {
+    [Spark on K8s Operator]
+}
+
+RECTANGLE "Docker" as docker {
+    [Spark Container]
+    [Airflow Container]
+}
+
+database "PostgreSQL" as postgres
+cloud "HDFS" as hdfs
+queue "Kafka" as kafka
+
+airflow --> spark : triggers jobs
+airflow --> k8s : deploys to
+k8s --> docker : manages
+docker --> spark : runs
+docker --> airflow : runs
+spark --> postgres : reads/writes data
+spark --> hdfs : reads/writes data
+spark --> kafka : reads/writes data
+
+@enduml

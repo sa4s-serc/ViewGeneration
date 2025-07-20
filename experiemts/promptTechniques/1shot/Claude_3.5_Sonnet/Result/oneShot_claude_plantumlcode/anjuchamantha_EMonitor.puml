@@ -1,0 +1,51 @@
+@startuml anjuchamantha_EMonitor
+
+skinparam component {
+  BackgroundColor<<sensor>> LightSkyBlue
+  BackgroundColor<<core>> LightGreen
+  BackgroundColor<<network>> LightPink
+  BackgroundColor<<output>> LightYellow
+}
+
+[DHT11 Sensor] as DHT11 <<sensor>>
+[BMP180/BMP085 Sensor] as BMP <<sensor>>
+[LDR Sensor] as LDR <<sensor>>
+
+[Sensor Data Acquisition] as SDA <<core>>
+[Data Buffer] as Buffer <<core>>
+[XML Formatter] as XML <<core>>
+[Statistical Analysis] as Stats <<core>>
+
+[WiFi Manager] as WiFi <<network>>
+[HTTP Client] as HTTP <<network>>
+[NTP Client] as NTP <<network>>
+[SMTP Client] as SMTP <<network>>
+
+[OLED Display] as OLED <<output>>
+[Email Alerts] as Email <<output>>
+
+cloud "Backend Server" as Server
+
+DHT11 --> SDA
+BMP --> SDA
+LDR --> SDA
+
+SDA --> Stats
+Stats --> Buffer
+Buffer --> XML
+
+XML ..> HTTP
+HTTP --> Server
+
+WiFi -- HTTP
+WiFi -- NTP
+WiFi -- SMTP
+
+XML ..> SMTP
+SMTP --> Email
+
+SDA --> OLED
+WiFi --> OLED
+HTTP --> OLED
+
+@enduml

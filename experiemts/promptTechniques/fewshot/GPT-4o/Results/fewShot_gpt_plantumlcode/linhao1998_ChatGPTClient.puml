@@ -1,0 +1,78 @@
+```plantuml
+@startuml linhao1998_ChatGPTClient
+left to right direction
+skinparam rectangle {
+  BackgroundColor #dff0ff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "ChatGPTClient" {
+  actor User
+  
+  package "Android App" {
+    package "UI Layer" {
+      rectangle "ChatActivity" as ChatActivity
+      rectangle "SettingsActivity" as SettingsActivity
+      rectangle "ChatAdapter" as ChatAdapter
+      rectangle "MsgAdapter" as MsgAdapter
+    }
+    
+    package "ViewModel Layer" {
+      rectangle "ChatViewModel" as ChatViewModel
+      rectangle "ChatListViewModel" as ChatListViewModel
+      rectangle "MsgListViewModel" as MsgListViewModel
+    }
+    
+    package "Logic Layer" {
+      rectangle "Repository" as Repository
+      rectangle "ChatDao" as ChatDao
+      rectangle "MsgDao" as MsgDao
+      rectangle "AppDatabase" as AppDatabase
+      rectangle "Chat" as Chat
+      rectangle "Msg" as Msg
+    }
+  }
+  
+  User --> ChatActivity
+  User --> SettingsActivity
+
+  ChatActivity --> ChatViewModel
+  ChatViewModel --> Repository
+
+  ChatListViewModel --> Repository
+  MsgListViewModel --> Repository
+
+  Repository --> ChatDao
+  Repository --> MsgDao
+  Repository --> AppDatabase
+
+  ChatDao --> Chat
+  MsgDao --> Msg
+  AppDatabase --> ChatDao
+  AppDatabase --> MsgDao
+  
+  ChatActivity --> ChatAdapter
+  ChatActivity --> MsgAdapter
+
+  SettingsActivity --> Repository
+}
+
+note right of Repository
+  Provides data access to ViewModels
+  using local database and potentially
+  network APIs.
+end note
+
+note right of AppDatabase
+  Singleton pattern ensures a single
+  database instance.
+end note
+
+note bottom of ChatAdapter
+  Adapter pattern for displaying lists
+  in RecyclerViews.
+end note
+@enduml
+```

@@ -1,0 +1,20 @@
+@startuml sfujiwara_terraform-google-ai-platform-notification
+
+actor "AI Platform Job" as AIJob
+participant "Cloud Logging" as Logging
+queue "AI Platform Log Topic" as LogTopic
+participant "Cloud Function" as Function
+queue "Notification Topic" as NotifTopic
+actor "Subscriber" as Sub
+
+AIJob -> Logging : Generate logs
+Logging -> LogTopic : Forward logs
+LogTopic -> Function : Trigger
+Function -> Function : Parse log message
+Function -> Function : Detect state change
+alt State change detected
+    Function -> NotifTopic : Publish notification
+    NotifTopic -> Sub : Deliver notification
+end
+
+@enduml

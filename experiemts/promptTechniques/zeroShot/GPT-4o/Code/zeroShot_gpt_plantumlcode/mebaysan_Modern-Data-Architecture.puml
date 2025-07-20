@@ -1,0 +1,67 @@
+```plantuml
+@startuml mebaysan_Modern-Data-Architecture
+
+actor User
+
+participant "Airbyte" as Airbyte
+participant "Python Script" as PyScript
+participant "PostgreSQL" as PostgreSQL
+participant "DBT" as DBT
+participant "Apache Superset" as Superset
+participant "Docker Compose" as DockerCompose
+participant "Nginx" as Nginx
+
+User -> DockerCompose: Deploy System
+activate DockerCompose
+
+DockerCompose -> Airbyte: Start Container
+DockerCompose -> PostgreSQL: Start Container
+DockerCompose -> DBT: Start Container
+DockerCompose -> Superset: Start Container
+DockerCompose -> Nginx: Start Container
+
+deactivate DockerCompose
+
+group Data Extraction
+
+User -> Airbyte: Choose Data Source
+activate Airbyte
+Airbyte -> PostgreSQL: Load Data
+deactivate Airbyte
+
+User -> PyScript: Run Script (Alternative)
+activate PyScript
+PyScript -> PostgreSQL: Load Data
+deactivate PyScript
+
+end
+
+group Data Transformation
+
+User -> DBT: Execute Transformations
+activate DBT
+DBT -> PostgreSQL: Transform Data
+deactivate DBT
+
+end
+
+group Data Visualization
+
+User -> Superset: Create Dashboard
+activate Superset
+Superset -> PostgreSQL: Fetch Transformed Data
+deactivate Superset
+
+end
+
+group Access Management
+
+User -> Nginx: Access pgAdmin
+activate Nginx
+Nginx -> PostgreSQL: Proxy Request
+deactivate Nginx
+
+end
+
+@enduml
+```

@@ -1,0 +1,27 @@
+```plantuml
+@startuml victorshinya_serverless-chatbot
+
+actor User
+participant "IBM Cloud Functions" as CloudFunctions
+participant "Watson Assistant" as Watson
+participant "MongoDB" as MongoDB
+
+User -> CloudFunctions: Send Message
+activate CloudFunctions
+
+CloudFunctions -> Watson: Invoke assistant.js
+activate Watson
+Watson -> Watson: Process NLP\n(intent recognition, entity extraction)
+Watson -> CloudFunctions: Return Response
+deactivate Watson
+
+CloudFunctions -> MongoDB: Invoke mongodb.js\n(Store Conversation)
+activate MongoDB
+MongoDB -> CloudFunctions: Acknowledge Storage
+deactivate MongoDB
+
+CloudFunctions -> User: Return Chatbot Response
+deactivate CloudFunctions
+
+@enduml
+```

@@ -1,0 +1,59 @@
+```plantuml
+@startuml chaitin_veinmind-tools
+skinparam rectangle {
+  BackgroundColor<<core>> #e0e0e0
+  BackgroundColor<<plugin>> #f3e5f5
+  BackgroundColor<<runner>> #bbdefb
+  BackgroundColor<<cicd>> #ffe0b2
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Veinmind Core" <<core>> {
+  rectangle "libveinmind" as LibVeinmind
+  rectangle "veinmind-common-go" as CommonGo
+}
+
+package "Plugins" <<plugin>> {
+  rectangle "Malicious File Detection" as MaliciousFile
+  rectangle "Weak Password Detection" as WeakPassword
+  rectangle "Unsafe Mount Detection" as UnsafeMount
+  rectangle "CVE Vulnerability Detection" as CVE
+  rectangle "Intrusion Trace Detection" as IntrusionTrace
+  rectangle "Sensitive Info Detection" as SensitiveInfo
+}
+
+package "Veinmind Runner" <<runner>> {
+  rectangle "Service Management" as ServiceMgmt
+  rectangle "Configuration\n(TOML files)" as Config
+  rectangle "Git Operations" as GitOps
+}
+
+package "CI/CD Pipeline" <<cicd>> {
+  rectangle "GitHub Actions" as GitHubActions
+  rectangle "Docker Build & Test" as DockerBuild
+}
+
+LibVeinmind --> MaliciousFile
+LibVeinmind --> WeakPassword
+LibVeinmind --> UnsafeMount
+LibVeinmind --> CVE
+LibVeinmind --> IntrusionTrace
+LibVeinmind --> SensitiveInfo
+
+MaliciousFile --> CommonGo
+WeakPassword --> CommonGo
+UnsafeMount --> CommonGo
+CVE --> CommonGo
+IntrusionTrace --> CommonGo
+SensitiveInfo --> CommonGo
+
+ServiceMgmt --> Config
+ServiceMgmt --> GitOps
+GitOps --> Plugins
+
+GitHubActions --> DockerBuild
+DockerBuild --> Plugins
+
+@enduml
+```

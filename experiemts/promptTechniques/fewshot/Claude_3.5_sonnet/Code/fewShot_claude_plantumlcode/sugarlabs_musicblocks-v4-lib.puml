@@ -1,0 +1,69 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #EEEBDC
+  ArrowColor #222222
+  BorderColor #666666
+}
+
+package "Syntax Representation" {
+  [Element API] as ElementAPI
+  [Specification] as Spec
+  [Warehouse] as Warehouse
+  [Syntax Tree] as SyntaxTree
+}
+
+package "Execution Engine" {
+  [Symbol Table] as SymbolTable
+  [Parser] as Parser
+  [Interpreter] as Interpreter
+  [Scheduler] as Scheduler
+}
+
+package "Library" {
+  [Values] as Values
+  [Boxes] as Boxes
+  [Math Operators] as MathOps
+  [Conditionals] as Conditionals
+  [Loops] as Loops
+  [Program Structures] as ProgramStructures
+  [Miscellaneous] as Misc
+}
+
+ElementAPI --> Spec : defines
+Spec --> Warehouse : creates instances
+Warehouse --> SyntaxTree : populates
+
+SyntaxTree --> Parser : input
+Parser --> Interpreter : parsed structure
+Interpreter --> SymbolTable : manages state
+Scheduler --> Interpreter : orchestrates
+
+Library --> Spec : provides
+Library --> ElementAPI : implements
+
+[Entry Point] as EntryPoint
+EntryPoint --> ElementAPI
+EntryPoint --> Spec
+EntryPoint --> Warehouse
+EntryPoint --> SyntaxTree
+EntryPoint --> SymbolTable
+EntryPoint --> Parser
+EntryPoint --> Interpreter
+EntryPoint --> Scheduler
+EntryPoint --> Library
+
+note right of Library
+  Concrete syntax elements:
+  - Values (boolean, number, string)
+  - Boxes (variables)
+  - Math Operators (+, -, *, /, %)
+  - Conditionals (if)
+  - Loops (repeat)
+  - Program Structures (process, routine)
+  - Miscellaneous (print)
+end note
+
+note bottom of EntryPoint
+  src/index.ts
+end note
+@enduml

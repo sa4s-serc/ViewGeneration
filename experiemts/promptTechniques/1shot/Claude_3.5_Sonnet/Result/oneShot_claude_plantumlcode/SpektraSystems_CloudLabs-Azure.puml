@@ -1,0 +1,56 @@
+@startuml SpektraSystems_CloudLabs-Azure
+
+actor "User" as user
+participant "Azure Portal" as portal
+participant "Azure Migrate" as migrate
+participant "On-Premises Hyper-V" as hyperv
+participant "Azure VM" as vm
+participant "Azure Functions" as functions
+participant "Cosmos DB" as cosmosdb
+participant "Azure Storage" as storage
+participant "Azure Monitor" as monitor
+participant "Log Analytics" as logs
+participant "Application Insights" as appinsights
+
+user -> portal : Access Azure Portal
+activate portal
+
+group Azure Migration
+    user -> migrate : Create Azure Migrate project
+    activate migrate
+    migrate -> hyperv : Assess on-premises VMs
+    hyperv --> migrate : VM inventory
+    migrate -> vm : Replicate servers
+    migrate -> vm : Perform test migration
+    user -> vm : Validate migrated servers
+    deactivate migrate
+end
+
+group Azure VM & Compute
+    user -> portal : Create Virtual Network
+    portal -> vm : Deploy VM
+    user -> vm : Configure VM
+    user -> vm : Install IIS
+end
+
+group Serverless App Modernization
+    user -> functions : Publish Azure Functions
+    activate functions
+    functions -> cosmosdb : Store/Retrieve data
+    user -> storage : Deploy Blazor website
+    storage -> functions : API calls
+    deactivate functions
+end
+
+group Azure Monitoring
+    user -> monitor : Configure monitoring
+    activate monitor
+    monitor -> logs : Collect logs
+    monitor -> appinsights : Collect application telemetry
+    user -> monitor : View dashboards
+    deactivate monitor
+end
+
+deactivate portal
+
+@enduml

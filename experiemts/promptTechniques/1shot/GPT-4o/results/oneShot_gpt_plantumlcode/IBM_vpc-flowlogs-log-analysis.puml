@@ -1,0 +1,32 @@
+```plantuml
+@startuml IBM_vpc-flowlogs-log-analysis
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor COS as CloudObjectStorage
+actor "IBM Log Analysis" as LogAnalysis
+actor "Developer" as Developer
+
+rectangle "Serverless Function" as ServerlessFunction #lightblue {
+  rectangle "handler.js" as Handler #lightgreen
+  rectangle "index.js" as Index #lightyellow
+  rectangle "local-handler.js" as LocalHandler #lightsteelblue
+}
+
+rectangle "IBM Cloud" as IBMCloud #mistyrose {
+  CloudObjectStorage --> ServerlessFunction : trigger on new log file
+  ServerlessFunction --> CloudObjectStorage : retrieve log file
+  ServerlessFunction --> CloudObjectStorage : copy processed logs to archive
+  ServerlessFunction --> CloudObjectStorage : delete original log file
+  ServerlessFunction --> LogAnalysis : forward processed logs
+}
+
+Developer --> Index : invoke via HTTP request
+LocalHandler --> ServerlessFunction : simulate COS trigger
+
+@enduml
+```

@@ -1,0 +1,66 @@
+```plantuml
+@startuml ZID-Automat_Controller-ZIDAutomat
+
+package "ZID-Automat System" {
+    [Main12] --> [Borrow]
+    [Main12] --> [API]
+    [Main12] --> [DataCollect]
+    [Main12] --> [ScreenOutput]
+
+    [Borrow] --> [QRCodeReader]
+    [Borrow] --> [Eject]
+    [Borrow] --> [API]
+
+    [API] --> [Requests]
+
+    [DataCollect] --> [API]
+
+    [ScreenOutput] --> [LCDLibrary]
+
+    component [Main12] {
+        [Main123] --> [WLANConnection]
+        [Main123] --> [LEDSetup]
+        [Main123] --> [APICommunication]
+    }
+
+    component [Borrow] {
+        [BorrowM] --> [EventHandling]
+        [BorrowM] --> [ItemLocationRetrieval]
+    }
+
+    component [API] {
+        [Requests] --> [JWTManagement]
+    }
+
+    component [ScreenOutput] {
+        [ScreenOutout] --> [I2CLCD]
+    }
+
+    [Configuration.json] -[hidden]--> [Main12] : loads
+    [Configuration.json] -[hidden]--> [Borrow]
+    [Configuration.json] -[hidden]--> [API]
+    [Configuration.json] -[hidden]--> [ScreenOutput]
+
+    [Boot] --> [Main12]
+
+    [Main12] --> [ErrorHandling]
+
+    note right of [Requests]
+        Handles API requests with JWT
+    end note
+
+    note right of [Main123]
+        Orchestrates initialization and main loop
+    end note
+
+    note right of [BorrowM]
+        Manages borrowing process and event logging
+    end note
+
+    note right of [Eject]
+        Controls item ejection mechanism
+    end note
+}
+
+@enduml
+```

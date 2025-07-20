@@ -1,0 +1,38 @@
+```plantuml
+@startuml chrispiro_deploy_plotly_app_on_gcp
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor Developer
+
+rectangle "Local Environment" as Local {
+  rectangle "Jupyter Notebook" as Notebook #lightgoldenrodyellow
+  rectangle "dash_app.py\nDash App" as DashApp #lightcyan
+  rectangle "create_charts.py\nChart Creation" as CreateCharts #lightgreen
+  rectangle "load_data.py\nData Loading" as LoadData #lightblue
+}
+
+rectangle "GCP" as GCP #mistyrose {
+  rectangle "App Engine" as AppEngine #palegreen
+  rectangle "BigQuery" as BigQuery #lightsteelblue
+  rectangle "Cloud Storage" as CloudStorage #lightyellow
+}
+
+' ========== Connections ==========
+Developer --> Notebook : Experiment with Plotly charts
+Notebook --> CreateCharts : Copy chart creation code
+
+Developer --> DashApp : Define app layout\nAdd charts
+DashApp --> LoadData : Load data from\nBigQuery / Cloud Storage
+
+LoadData --> BigQuery : Fetch dataset
+LoadData --> CloudStorage : Fetch dataset
+
+Developer --> AppEngine : Deploy Dash app
+AppEngine --> DashApp : Run app in cloud\nserve web interface
+@enduml
+```

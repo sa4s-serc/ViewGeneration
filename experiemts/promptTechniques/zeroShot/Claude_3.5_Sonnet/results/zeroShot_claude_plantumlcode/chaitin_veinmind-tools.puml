@@ -1,0 +1,38 @@
+@startuml chaitin_veinmind-tools
+
+!define RECTANGLE component
+
+node "Host System" {
+    RECTANGLE "Docker Engine" as docker
+    RECTANGLE "Container Runtime" as runtime
+}
+
+cloud "Container Registry" as registry
+
+node "veinmind-tools" {
+    RECTANGLE "veinmind-runner" as runner
+    RECTANGLE "libveinmind" as libveinmind
+    
+    package "Plugins" {
+        RECTANGLE "Malicious File Scanner" as malicious
+        RECTANGLE "Weakpass Scanner" as weakpass
+        RECTANGLE "Unsafe Mount Scanner" as mount
+        RECTANGLE "CVE Scanner" as cve
+        RECTANGLE "Intrusion Trace Scanner" as intrusion
+        RECTANGLE "Sensitive Info Scanner" as sensitive
+    }
+    
+    RECTANGLE "TOML Configuration" as toml
+    RECTANGLE "Report Generator" as report
+}
+
+runner --> libveinmind : uses
+runner --> Plugins : manages
+runner --> toml : reads
+libveinmind --> docker : interacts
+libveinmind --> runtime : inspects
+Plugins --> libveinmind : utilize
+Plugins --> report : generate
+runner --> registry : pulls images
+
+@enduml

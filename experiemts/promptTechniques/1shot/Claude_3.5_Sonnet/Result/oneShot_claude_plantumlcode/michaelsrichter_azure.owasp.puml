@@ -1,0 +1,49 @@
+@startuml michaelsrichter_azure.owasp
+
+actor "User" as user
+participant "Azure AD" as aad
+participant "Load Balancer" as lb
+participant "Web Application Firewall" as waf
+participant "ASP.NET MVC App" as webapp
+participant "Node.js App" as nodeapp
+database "Database" as db
+participant "ModSecurity CRS" as modsec
+participant "Azure Resources" as azres
+
+user -> lb : Request
+lb -> waf : Forward request
+waf -> modsec : Apply security rules
+modsec --> waf : Allow/Block decision
+
+alt Request allowed
+    waf -> webapp : Forward to ASP.NET app
+    webapp -> aad : Authenticate user
+    aad --> webapp : Auth token
+    webapp -> db : Query data
+    db --> webapp : Return data
+    webapp --> user : Render response
+else Request blocked
+    waf --> user : Return error
+end
+
+user -> lb : Request
+lb -> waf : Forward request
+waf -> modsec : Apply security rules
+modsec --> waf : Allow/Block decision
+
+alt Request allowed
+    waf -> nodeapp : Forward to Node.js app
+    nodeapp -> db : Query data
+    db --> nodeapp : Return data
+    nodeapp --> user : Render response
+else Request blocked
+    waf --> user : Return error
+end
+
+note right of azres
+  Deployment:
+  1. ARM templates
+  2. PowerShell scripts
+end note
+
+@enduml

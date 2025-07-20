@@ -1,0 +1,87 @@
+```plantuml
+@startuml sup2is_e-commerce-project
+
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+package "API Gateway" {
+  component "Zuul\n(JWT Validation)" as Zuul
+}
+
+package "Service Discovery" {
+  component "Eureka Server" as Eureka
+}
+
+package "Microservices" {
+  component "Member Service" as MemberService
+  component "Order Service" as OrderService
+  component "Product Service" as ProductService
+  component "Authentication Service" as AuthService
+}
+
+package "Configuration" {
+  component "Config Server" as ConfigServer
+}
+
+package "Data Storage" {
+  database "H2 / MySQL" as DB
+  database "Redis" as Redis
+}
+
+package "Messaging" {
+  component "Kafka" as Kafka
+}
+
+package "Observability" {
+  component "Zipkin/Sleuth" as Tracing
+}
+
+package "Documentation" {
+  component "Spring REST Docs\n(Asciidoctor)" as Docs
+}
+
+Zuul --> Eureka
+Zuul --> MemberService
+Zuul --> OrderService
+Zuul --> ProductService
+Zuul --> AuthService
+
+OrderService --> ProductService : Feign Client
+OrderService --> DB
+MemberService --> DB
+ProductService --> DB
+ProductService --> Kafka
+ProductService --> Redis
+
+AuthService --> Zuul : Issue JWT
+Zuul --> Redis
+
+Eureka --> MemberService
+Eureka --> OrderService
+Eureka --> ProductService
+Eureka --> AuthService
+
+Kafka --> ProductService
+
+Tracing --> MemberService
+Tracing --> OrderService
+Tracing --> ProductService
+Tracing --> AuthService
+
+ConfigServer --> MemberService
+ConfigServer --> OrderService
+ConfigServer --> ProductService
+ConfigServer --> AuthService
+
+Docs --> Zuul
+Docs --> MemberService
+Docs --> OrderService
+Docs --> ProductService
+Docs --> AuthService
+
+@enduml
+```

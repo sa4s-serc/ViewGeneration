@@ -1,0 +1,69 @@
+@startuml dwt0317_Search_Adserver
+
+skinparam rectangle {
+  BackgroundColor #EEEBDC
+  ArrowColor #222222
+  BorderColor #666666
+}
+
+actor User
+
+rectangle "Frontend" {
+  [Search Interface]
+}
+
+rectangle "Servlets" {
+  [ESServlet]
+  [BingServlet]
+  [AdServlet]
+  [ClickServlet]
+}
+
+rectangle "Ad Management" {
+  [AdRetrieval]
+  [BroadMatcher]
+}
+
+rectangle "Query Management" {
+  [RewritingHandler]
+  [QueryRewriter]
+}
+
+rectangle "Data Access" {
+  [ESHandler]
+  [DBPool]
+}
+
+rectangle "External Services" {
+  [Elasticsearch]
+  [Bing Search API]
+  [Query Rewriting Service]
+  [Ad Ranking Service]
+}
+
+database "MariaDB" {
+  [Ad Data]
+  [Advertiser Budgets]
+}
+
+User --> [Search Interface] : Submits query
+[Search Interface] --> [ESServlet] : Local search
+[Search Interface] --> [BingServlet] : Bing search
+[ESServlet] --> [ESHandler] : Retrieve results
+[BingServlet] --> [Bing Search API] : Fetch results
+[ESServlet] --> [AdServlet] : Request ads
+[BingServlet] --> [AdServlet] : Request ads
+[AdServlet] --> [AdRetrieval] : Get relevant ads
+[AdRetrieval] --> [RewritingHandler] : Rewrite query
+[RewritingHandler] --> [Query Rewriting Service] : Get expanded query
+[AdRetrieval] --> [BroadMatcher] : Match ads
+[BroadMatcher] --> [ESHandler] : Get ad candidates
+[AdRetrieval] --> [Ad Ranking Service] : Rank ads
+[AdRetrieval] --> [DBPool] : Get ad details
+[DBPool] --> [MariaDB] : Fetch/Update data
+[AdServlet] --> [Search Interface] : Return ads
+[Search Interface] --> User : Display results
+User --> [ClickServlet] : Clicks ad
+[ClickServlet] --> [DBPool] : Log click, update budget
+
+@enduml

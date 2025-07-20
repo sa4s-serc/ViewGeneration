@@ -1,0 +1,83 @@
+```plantuml
+@startuml ShiftLeftSecurity_traceleft
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "CLI" as CLI {
+  rectangle "gotext\nCLI Tool" as gotext
+}
+
+rectangle "Text Processing" as TextProcessing #lightblue {
+  rectangle "Unicode\nNormalization" as UnicodeNormalization
+  rectangle "Collation" as Collation
+  rectangle "BiDi Text\nHandling" as BiDiTextHandling
+  rectangle "IDNA" as IDNA
+  rectangle "Unicode Case\nConversion" as UnicodeCaseConversion
+  rectangle "Character\nEncoding" as CharacterEncoding
+}
+
+rectangle "System Interaction" as SysInteraction #lightgrey {
+  rectangle "OS Abstraction" as OSAbstraction
+  rectangle "System Calls" as SystemCalls
+  rectangle "Windows & Linux\nAPI Binding" as APIBinding
+}
+
+rectangle "CLI Construction" as CLIConstruction #lightgreen {
+  rectangle "Hierarchical\nCommands" as HierarchicalCommands
+  rectangle "Arguments &\nFlags" as ArgumentsFlags
+  rectangle "Command-Line\nGenerator" as CommandLineGenerator
+}
+
+rectangle "Core Libraries" as CoreLibraries #lightyellow {
+  rectangle "eBPF Interaction" as eBPFInteraction
+  rectangle "YAML Processing" as YAMLProcessing
+  rectangle "Caching" as Caching
+  rectangle "File System\nEvents" as FileSystemEvents
+  rectangle "Text Processing\nFunctions" as TextProcessingFunctions
+  rectangle "Command Line\nInteraction" as CommandLineInteraction
+}
+
+' ========== Connections ==========
+User --> CLI : invoke CLI tool
+
+' CLI interactions
+gotext --> TextProcessing : extract translatable strings
+gotext --> TextProcessing : normalize text
+gotext --> TextProcessing : handle character encoding
+
+' Text Processing interactions
+UnicodeNormalization --> TextProcessing : provide normalization forms
+Collation --> UnicodeNormalization : perform collation
+BiDiTextHandling --> UnicodeNormalization : handle BiDi text
+IDNA --> UnicodeNormalization : map IDNs
+UnicodeCaseConversion --> UnicodeNormalization : convert cases
+CharacterEncoding --> TextProcessing : support character encoding
+
+' System Interaction
+CLI --> SysInteraction : perform system calls
+SysInteraction --> OSAbstraction : abstract OS-specific calls
+SysInteraction --> SystemCalls : execute system calls
+SysInteraction --> APIBinding : bind to Windows & Linux APIs
+
+' CLI Construction
+CLI --> CLIConstruction : construct CLI
+CLIConstruction --> HierarchicalCommands : define commands
+CLIConstruction --> ArgumentsFlags : process arguments
+CLIConstruction --> CommandLineGenerator : generate CLI
+
+' Core Libraries interactions
+CLI --> CoreLibraries : utilize libraries
+CoreLibraries --> eBPFInteraction : perform eBPF operations
+CoreLibraries --> YAMLProcessing : parse YAML
+CoreLibraries --> Caching : cache data
+CoreLibraries --> FileSystemEvents : watch file system events
+CoreLibraries --> TextProcessingFunctions : process text
+CoreLibraries --> CommandLineInteraction : manage commands
+@enduml
+```

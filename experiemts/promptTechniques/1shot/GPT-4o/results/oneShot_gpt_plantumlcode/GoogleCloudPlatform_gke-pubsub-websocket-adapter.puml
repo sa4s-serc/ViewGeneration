@@ -1,0 +1,29 @@
+```plantuml
+@startuml GoogleCloudPlatform_gke-pubsub-websocket-adapter
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor WebClient
+
+rectangle GKE #lightblue {
+  rectangle "pulltop" as Pulltop #lightgreen
+  rectangle "websocketd" as WebSocketD #lightyellow
+  rectangle "Ephemeral\nPOSIX Storage" as EphemeralStorage #aliceblue
+}
+
+rectangle "Google Cloud\nPub/Sub" as PubSub #mistyrose
+
+' ========== Connections ==========
+WebClient --> WebSocketD : Connect via WebSocket
+WebSocketD --> EphemeralStorage : Buffer recent messages
+WebSocketD --> Pulltop : Request latest messages
+Pulltop --> PubSub : Pull messages from topic
+PubSub --> Pulltop : Deliver messages
+Pulltop --> EphemeralStorage : Store messages temporarily
+WebSocketD --> WebClient : Stream messages in real-time
+@enduml
+```

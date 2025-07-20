@@ -1,0 +1,96 @@
+```plantuml
+@startuml fdrennan_ndexr-platform
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "User"
+
+package "Data Ingestion & Storage" {
+  rectangle "PRAW Library\n(Reddit API)" as praw #lightblue
+  database "PostgreSQL" as postgres #lightyellow
+}
+
+package "API and UI" {
+  rectangle "R Plumber API" as api #lightgreen
+  rectangle "Shiny Application" as shiny #lightgreen
+}
+
+package "Workflow Orchestration" {
+  rectangle "Airflow DAGs" as airflow #lightcoral
+}
+
+package "AWS Infrastructure" {
+  rectangle "S3 Bucket" as s3 #lightpink
+  rectangle "EC2 Instances" as ec2 #lightpink
+  rectangle "SNS" as sns #lightpink
+}
+
+package "Search & Monitoring" {
+  rectangle "Elasticsearch" as elasticsearch #lightgray
+  rectangle "Glances Monitoring" as glances #lightgray
+}
+
+package "Infrastructure Setup" {
+  file "postgres_installer.sh" as postgres_installer #lightgoldenrodyellow
+}
+
+package "Configuration" {
+  file ".env" as env_file #lightcoral
+  file "nginx.conf" as nginx_conf #lightcoral
+}
+
+User --> shiny
+User --> api
+api <--> postgres
+praw --> postgres
+praw --> airflow
+airflow --> s3
+airflow --> ec2
+airflow --> sns
+postgres_installer --> postgres
+api <--> elasticsearch
+ec2 <--> glances
+s3 --> elasticsearch
+
+note right of praw
+  Python scripts for data ingestion
+end note
+
+note right of api
+  Exposes REST endpoints
+end note
+
+note right of shiny
+  Interactive data visualization
+end note
+
+note left of airflow
+  Orchestrates data pipeline
+end note
+
+note left of ec2
+  AWS compute resources
+end note
+
+note left of elasticsearch
+  Enables data search
+end note
+
+note left of glances
+  System performance monitoring
+end note
+
+note bottom of env_file
+  Stores environment variables
+end note
+
+note bottom of nginx_conf
+  Configures NGINX as reverse proxy
+end note
+
+@enduml
+```

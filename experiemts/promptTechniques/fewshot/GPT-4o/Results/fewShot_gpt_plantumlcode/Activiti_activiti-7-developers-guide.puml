@@ -1,0 +1,57 @@
+```plantuml
+@startuml Activiti_activiti-7-developers-guide
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+package "Activiti Cloud" {
+  rectangle "Activiti Core" as ActivitiCore #lightblue
+  rectangle "Cloud Runtime Bundle" as RuntimeBundle #lightblue
+  rectangle "Cloud Connectors" as Connectors #lightblue
+  rectangle "Cloud Query Service" as QueryService #lightblue
+  rectangle "Cloud Audit Service" as AuditService #lightblue
+  rectangle "Cloud Notification Service" as NotificationService #lightblue
+}
+
+package "Infrastructure" {
+  rectangle "Gateway" as Gateway #lightgreen
+  rectangle "Identity Management\n(Keycloak)" as IdentityManagement #lightgreen
+  rectangle "Spring Cloud Integration" as SpringCloudIntegration #lightgreen
+  rectangle "Helm Charts" as HelmCharts #lightgreen
+  rectangle "Jenkins X" as JenkinsX #lightgreen
+}
+
+rectangle "BPMN Modeling Application" as BPMNModelingApp #lightyellow
+
+rectangle "Kubernetes" as Kubernetes #lightgray
+
+' Connections
+Gateway --> ActivitiCore
+Gateway --> RuntimeBundle
+Gateway --> Connectors
+Gateway --> QueryService
+Gateway --> AuditService
+Gateway --> NotificationService
+
+IdentityManagement --> Gateway
+SpringCloudIntegration --> RuntimeBundle
+SpringCloudIntegration --> Connectors
+SpringCloudIntegration --> QueryService
+SpringCloudIntegration --> AuditService
+SpringCloudIntegration --> NotificationService
+
+RuntimeBundle --> Kubernetes
+Connectors --> Kubernetes
+QueryService --> Kubernetes
+AuditService --> Kubernetes
+NotificationService --> Kubernetes
+
+HelmCharts --> Kubernetes
+JenkinsX --> Kubernetes
+
+BPMNModelingApp --> ActivitiCore
+@enduml
+```

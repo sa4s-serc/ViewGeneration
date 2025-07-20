@@ -1,0 +1,54 @@
+```plantuml
+@startuml NicoJuicy_Airline-Microservices
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+package "API Gateway" {
+  component "YARP Gateway" as ApiGateway #orange
+}
+
+package "Microservices" {
+  rectangle "Identity Service" as Identity #lightblue
+  rectangle "Flight Service" as Flight #lightblue
+  rectangle "Passenger Service" as Passenger #lightblue
+  rectangle "Reservation Service" as Reservation #lightblue
+}
+
+package "Building Blocks" {
+  rectangle "Common Utilities\n(Exception Handling, Logging, etc.)" as CommonUtils #lightgrey
+}
+
+package "Infrastructure" {
+  component "RabbitMQ\n(Message Broker)" as RabbitMQ #pink
+  component "Database" as Database #pink
+}
+
+actor "External Client" as Client
+
+Client --> ApiGateway
+ApiGateway --> Identity : Authenticate/Authorize
+ApiGateway --> Flight : Flight Operations
+ApiGateway --> Passenger : Passenger Management
+ApiGateway --> Reservation : Reservation Handling
+
+Identity --> CommonUtils
+Flight --> CommonUtils
+Passenger --> CommonUtils
+Reservation --> CommonUtils
+
+Flight --> RabbitMQ : Publish/Subscribe Events
+Reservation --> RabbitMQ : Publish/Subscribe Events
+Passenger --> RabbitMQ : Publish/Subscribe Events
+Identity --> RabbitMQ : Publish/Subscribe Events
+
+Flight --> Database
+Reservation --> Database
+Passenger --> Database
+Identity --> Database
+
+@enduml
+```

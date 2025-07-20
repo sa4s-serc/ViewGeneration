@@ -1,0 +1,31 @@
+```plantuml
+@startuml jinnerbichler_flash-home
+
+actor User
+
+participant "Home Assistant" as HA
+participant "Coffee Machine Client" as CMClient
+participant "Flash Server (Coffee Machine)" as FSCoffee
+participant "Flash Server (Provider)" as FSProvider
+participant "Private IOTA Testnet" as IOTATestnet
+
+User -> HA: Make Coffee Request
+HA -> CMClient: Trigger Coffee Brew
+CMClient -> FSCoffee: Initialize Flash Channel
+FSCoffee -> FSProvider: Request Channel Initialization
+FSProvider -> FSCoffee: Confirm Channel Initialization
+FSCoffee -> CMClient: Channel Initialized
+
+CMClient -> FSCoffee: Sign Transaction
+FSCoffee -> FSProvider: Forward Signed Transaction
+FSProvider -> FSCoffee: Transaction Confirmed
+FSCoffee -> CMClient: Transaction Completed
+
+CMClient -> IOTATestnet: Broadcast Transaction
+IOTATestnet -> CMClient: Transaction Successful
+
+CMClient -> HA: Update Coffee Brew Status
+HA -> User: Display Brew Status
+
+@enduml
+```

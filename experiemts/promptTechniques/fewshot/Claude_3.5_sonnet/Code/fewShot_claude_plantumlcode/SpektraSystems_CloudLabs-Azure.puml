@@ -1,0 +1,54 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #EEEBDC
+  ArrowColor #222222
+  BorderColor #666666
+}
+
+actor "User" as user
+
+rectangle "Azure Portal" as portal
+
+cloud "Azure" {
+  rectangle "Azure Migrate" as migrate {
+    [Assessment]
+    [Replication]
+    [Test Migration]
+  }
+  
+  rectangle "Azure Compute" as compute {
+    [Virtual Networks]
+    [Virtual Machines]
+    [Availability Sets]
+  }
+  
+  rectangle "Serverless" as serverless {
+    [Azure Functions]
+    [Cosmos DB]
+    [Azure Storage (Static Website)]
+  }
+  
+  rectangle "Monitoring" as monitoring {
+    [Azure Monitor]
+    [Log Analytics]
+    [Application Insights]
+    [Grafana]
+  }
+}
+
+rectangle "On-Premises" as onprem {
+  [Hyper-V VMs]
+}
+
+user --> portal : Accesses
+portal --> migrate : Configures
+portal --> compute : Manages
+portal --> serverless : Deploys
+portal --> monitoring : Monitors
+
+migrate <--> onprem : Assesses & Migrates
+
+compute --> monitoring : Sends metrics
+serverless --> monitoring : Sends logs & telemetry
+
+@enduml

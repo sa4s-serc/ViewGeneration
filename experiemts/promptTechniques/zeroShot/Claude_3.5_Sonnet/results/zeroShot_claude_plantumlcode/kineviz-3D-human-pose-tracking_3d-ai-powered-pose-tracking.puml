@@ -1,0 +1,26 @@
+@startuml
+participant "Webcam Client 1" as WC1
+participant "Webcam Client 2" as WC2
+participant "Node.js Server" as Server
+participant "Receiver Client" as RC
+
+WC1 -> Server : Connect (Socket.IO)
+WC2 -> Server : Connect (Socket.IO)
+RC -> Server : Connect (Socket.IO)
+
+loop Real-time Processing
+    WC1 -> WC1 : Capture video frame
+    WC1 -> WC1 : Perform 2D pose estimation (PoseNet/MoveNet)
+    WC2 -> WC2 : Capture video frame
+    WC2 -> WC2 : Perform 2D pose estimation (PoseNet/MoveNet)
+    
+    WC1 -> Server : Send 2D skeleton data
+    WC2 -> Server : Send 2D skeleton data
+    
+    Server -> Server : Combine 2D data to reconstruct 3D pose
+    
+    Server -> RC : Broadcast 3D skeleton data
+    RC -> RC : Update visualization (GraphXR)
+end
+
+@enduml
