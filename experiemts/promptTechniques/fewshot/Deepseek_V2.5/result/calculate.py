@@ -4,36 +4,41 @@ import statistics
 # Path to your CSV file
 csv_file = "image_similarity_results.csv"
 
-# Initialize a dictionary to store each metric's values
-metrics_data = {
-    "SSIM": [],
-    "PSNR": [],
-    "RMSE": [],
-    "SAM": [],
-    "SRE": [],
-    "UIQ": []
-}
+# List of metric columns
+metric_keys = ["SSIM", "PSNR", "RMSE", "SAM", "SRE", "UIQ"]
 
-# Read the CSV and collect metric values
+# Dictionary to hold filtered metric data
+metrics_data = {key: [] for key in metric_keys}
+
+# Read CSV and filter out rows with all NaNs in metric columns
 with open(csv_file, newline='') as f:
     reader = csv.DictReader(f)
     for row in reader:
-        for metric in metrics_data.keys():
-            val_str = row.get(metric, "0").strip()
+        # Check if all metrics are NA or empty
+        if all(not row[key].strip() or row[key].strip().upper() == "NA" for key in metric_keys):
+            continue  # skip this row
+
+        # Otherwise, process the valid values
+        for key in metric_keys:
+            val_str = row.get(key, "").strip()
             try:
-                val = float(val_str) if val_str.upper() != "NA" else 0.0
+                val = float(val_str) if val_str.upper() != "NA" and val_str != "" else 0.0
             except ValueError:
                 val = 0.0
-            metrics_data[metric].append(val)
+            metrics_data[key].append(val)
 
-# Compute stats
-for metric, values in metrics_data.items():
+# Compute and display statistics
+for key, values in metrics_data.items():
+    if not values:
+        print(f"\n--- {key} ---\nNo valid values.")
+        continue
+
     mean_val = statistics.mean(values)
     median_val = statistics.median(values)
     variance_val = statistics.variance(values) if len(values) > 1 else 0.0
     std_dev = statistics.stdev(values) if len(values) > 1 else 0.0
 
-    print(f"\n--- {metric} ---")
+    print(f"\n--- {key} ---")
     print(f"Mean:     {mean_val:.4f}")
     print(f"Median:   {median_val:.4f}")
     print(f"Variance: {variance_val:.4f}")
