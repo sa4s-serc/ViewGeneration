@@ -5,7 +5,7 @@ import time
 import openai
 import base64
 
-openai.api_key = os.getenv("OPENAI_API_KEY")  # or set your key directly here
+openai.api_key = "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"
 
 def load_image_as_base64(image_path):
     with open(image_path, "rb") as img_file:
@@ -60,7 +60,7 @@ Return a JSON object in this exact structure:
  "common_connectors": [],
  "unique_connectors_GroundTruth": [],
  "unique_connectors_GeneratedImage": [],
- "explanation": "A detailed explanation highlighting similarities and differences between the two diagrams and also please rate the generated image on a scale of 1 to 10 based on its accuracy and completeness, similarity compared to the ground truth and explain why you gave that rating.",
+ "explanation": "A detailed explanation highlighting similarities and differences between the two diagrams and also please rate the generated image on a scale of 1 to 10 based on its accuracy and completeness, similarity compared to the ground truth and explain the reasoning behind the rating.",
  "Rating": 0
  }
 }
@@ -123,8 +123,11 @@ def main():
     files1 = get_files_by_stem(folder1)
     files2 = get_files_by_stem(folder2)
     common_stems = sorted(set(files1.keys()) & set(files2.keys()))
-
+    tried=0
+    print("started")
     for stem in common_stems:
+        if tried>10:
+            break
         output_filename = f"{stem}_comparison.json"
         output_path = os.path.join(output_dir, output_filename)
 
@@ -134,7 +137,7 @@ def main():
 
         file1 = os.path.join(folder1, files1[stem])
         file2 = os.path.join(folder2, files2[stem])
-
+        tried+=1
         try:
             result = extract_and_compare_images(file1, file2)
             if result:
