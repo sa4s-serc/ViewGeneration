@@ -1,0 +1,315 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Stream Sources",
+        "description": "Source of raw and transformed data from streaming platforms.",
+        "boundaries": "dashed",
+        "position": "left"
+      },
+      {
+        "name": "Batch Sources",
+        "description": "Source of raw and transformed data from batch processing platforms.",
+        "boundaries": "dashed",
+        "position": "left"
+      },
+      {
+        "name": "Online Store",
+        "description": "Stores features for online retrieval.",
+        "boundaries": "solid",
+        "position": "center"
+      },
+      {
+        "name": "Offline Store",
+        "description": "Stores features for offline retrieval.",
+        "boundaries": "solid",
+        "position": "center"
+      },
+      {
+        "name": "Feature Server",
+        "description": "Serves features to models.",
+        "boundaries": "solid",
+        "position": "center"
+      },
+      {
+        "name": "Realtime Model Serving",
+        "description": "Serves models in real-time.",
+        "boundaries": "solid",
+        "position": "right"
+      },
+      {
+        "name": "Model Training/Evaluation + Batch Scoring",
+        "description": "Trains and evaluates models, performs batch scoring.",
+        "boundaries": "solid",
+        "position": "right"
+      },
+      {
+        "name": "Feature Repo",
+        "description": "Repository for feature definitions.",
+        "boundaries": "solid",
+        "position": "bottom"
+      },
+      {
+        "name": "Registry (Object Store)",
+        "description": "Stores registry data.",
+        "boundaries": "solid",
+        "position": "bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Stream Sources",
+        "target": "Online Store",
+        "label": "store.push()",
+        "type": "arrow"
+      },
+      {
+        "source": "Batch Sources",
+        "target": "Offline Store",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Online Store",
+        "target": "Feature Server",
+        "label": "push",
+        "type": "arrow"
+      },
+      {
+        "source": "Feature Server",
+        "target": "Realtime Model Serving",
+        "label": "get_online_features",
+        "type": "arrow"
+      },
+      {
+        "source": "Offline Store",
+        "target": "Model Training/Evaluation + Batch Scoring",
+        "label": "get_historical_features",
+        "type": "arrow"
+      },
+      {
+        "source": "Feature Repo",
+        "target": "Registry (Object Store)",
+        "label": "Feast Apply",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [
+      "Redis (Single Redis instance)",
+      "Local (Parquet files)",
+      "Local (yaml file)",
+      "Local (db file)"
+    ],
+    "groups": [
+      {
+        "name": "Sources",
+        "components": [
+          "Stream Sources",
+          "Batch Sources"
+        ]
+      },
+      {
+        "name": "Stores",
+        "components": [
+          "Online Store",
+          "Offline Store"
+        ]
+      },
+      {
+        "name": "Model Operations",
+        "components": [
+          "Realtime Model Serving",
+          "Model Training/Evaluation + Batch Scoring"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "ground_truth.png",
+      "title": "Feature Store Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Initiates requests and receives predictions.",
+        "boundaries": "none",
+        "position": "left"
+      },
+      {
+        "name": "Data Pipeline",
+        "description": "Handles data ingestion and transformation.",
+        "boundaries": "none",
+        "position": "center-left"
+      },
+      {
+        "name": "Feature Store (Feast)",
+        "description": "Stores and manages feature data.",
+        "boundaries": "none",
+        "position": "center"
+      },
+      {
+        "name": "Online Store (Redis)",
+        "description": "Stores features for online retrieval.",
+        "boundaries": "none",
+        "position": "center-right"
+      },
+      {
+        "name": "Offline Store (Parquet)",
+        "description": "Stores features for offline retrieval.",
+        "boundaries": "none",
+        "position": "center-right"
+      },
+      {
+        "name": "ML Model",
+        "description": "Performs predictions based on features.",
+        "boundaries": "none",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Data Pipeline",
+        "label": "Triggers data ingestion",
+        "type": "arrow"
+      },
+      {
+        "source": "Data Pipeline",
+        "target": "Feature Store (Feast)",
+        "label": "Ingests features",
+        "type": "arrow"
+      },
+      {
+        "source": "Feature Store (Feast)",
+        "target": "Online Store (Redis)",
+        "label": "Stores features (online)",
+        "type": "arrow"
+      },
+      {
+        "source": "Feature Store (Feast)",
+        "target": "Offline Store (Parquet)",
+        "label": "Stores features (offline)",
+        "type": "arrow"
+      },
+      {
+        "source": "User",
+        "target": "ML Model",
+        "label": "Requests prediction",
+        "type": "arrow"
+      },
+      {
+        "source": "ML Model",
+        "target": "User",
+        "label": "Returns prediction",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "generated_image.png",
+      "title": "Feature Store Sequence Diagram"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Online Store",
+      "Offline Store"
+    ],
+    "unique_to_GroundTruth": [
+      "Stream Sources",
+      "Batch Sources",
+      "Feature Server",
+      "Realtime Model Serving",
+      "Model Training/Evaluation + Batch Scoring",
+      "Feature Repo",
+      "Registry (Object Store)"
+    ],
+    "unique_to_GeneratedImage": [
+      "User",
+      "Data Pipeline",
+      "Feature Store (Feast)",
+      "ML Model"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Stream Sources",
+        "target": "Online Store",
+        "label": "store.push()",
+        "type": "arrow"
+      },
+      {
+        "source": "Batch Sources",
+        "target": "Offline Store",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Online Store",
+        "target": "Feature Server",
+        "label": "push",
+        "type": "arrow"
+      },
+      {
+        "source": "Feature Server",
+        "target": "Realtime Model Serving",
+        "label": "get_online_features",
+        "type": "arrow"
+      },
+      {
+        "source": "Offline Store",
+        "target": "Model Training/Evaluation + Batch Scoring",
+        "label": "get_historical_features",
+        "type": "arrow"
+      },
+      {
+        "source": "Feature Repo",
+        "target": "Registry (Object Store)",
+        "label": "Feast Apply",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "Data Pipeline",
+        "label": "Triggers data ingestion",
+        "type": "arrow"
+      },
+      {
+        "source": "Data Pipeline",
+        "target": "Feature Store (Feast)",
+        "label": "Ingests features",
+        "type": "arrow"
+      },
+      {
+        "source": "Feature Store (Feast)",
+        "target": "Online Store (Redis)",
+        "label": "Stores features (online)",
+        "type": "arrow"
+      },
+      {
+        "source": "Feature Store (Feast)",
+        "target": "Offline Store (Parquet)",
+        "label": "Stores features (offline)",
+        "type": "arrow"
+      },
+      {
+        "source": "User",
+        "target": "ML Model",
+        "label": "Requests prediction",
+        "type": "arrow"
+      },
+      {
+        "source": "ML Model",
+        "target": "User",
+        "label": "Returns prediction",
+        "type": "arrow"
+      }
+    ],
+    "explanation": "The GroundTruth diagram is a component-based architecture diagram, while the GeneratedImage is a sequence diagram. Both diagrams include 'Online Store' and 'Offline Store', indicating a shared focus on feature storage. The GroundTruth diagram provides a detailed view of data sources, feature storage, and model operations, highlighting components like 'Feature Server' and 'Model Training/Evaluation'. In contrast, the GeneratedImage focuses on the interaction between a user, data pipeline, and feature store, emphasizing the sequence of operations. The GroundTruth diagram is more comprehensive in terms of architectural components, while the GeneratedImage provides a clear view of the process flow. Rating: 6/10. The GeneratedImage captures the sequence of operations well but lacks the detailed architectural components present in the GroundTruth diagram.",
+    "Rating": 6
+  }
+}

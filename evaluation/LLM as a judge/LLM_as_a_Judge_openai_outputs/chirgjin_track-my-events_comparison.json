@@ -1,0 +1,233 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Frontend or SDK Client",
+        "description": "Client interface for API requests",
+        "boundary": "box",
+        "position": "left"
+      },
+      {
+        "name": "Gateway Service",
+        "description": "Handles API requests and user verification",
+        "boundary": "box",
+        "position": "center"
+      },
+      {
+        "name": "User Service",
+        "description": "Manages user data and authentication",
+        "boundary": "box",
+        "position": "right"
+      },
+      {
+        "name": "Tracking Service",
+        "description": "Processes and stores tracking data",
+        "boundary": "box",
+        "position": "right"
+      },
+      {
+        "name": "PostgreSQL",
+        "description": "Database for persistent storage",
+        "boundary": "cylinder",
+        "position": "right"
+      },
+      {
+        "name": "Pub/Sub",
+        "description": "Message broker for event notifications",
+        "boundary": "cylinder",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Frontend or SDK Client",
+        "target": "Gateway Service",
+        "label": "API Requests",
+        "type": "arrow"
+      },
+      {
+        "source": "Gateway Service",
+        "target": "User Service",
+        "label": "Verify User",
+        "type": "arrow"
+      },
+      {
+        "source": "User Service",
+        "target": "PostgreSQL",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Gateway Service",
+        "target": "Tracking Service",
+        "label": "Request with User data",
+        "type": "arrow"
+      },
+      {
+        "source": "Tracking Service",
+        "target": "PostgreSQL",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Tracking Service",
+        "target": "Pub/Sub",
+        "label": "",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "TrackMyEvents_Architecture.png",
+      "title": "TrackMyEvents Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "End user interacting with the system",
+        "boundary": "actor",
+        "position": "left"
+      },
+      {
+        "name": "React Frontend",
+        "description": "User interface for dashboard access",
+        "boundary": "box",
+        "position": "center"
+      },
+      {
+        "name": "Gateway Service",
+        "description": "Handles API requests and token validation",
+        "boundary": "box",
+        "position": "center"
+      },
+      {
+        "name": "User Service",
+        "description": "Manages user registration and authentication",
+        "boundary": "box",
+        "position": "center"
+      },
+      {
+        "name": "Tracking Service",
+        "description": "Handles event tracking and storage",
+        "boundary": "box",
+        "position": "center"
+      },
+      {
+        "name": "Redis Pub/Sub",
+        "description": "Message broker for event notifications",
+        "boundary": "box",
+        "position": "center"
+      },
+      {
+        "name": "PostgreSQL",
+        "description": "Database for storing user and event data",
+        "boundary": "box",
+        "position": "center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "React Frontend",
+        "label": "Accesses Dashboard",
+        "type": "arrow"
+      },
+      {
+        "source": "React Frontend",
+        "target": "Gateway Service",
+        "label": "GET /dashboard (with auth token)",
+        "type": "arrow"
+      },
+      {
+        "source": "Gateway Service",
+        "target": "User Service",
+        "label": "Forward registration",
+        "type": "arrow"
+      },
+      {
+        "source": "Gateway Service",
+        "target": "Tracking Service",
+        "label": "Publish event to 'events' channel",
+        "type": "arrow"
+      },
+      {
+        "source": "Tracking Service",
+        "target": "Redis Pub/Sub",
+        "label": "Event notification (async)",
+        "type": "arrow"
+      },
+      {
+        "source": "Tracking Service",
+        "target": "PostgreSQL",
+        "label": "Store event data",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "TrackMyEvents_Sequence.png",
+      "title": "TrackMyEvents Sequence Diagram"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Gateway Service",
+      "User Service",
+      "Tracking Service",
+      "PostgreSQL"
+    ],
+    "unique_to_GroundTruth": [
+      "Frontend or SDK Client",
+      "Pub/Sub"
+    ],
+    "unique_to_GeneratedImage": [
+      "User",
+      "React Frontend",
+      "Redis Pub/Sub"
+    ],
+    "common_connectors": [
+      {
+        "source": "Gateway Service",
+        "target": "User Service"
+      },
+      {
+        "source": "Gateway Service",
+        "target": "Tracking Service"
+      },
+      {
+        "source": "Tracking Service",
+        "target": "PostgreSQL"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Frontend or SDK Client",
+        "target": "Gateway Service"
+      },
+      {
+        "source": "Tracking Service",
+        "target": "Pub/Sub"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "React Frontend"
+      },
+      {
+        "source": "React Frontend",
+        "target": "Gateway Service"
+      },
+      {
+        "source": "Tracking Service",
+        "target": "Redis Pub/Sub"
+      }
+    ],
+    "explanation": "The GroundTruth diagram provides a high-level overview of the system architecture, focusing on the main components and their interactions. It includes a 'Frontend or SDK Client' and a 'Pub/Sub' component, which are not present in the GeneratedImage. The GeneratedImage, on the other hand, is a sequence diagram that details the interactions between components, including user actions and specific API calls. It introduces a 'User' actor and a 'React Frontend', which are absent in the GroundTruth. Both diagrams share common components such as 'Gateway Service', 'User Service', 'Tracking Service', and 'PostgreSQL'. The connectors in both diagrams highlight similar interactions between these common components, although the GeneratedImage provides more detailed interactions. Overall, the GeneratedImage is rated 8 out of 10 for its detailed depiction of interactions, although it lacks some components present in the GroundTruth.",
+    "Rating": 8
+  }
+}

@@ -1,0 +1,300 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Client",
+        "description": "User interface",
+        "boundaries": "Top-left",
+        "position": "Top"
+      },
+      {
+        "name": "Main Load Balancer",
+        "description": "Distributes traffic",
+        "boundaries": "Center",
+        "position": "Top"
+      },
+      {
+        "name": "Search Load Balancer",
+        "description": "Handles search requests",
+        "boundaries": "Center",
+        "position": "Top"
+      },
+      {
+        "name": "Microservice Instances + Mongos",
+        "description": "Handles microservices",
+        "boundaries": "Dashed box",
+        "position": "Left"
+      },
+      {
+        "name": "Search Instances + Mongos",
+        "description": "Handles search services",
+        "boundaries": "Dashed box",
+        "position": "Right"
+      },
+      {
+        "name": "MongoDB",
+        "description": "Database",
+        "boundaries": "Dashed box",
+        "position": "Bottom-left"
+      },
+      {
+        "name": "Elastic Search",
+        "description": "Search engine",
+        "boundaries": "Center",
+        "position": "Right"
+      },
+      {
+        "name": "Kibana",
+        "description": "Visualization tool",
+        "boundaries": "Right",
+        "position": "Right"
+      },
+      {
+        "name": "Media Redis Cluster",
+        "description": "Cache for media",
+        "boundaries": "Bottom",
+        "position": "Bottom"
+      },
+      {
+        "name": "Main Redis Cluster",
+        "description": "Main cache",
+        "boundaries": "Bottom",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Client",
+        "target": "Main Load Balancer",
+        "label": "Request",
+        "type": "Arrow"
+      },
+      {
+        "source": "Main Load Balancer",
+        "target": "Microservice Instances + Mongos",
+        "label": "Distribute",
+        "type": "Arrow"
+      },
+      {
+        "source": "Search Load Balancer",
+        "target": "Search Instances + Mongos",
+        "label": "Distribute",
+        "type": "Arrow"
+      },
+      {
+        "source": "Microservice Instances + Mongos",
+        "target": "MongoDB",
+        "label": "Database",
+        "type": "Arrow"
+      },
+      {
+        "source": "Search Instances + Mongos",
+        "target": "Elastic Search",
+        "label": "Search",
+        "type": "Arrow"
+      },
+      {
+        "source": "Elastic Search",
+        "target": "Kibana",
+        "label": "Visualize",
+        "type": "Arrow"
+      },
+      {
+        "source": "MongoDB",
+        "target": "Media Redis Cluster",
+        "label": "Cache",
+        "type": "Arrow"
+      },
+      {
+        "source": "MongoDB",
+        "target": "Main Redis Cluster",
+        "label": "Cache",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "OpenStack VPC",
+        "description": "Virtual Private Cloud",
+        "boundaries": "Outer box"
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "System Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "End user",
+        "boundaries": "Left",
+        "position": "Top"
+      },
+      {
+        "name": "Frontend (React)",
+        "description": "User interface",
+        "boundaries": "Top",
+        "position": "Top"
+      },
+      {
+        "name": "Nginx (Load Balancer)",
+        "description": "Distributes traffic",
+        "boundaries": "Top",
+        "position": "Top"
+      },
+      {
+        "name": "su-users (Auth)",
+        "description": "Authentication service",
+        "boundaries": "Top",
+        "position": "Top"
+      },
+      {
+        "name": "su-questions (Service)",
+        "description": "Question service",
+        "boundaries": "Top",
+        "position": "Top"
+      },
+      {
+        "name": "su-answers (Service)",
+        "description": "Answer service",
+        "boundaries": "Top",
+        "position": "Top"
+      },
+      {
+        "name": "RabbitMQ",
+        "description": "Message broker",
+        "boundaries": "Top",
+        "position": "Top"
+      },
+      {
+        "name": "su-search (ElasticSearch)",
+        "description": "Search engine",
+        "boundaries": "Top",
+        "position": "Top"
+      },
+      {
+        "name": "Redis (Cache)",
+        "description": "Cache",
+        "boundaries": "Top",
+        "position": "Top"
+      },
+      {
+        "name": "MongoDB",
+        "description": "Database",
+        "boundaries": "Top",
+        "position": "Top"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Frontend (React)",
+        "label": "Posts question",
+        "type": "Arrow"
+      },
+      {
+        "source": "Frontend (React)",
+        "target": "Nginx (Load Balancer)",
+        "label": "HTTP POST /api/questions",
+        "type": "Arrow"
+      },
+      {
+        "source": "Nginx (Load Balancer)",
+        "target": "su-questions (Service)",
+        "label": "Forward request",
+        "type": "Arrow"
+      },
+      {
+        "source": "su-questions (Service)",
+        "target": "RabbitMQ",
+        "label": "Publish question",
+        "type": "Arrow"
+      },
+      {
+        "source": "RabbitMQ",
+        "target": "su-search (ElasticSearch)",
+        "label": "Consume message",
+        "type": "Arrow"
+      },
+      {
+        "source": "su-search (ElasticSearch)",
+        "target": "Redis (Cache)",
+        "label": "Cache question",
+        "type": "Arrow"
+      },
+      {
+        "source": "su-search (ElasticSearch)",
+        "target": "MongoDB",
+        "label": "Store question",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Sequence Diagram"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "MongoDB",
+      "Nginx (Load Balancer)"
+    ],
+    "unique_to_GroundTruth": [
+      "Client",
+      "Main Load Balancer",
+      "Search Load Balancer",
+      "Microservice Instances + Mongos",
+      "Search Instances + Mongos",
+      "Elastic Search",
+      "Kibana",
+      "Media Redis Cluster",
+      "Main Redis Cluster"
+    ],
+    "unique_to_GeneratedImage": [
+      "User",
+      "Frontend (React)",
+      "su-users (Auth)",
+      "su-questions (Service)",
+      "su-answers (Service)",
+      "RabbitMQ",
+      "su-search (ElasticSearch)",
+      "Redis (Cache)"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Client",
+        "target": "Main Load Balancer",
+        "label": "Request",
+        "type": "Arrow"
+      },
+      {
+        "source": "Main Load Balancer",
+        "target": "Microservice Instances + Mongos",
+        "label": "Distribute",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "Frontend (React)",
+        "label": "Posts question",
+        "type": "Arrow"
+      },
+      {
+        "source": "Frontend (React)",
+        "target": "Nginx (Load Balancer)",
+        "label": "HTTP POST /api/questions",
+        "type": "Arrow"
+      }
+    ],
+    "explanation": "The GroundTruth diagram is a system architecture diagram focusing on infrastructure components like load balancers, databases, and caching systems. It includes elements such as MongoDB, Redis clusters, and Elastic Search. The GeneratedImage diagram is a sequence diagram illustrating user interactions with a system, highlighting services like authentication, question handling, and message brokering. Both diagrams include MongoDB and load balancing components, but they serve different purposes: one is infrastructure-focused, and the other is process-oriented. The GeneratedImage diagram lacks infrastructure details present in the GroundTruth diagram. Based on its accuracy and completeness, the GeneratedImage diagram is rated 6 out of 10. It captures some key components but lacks the comprehensive infrastructure details of the GroundTruth diagram.",
+    "Rating": 6
+  }
+}

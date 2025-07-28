@@ -1,0 +1,453 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "User",
+        "description": "End user interacting with the system",
+        "boundaries": "Actor",
+        "position": "Left"
+      },
+      {
+        "name": "Blazor WASM",
+        "description": "WebAssembly application",
+        "boundaries": "Component",
+        "position": "Left"
+      },
+      {
+        "name": "Azure API Management",
+        "description": "API Gateway",
+        "boundaries": "Component",
+        "position": "Middle"
+      },
+      {
+        "name": "BooksController",
+        "description": "Handles book-related requests",
+        "boundaries": "Component",
+        "position": "Middle"
+      },
+      {
+        "name": "BooksBLL",
+        "description": "Business logic layer for books",
+        "boundaries": "Component",
+        "position": "Middle"
+      },
+      {
+        "name": "BookCacheRepository",
+        "description": "Handles caching of books",
+        "boundaries": "Component",
+        "position": "Middle"
+      },
+      {
+        "name": "BookRepository",
+        "description": "Data access layer for books",
+        "boundaries": "Component",
+        "position": "Middle"
+      },
+      {
+        "name": "Redis",
+        "description": "Cache storage",
+        "boundaries": "Database",
+        "position": "Right"
+      },
+      {
+        "name": "SQL Server",
+        "description": "Database server",
+        "boundaries": "Database",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Blazor WASM",
+        "label": "Requests book list",
+        "type": "Request"
+      },
+      {
+        "source": "Blazor WASM",
+        "target": "Azure API Management",
+        "label": "GET /api/books",
+        "type": "HTTP"
+      },
+      {
+        "source": "Azure API Management",
+        "target": "BooksController",
+        "label": "Forward request",
+        "type": "HTTP"
+      },
+      {
+        "source": "BooksController",
+        "target": "BooksBLL",
+        "label": "GetBooks()",
+        "type": "Method Call"
+      },
+      {
+        "source": "BooksBLL",
+        "target": "BookCacheRepository",
+        "label": "GetBooks()",
+        "type": "Method Call"
+      },
+      {
+        "source": "BookCacheRepository",
+        "target": "Redis",
+        "label": "GET books",
+        "type": "Cache Access"
+      },
+      {
+        "source": "Redis",
+        "target": "BookCacheRepository",
+        "label": "Return cached data",
+        "type": "Cache Access"
+      },
+      {
+        "source": "BookCacheRepository",
+        "target": "BooksBLL",
+        "label": "Return books",
+        "type": "Data Return"
+      },
+      {
+        "source": "BooksBLL",
+        "target": "BookRepository",
+        "label": "GetBooks()",
+        "type": "Method Call"
+      },
+      {
+        "source": "BookRepository",
+        "target": "SQL Server",
+        "label": "SELECT * FROM Books",
+        "type": "Database Query"
+      },
+      {
+        "source": "SQL Server",
+        "target": "BookRepository",
+        "label": "Return books",
+        "type": "Data Return"
+      },
+      {
+        "source": "BookRepository",
+        "target": "BooksBLL",
+        "label": "Return books",
+        "type": "Data Return"
+      },
+      {
+        "source": "BooksBLL",
+        "target": "BookCacheRepository",
+        "label": "CacheBooks(books)",
+        "type": "Method Call"
+      },
+      {
+        "source": "BookCacheRepository",
+        "target": "Redis",
+        "label": "SET books",
+        "type": "Cache Access"
+      },
+      {
+        "source": "BooksBLL",
+        "target": "BooksController",
+        "label": "Return books",
+        "type": "Data Return"
+      },
+      {
+        "source": "BooksController",
+        "target": "Azure API Management",
+        "label": "Return HTTP 200 with books",
+        "type": "HTTP"
+      },
+      {
+        "source": "Azure API Management",
+        "target": "Blazor WASM",
+        "label": "Return response",
+        "type": "HTTP"
+      },
+      {
+        "source": "Blazor WASM",
+        "target": "User",
+        "label": "Display books",
+        "type": "Response"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "[Cache hit]",
+        "position": "Middle"
+      },
+      {
+        "text": "[Cache miss]",
+        "position": "Middle"
+      }
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "sequence_diagram.png",
+      "title": "Book Retrieval Sequence Diagram"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "End user interacting with the system",
+        "boundaries": "Actor",
+        "position": "Left"
+      },
+      {
+        "name": "Blazor WASM",
+        "description": "WebAssembly application",
+        "boundaries": "Component",
+        "position": "Left"
+      },
+      {
+        "name": "Auth0",
+        "description": "Authentication service",
+        "boundaries": "Service",
+        "position": "Middle"
+      },
+      {
+        "name": "API Mgmt",
+        "description": "API Gateway",
+        "boundaries": "Component",
+        "position": "Middle"
+      },
+      {
+        "name": "Web API",
+        "description": "Backend API service",
+        "boundaries": "Component",
+        "position": "Middle"
+      },
+      {
+        "name": "Azure Key Vault",
+        "description": "Secrets management",
+        "boundaries": "Service",
+        "position": "Right"
+      },
+      {
+        "name": "Azure SQL Server",
+        "description": "Database server",
+        "boundaries": "Database",
+        "position": "Right"
+      },
+      {
+        "name": "Azure Redis Cache",
+        "description": "Cache storage",
+        "boundaries": "Database",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Blazor WASM",
+        "label": "Authenticate",
+        "type": "Request"
+      },
+      {
+        "source": "Blazor WASM",
+        "target": "Auth0",
+        "label": "JWT",
+        "type": "Token"
+      },
+      {
+        "source": "Blazor WASM",
+        "target": "API Mgmt",
+        "label": "Request",
+        "type": "HTTP"
+      },
+      {
+        "source": "API Mgmt",
+        "target": "Web API",
+        "label": "Forward request",
+        "type": "HTTP"
+      },
+      {
+        "source": "Web API",
+        "target": "Azure Key Vault",
+        "label": "Retrieve credentials",
+        "type": "Service Call"
+      },
+      {
+        "source": "Web API",
+        "target": "Azure Redis Cache",
+        "label": "Cache aside",
+        "type": "Cache Access"
+      },
+      {
+        "source": "Azure Redis Cache",
+        "target": "Azure SQL Server",
+        "label": "Data retrieval",
+        "type": "Database Query"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "High Lights",
+        "position": "Bottom"
+      }
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "architecture_diagram.png",
+      "title": "System Architecture Diagram"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "User",
+      "Blazor WASM",
+      "API Mgmt",
+      "Azure SQL Server",
+      "Azure Redis Cache"
+    ],
+    "unique_to_GroundTruth": [
+      "BooksController",
+      "BooksBLL",
+      "BookCacheRepository",
+      "BookRepository",
+      "Redis"
+    ],
+    "unique_to_GeneratedImage": [
+      "Auth0",
+      "Web API",
+      "Azure Key Vault"
+    ],
+    "common_connectors": [
+      {
+        "source": "User",
+        "target": "Blazor WASM",
+        "label": "Authenticate/Requests book list",
+        "type": "Request"
+      },
+      {
+        "source": "Blazor WASM",
+        "target": "API Mgmt",
+        "label": "Request/GET /api/books",
+        "type": "HTTP"
+      },
+      {
+        "source": "API Mgmt",
+        "target": "Web API/BooksController",
+        "label": "Forward request",
+        "type": "HTTP"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "BooksController",
+        "target": "BooksBLL",
+        "label": "GetBooks()",
+        "type": "Method Call"
+      },
+      {
+        "source": "BooksBLL",
+        "target": "BookCacheRepository",
+        "label": "GetBooks()",
+        "type": "Method Call"
+      },
+      {
+        "source": "BookCacheRepository",
+        "target": "Redis",
+        "label": "GET books",
+        "type": "Cache Access"
+      },
+      {
+        "source": "Redis",
+        "target": "BookCacheRepository",
+        "label": "Return cached data",
+        "type": "Cache Access"
+      },
+      {
+        "source": "BookCacheRepository",
+        "target": "BooksBLL",
+        "label": "Return books",
+        "type": "Data Return"
+      },
+      {
+        "source": "BooksBLL",
+        "target": "BookRepository",
+        "label": "GetBooks()",
+        "type": "Method Call"
+      },
+      {
+        "source": "BookRepository",
+        "target": "SQL Server",
+        "label": "SELECT * FROM Books",
+        "type": "Database Query"
+      },
+      {
+        "source": "SQL Server",
+        "target": "BookRepository",
+        "label": "Return books",
+        "type": "Data Return"
+      },
+      {
+        "source": "BookRepository",
+        "target": "BooksBLL",
+        "label": "Return books",
+        "type": "Data Return"
+      },
+      {
+        "source": "BooksBLL",
+        "target": "BookCacheRepository",
+        "label": "CacheBooks(books)",
+        "type": "Method Call"
+      },
+      {
+        "source": "BookCacheRepository",
+        "target": "Redis",
+        "label": "SET books",
+        "type": "Cache Access"
+      },
+      {
+        "source": "BooksBLL",
+        "target": "BooksController",
+        "label": "Return books",
+        "type": "Data Return"
+      },
+      {
+        "source": "BooksController",
+        "target": "Azure API Management",
+        "label": "Return HTTP 200 with books",
+        "type": "HTTP"
+      },
+      {
+        "source": "Azure API Management",
+        "target": "Blazor WASM",
+        "label": "Return response",
+        "type": "HTTP"
+      },
+      {
+        "source": "Blazor WASM",
+        "target": "User",
+        "label": "Display books",
+        "type": "Response"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Blazor WASM",
+        "target": "Auth0",
+        "label": "JWT",
+        "type": "Token"
+      },
+      {
+        "source": "Web API",
+        "target": "Azure Key Vault",
+        "label": "Retrieve credentials",
+        "type": "Service Call"
+      },
+      {
+        "source": "Web API",
+        "target": "Azure Redis Cache",
+        "label": "Cache aside",
+        "type": "Cache Access"
+      },
+      {
+        "source": "Azure Redis Cache",
+        "target": "Azure SQL Server",
+        "label": "Data retrieval",
+        "type": "Database Query"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of a system architecture. The GroundTruth diagram is a sequence diagram focusing on the flow of requests and data retrieval for a book list, involving components like BooksController, BooksBLL, and repositories. It emphasizes the caching mechanism using Redis and SQL Server for data storage. The GeneratedImage diagram is a system architecture diagram that highlights the authentication process using Auth0, API management, and the use of Azure services like Key Vault and Redis Cache. Both diagrams share common components such as User, Blazor WASM, API Management, Azure SQL Server, and Azure Redis Cache, but they differ in their focus and level of detail. The GroundTruth diagram provides a detailed flow of data and method calls, while the GeneratedImage diagram provides a high-level overview of system components and their interactions. The GeneratedImage diagram is rated 7 out of 10 for accuracy and completeness, as it captures the main components and interactions but lacks the detailed flow and additional components present in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

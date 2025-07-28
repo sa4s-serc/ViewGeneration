@@ -1,0 +1,188 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Computer 1",
+        "description": "Agent (superlogger.jar) TCP Server",
+        "boundaries": "Box",
+        "position": "Left"
+      },
+      {
+        "name": "Computer n",
+        "description": "Agent (superlogger.jar) TCP Server",
+        "boundaries": "Box",
+        "position": "Left"
+      },
+      {
+        "name": "Logstash",
+        "description": "TCP client\ninput {\n  tcp {\n    port => 6879\n    mode => \"client\"\n    codec => \"json\"\n  }\n}",
+        "boundaries": "Box",
+        "position": "Center"
+      },
+      {
+        "name": "ElasticSearch",
+        "description": "",
+        "boundaries": "Box",
+        "position": "Right"
+      },
+      {
+        "name": "Kibana",
+        "description": "",
+        "boundaries": "Box",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Computer 1",
+        "target": "Logstash",
+        "label": "TCP connection\nTCP response (JSON)",
+        "type": "Arrow"
+      },
+      {
+        "source": "Computer n",
+        "target": "Logstash",
+        "label": "TCP connection\nTCP response (JSON)",
+        "type": "Arrow"
+      },
+      {
+        "source": "Logstash",
+        "target": "ElasticSearch",
+        "label": "HTTP JSON",
+        "type": "Arrow"
+      },
+      {
+        "source": "ElasticSearch",
+        "target": "Kibana",
+        "label": "HTTP JSON",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "SuperLogger Architecture",
+      "title": "SuperLogger Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Java Agent",
+        "description": "Collects system metrics (CPU, memory, etc.) and sends via TCP to Logstash",
+        "boundaries": "Box",
+        "position": "Top Left"
+      },
+      {
+        "name": "SystemInfo",
+        "description": "System metrics",
+        "boundaries": "Box",
+        "position": "Inside Java Agent"
+      },
+      {
+        "name": "TCPServer",
+        "description": "",
+        "boundaries": "Box",
+        "position": "Inside Java Agent"
+      },
+      {
+        "name": "Logstash",
+        "description": "Processes and enriches data with timestamps before forwarding to Elasticsearch",
+        "boundaries": "Box",
+        "position": "Center"
+      },
+      {
+        "name": "ElasticSearch",
+        "description": "Stores and indexes system metrics data",
+        "boundaries": "Box",
+        "position": "Bottom"
+      },
+      {
+        "name": "Kibana",
+        "description": "Provides visualization and dashboard capabilities",
+        "boundaries": "Box",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Java Agent",
+        "target": "Logstash",
+        "label": "TCP (JSON)",
+        "type": "Arrow"
+      },
+      {
+        "source": "Logstash",
+        "target": "ElasticSearch",
+        "label": "HTTP (JSON)",
+        "type": "Arrow"
+      },
+      {
+        "source": "ElasticSearch",
+        "target": "Kibana",
+        "label": "HTTP (Query)",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "Generated Image",
+      "title": ""
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Logstash",
+      "ElasticSearch",
+      "Kibana"
+    ],
+    "unique_to_GroundTruth": [
+      "Computer 1",
+      "Computer n"
+    ],
+    "unique_to_GeneratedImage": [
+      "Java Agent",
+      "SystemInfo",
+      "TCPServer"
+    ],
+    "common_connectors": [
+      {
+        "source": "Logstash",
+        "target": "ElasticSearch",
+        "label": "HTTP JSON",
+        "type": "Arrow"
+      },
+      {
+        "source": "ElasticSearch",
+        "target": "Kibana",
+        "label": "HTTP JSON",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Computer 1",
+        "target": "Logstash",
+        "label": "TCP connection\nTCP response (JSON)",
+        "type": "Arrow"
+      },
+      {
+        "source": "Computer n",
+        "target": "Logstash",
+        "label": "TCP connection\nTCP response (JSON)",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Java Agent",
+        "target": "Logstash",
+        "label": "TCP (JSON)",
+        "type": "Arrow"
+      }
+    ],
+    "explanation": "Both diagrams depict a similar architecture involving Logstash, Elasticsearch, and Kibana. The GroundTruth diagram includes multiple computers running an agent, while the GeneratedImage diagram consolidates this into a single Java Agent with additional components like SystemInfo and TCPServer. Connectors in both diagrams show data flow from Logstash to Elasticsearch and then to Kibana, but differ in how data is sent to Logstash. The GroundTruth uses multiple connections from computers, whereas the GeneratedImage uses a single connection from the Java Agent. The GeneratedImage is rated 8 out of 10 for accurately capturing the core components and connections but missing some details like multiple computer agents.",
+    "Rating": 8
+  }
+}

@@ -1,0 +1,241 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "User",
+        "description": "User interacting with the system",
+        "boundaries": "Outside system boundary",
+        "position": "Left"
+      },
+      {
+        "name": "Chainlit + FastAPI",
+        "description": "Frontend + Backend",
+        "boundaries": "Inside system boundary",
+        "position": "Center left"
+      },
+      {
+        "name": "Vector Database",
+        "description": "Database for storing vectors",
+        "boundaries": "Inside system boundary",
+        "position": "Center right"
+      },
+      {
+        "name": "Database Health-check",
+        "description": "Service for checking database health",
+        "boundaries": "Inside system boundary",
+        "position": "Bottom left"
+      },
+      {
+        "name": "Data_preloader ETL",
+        "description": "ETL process including downloading, pre-processing, splitting, loading",
+        "boundaries": "Inside system boundary",
+        "position": "Bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Chainlit + FastAPI",
+        "label": "Port:8000",
+        "type": "HTTP"
+      },
+      {
+        "source": "Chainlit + FastAPI",
+        "target": "Vector Database",
+        "label": "Port:6333",
+        "type": "Database connection"
+      },
+      {
+        "source": "Database Health-check",
+        "target": "Data_preloader ETL",
+        "label": "",
+        "type": "Service call"
+      }
+    ],
+    "annotations": [
+      "Azure System Architecture",
+      "Starting Services"
+    ],
+    "groups": [
+      {
+        "name": "Starting Services",
+        "components": [
+          "Database Health-check",
+          "Data_preloader ETL"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "Azure System Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "User interacting with the system",
+        "boundaries": "Outside system boundary",
+        "position": "Left"
+      },
+      {
+        "name": "Chainlit UI",
+        "description": "User interface for Chainlit",
+        "boundaries": "Inside system boundary",
+        "position": "Top left"
+      },
+      {
+        "name": "Langchain Agent",
+        "description": "Agent for processing requests",
+        "boundaries": "Inside system boundary",
+        "position": "Top center"
+      },
+      {
+        "name": "Qdrant DB",
+        "description": "Database for storing vectors",
+        "boundaries": "Inside system boundary",
+        "position": "Top right"
+      },
+      {
+        "name": "Google Search API",
+        "description": "API for searching Google",
+        "boundaries": "Inside system boundary",
+        "position": "Top right"
+      },
+      {
+        "name": "S3 Storage",
+        "description": "Storage service",
+        "boundaries": "Inside system boundary",
+        "position": "Top right"
+      },
+      {
+        "name": "Data Preloader",
+        "description": "Component for preloading data",
+        "boundaries": "Inside system boundary",
+        "position": "Top right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Chainlit UI",
+        "label": "Ask policy question",
+        "type": "User interaction"
+      },
+      {
+        "source": "Chainlit UI",
+        "target": "Langchain Agent",
+        "label": "Forward question",
+        "type": "Service call"
+      },
+      {
+        "source": "Langchain Agent",
+        "target": "Qdrant DB",
+        "label": "Semantic search",
+        "type": "Database query"
+      },
+      {
+        "source": "Langchain Agent",
+        "target": "Google Search API",
+        "label": "Search query",
+        "type": "API call"
+      },
+      {
+        "source": "Data Preloader",
+        "target": "S3 Storage",
+        "label": "Store vectors",
+        "type": "Storage operation"
+      }
+    ],
+    "annotations": [
+      "Data Loading (Periodic/Initial)"
+    ],
+    "groups": [
+      {
+        "name": "Data Loading",
+        "components": [
+          "Data Preloader",
+          "S3 Storage"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": "Sequence Diagram"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "User",
+      "Qdrant DB"
+    ],
+    "unique_to_GroundTruth": [
+      "Chainlit + FastAPI",
+      "Vector Database",
+      "Database Health-check",
+      "Data_preloader ETL"
+    ],
+    "unique_to_GeneratedImage": [
+      "Chainlit UI",
+      "Langchain Agent",
+      "Google Search API",
+      "S3 Storage",
+      "Data Preloader"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "User",
+        "target": "Chainlit + FastAPI",
+        "label": "Port:8000",
+        "type": "HTTP"
+      },
+      {
+        "source": "Chainlit + FastAPI",
+        "target": "Vector Database",
+        "label": "Port:6333",
+        "type": "Database connection"
+      },
+      {
+        "source": "Database Health-check",
+        "target": "Data_preloader ETL",
+        "label": "",
+        "type": "Service call"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "Chainlit UI",
+        "label": "Ask policy question",
+        "type": "User interaction"
+      },
+      {
+        "source": "Chainlit UI",
+        "target": "Langchain Agent",
+        "label": "Forward question",
+        "type": "Service call"
+      },
+      {
+        "source": "Langchain Agent",
+        "target": "Qdrant DB",
+        "label": "Semantic search",
+        "type": "Database query"
+      },
+      {
+        "source": "Langchain Agent",
+        "target": "Google Search API",
+        "label": "Search query",
+        "type": "API call"
+      },
+      {
+        "source": "Data Preloader",
+        "target": "S3 Storage",
+        "label": "Store vectors",
+        "type": "Storage operation"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of a system architecture. The GroundTruth diagram focuses on a high-level architectural overview, showing components like Chainlit + FastAPI, Vector Database, and services like Database Health-check and Data_preloader ETL. It emphasizes the use of Azure and Docker. The GeneratedImage diagram is a sequence diagram that details interactions between components such as Chainlit UI, Langchain Agent, Qdrant DB, Google Search API, S3 Storage, and Data Preloader. It highlights the flow of data and user interactions. Common components include the User and Qdrant DB, but they are used differently in each diagram. The GroundTruth diagram lacks the detailed interaction flow present in the GeneratedImage. Overall, the GeneratedImage provides a more detailed view of interactions but lacks the infrastructural context of the GroundTruth. Rating: 7/10. The GeneratedImage accurately captures the interaction flow but misses some architectural components and context present in the GroundTruth.",
+    "Rating": 7
+  }
+}

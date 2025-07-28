@@ -1,0 +1,169 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "ESP32 Node",
+        "description": "Device that interacts with Beacons and publishes data to MQTT Broker.",
+        "boundaries": "Physical device",
+        "position": "Center left"
+      },
+      {
+        "name": "Beacon",
+        "description": "Bluetooth devices that send signals to ESP32 Node.",
+        "boundaries": "Multiple instances",
+        "position": "Left"
+      },
+      {
+        "name": "MQTT Broker",
+        "description": "Central hub for data publishing and subscribing.",
+        "boundaries": "Server",
+        "position": "Center"
+      },
+      {
+        "name": "Machine Learning Model",
+        "description": "Predicts location based on data.",
+        "boundaries": "Software component",
+        "position": "Bottom right"
+      },
+      {
+        "name": "Client Devices",
+        "description": "Devices subscribing to MQTT Broker.",
+        "boundaries": "Multiple instances",
+        "position": "Top right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "ESP32 Node",
+        "target": "MQTT Broker",
+        "label": "Publish : Topic : 'ENTC/ESP32'",
+        "type": "Data flow"
+      },
+      {
+        "source": "MQTT Broker",
+        "target": "Client Devices",
+        "label": "Subscribe : Topic : 'ENTC/ESP32'",
+        "type": "Data flow"
+      },
+      {
+        "source": "MQTT Broker",
+        "target": "Machine Learning Model",
+        "label": "Predict Location",
+        "type": "Data flow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "MQTT and Machine Learning Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "ESP32 Device",
+        "description": "Device that initializes and connects to WiFi and MQTT.",
+        "boundaries": "Physical device",
+        "position": "Left"
+      },
+      {
+        "name": "WiFi Network",
+        "description": "Network for ESP32 to connect.",
+        "boundaries": "Network",
+        "position": "Center left"
+      },
+      {
+        "name": "MQTT Broker",
+        "description": "Central hub for data publishing.",
+        "boundaries": "Server",
+        "position": "Center"
+      },
+      {
+        "name": "BLE Beacons",
+        "description": "Bluetooth devices that send signals.",
+        "boundaries": "Multiple instances",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "ESP32 Device",
+        "target": "WiFi Network",
+        "label": "setup_wifi()",
+        "type": "Function call"
+      },
+      {
+        "source": "ESP32 Device",
+        "target": "MQTT Broker",
+        "label": "publish(JSON_data)",
+        "type": "Function call"
+      }
+    ],
+    "annotations": [
+      "Initialization",
+      "Main Loop",
+      "[Every Scan Interval]",
+      "[WiFi Connected]",
+      "[MQTT Connected]",
+      "[MQTT Disconnected]",
+      "[WiFi Disconnected]"
+    ],
+    "groups": [
+      "ESP32 Device",
+      "WiFi Network",
+      "MQTT Broker",
+      "BLE Beacons"
+    ],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": "ESP32 and MQTT Sequence Diagram"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "ESP32 Device/Node",
+      "MQTT Broker",
+      "BLE Beacons"
+    ],
+    "unique_to_GroundTruth": [
+      "Machine Learning Model",
+      "Client Devices"
+    ],
+    "unique_to_GeneratedImage": [
+      "WiFi Network"
+    ],
+    "common_connectors": [
+      {
+        "source": "ESP32 Device/Node",
+        "target": "MQTT Broker",
+        "label": "Data publishing",
+        "type": "Data flow/Function call"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "MQTT Broker",
+        "target": "Client Devices",
+        "label": "Subscribe : Topic : 'ENTC/ESP32'",
+        "type": "Data flow"
+      },
+      {
+        "source": "MQTT Broker",
+        "target": "Machine Learning Model",
+        "label": "Predict Location",
+        "type": "Data flow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "ESP32 Device",
+        "target": "WiFi Network",
+        "label": "setup_wifi()",
+        "type": "Function call"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on a high-level architecture involving MQTT and a Machine Learning Model for location prediction, while the GeneratedImage diagram provides a detailed sequence of operations for the ESP32 device, including WiFi and MQTT interactions. Both diagrams share components like the ESP32 device, MQTT Broker, and BLE Beacons, but differ in their focus and details. The GroundTruth includes additional components like a Machine Learning Model and Client Devices, which are absent in the GeneratedImage. The GeneratedImage includes a WiFi Network, highlighting the connection setup process. Overall, the GeneratedImage provides a more detailed operational view, while the GroundTruth offers a broader architectural perspective. Rating: 7/10. The GeneratedImage accurately captures the sequence of operations but lacks some components and connections present in the GroundTruth, such as the Machine Learning Model and Client Devices.",
+    "Rating": 7
+  }
+}

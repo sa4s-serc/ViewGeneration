@@ -1,0 +1,323 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Scale Cluster 1",
+        "description": "",
+        "boundaries": "rectangle",
+        "position": "top-left"
+      },
+      {
+        "name": "Scale Cluster n",
+        "description": "",
+        "boundaries": "rectangle",
+        "position": "top-right"
+      },
+      {
+        "name": "Security Posture Cron Job",
+        "description": "",
+        "boundaries": "rectangle",
+        "position": "bottom-left"
+      },
+      {
+        "name": "Elastic Search",
+        "description": "",
+        "boundaries": "rectangle",
+        "position": "bottom-center"
+      },
+      {
+        "name": "Kibana",
+        "description": "",
+        "boundaries": "rectangle",
+        "position": "bottom-right"
+      },
+      {
+        "name": "System Administrator",
+        "description": "",
+        "boundaries": "actor",
+        "position": "far-right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Scale Cluster 1",
+        "target": "Security Posture Cron Job",
+        "label": "Password less SSH Access",
+        "type": "arrow"
+      },
+      {
+        "source": "Scale Cluster n",
+        "target": "Security Posture Cron Job",
+        "label": "Password less SSH Access",
+        "type": "arrow"
+      },
+      {
+        "source": "Security Posture Cron Job",
+        "target": "Elastic Search",
+        "label": "Elastic Search REST access",
+        "type": "arrow"
+      },
+      {
+        "source": "Elastic Search",
+        "target": "Kibana",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Kibana",
+        "target": "System Administrator",
+        "label": "",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [
+      "ssh $user:$ip-address1",
+      "File: scale-clusters.conf",
+      "ssh $user:$ip-addressn",
+      "File: scale-clusters.conf",
+      "$elastic_user:$elastic_search_url",
+      "File: security-posture.conf"
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram",
+      "title": ""
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Cron Scheduler",
+        "description": "",
+        "boundaries": "actor",
+        "position": "left"
+      },
+      {
+        "name": "cronjob.py",
+        "description": "",
+        "boundaries": "rectangle",
+        "position": "top-left"
+      },
+      {
+        "name": "fetch_security_posture_and_upload_to_ES.sh",
+        "description": "",
+        "boundaries": "rectangle",
+        "position": "top-center"
+      },
+      {
+        "name": "Spectrum Scale Cluster",
+        "description": "",
+        "boundaries": "rectangle",
+        "position": "center"
+      },
+      {
+        "name": "security_posture.py",
+        "description": "",
+        "boundaries": "rectangle",
+        "position": "center-right"
+      },
+      {
+        "name": "split_json_for_kibana.py",
+        "description": "",
+        "boundaries": "rectangle",
+        "position": "right"
+      },
+      {
+        "name": "Elasticsearch",
+        "description": "",
+        "boundaries": "rectangle",
+        "position": "bottom-center"
+      },
+      {
+        "name": "Kibana",
+        "description": "",
+        "boundaries": "rectangle",
+        "position": "bottom-right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Cron Scheduler",
+        "target": "cronjob.py",
+        "label": "Trigger scheduled execution",
+        "type": "arrow"
+      },
+      {
+        "source": "cronjob.py",
+        "target": "fetch_security_posture_and_upload_to_ES.sh",
+        "label": "Execute main script",
+        "type": "arrow"
+      },
+      {
+        "source": "fetch_security_posture_and_upload_to_ES.sh",
+        "target": "Spectrum Scale Cluster",
+        "label": "SSH connection",
+        "type": "arrow"
+      },
+      {
+        "source": "Spectrum Scale Cluster",
+        "target": "security_posture.py",
+        "label": "Execute security_posture.py",
+        "type": "arrow"
+      },
+      {
+        "source": "security_posture.py",
+        "target": "Spectrum Scale Cluster",
+        "label": "Collect security data",
+        "type": "arrow"
+      },
+      {
+        "source": "Spectrum Scale Cluster",
+        "target": "fetch_security_posture_and_upload_to_ES.sh",
+        "label": "Return raw JSON data",
+        "type": "arrow"
+      },
+      {
+        "source": "fetch_security_posture_and_upload_to_ES.sh",
+        "target": "split_json_for_kibana.py",
+        "label": "Process JSON data",
+        "type": "arrow"
+      },
+      {
+        "source": "split_json_for_kibana.py",
+        "target": "Elasticsearch",
+        "label": "Upload exports data (POST)",
+        "type": "arrow"
+      },
+      {
+        "source": "Elasticsearch",
+        "target": "Kibana",
+        "label": "Index data for visualization",
+        "type": "arrow"
+      },
+      {
+        "source": "Kibana",
+        "target": "Cron Scheduler",
+        "label": "Completion status",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [
+      "Delete old indices (DELETE)",
+      "Upload cluster data (POST)",
+      "Upload filesystem data (POST)"
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram",
+      "title": ""
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Kibana",
+      "Elasticsearch"
+    ],
+    "unique_to_GroundTruth": [
+      "Scale Cluster 1",
+      "Scale Cluster n",
+      "Security Posture Cron Job",
+      "System Administrator"
+    ],
+    "unique_to_GeneratedImage": [
+      "Cron Scheduler",
+      "cronjob.py",
+      "fetch_security_posture_and_upload_to_ES.sh",
+      "Spectrum Scale Cluster",
+      "security_posture.py",
+      "split_json_for_kibana.py"
+    ],
+    "common_connectors": [
+      {
+        "source": "Elasticsearch",
+        "target": "Kibana",
+        "label": "",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Scale Cluster 1",
+        "target": "Security Posture Cron Job",
+        "label": "Password less SSH Access",
+        "type": "arrow"
+      },
+      {
+        "source": "Scale Cluster n",
+        "target": "Security Posture Cron Job",
+        "label": "Password less SSH Access",
+        "type": "arrow"
+      },
+      {
+        "source": "Security Posture Cron Job",
+        "target": "Elastic Search",
+        "label": "Elastic Search REST access",
+        "type": "arrow"
+      },
+      {
+        "source": "Kibana",
+        "target": "System Administrator",
+        "label": "",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Cron Scheduler",
+        "target": "cronjob.py",
+        "label": "Trigger scheduled execution",
+        "type": "arrow"
+      },
+      {
+        "source": "cronjob.py",
+        "target": "fetch_security_posture_and_upload_to_ES.sh",
+        "label": "Execute main script",
+        "type": "arrow"
+      },
+      {
+        "source": "fetch_security_posture_and_upload_to_ES.sh",
+        "target": "Spectrum Scale Cluster",
+        "label": "SSH connection",
+        "type": "arrow"
+      },
+      {
+        "source": "Spectrum Scale Cluster",
+        "target": "security_posture.py",
+        "label": "Execute security_posture.py",
+        "type": "arrow"
+      },
+      {
+        "source": "security_posture.py",
+        "target": "Spectrum Scale Cluster",
+        "label": "Collect security data",
+        "type": "arrow"
+      },
+      {
+        "source": "Spectrum Scale Cluster",
+        "target": "fetch_security_posture_and_upload_to_ES.sh",
+        "label": "Return raw JSON data",
+        "type": "arrow"
+      },
+      {
+        "source": "fetch_security_posture_and_upload_to_ES.sh",
+        "target": "split_json_for_kibana.py",
+        "label": "Process JSON data",
+        "type": "arrow"
+      },
+      {
+        "source": "split_json_for_kibana.py",
+        "target": "Elasticsearch",
+        "label": "Upload exports data (POST)",
+        "type": "arrow"
+      },
+      {
+        "source": "Kibana",
+        "target": "Cron Scheduler",
+        "label": "Completion status",
+        "type": "arrow"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of a system involving Elasticsearch and Kibana. The GroundTruth diagram focuses on a high-level overview of components like Scale Clusters and a Security Posture Cron Job, with connections primarily involving SSH access and REST access to Elasticsearch. The GeneratedImage diagram, however, provides a detailed sequence of operations involving scripts and data processing steps, emphasizing the flow of data from a Cron Scheduler to Kibana. Common elements include Elasticsearch and Kibana, but the diagrams differ significantly in their focus and detail. The GroundTruth diagram is more about system components and their interactions, while the GeneratedImage diagram is a sequence diagram detailing the steps of a process. The GeneratedImage diagram is rated 7 out of 10 for accuracy and completeness, as it captures the flow of data and operations well but lacks some high-level component interactions present in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

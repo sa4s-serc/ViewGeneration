@@ -1,0 +1,228 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Jenkins",
+        "description": "Compiles code and packages into images",
+        "boundaries": "Rectangle",
+        "position": "Top left"
+      },
+      {
+        "name": "Frontend Code",
+        "description": "Integrates webpack plugin, automatically generates source maps, and packages into zip",
+        "boundaries": "Rectangle",
+        "position": "Bottom left"
+      },
+      {
+        "name": "Static Resource Server",
+        "description": "Handles static resource requests, returns resources from offline package",
+        "boundaries": "Rectangle",
+        "position": "Top right"
+      },
+      {
+        "name": "Offline Package Platform",
+        "description": "Downloads offline packages, uploads to platform",
+        "boundaries": "Rectangle",
+        "position": "Bottom center"
+      },
+      {
+        "name": "Client",
+        "description": "Pre-installs initial version of offline package",
+        "boundaries": "Rectangle",
+        "position": "Bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Frontend Code",
+        "target": "Jenkins",
+        "label": "push",
+        "type": "Arrow"
+      },
+      {
+        "source": "Jenkins",
+        "target": "Static Resource Server",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Static Resource Server",
+        "target": "Client",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Frontend Code",
+        "target": "Offline Package Platform",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Offline Package Platform",
+        "target": "Client",
+        "label": "",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      "If the uploaded version is not initial, calculate the difference from the previous version; add md5 value for integrity check"
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "离线包运行机制",
+      "title": "离线包运行机制"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "WebpackCompiler",
+        "description": "",
+        "boundaries": "Rectangle",
+        "position": "Left"
+      },
+      {
+        "name": "OfflinePackagePlugin",
+        "description": "",
+        "boundaries": "Rectangle",
+        "position": "Center"
+      },
+      {
+        "name": "JSZip",
+        "description": "",
+        "boundaries": "Rectangle",
+        "position": "Right"
+      },
+      {
+        "name": "MimeTypes",
+        "description": "",
+        "boundaries": "Rectangle",
+        "position": "Far right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "WebpackCompiler",
+        "target": "OfflinePackagePlugin",
+        "label": "apply(compiler)",
+        "type": "Arrow"
+      },
+      {
+        "source": "OfflinePackagePlugin",
+        "target": "WebpackCompiler",
+        "label": "hooks.emit.tapAsync()",
+        "type": "Arrow"
+      },
+      {
+        "source": "OfflinePackagePlugin",
+        "target": "JSZip",
+        "label": "new JSZip()",
+        "type": "Arrow"
+      },
+      {
+        "source": "OfflinePackagePlugin",
+        "target": "MimeTypes",
+        "label": "mimeType",
+        "type": "Arrow"
+      },
+      {
+        "source": "OfflinePackagePlugin",
+        "target": "WebpackCompiler",
+        "label": "emitFile(zipBuffer, index.json)",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      "filter assets (fileTypes/excludeFileName)",
+      "generateAsync(type: 'nodebuffer')"
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "sequence_diagram",
+      "title": ""
+    }
+  },
+  "comparison": {
+    "common_components": [],
+    "unique_to_GroundTruth": [
+      "Jenkins",
+      "Frontend Code",
+      "Static Resource Server",
+      "Offline Package Platform",
+      "Client"
+    ],
+    "unique_to_GeneratedImage": [
+      "WebpackCompiler",
+      "OfflinePackagePlugin",
+      "JSZip",
+      "MimeTypes"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Frontend Code",
+        "target": "Jenkins",
+        "label": "push",
+        "type": "Arrow"
+      },
+      {
+        "source": "Jenkins",
+        "target": "Static Resource Server",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Static Resource Server",
+        "target": "Client",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Frontend Code",
+        "target": "Offline Package Platform",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Offline Package Platform",
+        "target": "Client",
+        "label": "",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "WebpackCompiler",
+        "target": "OfflinePackagePlugin",
+        "label": "apply(compiler)",
+        "type": "Arrow"
+      },
+      {
+        "source": "OfflinePackagePlugin",
+        "target": "WebpackCompiler",
+        "label": "hooks.emit.tapAsync()",
+        "type": "Arrow"
+      },
+      {
+        "source": "OfflinePackagePlugin",
+        "target": "JSZip",
+        "label": "new JSZip()",
+        "type": "Arrow"
+      },
+      {
+        "source": "OfflinePackagePlugin",
+        "target": "MimeTypes",
+        "label": "mimeType",
+        "type": "Arrow"
+      },
+      {
+        "source": "OfflinePackagePlugin",
+        "target": "WebpackCompiler",
+        "label": "emitFile(zipBuffer, index.json)",
+        "type": "Arrow"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on a high-level overview of an offline package operation mechanism, involving components like Jenkins, Frontend Code, and various platforms and clients. It emphasizes the flow of code and packages between these components. The GeneratedImage diagram, on the other hand, is a sequence diagram detailing the interactions between components like WebpackCompiler, OfflinePackagePlugin, JSZip, and MimeTypes. It focuses on the process of asset filtering and packaging. There are no common components or connectors between the two diagrams, as they represent different aspects of software architecture. The GroundTruth diagram provides a broader system-level view, while the GeneratedImage diagram offers a detailed process-level view. Rating: 6. The GeneratedImage is accurate in detailing a specific process but lacks the broader context and components found in the GroundTruth diagram, making it less comprehensive in comparison.",
+    "Rating": 6
+  }
+}

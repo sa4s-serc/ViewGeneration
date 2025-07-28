@@ -1,0 +1,192 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Internet Services",
+        "description": "Source of data",
+        "boundaries": "Circle",
+        "position": "Left"
+      },
+      {
+        "name": "Object Storage",
+        "description": "Storage service",
+        "boundaries": "Circle",
+        "position": "Center Left"
+      },
+      {
+        "name": "Node.js",
+        "description": "Processing service",
+        "boundaries": "Circle",
+        "position": "Center Right"
+      },
+      {
+        "name": "LogDNA",
+        "description": "Logging service",
+        "boundaries": "Circle",
+        "position": "Right"
+      },
+      {
+        "name": "IBM Cloud",
+        "description": "Cloud provider",
+        "boundaries": "Circle",
+        "position": "Top Center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Internet Services",
+        "target": "Object Storage",
+        "label": "1",
+        "type": "Arrow"
+      },
+      {
+        "source": "Object Storage",
+        "target": "Node.js",
+        "label": "2",
+        "type": "Arrow"
+      },
+      {
+        "source": "Node.js",
+        "target": "LogDNA",
+        "label": "3",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "diagram1.png",
+      "title": "IBM Cloud Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "COS Bucket",
+        "description": "Cloud Object Storage",
+        "boundaries": "Vertical Line",
+        "position": "Left"
+      },
+      {
+        "name": "Serverless Function",
+        "description": "Processing function",
+        "boundaries": "Vertical Line",
+        "position": "Center Left"
+      },
+      {
+        "name": "LogDNA API",
+        "description": "Logging API",
+        "boundaries": "Vertical Line",
+        "position": "Center Right"
+      },
+      {
+        "name": "Archive COS Bucket",
+        "description": "Archive storage",
+        "boundaries": "Vertical Line",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "COS Bucket",
+        "target": "Serverless Function",
+        "label": "Object Created Event",
+        "type": "Dashed Arrow"
+      },
+      {
+        "source": "Serverless Function",
+        "target": "LogDNA API",
+        "label": "Send Logs (POST)",
+        "type": "Dashed Arrow"
+      },
+      {
+        "source": "Serverless Function",
+        "target": "Archive COS Bucket",
+        "label": "Copy Processed File",
+        "type": "Dashed Arrow"
+      }
+    ],
+    "annotations": [
+      "Download Log File",
+      "Unzip and Parse Logs",
+      "Format Logs for LogDNA",
+      "200 OK",
+      "Error",
+      "Retry (3 attempts)"
+    ],
+    "groups": [
+      {
+        "name": "loop",
+        "description": "For each batch (5000 logs)"
+      },
+      {
+        "name": "alt",
+        "description": "Success/Failure"
+      }
+    ],
+    "metadata": {
+      "filename": "diagram2.png",
+      "title": "Log Processing Sequence"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "LogDNA"
+    ],
+    "unique_to_GroundTruth": [
+      "Internet Services",
+      "Object Storage",
+      "Node.js",
+      "IBM Cloud"
+    ],
+    "unique_to_GeneratedImage": [
+      "COS Bucket",
+      "Serverless Function",
+      "LogDNA API",
+      "Archive COS Bucket"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Internet Services",
+        "target": "Object Storage",
+        "label": "1",
+        "type": "Arrow"
+      },
+      {
+        "source": "Object Storage",
+        "target": "Node.js",
+        "label": "2",
+        "type": "Arrow"
+      },
+      {
+        "source": "Node.js",
+        "target": "LogDNA",
+        "label": "3",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "COS Bucket",
+        "target": "Serverless Function",
+        "label": "Object Created Event",
+        "type": "Dashed Arrow"
+      },
+      {
+        "source": "Serverless Function",
+        "target": "LogDNA API",
+        "label": "Send Logs (POST)",
+        "type": "Dashed Arrow"
+      },
+      {
+        "source": "Serverless Function",
+        "target": "Archive COS Bucket",
+        "label": "Copy Processed File",
+        "type": "Dashed Arrow"
+      }
+    ],
+    "explanation": "The two diagrams represent different architectural views. The first diagram (GroundTruth) is a high-level architecture diagram showing components like Internet Services, Object Storage, Node.js, and LogDNA within the IBM Cloud context, connected in a linear flow. The second diagram (GeneratedImage) is a sequence diagram focusing on the process of log handling, involving components like COS Bucket, Serverless Function, LogDNA API, and Archive COS Bucket, with detailed process annotations and control structures like loops and alternatives. The common element between both diagrams is the use of LogDNA for logging purposes. The GroundTruth diagram is more about the overall architecture, while the GeneratedImage diagram provides a detailed process flow. The GeneratedImage is rated 7 out of 10 for accuracy and completeness, as it effectively captures the process flow but lacks the broader architectural context present in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

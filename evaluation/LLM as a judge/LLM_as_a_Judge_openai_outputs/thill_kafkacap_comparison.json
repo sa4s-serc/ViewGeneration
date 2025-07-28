@@ -1,0 +1,250 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Inbound Bus",
+        "description": "Entry point for messages",
+        "boundaries": "Top",
+        "position": "Top"
+      },
+      {
+        "name": "Capture Device",
+        "description": "Device capturing data",
+        "boundaries": "Middle",
+        "position": "Below Inbound Bus"
+      },
+      {
+        "name": "Capture Topic \"A\"",
+        "description": "Topic A for captured data",
+        "boundaries": "Middle",
+        "position": "Below Capture Device"
+      },
+      {
+        "name": "Capture Topic \"B\"",
+        "description": "Topic B for captured data",
+        "boundaries": "Middle",
+        "position": "Below Capture Device"
+      },
+      {
+        "name": "Deduplicator",
+        "description": "Removes duplicate messages",
+        "boundaries": "Middle",
+        "position": "Below Capture Topics"
+      },
+      {
+        "name": "Outbound Topic",
+        "description": "Final destination for messages",
+        "boundaries": "Bottom",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Inbound Bus",
+        "target": "Capture Device",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Capture Device",
+        "target": "Capture Topic \"A\"",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Capture Device",
+        "target": "Capture Topic \"B\"",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Capture Topic \"A\"",
+        "target": "Deduplicator",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Capture Topic \"B\"",
+        "target": "Deduplicator",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Deduplicator",
+        "target": "Outbound Topic",
+        "label": "",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram",
+      "title": "Message Processing Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Source (Aeron/Multicast/Websocket)",
+        "description": "Entry point for messages",
+        "boundaries": "Left",
+        "position": "Left"
+      },
+      {
+        "name": "CaptureDevice",
+        "description": "Device capturing data",
+        "boundaries": "Middle",
+        "position": "Right of Source"
+      },
+      {
+        "name": "CaptureQueue",
+        "description": "Queue for buffering messages",
+        "boundaries": "Middle",
+        "position": "Right of CaptureDevice"
+      },
+      {
+        "name": "Deduplicator",
+        "description": "Removes duplicate messages",
+        "boundaries": "Middle",
+        "position": "Right of CaptureQueue"
+      },
+      {
+        "name": "Kafka Topic (Capture)",
+        "description": "Topic for captured data",
+        "boundaries": "Middle",
+        "position": "Right of Deduplicator"
+      },
+      {
+        "name": "Kafka Topic (Outbound)",
+        "description": "Final destination for messages",
+        "boundaries": "Right",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Source (Aeron/Multicast/Websocket)",
+        "target": "CaptureDevice",
+        "label": "Message",
+        "type": "Arrow"
+      },
+      {
+        "source": "CaptureDevice",
+        "target": "CaptureQueue",
+        "label": "Buffer message",
+        "type": "Arrow"
+      },
+      {
+        "source": "CaptureQueue",
+        "target": "Kafka Topic (Capture)",
+        "label": "Publish to capture topic",
+        "type": "Arrow"
+      },
+      {
+        "source": "Kafka Topic (Capture)",
+        "target": "Deduplicator",
+        "label": "Consume messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "Deduplicator",
+        "target": "Kafka Topic (Capture)",
+        "label": "Deduplicate messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "Deduplicator",
+        "target": "Kafka Topic (Outbound)",
+        "label": "Publish unique messages",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram",
+      "title": "Message Flow Sequence"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Deduplicator"
+    ],
+    "unique_to_GroundTruth": [
+      "Inbound Bus",
+      "Capture Device",
+      "Capture Topic \"A\"",
+      "Capture Topic \"B\"",
+      "Outbound Topic"
+    ],
+    "unique_to_GeneratedImage": [
+      "Source (Aeron/Multicast/Websocket)",
+      "CaptureDevice",
+      "CaptureQueue",
+      "Kafka Topic (Capture)",
+      "Kafka Topic (Outbound)"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Inbound Bus",
+        "target": "Capture Device"
+      },
+      {
+        "source": "Capture Device",
+        "target": "Capture Topic \"A\""
+      },
+      {
+        "source": "Capture Device",
+        "target": "Capture Topic \"B\""
+      },
+      {
+        "source": "Capture Topic \"A\"",
+        "target": "Deduplicator"
+      },
+      {
+        "source": "Capture Topic \"B\"",
+        "target": "Deduplicator"
+      },
+      {
+        "source": "Deduplicator",
+        "target": "Outbound Topic"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Source (Aeron/Multicast/Websocket)",
+        "target": "CaptureDevice",
+        "label": "Message"
+      },
+      {
+        "source": "CaptureDevice",
+        "target": "CaptureQueue",
+        "label": "Buffer message"
+      },
+      {
+        "source": "CaptureQueue",
+        "target": "Kafka Topic (Capture)",
+        "label": "Publish to capture topic"
+      },
+      {
+        "source": "Kafka Topic (Capture)",
+        "target": "Deduplicator",
+        "label": "Consume messages"
+      },
+      {
+        "source": "Deduplicator",
+        "target": "Kafka Topic (Capture)",
+        "label": "Deduplicate messages"
+      },
+      {
+        "source": "Deduplicator",
+        "target": "Kafka Topic (Outbound)",
+        "label": "Publish unique messages"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of a message processing system. The GroundTruth diagram illustrates a high-level architecture with components like 'Inbound Bus', 'Capture Device', 'Capture Topics', and 'Deduplicator', focusing on the flow from input to output. The GeneratedImage diagram provides a sequence flow, detailing the message processing steps from 'Source' to 'Kafka Topics'. Both diagrams share the 'Deduplicator' component, indicating a common function of deduplication. However, the GroundTruth diagram includes components like 'Capture Topic \"A\"' and 'Capture Topic \"B\"', which are not present in the GeneratedImage diagram. Conversely, the GeneratedImage diagram introduces 'CaptureQueue' and specific message flow annotations, which are absent in the GroundTruth diagram. The GeneratedImage diagram is rated 7 out of 10 for accuracy and completeness. It effectively captures the sequence of operations but lacks some components present in the GroundTruth diagram, such as the explicit capture topics and outbound topic.",
+    "Rating": 7
+  }
+}

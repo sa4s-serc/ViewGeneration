@@ -1,0 +1,408 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Car/Simulator",
+        "description": "ROS Node",
+        "boundary": "none",
+        "position": "top right"
+      },
+      {
+        "name": "Perception",
+        "description": "Vehicle Subsystem",
+        "boundary": "blue box",
+        "position": "bottom left"
+      },
+      {
+        "name": "Obstacle Detection",
+        "description": "ROS Node",
+        "boundary": "inside Perception",
+        "position": "top"
+      },
+      {
+        "name": "Traffic Light Detection Node",
+        "description": "ROS Node",
+        "boundary": "inside Perception",
+        "position": "bottom"
+      },
+      {
+        "name": "Planning",
+        "description": "Vehicle Subsystem",
+        "boundary": "blue box",
+        "position": "bottom center"
+      },
+      {
+        "name": "Waypoint Loader",
+        "description": "ROS Node",
+        "boundary": "inside Planning",
+        "position": "top"
+      },
+      {
+        "name": "Waypoint Updater Node",
+        "description": "ROS Node",
+        "boundary": "inside Planning",
+        "position": "bottom"
+      },
+      {
+        "name": "Control",
+        "description": "Vehicle Subsystem",
+        "boundary": "blue box",
+        "position": "bottom right"
+      },
+      {
+        "name": "DBW Node",
+        "description": "ROS Node",
+        "boundary": "inside Control",
+        "position": "top"
+      },
+      {
+        "name": "Waypoint Follower",
+        "description": "ROS Node",
+        "boundary": "inside Control",
+        "position": "bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Car/Simulator",
+        "target": "Perception",
+        "label": "/image_color",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Car/Simulator",
+        "target": "Planning",
+        "label": "/current_pose",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Car/Simulator",
+        "target": "Control",
+        "label": "/current_velocity, /vehicle/dbw_enabled",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Perception",
+        "target": "Planning",
+        "label": "/obstacle_waypoint, /base_waypoints",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Perception",
+        "target": "Control",
+        "label": "/traffic_waypoint",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Planning",
+        "target": "Control",
+        "label": "/final_waypoints",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Control",
+        "target": "Car/Simulator",
+        "label": "/vehicle/brake_cmd, /vehicle/steering_cmd, /vehicle/throttle_cmd",
+        "type": "ROS Topic"
+      }
+    ],
+    "annotations": [
+      "Legend indicating ROS Node, ROS Topic, and Vehicle Subsystem"
+    ],
+    "groups": [
+      "Perception",
+      "Planning",
+      "Control"
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram",
+      "title": "ROS Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Traffic Light Detection Node",
+        "description": "Node",
+        "boundary": "none",
+        "position": "top left"
+      },
+      {
+        "name": "Camera Info Publisher",
+        "description": "Node",
+        "boundary": "none",
+        "position": "below Traffic Light Detection Node"
+      },
+      {
+        "name": "Waypoint Loader",
+        "description": "Node",
+        "boundary": "none",
+        "position": "top center"
+      },
+      {
+        "name": "Waypoint Updater",
+        "description": "Node",
+        "boundary": "none",
+        "position": "center"
+      },
+      {
+        "name": "Waypoint Follower",
+        "description": "Node",
+        "boundary": "none",
+        "position": "below Waypoint Updater"
+      },
+      {
+        "name": "Twist Controller (DBW)",
+        "description": "Node",
+        "boundary": "none",
+        "position": "bottom center"
+      },
+      {
+        "name": "PID Controller",
+        "description": "Node",
+        "boundary": "none",
+        "position": "bottom left"
+      },
+      {
+        "name": "Yaw Controller",
+        "description": "Node",
+        "boundary": "none",
+        "position": "bottom right"
+      },
+      {
+        "name": "LowPass Filter",
+        "description": "Node",
+        "boundary": "none",
+        "position": "bottom right"
+      },
+      {
+        "name": "Bridge Node",
+        "description": "Node",
+        "boundary": "none",
+        "position": "top right"
+      },
+      {
+        "name": "Simulator",
+        "description": "Node",
+        "boundary": "none",
+        "position": "right"
+      },
+      {
+        "name": "Real Car (CARLA)",
+        "description": "Node",
+        "boundary": "none",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Traffic Light Detection Node",
+        "target": "Camera Info Publisher",
+        "label": "uses calibration",
+        "type": "direct"
+      },
+      {
+        "source": "Traffic Light Detection Node",
+        "target": "Waypoint Updater",
+        "label": "traffic light status",
+        "type": "direct"
+      },
+      {
+        "source": "Waypoint Loader",
+        "target": "Waypoint Updater",
+        "label": "waypoint data",
+        "type": "direct"
+      },
+      {
+        "source": "Waypoint Updater",
+        "target": "Waypoint Follower",
+        "label": "adjusted waypoints",
+        "type": "direct"
+      },
+      {
+        "source": "Waypoint Follower",
+        "target": "Twist Controller (DBW)",
+        "label": "target velocities",
+        "type": "direct"
+      },
+      {
+        "source": "Twist Controller (DBW)",
+        "target": "PID Controller",
+        "label": "throttle control",
+        "type": "direct"
+      },
+      {
+        "source": "Twist Controller (DBW)",
+        "target": "Yaw Controller",
+        "label": "steering control",
+        "type": "direct"
+      },
+      {
+        "source": "Twist Controller (DBW)",
+        "target": "LowPass Filter",
+        "label": "signal filtering",
+        "type": "direct"
+      },
+      {
+        "source": "Bridge Node",
+        "target": "Simulator",
+        "label": "connects",
+        "type": "dashed"
+      },
+      {
+        "source": "Bridge Node",
+        "target": "Real Car (CARLA)",
+        "label": "connects",
+        "type": "dashed"
+      }
+    ],
+    "annotations": [
+      "Implements actuator control for steering, throttle, brake",
+      "Uses Pure Pursuit algorithm for path following",
+      "Adjusts waypoints based on traffic lights & obstacles"
+    ],
+    "groups": [
+      "Self-Driving Car System"
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram",
+      "title": "Self-Driving Car System"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Traffic Light Detection Node",
+      "Waypoint Loader",
+      "Waypoint Updater",
+      "Waypoint Follower"
+    ],
+    "unique_to_GroundTruth": [
+      "Car/Simulator",
+      "Perception",
+      "Obstacle Detection",
+      "Planning",
+      "Control",
+      "DBW Node"
+    ],
+    "unique_to_GeneratedImage": [
+      "Camera Info Publisher",
+      "Twist Controller (DBW)",
+      "PID Controller",
+      "Yaw Controller",
+      "LowPass Filter",
+      "Bridge Node",
+      "Simulator",
+      "Real Car (CARLA)"
+    ],
+    "common_connectors": [
+      {
+        "source": "Waypoint Loader",
+        "target": "Waypoint Updater",
+        "label": "waypoint data",
+        "type": "direct"
+      },
+      {
+        "source": "Waypoint Updater",
+        "target": "Waypoint Follower",
+        "label": "adjusted waypoints",
+        "type": "direct"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Car/Simulator",
+        "target": "Perception",
+        "label": "/image_color",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Car/Simulator",
+        "target": "Planning",
+        "label": "/current_pose",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Car/Simulator",
+        "target": "Control",
+        "label": "/current_velocity, /vehicle/dbw_enabled",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Perception",
+        "target": "Planning",
+        "label": "/obstacle_waypoint, /base_waypoints",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Perception",
+        "target": "Control",
+        "label": "/traffic_waypoint",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Planning",
+        "target": "Control",
+        "label": "/final_waypoints",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Control",
+        "target": "Car/Simulator",
+        "label": "/vehicle/brake_cmd, /vehicle/steering_cmd, /vehicle/throttle_cmd",
+        "type": "ROS Topic"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Traffic Light Detection Node",
+        "target": "Camera Info Publisher",
+        "label": "uses calibration",
+        "type": "direct"
+      },
+      {
+        "source": "Traffic Light Detection Node",
+        "target": "Waypoint Updater",
+        "label": "traffic light status",
+        "type": "direct"
+      },
+      {
+        "source": "Waypoint Follower",
+        "target": "Twist Controller (DBW)",
+        "label": "target velocities",
+        "type": "direct"
+      },
+      {
+        "source": "Twist Controller (DBW)",
+        "target": "PID Controller",
+        "label": "throttle control",
+        "type": "direct"
+      },
+      {
+        "source": "Twist Controller (DBW)",
+        "target": "Yaw Controller",
+        "label": "steering control",
+        "type": "direct"
+      },
+      {
+        "source": "Twist Controller (DBW)",
+        "target": "LowPass Filter",
+        "label": "signal filtering",
+        "type": "direct"
+      },
+      {
+        "source": "Bridge Node",
+        "target": "Simulator",
+        "label": "connects",
+        "type": "dashed"
+      },
+      {
+        "source": "Bridge Node",
+        "target": "Real Car (CARLA)",
+        "label": "connects",
+        "type": "dashed"
+      }
+    ],
+    "explanation": "The two diagrams represent different perspectives of a self-driving car system. The GroundTruth diagram focuses on a ROS-based architecture with nodes and topics, emphasizing the flow of data between subsystems like Perception, Planning, and Control. The GeneratedImage diagram presents a higher-level view of a self-driving car system, detailing components like the Twist Controller and Bridge Node, and includes annotations about algorithms and control mechanisms. Common components include Traffic Light Detection Node, Waypoint Loader, Waypoint Updater, and Waypoint Follower. The GroundTruth diagram includes unique components like Car/Simulator and DBW Node, while the GeneratedImage diagram introduces elements like the PID Controller and Yaw Controller. The connectors in the GroundTruth diagram are primarily ROS Topics, whereas the GeneratedImage diagram uses direct connections and annotations. Overall, the GeneratedImage diagram provides a more detailed view of control mechanisms and external connections. Rating: 7. The GeneratedImage diagram is accurate in terms of component representation but lacks some specific ROS-related details present in the GroundTruth diagram. It provides additional insights into control and simulation aspects, which adds value but diverges from the original focus.",
+    "Rating": 7
+  }
+}

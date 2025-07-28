@@ -1,0 +1,859 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "User",
+        "description": "End user accessing the system",
+        "boundaries": "external",
+        "position": "left"
+      },
+      {
+        "name": "Frontend (HTML/JS)",
+        "description": "User interface",
+        "boundaries": "internal",
+        "position": "left"
+      },
+      {
+        "name": "API Gateway",
+        "description": "Handles API requests",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "Lambda (standings.py)",
+        "description": "Processes standings",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "Lambda (predictions.py)",
+        "description": "Processes predictions",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "Lambda (LF1.py/LF2.py)",
+        "description": "Processes ML models",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "Lambda (getFixtures.py)",
+        "description": "Fetches fixtures",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "Lambda (getScore.py/getLiveScores.py)",
+        "description": "Fetches scores",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "DynamoDB",
+        "description": "Database service",
+        "boundaries": "internal",
+        "position": "right"
+      },
+      {
+        "name": "ElasticSearch",
+        "description": "Search service",
+        "boundaries": "internal",
+        "position": "right"
+      },
+      {
+        "name": "SageMaker",
+        "description": "Machine learning service",
+        "boundaries": "internal",
+        "position": "right"
+      },
+      {
+        "name": "SQS",
+        "description": "Message queuing service",
+        "boundaries": "internal",
+        "position": "right"
+      },
+      {
+        "name": "SNS",
+        "description": "Notification service",
+        "boundaries": "internal",
+        "position": "right"
+      },
+      {
+        "name": "Lex Chatbot",
+        "description": "Chatbot service",
+        "boundaries": "internal",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Frontend (HTML/JS)",
+        "label": "Accesses match data/predictions/chat",
+        "type": "interaction"
+      },
+      {
+        "source": "Frontend (HTML/JS)",
+        "target": "API Gateway",
+        "label": "GET/POST requests",
+        "type": "http"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda (standings.py)",
+        "label": "Fetch standings",
+        "type": "invoke"
+      },
+      {
+        "source": "Lambda (standings.py)",
+        "target": "DynamoDB",
+        "label": "Query match data",
+        "type": "query"
+      },
+      {
+        "source": "DynamoDB",
+        "target": "Lambda (standings.py)",
+        "label": "Return standings",
+        "type": "response"
+      },
+      {
+        "source": "Lambda (standings.py)",
+        "target": "API Gateway",
+        "label": "Response",
+        "type": "return"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Frontend (HTML/JS)",
+        "label": "Display standings",
+        "type": "update"
+      },
+      {
+        "source": "Frontend (HTML/JS)",
+        "target": "API Gateway",
+        "label": "Request predictions",
+        "type": "http"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda (predictions.py)",
+        "label": "Trigger prediction",
+        "type": "invoke"
+      },
+      {
+        "source": "Lambda (predictions.py)",
+        "target": "SageMaker",
+        "label": "Invoke ML model",
+        "type": "invoke"
+      },
+      {
+        "source": "SageMaker",
+        "target": "Lambda (predictions.py)",
+        "label": "Prediction results",
+        "type": "response"
+      },
+      {
+        "source": "Lambda (predictions.py)",
+        "target": "API Gateway",
+        "label": "Return predictions",
+        "type": "return"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Frontend (HTML/JS)",
+        "label": "Display predictions",
+        "type": "update"
+      },
+      {
+        "source": "Frontend (HTML/JS)",
+        "target": "Lex Chatbot",
+        "label": "Interacts with chatbot",
+        "type": "interaction"
+      },
+      {
+        "source": "Lex Chatbot",
+        "target": "Lambda (getFixtures.py)",
+        "label": "Process intent",
+        "type": "invoke"
+      },
+      {
+        "source": "Lambda (getFixtures.py)",
+        "target": "ElasticSearch",
+        "label": "Query fixtures",
+        "type": "query"
+      },
+      {
+        "source": "ElasticSearch",
+        "target": "Lambda (getFixtures.py)",
+        "label": "Return matches",
+        "type": "response"
+      },
+      {
+        "source": "Lambda (getFixtures.py)",
+        "target": "SQS",
+        "label": "Enqueue request (if async)",
+        "type": "enqueue"
+      },
+      {
+        "source": "SQS",
+        "target": "Lambda (getFixtures.py)",
+        "label": "Dequeue for processing",
+        "type": "dequeue"
+      },
+      {
+        "source": "Lambda (getFixtures.py)",
+        "target": "SNS",
+        "label": "Send SMS notification",
+        "type": "notify"
+      },
+      {
+        "source": "SNS",
+        "target": "Lex Chatbot",
+        "label": "Bot response",
+        "type": "response"
+      },
+      {
+        "source": "Lex Chatbot",
+        "target": "Frontend (HTML/JS)",
+        "label": "Display chatbot reply",
+        "type": "update"
+      },
+      {
+        "source": "Frontend (HTML/JS)",
+        "target": "API Gateway",
+        "label": "Request live scores",
+        "type": "http"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda (getScore.py/getLiveScores.py)",
+        "label": "Fetch scores",
+        "type": "invoke"
+      },
+      {
+        "source": "Lambda (getScore.py/getLiveScores.py)",
+        "target": "DynamoDB",
+        "label": "Get match IDs",
+        "type": "query"
+      },
+      {
+        "source": "DynamoDB",
+        "target": "Lambda (getScore.py/getLiveScores.py)",
+        "label": "Return IDs",
+        "type": "response"
+      },
+      {
+        "source": "Lambda (getScore.py/getLiveScores.py)",
+        "target": "ElasticSearch",
+        "label": "Query live data",
+        "type": "query"
+      },
+      {
+        "source": "ElasticSearch",
+        "target": "Lambda (getScore.py/getLiveScores.py)",
+        "label": "Return scores",
+        "type": "response"
+      },
+      {
+        "source": "Lambda (getScore.py/getLiveScores.py)",
+        "target": "API Gateway",
+        "label": "Response",
+        "type": "return"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Frontend (HTML/JS)",
+        "label": "Update live scores",
+        "type": "update"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "sequence_diagram.png",
+      "title": "Sequence Diagram"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "End user accessing the system",
+        "boundaries": "external",
+        "position": "bottom-left"
+      },
+      {
+        "name": "S3",
+        "description": "Storage service",
+        "boundaries": "internal",
+        "position": "bottom-left"
+      },
+      {
+        "name": "API Gateway",
+        "description": "Handles API requests",
+        "boundaries": "internal",
+        "position": "bottom"
+      },
+      {
+        "name": "Cognito",
+        "description": "Authentication service",
+        "boundaries": "internal",
+        "position": "bottom"
+      },
+      {
+        "name": "Lambda (live_score)",
+        "description": "Processes live scores",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "Lambda (standing)",
+        "description": "Processes standings",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "Lambda (recommendation)",
+        "description": "Processes recommendations",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "Lambda (fixtures)",
+        "description": "Processes fixtures",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "Lambda (prediction)",
+        "description": "Processes predictions",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "DynamoDB",
+        "description": "Database service",
+        "boundaries": "internal",
+        "position": "top"
+      },
+      {
+        "name": "ElasticSearch",
+        "description": "Search service",
+        "boundaries": "internal",
+        "position": "top"
+      },
+      {
+        "name": "SageMaker",
+        "description": "Machine learning service",
+        "boundaries": "internal",
+        "position": "top"
+      },
+      {
+        "name": "SQS",
+        "description": "Message queuing service",
+        "boundaries": "internal",
+        "position": "top"
+      },
+      {
+        "name": "SNS",
+        "description": "Notification service",
+        "boundaries": "internal",
+        "position": "top"
+      },
+      {
+        "name": "Lex",
+        "description": "Chatbot service",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "EC2",
+        "description": "Compute service",
+        "boundaries": "internal",
+        "position": "top"
+      },
+      {
+        "name": "Kafka",
+        "description": "Streaming service",
+        "boundaries": "internal",
+        "position": "top"
+      },
+      {
+        "name": "Foot API",
+        "description": "External API",
+        "boundaries": "external",
+        "position": "top"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "S3",
+        "label": "Access storage",
+        "type": "interaction"
+      },
+      {
+        "source": "User",
+        "target": "API Gateway",
+        "label": "API requests",
+        "type": "http"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Cognito",
+        "label": "Authentication",
+        "type": "auth"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda (live_score)",
+        "label": "Process live scores",
+        "type": "invoke"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda (standing)",
+        "label": "Process standings",
+        "type": "invoke"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda (recommendation)",
+        "label": "Process recommendations",
+        "type": "invoke"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda (fixtures)",
+        "label": "Process fixtures",
+        "type": "invoke"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda (prediction)",
+        "label": "Process predictions",
+        "type": "invoke"
+      },
+      {
+        "source": "Lambda (live_score)",
+        "target": "DynamoDB",
+        "label": "Store/retrieve data",
+        "type": "query"
+      },
+      {
+        "source": "Lambda (standing)",
+        "target": "DynamoDB",
+        "label": "Store/retrieve data",
+        "type": "query"
+      },
+      {
+        "source": "Lambda (recommendation)",
+        "target": "DynamoDB",
+        "label": "Store/retrieve data",
+        "type": "query"
+      },
+      {
+        "source": "Lambda (fixtures)",
+        "target": "DynamoDB",
+        "label": "Store/retrieve data",
+        "type": "query"
+      },
+      {
+        "source": "Lambda (prediction)",
+        "target": "DynamoDB",
+        "label": "Store/retrieve data",
+        "type": "query"
+      },
+      {
+        "source": "Lambda (prediction)",
+        "target": "SageMaker",
+        "label": "Invoke ML model",
+        "type": "invoke"
+      },
+      {
+        "source": "Lambda (fixtures)",
+        "target": "ElasticSearch",
+        "label": "Search data",
+        "type": "query"
+      },
+      {
+        "source": "Lambda (fixtures)",
+        "target": "SQS",
+        "label": "Queue message",
+        "type": "enqueue"
+      },
+      {
+        "source": "SQS",
+        "target": "Lambda (fixtures)",
+        "label": "Dequeue message",
+        "type": "dequeue"
+      },
+      {
+        "source": "Lambda (fixtures)",
+        "target": "SNS",
+        "label": "Send notification",
+        "type": "notify"
+      },
+      {
+        "source": "Lambda (fixtures)",
+        "target": "Lex",
+        "label": "Chatbot interaction",
+        "type": "invoke"
+      },
+      {
+        "source": "Lex",
+        "target": "User",
+        "label": "Chatbot response",
+        "type": "response"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "architecture_diagram.png",
+      "title": "Architecture Diagram"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "User",
+      "API Gateway",
+      "DynamoDB",
+      "ElasticSearch",
+      "SageMaker",
+      "SQS",
+      "SNS",
+      "Lex"
+    ],
+    "unique_to_GroundTruth": [
+      "Frontend (HTML/JS)",
+      "Lambda (standings.py)",
+      "Lambda (predictions.py)",
+      "Lambda (LF1.py/LF2.py)",
+      "Lambda (getFixtures.py)",
+      "Lambda (getScore.py/getLiveScores.py)",
+      "Lex Chatbot"
+    ],
+    "unique_to_GeneratedImage": [
+      "S3",
+      "Cognito",
+      "Lambda (live_score)",
+      "Lambda (standing)",
+      "Lambda (recommendation)",
+      "Lambda (fixtures)",
+      "Lambda (prediction)",
+      "EC2",
+      "Kafka",
+      "Foot API"
+    ],
+    "common_connectors": [
+      {
+        "source": "User",
+        "target": "API Gateway",
+        "label": "API requests",
+        "type": "http"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda (prediction)",
+        "label": "Process predictions",
+        "type": "invoke"
+      },
+      {
+        "source": "Lambda (prediction)",
+        "target": "SageMaker",
+        "label": "Invoke ML model",
+        "type": "invoke"
+      },
+      {
+        "source": "Lambda (fixtures)",
+        "target": "ElasticSearch",
+        "label": "Search data",
+        "type": "query"
+      },
+      {
+        "source": "Lambda (fixtures)",
+        "target": "SQS",
+        "label": "Queue message",
+        "type": "enqueue"
+      },
+      {
+        "source": "SQS",
+        "target": "Lambda (fixtures)",
+        "label": "Dequeue message",
+        "type": "dequeue"
+      },
+      {
+        "source": "Lambda (fixtures)",
+        "target": "SNS",
+        "label": "Send notification",
+        "type": "notify"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "User",
+        "target": "Frontend (HTML/JS)",
+        "label": "Accesses match data/predictions/chat",
+        "type": "interaction"
+      },
+      {
+        "source": "Frontend (HTML/JS)",
+        "target": "API Gateway",
+        "label": "GET/POST requests",
+        "type": "http"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda (standings.py)",
+        "label": "Fetch standings",
+        "type": "invoke"
+      },
+      {
+        "source": "Lambda (standings.py)",
+        "target": "DynamoDB",
+        "label": "Query match data",
+        "type": "query"
+      },
+      {
+        "source": "DynamoDB",
+        "target": "Lambda (standings.py)",
+        "label": "Return standings",
+        "type": "response"
+      },
+      {
+        "source": "Lambda (standings.py)",
+        "target": "API Gateway",
+        "label": "Response",
+        "type": "return"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Frontend (HTML/JS)",
+        "label": "Display standings",
+        "type": "update"
+      },
+      {
+        "source": "Frontend (HTML/JS)",
+        "target": "API Gateway",
+        "label": "Request predictions",
+        "type": "http"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda (predictions.py)",
+        "label": "Trigger prediction",
+        "type": "invoke"
+      },
+      {
+        "source": "Lambda (predictions.py)",
+        "target": "SageMaker",
+        "label": "Invoke ML model",
+        "type": "invoke"
+      },
+      {
+        "source": "SageMaker",
+        "target": "Lambda (predictions.py)",
+        "label": "Prediction results",
+        "type": "response"
+      },
+      {
+        "source": "Lambda (predictions.py)",
+        "target": "API Gateway",
+        "label": "Return predictions",
+        "type": "return"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Frontend (HTML/JS)",
+        "label": "Display predictions",
+        "type": "update"
+      },
+      {
+        "source": "Frontend (HTML/JS)",
+        "target": "Lex Chatbot",
+        "label": "Interacts with chatbot",
+        "type": "interaction"
+      },
+      {
+        "source": "Lex Chatbot",
+        "target": "Lambda (getFixtures.py)",
+        "label": "Process intent",
+        "type": "invoke"
+      },
+      {
+        "source": "Lambda (getFixtures.py)",
+        "target": "ElasticSearch",
+        "label": "Query fixtures",
+        "type": "query"
+      },
+      {
+        "source": "ElasticSearch",
+        "target": "Lambda (getFixtures.py)",
+        "label": "Return matches",
+        "type": "response"
+      },
+      {
+        "source": "Lambda (getFixtures.py)",
+        "target": "SQS",
+        "label": "Enqueue request (if async)",
+        "type": "enqueue"
+      },
+      {
+        "source": "SQS",
+        "target": "Lambda (getFixtures.py)",
+        "label": "Dequeue for processing",
+        "type": "dequeue"
+      },
+      {
+        "source": "Lambda (getFixtures.py)",
+        "target": "SNS",
+        "label": "Send SMS notification",
+        "type": "notify"
+      },
+      {
+        "source": "SNS",
+        "target": "Lex Chatbot",
+        "label": "Bot response",
+        "type": "response"
+      },
+      {
+        "source": "Lex Chatbot",
+        "target": "Frontend (HTML/JS)",
+        "label": "Display chatbot reply",
+        "type": "update"
+      },
+      {
+        "source": "Frontend (HTML/JS)",
+        "target": "API Gateway",
+        "label": "Request live scores",
+        "type": "http"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda (getScore.py/getLiveScores.py)",
+        "label": "Fetch scores",
+        "type": "invoke"
+      },
+      {
+        "source": "Lambda (getScore.py/getLiveScores.py)",
+        "target": "DynamoDB",
+        "label": "Get match IDs",
+        "type": "query"
+      },
+      {
+        "source": "DynamoDB",
+        "target": "Lambda (getScore.py/getLiveScores.py)",
+        "label": "Return IDs",
+        "type": "response"
+      },
+      {
+        "source": "Lambda (getScore.py/getLiveScores.py)",
+        "target": "ElasticSearch",
+        "label": "Query live data",
+        "type": "query"
+      },
+      {
+        "source": "ElasticSearch",
+        "target": "Lambda (getScore.py/getLiveScores.py)",
+        "label": "Return scores",
+        "type": "response"
+      },
+      {
+        "source": "Lambda (getScore.py/getLiveScores.py)",
+        "target": "API Gateway",
+        "label": "Response",
+        "type": "return"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Frontend (HTML/JS)",
+        "label": "Update live scores",
+        "type": "update"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "S3",
+        "label": "Access storage",
+        "type": "interaction"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Cognito",
+        "label": "Authentication",
+        "type": "auth"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda (live_score)",
+        "label": "Process live scores",
+        "type": "invoke"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda (standing)",
+        "label": "Process standings",
+        "type": "invoke"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda (recommendation)",
+        "label": "Process recommendations",
+        "type": "invoke"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda (fixtures)",
+        "label": "Process fixtures",
+        "type": "invoke"
+      },
+      {
+        "source": "Lambda (live_score)",
+        "target": "DynamoDB",
+        "label": "Store/retrieve data",
+        "type": "query"
+      },
+      {
+        "source": "Lambda (standing)",
+        "target": "DynamoDB",
+        "label": "Store/retrieve data",
+        "type": "query"
+      },
+      {
+        "source": "Lambda (recommendation)",
+        "target": "DynamoDB",
+        "label": "Store/retrieve data",
+        "type": "query"
+      },
+      {
+        "source": "Lambda (fixtures)",
+        "target": "DynamoDB",
+        "label": "Store/retrieve data",
+        "type": "query"
+      },
+      {
+        "source": "Lambda (prediction)",
+        "target": "DynamoDB",
+        "label": "Store/retrieve data",
+        "type": "query"
+      },
+      {
+        "source": "Lambda (fixtures)",
+        "target": "Lex",
+        "label": "Chatbot interaction",
+        "type": "invoke"
+      },
+      {
+        "source": "Lex",
+        "target": "User",
+        "label": "Chatbot response",
+        "type": "response"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of a software system. The GroundTruth diagram is a sequence diagram detailing the interactions between components for specific user actions, while the GeneratedImage diagram is an architecture diagram showing the components and their connections in a more static view. Both diagrams share common components such as User, API Gateway, DynamoDB, ElasticSearch, SageMaker, SQS, SNS, and Lex, indicating that these are core elements of the system. However, the GroundTruth diagram includes specific Lambda functions with detailed purposes, such as standings and predictions, which are not explicitly named in the GeneratedImage diagram. The GeneratedImage diagram includes additional components like S3, Cognito, EC2, Kafka, and Foot API, which are not present in the GroundTruth diagram. These components suggest additional functionalities or integrations not covered in the sequence diagram. The connectors in both diagrams reflect the interactions and data flows, with some common paths like API requests and ML model invocations. However, the sequence diagram provides a more detailed view of the interactions, while the architecture diagram gives a broader overview of the system's structure. Overall, the GeneratedImage diagram provides a comprehensive view of the system's architecture but lacks the detailed interaction flows present in the GroundTruth diagram. Based on its accuracy and completeness, the GeneratedImage diagram is rated 7 out of 10. It captures the core components and their relationships but misses some specific interactions and Lambda functions detailed in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

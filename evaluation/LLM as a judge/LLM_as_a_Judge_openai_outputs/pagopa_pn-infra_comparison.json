@@ -1,0 +1,332 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Represents the end user",
+        "boundaries": "Outside Cognito Account",
+        "position": "Left"
+      },
+      {
+        "name": "Cognito Hosted UI",
+        "description": "User interface for authentication",
+        "boundaries": "Inside Cognito Account",
+        "position": "Middle"
+      },
+      {
+        "name": "Cognito User Pool",
+        "description": "Manages user identities",
+        "boundaries": "Inside Cognito Account",
+        "position": "Middle"
+      },
+      {
+        "name": "API Gateway",
+        "description": "Handles API requests",
+        "boundaries": "Inside API Gateway Account",
+        "position": "Middle"
+      },
+      {
+        "name": "auth-function",
+        "description": "Handles authentication",
+        "boundaries": "Inside API Gateway Account",
+        "position": "Right"
+      },
+      {
+        "name": "hello-function",
+        "description": "Returns greeting if authorized",
+        "boundaries": "Inside API Gateway Account",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Cognito Hosted UI",
+        "label": "connect",
+        "type": "Arrow"
+      },
+      {
+        "source": "Cognito Hosted UI",
+        "target": "Cognito User Pool",
+        "label": "get-authorization-code",
+        "type": "Arrow"
+      },
+      {
+        "source": "Cognito Hosted UI",
+        "target": "API Gateway",
+        "label": "passes code (query strings) redirects to /auth",
+        "type": "Arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "auth-function",
+        "label": "/auth/GET",
+        "type": "Arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "hello-function",
+        "label": "/hello/GET",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "Based on the authorization code, gets an id_token, call hello/GET while passing the id_token in the headers",
+        "position": "Right"
+      },
+      {
+        "text": "Returns \"hello\" + name-of-the-user if authorized",
+        "position": "Right"
+      }
+    ],
+    "groups": [
+      {
+        "name": "Cognito Account",
+        "components": [
+          "Cognito Hosted UI",
+          "Cognito User Pool"
+        ]
+      },
+      {
+        "name": "API Gateway Account",
+        "components": [
+          "API Gateway",
+          "auth-function",
+          "hello-function"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "AWS Cognito and API Gateway Flow"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Represents the end user",
+        "boundaries": "Outside system",
+        "position": "Left"
+      },
+      {
+        "name": "API Gateway",
+        "description": "Handles API requests",
+        "boundaries": "Inside system",
+        "position": "Middle"
+      },
+      {
+        "name": "Lambda (Reverse Proxy)",
+        "description": "Routes requests",
+        "boundaries": "Inside system",
+        "position": "Middle"
+      },
+      {
+        "name": "EventBridge",
+        "description": "Event bus for routing events",
+        "boundaries": "Inside system",
+        "position": "Middle"
+      },
+      {
+        "name": "SQS Queue",
+        "description": "Message queue",
+        "boundaries": "Inside system",
+        "position": "Middle"
+      },
+      {
+        "name": "Microservice (ECS Fargate)",
+        "description": "Processes messages",
+        "boundaries": "Inside system",
+        "position": "Middle"
+      },
+      {
+        "name": "DynamoDB",
+        "description": "Database for storing data",
+        "boundaries": "Inside system",
+        "position": "Middle"
+      },
+      {
+        "name": "CloudWatch",
+        "description": "Monitors and logs metrics",
+        "boundaries": "Inside system",
+        "position": "Middle"
+      },
+      {
+        "name": "SNS Topic",
+        "description": "Notification service",
+        "boundaries": "Inside system",
+        "position": "Middle"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "API Gateway",
+        "label": "HTTP Request",
+        "type": "Arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda (Reverse Proxy)",
+        "label": "Route request",
+        "type": "Arrow"
+      },
+      {
+        "source": "Lambda (Reverse Proxy)",
+        "target": "EventBridge",
+        "label": "Forward request",
+        "type": "Arrow"
+      },
+      {
+        "source": "EventBridge",
+        "target": "SQS Queue",
+        "label": "Publish event",
+        "type": "Arrow"
+      },
+      {
+        "source": "SQS Queue",
+        "target": "Microservice (ECS Fargate)",
+        "label": "Send message",
+        "type": "Arrow"
+      },
+      {
+        "source": "Microservice (ECS Fargate)",
+        "target": "DynamoDB",
+        "label": "Read/Write data",
+        "type": "Arrow"
+      },
+      {
+        "source": "Microservice (ECS Fargate)",
+        "target": "CloudWatch",
+        "label": "Log metrics",
+        "type": "Arrow"
+      },
+      {
+        "source": "CloudWatch",
+        "target": "SNS Topic",
+        "label": "Trigger alarm",
+        "type": "Arrow"
+      },
+      {
+        "source": "SNS Topic",
+        "target": "User",
+        "label": "Send notification",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "AWS Service Flow"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "User",
+      "API Gateway"
+    ],
+    "unique_to_GroundTruth": [
+      "Cognito Hosted UI",
+      "Cognito User Pool",
+      "auth-function",
+      "hello-function"
+    ],
+    "unique_to_GeneratedImage": [
+      "Lambda (Reverse Proxy)",
+      "EventBridge",
+      "SQS Queue",
+      "Microservice (ECS Fargate)",
+      "DynamoDB",
+      "CloudWatch",
+      "SNS Topic"
+    ],
+    "common_connectors": [
+      {
+        "source": "User",
+        "target": "API Gateway",
+        "label": "connect/HTTP Request",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Cognito Hosted UI",
+        "target": "Cognito User Pool",
+        "label": "get-authorization-code",
+        "type": "Arrow"
+      },
+      {
+        "source": "Cognito Hosted UI",
+        "target": "API Gateway",
+        "label": "passes code (query strings) redirects to /auth",
+        "type": "Arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "auth-function",
+        "label": "/auth/GET",
+        "type": "Arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "hello-function",
+        "label": "/hello/GET",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "API Gateway",
+        "target": "Lambda (Reverse Proxy)",
+        "label": "Route request",
+        "type": "Arrow"
+      },
+      {
+        "source": "Lambda (Reverse Proxy)",
+        "target": "EventBridge",
+        "label": "Forward request",
+        "type": "Arrow"
+      },
+      {
+        "source": "EventBridge",
+        "target": "SQS Queue",
+        "label": "Publish event",
+        "type": "Arrow"
+      },
+      {
+        "source": "SQS Queue",
+        "target": "Microservice (ECS Fargate)",
+        "label": "Send message",
+        "type": "Arrow"
+      },
+      {
+        "source": "Microservice (ECS Fargate)",
+        "target": "DynamoDB",
+        "label": "Read/Write data",
+        "type": "Arrow"
+      },
+      {
+        "source": "Microservice (ECS Fargate)",
+        "target": "CloudWatch",
+        "label": "Log metrics",
+        "type": "Arrow"
+      },
+      {
+        "source": "CloudWatch",
+        "target": "SNS Topic",
+        "label": "Trigger alarm",
+        "type": "Arrow"
+      },
+      {
+        "source": "SNS Topic",
+        "target": "User",
+        "label": "Send notification",
+        "type": "Arrow"
+      }
+    ],
+    "explanation": "The two diagrams represent different architectural flows within AWS services. The GroundTruth diagram focuses on user authentication and API interaction using AWS Cognito and API Gateway, while the GeneratedImage diagram illustrates a broader AWS service flow including event handling and notification using services like EventBridge, SQS, and SNS. Both diagrams share common components such as 'User' and 'API Gateway', but differ significantly in the additional components and connectors used. The GroundTruth diagram is more focused on authentication processes, whereas the GeneratedImage diagram showcases a more complex service orchestration. The GeneratedImage is rated 7 out of 10 for its completeness in illustrating a broader AWS service flow, but it lacks the specific focus on authentication processes shown in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

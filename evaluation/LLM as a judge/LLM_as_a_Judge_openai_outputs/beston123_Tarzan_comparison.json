@@ -1,0 +1,319 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Registry",
+        "description": "Manages server registration and unique ID allocation",
+        "boundaries": "Rectangle",
+        "position": "Top center"
+      },
+      {
+        "name": "Tarzan Admin",
+        "description": "Manages servers",
+        "boundaries": "Rectangle",
+        "position": "Top right"
+      },
+      {
+        "name": "Tarzan Server",
+        "description": "Cluster/Load Balancer",
+        "boundaries": "Rectangle",
+        "position": "Center"
+      },
+      {
+        "name": "Tarzan Store",
+        "description": "MySQL storage",
+        "boundaries": "Rectangle",
+        "position": "Bottom center"
+      },
+      {
+        "name": "Application1 (Tarzan Client)",
+        "description": "Producer Group",
+        "boundaries": "Rectangle",
+        "position": "Bottom left"
+      },
+      {
+        "name": "Application2 (Tarzan Client)",
+        "description": "Producer Group",
+        "boundaries": "Rectangle",
+        "position": "Bottom left"
+      },
+      {
+        "name": "RocketMQ",
+        "description": "MQ Group",
+        "boundaries": "Rectangle",
+        "position": "Right center"
+      },
+      {
+        "name": "Other MQ",
+        "description": "MQ Group",
+        "boundaries": "Rectangle",
+        "position": "Right center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Registry",
+        "target": "Tarzan Server",
+        "label": "allocate unique id",
+        "type": "Solid line"
+      },
+      {
+        "source": "Tarzan Admin",
+        "target": "Registry",
+        "label": "manage servers",
+        "type": "Dashed line"
+      },
+      {
+        "source": "Application1 (Tarzan Client)",
+        "target": "Tarzan Server",
+        "label": "1. Prepare",
+        "type": "Solid line"
+      },
+      {
+        "source": "Application1 (Tarzan Client)",
+        "target": "Tarzan Server",
+        "label": "2. Commit/Rollback",
+        "type": "Solid line"
+      },
+      {
+        "source": "Application2 (Tarzan Client)",
+        "target": "Tarzan Server",
+        "label": "Check Transaction State",
+        "type": "Solid line"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "RocketMQ",
+        "label": "Send/Return Result",
+        "type": "Solid line"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "Other MQ",
+        "label": "Send/Return Result",
+        "type": "Solid line"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "Tarzan Store",
+        "label": "put/get",
+        "type": "Solid line"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Tarzan Architecture Overview"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "tarzan-server",
+        "description": "Contains ConfigManager, ScheduledServiceManager, MessageResendService, ServerController",
+        "boundaries": "Rectangle",
+        "position": "Left center"
+      },
+      {
+        "name": "tarzan-store",
+        "description": "Contains RocketMQStoreService, ToSendMessage, MessageConsume",
+        "boundaries": "Rectangle",
+        "position": "Center"
+      },
+      {
+        "name": "tarzan-mq",
+        "description": "Contains MessageNotifier, RocketMQTransactionChecker",
+        "boundaries": "Rectangle",
+        "position": "Right center"
+      },
+      {
+        "name": "Store (MySQL + Redis)",
+        "description": "Persistent storage with Redis locks",
+        "boundaries": "Rectangle",
+        "position": "Bottom center"
+      },
+      {
+        "name": "Message Broker (RocketMQ)",
+        "description": "Handles message operations",
+        "boundaries": "Rectangle",
+        "position": "Bottom right"
+      },
+      {
+        "name": "Registry (Zookeeper)",
+        "description": "Service discovery",
+        "boundaries": "Rectangle",
+        "position": "Top right"
+      },
+      {
+        "name": "tarzan-rpc (Netty)",
+        "description": "Contains RpcClient, RpcServer",
+        "boundaries": "Rectangle",
+        "position": "Bottom left"
+      },
+      {
+        "name": "Client",
+        "description": "Initiates transactions and message flow",
+        "boundaries": "Rectangle",
+        "position": "Top left"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "tarzan-server",
+        "target": "tarzan-store",
+        "label": "Manages transactions",
+        "type": "Solid line"
+      },
+      {
+        "source": "tarzan-store",
+        "target": "Store (MySQL + Redis)",
+        "label": "Data access",
+        "type": "Solid line"
+      },
+      {
+        "source": "tarzan-mq",
+        "target": "Message Broker (RocketMQ)",
+        "label": "Proxies messages",
+        "type": "Solid line"
+      },
+      {
+        "source": "tarzan-mq",
+        "target": "Registry (Zookeeper)",
+        "label": "Registers",
+        "type": "Solid line"
+      },
+      {
+        "source": "Client",
+        "target": "tarzan-rpc (Netty)",
+        "label": "Uses",
+        "type": "Dashed line"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "Initiates transactions and message flow",
+        "position": "Top left"
+      },
+      {
+        "text": "Central coordinator with scheduled recovery",
+        "position": "Center"
+      },
+      {
+        "text": "Primary message transport",
+        "position": "Bottom left"
+      }
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Tarzan Distributed Transaction System"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Tarzan Server",
+      "Tarzan Store",
+      "RocketMQ",
+      "Registry"
+    ],
+    "unique_to_GroundTruth": [
+      "Tarzan Admin",
+      "Application1 (Tarzan Client)",
+      "Application2 (Tarzan Client)",
+      "Other MQ"
+    ],
+    "unique_to_GeneratedImage": [
+      "tarzan-mq",
+      "tarzan-rpc (Netty)",
+      "Client",
+      "Store (MySQL + Redis)",
+      "Message Broker (RocketMQ)"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Registry",
+        "target": "Tarzan Server",
+        "label": "allocate unique id",
+        "type": "Solid line"
+      },
+      {
+        "source": "Tarzan Admin",
+        "target": "Registry",
+        "label": "manage servers",
+        "type": "Dashed line"
+      },
+      {
+        "source": "Application1 (Tarzan Client)",
+        "target": "Tarzan Server",
+        "label": "1. Prepare",
+        "type": "Solid line"
+      },
+      {
+        "source": "Application1 (Tarzan Client)",
+        "target": "Tarzan Server",
+        "label": "2. Commit/Rollback",
+        "type": "Solid line"
+      },
+      {
+        "source": "Application2 (Tarzan Client)",
+        "target": "Tarzan Server",
+        "label": "Check Transaction State",
+        "type": "Solid line"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "RocketMQ",
+        "label": "Send/Return Result",
+        "type": "Solid line"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "Other MQ",
+        "label": "Send/Return Result",
+        "type": "Solid line"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "Tarzan Store",
+        "label": "put/get",
+        "type": "Solid line"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "tarzan-server",
+        "target": "tarzan-store",
+        "label": "Manages transactions",
+        "type": "Solid line"
+      },
+      {
+        "source": "tarzan-store",
+        "target": "Store (MySQL + Redis)",
+        "label": "Data access",
+        "type": "Solid line"
+      },
+      {
+        "source": "tarzan-mq",
+        "target": "Message Broker (RocketMQ)",
+        "label": "Proxies messages",
+        "type": "Solid line"
+      },
+      {
+        "source": "tarzan-mq",
+        "target": "Registry (Zookeeper)",
+        "label": "Registers",
+        "type": "Solid line"
+      },
+      {
+        "source": "Client",
+        "target": "tarzan-rpc (Netty)",
+        "label": "Uses",
+        "type": "Dashed line"
+      }
+    ],
+    "explanation": "The two diagrams represent similar systems with different focuses. The GroundTruth diagram emphasizes the interaction between clients, servers, and message queues, highlighting components like Tarzan Admin and different MQ groups. The GeneratedImage diagram provides a more detailed breakdown of internal components and services, such as tarzan-server and tarzan-mq, and introduces additional elements like tarzan-rpc and Client. While both diagrams share components like Tarzan Server, Tarzan Store, RocketMQ, and Registry, they differ in their level of detail and focus areas. The GroundTruth diagram is more focused on external interactions, while the GeneratedImage diagram delves into internal architecture. Based on accuracy and completeness, the GeneratedImage diagram is rated 7 out of 10 for providing a detailed internal view but lacking some external interaction details present in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}
