@@ -169,7 +169,7 @@ def process_view(repo_name, summary, concern, behavior):
             log_file.write(f"Failed to generate valid mermaid for {repo_name} after {max_retries} attempts\n")
 
 def main():
-    input_jsonl = "../experiemts/Architectural_knowledge_extraction/generated_summaries.jsonl"
+    input_jsonl = "../experiments/Architectural_knowledge_extraction/generated_summaries.jsonl"
     column_name1 = "Repository Name"
     column_name2 = "summary"
     column_name3 = "Concern"
