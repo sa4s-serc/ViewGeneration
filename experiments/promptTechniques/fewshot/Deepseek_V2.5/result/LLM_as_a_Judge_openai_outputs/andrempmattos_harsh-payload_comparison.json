@@ -1,0 +1,330 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "STARTUP",
+        "description": "Perform the system initialization",
+        "boundaries": "TASKS",
+        "position": "Top"
+      },
+      {
+        "name": "WATCHDOG RESET",
+        "description": "Perform the watchdog counter reset",
+        "boundaries": "TASKS",
+        "position": "Second"
+      },
+      {
+        "name": "HEARTBEAT",
+        "description": "Perform the heartbeat operation (toggle the LED)",
+        "boundaries": "TASKS",
+        "position": "Third"
+      },
+      {
+        "name": "OBC INTERFACE",
+        "description": "Perform the OBC communication interface",
+        "boundaries": "TASKS",
+        "position": "Fourth"
+      },
+      {
+        "name": "EXPERIMENT MANAGER",
+        "description": "Manage the experiment and latch-up monitors",
+        "boundaries": "TASKS",
+        "position": "Fifth"
+      },
+      {
+        "name": "EXPERIMENT RUNNER",
+        "description": "Execute the memory test algorithms",
+        "boundaries": "TASKS",
+        "position": "Sixth"
+      },
+      {
+        "name": "OBC COMMAND",
+        "description": "Handle command from OBC",
+        "boundaries": "QUEUES",
+        "position": "Top"
+      },
+      {
+        "name": "OBC DATA",
+        "description": "Perform the watchdog counter reset",
+        "boundaries": "QUEUES",
+        "position": "Second"
+      },
+      {
+        "name": "SYSTEM STATE",
+        "description": "Perform the heartbeat operation (toggle the LED)",
+        "boundaries": "QUEUES",
+        "position": "Third"
+      },
+      {
+        "name": "EXPERIMENT COMMAND",
+        "description": "Perform the OBC communication interface",
+        "boundaries": "QUEUES",
+        "position": "Fourth"
+      },
+      {
+        "name": "EXPERIMENT STATE",
+        "description": "Manage the experiment and latch-up monitors",
+        "boundaries": "QUEUES",
+        "position": "Fifth"
+      },
+      {
+        "name": "BINARY SEMAPHORE",
+        "description": "Synchronize the OBC interface task execution",
+        "boundaries": "SEMAPHORES",
+        "position": "Top"
+      },
+      {
+        "name": "SPI HANDLER",
+        "description": "Interruption to handle SPI slave mode",
+        "boundaries": "INTERRUPTS",
+        "position": "Top"
+      }
+    ],
+    "connectors": [],
+    "annotations": [],
+    "groups": [
+      "TASKS",
+      "QUEUES",
+      "SEMAPHORES",
+      "INTERRUPTS"
+    ],
+    "metadata": {
+      "title": "SYSTEM ARCHITECTURE"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "SmartFusion2 FPGA",
+        "description": "Hardware component",
+        "boundaries": "Hardware Layer",
+        "position": "Top"
+      },
+      {
+        "name": "AXI/AHB Interconnect",
+        "description": "Interconnect component",
+        "boundaries": "Hardware Layer",
+        "position": "Inside FPGA"
+      },
+      {
+        "name": "Clocking/Reset",
+        "description": "Clocking and reset component",
+        "boundaries": "Hardware Layer",
+        "position": "Inside FPGA"
+      },
+      {
+        "name": "Peripheral Interfaces",
+        "description": "Peripheral interfaces component",
+        "boundaries": "Hardware Layer",
+        "position": "Inside FPGA"
+      },
+      {
+        "name": "Memory Subsystem",
+        "description": "Memory subsystem component",
+        "boundaries": "Hardware Layer",
+        "position": "Inside FPGA"
+      },
+      {
+        "name": "HAL",
+        "description": "Hardware Abstraction Layer",
+        "boundaries": "Firmware Layer",
+        "position": "Top"
+      },
+      {
+        "name": "Peripheral Drivers",
+        "description": "Drivers for peripherals",
+        "boundaries": "Firmware Layer",
+        "position": "Middle"
+      },
+      {
+        "name": "Experiment Algorithms",
+        "description": "Algorithms for experiments",
+        "boundaries": "Firmware Layer",
+        "position": "Right"
+      },
+      {
+        "name": "System Services",
+        "description": "System services component",
+        "boundaries": "Firmware Layer",
+        "position": "Right"
+      },
+      {
+        "name": "FreeRTOS",
+        "description": "Real-time operating system",
+        "boundaries": "OS Layer",
+        "position": "Top"
+      },
+      {
+        "name": "Queues",
+        "description": "Queue management",
+        "boundaries": "OS Layer",
+        "position": "Inside FreeRTOS"
+      },
+      {
+        "name": "Task Scheduler",
+        "description": "Task scheduling component",
+        "boundaries": "OS Layer",
+        "position": "Inside FreeRTOS"
+      },
+      {
+        "name": "Timers",
+        "description": "Timer management",
+        "boundaries": "OS Layer",
+        "position": "Inside FreeRTOS"
+      },
+      {
+        "name": "RPi Wrapper",
+        "description": "Raspberry Pi interface",
+        "boundaries": "Interface Layer",
+        "position": "Top"
+      },
+      {
+        "name": "OBC Communication (FSP)",
+        "description": "Communication with OBC",
+        "boundaries": "Interface Layer",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "SmartFusion2 FPGA",
+        "target": "HAL",
+        "label": "hardware",
+        "type": "dependency"
+      },
+      {
+        "source": "HAL",
+        "target": "Peripheral Drivers",
+        "label": "firmware",
+        "type": "dependency"
+      },
+      {
+        "source": "Peripheral Drivers",
+        "target": "Experiment Algorithms",
+        "label": "firmware",
+        "type": "dependency"
+      },
+      {
+        "source": "Peripheral Drivers",
+        "target": "System Services",
+        "label": "firmware",
+        "type": "dependency"
+      },
+      {
+        "source": "HAL",
+        "target": "FreeRTOS",
+        "label": "OS",
+        "type": "dependency"
+      },
+      {
+        "source": "FreeRTOS",
+        "target": "RPi Wrapper",
+        "label": "interface",
+        "type": "dependency"
+      },
+      {
+        "source": "FreeRTOS",
+        "target": "OBC Communication (FSP)",
+        "label": "interface",
+        "type": "dependency"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      "Hardware Layer",
+      "Firmware Layer",
+      "OS Layer",
+      "Interface Layer"
+    ],
+    "metadata": {
+      "title": "Hardware and Software Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      {
+        "name": "Queues",
+        "description": "Queue management"
+      }
+    ],
+    "unique_to_GroundTruth": [
+      "STARTUP",
+      "WATCHDOG RESET",
+      "HEARTBEAT",
+      "OBC INTERFACE",
+      "EXPERIMENT MANAGER",
+      "EXPERIMENT RUNNER",
+      "OBC COMMAND",
+      "OBC DATA",
+      "SYSTEM STATE",
+      "EXPERIMENT COMMAND",
+      "EXPERIMENT STATE",
+      "BINARY SEMAPHORE",
+      "SPI HANDLER"
+    ],
+    "unique_to_GeneratedImage": [
+      "SmartFusion2 FPGA",
+      "AXI/AHB Interconnect",
+      "Clocking/Reset",
+      "Peripheral Interfaces",
+      "Memory Subsystem",
+      "HAL",
+      "Peripheral Drivers",
+      "Experiment Algorithms",
+      "System Services",
+      "FreeRTOS",
+      "Task Scheduler",
+      "Timers",
+      "RPi Wrapper",
+      "OBC Communication (FSP)"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "SmartFusion2 FPGA",
+        "target": "HAL",
+        "label": "hardware",
+        "type": "dependency"
+      },
+      {
+        "source": "HAL",
+        "target": "Peripheral Drivers",
+        "label": "firmware",
+        "type": "dependency"
+      },
+      {
+        "source": "Peripheral Drivers",
+        "target": "Experiment Algorithms",
+        "label": "firmware",
+        "type": "dependency"
+      },
+      {
+        "source": "Peripheral Drivers",
+        "target": "System Services",
+        "label": "firmware",
+        "type": "dependency"
+      },
+      {
+        "source": "HAL",
+        "target": "FreeRTOS",
+        "label": "OS",
+        "type": "dependency"
+      },
+      {
+        "source": "FreeRTOS",
+        "target": "RPi Wrapper",
+        "label": "interface",
+        "type": "dependency"
+      },
+      {
+        "source": "FreeRTOS",
+        "target": "OBC Communication (FSP)",
+        "label": "interface",
+        "type": "dependency"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of a system architecture. The GroundTruth diagram focuses on tasks, queues, semaphores, and interrupts, detailing specific operations and their priorities or depths. The GeneratedImage diagram presents a layered architecture, including hardware, firmware, OS, and interface layers, with specific components and their dependencies. The commonality is the presence of 'Queues', but they are contextualized differently in each diagram. The GroundTruth diagram is more task-oriented, while the GeneratedImage diagram emphasizes structural layers and dependencies. The GeneratedImage diagram is rated 7 out of 10 for its accuracy in depicting a layered architecture, but it lacks the detailed task and operation information present in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

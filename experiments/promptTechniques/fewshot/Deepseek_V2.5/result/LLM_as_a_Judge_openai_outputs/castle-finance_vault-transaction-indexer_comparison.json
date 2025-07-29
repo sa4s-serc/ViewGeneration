@@ -1,0 +1,230 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Solscan API",
+        "description": "Fetch raw transaction and transaction IDs",
+        "boundaries": "Rectangle",
+        "position": "Top left"
+      },
+      {
+        "name": "AWS Lambda",
+        "description": "Processes transactions",
+        "boundaries": "Rectangle",
+        "position": "Center"
+      },
+      {
+        "name": "AWS DynamoDB",
+        "description": "Stores raw and normalized transactions",
+        "boundaries": "Rectangle",
+        "position": "Right"
+      },
+      {
+        "name": "AWS SNS",
+        "description": "Publishes transaction hashes",
+        "boundaries": "Rectangle",
+        "position": "Top center"
+      },
+      {
+        "name": "AWS SQS",
+        "description": "Queues and consumes messages",
+        "boundaries": "Rectangle",
+        "position": "Top right"
+      },
+      {
+        "name": "EventBridge Schedule",
+        "description": "Triggers periodic execution",
+        "boundaries": "Rectangle",
+        "position": "Bottom left"
+      },
+      {
+        "name": "AWS CDK",
+        "description": "Infrastructure as code",
+        "boundaries": "Rectangle",
+        "position": "Bottom left"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Solscan API",
+        "target": "AWS Lambda",
+        "label": "Fetch raw transaction",
+        "type": "Arrow"
+      },
+      {
+        "source": "AWS Lambda",
+        "target": "AWS DynamoDB",
+        "label": "Store raw transaction",
+        "type": "Arrow"
+      },
+      {
+        "source": "AWS Lambda",
+        "target": "AWS SNS",
+        "label": "Publish transaction hashes",
+        "type": "Arrow"
+      },
+      {
+        "source": "AWS SNS",
+        "target": "AWS SQS",
+        "label": "Fan-out messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "AWS SQS",
+        "target": "AWS Lambda",
+        "label": "Consume messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "EventBridge Schedule",
+        "target": "AWS Lambda",
+        "label": "Trigger periodic execution",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "AWS Transaction Processing Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "API",
+        "description": "Fetches transaction data every 3 minutes",
+        "boundaries": "Cube",
+        "position": "Bottom left"
+      },
+      {
+        "name": "Lambda",
+        "description": "Processes transactions",
+        "boundaries": "Cylinder",
+        "position": "Center"
+      },
+      {
+        "name": "DynamoDB",
+        "description": "Stores transactions",
+        "boundaries": "Cylinder",
+        "position": "Right"
+      },
+      {
+        "name": "SNS",
+        "description": "Publishes transaction hashes",
+        "boundaries": "Cylinder",
+        "position": "Bottom center"
+      },
+      {
+        "name": "SQS",
+        "description": "Queues messages",
+        "boundaries": "Cylinder",
+        "position": "Center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "API",
+        "target": "Lambda",
+        "label": "Every 3 minutes",
+        "type": "Arrow"
+      },
+      {
+        "source": "Lambda",
+        "target": "DynamoDB",
+        "label": "Sync with raw transactions",
+        "type": "Arrow"
+      },
+      {
+        "source": "Lambda",
+        "target": "SNS",
+        "label": "Publish txHash",
+        "type": "Arrow"
+      },
+      {
+        "source": "SNS",
+        "target": "SQS",
+        "label": "Queue intake",
+        "type": "Arrow"
+      },
+      {
+        "source": "SQS",
+        "target": "Lambda",
+        "label": "Download failures",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": "AWS Transaction Processing Flow"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Lambda",
+      "DynamoDB",
+      "SNS",
+      "SQS"
+    ],
+    "unique_to_GroundTruth": [
+      "Solscan API",
+      "EventBridge Schedule",
+      "AWS CDK"
+    ],
+    "unique_to_GeneratedImage": [
+      "API"
+    ],
+    "common_connectors": [
+      {
+        "source": "Lambda",
+        "target": "DynamoDB",
+        "label": "Store/Sync transactions",
+        "type": "Arrow"
+      },
+      {
+        "source": "Lambda",
+        "target": "SNS",
+        "label": "Publish transaction hashes",
+        "type": "Arrow"
+      },
+      {
+        "source": "SNS",
+        "target": "SQS",
+        "label": "Queue messages",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Solscan API",
+        "target": "AWS Lambda",
+        "label": "Fetch raw transaction",
+        "type": "Arrow"
+      },
+      {
+        "source": "EventBridge Schedule",
+        "target": "AWS Lambda",
+        "label": "Trigger periodic execution",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "API",
+        "target": "Lambda",
+        "label": "Every 3 minutes",
+        "type": "Arrow"
+      },
+      {
+        "source": "SQS",
+        "target": "Lambda",
+        "label": "Download failures",
+        "type": "Arrow"
+      }
+    ],
+    "explanation": "Both diagrams depict a transaction processing architecture using AWS services. Common components include AWS Lambda, DynamoDB, SNS, and SQS, indicating a shared focus on processing and queuing transactions. The GroundTruth diagram includes additional components like Solscan API and EventBridge Schedule, which provide more detailed transaction fetching and scheduling mechanisms. The GeneratedImage simplifies this by using a generic API component and a periodic trigger every 3 minutes. Connectors in both diagrams show similar flows between Lambda, SNS, and SQS, but the GroundTruth provides more detailed interactions with Solscan API and EventBridge. The GeneratedImage is rated 7 out of 10 for capturing the core architecture but lacks some specific details found in the GroundTruth.",
+    "Rating": 7
+  }
+}

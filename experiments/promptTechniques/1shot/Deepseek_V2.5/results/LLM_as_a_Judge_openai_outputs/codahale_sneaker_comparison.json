@@ -1,0 +1,283 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "S3",
+        "description": "Storage Service",
+        "position": "top left"
+      },
+      {
+        "name": "IAM",
+        "description": "Identity and Access Management",
+        "position": "top right"
+      },
+      {
+        "name": "Management Server",
+        "description": "Manages operations",
+        "position": "middle left"
+      },
+      {
+        "name": "Target Server",
+        "description": "Deployment target",
+        "position": "bottom left"
+      },
+      {
+        "name": "KMS",
+        "description": "Key Management Service",
+        "position": "bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "S3",
+        "target": "Management Server",
+        "label": "read/write/list objects"
+      },
+      {
+        "source": "Management Server",
+        "target": "Target Server",
+        "label": "deploy packed secrets"
+      },
+      {
+        "source": "Management Server",
+        "target": "KMS",
+        "label": "generate data key/decrypt"
+      },
+      {
+        "source": "KMS",
+        "target": "Target Server",
+        "label": "decrypt"
+      },
+      {
+        "source": "IAM",
+        "target": "S3",
+        "label": "ACL"
+      },
+      {
+        "source": "IAM",
+        "target": "Management Server",
+        "label": "ACL"
+      },
+      {
+        "source": "IAM",
+        "target": "KMS",
+        "label": "ACL"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "ground_truth.png",
+      "title": "Architecture Diagram"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Initiates commands",
+        "position": "left"
+      },
+      {
+        "name": "CLI",
+        "description": "Command Line Interface",
+        "position": "middle left"
+      },
+      {
+        "name": "Manager",
+        "description": "Manages operations",
+        "position": "middle"
+      },
+      {
+        "name": "Envelope",
+        "description": "Handles encryption",
+        "position": "middle"
+      },
+      {
+        "name": "AWS Services",
+        "description": "Cloud services",
+        "position": "right"
+      },
+      {
+        "name": "KMS",
+        "description": "Key Management Service",
+        "position": "inside AWS Services"
+      },
+      {
+        "name": "S3",
+        "description": "Storage Service",
+        "position": "inside AWS Services"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "CLI",
+        "label": "Commands (upload/download/list/rm/pack/unpack/rotate)"
+      },
+      {
+        "source": "CLI",
+        "target": "Manager",
+        "label": "Calls appropriate method"
+      },
+      {
+        "source": "Manager",
+        "target": "Envelope",
+        "label": "encrypt/decrypt"
+      },
+      {
+        "source": "Envelope",
+        "target": "KMS",
+        "label": "generate/encrypt/decrypt data key"
+      },
+      {
+        "source": "Envelope",
+        "target": "S3",
+        "label": "upload/download/list/delete"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "Uses AES-256-GCM encryption with KMS data keys",
+        "position": "top right"
+      },
+      {
+        "text": "Stores encrypted secrets and tarballs",
+        "position": "right"
+      },
+      {
+        "text": "Handles key rotation by re-encrypting secrets with new data keys",
+        "position": "bottom"
+      }
+    ],
+    "groups": [
+      {
+        "name": "Sneaker Core",
+        "description": "Core functionality",
+        "components": [
+          "Manager",
+          "Envelope"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "generated_image.png",
+      "title": "Sneaker Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      {
+        "name": "S3",
+        "description": "Storage Service"
+      },
+      {
+        "name": "KMS",
+        "description": "Key Management Service"
+      }
+    ],
+    "unique_to_GroundTruth": [
+      {
+        "name": "IAM",
+        "description": "Identity and Access Management"
+      },
+      {
+        "name": "Management Server",
+        "description": "Manages operations"
+      },
+      {
+        "name": "Target Server",
+        "description": "Deployment target"
+      }
+    ],
+    "unique_to_GeneratedImage": [
+      {
+        "name": "User",
+        "description": "Initiates commands"
+      },
+      {
+        "name": "CLI",
+        "description": "Command Line Interface"
+      },
+      {
+        "name": "Manager",
+        "description": "Manages operations"
+      },
+      {
+        "name": "Envelope",
+        "description": "Handles encryption"
+      },
+      {
+        "name": "AWS Services",
+        "description": "Cloud services"
+      }
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "S3",
+        "target": "Management Server",
+        "label": "read/write/list objects"
+      },
+      {
+        "source": "Management Server",
+        "target": "Target Server",
+        "label": "deploy packed secrets"
+      },
+      {
+        "source": "Management Server",
+        "target": "KMS",
+        "label": "generate data key/decrypt"
+      },
+      {
+        "source": "KMS",
+        "target": "Target Server",
+        "label": "decrypt"
+      },
+      {
+        "source": "IAM",
+        "target": "S3",
+        "label": "ACL"
+      },
+      {
+        "source": "IAM",
+        "target": "Management Server",
+        "label": "ACL"
+      },
+      {
+        "source": "IAM",
+        "target": "KMS",
+        "label": "ACL"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "CLI",
+        "label": "Commands (upload/download/list/rm/pack/unpack/rotate)"
+      },
+      {
+        "source": "CLI",
+        "target": "Manager",
+        "label": "Calls appropriate method"
+      },
+      {
+        "source": "Manager",
+        "target": "Envelope",
+        "label": "encrypt/decrypt"
+      },
+      {
+        "source": "Envelope",
+        "target": "KMS",
+        "label": "generate/encrypt/decrypt data key"
+      },
+      {
+        "source": "Envelope",
+        "target": "S3",
+        "label": "upload/download/list/delete"
+      }
+    ],
+    "explanation": "The two diagrams share common components such as S3 and KMS, which are central to both architectures. However, the GroundTruth diagram includes IAM and a Management Server, focusing on access control and deployment. In contrast, the GeneratedImage introduces a User, CLI, and a more detailed Sneaker Core, emphasizing command execution and encryption processes. The connectors also differ, with GroundTruth focusing on ACLs and data key generation, while GeneratedImage highlights user commands and method calls. The GeneratedImage provides more detailed annotations and logical grouping, indicating a more comprehensive approach to encryption and key management. The GeneratedImage is rated 8 out of 10 for its detailed depiction of processes and inclusion of user interaction, although it lacks some components like IAM and Target Server found in the GroundTruth.",
+    "Rating": 8
+  }
+}

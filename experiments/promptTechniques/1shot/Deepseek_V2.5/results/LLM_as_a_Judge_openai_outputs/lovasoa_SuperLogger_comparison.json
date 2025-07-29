@@ -1,0 +1,189 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Computer 1",
+        "description": "Agent (superlogger.jar) TCP Server",
+        "boundaries": "Box",
+        "position": "Left"
+      },
+      {
+        "name": "Computer n",
+        "description": "Agent (superlogger.jar) TCP Server",
+        "boundaries": "Box",
+        "position": "Left"
+      },
+      {
+        "name": "Logstash",
+        "description": "TCP client\ninput {\n  tcp {\n    port => 6879\n    mode => \"client\"\n    codec => \"json\"\n  }\n}",
+        "boundaries": "Box",
+        "position": "Center"
+      },
+      {
+        "name": "ElasticSearch",
+        "description": "",
+        "boundaries": "Box",
+        "position": "Right"
+      },
+      {
+        "name": "Kibana",
+        "description": "",
+        "boundaries": "Box",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Computer 1",
+        "target": "Logstash",
+        "label": "TCP connection\nTCP response (JSON)",
+        "type": "Arrow"
+      },
+      {
+        "source": "Computer n",
+        "target": "Logstash",
+        "label": "TCP connection\nTCP response (JSON)",
+        "type": "Arrow"
+      },
+      {
+        "source": "Logstash",
+        "target": "ElasticSearch",
+        "label": "HTTP JSON",
+        "type": "Arrow"
+      },
+      {
+        "source": "ElasticSearch",
+        "target": "Kibana",
+        "label": "HTTP JSON",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "SuperLogger_Architecture.png",
+      "title": "SuperLogger Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Agent (Java)",
+        "description": "SystemInfo, TCPServer",
+        "boundaries": "Box",
+        "position": "Top"
+      },
+      {
+        "name": "Logstash",
+        "description": "TCP Input, JSON Codec, Elasticsearch Output",
+        "boundaries": "Box",
+        "position": "Middle"
+      },
+      {
+        "name": "Elasticsearch",
+        "description": "",
+        "boundaries": "Cylinder",
+        "position": "Bottom"
+      },
+      {
+        "name": "Kibana",
+        "description": "",
+        "boundaries": "Box",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Agent (Java)",
+        "target": "Logstash",
+        "label": "TCP",
+        "type": "Arrow"
+      },
+      {
+        "source": "Logstash",
+        "target": "Elasticsearch",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Elasticsearch",
+        "target": "Kibana",
+        "label": "Query/Visualize",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Agent",
+        "components": [
+          "Agent (Java)"
+        ]
+      },
+      {
+        "name": "Logstash",
+        "components": [
+          "Logstash"
+        ]
+      },
+      {
+        "name": "Elasticsearch",
+        "components": [
+          "Elasticsearch"
+        ]
+      },
+      {
+        "name": "Kibana",
+        "components": [
+          "Kibana"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "Generated_Architecture.png",
+      "title": ""
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Logstash",
+      "Elasticsearch",
+      "Kibana"
+    ],
+    "unique_to_GroundTruth": [
+      "Computer 1",
+      "Computer n"
+    ],
+    "unique_to_GeneratedImage": [
+      "Agent (Java)"
+    ],
+    "common_connectors": [
+      {
+        "source": "Logstash",
+        "target": "Elasticsearch"
+      },
+      {
+        "source": "Elasticsearch",
+        "target": "Kibana"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Computer 1",
+        "target": "Logstash"
+      },
+      {
+        "source": "Computer n",
+        "target": "Logstash"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Agent (Java)",
+        "target": "Logstash"
+      }
+    ],
+    "explanation": "Both diagrams represent a similar architecture involving Logstash, Elasticsearch, and Kibana. The GroundTruth diagram includes multiple computers running agents that connect to Logstash, while the GeneratedImage diagram simplifies this to a single 'Agent (Java)' component. The connectors in both diagrams show data flow from agents to Logstash, then to Elasticsearch, and finally to Kibana. The GroundTruth diagram provides more detail on the TCP connection specifics, while the GeneratedImage diagram uses logical groupings to organize components. The GeneratedImage is rated 7 out of 10 for capturing the core architecture but lacking some details present in the GroundTruth.",
+    "Rating": 7
+  }
+}

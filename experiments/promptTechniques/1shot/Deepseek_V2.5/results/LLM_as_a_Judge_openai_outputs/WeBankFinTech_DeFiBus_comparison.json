@@ -1,0 +1,478 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "GSL",
+        "description": "Component for special railway",
+        "boundary": "Bus",
+        "position": "Top"
+      },
+      {
+        "name": "GNS",
+        "description": "Component for internet",
+        "boundary": "Bus",
+        "position": "Top"
+      },
+      {
+        "name": "Front APP",
+        "description": "Client interface",
+        "boundary": "Bus",
+        "position": "Top"
+      },
+      {
+        "name": "Broker",
+        "description": "Handles requests",
+        "boundary": "Bus",
+        "position": "Middle"
+      },
+      {
+        "name": "DCN1",
+        "description": "Data Center Node 1",
+        "boundary": "APP",
+        "position": "Middle"
+      },
+      {
+        "name": "DCN2",
+        "description": "Data Center Node 2",
+        "boundary": "APP",
+        "position": "Middle"
+      },
+      {
+        "name": "DCN3",
+        "description": "Data Center Node 3",
+        "boundary": "APP",
+        "position": "Middle"
+      },
+      {
+        "name": "DCN4",
+        "description": "Data Center Node 4",
+        "boundary": "APP",
+        "position": "Middle"
+      },
+      {
+        "name": "DB",
+        "description": "Database component",
+        "boundary": "DB",
+        "position": "Bottom"
+      },
+      {
+        "name": "M",
+        "description": "Master database",
+        "boundary": "DB",
+        "position": "Bottom"
+      },
+      {
+        "name": "S",
+        "description": "Slave database",
+        "boundary": "DB",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "GSL",
+        "target": "Front APP",
+        "label": "Special railway",
+        "type": "Bidirectional"
+      },
+      {
+        "source": "GNS",
+        "target": "Front APP",
+        "label": "Internet",
+        "type": "Bidirectional"
+      },
+      {
+        "source": "Front APP",
+        "target": "Broker",
+        "label": "Client",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "Broker",
+        "target": "DCN",
+        "label": "Request routing",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "DCN",
+        "target": "DB",
+        "label": "Database access",
+        "type": "Unidirectional"
+      }
+    ],
+    "annotations": [
+      "Allocate DCN for customer by weight",
+      "Route request to right DCN in bus",
+      "App only handle request in DCN",
+      "App connect to allocate Db set master, Db has several copies"
+    ],
+    "groups": [
+      {
+        "name": "Bus",
+        "components": [
+          "GSL",
+          "GNS",
+          "Front APP",
+          "Broker"
+        ]
+      },
+      {
+        "name": "APP",
+        "components": [
+          "DCN1",
+          "DCN2",
+          "DCN3",
+          "DCN4"
+        ]
+      },
+      {
+        "name": "DB",
+        "components": [
+          "DB",
+          "M",
+          "S"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "Distributed_Architecture.png",
+      "title": "Distributed Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "DeFiBrokerController",
+        "description": "Core component",
+        "boundary": "Core Components",
+        "position": "Top"
+      },
+      {
+        "name": "DeFiBusBroker2Client",
+        "description": "Client interface",
+        "boundary": "Core Components",
+        "position": "Middle"
+      },
+      {
+        "name": "DeFiBusBrokerConfig",
+        "description": "Configuration management",
+        "boundary": "Core Components",
+        "position": "Middle"
+      },
+      {
+        "name": "MessageRedirectManager",
+        "description": "Redirects messages",
+        "boundary": "Management Components",
+        "position": "Top"
+      },
+      {
+        "name": "DeFiProducerManager",
+        "description": "Manages producers",
+        "boundary": "Management Components",
+        "position": "Top"
+      },
+      {
+        "name": "DeFiTopicConfigManager",
+        "description": "Manages topic configurations",
+        "boundary": "Management Components",
+        "position": "Middle"
+      },
+      {
+        "name": "ConsumeQueueManager",
+        "description": "Manages consume queues",
+        "boundary": "Management Components",
+        "position": "Middle"
+      },
+      {
+        "name": "DeFiReplyMessageProcessor",
+        "description": "Processes reply messages",
+        "boundary": "Processing Components",
+        "position": "Top"
+      },
+      {
+        "name": "DeFiAdminBrokerProcessor",
+        "description": "Admin processing",
+        "boundary": "Processing Components",
+        "position": "Top"
+      },
+      {
+        "name": "DeFiSendMessageProcessor",
+        "description": "Processes send messages",
+        "boundary": "Processing Components",
+        "position": "Top"
+      },
+      {
+        "name": "DeFiPullMessageProcessor",
+        "description": "Processes pull messages",
+        "boundary": "Processing Components",
+        "position": "Top"
+      },
+      {
+        "name": "DeFiPluginMessageStore",
+        "description": "Stores plugin messages",
+        "boundary": "Storage Components",
+        "position": "Bottom"
+      },
+      {
+        "name": "ClientRebalanceResultManager",
+        "description": "Manages client rebalance results",
+        "boundary": "Storage Components",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "DeFiBrokerController",
+        "target": "DeFiBusBroker2Client",
+        "label": "",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "DeFiBrokerController",
+        "target": "DeFiBusBrokerConfig",
+        "label": "",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "DeFiBrokerController",
+        "target": "MessageRedirectManager",
+        "label": "",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "MessageRedirectManager",
+        "target": "DeFiProducerManager",
+        "label": "",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "DeFiProducerManager",
+        "target": "DeFiTopicConfigManager",
+        "label": "",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "DeFiTopicConfigManager",
+        "target": "ConsumeQueueManager",
+        "label": "",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "ConsumeQueueManager",
+        "target": "DeFiReplyMessageProcessor",
+        "label": "",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "DeFiReplyMessageProcessor",
+        "target": "DeFiAdminBrokerProcessor",
+        "label": "",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "DeFiAdminBrokerProcessor",
+        "target": "DeFiSendMessageProcessor",
+        "label": "",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "DeFiSendMessageProcessor",
+        "target": "DeFiPullMessageProcessor",
+        "label": "",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "DeFiPullMessageProcessor",
+        "target": "DeFiPluginMessageStore",
+        "label": "",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "DeFiPluginMessageStore",
+        "target": "ClientRebalanceResultManager",
+        "label": "",
+        "type": "Unidirectional"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Core Components",
+        "components": [
+          "DeFiBrokerController",
+          "DeFiBusBroker2Client",
+          "DeFiBusBrokerConfig"
+        ]
+      },
+      {
+        "name": "Management Components",
+        "components": [
+          "MessageRedirectManager",
+          "DeFiProducerManager",
+          "DeFiTopicConfigManager",
+          "ConsumeQueueManager"
+        ]
+      },
+      {
+        "name": "Processing Components",
+        "components": [
+          "DeFiReplyMessageProcessor",
+          "DeFiAdminBrokerProcessor",
+          "DeFiSendMessageProcessor",
+          "DeFiPullMessageProcessor"
+        ]
+      },
+      {
+        "name": "Storage Components",
+        "components": [
+          "DeFiPluginMessageStore",
+          "ClientRebalanceResultManager"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "DeFi_Architecture.png",
+      "title": "DeFi Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [],
+    "unique_to_GroundTruth": [
+      "GSL",
+      "GNS",
+      "Front APP",
+      "Broker",
+      "DCN1",
+      "DCN2",
+      "DCN3",
+      "DCN4",
+      "DB",
+      "M",
+      "S"
+    ],
+    "unique_to_GeneratedImage": [
+      "DeFiBrokerController",
+      "DeFiBusBroker2Client",
+      "DeFiBusBrokerConfig",
+      "MessageRedirectManager",
+      "DeFiProducerManager",
+      "DeFiTopicConfigManager",
+      "ConsumeQueueManager",
+      "DeFiReplyMessageProcessor",
+      "DeFiAdminBrokerProcessor",
+      "DeFiSendMessageProcessor",
+      "DeFiPullMessageProcessor",
+      "DeFiPluginMessageStore",
+      "ClientRebalanceResultManager"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "GSL",
+        "target": "Front APP",
+        "label": "Special railway",
+        "type": "Bidirectional"
+      },
+      {
+        "source": "GNS",
+        "target": "Front APP",
+        "label": "Internet",
+        "type": "Bidirectional"
+      },
+      {
+        "source": "Front APP",
+        "target": "Broker",
+        "label": "Client",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "Broker",
+        "target": "DCN",
+        "label": "Request routing",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "DCN",
+        "target": "DB",
+        "label": "Database access",
+        "type": "Unidirectional"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "DeFiBrokerController",
+        "target": "DeFiBusBroker2Client",
+        "label": "",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "DeFiBrokerController",
+        "target": "DeFiBusBrokerConfig",
+        "label": "",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "DeFiBrokerController",
+        "target": "MessageRedirectManager",
+        "label": "",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "MessageRedirectManager",
+        "target": "DeFiProducerManager",
+        "label": "",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "DeFiProducerManager",
+        "target": "DeFiTopicConfigManager",
+        "label": "",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "DeFiTopicConfigManager",
+        "target": "ConsumeQueueManager",
+        "label": "",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "ConsumeQueueManager",
+        "target": "DeFiReplyMessageProcessor",
+        "label": "",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "DeFiReplyMessageProcessor",
+        "target": "DeFiAdminBrokerProcessor",
+        "label": "",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "DeFiAdminBrokerProcessor",
+        "target": "DeFiSendMessageProcessor",
+        "label": "",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "DeFiSendMessageProcessor",
+        "target": "DeFiPullMessageProcessor",
+        "label": "",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "DeFiPullMessageProcessor",
+        "target": "DeFiPluginMessageStore",
+        "label": "",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "DeFiPluginMessageStore",
+        "target": "ClientRebalanceResultManager",
+        "label": "",
+        "type": "Unidirectional"
+      }
+    ],
+    "explanation": "The two diagrams represent distinct architectures. The GroundTruth diagram illustrates a distributed architecture with components such as GSL, GNS, and multiple DCNs, focusing on data center nodes and database interactions. The GeneratedImage depicts a DeFi architecture with core, management, processing, and storage components, emphasizing message processing and management. There are no common components or connectors between the diagrams, highlighting their different purposes and designs. The GroundTruth diagram is more focused on distributed systems and data handling, while the GeneratedImage is oriented towards message processing and management. The GeneratedImage is rated 7 out of 10 for its clarity and detailed component categorization, but it lacks the distributed focus seen in the GroundTruth.",
+    "Rating": 7
+  }
+}

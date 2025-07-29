@@ -1,0 +1,278 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Banias Frontend",
+        "description": "Frontend component",
+        "boundaries": "Inside Kubernetes",
+        "position": "Left"
+      },
+      {
+        "name": "Kubernetes",
+        "description": "Container orchestration",
+        "boundaries": "Central",
+        "position": "Center"
+      },
+      {
+        "name": "Cloud Pub/Sub",
+        "description": "Messaging service",
+        "boundaries": "Google Cloud Platform",
+        "position": "Right of Kubernetes"
+      },
+      {
+        "name": "Cloud Dataflow",
+        "description": "Stream and batch data processing",
+        "boundaries": "Google Cloud Platform",
+        "position": "Right of Cloud Pub/Sub"
+      },
+      {
+        "name": "BigQuery",
+        "description": "Data warehouse",
+        "boundaries": "Google Cloud Platform",
+        "position": "Right of Cloud Dataflow"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Banias Frontend",
+        "target": "Kubernetes",
+        "label": "Data flow",
+        "type": "Arrow"
+      },
+      {
+        "source": "Kubernetes",
+        "target": "Cloud Pub/Sub",
+        "label": "Data flow",
+        "type": "Arrow"
+      },
+      {
+        "source": "Cloud Pub/Sub",
+        "target": "Cloud Dataflow",
+        "label": "Data flow",
+        "type": "Arrow"
+      },
+      {
+        "source": "Cloud Dataflow",
+        "target": "BigQuery",
+        "label": "Data flow",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Google Cloud Platform",
+        "components": [
+          "Cloud Pub/Sub",
+          "Cloud Dataflow",
+          "BigQuery"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "banias_architecture.png",
+      "title": "Banias Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "PubSub",
+        "description": "Messaging service",
+        "boundaries": "Google Cloud Services",
+        "position": "Right of Publisher"
+      },
+      {
+        "name": "Dataflow",
+        "description": "Stream and batch data processing",
+        "boundaries": "Google Cloud Services",
+        "position": "Right of PubSub"
+      },
+      {
+        "name": "BigQuery",
+        "description": "Data warehouse",
+        "boundaries": "Google Cloud Services",
+        "position": "Right of Dataflow"
+      },
+      {
+        "name": "GCS",
+        "description": "Storage service",
+        "boundaries": "Google Cloud Services",
+        "position": "Below PubSub"
+      },
+      {
+        "name": "Stackdriver",
+        "description": "Monitoring service",
+        "boundaries": "Google Cloud Services",
+        "position": "Below BigQuery"
+      },
+      {
+        "name": "SchemaLoader",
+        "description": "Loads schema",
+        "boundaries": "Internal",
+        "position": "Left of Dataflow"
+      },
+      {
+        "name": "ErrorHandler",
+        "description": "Handles errors",
+        "boundaries": "Internal",
+        "position": "Right of Dataflow"
+      },
+      {
+        "name": "Metrics",
+        "description": "Metrics collection",
+        "boundaries": "Internal",
+        "position": "Left of Stackdriver"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Publisher",
+        "target": "PubSub",
+        "label": "Data flow",
+        "type": "Arrow"
+      },
+      {
+        "source": "PubSub",
+        "target": "Dataflow",
+        "label": "Data flow",
+        "type": "Arrow"
+      },
+      {
+        "source": "Dataflow",
+        "target": "BigQuery",
+        "label": "Data flow",
+        "type": "Arrow"
+      },
+      {
+        "source": "GCS",
+        "target": "SchemaLoader",
+        "label": "Data flow",
+        "type": "Arrow"
+      },
+      {
+        "source": "SchemaLoader",
+        "target": "Dataflow",
+        "label": "Data flow",
+        "type": "Arrow"
+      },
+      {
+        "source": "Dataflow",
+        "target": "ErrorHandler",
+        "label": "Data flow",
+        "type": "Arrow"
+      },
+      {
+        "source": "ErrorHandler",
+        "target": "BigQuery",
+        "label": "Data flow",
+        "type": "Arrow"
+      },
+      {
+        "source": "Metrics",
+        "target": "Stackdriver",
+        "label": "Data flow",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Google Cloud Services",
+        "components": [
+          "PubSub",
+          "Dataflow",
+          "BigQuery",
+          "GCS",
+          "Stackdriver"
+        ]
+      },
+      {
+        "name": "Clients",
+        "components": [
+          "Web/Mobile Apps"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "dointit_banias.puml",
+      "title": "From dointit_banias.puml"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Cloud Pub/Sub",
+      "Cloud Dataflow",
+      "BigQuery"
+    ],
+    "unique_to_GroundTruth": [
+      "Banias Frontend",
+      "Kubernetes"
+    ],
+    "unique_to_GeneratedImage": [
+      "GCS",
+      "Stackdriver",
+      "SchemaLoader",
+      "ErrorHandler",
+      "Metrics"
+    ],
+    "common_connectors": [
+      {
+        "source": "Cloud Pub/Sub",
+        "target": "Cloud Dataflow",
+        "label": "Data flow"
+      },
+      {
+        "source": "Cloud Dataflow",
+        "target": "BigQuery",
+        "label": "Data flow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Banias Frontend",
+        "target": "Kubernetes",
+        "label": "Data flow"
+      },
+      {
+        "source": "Kubernetes",
+        "target": "Cloud Pub/Sub",
+        "label": "Data flow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Publisher",
+        "target": "PubSub",
+        "label": "Data flow"
+      },
+      {
+        "source": "GCS",
+        "target": "SchemaLoader",
+        "label": "Data flow"
+      },
+      {
+        "source": "SchemaLoader",
+        "target": "Dataflow",
+        "label": "Data flow"
+      },
+      {
+        "source": "Dataflow",
+        "target": "ErrorHandler",
+        "label": "Data flow"
+      },
+      {
+        "source": "ErrorHandler",
+        "target": "BigQuery",
+        "label": "Data flow"
+      },
+      {
+        "source": "Metrics",
+        "target": "Stackdriver",
+        "label": "Data flow"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on a simplified architecture with key components like Banias Frontend and Kubernetes, emphasizing a straightforward data flow through Google Cloud services. The GeneratedImage diagram provides a more detailed view, including additional components like GCS, Stackdriver, SchemaLoader, ErrorHandler, and Metrics, which are not present in the GroundTruth. Both diagrams share common components such as Cloud Pub/Sub, Cloud Dataflow, and BigQuery, but the GeneratedImage includes more intricate connections and additional services, suggesting a more complex architecture. The GeneratedImage is rated 7 out of 10 for accuracy and completeness, as it captures additional components and connections that provide a richer architectural context, but it diverges from the simplicity and focus of the GroundTruth.",
+    "Rating": 7
+  }
+}

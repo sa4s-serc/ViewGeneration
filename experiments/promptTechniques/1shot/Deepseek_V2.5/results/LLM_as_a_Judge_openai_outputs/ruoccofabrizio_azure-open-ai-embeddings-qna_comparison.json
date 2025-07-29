@@ -1,0 +1,340 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Azure Storage",
+        "description": "Unstructured documents (pdf, docx, txt, etc.)",
+        "boundaries": "Knowledge Base",
+        "position": "left"
+      },
+      {
+        "name": "Azure Form Recognizer",
+        "description": "Extracted paragraphs",
+        "boundaries": null,
+        "position": "left-center"
+      },
+      {
+        "name": "Azure Translator",
+        "description": "Translate (optional)",
+        "boundaries": null,
+        "position": "center"
+      },
+      {
+        "name": "Azure OpenAI Service Embeddings",
+        "description": "Embedding of paragraphs using OpenAI",
+        "boundaries": "Search Layer",
+        "position": "center-right"
+      },
+      {
+        "name": "Vector Database",
+        "description": "Vectors",
+        "boundaries": "Search Layer",
+        "position": "center-right"
+      },
+      {
+        "name": "Azure OpenAI Answering Prompt",
+        "description": "Top k paragraphs",
+        "boundaries": null,
+        "position": "right"
+      },
+      {
+        "name": "Users",
+        "description": "Questions, Answers",
+        "boundaries": null,
+        "position": "top-right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Azure Storage",
+        "target": "Azure Form Recognizer",
+        "label": "Raw documents",
+        "type": "data flow"
+      },
+      {
+        "source": "Azure Form Recognizer",
+        "target": "Azure Translator",
+        "label": "Extracted dialogs",
+        "type": "data flow"
+      },
+      {
+        "source": "Azure Translator",
+        "target": "Azure OpenAI Service Embeddings",
+        "label": "Translate (optional)",
+        "type": "data flow"
+      },
+      {
+        "source": "Azure OpenAI Service Embeddings",
+        "target": "Vector Database",
+        "label": "Vectors",
+        "type": "data flow"
+      },
+      {
+        "source": "Vector Database",
+        "target": "Azure OpenAI Answering Prompt",
+        "label": "Top k paragraphs",
+        "type": "data flow"
+      },
+      {
+        "source": "Azure OpenAI Answering Prompt",
+        "target": "Users",
+        "label": "Answers",
+        "type": "data flow"
+      },
+      {
+        "source": "Users",
+        "target": "Azure OpenAI Embeddings",
+        "label": "Questions",
+        "type": "data flow"
+      }
+    ],
+    "annotations": [
+      "There is a red blinking light on C4 button in my SP-300a machine, which part do I need to replace?",
+      "You need to replace parts a & b. Here's the link to order them."
+    ],
+    "groups": [
+      {
+        "name": "Knowledge Base",
+        "components": [
+          "Azure Storage"
+        ]
+      },
+      {
+        "name": "Search Layer",
+        "components": [
+          "Azure OpenAI Service Embeddings",
+          "Vector Database"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Q&A with Semantic Answering with Azure OpenAI Service"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Ask question",
+        "boundaries": null,
+        "position": "left"
+      },
+      {
+        "name": "Streamlit Web App",
+        "description": "Return relevant chunks",
+        "boundaries": null,
+        "position": "center"
+      },
+      {
+        "name": "Vector Store",
+        "description": "Azure Search, Redis, PGVector",
+        "boundaries": null,
+        "position": "right-center"
+      },
+      {
+        "name": "Azure OpenAI Service",
+        "description": "GPT-3, Embeddings",
+        "boundaries": null,
+        "position": "right"
+      },
+      {
+        "name": "Azure Functions",
+        "description": "BatchPushResults, BatchStartProcessing",
+        "boundaries": null,
+        "position": "bottom-left"
+      },
+      {
+        "name": "Azure Storage",
+        "description": "Blob Storage, Queue",
+        "boundaries": null,
+        "position": "bottom-right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Streamlit Web App",
+        "label": "Ask question",
+        "type": "interaction"
+      },
+      {
+        "source": "Streamlit Web App",
+        "target": "Vector Store",
+        "label": "Search for similar documents",
+        "type": "data flow"
+      },
+      {
+        "source": "Streamlit Web App",
+        "target": "Azure OpenAI Service",
+        "label": "Generate embeddings for query",
+        "type": "data flow"
+      },
+      {
+        "source": "Streamlit Web App",
+        "target": "Azure OpenAI Service",
+        "label": "Generate answer with context",
+        "type": "data flow"
+      },
+      {
+        "source": "Streamlit Web App",
+        "target": "Azure OpenAI Service",
+        "label": "Return generated answer",
+        "type": "data flow"
+      },
+      {
+        "source": "Streamlit Web App",
+        "target": "Azure OpenAI Service",
+        "label": "Store embeddings",
+        "type": "data flow"
+      },
+      {
+        "source": "Azure Functions",
+        "target": "Azure Storage",
+        "label": "Read document",
+        "type": "data flow"
+      },
+      {
+        "source": "Azure Functions",
+        "target": "Azure Storage",
+        "label": "Trigger processing",
+        "type": "data flow"
+      },
+      {
+        "source": "Azure Functions",
+        "target": "Azure Storage",
+        "label": "Add document processing message",
+        "type": "data flow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": null
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Azure Storage"
+    ],
+    "unique_to_GroundTruth": [
+      "Azure Form Recognizer",
+      "Azure Translator",
+      "Azure OpenAI Service Embeddings",
+      "Vector Database",
+      "Azure OpenAI Answering Prompt",
+      "Users"
+    ],
+    "unique_to_GeneratedImage": [
+      "User",
+      "Streamlit Web App",
+      "Vector Store",
+      "Azure OpenAI Service",
+      "Azure Functions"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Azure Storage",
+        "target": "Azure Form Recognizer",
+        "label": "Raw documents",
+        "type": "data flow"
+      },
+      {
+        "source": "Azure Form Recognizer",
+        "target": "Azure Translator",
+        "label": "Extracted dialogs",
+        "type": "data flow"
+      },
+      {
+        "source": "Azure Translator",
+        "target": "Azure OpenAI Service Embeddings",
+        "label": "Translate (optional)",
+        "type": "data flow"
+      },
+      {
+        "source": "Azure OpenAI Service Embeddings",
+        "target": "Vector Database",
+        "label": "Vectors",
+        "type": "data flow"
+      },
+      {
+        "source": "Vector Database",
+        "target": "Azure OpenAI Answering Prompt",
+        "label": "Top k paragraphs",
+        "type": "data flow"
+      },
+      {
+        "source": "Azure OpenAI Answering Prompt",
+        "target": "Users",
+        "label": "Answers",
+        "type": "data flow"
+      },
+      {
+        "source": "Users",
+        "target": "Azure OpenAI Embeddings",
+        "label": "Questions",
+        "type": "data flow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "Streamlit Web App",
+        "label": "Ask question",
+        "type": "interaction"
+      },
+      {
+        "source": "Streamlit Web App",
+        "target": "Vector Store",
+        "label": "Search for similar documents",
+        "type": "data flow"
+      },
+      {
+        "source": "Streamlit Web App",
+        "target": "Azure OpenAI Service",
+        "label": "Generate embeddings for query",
+        "type": "data flow"
+      },
+      {
+        "source": "Streamlit Web App",
+        "target": "Azure OpenAI Service",
+        "label": "Generate answer with context",
+        "type": "data flow"
+      },
+      {
+        "source": "Streamlit Web App",
+        "target": "Azure OpenAI Service",
+        "label": "Return generated answer",
+        "type": "data flow"
+      },
+      {
+        "source": "Streamlit Web App",
+        "target": "Azure OpenAI Service",
+        "label": "Store embeddings",
+        "type": "data flow"
+      },
+      {
+        "source": "Azure Functions",
+        "target": "Azure Storage",
+        "label": "Read document",
+        "type": "data flow"
+      },
+      {
+        "source": "Azure Functions",
+        "target": "Azure Storage",
+        "label": "Trigger processing",
+        "type": "data flow"
+      },
+      {
+        "source": "Azure Functions",
+        "target": "Azure Storage",
+        "label": "Add document processing message",
+        "type": "data flow"
+      }
+    ],
+    "explanation": "The two diagrams represent different architectures for handling document processing and question answering. The GroundTruth diagram focuses on a pipeline involving Azure Storage, Form Recognizer, Translator, and OpenAI services, with a clear flow from document storage to user interaction. It emphasizes the use of embeddings and a vector database for semantic search and answering. In contrast, the GeneratedImage diagram includes a Streamlit Web App for user interaction, Azure Functions for processing, and a Vector Store with multiple technologies. It lacks the detailed flow of document translation and embedding seen in the GroundTruth. Common elements include Azure Storage, but the components and connectors differ significantly. The GroundTruth diagram is more focused on a specific use case with detailed steps, while the GeneratedImage diagram is more generic and includes additional processing components. Rating: 6/10. The GeneratedImage captures some elements of the GroundTruth but lacks specific components and detailed flows, making it less accurate and complete.",
+    "Rating": 6
+  }
+}

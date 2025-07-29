@@ -1,0 +1,313 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Frontend Repo",
+        "description": "Vue 3 application",
+        "boundaries": "GitHub",
+        "position": "top-left"
+      },
+      {
+        "name": "Backend Repo",
+        "description": "Node.js application",
+        "boundaries": "GitHub",
+        "position": "middle-left"
+      },
+      {
+        "name": "Storage",
+        "description": "S3 bucket",
+        "boundaries": "AWS",
+        "position": "top-center"
+      },
+      {
+        "name": "CDN",
+        "description": "CloudFront",
+        "boundaries": "AWS",
+        "position": "top-right"
+      },
+      {
+        "name": "End User",
+        "description": "User accessing the system",
+        "boundaries": "External",
+        "position": "top-right"
+      },
+      {
+        "name": "Coding Sandbox",
+        "description": "Docker + Node.js + Exporter",
+        "boundaries": "Execution Environment",
+        "position": "middle-left"
+      },
+      {
+        "name": "Reverse Proxy",
+        "description": "Nginx",
+        "boundaries": "Proxy Layer",
+        "position": "center"
+      },
+      {
+        "name": "Express",
+        "description": "Express server",
+        "boundaries": "Backend Service",
+        "position": "center"
+      },
+      {
+        "name": "Database",
+        "description": "Redis, MySQL, InfluxDB",
+        "boundaries": "Data Layer",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Frontend Repo",
+        "target": "Storage",
+        "label": "Build and upload",
+        "type": "HTTP"
+      },
+      {
+        "source": "Backend Repo",
+        "target": "Reverse Proxy",
+        "label": "Deploy",
+        "type": "HTTP"
+      },
+      {
+        "source": "Storage",
+        "target": "CDN",
+        "label": "Cache Invalidation",
+        "type": "HTTP"
+      },
+      {
+        "source": "CDN",
+        "target": "End User",
+        "label": "Content Delivery",
+        "type": "HTTP"
+      },
+      {
+        "source": "Coding Sandbox",
+        "target": "Reverse Proxy",
+        "label": "Arrange sandbox jobs",
+        "type": "WebSocket"
+      },
+      {
+        "source": "Reverse Proxy",
+        "target": "Database",
+        "label": "API request/response",
+        "type": "HTTP"
+      },
+      {
+        "source": "End User",
+        "target": "Reverse Proxy",
+        "label": "Socket connection",
+        "type": "WebSocket"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Execution Environment",
+        "components": [
+          "Coding Sandbox"
+        ]
+      },
+      {
+        "name": "Data Layer",
+        "components": [
+          "Database"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Software Architecture Diagram"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Client",
+        "description": "User with web browser",
+        "boundaries": "External",
+        "position": "left"
+      },
+      {
+        "name": "Reverse Proxy",
+        "description": "Nginx",
+        "boundaries": "Proxy Layer",
+        "position": "center"
+      },
+      {
+        "name": "Backend Services",
+        "description": "Socket.IO, Express API",
+        "boundaries": "Service Layer",
+        "position": "center-right"
+      },
+      {
+        "name": "Data Stores",
+        "description": "Redis, MySQL, InfluxDB",
+        "boundaries": "Data Layer",
+        "position": "right"
+      },
+      {
+        "name": "Execution",
+        "description": "Docker Sandbox",
+        "boundaries": "Execution Environment",
+        "position": "bottom-right"
+      },
+      {
+        "name": "Cloud Services",
+        "description": "S3 Storage, CloudWatch, CloudFront CDN",
+        "boundaries": "Cloud Layer",
+        "position": "bottom-right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Client",
+        "target": "Reverse Proxy",
+        "label": "HTTPS",
+        "type": "HTTP"
+      },
+      {
+        "source": "Reverse Proxy",
+        "target": "Backend Services",
+        "label": "WebSocket, API Requests",
+        "type": "WebSocket, HTTP"
+      },
+      {
+        "source": "Backend Services",
+        "target": "Data Stores",
+        "label": "Data Operations",
+        "type": "HTTP"
+      },
+      {
+        "source": "Backend Services",
+        "target": "Execution",
+        "label": "Code Execution",
+        "type": "HTTP"
+      },
+      {
+        "source": "Backend Services",
+        "target": "Cloud Services",
+        "label": "File Storage, Monitoring, CDN Delivery",
+        "type": "HTTP"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Service Layer",
+        "components": [
+          "Backend Services"
+        ]
+      },
+      {
+        "name": "Data Layer",
+        "components": [
+          "Data Stores"
+        ]
+      },
+      {
+        "name": "Cloud Layer",
+        "components": [
+          "Cloud Services"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Software Architecture Diagram"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Reverse Proxy",
+      "Database/Data Stores",
+      "Execution/Coding Sandbox"
+    ],
+    "unique_to_GroundTruth": [
+      "Frontend Repo",
+      "Backend Repo",
+      "Storage",
+      "CDN",
+      "End User"
+    ],
+    "unique_to_GeneratedImage": [
+      "Client",
+      "Backend Services",
+      "Cloud Services"
+    ],
+    "common_connectors": [
+      {
+        "source": "Reverse Proxy",
+        "target": "Database/Data Stores",
+        "label": "API request/response",
+        "type": "HTTP"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Frontend Repo",
+        "target": "Storage",
+        "label": "Build and upload",
+        "type": "HTTP"
+      },
+      {
+        "source": "Backend Repo",
+        "target": "Reverse Proxy",
+        "label": "Deploy",
+        "type": "HTTP"
+      },
+      {
+        "source": "Storage",
+        "target": "CDN",
+        "label": "Cache Invalidation",
+        "type": "HTTP"
+      },
+      {
+        "source": "CDN",
+        "target": "End User",
+        "label": "Content Delivery",
+        "type": "HTTP"
+      },
+      {
+        "source": "Coding Sandbox",
+        "target": "Reverse Proxy",
+        "label": "Arrange sandbox jobs",
+        "type": "WebSocket"
+      },
+      {
+        "source": "End User",
+        "target": "Reverse Proxy",
+        "label": "Socket connection",
+        "type": "WebSocket"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Client",
+        "target": "Reverse Proxy",
+        "label": "HTTPS",
+        "type": "HTTP"
+      },
+      {
+        "source": "Reverse Proxy",
+        "target": "Backend Services",
+        "label": "WebSocket, API Requests",
+        "type": "WebSocket, HTTP"
+      },
+      {
+        "source": "Backend Services",
+        "target": "Execution",
+        "label": "Code Execution",
+        "type": "HTTP"
+      },
+      {
+        "source": "Backend Services",
+        "target": "Cloud Services",
+        "label": "File Storage, Monitoring, CDN Delivery",
+        "type": "HTTP"
+      }
+    ],
+    "explanation": "The two diagrams share common components such as the Reverse Proxy, Database/Data Stores, and Execution/Coding Sandbox. However, they differ in their depiction of user interaction and service layers. The GroundTruth diagram includes specific components like Frontend and Backend Repos, Storage, CDN, and End User, focusing on deployment and content delivery processes. The GeneratedImage diagram emphasizes client interaction, backend services, and cloud services, highlighting data operations and monitoring. The connectors in the GroundTruth diagram are more focused on deployment and delivery, while the GeneratedImage diagram illustrates data flow and execution. Overall, the GeneratedImage provides a broader view of the system architecture, while the GroundTruth offers more detailed deployment processes. Rating: 7/10. The GeneratedImage captures the core architecture but lacks some specific deployment details present in the GroundTruth.",
+    "Rating": 7
+  }
+}

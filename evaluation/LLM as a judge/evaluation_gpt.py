@@ -119,7 +119,7 @@ def get_files_by_stem(folder):
 def main():
     output_dir = "LLM_as_a_Judge_openai_outputs"
     folder1 = "./initial_images"
-    folder2 = "./oneShot_deepseek_output_images"
+    folder2 = "./fewShot_deepseek_output_images"
 
     files1 = get_files_by_stem(folder1)
     files2 = get_files_by_stem(folder2)
@@ -148,6 +148,6 @@ def main():
                 print(f"Comparison failed for: {stem}")
         except Exception as e:
             print(f"Error comparing {stem}: {str(e)}")
-        time.sleep(10)
+        # time.sleep(10)
 if __name__ == "__main__":
     main()

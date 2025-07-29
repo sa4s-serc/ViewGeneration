@@ -1,0 +1,265 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Represents the end user",
+        "boundaries": "Actor",
+        "position": "Left"
+      },
+      {
+        "name": "Blazor WASM",
+        "description": "WebAssembly application",
+        "boundaries": "Rectangle",
+        "position": "Center"
+      },
+      {
+        "name": "API Mgmt",
+        "description": "API Management",
+        "boundaries": "Cloud",
+        "position": "Center"
+      },
+      {
+        "name": "Web API",
+        "description": "Web API",
+        "boundaries": "Circle",
+        "position": "Center"
+      },
+      {
+        "name": "Azure Key Vault",
+        "description": "Stores credentials",
+        "boundaries": "Circle",
+        "position": "Right"
+      },
+      {
+        "name": "Azure SQL Server",
+        "description": "SQL Database",
+        "boundaries": "Cylinder",
+        "position": "Right"
+      },
+      {
+        "name": "Azure Redis Cache",
+        "description": "Cache storage",
+        "boundaries": "Cylinder",
+        "position": "Right"
+      },
+      {
+        "name": "Auth0",
+        "description": "Authentication service",
+        "boundaries": "Shield",
+        "position": "Center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Blazor WASM",
+        "label": "Interaction",
+        "type": "Arrow"
+      },
+      {
+        "source": "Blazor WASM",
+        "target": "API Mgmt",
+        "label": "JWT",
+        "type": "Arrow"
+      },
+      {
+        "source": "API Mgmt",
+        "target": "Web API",
+        "label": "Request",
+        "type": "Arrow"
+      },
+      {
+        "source": "Web API",
+        "target": "Azure Key Vault",
+        "label": "Credential Access",
+        "type": "Arrow"
+      },
+      {
+        "source": "Web API",
+        "target": "Azure SQL Server",
+        "label": "Data Access",
+        "type": "Arrow"
+      },
+      {
+        "source": "Web API",
+        "target": "Azure Redis Cache",
+        "label": "Cache Access",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      "Blazor WASM UI get authenticated and pass the JWT to APIM.",
+      "APIM Validates the JWT and routes the request to Web API.",
+      "SQL Server, and Redis Cache’s credentials are stored in Azure Key Vault.",
+      "Web API investigates Azure Redis Cache before hitting SQL Azure. (Cache Aside Pattern)",
+      "We will perform Dacpac (.sqlproj) for deployment of SQL Data Store."
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "diagram1.png",
+      "title": "Architecture Diagram"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Represents the end user",
+        "boundaries": "Actor",
+        "position": "Left"
+      },
+      {
+        "name": "Blazor WASM",
+        "description": "WebAssembly application",
+        "boundaries": "Rectangle",
+        "position": "Center"
+      },
+      {
+        "name": "Azure API Management",
+        "description": "API Management",
+        "boundaries": "Rectangle",
+        "position": "Center"
+      },
+      {
+        "name": "ASP.NET Core API",
+        "description": "Web API",
+        "boundaries": "Rectangle",
+        "position": "Center",
+        "subcomponents": [
+          {
+            "name": "BooksController",
+            "description": "Controller",
+            "boundaries": "Rectangle"
+          },
+          {
+            "name": "BooksBLL",
+            "description": "Business Logic Layer",
+            "boundaries": "Rectangle"
+          }
+        ]
+      },
+      {
+        "name": "Redis Cache",
+        "description": "Cache storage",
+        "boundaries": "Rectangle",
+        "position": "Right"
+      },
+      {
+        "name": "SQL Database",
+        "description": "SQL Database",
+        "boundaries": "Rectangle",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Blazor WASM",
+        "label": "Browse books, Add/edit books, Authenticate",
+        "type": "Arrow"
+      },
+      {
+        "source": "Blazor WASM",
+        "target": "Azure API Management",
+        "label": "HTTP requests",
+        "type": "Arrow"
+      },
+      {
+        "source": "Azure API Management",
+        "target": "BooksController",
+        "label": "Route requests",
+        "type": "Arrow"
+      },
+      {
+        "source": "BooksController",
+        "target": "BooksBLL",
+        "label": "Call business logic",
+        "type": "Arrow"
+      },
+      {
+        "source": "BooksBLL",
+        "target": "Redis Cache",
+        "label": "Check cache (cache-aside)",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "vishipayyallore_blazorwasm-apim-api-sql-redis.puml",
+      "title": "PlantUML Diagram"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "User",
+      "Blazor WASM",
+      "API Management",
+      "Web API",
+      "Redis Cache",
+      "SQL Database"
+    ],
+    "unique_to_GroundTruth": [
+      "Azure Key Vault",
+      "Auth0"
+    ],
+    "unique_to_GeneratedImage": [
+      "BooksController",
+      "BooksBLL"
+    ],
+    "common_connectors": [
+      {
+        "source": "User",
+        "target": "Blazor WASM",
+        "label": "Interaction/Browse books, Add/edit books, Authenticate"
+      },
+      {
+        "source": "Blazor WASM",
+        "target": "API Management",
+        "label": "JWT/HTTP requests"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "API Mgmt",
+        "target": "Web API",
+        "label": "Request"
+      },
+      {
+        "source": "Web API",
+        "target": "Azure Key Vault",
+        "label": "Credential Access"
+      },
+      {
+        "source": "Web API",
+        "target": "Azure SQL Server",
+        "label": "Data Access"
+      },
+      {
+        "source": "Web API",
+        "target": "Azure Redis Cache",
+        "label": "Cache Access"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Azure API Management",
+        "target": "BooksController",
+        "label": "Route requests"
+      },
+      {
+        "source": "BooksController",
+        "target": "BooksBLL",
+        "label": "Call business logic"
+      },
+      {
+        "source": "BooksBLL",
+        "target": "Redis Cache",
+        "label": "Check cache (cache-aside)"
+      }
+    ],
+    "explanation": "The GroundTruth diagram and the GeneratedImage diagram share several components such as User, Blazor WASM, API Management, Web API, Redis Cache, and SQL Database. However, the GroundTruth diagram includes additional components like Azure Key Vault and Auth0, which are not present in the GeneratedImage. Conversely, the GeneratedImage includes BooksController and BooksBLL as part of the Web API, which are absent in the GroundTruth. The connectors in both diagrams show similar interactions between User and Blazor WASM, and between Blazor WASM and API Management, albeit with different labels. The GroundTruth diagram focuses more on credential and data access with Azure Key Vault and SQL Server, while the GeneratedImage emphasizes routing and business logic within the Web API. Overall, the GeneratedImage captures the core interactions but lacks some components and details present in the GroundTruth. Rating: 7/10. The GeneratedImage is fairly accurate in capturing the main components and interactions but misses some specific elements and connections found in the GroundTruth.",
+    "Rating": 7
+  }
+}

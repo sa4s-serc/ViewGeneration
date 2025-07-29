@@ -1,0 +1,833 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "CloudWatch Events",
+        "description": "Event source",
+        "boundaries": "AWS",
+        "position": "left"
+      },
+      {
+        "name": "RetrieveXMLTrafficDataFunction",
+        "description": "Lambda function",
+        "boundaries": "AWS",
+        "position": "center-left"
+      },
+      {
+        "name": "1-minute-payload-bucket",
+        "description": "S3 bucket",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "TransformTrafficDataToJsonFunction",
+        "description": "Lambda function",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "PublishData",
+        "description": "Lambda function",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "KinesisFirehose",
+        "description": "Kinesis Firehose",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "StreamProcessor",
+        "description": "Lambda function",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "KinesisAnalytics",
+        "description": "Kinesis Analytics",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "KinesisDataStream",
+        "description": "Kinesis Data Stream",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "saveAnalyticsResults",
+        "description": "Lambda function",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "RealTimeAnalyticsProcessorDynamoDB",
+        "description": "DynamoDB",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "GetCurrentSituationForLocation",
+        "description": "Lambda function",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "GetCurrentSituationForLocationAPI",
+        "description": "API Gateway",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "AlertSaver",
+        "description": "Lambda function",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "Alerts",
+        "description": "DynamoDB",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "AlertSender",
+        "description": "Lambda function",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "TrafficJamAlertChannel",
+        "description": "Slack",
+        "boundaries": "External",
+        "position": "right"
+      },
+      {
+        "name": "traffic-events-bucket",
+        "description": "S3 bucket",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "KinesisFirehoseTransformJsonToParquet",
+        "description": "Kinesis Firehose",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "analyticsResultsBucket",
+        "description": "S3 bucket",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "TransformJsonToParquet",
+        "description": "Lambda function",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "GlueGetTable",
+        "description": "Glue",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "Athena",
+        "description": "Athena",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "Quicksight",
+        "description": "Quicksight",
+        "boundaries": "AWS",
+        "position": "center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "CloudWatch Events",
+        "target": "RetrieveXMLTrafficDataFunction",
+        "label": "time(60s)",
+        "type": "event"
+      },
+      {
+        "source": "RetrieveXMLTrafficDataFunction",
+        "target": "1-minute-payload-bucket",
+        "label": "PutObject",
+        "type": "data"
+      },
+      {
+        "source": "1-minute-payload-bucket",
+        "target": "TransformTrafficDataToJsonFunction",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "TransformTrafficDataToJsonFunction",
+        "target": "PublishData",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "PublishData",
+        "target": "KinesisFirehose",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "KinesisFirehose",
+        "target": "StreamProcessor",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "StreamProcessor",
+        "target": "KinesisAnalytics",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "KinesisAnalytics",
+        "target": "KinesisDataStream",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "KinesisDataStream",
+        "target": "saveAnalyticsResults",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "saveAnalyticsResults",
+        "target": "RealTimeAnalyticsProcessorDynamoDB",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "GetCurrentSituationForLocationAPI",
+        "target": "GetCurrentSituationForLocation",
+        "label": "",
+        "type": "api"
+      },
+      {
+        "source": "GetCurrentSituationForLocation",
+        "target": "RealTimeAnalyticsProcessorDynamoDB",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "RealTimeAnalyticsProcessorDynamoDB",
+        "target": "AlertSaver",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "AlertSaver",
+        "target": "Alerts",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "Alerts",
+        "target": "AlertSender",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "AlertSender",
+        "target": "TrafficJamAlertChannel",
+        "label": "",
+        "type": "notification"
+      },
+      {
+        "source": "KinesisFirehose",
+        "target": "traffic-events-bucket",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "KinesisDataStream",
+        "target": "KinesisFirehoseTransformJsonToParquet",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "KinesisFirehoseTransformJsonToParquet",
+        "target": "analyticsResultsBucket",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "analyticsResultsBucket",
+        "target": "GlueGetTable",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "GlueGetTable",
+        "target": "Athena",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "Athena",
+        "target": "Quicksight",
+        "label": "",
+        "type": "data"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Kinesis Analytics Application",
+        "components": [
+          "StreamProcessor",
+          "KinesisAnalytics"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram",
+      "title": "AWS Traffic Data Processing"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Public API",
+        "description": "External API",
+        "boundaries": "External",
+        "position": "top"
+      },
+      {
+        "name": "RetrieveXMLTrafficData",
+        "description": "Lambda function",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "TransformTrafficDataToJson",
+        "description": "Lambda function",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "PublishTrafficData",
+        "description": "Lambda function",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "StreamProcessor",
+        "description": "Lambda function",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "StoreAnalyticsResults",
+        "description": "Lambda function",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "CurrentSituation",
+        "description": "Lambda function",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "AlertSaver",
+        "description": "Lambda function",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "CurrentAlerts",
+        "description": "DynamoDB",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "AlertSender",
+        "description": "Lambda function",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "PowerBiForwarder",
+        "description": "Lambda function",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "S3 Raw XML",
+        "description": "S3 bucket",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "S3 Processed JSON",
+        "description": "S3 bucket",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "S3 Reference Data",
+        "description": "S3 bucket",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "Firehose",
+        "description": "Kinesis Firehose",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "Analytics",
+        "description": "Kinesis Analytics",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "Stream",
+        "description": "Kinesis Data Stream",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "RealTimeAnalytics",
+        "description": "DynamoDB",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "TrafficJamAlerts",
+        "description": "DynamoDB",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "Dead Letter Queue",
+        "description": "SQS",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "Power BI",
+        "description": "External Service",
+        "boundaries": "External",
+        "position": "bottom"
+      },
+      {
+        "name": "Flask API",
+        "description": "External Service",
+        "boundaries": "External",
+        "position": "bottom"
+      },
+      {
+        "name": "Slack",
+        "description": "External Service",
+        "boundaries": "External",
+        "position": "bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Public API",
+        "target": "RetrieveXMLTrafficData",
+        "label": "",
+        "type": "api"
+      },
+      {
+        "source": "RetrieveXMLTrafficData",
+        "target": "S3 Raw XML",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "S3 Raw XML",
+        "target": "TransformTrafficDataToJson",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "TransformTrafficDataToJson",
+        "target": "S3 Processed JSON",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "PublishTrafficData",
+        "target": "Firehose",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "Firehose",
+        "target": "Analytics",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "Analytics",
+        "target": "Stream",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "Stream",
+        "target": "StoreAnalyticsResults",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "StoreAnalyticsResults",
+        "target": "RealTimeAnalytics",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "CurrentSituation",
+        "target": "RealTimeAnalytics",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "RealTimeAnalytics",
+        "target": "AlertSaver",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "AlertSaver",
+        "target": "CurrentAlerts",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "CurrentAlerts",
+        "target": "AlertSender",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "AlertSender",
+        "target": "Slack",
+        "label": "",
+        "type": "notification"
+      },
+      {
+        "source": "Dead Letter Queue",
+        "target": "PowerBiForwarder",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "PowerBiForwarder",
+        "target": "Power BI",
+        "label": "",
+        "type": "data"
+      },
+      {
+        "source": "PowerBiForwarder",
+        "target": "Flask API",
+        "label": "",
+        "type": "data"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "AWS",
+        "components": [
+          "RetrieveXMLTrafficData",
+          "TransformTrafficDataToJson",
+          "PublishTrafficData",
+          "StreamProcessor",
+          "StoreAnalyticsResults",
+          "CurrentSituation",
+          "AlertSaver",
+          "CurrentAlerts",
+          "AlertSender",
+          "PowerBiForwarder",
+          "S3 Raw XML",
+          "S3 Processed JSON",
+          "S3 Reference Data",
+          "Firehose",
+          "Analytics",
+          "Stream",
+          "RealTimeAnalytics",
+          "TrafficJamAlerts",
+          "Dead Letter Queue"
+        ]
+      },
+      {
+        "name": "External",
+        "components": [
+          "Public API",
+          "Power BI",
+          "Flask API",
+          "Slack"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram",
+      "title": "AWS Traffic Data Processing"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "RetrieveXMLTrafficData",
+      "TransformTrafficDataToJson",
+      "PublishData",
+      "StreamProcessor",
+      "AlertSaver",
+      "AlertSender",
+      "Slack"
+    ],
+    "unique_to_GroundTruth": [
+      "CloudWatch Events",
+      "1-minute-payload-bucket",
+      "KinesisFirehose",
+      "KinesisAnalytics",
+      "KinesisDataStream",
+      "saveAnalyticsResults",
+      "RealTimeAnalyticsProcessorDynamoDB",
+      "GetCurrentSituationForLocation",
+      "GetCurrentSituationForLocationAPI",
+      "Alerts",
+      "TrafficJamAlertChannel",
+      "traffic-events-bucket",
+      "KinesisFirehoseTransformJsonToParquet",
+      "analyticsResultsBucket",
+      "TransformJsonToParquet",
+      "GlueGetTable",
+      "Athena",
+      "Quicksight"
+    ],
+    "unique_to_GeneratedImage": [
+      "Public API",
+      "StoreAnalyticsResults",
+      "CurrentSituation",
+      "CurrentAlerts",
+      "PowerBiForwarder",
+      "S3 Raw XML",
+      "S3 Processed JSON",
+      "S3 Reference Data",
+      "Firehose",
+      "Analytics",
+      "Stream",
+      "RealTimeAnalytics",
+      "TrafficJamAlerts",
+      "Dead Letter Queue",
+      "Power BI",
+      "Flask API"
+    ],
+    "common_connectors": [
+      {
+        "source": "RetrieveXMLTrafficData",
+        "target": "TransformTrafficDataToJson",
+        "type": "data"
+      },
+      {
+        "source": "TransformTrafficDataToJson",
+        "target": "PublishData",
+        "type": "data"
+      },
+      {
+        "source": "AlertSaver",
+        "target": "AlertSender",
+        "type": "data"
+      },
+      {
+        "source": "AlertSender",
+        "target": "Slack",
+        "type": "notification"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "CloudWatch Events",
+        "target": "RetrieveXMLTrafficDataFunction",
+        "label": "time(60s)",
+        "type": "event"
+      },
+      {
+        "source": "RetrieveXMLTrafficDataFunction",
+        "target": "1-minute-payload-bucket",
+        "label": "PutObject",
+        "type": "data"
+      },
+      {
+        "source": "1-minute-payload-bucket",
+        "target": "TransformTrafficDataToJsonFunction",
+        "type": "data"
+      },
+      {
+        "source": "PublishData",
+        "target": "KinesisFirehose",
+        "type": "data"
+      },
+      {
+        "source": "KinesisFirehose",
+        "target": "StreamProcessor",
+        "type": "data"
+      },
+      {
+        "source": "StreamProcessor",
+        "target": "KinesisAnalytics",
+        "type": "data"
+      },
+      {
+        "source": "KinesisAnalytics",
+        "target": "KinesisDataStream",
+        "type": "data"
+      },
+      {
+        "source": "KinesisDataStream",
+        "target": "saveAnalyticsResults",
+        "type": "data"
+      },
+      {
+        "source": "saveAnalyticsResults",
+        "target": "RealTimeAnalyticsProcessorDynamoDB",
+        "type": "data"
+      },
+      {
+        "source": "GetCurrentSituationForLocationAPI",
+        "target": "GetCurrentSituationForLocation",
+        "type": "api"
+      },
+      {
+        "source": "GetCurrentSituationForLocation",
+        "target": "RealTimeAnalyticsProcessorDynamoDB",
+        "type": "data"
+      },
+      {
+        "source": "RealTimeAnalyticsProcessorDynamoDB",
+        "target": "AlertSaver",
+        "type": "data"
+      },
+      {
+        "source": "Alerts",
+        "target": "AlertSender",
+        "type": "data"
+      },
+      {
+        "source": "KinesisFirehose",
+        "target": "traffic-events-bucket",
+        "type": "data"
+      },
+      {
+        "source": "KinesisDataStream",
+        "target": "KinesisFirehoseTransformJsonToParquet",
+        "type": "data"
+      },
+      {
+        "source": "KinesisFirehoseTransformJsonToParquet",
+        "target": "analyticsResultsBucket",
+        "type": "data"
+      },
+      {
+        "source": "analyticsResultsBucket",
+        "target": "GlueGetTable",
+        "type": "data"
+      },
+      {
+        "source": "GlueGetTable",
+        "target": "Athena",
+        "type": "data"
+      },
+      {
+        "source": "Athena",
+        "target": "Quicksight",
+        "type": "data"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Public API",
+        "target": "RetrieveXMLTrafficData",
+        "type": "api"
+      },
+      {
+        "source": "RetrieveXMLTrafficData",
+        "target": "S3 Raw XML",
+        "type": "data"
+      },
+      {
+        "source": "S3 Raw XML",
+        "target": "TransformTrafficDataToJson",
+        "type": "data"
+      },
+      {
+        "source": "TransformTrafficDataToJson",
+        "target": "S3 Processed JSON",
+        "type": "data"
+      },
+      {
+        "source": "PublishTrafficData",
+        "target": "Firehose",
+        "type": "data"
+      },
+      {
+        "source": "Firehose",
+        "target": "Analytics",
+        "type": "data"
+      },
+      {
+        "source": "Analytics",
+        "target": "Stream",
+        "type": "data"
+      },
+      {
+        "source": "Stream",
+        "target": "StoreAnalyticsResults",
+        "type": "data"
+      },
+      {
+        "source": "StoreAnalyticsResults",
+        "target": "RealTimeAnalytics",
+        "type": "data"
+      },
+      {
+        "source": "CurrentSituation",
+        "target": "RealTimeAnalytics",
+        "type": "data"
+      },
+      {
+        "source": "RealTimeAnalytics",
+        "target": "AlertSaver",
+        "type": "data"
+      },
+      {
+        "source": "AlertSaver",
+        "target": "CurrentAlerts",
+        "type": "data"
+      },
+      {
+        "source": "Dead Letter Queue",
+        "target": "PowerBiForwarder",
+        "type": "data"
+      },
+      {
+        "source": "PowerBiForwarder",
+        "target": "Power BI",
+        "type": "data"
+      },
+      {
+        "source": "PowerBiForwarder",
+        "target": "Flask API",
+        "type": "data"
+      }
+    ],
+    "explanation": "Both diagrams represent AWS-based architectures for processing traffic data. They share several common components, such as Lambda functions for data retrieval and transformation, and Slack for alerting. However, the GroundTruth diagram includes more detailed AWS services like Kinesis Analytics, DynamoDB, and Athena, indicating a more complex data processing pipeline. The GeneratedImage diagram introduces external services like Power BI and Flask API, suggesting additional integration points. The GroundTruth diagram focuses more on AWS-native services, while the GeneratedImage diagram includes more external integrations. Based on the accuracy, completeness, and similarity to the GroundTruth, the GeneratedImage is rated 7 out of 10. It captures the core processing components but lacks some AWS-specific services and connections present in the GroundTruth.",
+    "Rating": 7
+  }
+}

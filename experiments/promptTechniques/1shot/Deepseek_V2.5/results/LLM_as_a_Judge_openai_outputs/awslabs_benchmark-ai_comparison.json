@@ -1,0 +1,415 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Client",
+        "description": "Client component",
+        "boundaries": "Box",
+        "position": "Left"
+      },
+      {
+        "name": "SageMaker",
+        "description": "SageMaker component",
+        "boundaries": "Box",
+        "position": "Middle"
+      },
+      {
+        "name": "ECS",
+        "description": "ECS component",
+        "boundaries": "Box",
+        "position": "Right"
+      },
+      {
+        "name": "S3",
+        "description": "S3 component",
+        "boundaries": "Box",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Client",
+        "target": "SageMaker",
+        "label": "estimator(python content, image).fit()",
+        "type": "Arrow"
+      },
+      {
+        "source": "SageMaker",
+        "target": "ECS",
+        "label": "download inputs",
+        "type": "Arrow"
+      },
+      {
+        "source": "ECS",
+        "target": "SageMaker",
+        "label": "inputs data",
+        "type": "Arrow"
+      },
+      {
+        "source": "ECS",
+        "target": "ECS",
+        "label": "run image/mount data",
+        "type": "Arrow"
+      },
+      {
+        "source": "ECS",
+        "target": "ECS",
+        "label": "copy python",
+        "type": "Arrow"
+      },
+      {
+        "source": "ECS",
+        "target": "ECS",
+        "label": "exec python",
+        "type": "Arrow"
+      },
+      {
+        "source": "ECS",
+        "target": "S3",
+        "label": "upload outputs",
+        "type": "Arrow"
+      },
+      {
+        "source": "SageMaker",
+        "target": "Client",
+        "label": "get output",
+        "type": "Arrow"
+      },
+      {
+        "source": "Client",
+        "target": "SageMaker",
+        "label": "output",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram",
+      "title": "AWS Workflow"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Kubernetes",
+        "description": "Kubernetes component",
+        "boundaries": "Box",
+        "position": "Top"
+      },
+      {
+        "name": "Benchmark Job",
+        "description": "Benchmark Job component",
+        "boundaries": "Box",
+        "position": "Top"
+      },
+      {
+        "name": "User",
+        "description": "User component",
+        "boundaries": "Icon",
+        "position": "Middle"
+      },
+      {
+        "name": "bai-bff",
+        "description": "bai-bff component",
+        "boundaries": "Box",
+        "position": "Middle"
+      },
+      {
+        "name": "Metrics-Pusher",
+        "description": "Metrics-Pusher component",
+        "boundaries": "Box",
+        "position": "Middle"
+      },
+      {
+        "name": "Kafka",
+        "description": "Kafka component",
+        "boundaries": "Box",
+        "position": "Middle"
+      },
+      {
+        "name": "Fetcher-Dispatcher",
+        "description": "Fetcher-Dispatcher component",
+        "boundaries": "Box",
+        "position": "Middle"
+      },
+      {
+        "name": "SM-Executor",
+        "description": "SM-Executor component",
+        "boundaries": "Box",
+        "position": "Middle"
+      },
+      {
+        "name": "SageMaker",
+        "description": "SageMaker component",
+        "boundaries": "Box",
+        "position": "Middle"
+      },
+      {
+        "name": "Watcher",
+        "description": "Watcher component",
+        "boundaries": "Box",
+        "position": "Middle"
+      },
+      {
+        "name": "Executor",
+        "description": "Executor component",
+        "boundaries": "Box",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Kubernetes",
+        "target": "Benchmark Job",
+        "label": "Execute benchmark",
+        "type": "Arrow"
+      },
+      {
+        "source": "User",
+        "target": "bai-bff",
+        "label": "Submit benchmark job (TOML descriptor)",
+        "type": "Arrow"
+      },
+      {
+        "source": "bai-bff",
+        "target": "Kafka",
+        "label": "Publish job submission event",
+        "type": "Arrow"
+      },
+      {
+        "source": "Metrics-Pusher",
+        "target": "Kafka",
+        "label": "Push metrics",
+        "type": "Arrow"
+      },
+      {
+        "source": "Kafka",
+        "target": "Fetcher-Dispatcher",
+        "label": "Consume data fetch request",
+        "type": "Arrow"
+      },
+      {
+        "source": "Fetcher-Dispatcher",
+        "target": "SM-Executor",
+        "label": "Consume SageMaker job event",
+        "type": "Arrow"
+      },
+      {
+        "source": "SM-Executor",
+        "target": "SageMaker",
+        "label": "Create training job",
+        "type": "Arrow"
+      },
+      {
+        "source": "SageMaker",
+        "target": "Watcher",
+        "label": "Consume job event",
+        "type": "Arrow"
+      },
+      {
+        "source": "Watcher",
+        "target": "Executor",
+        "label": "Consume job event",
+        "type": "Arrow"
+      },
+      {
+        "source": "Executor",
+        "target": "Metrics-Pusher",
+        "label": "Emit metrics/status",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram",
+      "title": "Benchmark Workflow"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      {
+        "name": "SageMaker",
+        "description": "SageMaker component"
+      }
+    ],
+    "unique_to_GroundTruth": [
+      {
+        "name": "Client",
+        "description": "Client component"
+      },
+      {
+        "name": "ECS",
+        "description": "ECS component"
+      },
+      {
+        "name": "S3",
+        "description": "S3 component"
+      }
+    ],
+    "unique_to_GeneratedImage": [
+      {
+        "name": "Kubernetes",
+        "description": "Kubernetes component"
+      },
+      {
+        "name": "Benchmark Job",
+        "description": "Benchmark Job component"
+      },
+      {
+        "name": "User",
+        "description": "User component"
+      },
+      {
+        "name": "bai-bff",
+        "description": "bai-bff component"
+      },
+      {
+        "name": "Metrics-Pusher",
+        "description": "Metrics-Pusher component"
+      },
+      {
+        "name": "Kafka",
+        "description": "Kafka component"
+      },
+      {
+        "name": "Fetcher-Dispatcher",
+        "description": "Fetcher-Dispatcher component"
+      },
+      {
+        "name": "SM-Executor",
+        "description": "SM-Executor component"
+      },
+      {
+        "name": "Watcher",
+        "description": "Watcher component"
+      },
+      {
+        "name": "Executor",
+        "description": "Executor component"
+      }
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Client",
+        "target": "SageMaker",
+        "label": "estimator(python content, image).fit()",
+        "type": "Arrow"
+      },
+      {
+        "source": "SageMaker",
+        "target": "ECS",
+        "label": "download inputs",
+        "type": "Arrow"
+      },
+      {
+        "source": "ECS",
+        "target": "SageMaker",
+        "label": "inputs data",
+        "type": "Arrow"
+      },
+      {
+        "source": "ECS",
+        "target": "ECS",
+        "label": "run image/mount data",
+        "type": "Arrow"
+      },
+      {
+        "source": "ECS",
+        "target": "ECS",
+        "label": "copy python",
+        "type": "Arrow"
+      },
+      {
+        "source": "ECS",
+        "target": "ECS",
+        "label": "exec python",
+        "type": "Arrow"
+      },
+      {
+        "source": "ECS",
+        "target": "S3",
+        "label": "upload outputs",
+        "type": "Arrow"
+      },
+      {
+        "source": "SageMaker",
+        "target": "Client",
+        "label": "get output",
+        "type": "Arrow"
+      },
+      {
+        "source": "Client",
+        "target": "SageMaker",
+        "label": "output",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Kubernetes",
+        "target": "Benchmark Job",
+        "label": "Execute benchmark",
+        "type": "Arrow"
+      },
+      {
+        "source": "User",
+        "target": "bai-bff",
+        "label": "Submit benchmark job (TOML descriptor)",
+        "type": "Arrow"
+      },
+      {
+        "source": "bai-bff",
+        "target": "Kafka",
+        "label": "Publish job submission event",
+        "type": "Arrow"
+      },
+      {
+        "source": "Metrics-Pusher",
+        "target": "Kafka",
+        "label": "Push metrics",
+        "type": "Arrow"
+      },
+      {
+        "source": "Kafka",
+        "target": "Fetcher-Dispatcher",
+        "label": "Consume data fetch request",
+        "type": "Arrow"
+      },
+      {
+        "source": "Fetcher-Dispatcher",
+        "target": "SM-Executor",
+        "label": "Consume SageMaker job event",
+        "type": "Arrow"
+      },
+      {
+        "source": "SM-Executor",
+        "target": "SageMaker",
+        "label": "Create training job",
+        "type": "Arrow"
+      },
+      {
+        "source": "SageMaker",
+        "target": "Watcher",
+        "label": "Consume job event",
+        "type": "Arrow"
+      },
+      {
+        "source": "Watcher",
+        "target": "Executor",
+        "label": "Consume job event",
+        "type": "Arrow"
+      },
+      {
+        "source": "Executor",
+        "target": "Metrics-Pusher",
+        "label": "Emit metrics/status",
+        "type": "Arrow"
+      }
+    ],
+    "explanation": "The two diagrams represent different workflows. The GroundTruth diagram focuses on an AWS-based workflow involving SageMaker, ECS, and S3, with a client initiating the process. The GeneratedImage diagram represents a benchmark workflow using Kubernetes, Kafka, and other components, with SageMaker being a common component in both. The GroundTruth diagram is simpler, focusing on data processing and transfer, while the GeneratedImage diagram is more complex, involving job submission and metrics handling. The GeneratedImage diagram is rated 7 out of 10 for its accuracy and completeness, as it captures a more complex process but differs significantly in purpose and components from the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

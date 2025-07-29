@@ -1,0 +1,420 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "User",
+        "description": "End user interacting with the system",
+        "boundaries": "None",
+        "position": "Left"
+      },
+      {
+        "name": "Cognito Hosted UI",
+        "description": "User interface for authentication",
+        "boundaries": "Cognito Account",
+        "position": "Center"
+      },
+      {
+        "name": "Cognito User Pool",
+        "description": "Handles user authentication",
+        "boundaries": "Cognito Account",
+        "position": "Center"
+      },
+      {
+        "name": "API Gateway",
+        "description": "Routes requests to Lambda functions",
+        "boundaries": "API Gateway Account",
+        "position": "Right"
+      },
+      {
+        "name": "auth-function",
+        "description": "Handles authentication logic",
+        "boundaries": "API Gateway Account",
+        "position": "Right"
+      },
+      {
+        "name": "hello-function",
+        "description": "Returns greeting if authorized",
+        "boundaries": "API Gateway Account",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Cognito Hosted UI",
+        "label": "connect",
+        "type": "Arrow"
+      },
+      {
+        "source": "Cognito Hosted UI",
+        "target": "Cognito User Pool",
+        "label": "get-authorization-code",
+        "type": "Arrow"
+      },
+      {
+        "source": "Cognito Hosted UI",
+        "target": "API Gateway",
+        "label": "passes code (query strings) redirects to /auth",
+        "type": "Arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "auth-function",
+        "label": "/auth/GET",
+        "type": "Arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "hello-function",
+        "label": "/hello/GET",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "Based on the authorization code, gets an id_token, call hello/GET while passing the id_token in the headers",
+        "position": "Right"
+      },
+      {
+        "text": "Returns \"hello\" + name-of-the-user if authorized",
+        "position": "Right"
+      }
+    ],
+    "groups": [
+      {
+        "name": "Cognito Account",
+        "components": [
+          "Cognito Hosted UI",
+          "Cognito User Pool"
+        ]
+      },
+      {
+        "name": "API Gateway Account",
+        "components": [
+          "API Gateway",
+          "auth-function",
+          "hello-function"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "diagram1.png",
+      "title": "AWS Cognito and API Gateway Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "End user sending API requests",
+        "boundaries": "None",
+        "position": "Bottom"
+      },
+      {
+        "name": "API Gateway",
+        "description": "Routes requests to various services",
+        "boundaries": "None",
+        "position": "Bottom"
+      },
+      {
+        "name": "CloudWatch",
+        "description": "Logs metrics",
+        "boundaries": "None",
+        "position": "Bottom"
+      },
+      {
+        "name": "ECS Microservices",
+        "description": "Contains microservices",
+        "boundaries": "None",
+        "position": "Center"
+      },
+      {
+        "name": "CDC Processor",
+        "description": "Processes CDC data",
+        "boundaries": "ECS Microservices",
+        "position": "Center"
+      },
+      {
+        "name": "Notification Processor",
+        "description": "Handles notifications",
+        "boundaries": "ECS Microservices",
+        "position": "Center"
+      },
+      {
+        "name": "Lambda Functions",
+        "description": "Contains various Lambda functions",
+        "boundaries": "None",
+        "position": "Center"
+      },
+      {
+        "name": "Credential Generator",
+        "description": "Generates credentials",
+        "boundaries": "Lambda Functions",
+        "position": "Center"
+      },
+      {
+        "name": "Webhook Handler",
+        "description": "Handles webhooks",
+        "boundaries": "Lambda Functions",
+        "position": "Center"
+      },
+      {
+        "name": "Reverse Proxy",
+        "description": "Routes requests",
+        "boundaries": "Lambda Functions",
+        "position": "Center"
+      },
+      {
+        "name": "S3",
+        "description": "Data export",
+        "boundaries": "None",
+        "position": "Top"
+      },
+      {
+        "name": "Celonis",
+        "description": "Data analytics",
+        "boundaries": "None",
+        "position": "Top"
+      },
+      {
+        "name": "DynamoDB",
+        "description": "Data storage",
+        "boundaries": "None",
+        "position": "Top"
+      },
+      {
+        "name": "EventBridge",
+        "description": "Routes events",
+        "boundaries": "None",
+        "position": "Top"
+      },
+      {
+        "name": "SQS Queues",
+        "description": "Message queuing",
+        "boundaries": "None",
+        "position": "Top"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "API Gateway",
+        "label": "API Requests",
+        "type": "Arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "CloudWatch",
+        "label": "Logs metrics",
+        "type": "Arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "ECS Microservices",
+        "label": "Routes requests",
+        "type": "Arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda Functions",
+        "label": "/service paths",
+        "type": "Arrow"
+      },
+      {
+        "source": "Lambda Functions",
+        "target": "CloudWatch",
+        "label": "Logs metrics",
+        "type": "Arrow"
+      },
+      {
+        "source": "ECS Microservices",
+        "target": "S3",
+        "label": "Data export",
+        "type": "Arrow"
+      },
+      {
+        "source": "ECS Microservices",
+        "target": "DynamoDB",
+        "label": "Reads/Writes data",
+        "type": "Arrow"
+      },
+      {
+        "source": "ECS Microservices",
+        "target": "EventBridge",
+        "label": "Publishes events",
+        "type": "Arrow"
+      },
+      {
+        "source": "ECS Microservices",
+        "target": "SQS Queues",
+        "label": "Consumes messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "ECS Microservices",
+        "target": "Lambda Functions",
+        "label": "Triggers functions",
+        "type": "Arrow"
+      },
+      {
+        "source": "S3",
+        "target": "Celonis",
+        "label": "Data export",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "ECS Microservices",
+        "components": [
+          "CDC Processor",
+          "Notification Processor"
+        ]
+      },
+      {
+        "name": "Lambda Functions",
+        "components": [
+          "Credential Generator",
+          "Webhook Handler",
+          "Reverse Proxy"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "diagram2.png",
+      "title": "Microservices and Event-Driven Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      {
+        "name": "User",
+        "description": "End user interacting with the system"
+      },
+      {
+        "name": "API Gateway",
+        "description": "Routes requests"
+      }
+    ],
+    "unique_to_GroundTruth": [
+      "Cognito Hosted UI",
+      "Cognito User Pool",
+      "auth-function",
+      "hello-function"
+    ],
+    "unique_to_GeneratedImage": [
+      "CloudWatch",
+      "ECS Microservices",
+      "CDC Processor",
+      "Notification Processor",
+      "Lambda Functions",
+      "Credential Generator",
+      "Webhook Handler",
+      "Reverse Proxy",
+      "S3",
+      "Celonis",
+      "DynamoDB",
+      "EventBridge",
+      "SQS Queues"
+    ],
+    "common_connectors": [
+      {
+        "source": "User",
+        "target": "API Gateway",
+        "label": "connect/API Requests",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Cognito Hosted UI",
+        "target": "Cognito User Pool",
+        "label": "get-authorization-code",
+        "type": "Arrow"
+      },
+      {
+        "source": "Cognito Hosted UI",
+        "target": "API Gateway",
+        "label": "passes code (query strings) redirects to /auth",
+        "type": "Arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "auth-function",
+        "label": "/auth/GET",
+        "type": "Arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "hello-function",
+        "label": "/hello/GET",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "API Gateway",
+        "target": "CloudWatch",
+        "label": "Logs metrics",
+        "type": "Arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "ECS Microservices",
+        "label": "Routes requests",
+        "type": "Arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda Functions",
+        "label": "/service paths",
+        "type": "Arrow"
+      },
+      {
+        "source": "Lambda Functions",
+        "target": "CloudWatch",
+        "label": "Logs metrics",
+        "type": "Arrow"
+      },
+      {
+        "source": "ECS Microservices",
+        "target": "S3",
+        "label": "Data export",
+        "type": "Arrow"
+      },
+      {
+        "source": "ECS Microservices",
+        "target": "DynamoDB",
+        "label": "Reads/Writes data",
+        "type": "Arrow"
+      },
+      {
+        "source": "ECS Microservices",
+        "target": "EventBridge",
+        "label": "Publishes events",
+        "type": "Arrow"
+      },
+      {
+        "source": "ECS Microservices",
+        "target": "SQS Queues",
+        "label": "Consumes messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "ECS Microservices",
+        "target": "Lambda Functions",
+        "label": "Triggers functions",
+        "type": "Arrow"
+      },
+      {
+        "source": "S3",
+        "target": "Celonis",
+        "label": "Data export",
+        "type": "Arrow"
+      }
+    ],
+    "explanation": "The two diagrams represent different architectural styles and components. The GroundTruth diagram focuses on AWS Cognito and API Gateway for user authentication and authorization, while the GeneratedImage diagram depicts a microservices and event-driven architecture with components like ECS, Lambda functions, and various AWS services. Both diagrams include a User and API Gateway, but their purposes differ. The GroundTruth diagram is centered around user authentication, whereas the GeneratedImage diagram emphasizes data processing and event handling. The GeneratedImage diagram is more complex, featuring additional components like S3, DynamoDB, and EventBridge. The GroundTruth diagram is simpler, focusing on a specific use case of user authentication. Rating: 6. The GeneratedImage diagram is detailed and covers a broader architecture, but it lacks the specific focus on user authentication present in the GroundTruth diagram.",
+    "Rating": 6
+  }
+}

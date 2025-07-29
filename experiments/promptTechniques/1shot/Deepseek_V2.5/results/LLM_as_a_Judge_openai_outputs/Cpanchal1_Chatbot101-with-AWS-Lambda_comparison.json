@@ -1,0 +1,196 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Initiates the joke request",
+        "boundaries": "External",
+        "position": "Left"
+      },
+      {
+        "name": "icanhazdadjoke.com",
+        "description": "Provides jokes via HTTP GET request",
+        "boundaries": "External",
+        "position": "Top Left"
+      },
+      {
+        "name": "AWS Lambda",
+        "description": "Executes the main function to process jokes",
+        "boundaries": "Internal",
+        "position": "Top Right"
+      },
+      {
+        "name": "Webex Teams",
+        "description": "Displays jokes in chat",
+        "boundaries": "External",
+        "position": "Center"
+      },
+      {
+        "name": "AWS API Gateway",
+        "description": "Handles webhook requests",
+        "boundaries": "Internal",
+        "position": "Bottom Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Webex Teams",
+        "label": "Mentions bot in chat",
+        "type": "Request"
+      },
+      {
+        "source": "Webex Teams",
+        "target": "AWS API Gateway",
+        "label": "Sends webhook request",
+        "type": "Trigger"
+      },
+      {
+        "source": "AWS API Gateway",
+        "target": "AWS Lambda",
+        "label": "Invokes Lambda function",
+        "type": "Invoke"
+      },
+      {
+        "source": "AWS Lambda",
+        "target": "icanhazdadjoke.com",
+        "label": "getJoke()",
+        "type": "HTTP GET"
+      },
+      {
+        "source": "icanhazdadjoke.com",
+        "target": "AWS Lambda",
+        "label": "Returns joke",
+        "type": "Response"
+      },
+      {
+        "source": "AWS Lambda",
+        "target": "Webex Teams",
+        "label": "postJoke()",
+        "type": "API Call"
+      },
+      {
+        "source": "Webex Teams",
+        "target": "User",
+        "label": "Displays joke in chat",
+        "type": "Response"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "ground_truth_diagram.png",
+      "title": "Joke Bot Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Initiates the joke request",
+        "boundaries": "External",
+        "position": "Left"
+      },
+      {
+        "name": "Bot",
+        "description": "Handles joke requests",
+        "boundaries": "Internal",
+        "position": "Center Left"
+      },
+      {
+        "name": "Webhook",
+        "description": "Triggers actions",
+        "boundaries": "Internal",
+        "position": "Center"
+      },
+      {
+        "name": "Amazon Web Services",
+        "description": "Processes API requests",
+        "boundaries": "Internal",
+        "position": "Center Right"
+      },
+      {
+        "name": "Trigger code",
+        "description": "Executes functions to get and post jokes",
+        "boundaries": "Internal",
+        "position": "Bottom Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Bot",
+        "label": "joke",
+        "type": "Request"
+      },
+      {
+        "source": "Bot",
+        "target": "Webhook",
+        "label": "Webhook",
+        "type": "Trigger"
+      },
+      {
+        "source": "Webhook",
+        "target": "Amazon Web Services",
+        "label": "POST to API",
+        "type": "API Call"
+      },
+      {
+        "source": "Amazon Web Services",
+        "target": "Trigger code",
+        "label": "Trigger code",
+        "type": "Execute"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "#Step 1: GET joke from icanhazdadjoke database\ndef getJoke():",
+        "position": "Bottom Right"
+      },
+      {
+        "text": "#Step 2: POST that joke to Webex Teams Room\ndef postJoke(joke):",
+        "position": "Bottom Right"
+      }
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "generated_image_diagram.png",
+      "title": "Joke Bot Flow"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "User"
+    ],
+    "unique_to_GroundTruth": [
+      "icanhazdadjoke.com",
+      "AWS Lambda",
+      "Webex Teams",
+      "AWS API Gateway"
+    ],
+    "unique_to_GeneratedImage": [
+      "Bot",
+      "Webhook",
+      "Amazon Web Services",
+      "Trigger code"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      "Mentions bot in chat",
+      "Sends webhook request",
+      "Invokes Lambda function",
+      "getJoke()",
+      "Returns joke",
+      "postJoke()",
+      "Displays joke in chat"
+    ],
+    "unique_connectors_GeneratedImage": [
+      "joke",
+      "Webhook",
+      "POST to API",
+      "Trigger code"
+    ],
+    "explanation": "The two diagrams represent similar processes for handling joke requests but differ in their components and connectors. The GroundTruth diagram is more detailed, specifying components like 'icanhazdadjoke.com', 'AWS Lambda', 'Webex Teams', and 'AWS API Gateway', which are not explicitly named in the GeneratedImage diagram. The GeneratedImage uses more generic terms such as 'Bot', 'Webhook', and 'Amazon Web Services'. Connectors in the GroundTruth diagram are more specific, detailing the flow of requests and responses, whereas the GeneratedImage diagram uses broader terms. The GroundTruth diagram seems to follow a more service-oriented architecture, while the GeneratedImage diagram presents a simplified flow. Rating: 6/10. The GeneratedImage captures the general flow but lacks the specificity and detail of the GroundTruth diagram.",
+    "Rating": 6
+  }
+}

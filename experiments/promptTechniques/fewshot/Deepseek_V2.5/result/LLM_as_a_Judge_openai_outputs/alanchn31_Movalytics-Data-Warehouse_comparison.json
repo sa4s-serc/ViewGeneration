@@ -1,0 +1,348 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Kaggle API",
+        "description": "Data source from Kaggle",
+        "boundary": "Data Extraction",
+        "position": "left"
+      },
+      {
+        "name": "FRED",
+        "description": "Economic data source",
+        "boundary": "Data Extraction",
+        "position": "left"
+      },
+      {
+        "name": "Amazon EC2",
+        "description": "Data ingestion and processing",
+        "boundary": "Data Ingestion",
+        "position": "center"
+      },
+      {
+        "name": "Amazon S3",
+        "description": "Data storage for staging",
+        "boundary": "Data Storage",
+        "position": "right"
+      },
+      {
+        "name": "Apache Airflow",
+        "description": "Orchestration tool",
+        "boundary": "Data Storage",
+        "position": "right"
+      },
+      {
+        "name": "Apache Spark",
+        "description": "Data processing tool",
+        "boundary": "Data Storage",
+        "position": "right"
+      },
+      {
+        "name": "Amazon Redshift",
+        "description": "Data warehouse",
+        "boundary": "Data Warehouse",
+        "position": "bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Kaggle API",
+        "target": "Amazon EC2",
+        "label": "1",
+        "type": "Download"
+      },
+      {
+        "source": "FRED",
+        "target": "Amazon EC2",
+        "label": "1",
+        "type": "Download"
+      },
+      {
+        "source": "Amazon EC2",
+        "target": "Amazon S3",
+        "label": "2",
+        "type": "Transfer"
+      },
+      {
+        "source": "Amazon EC2",
+        "target": "Amazon Redshift",
+        "label": "3",
+        "type": "ETL"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      "Data Extraction",
+      "Data Ingestion",
+      "Data Storage",
+      "Data Warehouse"
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Data Pipeline Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "CPI Data (St. Louis FRED)",
+        "description": "Economic data source",
+        "boundary": "Data Sources",
+        "position": "left"
+      },
+      {
+        "name": "MovieLens Dataset (Kaggle)",
+        "description": "Data source from Kaggle",
+        "boundary": "Data Sources",
+        "position": "left"
+      },
+      {
+        "name": "Bash Scripts (kaggle/wget)",
+        "description": "Data extraction scripts",
+        "boundary": "Extraction",
+        "position": "center"
+      },
+      {
+        "name": "Amazon S3",
+        "description": "Data storage",
+        "boundary": "Storage",
+        "position": "center"
+      },
+      {
+        "name": "Apache Spark",
+        "description": "Data transformation tool",
+        "boundary": "Transformation",
+        "position": "center"
+      },
+      {
+        "name": "Python ETL Scripts",
+        "description": "ETL processing",
+        "boundary": "Transformation",
+        "position": "center"
+      },
+      {
+        "name": "Amazon Redshift",
+        "description": "Data warehouse",
+        "boundary": "Data Warehouse",
+        "position": "right"
+      },
+      {
+        "name": "Airflow DAG",
+        "description": "Orchestration",
+        "boundary": "Orchestration",
+        "position": "left"
+      },
+      {
+        "name": "DataQualityOperator",
+        "description": "Data validation",
+        "boundary": "Monitoring",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "CPI Data (St. Louis FRED)",
+        "target": "Bash Scripts (kaggle/wget)",
+        "label": "",
+        "type": "Data Transfer"
+      },
+      {
+        "source": "MovieLens Dataset (Kaggle)",
+        "target": "Bash Scripts (kaggle/wget)",
+        "label": "",
+        "type": "Data Transfer"
+      },
+      {
+        "source": "Bash Scripts (kaggle/wget)",
+        "target": "Amazon S3",
+        "label": "Uses kaggle API and wget",
+        "type": "Storage"
+      },
+      {
+        "source": "Amazon S3",
+        "target": "Apache Spark",
+        "label": "Performs cleaning and schema enforcement",
+        "type": "Transformation"
+      },
+      {
+        "source": "Apache Spark",
+        "target": "Python ETL Scripts",
+        "label": "",
+        "type": "ETL"
+      },
+      {
+        "source": "Python ETL Scripts",
+        "target": "Amazon Redshift",
+        "label": "",
+        "type": "Load"
+      },
+      {
+        "source": "Airflow DAG",
+        "target": "Amazon S3",
+        "label": "Manages task dependencies and scheduling",
+        "type": "Orchestration"
+      },
+      {
+        "source": "Airflow DAG",
+        "target": "Apache Spark",
+        "label": "",
+        "type": "Orchestration"
+      },
+      {
+        "source": "Airflow DAG",
+        "target": "Amazon Redshift",
+        "label": "",
+        "type": "Orchestration"
+      },
+      {
+        "source": "Airflow DAG",
+        "target": "DataQualityOperator",
+        "label": "",
+        "type": "Monitoring"
+      },
+      {
+        "source": "DataQualityOperator",
+        "target": "Amazon Redshift",
+        "label": "Custom Airflow operator for data validation",
+        "type": "Validation"
+      }
+    ],
+    "annotations": [
+      "Uses kaggle API and wget",
+      "Performs cleaning and schema enforcement",
+      "Manages task dependencies and scheduling",
+      "Custom Airflow operator for data validation"
+    ],
+    "groups": [
+      "Data Sources",
+      "Extraction",
+      "Storage",
+      "Transformation",
+      "Data Warehouse",
+      "Orchestration",
+      "Monitoring"
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Data Pipeline Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Amazon S3",
+      "Apache Spark",
+      "Amazon Redshift"
+    ],
+    "unique_to_GroundTruth": [
+      "Kaggle API",
+      "FRED",
+      "Amazon EC2",
+      "Apache Airflow"
+    ],
+    "unique_to_GeneratedImage": [
+      "CPI Data (St. Louis FRED)",
+      "MovieLens Dataset (Kaggle)",
+      "Bash Scripts (kaggle/wget)",
+      "Python ETL Scripts",
+      "Airflow DAG",
+      "DataQualityOperator"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Kaggle API",
+        "target": "Amazon EC2",
+        "label": "1",
+        "type": "Download"
+      },
+      {
+        "source": "FRED",
+        "target": "Amazon EC2",
+        "label": "1",
+        "type": "Download"
+      },
+      {
+        "source": "Amazon EC2",
+        "target": "Amazon S3",
+        "label": "2",
+        "type": "Transfer"
+      },
+      {
+        "source": "Amazon EC2",
+        "target": "Amazon Redshift",
+        "label": "3",
+        "type": "ETL"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "CPI Data (St. Louis FRED)",
+        "target": "Bash Scripts (kaggle/wget)",
+        "label": "",
+        "type": "Data Transfer"
+      },
+      {
+        "source": "MovieLens Dataset (Kaggle)",
+        "target": "Bash Scripts (kaggle/wget)",
+        "label": "",
+        "type": "Data Transfer"
+      },
+      {
+        "source": "Bash Scripts (kaggle/wget)",
+        "target": "Amazon S3",
+        "label": "Uses kaggle API and wget",
+        "type": "Storage"
+      },
+      {
+        "source": "Amazon S3",
+        "target": "Apache Spark",
+        "label": "Performs cleaning and schema enforcement",
+        "type": "Transformation"
+      },
+      {
+        "source": "Apache Spark",
+        "target": "Python ETL Scripts",
+        "label": "",
+        "type": "ETL"
+      },
+      {
+        "source": "Python ETL Scripts",
+        "target": "Amazon Redshift",
+        "label": "",
+        "type": "Load"
+      },
+      {
+        "source": "Airflow DAG",
+        "target": "Amazon S3",
+        "label": "Manages task dependencies and scheduling",
+        "type": "Orchestration"
+      },
+      {
+        "source": "Airflow DAG",
+        "target": "Apache Spark",
+        "label": "",
+        "type": "Orchestration"
+      },
+      {
+        "source": "Airflow DAG",
+        "target": "Amazon Redshift",
+        "label": "",
+        "type": "Orchestration"
+      },
+      {
+        "source": "Airflow DAG",
+        "target": "DataQualityOperator",
+        "label": "",
+        "type": "Monitoring"
+      },
+      {
+        "source": "DataQualityOperator",
+        "target": "Amazon Redshift",
+        "label": "Custom Airflow operator for data validation",
+        "type": "Validation"
+      }
+    ],
+    "explanation": "The two diagrams represent data pipeline architectures with some common elements and several differences. Both diagrams include Amazon S3, Apache Spark, and Amazon Redshift, indicating a shared focus on data storage, processing, and warehousing. However, the GroundTruth diagram emphasizes a simpler flow with Amazon EC2 as a central component for data ingestion, while the GeneratedImage diagram includes more detailed orchestration and monitoring components such as Airflow DAG and DataQualityOperator. The GroundTruth diagram lacks explicit orchestration and monitoring elements, focusing instead on a straightforward ETL process. The GeneratedImage diagram provides a more comprehensive view of the data pipeline, including task management and data validation, which are absent in the GroundTruth diagram. Overall, the GeneratedImage diagram offers a more detailed and structured representation of the data pipeline, earning it a rating of 8 out of 10 for its accuracy, completeness, and similarity to the GroundTruth diagram.",
+    "Rating": 8
+  }
+}

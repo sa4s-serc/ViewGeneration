@@ -1,0 +1,231 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "S3",
+        "description": "Storage service",
+        "boundaries": "Rectangle",
+        "position": "Top left"
+      },
+      {
+        "name": "IAM",
+        "description": "Identity and Access Management",
+        "boundaries": "Rectangle",
+        "position": "Top right"
+      },
+      {
+        "name": "Management Server",
+        "description": "Central management",
+        "boundaries": "Rectangle",
+        "position": "Middle left"
+      },
+      {
+        "name": "Target Server",
+        "description": "Deployment target",
+        "boundaries": "Rectangle",
+        "position": "Bottom left"
+      },
+      {
+        "name": "KMS",
+        "description": "Key Management Service",
+        "boundaries": "Rectangle",
+        "position": "Bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "S3",
+        "target": "Management Server",
+        "label": "read/write/list objects",
+        "type": "Arrow"
+      },
+      {
+        "source": "Management Server",
+        "target": "Target Server",
+        "label": "deploy packed secrets",
+        "type": "Arrow"
+      },
+      {
+        "source": "Management Server",
+        "target": "KMS",
+        "label": "generate data key/decrypt",
+        "type": "Arrow"
+      },
+      {
+        "source": "KMS",
+        "target": "Target Server",
+        "label": "decrypt",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "ACL",
+        "position": "Between S3 and IAM"
+      }
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram",
+      "title": "Security Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Executes commands",
+        "boundaries": "Rectangle",
+        "position": "Left"
+      },
+      {
+        "name": "CLI",
+        "description": "Command Line Interface",
+        "boundaries": "Rectangle",
+        "position": "Left center"
+      },
+      {
+        "name": "Manager",
+        "description": "Central management",
+        "boundaries": "Rectangle",
+        "position": "Center"
+      },
+      {
+        "name": "S3",
+        "description": "Stores encrypted secrets and tarballs",
+        "boundaries": "Rectangle",
+        "position": "Right center"
+      },
+      {
+        "name": "Envelope",
+        "description": "Handles encryption",
+        "boundaries": "Rectangle",
+        "position": "Right"
+      },
+      {
+        "name": "KMS",
+        "description": "Provides encryption context for added security",
+        "boundaries": "Rectangle",
+        "position": "Far right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "CLI",
+        "label": "Executes commands",
+        "type": "Arrow"
+      },
+      {
+        "source": "CLI",
+        "target": "Manager",
+        "label": "Calls methods",
+        "type": "Arrow"
+      },
+      {
+        "source": "Manager",
+        "target": "S3",
+        "label": "Uploads/downloads secrets",
+        "type": "Arrow"
+      },
+      {
+        "source": "Manager",
+        "target": "Envelope",
+        "label": "Encrypts/decrypts secrets",
+        "type": "Arrow"
+      },
+      {
+        "source": "Envelope",
+        "target": "KMS",
+        "label": "Requests data keys",
+        "type": "Arrow"
+      },
+      {
+        "source": "KMS",
+        "target": "Envelope",
+        "label": "Returns encrypted data keys",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram",
+      "title": "Encryption Workflow"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "S3",
+      "KMS"
+    ],
+    "unique_to_GroundTruth": [
+      "IAM",
+      "Management Server",
+      "Target Server"
+    ],
+    "unique_to_GeneratedImage": [
+      "User",
+      "CLI",
+      "Manager",
+      "Envelope"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "S3",
+        "target": "Management Server",
+        "label": "read/write/list objects"
+      },
+      {
+        "source": "Management Server",
+        "target": "Target Server",
+        "label": "deploy packed secrets"
+      },
+      {
+        "source": "Management Server",
+        "target": "KMS",
+        "label": "generate data key/decrypt"
+      },
+      {
+        "source": "KMS",
+        "target": "Target Server",
+        "label": "decrypt"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "CLI",
+        "label": "Executes commands"
+      },
+      {
+        "source": "CLI",
+        "target": "Manager",
+        "label": "Calls methods"
+      },
+      {
+        "source": "Manager",
+        "target": "S3",
+        "label": "Uploads/downloads secrets"
+      },
+      {
+        "source": "Manager",
+        "target": "Envelope",
+        "label": "Encrypts/decrypts secrets"
+      },
+      {
+        "source": "Envelope",
+        "target": "KMS",
+        "label": "Requests data keys"
+      },
+      {
+        "source": "KMS",
+        "target": "Envelope",
+        "label": "Returns encrypted data keys"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of a security architecture. The GroundTruth diagram focuses on the interaction between storage, management, and key management services, with a clear emphasis on access control lists (ACLs) and deployment processes. The GeneratedImage diagram, on the other hand, emphasizes the encryption workflow, detailing user interactions, command execution, and encryption processes. Common components include S3 and KMS, indicating a shared focus on storage and key management. However, the diagrams differ significantly in their depiction of processes and interactions, with the GroundTruth diagram including IAM and Target Server, while the GeneratedImage diagram introduces User, CLI, Manager, and Envelope components. The GeneratedImage diagram provides a more detailed view of the encryption process, while the GroundTruth diagram offers a broader overview of system interactions. Based on the accuracy, completeness, and similarity to the GroundTruth, the GeneratedImage is rated 6 out of 10. It captures some key components but lacks the broader system context and specific interactions depicted in the GroundTruth.",
+    "Rating": 6
+  }
+}

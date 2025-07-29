@@ -1,0 +1,438 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "KVM",
+        "description": "L0",
+        "boundary": "outer",
+        "position": "top"
+      },
+      {
+        "name": "hAFL2",
+        "description": "",
+        "boundary": "none",
+        "position": "center"
+      },
+      {
+        "name": "Hyper-V",
+        "description": "L1 - Host",
+        "boundary": "outer",
+        "position": "center"
+      },
+      {
+        "name": "Root Partition Host OS",
+        "description": "L2",
+        "boundary": "inner",
+        "position": "left"
+      },
+      {
+        "name": "vmswitch.sys",
+        "description": "",
+        "boundary": "none",
+        "position": "inside Root Partition Host OS"
+      },
+      {
+        "name": "CrashMonitoring.sys",
+        "description": "",
+        "boundary": "none",
+        "position": "inside Root Partition Host OS"
+      },
+      {
+        "name": "Child Partition Guest VM",
+        "description": "L2",
+        "boundary": "inner",
+        "position": "right"
+      },
+      {
+        "name": "harness.sys",
+        "description": "",
+        "boundary": "none",
+        "position": "inside Child Partition Guest VM"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "KVM",
+        "target": "hAFL2",
+        "label": "",
+        "type": "dotted"
+      },
+      {
+        "source": "hAFL2",
+        "target": "Hyper-V",
+        "label": "",
+        "type": "dotted"
+      },
+      {
+        "source": "Hyper-V",
+        "target": "vmswitch.sys",
+        "label": "",
+        "type": "dotted"
+      },
+      {
+        "source": "vmswitch.sys",
+        "target": "harness.sys",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "CrashMonitoring.sys",
+        "target": "KVM",
+        "label": "",
+        "type": "dotted"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Hyper-V",
+        "layer": "L1"
+      },
+      {
+        "name": "Root Partition Host OS",
+        "layer": "L2"
+      },
+      {
+        "name": "Child Partition Guest VM",
+        "layer": "L2"
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": ""
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Core Fuzzer",
+        "description": "kAFL",
+        "boundary": "outer",
+        "position": "top"
+      },
+      {
+        "name": "kafl_fuzz.py",
+        "description": "core",
+        "boundary": "none",
+        "position": "inside Core Fuzzer"
+      },
+      {
+        "name": "master.py",
+        "description": "",
+        "boundary": "none",
+        "position": "inside Core Fuzzer"
+      },
+      {
+        "name": "kafl_gui.py",
+        "description": "",
+        "boundary": "none",
+        "position": "inside Core Fuzzer"
+      },
+      {
+        "name": "kafl_cov.py",
+        "description": "",
+        "boundary": "none",
+        "position": "inside Core Fuzzer"
+      },
+      {
+        "name": "slave.py",
+        "description": "",
+        "boundary": "none",
+        "position": "inside Core Fuzzer"
+      },
+      {
+        "name": "Hypervisor Layer",
+        "description": "hypervisor",
+        "boundary": "outer",
+        "position": "right"
+      },
+      {
+        "name": "Modified KVM",
+        "description": "",
+        "boundary": "none",
+        "position": "inside Hypervisor Layer"
+      },
+      {
+        "name": "QEMU",
+        "description": "",
+        "boundary": "none",
+        "position": "inside Hypervisor Layer"
+      },
+      {
+        "name": "Nested VMs",
+        "description": "",
+        "boundary": "none",
+        "position": "inside Hypervisor Layer"
+      },
+      {
+        "name": "Windows Drivers",
+        "description": "drivers",
+        "boundary": "outer",
+        "position": "bottom left"
+      },
+      {
+        "name": "CPHarness.sys",
+        "description": "",
+        "boundary": "none",
+        "position": "inside Windows Drivers"
+      },
+      {
+        "name": "CrashMonitoringDriver.sys",
+        "description": "",
+        "boundary": "none",
+        "position": "inside Windows Drivers"
+      },
+      {
+        "name": "Instrumentation",
+        "description": "instrumentation",
+        "boundary": "outer",
+        "position": "bottom right"
+      },
+      {
+        "name": "Intel PT",
+        "description": "",
+        "boundary": "none",
+        "position": "inside Instrumentation"
+      },
+      {
+        "name": "Redqueen",
+        "description": "",
+        "boundary": "none",
+        "position": "inside Instrumentation"
+      },
+      {
+        "name": "Hypercalls",
+        "description": "",
+        "boundary": "none",
+        "position": "inside Instrumentation"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "kafl_fuzz.py",
+        "target": "master.py",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "kafl_fuzz.py",
+        "target": "kafl_gui.py",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "kafl_fuzz.py",
+        "target": "kafl_cov.py",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "master.py",
+        "target": "slave.py",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "slave.py",
+        "target": "Modified KVM",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "Modified KVM",
+        "target": "QEMU",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "QEMU",
+        "target": "Nested VMs",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "CPHarness.sys",
+        "target": "CrashMonitoringDriver.sys",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "CrashMonitoringDriver.sys",
+        "target": "Nested VMs",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "Intel PT",
+        "target": "Redqueen",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "Redqueen",
+        "target": "Hypercalls",
+        "label": "",
+        "type": "solid"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Core Fuzzer",
+        "layer": "core"
+      },
+      {
+        "name": "Hypervisor Layer",
+        "layer": "hypervisor"
+      },
+      {
+        "name": "Windows Drivers",
+        "layer": "drivers"
+      },
+      {
+        "name": "Instrumentation",
+        "layer": "instrumentation"
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": ""
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "CrashMonitoring.sys",
+      "CrashMonitoringDriver.sys"
+    ],
+    "unique_to_GroundTruth": [
+      "KVM",
+      "hAFL2",
+      "Hyper-V",
+      "Root Partition Host OS",
+      "vmswitch.sys",
+      "Child Partition Guest VM",
+      "harness.sys"
+    ],
+    "unique_to_GeneratedImage": [
+      "Core Fuzzer",
+      "kafl_fuzz.py",
+      "master.py",
+      "kafl_gui.py",
+      "kafl_cov.py",
+      "slave.py",
+      "Hypervisor Layer",
+      "Modified KVM",
+      "QEMU",
+      "Nested VMs",
+      "Windows Drivers",
+      "CPHarness.sys",
+      "Instrumentation",
+      "Intel PT",
+      "Redqueen",
+      "Hypercalls"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "KVM",
+        "target": "hAFL2",
+        "label": "",
+        "type": "dotted"
+      },
+      {
+        "source": "hAFL2",
+        "target": "Hyper-V",
+        "label": "",
+        "type": "dotted"
+      },
+      {
+        "source": "Hyper-V",
+        "target": "vmswitch.sys",
+        "label": "",
+        "type": "dotted"
+      },
+      {
+        "source": "vmswitch.sys",
+        "target": "harness.sys",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "CrashMonitoring.sys",
+        "target": "KVM",
+        "label": "",
+        "type": "dotted"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "kafl_fuzz.py",
+        "target": "master.py",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "kafl_fuzz.py",
+        "target": "kafl_gui.py",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "kafl_fuzz.py",
+        "target": "kafl_cov.py",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "master.py",
+        "target": "slave.py",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "slave.py",
+        "target": "Modified KVM",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "Modified KVM",
+        "target": "QEMU",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "QEMU",
+        "target": "Nested VMs",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "CPHarness.sys",
+        "target": "CrashMonitoringDriver.sys",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "CrashMonitoringDriver.sys",
+        "target": "Nested VMs",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "Intel PT",
+        "target": "Redqueen",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "Redqueen",
+        "target": "Hypercalls",
+        "label": "",
+        "type": "solid"
+      }
+    ],
+    "explanation": "The two diagrams represent different architectural views. The GroundTruth diagram focuses on a virtualization setup with components like KVM, Hyper-V, and various system drivers. It emphasizes the interaction between different layers of virtualization and system components. The GeneratedImage diagram, on the other hand, is centered around a fuzzer architecture with components like Core Fuzzer, Hypervisor Layer, and Windows Drivers. It illustrates the flow of data and control between different fuzzer components and the hypervisor. Common elements include the CrashMonitoring component, though it is named slightly differently. The GroundTruth diagram uses a more layered virtualization approach, while the GeneratedImage diagram is more focused on fuzzer components and their interactions. The GeneratedImage is rated 7 out of 10 for its accuracy and completeness. It captures a different aspect of the system architecture, focusing on fuzzing rather than virtualization, which is the focus of the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

@@ -1,0 +1,223 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "业务",
+        "description": "Business",
+        "boundary": "column",
+        "position": "left"
+      },
+      {
+        "name": "老DB",
+        "description": "Old Database",
+        "boundary": "column",
+        "position": "center-left"
+      },
+      {
+        "name": "新DB",
+        "description": "New Database",
+        "boundary": "column",
+        "position": "center-right"
+      },
+      {
+        "name": "同步任务",
+        "description": "Sync Task",
+        "boundary": "column",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "同步任务",
+        "target": "新DB",
+        "label": "全量迁移",
+        "type": "arrow"
+      },
+      {
+        "source": "同步任务",
+        "target": "新DB",
+        "label": "增量迁移",
+        "type": "arrow"
+      },
+      {
+        "source": "同步任务",
+        "target": "新DB",
+        "label": "数据一致性校验",
+        "type": "arrow"
+      },
+      {
+        "source": "同步任务",
+        "target": "新DB",
+        "label": "关闭增量同步",
+        "type": "arrow"
+      },
+      {
+        "source": "同步任务",
+        "target": "新DB",
+        "label": "数据一致性校验",
+        "type": "arrow"
+      },
+      {
+        "source": "同步任务",
+        "target": "新DB",
+        "label": "清理老数据",
+        "type": "arrow"
+      },
+      {
+        "source": "业务",
+        "target": "老DB",
+        "label": "上线切写",
+        "type": "arrow"
+      },
+      {
+        "source": "老DB",
+        "target": "新DB",
+        "label": "写新库",
+        "type": "arrow"
+      },
+      {
+        "source": "老DB",
+        "target": "业务",
+        "label": "写老库",
+        "type": "arrow"
+      },
+      {
+        "source": "业务",
+        "target": "老DB",
+        "label": "初读",
+        "type": "arrow"
+      },
+      {
+        "source": "业务",
+        "target": "老DB",
+        "label": "下载写老库",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Database Migration Process"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Source MySQL",
+        "description": "Source Database",
+        "boundary": "ellipse",
+        "position": "left"
+      },
+      {
+        "name": "Binlog Parser",
+        "description": "Parses Binlog Events",
+        "boundary": "rectangle",
+        "position": "center-left"
+      },
+      {
+        "name": "Row Event Handler",
+        "description": "Handles Parsed Events",
+        "boundary": "rectangle",
+        "position": "center"
+      },
+      {
+        "name": "Data Mapper",
+        "description": "Maps Data to Target",
+        "boundary": "rectangle",
+        "position": "center-right"
+      },
+      {
+        "name": "Target Database",
+        "description": "Target Database",
+        "boundary": "ellipse",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Source MySQL",
+        "target": "Binlog Parser",
+        "label": "Binlog Events",
+        "type": "arrow"
+      },
+      {
+        "source": "Binlog Parser",
+        "target": "Row Event Handler",
+        "label": "Parsed Events",
+        "type": "arrow"
+      },
+      {
+        "source": "Row Event Handler",
+        "target": "Data Mapper",
+        "label": "Row Data",
+        "type": "arrow"
+      },
+      {
+        "source": "Data Mapper",
+        "target": "Target Database",
+        "label": "SQL Operations",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "Uses go-mysql/canal to capture and parse binlog events",
+        "position": "below Binlog Parser"
+      },
+      {
+        "text": "Implements canal.EventHandler Processes inserts/updates/deletes",
+        "position": "below Row Event Handler"
+      },
+      {
+        "text": "Uses reflection to map binlog data to Go structs (User, Email, Mobile)",
+        "position": "below Data Mapper"
+      },
+      {
+        "text": "Applies changes via InsertToNew/UpdateToNew/DeleteFromNew methods",
+        "position": "below Target Database"
+      }
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Binlog Event Processing"
+    }
+  },
+  "comparison": {
+    "common_components": [],
+    "unique_to_GroundTruth": [
+      "业务",
+      "老DB",
+      "同步任务"
+    ],
+    "unique_to_GeneratedImage": [
+      "Source MySQL",
+      "Binlog Parser",
+      "Row Event Handler",
+      "Data Mapper",
+      "Target Database"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      "全量迁移",
+      "增量迁移",
+      "数据一致性校验",
+      "关闭增量同步",
+      "清理老数据",
+      "上线切写",
+      "写新库",
+      "写老库",
+      "初读",
+      "下载写老库"
+    ],
+    "unique_connectors_GeneratedImage": [
+      "Binlog Events",
+      "Parsed Events",
+      "Row Data",
+      "SQL Operations"
+    ],
+    "explanation": "The GroundTruth diagram focuses on a high-level database migration process with components representing business processes and databases. It includes detailed steps like full migration, incremental migration, and data consistency checks. The GeneratedImage diagram, however, focuses on the technical processing of binlog events from a source database to a target database. It includes components like parsers and handlers, with annotations explaining the use of specific technologies. The two diagrams serve different purposes: GroundTruth is more about the overall migration process, while GeneratedImage is about the technical implementation of data handling. The GeneratedImage diagram is rated 7 out of 10 for accuracy and completeness as it provides a clear technical flow but lacks the broader context found in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

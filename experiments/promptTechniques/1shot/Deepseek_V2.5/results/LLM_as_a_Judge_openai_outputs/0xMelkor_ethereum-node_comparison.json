@@ -1,0 +1,219 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Pod - influxdb:1.8.0",
+        "description": "InfluxDB database pod",
+        "boundaries": "Volume claim 10GB HDD",
+        "position": "Top left"
+      },
+      {
+        "name": "Pod - lighthouse",
+        "description": "Lighthouse client pod",
+        "boundaries": "Volume claim 500GB SSD, Volume jwtsecret",
+        "position": "Top center"
+      },
+      {
+        "name": "Pod - geth",
+        "description": "Geth node pod",
+        "boundaries": "Volume claim 2TB SSD, Volume jwtsecret",
+        "position": "Center"
+      },
+      {
+        "name": "Pod - nginx",
+        "description": "Nginx proxy pod",
+        "boundaries": "",
+        "position": "Bottom center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "influxdb:1.8.0",
+        "target": "geth",
+        "label": "Cluster IP - TCP 8086 InfluxQL",
+        "type": "TCP"
+      },
+      {
+        "source": "lighthouse",
+        "target": "geth",
+        "label": "Cluster IP - TCP 8551 Auth RPC",
+        "type": "TCP"
+      },
+      {
+        "source": "geth",
+        "target": "nginx",
+        "label": "Cluster IP - TCP 8545 RPC",
+        "type": "TCP"
+      },
+      {
+        "source": "geth",
+        "target": "nginx",
+        "label": "Cluster IP - TCP 8546 WS",
+        "type": "TCP"
+      },
+      {
+        "source": "nginx",
+        "target": "dApps",
+        "label": "Ingress Static IP",
+        "type": "Ingress"
+      },
+      {
+        "source": "nginx",
+        "target": "Grafana server",
+        "label": "Cluster IP - TCP 80 http",
+        "type": "TCP"
+      }
+    ],
+    "annotations": [
+      "Consensus peers",
+      "Execution peers",
+      "dApps",
+      "Grafana server"
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": ""
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "InfluxDB",
+        "description": "InfluxDB database",
+        "boundaries": "Monitoring",
+        "position": "Bottom right"
+      },
+      {
+        "name": "Lighthouse Client",
+        "description": "Lighthouse consensus client",
+        "boundaries": "Consensus Layer",
+        "position": "Top right"
+      },
+      {
+        "name": "Geth Node",
+        "description": "Geth execution node",
+        "boundaries": "Execution Layer",
+        "position": "Center"
+      },
+      {
+        "name": "Nginx",
+        "description": "Nginx proxy",
+        "boundaries": "Proxy Layer",
+        "position": "Bottom left"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "InfluxDB",
+        "target": "Metrics Collector",
+        "label": "",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Lighthouse Client",
+        "target": "Geth Node",
+        "label": "",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Geth Node",
+        "target": "Geth RPC",
+        "label": "",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Geth Node",
+        "target": "Geth WebSocket",
+        "label": "",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Nginx",
+        "target": "Geth RPC",
+        "label": "",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Nginx",
+        "target": "Geth WebSocket",
+        "label": "",
+        "type": "Data Flow"
+      }
+    ],
+    "annotations": [
+      "Secret Manager",
+      "Google Cloud Build",
+      "External Clients"
+    ],
+    "groups": [
+      "Kubernetes Cluster",
+      "Proxy Layer",
+      "Execution Layer",
+      "Consensus Layer",
+      "Monitoring"
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": ""
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "InfluxDB",
+      "Lighthouse Client",
+      "Geth Node",
+      "Nginx"
+    ],
+    "unique_to_GroundTruth": [],
+    "unique_to_GeneratedImage": [
+      "Metrics Collector",
+      "Geth RPC",
+      "Geth WebSocket"
+    ],
+    "common_connectors": [
+      {
+        "source": "Lighthouse Client",
+        "target": "Geth Node"
+      },
+      {
+        "source": "Nginx",
+        "target": "Geth RPC"
+      },
+      {
+        "source": "Nginx",
+        "target": "Geth WebSocket"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "influxdb:1.8.0",
+        "target": "geth"
+      },
+      {
+        "source": "nginx",
+        "target": "dApps"
+      },
+      {
+        "source": "nginx",
+        "target": "Grafana server"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "InfluxDB",
+        "target": "Metrics Collector"
+      },
+      {
+        "source": "Geth Node",
+        "target": "Geth RPC"
+      },
+      {
+        "source": "Geth Node",
+        "target": "Geth WebSocket"
+      }
+    ],
+    "explanation": "Both diagrams represent a Kubernetes-based architecture involving components such as InfluxDB, Lighthouse Client, Geth Node, and Nginx. The GroundTruth diagram focuses on specific network configurations and pod interactions, while the GeneratedImage diagram emphasizes logical groupings and data flows. The GroundTruth diagram includes additional elements like dApps and Grafana server, whereas the GeneratedImage diagram introduces components like Metrics Collector and Geth RPC/WebSocket. The GeneratedImage is rated 7 out of 10 for capturing the core components and interactions but missing some specific network details and additional elements present in the GroundTruth.",
+    "Rating": 7
+  }
+}

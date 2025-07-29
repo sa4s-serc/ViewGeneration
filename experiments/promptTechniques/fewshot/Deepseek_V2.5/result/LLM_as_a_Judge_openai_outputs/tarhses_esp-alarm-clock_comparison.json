@@ -1,0 +1,340 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Network",
+        "description": "Loads config.json. Connects to Wi-Fi. Updates time (NTP).",
+        "boundary": "net.c",
+        "position": "top-left"
+      },
+      {
+        "name": "Potentiometers",
+        "description": "Polls potentiometers value. Calibrate potentiometers.",
+        "boundary": "pot.c",
+        "position": "top-center"
+      },
+      {
+        "name": "Alarm",
+        "description": "Ticks every minute. Handles button interrupts.",
+        "boundary": "alarm.c",
+        "position": "top-right"
+      },
+      {
+        "name": "Event queue",
+        "description": "",
+        "boundary": "",
+        "position": "center"
+      },
+      {
+        "name": "Sound",
+        "description": "Plays ringings.",
+        "boundary": "sound.c",
+        "position": "bottom-left"
+      },
+      {
+        "name": "Display",
+        "description": "Draws the screen and uploads it to the e-paper.",
+        "boundary": "display.c",
+        "position": "bottom-right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Network",
+        "target": "Event queue",
+        "label": "CONNECTED DISCONNECTED",
+        "type": "arrow"
+      },
+      {
+        "source": "Potentiometers",
+        "target": "Event queue",
+        "label": "CHANGED",
+        "type": "arrow"
+      },
+      {
+        "source": "Alarm",
+        "target": "Event queue",
+        "label": "TICK ENABLED DISABLED STARTED STOPPED DELAYED",
+        "type": "arrow"
+      },
+      {
+        "source": "Event queue",
+        "target": "Sound",
+        "label": "STARTED STOPPED",
+        "type": "arrow"
+      },
+      {
+        "source": "Event queue",
+        "target": "Display",
+        "label": "TICK CHANGED ENABLED DISABLED STOPPED DELAYED CONNECTED DISCONNECTED",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruth"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Main Task",
+        "description": "",
+        "boundary": "",
+        "position": "left"
+      },
+      {
+        "name": "Potentiometer Task",
+        "description": "",
+        "boundary": "",
+        "position": "left-center"
+      },
+      {
+        "name": "Alarm Task",
+        "description": "",
+        "boundary": "",
+        "position": "center"
+      },
+      {
+        "name": "Button/Switch ISR",
+        "description": "",
+        "boundary": "",
+        "position": "center-right"
+      },
+      {
+        "name": "Sound Task",
+        "description": "",
+        "boundary": "",
+        "position": "bottom-center"
+      },
+      {
+        "name": "Display Task",
+        "description": "",
+        "boundary": "",
+        "position": "right"
+      },
+      {
+        "name": "WiFi/NTP Task",
+        "description": "",
+        "boundary": "",
+        "position": "bottom-left"
+      },
+      {
+        "name": "FreeRTOS Task",
+        "description": "",
+        "boundary": "",
+        "position": "bottom-left"
+      },
+      {
+        "name": "Interrupt Service Routine",
+        "description": "",
+        "boundary": "",
+        "position": "bottom-right"
+      },
+      {
+        "name": "External Components",
+        "description": "E-Paper Display, Buttons/Switches, Speaker, SD Card, Potentiometers",
+        "boundary": "",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Main Task",
+        "target": "Potentiometer Task",
+        "label": "Initialize",
+        "type": "arrow"
+      },
+      {
+        "source": "Main Task",
+        "target": "Alarm Task",
+        "label": "Set time",
+        "type": "arrow"
+      },
+      {
+        "source": "Main Task",
+        "target": "WiFi/NTP Task",
+        "label": "Initialize",
+        "type": "arrow"
+      },
+      {
+        "source": "Alarm Task",
+        "target": "Display Task",
+        "label": "Update status",
+        "type": "arrow"
+      },
+      {
+        "source": "Alarm Task",
+        "target": "Sound Task",
+        "label": "Trigger sound",
+        "type": "arrow"
+      },
+      {
+        "source": "Button/Switch ISR",
+        "target": "Display Task",
+        "label": "Trigger events",
+        "type": "arrow"
+      },
+      {
+        "source": "Button/Switch ISR",
+        "target": "Sound Task",
+        "label": "Trigger sound",
+        "type": "arrow"
+      },
+      {
+        "source": "WiFi/NTP Task",
+        "target": "FreeRTOS Task",
+        "label": "",
+        "type": "dashed"
+      },
+      {
+        "source": "External Components",
+        "target": "Display Task",
+        "label": "Render",
+        "type": "arrow"
+      },
+      {
+        "source": "External Components",
+        "target": "Sound Task",
+        "label": "Play audio",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "ESP32",
+        "components": [
+          "Main Task",
+          "Potentiometer Task",
+          "Alarm Task",
+          "Button/Switch ISR",
+          "Sound Task",
+          "Display Task",
+          "WiFi/NTP Task"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImage"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Potentiometers",
+      "Alarm",
+      "Sound",
+      "Display"
+    ],
+    "unique_to_GroundTruth": [
+      "Network",
+      "Event queue"
+    ],
+    "unique_to_GeneratedImage": [
+      "Main Task",
+      "Button/Switch ISR",
+      "WiFi/NTP Task",
+      "FreeRTOS Task",
+      "Interrupt Service Routine",
+      "External Components"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Network",
+        "target": "Event queue",
+        "label": "CONNECTED DISCONNECTED",
+        "type": "arrow"
+      },
+      {
+        "source": "Potentiometers",
+        "target": "Event queue",
+        "label": "CHANGED",
+        "type": "arrow"
+      },
+      {
+        "source": "Alarm",
+        "target": "Event queue",
+        "label": "TICK ENABLED DISABLED STARTED STOPPED DELAYED",
+        "type": "arrow"
+      },
+      {
+        "source": "Event queue",
+        "target": "Sound",
+        "label": "STARTED STOPPED",
+        "type": "arrow"
+      },
+      {
+        "source": "Event queue",
+        "target": "Display",
+        "label": "TICK CHANGED ENABLED DISABLED STOPPED DELAYED CONNECTED DISCONNECTED",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Main Task",
+        "target": "Potentiometer Task",
+        "label": "Initialize",
+        "type": "arrow"
+      },
+      {
+        "source": "Main Task",
+        "target": "Alarm Task",
+        "label": "Set time",
+        "type": "arrow"
+      },
+      {
+        "source": "Main Task",
+        "target": "WiFi/NTP Task",
+        "label": "Initialize",
+        "type": "arrow"
+      },
+      {
+        "source": "Alarm Task",
+        "target": "Display Task",
+        "label": "Update status",
+        "type": "arrow"
+      },
+      {
+        "source": "Alarm Task",
+        "target": "Sound Task",
+        "label": "Trigger sound",
+        "type": "arrow"
+      },
+      {
+        "source": "Button/Switch ISR",
+        "target": "Display Task",
+        "label": "Trigger events",
+        "type": "arrow"
+      },
+      {
+        "source": "Button/Switch ISR",
+        "target": "Sound Task",
+        "label": "Trigger sound",
+        "type": "arrow"
+      },
+      {
+        "source": "WiFi/NTP Task",
+        "target": "FreeRTOS Task",
+        "label": "",
+        "type": "dashed"
+      },
+      {
+        "source": "External Components",
+        "target": "Display Task",
+        "label": "Render",
+        "type": "arrow"
+      },
+      {
+        "source": "External Components",
+        "target": "Sound Task",
+        "label": "Play audio",
+        "type": "arrow"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on a simple event-driven architecture with components like Network, Potentiometers, Alarm, Sound, and Display interacting through an Event queue. The GeneratedImage diagram represents a more complex system with tasks and external components, organized under the ESP32 group. Both diagrams share components like Potentiometers, Alarm, Sound, and Display, but the GeneratedImage includes additional tasks such as Main Task, Button/Switch ISR, and WiFi/NTP Task. The connectors in the GroundTruth are centered around event propagation through the Event queue, while the GeneratedImage shows task-based interactions. The GeneratedImage is rated 7 out of 10 for its detailed representation of tasks and external components, but it lacks the simplicity and clarity of the event-driven model in the GroundTruth.",
+    "Rating": 7
+  }
+}

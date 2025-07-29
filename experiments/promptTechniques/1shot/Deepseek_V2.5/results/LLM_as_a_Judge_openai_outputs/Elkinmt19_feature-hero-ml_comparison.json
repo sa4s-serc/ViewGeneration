@@ -1,0 +1,428 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Stream Sources",
+        "description": "Sources for streaming data",
+        "boundaries": "dashed",
+        "position": "left"
+      },
+      {
+        "name": "Batch Sources",
+        "description": "Sources for batch data",
+        "boundaries": "dashed",
+        "position": "left"
+      },
+      {
+        "name": "Online Store",
+        "description": "Redis (Single Redis instance)",
+        "boundaries": "solid",
+        "position": "center"
+      },
+      {
+        "name": "Offline Store",
+        "description": "Local (Parquet files)",
+        "boundaries": "solid",
+        "position": "center"
+      },
+      {
+        "name": "Feature Server",
+        "description": "",
+        "boundaries": "solid",
+        "position": "center"
+      },
+      {
+        "name": "Feast SDK",
+        "description": "",
+        "boundaries": "solid",
+        "position": "center"
+      },
+      {
+        "name": "Feature Repo",
+        "description": "Local (yaml file)",
+        "boundaries": "solid",
+        "position": "bottom"
+      },
+      {
+        "name": "Registry (Object Store)",
+        "description": "Local (db file)",
+        "boundaries": "solid",
+        "position": "bottom"
+      },
+      {
+        "name": "Realtime Model Serving",
+        "description": "",
+        "boundaries": "solid",
+        "position": "right"
+      },
+      {
+        "name": "Model Training/Evaluation + Batch Scoring",
+        "description": "",
+        "boundaries": "solid",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Stream Sources",
+        "target": "Online Store",
+        "label": "store.push()",
+        "type": "arrow"
+      },
+      {
+        "source": "Batch Sources",
+        "target": "Offline Store",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Online Store",
+        "target": "Feature Server",
+        "label": "push",
+        "type": "arrow"
+      },
+      {
+        "source": "Feature Server",
+        "target": "Realtime Model Serving",
+        "label": "get_online_features",
+        "type": "arrow"
+      },
+      {
+        "source": "Feature Server",
+        "target": "Model Training/Evaluation + Batch Scoring",
+        "label": "get_historical_features",
+        "type": "arrow"
+      },
+      {
+        "source": "Feature Repo",
+        "target": "Registry (Object Store)",
+        "label": "Feast Apply",
+        "type": "arrow"
+      },
+      {
+        "source": "Offline Store",
+        "target": "Feast SDK",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Feast SDK",
+        "target": "Registry (Object Store)",
+        "label": "",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "Kafka, Kinesis",
+        "position": "left"
+      },
+      {
+        "text": "Snowflake, BigQuery, Redshift, Synapse, S3, GCS",
+        "position": "left"
+      }
+    ],
+    "groups": [
+      {
+        "name": "Sources",
+        "components": [
+          "Stream Sources",
+          "Batch Sources"
+        ],
+        "boundaries": "dashed"
+      },
+      {
+        "name": "Feast",
+        "components": [
+          "Online Store",
+          "Offline Store",
+          "Feature Server",
+          "Feast SDK",
+          "Feature Repo",
+          "Registry (Object Store)"
+        ],
+        "boundaries": "solid"
+      },
+      {
+        "name": "Model",
+        "components": [
+          "Realtime Model Serving",
+          "Model Training/Evaluation + Batch Scoring"
+        ],
+        "boundaries": "solid"
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Feast Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Data Scientist",
+        "description": "",
+        "boundaries": "solid",
+        "position": "left"
+      },
+      {
+        "name": "ML Engineer",
+        "description": "",
+        "boundaries": "solid",
+        "position": "left"
+      },
+      {
+        "name": "Feature Store Client",
+        "description": "",
+        "boundaries": "solid",
+        "position": "center"
+      },
+      {
+        "name": "Feast Core",
+        "description": "",
+        "boundaries": "dashed",
+        "position": "center"
+      },
+      {
+        "name": "Feature Server",
+        "description": "",
+        "boundaries": "solid",
+        "position": "center"
+      },
+      {
+        "name": "Feature Registry",
+        "description": "",
+        "boundaries": "solid",
+        "position": "center"
+      },
+      {
+        "name": "Data Pipeline",
+        "description": "",
+        "boundaries": "dashed",
+        "position": "bottom"
+      },
+      {
+        "name": "Data Fetcher",
+        "description": "",
+        "boundaries": "solid",
+        "position": "bottom"
+      },
+      {
+        "name": "Data Transformer",
+        "description": "",
+        "boundaries": "solid",
+        "position": "bottom"
+      },
+      {
+        "name": "Online Store",
+        "description": "",
+        "boundaries": "solid",
+        "position": "right"
+      },
+      {
+        "name": "Offline Store",
+        "description": "",
+        "boundaries": "solid",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Data Scientist",
+        "target": "Feature Store Client",
+        "label": "Define features\nQuery features",
+        "type": "arrow"
+      },
+      {
+        "source": "ML Engineer",
+        "target": "Feature Store Client",
+        "label": "Train models\nGet batch features",
+        "type": "arrow"
+      },
+      {
+        "source": "Feature Store Client",
+        "target": "Feast Core",
+        "label": "Register features\nRequest features",
+        "type": "arrow"
+      },
+      {
+        "source": "Feast Core",
+        "target": "Feature Server",
+        "label": "Serve features",
+        "type": "arrow"
+      },
+      {
+        "source": "Feast Core",
+        "target": "Feature Registry",
+        "label": "Store metadata",
+        "type": "arrow"
+      },
+      {
+        "source": "Feature Server",
+        "target": "Online Store",
+        "label": "Get online features",
+        "type": "arrow"
+      },
+      {
+        "source": "Feature Server",
+        "target": "Offline Store",
+        "label": "Get offline features",
+        "type": "arrow"
+      },
+      {
+        "source": "Data Fetcher",
+        "target": "Data Transformer",
+        "label": "Raw data",
+        "type": "arrow"
+      },
+      {
+        "source": "Data Transformer",
+        "target": "Offline Store",
+        "label": "Processed data",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Feast Core",
+        "components": [
+          "Feature Server",
+          "Feature Registry"
+        ],
+        "boundaries": "dashed"
+      },
+      {
+        "name": "Data Pipeline",
+        "components": [
+          "Data Fetcher",
+          "Data Transformer"
+        ],
+        "boundaries": "dashed"
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Feast Architecture Overview"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Feature Server",
+      "Online Store",
+      "Offline Store"
+    ],
+    "unique_to_GroundTruth": [
+      "Stream Sources",
+      "Batch Sources",
+      "Feast SDK",
+      "Feature Repo",
+      "Registry (Object Store)",
+      "Realtime Model Serving",
+      "Model Training/Evaluation + Batch Scoring"
+    ],
+    "unique_to_GeneratedImage": [
+      "Data Scientist",
+      "ML Engineer",
+      "Feature Store Client",
+      "Feast Core",
+      "Feature Registry",
+      "Data Pipeline",
+      "Data Fetcher",
+      "Data Transformer"
+    ],
+    "common_connectors": [
+      {
+        "source": "Feature Server",
+        "target": "Online Store",
+        "label": "Get online features"
+      },
+      {
+        "source": "Feature Server",
+        "target": "Offline Store",
+        "label": "Get offline features"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Stream Sources",
+        "target": "Online Store",
+        "label": "store.push()"
+      },
+      {
+        "source": "Batch Sources",
+        "target": "Offline Store",
+        "label": ""
+      },
+      {
+        "source": "Online Store",
+        "target": "Feature Server",
+        "label": "push"
+      },
+      {
+        "source": "Feature Server",
+        "target": "Realtime Model Serving",
+        "label": "get_online_features"
+      },
+      {
+        "source": "Feature Server",
+        "target": "Model Training/Evaluation + Batch Scoring",
+        "label": "get_historical_features"
+      },
+      {
+        "source": "Feature Repo",
+        "target": "Registry (Object Store)",
+        "label": "Feast Apply"
+      },
+      {
+        "source": "Offline Store",
+        "target": "Feast SDK",
+        "label": ""
+      },
+      {
+        "source": "Feast SDK",
+        "target": "Registry (Object Store)",
+        "label": ""
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Data Scientist",
+        "target": "Feature Store Client",
+        "label": "Define features\nQuery features"
+      },
+      {
+        "source": "ML Engineer",
+        "target": "Feature Store Client",
+        "label": "Train models\nGet batch features"
+      },
+      {
+        "source": "Feature Store Client",
+        "target": "Feast Core",
+        "label": "Register features\nRequest features"
+      },
+      {
+        "source": "Feast Core",
+        "target": "Feature Server",
+        "label": "Serve features"
+      },
+      {
+        "source": "Feast Core",
+        "target": "Feature Registry",
+        "label": "Store metadata"
+      },
+      {
+        "source": "Data Fetcher",
+        "target": "Data Transformer",
+        "label": "Raw data"
+      },
+      {
+        "source": "Data Transformer",
+        "target": "Offline Store",
+        "label": "Processed data"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of a feature store architecture. Both diagrams share common components such as the 'Feature Server', 'Online Store', and 'Offline Store'. However, the GroundTruth diagram focuses more on data sources and the integration of the Feast SDK, while the GeneratedImage diagram emphasizes user roles (Data Scientist, ML Engineer) and the data pipeline process. The GroundTruth diagram includes components related to real-time and batch processing, whereas the GeneratedImage diagram highlights the interaction between users and the feature store. The architectural structure of the GroundTruth is more service-oriented, while the GeneratedImage is more user-centric. The GeneratedImage is rated 7 out of 10 for its accuracy and completeness, as it captures the core elements of the feature store but lacks some specific components and connections found in the GroundTruth.",
+    "Rating": 7
+  }
+}

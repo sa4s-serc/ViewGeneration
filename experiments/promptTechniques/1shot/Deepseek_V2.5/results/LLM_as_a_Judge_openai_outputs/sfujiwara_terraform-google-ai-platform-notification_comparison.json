@@ -1,0 +1,190 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Google AI Platform",
+        "description": "Emits job state logs",
+        "boundaries": "Top",
+        "position": "1"
+      },
+      {
+        "name": "Google Cloud Logging",
+        "description": "Forwards logs via sink",
+        "boundaries": "Below Google AI Platform",
+        "position": "2"
+      },
+      {
+        "name": "Pub/Sub (ai_platform_log)",
+        "description": "Triggers on new message",
+        "boundaries": "Below Google Cloud Logging",
+        "position": "3"
+      },
+      {
+        "name": "Cloud Function",
+        "description": "Publishes notification",
+        "boundaries": "Below Pub/Sub (ai_platform_log)",
+        "position": "4"
+      },
+      {
+        "name": "Pub/Sub (notification)",
+        "description": "Delivers notification",
+        "boundaries": "Below Cloud Function",
+        "position": "5"
+      },
+      {
+        "name": "Subscriber",
+        "description": "",
+        "boundaries": "Bottom",
+        "position": "6"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Google AI Platform",
+        "target": "Google Cloud Logging",
+        "label": "emits job state logs",
+        "type": "arrow"
+      },
+      {
+        "source": "Google Cloud Logging",
+        "target": "Pub/Sub (ai_platform_log)",
+        "label": "forwards logs via sink",
+        "type": "arrow"
+      },
+      {
+        "source": "Pub/Sub (ai_platform_log)",
+        "target": "Cloud Function",
+        "label": "triggers on new message",
+        "type": "arrow"
+      },
+      {
+        "source": "Cloud Function",
+        "target": "Pub/Sub (notification)",
+        "label": "publishes notification",
+        "type": "arrow"
+      },
+      {
+        "source": "Pub/Sub (notification)",
+        "target": "Subscriber",
+        "label": "delivers notification",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram",
+      "title": "Google AI Platform Notification Flow"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "AI",
+        "description": "",
+        "boundaries": "Left",
+        "position": "1"
+      },
+      {
+        "name": "log_sink",
+        "description": "",
+        "boundaries": "Center",
+        "position": "2"
+      },
+      {
+        "name": "push",
+        "description": "",
+        "boundaries": "Right Center",
+        "position": "3"
+      },
+      {
+        "name": "Subscriber",
+        "description": "",
+        "boundaries": "Right",
+        "position": "4"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "AI",
+        "target": "log_sink",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "log_sink",
+        "target": "push",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "push",
+        "target": "Subscriber",
+        "label": "",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram",
+      "title": "AI Log Flow"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Subscriber"
+    ],
+    "unique_to_GroundTruth": [
+      "Google AI Platform",
+      "Google Cloud Logging",
+      "Pub/Sub (ai_platform_log)",
+      "Cloud Function",
+      "Pub/Sub (notification)"
+    ],
+    "unique_to_GeneratedImage": [
+      "AI",
+      "log_sink",
+      "push"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Google AI Platform",
+        "target": "Google Cloud Logging"
+      },
+      {
+        "source": "Google Cloud Logging",
+        "target": "Pub/Sub (ai_platform_log)"
+      },
+      {
+        "source": "Pub/Sub (ai_platform_log)",
+        "target": "Cloud Function"
+      },
+      {
+        "source": "Cloud Function",
+        "target": "Pub/Sub (notification)"
+      },
+      {
+        "source": "Pub/Sub (notification)",
+        "target": "Subscriber"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "AI",
+        "target": "log_sink"
+      },
+      {
+        "source": "log_sink",
+        "target": "push"
+      },
+      {
+        "source": "push",
+        "target": "Subscriber"
+      }
+    ],
+    "explanation": "The GroundTruth diagram represents a detailed flow of notifications from the Google AI Platform through various components like Google Cloud Logging and Pub/Sub, ending with a Subscriber. It includes specific components and connectors with clear labels indicating the flow of logs and notifications. The GeneratedImage diagram is a simplified version, with fewer components and connectors. It lacks detailed descriptions and specific components found in the GroundTruth. The only common component is the Subscriber. The GeneratedImage diagram does not capture the complexity and specific components of the GroundTruth, resulting in a rating of 3 out of 10 for accuracy and completeness.",
+    "Rating": 3
+  }
+}

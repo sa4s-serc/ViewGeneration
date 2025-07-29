@@ -1,0 +1,287 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Kubernetes API Server",
+        "description": "Handles API requests",
+        "boundaries": "Rectangle",
+        "position": "Center"
+      },
+      {
+        "name": "Metacontroller",
+        "description": "Manages custom controllers",
+        "boundaries": "Rectangle",
+        "position": "Right"
+      },
+      {
+        "name": "Ingress Skipper Config",
+        "description": "Configuration for Skipper ingress",
+        "boundaries": "Rectangle",
+        "position": "Far Right"
+      },
+      {
+        "name": "Gateway Operator HTTP Service",
+        "description": "Contains Admission Controller and Ingress Derivation",
+        "boundaries": "Rectangle",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "kubectl",
+        "target": "Kubernetes API Server",
+        "label": "1. Create/Update FabricGateway Resource",
+        "type": "Arrow"
+      },
+      {
+        "source": "Kubernetes API Server",
+        "target": "Metacontroller",
+        "label": "3. Notification of resource persistence",
+        "type": "Arrow"
+      },
+      {
+        "source": "Metacontroller",
+        "target": "Ingress Skipper Config",
+        "label": "4. Derive Ingress Definitions",
+        "type": "Arrow"
+      },
+      {
+        "source": "Kubernetes API Server",
+        "target": "Gateway Operator HTTP Service",
+        "label": "2. Resource Admission Controller Checks",
+        "type": "Arrow"
+      },
+      {
+        "source": "Gateway Operator HTTP Service",
+        "target": "Metacontroller",
+        "label": "5. Inform K8s of Required Ingresses",
+        "type": "Arrow"
+      },
+      {
+        "source": "Metacontroller",
+        "target": "Ingress Skipper Config",
+        "label": "6. Create/Update Ingress Resources",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      "Async",
+      "Sync"
+    ],
+    "groups": [
+      {
+        "name": "Gateway Operator HTTP Service",
+        "components": [
+          "Gateway Operator Admission Controller",
+          "Gateway Operator Ingress Derivation"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Gateway: Control Flow"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Kubernetes Cluster",
+        "description": "Contains all components",
+        "boundaries": "Rectangle",
+        "position": "Center"
+      },
+      {
+        "name": "Fabric Gateway Operator",
+        "description": "Manages FabricGateway CRD",
+        "boundaries": "Rectangle",
+        "position": "Left"
+      },
+      {
+        "name": "Skipper Ingress",
+        "description": "Manages ingress resources",
+        "boundaries": "Rectangle",
+        "position": "Center"
+      },
+      {
+        "name": "FabricGateway CRD",
+        "description": "Custom Resource Definition",
+        "boundaries": "Rectangle",
+        "position": "Bottom"
+      },
+      {
+        "name": "IAM Service",
+        "description": "Validates tokens",
+        "boundaries": "Rectangle",
+        "position": "Bottom Right"
+      },
+      {
+        "name": "StackSet",
+        "description": "Routes traffic to backend services",
+        "boundaries": "Rectangle",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "API Consumer",
+        "target": "Kubernetes Cluster",
+        "label": "API Requests",
+        "type": "Arrow"
+      },
+      {
+        "source": "Fabric Gateway Operator",
+        "target": "FabricGateway CRD",
+        "label": "Approves/rejects CRD changes",
+        "type": "Arrow"
+      },
+      {
+        "source": "Fabric Gateway Operator",
+        "target": "Skipper Ingress",
+        "label": "Generates/manages Ingress resources",
+        "type": "Arrow"
+      },
+      {
+        "source": "Skipper Ingress",
+        "target": "StackSet",
+        "label": "Routes traffic to backend services",
+        "type": "Arrow"
+      },
+      {
+        "source": "Skipper Ingress",
+        "target": "Fabric Gateway Operator",
+        "label": "Notifies about service changes",
+        "type": "Arrow"
+      },
+      {
+        "source": "FabricGateway CRD",
+        "target": "Fabric Gateway Operator",
+        "label": "Watches for changes",
+        "type": "Arrow"
+      },
+      {
+        "source": "IAM Service",
+        "target": "Skipper Ingress",
+        "label": "Validates auth tokens",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Kubernetes Cluster",
+        "components": [
+          "Fabric Gateway Operator",
+          "Skipper Ingress",
+          "FabricGateway CRD"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Kubernetes Cluster Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Skipper Ingress"
+    ],
+    "unique_to_GroundTruth": [
+      "Kubernetes API Server",
+      "Metacontroller",
+      "Ingress Skipper Config",
+      "Gateway Operator HTTP Service"
+    ],
+    "unique_to_GeneratedImage": [
+      "Kubernetes Cluster",
+      "Fabric Gateway Operator",
+      "FabricGateway CRD",
+      "IAM Service",
+      "StackSet"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "kubectl",
+        "target": "Kubernetes API Server",
+        "label": "1. Create/Update FabricGateway Resource",
+        "type": "Arrow"
+      },
+      {
+        "source": "Kubernetes API Server",
+        "target": "Metacontroller",
+        "label": "3. Notification of resource persistence",
+        "type": "Arrow"
+      },
+      {
+        "source": "Metacontroller",
+        "target": "Ingress Skipper Config",
+        "label": "4. Derive Ingress Definitions",
+        "type": "Arrow"
+      },
+      {
+        "source": "Kubernetes API Server",
+        "target": "Gateway Operator HTTP Service",
+        "label": "2. Resource Admission Controller Checks",
+        "type": "Arrow"
+      },
+      {
+        "source": "Gateway Operator HTTP Service",
+        "target": "Metacontroller",
+        "label": "5. Inform K8s of Required Ingresses",
+        "type": "Arrow"
+      },
+      {
+        "source": "Metacontroller",
+        "target": "Ingress Skipper Config",
+        "label": "6. Create/Update Ingress Resources",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "API Consumer",
+        "target": "Kubernetes Cluster",
+        "label": "API Requests",
+        "type": "Arrow"
+      },
+      {
+        "source": "Fabric Gateway Operator",
+        "target": "FabricGateway CRD",
+        "label": "Approves/rejects CRD changes",
+        "type": "Arrow"
+      },
+      {
+        "source": "Fabric Gateway Operator",
+        "target": "Skipper Ingress",
+        "label": "Generates/manages Ingress resources",
+        "type": "Arrow"
+      },
+      {
+        "source": "Skipper Ingress",
+        "target": "StackSet",
+        "label": "Routes traffic to backend services",
+        "type": "Arrow"
+      },
+      {
+        "source": "Skipper Ingress",
+        "target": "Fabric Gateway Operator",
+        "label": "Notifies about service changes",
+        "type": "Arrow"
+      },
+      {
+        "source": "FabricGateway CRD",
+        "target": "Fabric Gateway Operator",
+        "label": "Watches for changes",
+        "type": "Arrow"
+      },
+      {
+        "source": "IAM Service",
+        "target": "Skipper Ingress",
+        "label": "Validates auth tokens",
+        "type": "Arrow"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of a Kubernetes-based architecture. The GroundTruth diagram focuses on the control flow within a Kubernetes environment, highlighting components like the Kubernetes API Server, Metacontroller, and Ingress Skipper Config. It emphasizes the process of creating and updating resources and ingress definitions. In contrast, the GeneratedImage diagram provides a broader view of the Kubernetes cluster architecture, including components like the Fabric Gateway Operator, FabricGateway CRD, IAM Service, and StackSet. It focuses on the interactions between these components, such as managing ingress resources and validating tokens. The common component between the two diagrams is the Skipper Ingress, although it serves different roles in each context. The GroundTruth diagram is more focused on the internal control flow, while the GeneratedImage diagram provides a higher-level overview of the system's architecture. Based on its accuracy and completeness, the GeneratedImage diagram is rated 7 out of 10. It captures the broader architecture well but lacks some specific details present in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

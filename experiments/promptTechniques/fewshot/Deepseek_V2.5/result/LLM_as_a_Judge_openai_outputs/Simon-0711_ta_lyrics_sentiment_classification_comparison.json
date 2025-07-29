@@ -1,0 +1,221 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "User",
+        "description": "End user interacting with the system",
+        "boundaries": "External",
+        "position": "Left"
+      },
+      {
+        "name": "Frontend",
+        "description": "React application",
+        "boundaries": "Docker",
+        "position": "Center-Left"
+      },
+      {
+        "name": "Backend",
+        "description": "FastAPI application with Genius API",
+        "boundaries": "Docker",
+        "position": "Center"
+      },
+      {
+        "name": "Analytics and Storage",
+        "description": "Elasticsearch and Kibana",
+        "boundaries": "Docker",
+        "position": "Right"
+      },
+      {
+        "name": "Developer/Admin",
+        "description": "Admin interacting with Kibana",
+        "boundaries": "External",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Frontend",
+        "label": "searches for/provides a song",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Frontend",
+        "target": "Backend",
+        "label": "",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Backend",
+        "target": "Analytics and Storage",
+        "label": "",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Analytics and Storage",
+        "target": "Developer/Admin",
+        "label": "",
+        "type": "Data Flow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "High level architecture",
+      "title": "High level architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "End user interacting with the system",
+        "boundaries": "External",
+        "position": "Left"
+      },
+      {
+        "name": "Frontend",
+        "description": "React application",
+        "boundaries": "",
+        "position": "Bottom-Left"
+      },
+      {
+        "name": "Backend",
+        "description": "FastAPI application",
+        "boundaries": "",
+        "position": "Center"
+      },
+      {
+        "name": "Elasticsearch",
+        "description": "Database with Mood and Lyrics Index",
+        "boundaries": "",
+        "position": "Top-Center"
+      },
+      {
+        "name": "External Services",
+        "description": "Kibana and LyricsGenius API",
+        "boundaries": "",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Frontend",
+        "label": "REST API",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Frontend",
+        "target": "Backend",
+        "label": "",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Backend",
+        "target": "Elasticsearch",
+        "label": "Query/Store",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Elasticsearch",
+        "target": "External Services",
+        "label": "Visualization",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Backend",
+        "target": "External Services",
+        "label": "Fetch lyrics",
+        "type": "Data Flow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "Contains: Original lyrics, Processed lyrics, Mood classifications, TF-IDF vectors",
+        "position": "Top-Center"
+      },
+      {
+        "text": "Data Flow: 1. User input → Frontend 2. FastAPI checks Elasticsearch 3. If not found, fetch from Genius API 4. Preprocess → CNN classification 5. Store in Elasticsearch 6. Find similar songs",
+        "position": "Bottom-Center"
+      }
+    ],
+    "groups": [
+      {
+        "name": "Backend",
+        "components": [
+          "Lyrics Processor",
+          "API Endpoints",
+          "Similarity Calculator",
+          "CNN Model"
+        ],
+        "position": "Center"
+      }
+    ],
+    "metadata": {
+      "filename": "Detailed architecture",
+      "title": ""
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "User",
+      "Frontend",
+      "Backend"
+    ],
+    "unique_to_GroundTruth": [
+      "Analytics and Storage",
+      "Developer/Admin"
+    ],
+    "unique_to_GeneratedImage": [
+      "Elasticsearch",
+      "External Services"
+    ],
+    "common_connectors": [
+      {
+        "source": "User",
+        "target": "Frontend",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Frontend",
+        "target": "Backend",
+        "type": "Data Flow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Backend",
+        "target": "Analytics and Storage",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Analytics and Storage",
+        "target": "Developer/Admin",
+        "type": "Data Flow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Backend",
+        "target": "Elasticsearch",
+        "label": "Query/Store",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Elasticsearch",
+        "target": "External Services",
+        "label": "Visualization",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Backend",
+        "target": "External Services",
+        "label": "Fetch lyrics",
+        "type": "Data Flow"
+      }
+    ],
+    "explanation": "The two diagrams represent similar architectures with a focus on a React frontend and a FastAPI backend. Both diagrams include a user interacting with the frontend, which communicates with the backend. The GroundTruth diagram includes a generalized 'Analytics and Storage' component with Docker containers for Elasticsearch and Kibana, whereas the GeneratedImage diagram specifies Elasticsearch and Kibana as separate components. The GeneratedImage also includes detailed annotations about the data flow and processing steps, which are absent in the GroundTruth. The GroundTruth diagram has a simpler structure with fewer components and connectors, while the GeneratedImage provides a more detailed view of the backend processes and external services. Overall, the GeneratedImage is more comprehensive, but both diagrams effectively communicate the core architecture. Rating: 8/10. The GeneratedImage is detailed and accurate but could improve by aligning more closely with the GroundTruth's component grouping.",
+    "Rating": 8
+  }
+}

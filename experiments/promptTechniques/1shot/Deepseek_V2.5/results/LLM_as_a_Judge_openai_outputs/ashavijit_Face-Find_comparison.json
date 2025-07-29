@@ -1,0 +1,247 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Relative/Guardian",
+        "description": "Registers a missing person",
+        "boundaries": "N/A",
+        "position": "Left"
+      },
+      {
+        "name": "Volunteer",
+        "description": "Reports a suspected missing person",
+        "boundaries": "N/A",
+        "position": "Left"
+      },
+      {
+        "name": "Admin",
+        "description": "Verifies/conducts background check",
+        "boundaries": "N/A",
+        "position": "Center"
+      },
+      {
+        "name": "Database",
+        "description": "Stores unique FaceID",
+        "boundaries": "N/A",
+        "position": "Right"
+      },
+      {
+        "name": "API",
+        "description": "Generates FaceID and finds similar faces",
+        "boundaries": "N/A",
+        "position": "Center"
+      },
+      {
+        "name": "Family/Authorities",
+        "description": "Contacted when match is found",
+        "boundaries": "N/A",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Relative/Guardian",
+        "target": "Admin",
+        "label": "Registers",
+        "type": "Arrow"
+      },
+      {
+        "source": "Volunteer",
+        "target": "Admin",
+        "label": "Reports",
+        "type": "Arrow"
+      },
+      {
+        "source": "Admin",
+        "target": "Database",
+        "label": "Stores FaceID",
+        "type": "Arrow"
+      },
+      {
+        "source": "API",
+        "target": "Database",
+        "label": "Generates FaceID",
+        "type": "Arrow"
+      },
+      {
+        "source": "Database",
+        "target": "API",
+        "label": "Finds similar face",
+        "type": "Arrow"
+      },
+      {
+        "source": "API",
+        "target": "Family/Authorities",
+        "label": "Match found",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      "A Relative/Guardian registers a missing person.",
+      "A volunteer reports a suspected missing person.",
+      "Admin verifies/conducts background check.",
+      "Unique FaceID generated and stored in DB.",
+      "FaceID generated and API tries to find similar face with List of missing person FaceIDs.",
+      "Family and local authorities are contacted."
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "business_architecture.png",
+      "title": "BUSINESS ARCHITECTURE"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Interacts with UI",
+        "boundaries": "N/A",
+        "position": "Left"
+      },
+      {
+        "name": "Email Service",
+        "description": "Delivers email",
+        "boundaries": "N/A",
+        "position": "Left"
+      },
+      {
+        "name": "Frontend",
+        "description": "Interacts with user",
+        "boundaries": "N/A",
+        "position": "Center"
+      },
+      {
+        "name": "Views",
+        "description": "Handles logic",
+        "boundaries": "Django Backend",
+        "position": "Center"
+      },
+      {
+        "name": "Forms",
+        "description": "Validates input",
+        "boundaries": "Django Backend",
+        "position": "Center"
+      },
+      {
+        "name": "Models",
+        "description": "Saves data",
+        "boundaries": "Django Backend",
+        "position": "Center"
+      },
+      {
+        "name": "Azure Face API",
+        "description": "Generates Face ID and matches faces",
+        "boundaries": "N/A",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Frontend",
+        "label": "Submit form (Create/Update)",
+        "type": "Arrow"
+      },
+      {
+        "source": "Frontend",
+        "target": "Views",
+        "label": "Provide input",
+        "type": "Arrow"
+      },
+      {
+        "source": "Views",
+        "target": "Forms",
+        "label": "Validate input",
+        "type": "Arrow"
+      },
+      {
+        "source": "Forms",
+        "target": "Models",
+        "label": "Save/Update record",
+        "type": "Arrow"
+      },
+      {
+        "source": "Views",
+        "target": "Azure Face API",
+        "label": "Generate face ID/Match faces",
+        "type": "Arrow"
+      },
+      {
+        "source": "Azure Face API",
+        "target": "Views",
+        "label": "Return match results",
+        "type": "Arrow"
+      },
+      {
+        "source": "Views",
+        "target": "Email Service",
+        "label": "Send match notification",
+        "type": "Arrow"
+      },
+      {
+        "source": "Email Service",
+        "target": "User",
+        "label": "Deliver email",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Django Backend",
+        "components": [
+          "Views",
+          "Forms",
+          "Models"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "django_architecture.png",
+      "title": "Django Backend Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      {
+        "name": "API",
+        "purpose": "Generates FaceID and matches faces"
+      }
+    ],
+    "unique_to_GroundTruth": [
+      "Relative/Guardian",
+      "Volunteer",
+      "Admin",
+      "Database",
+      "Family/Authorities"
+    ],
+    "unique_to_GeneratedImage": [
+      "User",
+      "Email Service",
+      "Frontend",
+      "Views",
+      "Forms",
+      "Models"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      "Registers",
+      "Reports",
+      "Stores FaceID",
+      "Finds similar face",
+      "Match found"
+    ],
+    "unique_connectors_GeneratedImage": [
+      "Submit form (Create/Update)",
+      "Provide input",
+      "Validate input",
+      "Save/Update record",
+      "Generate face ID/Match faces",
+      "Return match results",
+      "Send match notification",
+      "Deliver email"
+    ],
+    "explanation": "The two diagrams represent different aspects of a system related to missing person identification. The GroundTruth diagram focuses on the business process involving relatives, volunteers, and authorities, highlighting the flow from registration to notification. The GeneratedImage diagram represents a technical architecture using Django, focusing on user interaction, data handling, and integration with Azure Face API. Both diagrams share the concept of generating and matching FaceIDs but differ in their focus and components. The GroundTruth diagram is more process-oriented, while the GeneratedImage diagram is more technical and implementation-focused. The GeneratedImage is rated 7 out of 10 for its accuracy and completeness, as it effectively captures the technical backend processes but lacks the broader business context present in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

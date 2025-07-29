@@ -1,0 +1,350 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Represents the end user",
+        "boundaries": "External",
+        "position": "Left"
+      },
+      {
+        "name": "Blazor WASM",
+        "description": "Frontend application",
+        "boundaries": "Frontend",
+        "position": "Left"
+      },
+      {
+        "name": "Auth0",
+        "description": "Authentication service",
+        "boundaries": "External",
+        "position": "Bottom"
+      },
+      {
+        "name": "API Mgmt",
+        "description": "API Management",
+        "boundaries": "Middleware",
+        "position": "Center"
+      },
+      {
+        "name": "Web API",
+        "description": "Backend API",
+        "boundaries": "Backend",
+        "position": "Right"
+      },
+      {
+        "name": "Azure Key Vault",
+        "description": "Stores credentials",
+        "boundaries": "Security",
+        "position": "Top Right"
+      },
+      {
+        "name": "Azure SQL Server",
+        "description": "Database server",
+        "boundaries": "Database",
+        "position": "Bottom Right"
+      },
+      {
+        "name": "Azure Redis Cache",
+        "description": "Caching service",
+        "boundaries": "Cache",
+        "position": "Bottom Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Blazor WASM",
+        "label": "1",
+        "type": "Interaction"
+      },
+      {
+        "source": "Blazor WASM",
+        "target": "Auth0",
+        "label": "3",
+        "type": "Authentication"
+      },
+      {
+        "source": "Blazor WASM",
+        "target": "API Mgmt",
+        "label": "2",
+        "type": "JWT"
+      },
+      {
+        "source": "API Mgmt",
+        "target": "Web API",
+        "label": "4",
+        "type": "API Call"
+      },
+      {
+        "source": "Web API",
+        "target": "Azure Key Vault",
+        "label": "6",
+        "type": "Credential Access"
+      },
+      {
+        "source": "Web API",
+        "target": "Azure SQL Server",
+        "label": "5",
+        "type": "Data Access"
+      },
+      {
+        "source": "Web API",
+        "target": "Azure Redis Cache",
+        "label": "8",
+        "type": "Cache Access"
+      }
+    ],
+    "annotations": [
+      "High Lights: 1. Blazor WASM UI get authenticated and pass the JWT to APIM. 2. APIM Validates the JWT and routes the request to Web API. 3. SQL Server, and Redis Cache’s credentials are stored in Azure Key Vault. 4. Web API investigates Azure Redis Cache before hitting SQL Azure. (Cache Aside Pattern) 5. We will preform Dacpac (.sqlproj) for deployment of SQL Data Store."
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Ground Truth Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Represents the end user",
+        "boundaries": "External",
+        "position": "Left"
+      },
+      {
+        "name": "Frontend (Blazor WASM)",
+        "description": "Frontend application",
+        "boundaries": "Frontend",
+        "position": "Left"
+      },
+      {
+        "name": "Auth Component",
+        "description": "Handles authentication",
+        "boundaries": "Frontend",
+        "position": "Left"
+      },
+      {
+        "name": "API Gateway (APIM)",
+        "description": "API Management",
+        "boundaries": "Middleware",
+        "position": "Center"
+      },
+      {
+        "name": "Backend API",
+        "description": "Backend API",
+        "boundaries": "Backend",
+        "position": "Right"
+      },
+      {
+        "name": "Auth0 Integration",
+        "description": "Authentication service",
+        "boundaries": "External",
+        "position": "Right"
+      },
+      {
+        "name": "Business Logic",
+        "description": "Handles business logic",
+        "boundaries": "Backend",
+        "position": "Right"
+      },
+      {
+        "name": "Data Access",
+        "description": "Handles data access",
+        "boundaries": "Backend",
+        "position": "Right"
+      },
+      {
+        "name": "SQL Server",
+        "description": "Database server",
+        "boundaries": "Database",
+        "position": "Right"
+      },
+      {
+        "name": "Redis Cache",
+        "description": "Caching service",
+        "boundaries": "Cache",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Frontend (Blazor WASM)",
+        "label": "Interaction",
+        "type": "Interaction"
+      },
+      {
+        "source": "Frontend (Blazor WASM)",
+        "target": "Auth Component",
+        "label": "Auth Flow",
+        "type": "Authentication"
+      },
+      {
+        "source": "Frontend (Blazor WASM)",
+        "target": "API Gateway (APIM)",
+        "label": "HTTP Requests",
+        "type": "API Call"
+      },
+      {
+        "source": "API Gateway (APIM)",
+        "target": "Backend API",
+        "label": "JWT",
+        "type": "API Call"
+      },
+      {
+        "source": "Backend API",
+        "target": "Auth0 Integration",
+        "label": "Token Validation",
+        "type": "Authentication"
+      },
+      {
+        "source": "Backend API",
+        "target": "Business Logic",
+        "label": "API Call",
+        "type": "Business Logic"
+      },
+      {
+        "source": "Business Logic",
+        "target": "Data Access",
+        "label": "Business Logic",
+        "type": "Data Access"
+      },
+      {
+        "source": "Data Access",
+        "target": "SQL Server",
+        "label": "if not cached",
+        "type": "Data Access"
+      },
+      {
+        "source": "Data Access",
+        "target": "Redis Cache",
+        "label": "if cached",
+        "type": "Cache Access"
+      }
+    ],
+    "annotations": [
+      "Implements Cache-Aside Pattern: 1. Check Redis first 2. Fallback to SQL if miss 3. Update Redis on write"
+    ],
+    "groups": [
+      {
+        "name": "Frontend",
+        "components": [
+          "UI Components",
+          "Book Pages",
+          "Auth Component"
+        ]
+      },
+      {
+        "name": "Backend",
+        "components": [
+          "BooksController",
+          "BooksBLL",
+          "Cache-Aside Logic"
+        ]
+      },
+      {
+        "name": "Data Access",
+        "components": [
+          "BookRepository",
+          "BookCacheRepository"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Generated Image Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "User",
+      "Blazor WASM",
+      "Auth0",
+      "API Mgmt",
+      "Web API",
+      "Azure SQL Server",
+      "Azure Redis Cache"
+    ],
+    "unique_to_GroundTruth": [
+      "Azure Key Vault"
+    ],
+    "unique_to_GeneratedImage": [
+      "Auth Component",
+      "Business Logic",
+      "Data Access"
+    ],
+    "common_connectors": [
+      {
+        "source": "User",
+        "target": "Blazor WASM",
+        "type": "Interaction"
+      },
+      {
+        "source": "Blazor WASM",
+        "target": "API Mgmt",
+        "type": "API Call"
+      },
+      {
+        "source": "API Mgmt",
+        "target": "Web API",
+        "type": "API Call"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Blazor WASM",
+        "target": "Auth0",
+        "type": "Authentication"
+      },
+      {
+        "source": "Web API",
+        "target": "Azure Key Vault",
+        "type": "Credential Access"
+      },
+      {
+        "source": "Web API",
+        "target": "Azure SQL Server",
+        "type": "Data Access"
+      },
+      {
+        "source": "Web API",
+        "target": "Azure Redis Cache",
+        "type": "Cache Access"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Frontend (Blazor WASM)",
+        "target": "Auth Component",
+        "type": "Authentication"
+      },
+      {
+        "source": "Backend API",
+        "target": "Auth0 Integration",
+        "type": "Authentication"
+      },
+      {
+        "source": "Backend API",
+        "target": "Business Logic",
+        "type": "Business Logic"
+      },
+      {
+        "source": "Business Logic",
+        "target": "Data Access",
+        "type": "Data Access"
+      },
+      {
+        "source": "Data Access",
+        "target": "SQL Server",
+        "type": "Data Access"
+      },
+      {
+        "source": "Data Access",
+        "target": "Redis Cache",
+        "type": "Cache Access"
+      }
+    ],
+    "explanation": "The two diagrams share several common components, such as the User, Blazor WASM, Auth0, API Management, Web API, Azure SQL Server, and Azure Redis Cache. However, the Ground Truth diagram includes Azure Key Vault, which is not present in the Generated Image. Conversely, the Generated Image introduces components like Auth Component, Business Logic, and Data Access, which are not explicitly represented in the Ground Truth. Both diagrams implement a Cache-Aside Pattern, but the Generated Image provides more detailed layers and logical groupings, such as Frontend, Backend, and Data Access. The Ground Truth focuses more on the flow of JWT and credential storage. The Generated Image is rated 8 out of 10 for its accuracy and completeness, as it captures the core elements and interactions but lacks the Azure Key Vault component present in the Ground Truth.",
+    "Rating": 8
+  }
+}

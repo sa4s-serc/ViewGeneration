@@ -1,0 +1,304 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "AWS VPC",
+        "description": "Virtual Private Cloud",
+        "boundaries": "Outer boundary",
+        "position": "Top left"
+      },
+      {
+        "name": "Elastic Load Balancer",
+        "description": "Distributes incoming application traffic",
+        "boundaries": "Inside VPC",
+        "position": "Top center"
+      },
+      {
+        "name": "Auto Scaling Group",
+        "description": "Manages MarkLogic nodes",
+        "boundaries": "Availability Zones",
+        "position": "Center"
+      },
+      {
+        "name": "MarkLogic Node A/B/C",
+        "description": "Database nodes",
+        "boundaries": "Inside Auto Scaling Group",
+        "position": "Center"
+      },
+      {
+        "name": "DynamoDB",
+        "description": "Metadata Store",
+        "boundaries": "Inside VPC",
+        "position": "Bottom center"
+      },
+      {
+        "name": "CloudWatch Alarm",
+        "description": "Monitors resources",
+        "boundaries": "Inside VPC",
+        "position": "Top right"
+      },
+      {
+        "name": "Lambda: Managed ENI",
+        "description": "Manages Elastic Network Interfaces",
+        "boundaries": "Inside VPC",
+        "position": "Right"
+      },
+      {
+        "name": "Lambda: Node Manager",
+        "description": "Manages node lifecycle",
+        "boundaries": "Inside VPC",
+        "position": "Right"
+      },
+      {
+        "name": "Simple Notification Service",
+        "description": "Notification service",
+        "boundaries": "Inside VPC",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Elastic Load Balancer",
+        "target": "Auto Scaling Group",
+        "label": "Instance Recovery Alarm",
+        "type": "Arrow"
+      },
+      {
+        "source": "Auto Scaling Group",
+        "target": "DynamoDB",
+        "label": "Sync up node information",
+        "type": "Arrow"
+      },
+      {
+        "source": "Lambda: Managed ENI",
+        "target": "Auto Scaling Group",
+        "label": "Manage Network Interface",
+        "type": "Arrow"
+      },
+      {
+        "source": "Lambda: Node Manager",
+        "target": "Simple Notification Service",
+        "label": "Subscribe",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Availability Zone A/B/C",
+        "description": "Logical grouping of resources",
+        "components": [
+          "Auto Scaling Group",
+          "MarkLogic Node A/B/C"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "diagram1.png",
+      "title": "AWS Architecture with MarkLogic"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "CloudFormation Templates",
+        "description": "Templates for AWS resources",
+        "boundaries": "Top layer",
+        "position": "Top"
+      },
+      {
+        "name": "AWS Resources",
+        "description": "Resources in AWS",
+        "boundaries": "Middle layer",
+        "position": "Middle"
+      },
+      {
+        "name": "Lambda Functions",
+        "description": "Functions for managing resources",
+        "boundaries": "Bottom layer",
+        "position": "Bottom"
+      },
+      {
+        "name": "VPC/Subnets",
+        "description": "Virtual Private Cloud",
+        "boundaries": "AWS Resources",
+        "position": "Middle left"
+      },
+      {
+        "name": "EC2 Instances",
+        "description": "Compute instances",
+        "boundaries": "AWS Resources",
+        "position": "Middle"
+      },
+      {
+        "name": "EBS Volumes",
+        "description": "Block storage",
+        "boundaries": "AWS Resources",
+        "position": "Middle"
+      },
+      {
+        "name": "ALB",
+        "description": "Application Load Balancer",
+        "boundaries": "AWS Resources",
+        "position": "Middle"
+      },
+      {
+        "name": "DynamoDB",
+        "description": "Database service",
+        "boundaries": "AWS Resources",
+        "position": "Middle"
+      },
+      {
+        "name": "SNS",
+        "description": "Notification service",
+        "boundaries": "AWS Resources",
+        "position": "Middle"
+      },
+      {
+        "name": "Auto Scaling",
+        "description": "Scales resources",
+        "boundaries": "AWS Resources",
+        "position": "Middle"
+      },
+      {
+        "name": "managedeni.py",
+        "description": "Manages ENI",
+        "boundaries": "Lambda Functions",
+        "position": "Bottom"
+      },
+      {
+        "name": "nodemanager.py",
+        "description": "Manages nodes",
+        "boundaries": "Lambda Functions",
+        "position": "Bottom"
+      },
+      {
+        "name": "utils.py",
+        "description": "Utility functions",
+        "boundaries": "Lambda Functions",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "CloudFormation Templates",
+        "target": "AWS Resources",
+        "label": "Resource creation",
+        "type": "Arrow"
+      },
+      {
+        "source": "CloudFormation Templates",
+        "target": "Lambda Functions",
+        "label": "Function deployment",
+        "type": "Arrow"
+      },
+      {
+        "source": "Lambda Functions",
+        "target": "AWS Resources",
+        "label": "Resource management",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "AWS Resources",
+        "description": "Group of AWS services",
+        "components": [
+          "VPC/Subnets",
+          "EC2 Instances",
+          "EBS Volumes",
+          "ALB",
+          "DynamoDB",
+          "SNS",
+          "Auto Scaling"
+        ]
+      },
+      {
+        "name": "Lambda Functions",
+        "description": "Group of Lambda functions",
+        "components": [
+          "managedeni.py",
+          "nodemanager.py",
+          "utils.py"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "diagram2.png",
+      "title": "AWS CloudFormation Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "VPC",
+      "DynamoDB",
+      "Auto Scaling",
+      "ALB/Elastic Load Balancer",
+      "SNS/Simple Notification Service"
+    ],
+    "unique_to_GroundTruth": [
+      "MarkLogic Node A/B/C",
+      "CloudWatch Alarm",
+      "Lambda: Managed ENI",
+      "Lambda: Node Manager"
+    ],
+    "unique_to_GeneratedImage": [
+      "CloudFormation Templates",
+      "EC2 Instances",
+      "EBS Volumes",
+      "managedeni.py",
+      "nodemanager.py",
+      "utils.py"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Elastic Load Balancer",
+        "target": "Auto Scaling Group",
+        "label": "Instance Recovery Alarm",
+        "type": "Arrow"
+      },
+      {
+        "source": "Auto Scaling Group",
+        "target": "DynamoDB",
+        "label": "Sync up node information",
+        "type": "Arrow"
+      },
+      {
+        "source": "Lambda: Managed ENI",
+        "target": "Auto Scaling Group",
+        "label": "Manage Network Interface",
+        "type": "Arrow"
+      },
+      {
+        "source": "Lambda: Node Manager",
+        "target": "Simple Notification Service",
+        "label": "Subscribe",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "CloudFormation Templates",
+        "target": "AWS Resources",
+        "label": "Resource creation",
+        "type": "Arrow"
+      },
+      {
+        "source": "CloudFormation Templates",
+        "target": "Lambda Functions",
+        "label": "Function deployment",
+        "type": "Arrow"
+      },
+      {
+        "source": "Lambda Functions",
+        "target": "AWS Resources",
+        "label": "Resource management",
+        "type": "Arrow"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of AWS architecture. The GroundTruth diagram focuses on a specific deployment with MarkLogic nodes, detailing components like Auto Scaling Groups, Elastic Load Balancer, and specific Lambda functions. The GeneratedImage diagram provides a broader view of AWS resources managed through CloudFormation templates, highlighting the creation and management of resources and Lambda functions. Common elements include the VPC, DynamoDB, Auto Scaling, and notification services. However, the GroundTruth diagram includes specific components like MarkLogic nodes and CloudWatch Alarms, which are absent in the GeneratedImage. Conversely, the GeneratedImage includes CloudFormation templates and specific Python scripts for Lambda functions, not present in the GroundTruth. The architectural structure in the GroundTruth is more focused on deployment specifics, while the GeneratedImage emphasizes resource management and automation. The GeneratedImage is rated 7 out of 10 for its accuracy and completeness in representing a broader AWS architecture, though it lacks some specific deployment details found in the GroundTruth.",
+    "Rating": 7
+  }
+}
