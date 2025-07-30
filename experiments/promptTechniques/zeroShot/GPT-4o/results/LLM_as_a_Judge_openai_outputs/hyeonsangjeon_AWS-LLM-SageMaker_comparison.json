@@ -1,0 +1,285 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "AWS Cloud",
+        "description": "Cloud infrastructure hosting the components",
+        "boundaries": "Top-left",
+        "position": "Top-left"
+      },
+      {
+        "name": "Streamlit",
+        "description": "User interface for interacting with the chatbot",
+        "boundaries": "Left",
+        "position": "Left"
+      },
+      {
+        "name": "Amazon SageMaker Endpoint, GPU",
+        "description": "LLM for embedding",
+        "boundaries": "Center",
+        "position": "Center"
+      },
+      {
+        "name": "Amazon SageMaker Endpoint GPU",
+        "description": "Korean LLM, ploy-glot sentence generation",
+        "boundaries": "Right",
+        "position": "Right"
+      },
+      {
+        "name": "Amazon OpenSearch Service",
+        "description": "FAQ embedding data index insert",
+        "boundaries": "Bottom-left",
+        "position": "Bottom-left"
+      },
+      {
+        "name": "Amazon SageMaker Studio",
+        "description": "Documents to embeddings",
+        "boundaries": "Bottom-right",
+        "position": "Bottom-right"
+      },
+      {
+        "name": "Amazon S3",
+        "description": "Bank FAQ Corpus",
+        "boundaries": "Bottom-right",
+        "position": "Bottom-right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Streamlit",
+        "target": "Amazon SageMaker Endpoint, GPU",
+        "label": "Query",
+        "type": "Solid arrow"
+      },
+      {
+        "source": "Amazon SageMaker Endpoint, GPU",
+        "target": "Amazon OpenSearch Service",
+        "label": "Embedding Search",
+        "type": "Solid arrow"
+      },
+      {
+        "source": "Amazon OpenSearch Service",
+        "target": "Amazon SageMaker Endpoint, GPU",
+        "label": "Embedding Return",
+        "type": "Solid arrow"
+      },
+      {
+        "source": "Amazon SageMaker Endpoint, GPU",
+        "target": "Streamlit",
+        "label": "Answer",
+        "type": "Solid arrow"
+      },
+      {
+        "source": "Amazon S3",
+        "target": "Amazon SageMaker Studio",
+        "label": "FAQ 전처리 to csv",
+        "type": "Dashed arrow"
+      },
+      {
+        "source": "Amazon SageMaker Studio",
+        "target": "Amazon SageMaker Endpoint, GPU",
+        "label": "FAQ data embedding",
+        "type": "Dashed arrow"
+      }
+    ],
+    "annotations": [
+      "rag 챗봇 로직",
+      "rag 데이터 처리 로직"
+    ],
+    "groups": [
+      "AWS Cloud"
+    ],
+    "metadata": {
+      "filename": "financial_services_faq_chatbot_architecture.png",
+      "title": "금융데이터 FAQ Chatbot demo Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "End-user interacting with the system",
+        "boundaries": "Top and bottom",
+        "position": "Top and bottom"
+      },
+      {
+        "name": "Streamlit UI",
+        "description": "User interface for interacting with the chatbot",
+        "boundaries": "Left",
+        "position": "Left"
+      },
+      {
+        "name": "Prompter",
+        "description": "Component responsible for building and sending prompts",
+        "boundaries": "Center-left",
+        "position": "Center-left"
+      },
+      {
+        "name": "KoLLMSageMakerEndpoint",
+        "description": "Endpoint for processing prompts and generating responses",
+        "boundaries": "Center",
+        "position": "Center"
+      },
+      {
+        "name": "Amazon Opensearch",
+        "description": "Service for retrieving and returning documents",
+        "boundaries": "Center-right",
+        "position": "Center-right"
+      },
+      {
+        "name": "FAISS",
+        "description": "Service for performing vector search and returning similarity scores",
+        "boundaries": "Right",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Streamlit UI",
+        "label": "Interact with Chatbot",
+        "type": "Solid line"
+      },
+      {
+        "source": "Streamlit UI",
+        "target": "Prompter",
+        "label": "Build Prompt",
+        "type": "Solid line"
+      },
+      {
+        "source": "Prompter",
+        "target": "KoLLMSageMakerEndpoint",
+        "label": "Send Prompt",
+        "type": "Solid line"
+      },
+      {
+        "source": "KoLLMSageMakerEndpoint",
+        "target": "Amazon Opensearch",
+        "label": "Retrieve Documents",
+        "type": "Solid line"
+      },
+      {
+        "source": "Amazon Opensearch",
+        "target": "KoLLMSageMakerEndpoint",
+        "label": "Return Documents",
+        "type": "Solid line"
+      },
+      {
+        "source": "KoLLMSageMakerEndpoint",
+        "target": "FAISS",
+        "label": "Perform Vector Search",
+        "type": "Solid line"
+      },
+      {
+        "source": "FAISS",
+        "target": "KoLLMSageMakerEndpoint",
+        "label": "Return Similarity Scores",
+        "type": "Solid line"
+      },
+      {
+        "source": "KoLLMSageMakerEndpoint",
+        "target": "Streamlit UI",
+        "label": "Return Response",
+        "type": "Solid line"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "sequence_diagram.png",
+      "title": "Sequence Diagram"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Streamlit",
+      "Amazon SageMaker Endpoint",
+      "Amazon OpenSearch Service"
+    ],
+    "unique_to_GroundTruth": [
+      "AWS Cloud",
+      "Amazon SageMaker Endpoint GPU",
+      "Amazon SageMaker Studio",
+      "Amazon S3"
+    ],
+    "unique_to_GeneratedImage": [
+      "User",
+      "Prompter",
+      "FAISS"
+    ],
+    "common_connectors": [
+      {
+        "source": "Streamlit",
+        "target": "Amazon SageMaker Endpoint",
+        "label": "Query/Prompt",
+        "type": "Solid line/arrow"
+      },
+      {
+        "source": "Amazon SageMaker Endpoint",
+        "target": "Amazon OpenSearch Service",
+        "label": "Retrieve Documents/Embedding Search",
+        "type": "Solid line/arrow"
+      },
+      {
+        "source": "Amazon OpenSearch Service",
+        "target": "Amazon SageMaker Endpoint",
+        "label": "Return Documents/Embedding Return",
+        "type": "Solid line/arrow"
+      },
+      {
+        "source": "Amazon SageMaker Endpoint",
+        "target": "Streamlit",
+        "label": "Return Response/Answer",
+        "type": "Solid line/arrow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Amazon S3",
+        "target": "Amazon SageMaker Studio",
+        "label": "FAQ 전처리 to csv",
+        "type": "Dashed arrow"
+      },
+      {
+        "source": "Amazon SageMaker Studio",
+        "target": "Amazon SageMaker Endpoint, GPU",
+        "label": "FAQ data embedding",
+        "type": "Dashed arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "Streamlit UI",
+        "label": "Interact with Chatbot",
+        "type": "Solid line"
+      },
+      {
+        "source": "Streamlit UI",
+        "target": "Prompter",
+        "label": "Build Prompt",
+        "type": "Solid line"
+      },
+      {
+        "source": "Prompter",
+        "target": "KoLLMSageMakerEndpoint",
+        "label": "Send Prompt",
+        "type": "Solid line"
+      },
+      {
+        "source": "KoLLMSageMakerEndpoint",
+        "target": "FAISS",
+        "label": "Perform Vector Search",
+        "type": "Solid line"
+      },
+      {
+        "source": "FAISS",
+        "target": "KoLLMSageMakerEndpoint",
+        "label": "Return Similarity Scores",
+        "type": "Solid line"
+      }
+    ],
+    "explanation": "The GroundTruth diagram represents a high-level architecture of a financial services FAQ chatbot, focusing on AWS components and data flow. It includes components like AWS Cloud, Streamlit, Amazon SageMaker, and Amazon OpenSearch Service. The GeneratedImage diagram is a sequence diagram showing the interaction flow between components like User, Streamlit UI, Prompter, KoLLMSageMakerEndpoint, Amazon Opensearch, and FAISS. Both diagrams share components like Streamlit, Amazon SageMaker Endpoint, and Amazon OpenSearch Service, but differ in their focus and level of detail. The GroundTruth diagram emphasizes data processing and AWS services, while the GeneratedImage diagram highlights user interaction and sequence of operations. The GeneratedImage is rated 7 out of 10 for accuracy and completeness. It captures the interaction flow well but lacks some AWS-specific components and details present in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

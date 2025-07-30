@@ -5,7 +5,7 @@ import time
 import openai
 import base64
 
-openai.api_key = "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"
+openai.api_key = ""
 
 def load_image_as_base64(image_path):
     with open(image_path, "rb") as img_file:

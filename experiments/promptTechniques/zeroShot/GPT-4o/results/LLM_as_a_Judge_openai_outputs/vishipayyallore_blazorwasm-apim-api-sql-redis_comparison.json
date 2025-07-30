@@ -1,0 +1,325 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Represents the end-user interacting with the system.",
+        "boundaries": "Actor",
+        "position": "Left"
+      },
+      {
+        "name": "Blazor WebAssembly",
+        "description": "Client-side application.",
+        "boundaries": "Component",
+        "position": "Second from left"
+      },
+      {
+        "name": "API Gateway",
+        "description": "Handles API requests.",
+        "boundaries": "Component",
+        "position": "Middle"
+      },
+      {
+        "name": "ASP.NET Core API",
+        "description": "Backend API service.",
+        "boundaries": "Component",
+        "position": "Middle right"
+      },
+      {
+        "name": "Business Logic Layer",
+        "description": "Contains business rules and logic.",
+        "boundaries": "Component",
+        "position": "Right"
+      },
+      {
+        "name": "Cache Layer (Redis)",
+        "description": "Caching layer using Redis.",
+        "boundaries": "Component",
+        "position": "Right"
+      },
+      {
+        "name": "Database Layer (SQL Server)",
+        "description": "Database storage using SQL Server.",
+        "boundaries": "Component",
+        "position": "Far right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Blazor WebAssembly",
+        "label": "Interact with Web UI",
+        "type": "Request"
+      },
+      {
+        "source": "Blazor WebAssembly",
+        "target": "API Gateway",
+        "label": "Send HTTP Request (Get Book Details)",
+        "type": "Request"
+      },
+      {
+        "source": "API Gateway",
+        "target": "ASP.NET Core API",
+        "label": "Forward Request",
+        "type": "Request"
+      },
+      {
+        "source": "ASP.NET Core API",
+        "target": "Business Logic Layer",
+        "label": "Call GetBookDetails()",
+        "type": "Request"
+      },
+      {
+        "source": "Business Logic Layer",
+        "target": "Cache Layer (Redis)",
+        "label": "Check Cache for Book",
+        "type": "Request"
+      },
+      {
+        "source": "Cache Layer (Redis)",
+        "target": "Business Logic Layer",
+        "label": "Return Book Data",
+        "type": "Response"
+      },
+      {
+        "source": "Business Logic Layer",
+        "target": "Database Layer (SQL Server)",
+        "label": "Query Book",
+        "type": "Request"
+      },
+      {
+        "source": "Database Layer (SQL Server)",
+        "target": "Business Logic Layer",
+        "label": "Return Book Data",
+        "type": "Response"
+      },
+      {
+        "source": "Business Logic Layer",
+        "target": "Cache Layer (Redis)",
+        "label": "Update Cache with Book Data",
+        "type": "Update"
+      },
+      {
+        "source": "Business Logic Layer",
+        "target": "ASP.NET Core API",
+        "label": "Return Book Data",
+        "type": "Response"
+      },
+      {
+        "source": "ASP.NET Core API",
+        "target": "API Gateway",
+        "label": "Forward Response",
+        "type": "Response"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Blazor WebAssembly",
+        "label": "Return Book Data",
+        "type": "Response"
+      },
+      {
+        "source": "Blazor WebAssembly",
+        "target": "User",
+        "label": "Display Book Details",
+        "type": "Response"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Cache Layer",
+        "components": [
+          "Cache Layer (Redis)"
+        ]
+      },
+      {
+        "name": "Database Layer",
+        "components": [
+          "Database Layer (SQL Server)"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Book Retrieval Sequence Diagram"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "End-user interacting with Blazor WASM.",
+        "boundaries": "Actor",
+        "position": "Left"
+      },
+      {
+        "name": "Blazor WASM",
+        "description": "Client-side application using Blazor.",
+        "boundaries": "Component",
+        "position": "Second from left"
+      },
+      {
+        "name": "Auth0",
+        "description": "Authentication service.",
+        "boundaries": "Component",
+        "position": "Below Blazor WASM"
+      },
+      {
+        "name": "API Mgmt",
+        "description": "API Management service.",
+        "boundaries": "Component",
+        "position": "Middle"
+      },
+      {
+        "name": "Web API",
+        "description": "Backend API service.",
+        "boundaries": "Component",
+        "position": "Middle right"
+      },
+      {
+        "name": "Azure Key Vault",
+        "description": "Secrets management service.",
+        "boundaries": "Component",
+        "position": "Top right"
+      },
+      {
+        "name": "Azure SQL Server",
+        "description": "Database storage using SQL Server.",
+        "boundaries": "Component",
+        "position": "Bottom right"
+      },
+      {
+        "name": "Azure Redis Cache",
+        "description": "Caching layer using Redis.",
+        "boundaries": "Component",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Blazor WASM",
+        "label": "",
+        "type": "Interaction"
+      },
+      {
+        "source": "Blazor WASM",
+        "target": "Auth0",
+        "label": "",
+        "type": "Authentication"
+      },
+      {
+        "source": "Blazor WASM",
+        "target": "API Mgmt",
+        "label": "JWT",
+        "type": "Request"
+      },
+      {
+        "source": "API Mgmt",
+        "target": "Web API",
+        "label": "",
+        "type": "Request"
+      },
+      {
+        "source": "Web API",
+        "target": "Azure Key Vault",
+        "label": "",
+        "type": "Secrets Access"
+      },
+      {
+        "source": "Web API",
+        "target": "Azure Redis Cache",
+        "label": "",
+        "type": "Cache Access"
+      },
+      {
+        "source": "Azure Redis Cache",
+        "target": "Azure SQL Server",
+        "label": "",
+        "type": "Data Access"
+      }
+    ],
+    "annotations": [
+      "Blazor WASM UI get authenticated and pass the JWT to APIM.",
+      "APIM Validates the JWT and routes the request to Web API.",
+      "SQL Server, and Redis Cache’s credentials are stored in Azure Key Vault.",
+      "Web API investigates Azure Redis Cache before hitting SQL Azure. (Cache Aside Pattern)",
+      "We will perform Dacpac (.sqlproj) for deployment of SQL Data Store."
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "High-Level Architecture Diagram"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "User",
+      "Blazor WebAssembly",
+      "API Gateway/API Mgmt",
+      "Web API/ASP.NET Core API",
+      "Cache Layer (Redis)/Azure Redis Cache",
+      "Database Layer (SQL Server)/Azure SQL Server"
+    ],
+    "unique_to_GroundTruth": [
+      "Business Logic Layer"
+    ],
+    "unique_to_GeneratedImage": [
+      "Auth0",
+      "Azure Key Vault"
+    ],
+    "common_connectors": [
+      {
+        "source": "User",
+        "target": "Blazor WebAssembly",
+        "type": "Interaction/Request"
+      },
+      {
+        "source": "Blazor WebAssembly",
+        "target": "API Gateway/API Mgmt",
+        "type": "Request"
+      },
+      {
+        "source": "API Gateway/API Mgmt",
+        "target": "Web API/ASP.NET Core API",
+        "type": "Request"
+      },
+      {
+        "source": "Web API/ASP.NET Core API",
+        "target": "Cache Layer (Redis)/Azure Redis Cache",
+        "type": "Cache Access/Request"
+      },
+      {
+        "source": "Cache Layer (Redis)/Azure Redis Cache",
+        "target": "Database Layer (SQL Server)/Azure SQL Server",
+        "type": "Data Access/Request"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Business Logic Layer",
+        "target": "Cache Layer (Redis)",
+        "type": "Update"
+      },
+      {
+        "source": "Business Logic Layer",
+        "target": "ASP.NET Core API",
+        "type": "Response"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Blazor WASM",
+        "target": "Auth0",
+        "type": "Authentication"
+      },
+      {
+        "source": "Web API",
+        "target": "Azure Key Vault",
+        "type": "Secrets Access"
+      }
+    ],
+    "explanation": "The two diagrams share several common components such as the User, Blazor WebAssembly, API Gateway/API Mgmt, Web API/ASP.NET Core API, Cache Layer (Redis)/Azure Redis Cache, and Database Layer (SQL Server)/Azure SQL Server. However, the GroundTruth diagram includes a Business Logic Layer, which is absent in the GeneratedImage diagram. Conversely, the GeneratedImage diagram introduces Auth0 for authentication and Azure Key Vault for secrets management, which are not present in the GroundTruth diagram. Both diagrams depict a similar flow of data from the user through the client-side application to the backend services, but the GeneratedImage diagram includes additional security and secrets management components. The architectural structure in the GroundTruth is more detailed in terms of business logic, while the GeneratedImage focuses on high-level architecture with emphasis on security. Based on the accuracy and completeness, the GeneratedImage is rated 7 out of 10. It captures the general flow and components but lacks some detailed elements present in the GroundTruth, such as the Business Logic Layer.",
+    "Rating": 7
+  }
+}

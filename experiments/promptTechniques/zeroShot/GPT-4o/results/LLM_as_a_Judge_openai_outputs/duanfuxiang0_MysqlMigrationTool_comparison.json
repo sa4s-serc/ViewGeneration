@@ -1,0 +1,328 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "业务",
+        "description": "",
+        "boundary": "vertical",
+        "position": "left"
+      },
+      {
+        "name": "老DB",
+        "description": "",
+        "boundary": "vertical",
+        "position": "center-left"
+      },
+      {
+        "name": "新DB",
+        "description": "",
+        "boundary": "vertical",
+        "position": "center-right"
+      },
+      {
+        "name": "同步任务",
+        "description": "",
+        "boundary": "vertical",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "同步任务",
+        "target": "新DB",
+        "label": "全量迁移",
+        "type": "arrow"
+      },
+      {
+        "source": "同步任务",
+        "target": "新DB",
+        "label": "增量迁移",
+        "type": "arrow"
+      },
+      {
+        "source": "同步任务",
+        "target": "新DB",
+        "label": "数据一致性校验",
+        "type": "arrow"
+      },
+      {
+        "source": "业务",
+        "target": "老DB",
+        "label": "上线权限",
+        "type": "arrow"
+      },
+      {
+        "source": "老DB",
+        "target": "新DB",
+        "label": "写新库",
+        "type": "arrow"
+      },
+      {
+        "source": "同步任务",
+        "target": "老DB",
+        "label": "关闭增量同步",
+        "type": "arrow"
+      },
+      {
+        "source": "同步任务",
+        "target": "老DB",
+        "label": "数据一致性校验",
+        "type": "arrow"
+      },
+      {
+        "source": "同步任务",
+        "target": "老DB",
+        "label": "清理老数据",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Database Migration Process"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "",
+        "boundary": "actor",
+        "position": "left"
+      },
+      {
+        "name": "incremental_data_migration.go",
+        "description": "",
+        "boundary": "vertical",
+        "position": "center-left"
+      },
+      {
+        "name": "canal.Canal",
+        "description": "",
+        "boundary": "vertical",
+        "position": "center"
+      },
+      {
+        "name": "RowEventHandler",
+        "description": "",
+        "boundary": "vertical",
+        "position": "center-right"
+      },
+      {
+        "name": "BinlogParser",
+        "description": "",
+        "boundary": "vertical",
+        "position": "right"
+      },
+      {
+        "name": "core/dao.go",
+        "description": "",
+        "boundary": "vertical",
+        "position": "far-right"
+      },
+      {
+        "name": "Source MySQL Database",
+        "description": "",
+        "boundary": "vertical",
+        "position": "bottom-left"
+      },
+      {
+        "name": "Destination Database",
+        "description": "",
+        "boundary": "vertical",
+        "position": "bottom-right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "incremental_data_migration.go",
+        "label": "Start Migration",
+        "type": "arrow"
+      },
+      {
+        "source": "incremental_data_migration.go",
+        "target": "canal.Canal",
+        "label": "Initialize binlog listener",
+        "type": "arrow"
+      },
+      {
+        "source": "canal.Canal",
+        "target": "RowEventHandler",
+        "label": "Connect and listen for binlog events",
+        "type": "arrow"
+      },
+      {
+        "source": "RowEventHandler",
+        "target": "BinlogParser",
+        "label": "Notify binlog event",
+        "type": "arrow"
+      },
+      {
+        "source": "BinlogParser",
+        "target": "core/dao.go",
+        "label": "Parse binlog row event",
+        "type": "arrow"
+      },
+      {
+        "source": "core/dao.go",
+        "target": "Destination Database",
+        "label": "Map row data to structs",
+        "type": "arrow"
+      },
+      {
+        "source": "core/dao.go",
+        "target": "Source MySQL Database",
+        "label": "InsertToNew",
+        "type": "arrow"
+      },
+      {
+        "source": "core/dao.go",
+        "target": "Source MySQL Database",
+        "label": "UpdateToNew",
+        "type": "arrow"
+      },
+      {
+        "source": "core/dao.go",
+        "target": "Source MySQL Database",
+        "label": "DeleteFromNew",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Incremental Data Migration"
+    }
+  },
+  "comparison": {
+    "common_components": [],
+    "unique_to_GroundTruth": [
+      "业务",
+      "老DB",
+      "新DB",
+      "同步任务"
+    ],
+    "unique_to_GeneratedImage": [
+      "User",
+      "incremental_data_migration.go",
+      "canal.Canal",
+      "RowEventHandler",
+      "BinlogParser",
+      "core/dao.go",
+      "Source MySQL Database",
+      "Destination Database"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "同步任务",
+        "target": "新DB",
+        "label": "全量迁移",
+        "type": "arrow"
+      },
+      {
+        "source": "同步任务",
+        "target": "新DB",
+        "label": "增量迁移",
+        "type": "arrow"
+      },
+      {
+        "source": "同步任务",
+        "target": "新DB",
+        "label": "数据一致性校验",
+        "type": "arrow"
+      },
+      {
+        "source": "业务",
+        "target": "老DB",
+        "label": "上线权限",
+        "type": "arrow"
+      },
+      {
+        "source": "老DB",
+        "target": "新DB",
+        "label": "写新库",
+        "type": "arrow"
+      },
+      {
+        "source": "同步任务",
+        "target": "老DB",
+        "label": "关闭增量同步",
+        "type": "arrow"
+      },
+      {
+        "source": "同步任务",
+        "target": "老DB",
+        "label": "数据一致性校验",
+        "type": "arrow"
+      },
+      {
+        "source": "同步任务",
+        "target": "老DB",
+        "label": "清理老数据",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "incremental_data_migration.go",
+        "label": "Start Migration",
+        "type": "arrow"
+      },
+      {
+        "source": "incremental_data_migration.go",
+        "target": "canal.Canal",
+        "label": "Initialize binlog listener",
+        "type": "arrow"
+      },
+      {
+        "source": "canal.Canal",
+        "target": "RowEventHandler",
+        "label": "Connect and listen for binlog events",
+        "type": "arrow"
+      },
+      {
+        "source": "RowEventHandler",
+        "target": "BinlogParser",
+        "label": "Notify binlog event",
+        "type": "arrow"
+      },
+      {
+        "source": "BinlogParser",
+        "target": "core/dao.go",
+        "label": "Parse binlog row event",
+        "type": "arrow"
+      },
+      {
+        "source": "core/dao.go",
+        "target": "Destination Database",
+        "label": "Map row data to structs",
+        "type": "arrow"
+      },
+      {
+        "source": "core/dao.go",
+        "target": "Source MySQL Database",
+        "label": "InsertToNew",
+        "type": "arrow"
+      },
+      {
+        "source": "core/dao.go",
+        "target": "Source MySQL Database",
+        "label": "UpdateToNew",
+        "type": "arrow"
+      },
+      {
+        "source": "core/dao.go",
+        "target": "Source MySQL Database",
+        "label": "DeleteFromNew",
+        "type": "arrow"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on a higher-level view of a database migration process, involving components like old and new databases and synchronization tasks. It illustrates steps like full migration, incremental migration, and data consistency checks. The GeneratedImage diagram, on the other hand, provides a more detailed technical sequence of events for incremental data migration, involving specific components like binlog listeners and event handlers. It includes user interactions and specific operations on the database. There are no shared components or connectors between the diagrams, as they represent different levels of abstraction and detail. The GroundTruth diagram is more about the process overview, while the GeneratedImage diagram is about the technical implementation details. I would rate the generated image a 7 out of 10 for its accuracy in depicting a detailed sequence of operations, but it lacks the broader process context found in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}
