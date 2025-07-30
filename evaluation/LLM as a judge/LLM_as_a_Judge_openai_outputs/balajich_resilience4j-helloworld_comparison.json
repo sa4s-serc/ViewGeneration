@@ -1,0 +1,255 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Browser",
+        "description": "Client making requests",
+        "boundaries": "Oval",
+        "position": "Left"
+      },
+      {
+        "name": "ServiceA",
+        "description": "Handles requests and retries",
+        "boundaries": "Rectangle",
+        "position": "Center"
+      },
+      {
+        "name": "ServiceB",
+        "description": "Provides greeting service",
+        "boundaries": "Rectangle",
+        "position": "Right"
+      },
+      {
+        "name": "callB",
+        "description": "Retries 3 times",
+        "boundaries": "Oval",
+        "position": "Inside ServiceA"
+      },
+      {
+        "name": "greeting",
+        "description": "Greeting endpoint",
+        "boundaries": "Oval",
+        "position": "Inside ServiceB"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Browser",
+        "target": "ServiceA",
+        "label": "Request GET /greetig",
+        "type": "Arrow"
+      },
+      {
+        "source": "ServiceA",
+        "target": "ServiceB",
+        "label": "callB",
+        "type": "Arrow"
+      },
+      {
+        "source": "ServiceB",
+        "target": "Browser",
+        "label": "Response",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      "Resilience4j-Retry"
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": null
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Client",
+        "description": "Initiates requests",
+        "boundaries": "Actor",
+        "position": "Left"
+      },
+      {
+        "name": "Service A",
+        "description": "Handles requests",
+        "boundaries": "Lifeline",
+        "position": "Second from left"
+      },
+      {
+        "name": "Service B",
+        "description": "Provides service",
+        "boundaries": "Lifeline",
+        "position": "Third from left"
+      },
+      {
+        "name": "Circuit Breaker",
+        "description": "Monitors and controls requests",
+        "boundaries": "Lifeline",
+        "position": "Fourth from left"
+      },
+      {
+        "name": "Rate Limiter",
+        "description": "Limits request rate",
+        "boundaries": "Lifeline",
+        "position": "Fifth from left"
+      },
+      {
+        "name": "Bulkhead",
+        "description": "Isolates resources",
+        "boundaries": "Lifeline",
+        "position": "Sixth from left"
+      },
+      {
+        "name": "Retry",
+        "description": "Retries requests",
+        "boundaries": "Lifeline",
+        "position": "Seventh from left"
+      },
+      {
+        "name": "TimeLimiter",
+        "description": "Limits execution time",
+        "boundaries": "Lifeline",
+        "position": "Eighth from left"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Client",
+        "target": "Service A",
+        "label": "Request",
+        "type": "Arrow"
+      },
+      {
+        "source": "Service A",
+        "target": "Circuit Breaker",
+        "label": "Check state",
+        "type": "Arrow"
+      },
+      {
+        "source": "Circuit Breaker",
+        "target": "Rate Limiter",
+        "label": "Check rate",
+        "type": "Arrow"
+      },
+      {
+        "source": "Rate Limiter",
+        "target": "Bulkhead",
+        "label": "Acquire resources",
+        "type": "Arrow"
+      },
+      {
+        "source": "Bulkhead",
+        "target": "Retry",
+        "label": "Start timer",
+        "type": "Arrow"
+      },
+      {
+        "source": "Retry",
+        "target": "Service B",
+        "label": "Forward request",
+        "type": "Arrow"
+      },
+      {
+        "source": "Service B",
+        "target": "Client",
+        "label": "Response",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      "Service A",
+      "Service B",
+      "Circuit Breaker",
+      "Rate Limiter",
+      "Bulkhead",
+      "Retry",
+      "TimeLimiter"
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": null
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Service A",
+      "Service B"
+    ],
+    "unique_to_GroundTruth": [
+      "Browser",
+      "callB",
+      "greeting"
+    ],
+    "unique_to_GeneratedImage": [
+      "Client",
+      "Circuit Breaker",
+      "Rate Limiter",
+      "Bulkhead",
+      "Retry",
+      "TimeLimiter"
+    ],
+    "common_connectors": [
+      {
+        "source": "Service B",
+        "target": "Client",
+        "label": "Response",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Browser",
+        "target": "ServiceA",
+        "label": "Request GET /greetig",
+        "type": "Arrow"
+      },
+      {
+        "source": "ServiceA",
+        "target": "ServiceB",
+        "label": "callB",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Client",
+        "target": "Service A",
+        "label": "Request",
+        "type": "Arrow"
+      },
+      {
+        "source": "Service A",
+        "target": "Circuit Breaker",
+        "label": "Check state",
+        "type": "Arrow"
+      },
+      {
+        "source": "Circuit Breaker",
+        "target": "Rate Limiter",
+        "label": "Check rate",
+        "type": "Arrow"
+      },
+      {
+        "source": "Rate Limiter",
+        "target": "Bulkhead",
+        "label": "Acquire resources",
+        "type": "Arrow"
+      },
+      {
+        "source": "Bulkhead",
+        "target": "Retry",
+        "label": "Start timer",
+        "type": "Arrow"
+      },
+      {
+        "source": "Retry",
+        "target": "Service B",
+        "label": "Forward request",
+        "type": "Arrow"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on a simple interaction between a browser and two services with a retry mechanism using Resilience4j. It includes specific components like 'callB' and 'greeting' which are not present in the GeneratedImage. The GeneratedImage is more complex, incorporating additional components such as Circuit Breaker, Rate Limiter, Bulkhead, and TimeLimiter, indicating a more robust architecture with multiple resilience patterns. The common elements are Service A and Service B, but the GeneratedImage provides a more detailed view of the interactions and control mechanisms. The GroundTruth diagram is simpler and more focused on a specific retry scenario, while the GeneratedImage represents a broader resilience strategy. Based on accuracy, completeness, and similarity, the GeneratedImage is rated 7 out of 10. It captures the essence of resilience but lacks the specific retry focus of the GroundTruth.",
+    "Rating": 7
+  }
+}

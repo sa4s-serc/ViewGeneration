@@ -1,0 +1,364 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Amazon S3",
+        "description": "Storage service",
+        "boundary": "VPC",
+        "position": "top-left"
+      },
+      {
+        "name": "Amazon Aurora Serverless",
+        "description": "Database service",
+        "boundary": "VPC",
+        "position": "left"
+      },
+      {
+        "name": "MLflow",
+        "description": "Machine learning lifecycle management",
+        "boundary": "VPC",
+        "position": "center-left"
+      },
+      {
+        "name": "Network Load Balancer",
+        "description": "Load balancing service",
+        "boundary": "VPC",
+        "position": "center"
+      },
+      {
+        "name": "AWS PrivateLink",
+        "description": "Private connectivity",
+        "boundary": "VPC",
+        "position": "center-right"
+      },
+      {
+        "name": "Amazon ECS",
+        "description": "Container service",
+        "boundary": "VPC",
+        "position": "bottom-left"
+      },
+      {
+        "name": "AWS REST API Gateway",
+        "description": "API management",
+        "boundary": "VPC",
+        "position": "center-right"
+      },
+      {
+        "name": "AWS Lambda",
+        "description": "Serverless compute",
+        "boundary": "VPC",
+        "position": "bottom-right"
+      },
+      {
+        "name": "Amazon SageMaker Studio",
+        "description": "Machine learning IDE",
+        "boundary": "right"
+      },
+      {
+        "name": "Amazon Cognito",
+        "description": "User authentication",
+        "boundary": "bottom"
+      },
+      {
+        "name": "AWS Amplify",
+        "description": "Web and mobile app development",
+        "boundary": "bottom"
+      },
+      {
+        "name": "AWS CodeCommit",
+        "description": "Source control",
+        "boundary": "bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Amazon Aurora Serverless",
+        "target": "MLflow",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "MLflow",
+        "target": "Network Load Balancer",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Network Load Balancer",
+        "target": "AWS PrivateLink",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "AWS PrivateLink",
+        "target": "AWS REST API Gateway",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "AWS REST API Gateway",
+        "target": "AWS Lambda",
+        "label": "",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "IAM Authorizer",
+        "position": "center-right"
+      },
+      {
+        "text": "Lambda Authorizer",
+        "position": "center-right"
+      }
+    ],
+    "groups": [
+      {
+        "name": "VPC",
+        "components": [
+          "Amazon Aurora Serverless",
+          "MLflow",
+          "Network Load Balancer",
+          "AWS PrivateLink",
+          "Amazon ECS",
+          "AWS REST API Gateway",
+          "AWS Lambda"
+        ]
+      },
+      {
+        "name": "Amazon SageMaker Studio",
+        "components": [
+          "mlflow-admin profile",
+          "mlflow-reader profile",
+          "mlflow-model-approver profile"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "AWS Architecture with MLflow"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "S3",
+        "description": "Storage service",
+        "boundary": "AWS Services",
+        "position": "top-left"
+      },
+      {
+        "name": "SageMaker",
+        "description": "Machine learning service",
+        "boundary": "AWS Services",
+        "position": "top-center"
+      },
+      {
+        "name": "FeatureStore",
+        "description": "Feature management",
+        "boundary": "AWS Services",
+        "position": "top-center-right"
+      },
+      {
+        "name": "IAM",
+        "description": "Identity and access management",
+        "boundary": "AWS Services",
+        "position": "top-right"
+      },
+      {
+        "name": "Model Hub",
+        "description": "Model repository",
+        "boundary": "Hugging Face",
+        "position": "top-center"
+      },
+      {
+        "name": "Transformers",
+        "description": "Model inference",
+        "boundary": "Hugging Face",
+        "position": "top-right"
+      },
+      {
+        "name": "User",
+        "description": "End user",
+        "boundary": "left",
+        "position": "top-left"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "S3",
+        "label": "Upload Dataset",
+        "type": "arrow"
+      },
+      {
+        "source": "S3",
+        "target": "SageMaker",
+        "label": "Initiate Model Training",
+        "type": "arrow"
+      },
+      {
+        "source": "SageMaker",
+        "target": "Model Hub",
+        "label": "Load Pre-trained Model",
+        "type": "arrow"
+      },
+      {
+        "source": "Model Hub",
+        "target": "SageMaker",
+        "label": "Return Model",
+        "type": "arrow"
+      },
+      {
+        "source": "SageMaker",
+        "target": "Transformers",
+        "label": "Pull Tokenizer",
+        "type": "arrow"
+      },
+      {
+        "source": "Transformers",
+        "target": "SageMaker",
+        "label": "Return Tokenizer",
+        "type": "arrow"
+      },
+      {
+        "source": "SageMaker",
+        "target": "FeatureStore",
+        "label": "Train and Optimize Model",
+        "type": "arrow"
+      },
+      {
+        "source": "FeatureStore",
+        "target": "SageMaker",
+        "label": "Return Features",
+        "type": "arrow"
+      },
+      {
+        "source": "SageMaker",
+        "target": "IAM",
+        "label": "Apply Policies",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "AWS Services",
+        "components": [
+          "S3",
+          "SageMaker",
+          "FeatureStore",
+          "IAM"
+        ]
+      },
+      {
+        "name": "Hugging Face",
+        "components": [
+          "Model Hub",
+          "Transformers"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "AWS and Hugging Face Integration"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Amazon S3",
+      "Amazon SageMaker"
+    ],
+    "unique_to_GroundTruth": [
+      "Amazon Aurora Serverless",
+      "MLflow",
+      "Network Load Balancer",
+      "AWS PrivateLink",
+      "Amazon ECS",
+      "AWS REST API Gateway",
+      "AWS Lambda",
+      "Amazon Cognito",
+      "AWS Amplify",
+      "AWS CodeCommit"
+    ],
+    "unique_to_GeneratedImage": [
+      "FeatureStore",
+      "IAM",
+      "Model Hub",
+      "Transformers",
+      "User"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Amazon Aurora Serverless",
+        "target": "MLflow"
+      },
+      {
+        "source": "MLflow",
+        "target": "Network Load Balancer"
+      },
+      {
+        "source": "Network Load Balancer",
+        "target": "AWS PrivateLink"
+      },
+      {
+        "source": "AWS PrivateLink",
+        "target": "AWS REST API Gateway"
+      },
+      {
+        "source": "AWS REST API Gateway",
+        "target": "AWS Lambda"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "S3",
+        "label": "Upload Dataset"
+      },
+      {
+        "source": "S3",
+        "target": "SageMaker",
+        "label": "Initiate Model Training"
+      },
+      {
+        "source": "SageMaker",
+        "target": "Model Hub",
+        "label": "Load Pre-trained Model"
+      },
+      {
+        "source": "Model Hub",
+        "target": "SageMaker",
+        "label": "Return Model"
+      },
+      {
+        "source": "SageMaker",
+        "target": "Transformers",
+        "label": "Pull Tokenizer"
+      },
+      {
+        "source": "Transformers",
+        "target": "SageMaker",
+        "label": "Return Tokenizer"
+      },
+      {
+        "source": "SageMaker",
+        "target": "FeatureStore",
+        "label": "Train and Optimize Model"
+      },
+      {
+        "source": "FeatureStore",
+        "target": "SageMaker",
+        "label": "Return Features"
+      },
+      {
+        "source": "SageMaker",
+        "target": "IAM",
+        "label": "Apply Policies"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on AWS services with a specific emphasis on MLflow integration within a VPC, highlighting components like Amazon Aurora Serverless, Network Load Balancer, and AWS Lambda. It also includes user management and development tools like Amazon Cognito and AWS Amplify. The GeneratedImage diagram, however, illustrates a broader integration between AWS and Hugging Face, emphasizing the flow of data and model management between services like SageMaker, FeatureStore, and external components like Model Hub and Transformers. There are no common connectors, but both diagrams share components like Amazon S3 and SageMaker. The GroundTruth diagram is more focused on AWS-specific services, while the GeneratedImage diagram highlights a cross-platform integration. The GeneratedImage is rated 7 out of 10 for its clarity in illustrating the integration process, though it lacks some of the specific AWS components present in the GroundTruth.",
+    "Rating": 7
+  }
+}

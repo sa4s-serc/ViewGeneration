@@ -5,7 +5,7 @@ import time
 import openai
 import base64
 
-openai.api_key = ""
+openai.api_key = "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"
 
 def load_image_as_base64(image_path):
     with open(image_path, "rb") as img_file:
@@ -119,7 +119,7 @@ def get_files_by_stem(folder):
 def main():
     output_dir = "LLM_as_a_Judge_openai_outputs"
     folder1 = "./initial_images"
-    folder2 = "./fewShot_deepseek_output_images"
+    folder2 = "./zeroShot_gpt_output_images"
 
     files1 = get_files_by_stem(folder1)
     files2 = get_files_by_stem(folder2)

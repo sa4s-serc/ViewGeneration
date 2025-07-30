@@ -1,0 +1,466 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "User",
+        "description": "User interacting with the system",
+        "boundaries": "external",
+        "position": "left"
+      },
+      {
+        "name": "Frontend (Browser)",
+        "description": "User interface",
+        "boundaries": "internal",
+        "position": "left"
+      },
+      {
+        "name": "API Gateway",
+        "description": "Entry point for API requests",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "Lambda Function: LF1",
+        "description": "Handles fixtures and predictions",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "Lambda Function: LF2",
+        "description": "Handles chatbot interactions",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "Lex",
+        "description": "Processes user input for chatbot",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "DynamoDB",
+        "description": "Database for storing data",
+        "boundaries": "internal",
+        "position": "right"
+      },
+      {
+        "name": "ElasticSearch",
+        "description": "Search engine",
+        "boundaries": "internal",
+        "position": "right"
+      },
+      {
+        "name": "SageMaker",
+        "description": "Machine learning service",
+        "boundaries": "internal",
+        "position": "right"
+      },
+      {
+        "name": "SNS",
+        "description": "Notification service",
+        "boundaries": "internal",
+        "position": "right"
+      },
+      {
+        "name": "SQS",
+        "description": "Queue service",
+        "boundaries": "internal",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Frontend (Browser)",
+        "label": "Access web application",
+        "type": "interaction"
+      },
+      {
+        "source": "Frontend (Browser)",
+        "target": "API Gateway",
+        "label": "GET /fixtures",
+        "type": "HTTP"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda Function: LF1",
+        "label": "Invoke LF1",
+        "type": "invocation"
+      },
+      {
+        "source": "Lambda Function: LF1",
+        "target": "DynamoDB",
+        "label": "Query fixtures",
+        "type": "query"
+      },
+      {
+        "source": "Lambda Function: LF1",
+        "target": "API Gateway",
+        "label": "Response with fixtures",
+        "type": "response"
+      },
+      {
+        "source": "Frontend (Browser)",
+        "target": "API Gateway",
+        "label": "POST /predict",
+        "type": "HTTP"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda Function: LF1",
+        "label": "Invoke LF1",
+        "type": "invocation"
+      },
+      {
+        "source": "Lambda Function: LF1",
+        "target": "SageMaker",
+        "label": "Request prediction",
+        "type": "request"
+      },
+      {
+        "source": "Lambda Function: LF1",
+        "target": "API Gateway",
+        "label": "Response with prediction",
+        "type": "response"
+      },
+      {
+        "source": "Frontend (Browser)",
+        "target": "API Gateway",
+        "label": "POST /chatbot",
+        "type": "HTTP"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda Function: LF2",
+        "label": "Invoke LF2",
+        "type": "invocation"
+      },
+      {
+        "source": "Lambda Function: LF2",
+        "target": "Lex",
+        "label": "Process user input",
+        "type": "processing"
+      },
+      {
+        "source": "Lex",
+        "target": "Lambda Function: LF2",
+        "label": "Return intent",
+        "type": "response"
+      },
+      {
+        "source": "Lambda Function: LF2",
+        "target": "SNS",
+        "label": "Send SMS",
+        "type": "notification"
+      },
+      {
+        "source": "SNS",
+        "target": "Lambda Function: LF2",
+        "label": "SMS Sent",
+        "type": "confirmation"
+      },
+      {
+        "source": "Lambda Function: LF2",
+        "target": "SQS",
+        "label": "Queue response",
+        "type": "queue"
+      },
+      {
+        "source": "Lambda Function: LF2",
+        "target": "DynamoDB",
+        "label": "Store chat history",
+        "type": "storage"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "sequence_diagram.png",
+      "title": "Sequence Diagram"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "User interacting with the system",
+        "boundaries": "external",
+        "position": "bottom-left"
+      },
+      {
+        "name": "S3",
+        "description": "Storage service",
+        "boundaries": "internal",
+        "position": "bottom-left"
+      },
+      {
+        "name": "API Gateway",
+        "description": "Entry point for API requests",
+        "boundaries": "internal",
+        "position": "bottom-center"
+      },
+      {
+        "name": "Cognito",
+        "description": "User authentication",
+        "boundaries": "internal",
+        "position": "bottom-center"
+      },
+      {
+        "name": "Lambda",
+        "description": "Compute service",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "DynamoDB",
+        "description": "Database for storing data",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "ElasticSearch",
+        "description": "Search engine",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "SageMaker",
+        "description": "Machine learning service",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "SNS",
+        "description": "Notification service",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "SQS",
+        "description": "Queue service",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "EC2",
+        "description": "Compute service",
+        "boundaries": "internal",
+        "position": "top-center"
+      },
+      {
+        "name": "Kafka",
+        "description": "Streaming platform",
+        "boundaries": "internal",
+        "position": "top-center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "S3",
+        "label": "live_score",
+        "type": "data"
+      },
+      {
+        "source": "User",
+        "target": "API Gateway",
+        "label": "API requests",
+        "type": "HTTP"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Cognito",
+        "label": "Authentication",
+        "type": "auth"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda",
+        "label": "Invoke Lambda",
+        "type": "invocation"
+      },
+      {
+        "source": "Lambda",
+        "target": "DynamoDB",
+        "label": "standing",
+        "type": "query"
+      },
+      {
+        "source": "Lambda",
+        "target": "ElasticSearch",
+        "label": "recommendation",
+        "type": "search"
+      },
+      {
+        "source": "Lambda",
+        "target": "SageMaker",
+        "label": "prediction",
+        "type": "ML"
+      },
+      {
+        "source": "Lambda",
+        "target": "SNS",
+        "label": "notification",
+        "type": "notification"
+      },
+      {
+        "source": "Lambda",
+        "target": "SQS",
+        "label": "fixtures",
+        "type": "queue"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "architecture_diagram.png",
+      "title": "Architecture Diagram"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "User",
+      "API Gateway",
+      "DynamoDB",
+      "ElasticSearch",
+      "SageMaker",
+      "SNS",
+      "SQS"
+    ],
+    "unique_to_GroundTruth": [
+      "Frontend (Browser)",
+      "Lambda Function: LF1",
+      "Lambda Function: LF2",
+      "Lex"
+    ],
+    "unique_to_GeneratedImage": [
+      "S3",
+      "Cognito",
+      "Lambda",
+      "EC2",
+      "Kafka"
+    ],
+    "common_connectors": [
+      {
+        "source": "User",
+        "target": "API Gateway",
+        "label": "API requests",
+        "type": "HTTP"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda",
+        "label": "Invoke Lambda",
+        "type": "invocation"
+      },
+      {
+        "source": "Lambda",
+        "target": "DynamoDB",
+        "label": "Query",
+        "type": "query"
+      },
+      {
+        "source": "Lambda",
+        "target": "ElasticSearch",
+        "label": "Search",
+        "type": "search"
+      },
+      {
+        "source": "Lambda",
+        "target": "SageMaker",
+        "label": "ML",
+        "type": "ML"
+      },
+      {
+        "source": "Lambda",
+        "target": "SNS",
+        "label": "Notification",
+        "type": "notification"
+      },
+      {
+        "source": "Lambda",
+        "target": "SQS",
+        "label": "Queue",
+        "type": "queue"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Frontend (Browser)",
+        "target": "API Gateway",
+        "label": "GET /fixtures",
+        "type": "HTTP"
+      },
+      {
+        "source": "Lambda Function: LF1",
+        "target": "SageMaker",
+        "label": "Request prediction",
+        "type": "request"
+      },
+      {
+        "source": "Lambda Function: LF2",
+        "target": "Lex",
+        "label": "Process user input",
+        "type": "processing"
+      },
+      {
+        "source": "Lex",
+        "target": "Lambda Function: LF2",
+        "label": "Return intent",
+        "type": "response"
+      },
+      {
+        "source": "Lambda Function: LF2",
+        "target": "SNS",
+        "label": "Send SMS",
+        "type": "notification"
+      },
+      {
+        "source": "SNS",
+        "target": "Lambda Function: LF2",
+        "label": "SMS Sent",
+        "type": "confirmation"
+      },
+      {
+        "source": "Lambda Function: LF2",
+        "target": "DynamoDB",
+        "label": "Store chat history",
+        "type": "storage"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "S3",
+        "label": "live_score",
+        "type": "data"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Cognito",
+        "label": "Authentication",
+        "type": "auth"
+      },
+      {
+        "source": "Lambda",
+        "target": "DynamoDB",
+        "label": "standing",
+        "type": "query"
+      },
+      {
+        "source": "Lambda",
+        "target": "ElasticSearch",
+        "label": "recommendation",
+        "type": "search"
+      },
+      {
+        "source": "Lambda",
+        "target": "SageMaker",
+        "label": "prediction",
+        "type": "ML"
+      }
+    ],
+    "explanation": "The two diagrams share several components such as User, API Gateway, DynamoDB, ElasticSearch, SageMaker, SNS, and SQS. However, the GroundTruth diagram includes specific components like Frontend (Browser), Lambda Function: LF1, Lambda Function: LF2, and Lex, which are not present in the GeneratedImage. Conversely, the GeneratedImage includes components like S3, Cognito, Lambda, EC2, and Kafka, which are absent in the GroundTruth. The connectors in both diagrams show similar interactions with the common components, but the GroundTruth has additional interactions related to the frontend and chatbot functionalities. The GeneratedImage focuses more on data flow and authentication. The architectural structure in the GroundTruth is more detailed with specific functions and user interactions, while the GeneratedImage provides a broader overview of the system architecture. Based on accuracy and completeness, the GeneratedImage is rated 7 out of 10. It captures the core components and interactions but misses some specific functionalities and interactions present in the GroundTruth.",
+    "Rating": 7
+  }
+}
