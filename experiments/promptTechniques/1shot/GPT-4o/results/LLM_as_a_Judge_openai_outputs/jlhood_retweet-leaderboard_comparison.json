@@ -1,0 +1,267 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "UI",
+        "description": "User Interface",
+        "boundaries": "None",
+        "position": "Top Left"
+      },
+      {
+        "name": "LeaderboardApi",
+        "description": "API Gateway",
+        "boundaries": "None",
+        "position": "Center Left"
+      },
+      {
+        "name": "GetLeaderboard",
+        "description": "Lambda Function",
+        "boundaries": "Dashed Box",
+        "position": "Center"
+      },
+      {
+        "name": "TweetProcessor",
+        "description": "Lambda Function",
+        "boundaries": "Dashed Box",
+        "position": "Bottom Center"
+      },
+      {
+        "name": "Leaderboard",
+        "description": "DynamoDB",
+        "boundaries": "Dashed Box",
+        "position": "Center Right"
+      },
+      {
+        "name": "aws-serverless-twitter-event-source",
+        "description": "Event Source",
+        "boundaries": "None",
+        "position": "Bottom Left"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "UI",
+        "target": "LeaderboardApi",
+        "label": "GET /leaderboard",
+        "type": "HTTP"
+      },
+      {
+        "source": "LeaderboardApi",
+        "target": "GetLeaderboard",
+        "label": "invokes",
+        "type": "API Call"
+      },
+      {
+        "source": "GetLeaderboard",
+        "target": "Leaderboard",
+        "label": "reads from",
+        "type": "Database Query"
+      },
+      {
+        "source": "TweetProcessor",
+        "target": "Leaderboard",
+        "label": "writes to",
+        "type": "Database Update"
+      },
+      {
+        "source": "aws-serverless-twitter-event-source",
+        "target": "TweetProcessor",
+        "label": "invokes",
+        "type": "Event Trigger"
+      }
+    ],
+    "annotations": [
+      "retweet-leaderboard"
+    ],
+    "groups": [
+      {
+        "name": "Lambda Functions",
+        "components": [
+          "GetLeaderboard",
+          "TweetProcessor"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "AWS Serverless Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "User",
+        "boundaries": "None",
+        "position": "Top Left"
+      },
+      {
+        "name": "UI",
+        "description": "User Interface",
+        "boundaries": "None",
+        "position": "Top Center"
+      },
+      {
+        "name": "API Gateway",
+        "description": "API Gateway",
+        "boundaries": "None",
+        "position": "Center Left"
+      },
+      {
+        "name": "GetLeaderboardHandler",
+        "description": "Lambda Function",
+        "boundaries": "Blue Box",
+        "position": "Center"
+      },
+      {
+        "name": "TweetProcessorHandler",
+        "description": "Lambda Function",
+        "boundaries": "Blue Box",
+        "position": "Bottom Center"
+      },
+      {
+        "name": "DynamoDB",
+        "description": "DynamoDB",
+        "boundaries": "None",
+        "position": "Center Right"
+      },
+      {
+        "name": "AWS Serverless Event Source",
+        "description": "Event Source",
+        "boundaries": "None",
+        "position": "Bottom Left"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "UI",
+        "label": "view leaderboard",
+        "type": "User Interaction"
+      },
+      {
+        "source": "UI",
+        "target": "API Gateway",
+        "label": "request leaderboard data",
+        "type": "HTTP"
+      },
+      {
+        "source": "API Gateway",
+        "target": "GetLeaderboardHandler",
+        "label": "invoke",
+        "type": "API Call"
+      },
+      {
+        "source": "GetLeaderboardHandler",
+        "target": "DynamoDB",
+        "label": "query leaderboard data",
+        "type": "Database Query"
+      },
+      {
+        "source": "TweetProcessorHandler",
+        "target": "DynamoDB",
+        "label": "update retweet count",
+        "type": "Database Update"
+      },
+      {
+        "source": "AWS Serverless Event Source",
+        "target": "TweetProcessorHandler",
+        "label": "trigger on tweet",
+        "type": "Event Trigger"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Lambda Functions",
+        "components": [
+          "GetLeaderboardHandler",
+          "TweetProcessorHandler"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": "AWS Serverless Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "UI",
+      "API Gateway",
+      "GetLeaderboard",
+      "TweetProcessor",
+      "DynamoDB",
+      "AWS Serverless Event Source"
+    ],
+    "unique_to_GroundTruth": [
+      "LeaderboardApi",
+      "GetLeaderboard",
+      "TweetProcessor",
+      "Leaderboard",
+      "aws-serverless-twitter-event-source"
+    ],
+    "unique_to_GeneratedImage": [
+      "User",
+      "GetLeaderboardHandler",
+      "TweetProcessorHandler",
+      "LeaderboardTable"
+    ],
+    "common_connectors": [
+      {
+        "source": "API Gateway",
+        "target": "GetLeaderboard",
+        "label": "invoke",
+        "type": "API Call"
+      },
+      {
+        "source": "TweetProcessor",
+        "target": "DynamoDB",
+        "label": "update",
+        "type": "Database Update"
+      },
+      {
+        "source": "AWS Serverless Event Source",
+        "target": "TweetProcessor",
+        "label": "trigger",
+        "type": "Event Trigger"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "UI",
+        "target": "LeaderboardApi",
+        "label": "GET /leaderboard",
+        "type": "HTTP"
+      },
+      {
+        "source": "GetLeaderboard",
+        "target": "Leaderboard",
+        "label": "reads from",
+        "type": "Database Query"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "UI",
+        "label": "view leaderboard",
+        "type": "User Interaction"
+      },
+      {
+        "source": "UI",
+        "target": "API Gateway",
+        "label": "request leaderboard data",
+        "type": "HTTP"
+      },
+      {
+        "source": "GetLeaderboardHandler",
+        "target": "DynamoDB",
+        "label": "query leaderboard data",
+        "type": "Database Query"
+      }
+    ],
+    "explanation": "Both diagrams represent a serverless architecture using AWS components. They share common elements such as UI, API Gateway, Lambda functions, and DynamoDB. However, the GroundTruth diagram uses specific names like 'LeaderboardApi' and 'GetLeaderboard', while the GeneratedImage uses 'GetLeaderboardHandler'. The connectors are similar in function but differ in naming and detail. The GroundTruth has a more detailed representation of the API interactions, while the GeneratedImage includes a 'User' component. Overall, the GeneratedImage captures the architecture accurately but lacks some specific details present in the GroundTruth.",
+    "Rating": 8
+  }
+}

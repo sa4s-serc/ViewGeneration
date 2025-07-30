@@ -1,0 +1,263 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Reference Implementation",
+        "description": "Contains TimedService and API Endpoints",
+        "boundaries": "Box",
+        "position": "Left"
+      },
+      {
+        "name": "TimedService",
+        "description": "Handles timed operations",
+        "boundaries": "Box",
+        "position": "Inside Reference Implementation"
+      },
+      {
+        "name": "NVSS API Server",
+        "description": "External API server",
+        "boundaries": "Box",
+        "position": "Right"
+      },
+      {
+        "name": "VRDR Reporter",
+        "description": "Part of Jurisdiction System",
+        "boundaries": "Circle",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "TimedService",
+        "target": "NVSS API Server",
+        "label": "POST Auth Token",
+        "type": "Arrow"
+      },
+      {
+        "source": "TimedService",
+        "target": "NVSS API Server",
+        "label": "POST FHIR Messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "NVSS API Server",
+        "target": "TimedService",
+        "label": "GET FHIR responses",
+        "type": "Arrow"
+      },
+      {
+        "source": "TimedService",
+        "target": "NVSS API Server",
+        "label": "POST Resubmit Messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "API Endpoints",
+        "target": "VRDR Reporter",
+        "label": "POST /record/submission",
+        "type": "Arrow"
+      },
+      {
+        "source": "VRDR Reporter",
+        "target": "API Endpoints",
+        "label": "GET /record/status",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      "SQS API Queue",
+      "Jurisdiction System"
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "GroundTruth Diagram"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "React UI",
+        "description": "User interface for uploading and submitting records",
+        "boundaries": "Box",
+        "position": "Left"
+      },
+      {
+        "name": "UploadRecords",
+        "description": "Component for uploading records",
+        "boundaries": "Box",
+        "position": "Inside React UI"
+      },
+      {
+        "name": "SubmitRecordsDashboard",
+        "description": "Dashboard for submitting records",
+        "boundaries": "Box",
+        "position": "Inside React UI"
+      },
+      {
+        "name": "NVSSClient",
+        "description": "Handles client-side operations",
+        "boundaries": "Box",
+        "position": "Right"
+      },
+      {
+        "name": "RecordController",
+        "description": "Controller for record operations",
+        "boundaries": "Box",
+        "position": "Inside NVSSClient"
+      },
+      {
+        "name": "ResponseItem",
+        "description": "Model for response items",
+        "boundaries": "Box",
+        "position": "Inside NVSSClient"
+      },
+      {
+        "name": "MessageItem",
+        "description": "Model for message items",
+        "boundaries": "Box",
+        "position": "Inside NVSSClient"
+      },
+      {
+        "name": "TimedHostedService",
+        "description": "Service for handling acknowledgements and retries",
+        "boundaries": "Box",
+        "position": "Inside NVSSClient"
+      },
+      {
+        "name": "Database",
+        "description": "Stores and retrieves messages and responses",
+        "boundaries": "Box",
+        "position": "Right"
+      },
+      {
+        "name": "NVSS API Server",
+        "description": "External API server",
+        "boundaries": "Box",
+        "position": "Bottom Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "React UI",
+        "label": "submit VRDR records",
+        "type": "Arrow"
+      },
+      {
+        "source": "User",
+        "target": "React UI",
+        "label": "query message status",
+        "type": "Arrow"
+      },
+      {
+        "source": "React UI",
+        "target": "RecordController",
+        "label": "translate JSON to VRDR message objects",
+        "type": "Arrow"
+      },
+      {
+        "source": "RecordController",
+        "target": "ResponseItem",
+        "label": "translate JSON to VRDR message objects",
+        "type": "Arrow"
+      },
+      {
+        "source": "RecordController",
+        "target": "MessageItem",
+        "label": "translate JSON to VRDR message objects",
+        "type": "Arrow"
+      },
+      {
+        "source": "ResponseItem",
+        "target": "Database",
+        "label": "store/retrieve messages and responses",
+        "type": "Arrow"
+      },
+      {
+        "source": "MessageItem",
+        "target": "Database",
+        "label": "store/retrieve messages and responses",
+        "type": "Arrow"
+      },
+      {
+        "source": "TimedHostedService",
+        "target": "Database",
+        "label": "poll for new messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "TimedHostedService",
+        "target": "NVSS API Server",
+        "label": "submit messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "NVSS API Server",
+        "target": "TimedHostedService",
+        "label": "send response",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Controllers",
+        "description": "Contains RecordController"
+      },
+      {
+        "name": "Models",
+        "description": "Contains ResponseItem and MessageItem"
+      },
+      {
+        "name": "Services",
+        "description": "Contains TimedHostedService"
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Generated Image Diagram"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "NVSS API Server"
+    ],
+    "unique_to_GroundTruth": [
+      "Reference Implementation",
+      "TimedService",
+      "VRDR Reporter"
+    ],
+    "unique_to_GeneratedImage": [
+      "React UI",
+      "UploadRecords",
+      "SubmitRecordsDashboard",
+      "NVSSClient",
+      "RecordController",
+      "ResponseItem",
+      "MessageItem",
+      "TimedHostedService",
+      "Database"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      "POST Auth Token",
+      "POST FHIR Messages",
+      "GET FHIR responses",
+      "POST Resubmit Messages",
+      "POST /record/submission",
+      "GET /record/status"
+    ],
+    "unique_connectors_GeneratedImage": [
+      "submit VRDR records",
+      "query message status",
+      "translate JSON to VRDR message objects",
+      "store/retrieve messages and responses",
+      "poll for new messages",
+      "submit messages",
+      "send response"
+    ],
+    "explanation": "The GroundTruth diagram focuses on a high-level interaction between a reference implementation and an external NVSS API server, highlighting the flow of messages and tokens. It includes a TimedService and a VRDR Reporter as key components. The Generated Image diagram, on the other hand, provides a more detailed view of the client-side operations, including a React UI and NVSSClient with specific models and services. Both diagrams include the NVSS API Server, but they differ significantly in their components and connectors. The GroundTruth diagram emphasizes external interactions, while the Generated Image diagram focuses on internal client-side architecture. The Generated Image is rated 7 out of 10 for its detailed internal architecture but lacks the external interaction focus seen in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

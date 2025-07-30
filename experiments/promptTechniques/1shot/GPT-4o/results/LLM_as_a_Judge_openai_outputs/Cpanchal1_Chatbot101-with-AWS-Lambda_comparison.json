@@ -1,0 +1,261 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "WebexUser",
+        "description": "User interacting with the system",
+        "boundaries": "Actor",
+        "position": "Left"
+      },
+      {
+        "name": "Webex Teams",
+        "description": "Platform for communication",
+        "boundaries": "Rectangle",
+        "position": "Center Left"
+      },
+      {
+        "name": "Webhook",
+        "description": "Triggers on mention",
+        "boundaries": "Rectangle",
+        "position": "Inside Webex Teams"
+      },
+      {
+        "name": "AWS",
+        "description": "Cloud service provider",
+        "boundaries": "Rectangle",
+        "position": "Center Right"
+      },
+      {
+        "name": "API Gateway",
+        "description": "Handles API requests",
+        "boundaries": "Rectangle",
+        "position": "Inside AWS"
+      },
+      {
+        "name": "Lambda Function",
+        "description": "Executes code",
+        "boundaries": "Rectangle",
+        "position": "Inside AWS"
+      },
+      {
+        "name": "External API",
+        "description": "icanhazdadjoke.com",
+        "boundaries": "Rectangle",
+        "position": "Bottom Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "WebexUser",
+        "target": "Webex Teams",
+        "label": "mention bot to trigger",
+        "type": "Arrow"
+      },
+      {
+        "source": "Webhook",
+        "target": "API Gateway",
+        "label": "send request to API Gateway",
+        "type": "Arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda Function",
+        "label": "invoke Lambda function",
+        "type": "Arrow"
+      },
+      {
+        "source": "Lambda Function",
+        "target": "External API",
+        "label": "HTTP GET request for joke",
+        "type": "Arrow"
+      },
+      {
+        "source": "External API",
+        "target": "Lambda Function",
+        "label": "return joke as JSON",
+        "type": "Arrow"
+      },
+      {
+        "source": "Webhook",
+        "target": "Webex Teams",
+        "label": "post joke to room via Webex API",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Webex Teams",
+        "components": [
+          "Webhook"
+        ]
+      },
+      {
+        "name": "AWS",
+        "components": [
+          "API Gateway",
+          "Lambda Function"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram",
+      "title": "Webex Teams Integration"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Person interacting with the bot",
+        "boundaries": "Icon",
+        "position": "Left"
+      },
+      {
+        "name": "Bot",
+        "description": "Handles jokes",
+        "boundaries": "Icon",
+        "position": "Center Left"
+      },
+      {
+        "name": "Webhook",
+        "description": "Triggers on bot mention",
+        "boundaries": "Icon",
+        "position": "Center"
+      },
+      {
+        "name": "AWS",
+        "description": "Cloud service for API",
+        "boundaries": "Icon",
+        "position": "Center Right"
+      },
+      {
+        "name": "Trigger code",
+        "description": "Python code execution",
+        "boundaries": "Icon",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Bot",
+        "label": "joke",
+        "type": "Bidirectional Arrow"
+      },
+      {
+        "source": "Bot",
+        "target": "Webhook",
+        "label": "Webhook",
+        "type": "Arrow"
+      },
+      {
+        "source": "Webhook",
+        "target": "AWS",
+        "label": "POST to API",
+        "type": "Arrow"
+      },
+      {
+        "source": "AWS",
+        "target": "Trigger code",
+        "label": "Trigger code",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "#Step 1: GET joke from icanhazdadjoke database\ndef getJoke():",
+        "position": "Bottom Right"
+      },
+      {
+        "text": "#Step 2: POST that joke to Webex Teams Room\ndef postJoke(joke):",
+        "position": "Bottom Right"
+      }
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram",
+      "title": "Joke Bot Flow"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Webhook",
+      "AWS"
+    ],
+    "unique_to_GroundTruth": [
+      "WebexUser",
+      "Webex Teams",
+      "API Gateway",
+      "Lambda Function",
+      "External API"
+    ],
+    "unique_to_GeneratedImage": [
+      "User",
+      "Bot",
+      "Trigger code"
+    ],
+    "common_connectors": [
+      {
+        "source": "Webhook",
+        "target": "AWS",
+        "label": "POST to API",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "WebexUser",
+        "target": "Webex Teams",
+        "label": "mention bot to trigger",
+        "type": "Arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda Function",
+        "label": "invoke Lambda function",
+        "type": "Arrow"
+      },
+      {
+        "source": "Lambda Function",
+        "target": "External API",
+        "label": "HTTP GET request for joke",
+        "type": "Arrow"
+      },
+      {
+        "source": "External API",
+        "target": "Lambda Function",
+        "label": "return joke as JSON",
+        "type": "Arrow"
+      },
+      {
+        "source": "Webhook",
+        "target": "Webex Teams",
+        "label": "post joke to room via Webex API",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "Bot",
+        "label": "joke",
+        "type": "Bidirectional Arrow"
+      },
+      {
+        "source": "Bot",
+        "target": "Webhook",
+        "label": "Webhook",
+        "type": "Arrow"
+      },
+      {
+        "source": "AWS",
+        "target": "Trigger code",
+        "label": "Trigger code",
+        "type": "Arrow"
+      }
+    ],
+    "explanation": "The GroundTruth diagram provides a detailed view of the Webex Teams integration, showing specific components like API Gateway and Lambda Function within AWS, and an External API for jokes. It emphasizes the flow from user interaction to API calls and responses. The GeneratedImage diagram simplifies the architecture, focusing on user interaction with a bot and the triggering of code execution in AWS. It lacks specific components like API Gateway and Lambda Function, instead using a general 'Trigger code' component. The GroundTruth diagram is more comprehensive, showing a clear separation of concerns and specific API interactions, while the GeneratedImage diagram provides a high-level overview. The GeneratedImage is rated 6 out of 10 for capturing the basic flow but missing detailed components and interactions present in the GroundTruth.",
+    "Rating": 6
+  }
+}

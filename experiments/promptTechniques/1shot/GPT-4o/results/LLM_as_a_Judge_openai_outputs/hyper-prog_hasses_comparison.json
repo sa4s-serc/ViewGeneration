@@ -1,0 +1,266 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Client A",
+        "description": "Wants to subscribe to 'tree' and 'all' typed SSE events",
+        "boundaries": "Blue box",
+        "position": "Left"
+      },
+      {
+        "name": "Client B",
+        "description": "Wants to subscribe to 'plate' and 'all' typed SSE events",
+        "boundaries": "Blue box",
+        "position": "Bottom left"
+      },
+      {
+        "name": "Webserver",
+        "description": "Listen on 80 port, Serve the: /index.php",
+        "boundaries": "Gray box",
+        "position": "Right"
+      },
+      {
+        "name": "HASSES",
+        "description": "SSE daemon, Listen on 8080 port",
+        "boundaries": "Gray box",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Client A",
+        "target": "Webserver",
+        "label": "http://yourserver.com/index.php",
+        "type": "HTTP request"
+      },
+      {
+        "source": "Client A",
+        "target": "HASSES",
+        "label": "http://yourserver.com:8080/sse-event?subscribe=tree-all",
+        "type": "SSE request"
+      },
+      {
+        "source": "Client B",
+        "target": "HASSES",
+        "label": "http://yourserver.com:8080/sse-event?subscribe=plate-all",
+        "type": "SSE request"
+      },
+      {
+        "source": "Webserver",
+        "target": "HASSES",
+        "label": "Message to hasses host TCP:8085 or FIFO",
+        "type": "Network/FIFO"
+      }
+    ],
+    "annotations": [
+      "The connection between the webserver PHP codes and hasses: Write to network or FIFO file.",
+      "Control channel (TCP port 8085 or FIFO) message example strings."
+    ],
+    "groups": [
+      {
+        "name": "Server machine",
+        "components": [
+          "Webserver",
+          "HASSES"
+        ],
+        "boundaries": "Gray box"
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "SSE Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Client",
+        "description": "Generic client component",
+        "boundaries": "Icon",
+        "position": "Top"
+      },
+      {
+        "name": "WebServer",
+        "description": "Generic web server component",
+        "boundaries": "Icon",
+        "position": "Bottom"
+      },
+      {
+        "name": "hasses SSE Server",
+        "description": "Handles SSE connections",
+        "boundaries": "Gray box",
+        "position": "Center"
+      },
+      {
+        "name": "cdata.c/h",
+        "description": "Handles client data",
+        "boundaries": "Red box",
+        "position": "Inside hasses SSE Server"
+      },
+      {
+        "name": "chat.c/h",
+        "description": "Handles chat functionalities",
+        "boundaries": "Green box",
+        "position": "Inside hasses SSE Server"
+      },
+      {
+        "name": "cio.c/h",
+        "description": "Handles IO operations",
+        "boundaries": "Yellow box",
+        "position": "Inside hasses SSE Server"
+      },
+      {
+        "name": "hasses.c",
+        "description": "Main SSE daemon",
+        "boundaries": "Blue box",
+        "position": "Inside hasses SSE Server"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Client",
+        "target": "hasses SSE Server",
+        "label": "SSE connection request",
+        "type": "SSE request"
+      },
+      {
+        "source": "hasses SSE Server",
+        "target": "Client",
+        "label": "send SSE message",
+        "type": "SSE message"
+      },
+      {
+        "source": "WebServer",
+        "target": "hasses SSE Server",
+        "label": "send message via FIFO/TCP",
+        "type": "Network/FIFO"
+      },
+      {
+        "source": "hasses SSE Server",
+        "target": "cdata.c/h",
+        "label": "query and update client status",
+        "type": "Internal"
+      },
+      {
+        "source": "hasses SSE Server",
+        "target": "chat.c/h",
+        "label": "pass message to chat module",
+        "type": "Internal"
+      },
+      {
+        "source": "hasses SSE Server",
+        "target": "cio.c/h",
+        "label": "trigger IO operations",
+        "type": "Internal"
+      },
+      {
+        "source": "hasses SSE Server",
+        "target": "hasses.c",
+        "label": "trigger the SSE daemon",
+        "type": "Internal"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "hasses SSE Server",
+        "components": [
+          "cdata.c/h",
+          "chat.c/h",
+          "cio.c/h",
+          "hasses.c"
+        ],
+        "boundaries": "Gray box"
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": "SSE Server Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "WebServer",
+      "hasses SSE Server"
+    ],
+    "unique_to_GroundTruth": [
+      "Client A",
+      "Client B"
+    ],
+    "unique_to_GeneratedImage": [
+      "Client",
+      "cdata.c/h",
+      "chat.c/h",
+      "cio.c/h",
+      "hasses.c"
+    ],
+    "common_connectors": [
+      {
+        "source": "WebServer",
+        "target": "hasses SSE Server",
+        "label": "send message via FIFO/TCP",
+        "type": "Network/FIFO"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Client A",
+        "target": "Webserver",
+        "label": "http://yourserver.com/index.php",
+        "type": "HTTP request"
+      },
+      {
+        "source": "Client A",
+        "target": "HASSES",
+        "label": "http://yourserver.com:8080/sse-event?subscribe=tree-all",
+        "type": "SSE request"
+      },
+      {
+        "source": "Client B",
+        "target": "HASSES",
+        "label": "http://yourserver.com:8080/sse-event?subscribe=plate-all",
+        "type": "SSE request"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Client",
+        "target": "hasses SSE Server",
+        "label": "SSE connection request",
+        "type": "SSE request"
+      },
+      {
+        "source": "hasses SSE Server",
+        "target": "Client",
+        "label": "send SSE message",
+        "type": "SSE message"
+      },
+      {
+        "source": "hasses SSE Server",
+        "target": "cdata.c/h",
+        "label": "query and update client status",
+        "type": "Internal"
+      },
+      {
+        "source": "hasses SSE Server",
+        "target": "chat.c/h",
+        "label": "pass message to chat module",
+        "type": "Internal"
+      },
+      {
+        "source": "hasses SSE Server",
+        "target": "cio.c/h",
+        "label": "trigger IO operations",
+        "type": "Internal"
+      },
+      {
+        "source": "hasses SSE Server",
+        "target": "hasses.c",
+        "label": "trigger the SSE daemon",
+        "type": "Internal"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on a specific use case involving two clients (A and B) subscribing to SSE events through a web server and an SSE daemon called HASSES. It provides detailed paths for HTTP and SSE requests. The GeneratedImage diagram presents a more abstract view, focusing on the internal structure of the SSE server, with components like cdata.c/h, chat.c/h, cio.c/h, and hasses.c handling specific functionalities. While both diagrams share the WebServer and SSE server components, the GroundTruth diagram is more detailed in terms of client interactions, whereas the GeneratedImage diagram provides a deeper look into the server's internal architecture. The GeneratedImage diagram is rated 7 out of 10 for its completeness and accuracy, as it captures the core SSE server architecture but lacks the specific client interactions and request paths detailed in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

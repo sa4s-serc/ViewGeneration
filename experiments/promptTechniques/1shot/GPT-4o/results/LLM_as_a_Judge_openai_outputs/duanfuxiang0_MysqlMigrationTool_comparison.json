@@ -1,0 +1,359 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "业务",
+        "description": "Business logic",
+        "boundary": "vertical",
+        "position": "left"
+      },
+      {
+        "name": "老DB",
+        "description": "Old Database",
+        "boundary": "vertical",
+        "position": "center-left"
+      },
+      {
+        "name": "新DB",
+        "description": "New Database",
+        "boundary": "vertical",
+        "position": "center-right"
+      },
+      {
+        "name": "同步任务",
+        "description": "Synchronization Task",
+        "boundary": "vertical",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "同步任务",
+        "target": "新DB",
+        "label": "全量迁移",
+        "type": "horizontal"
+      },
+      {
+        "source": "同步任务",
+        "target": "新DB",
+        "label": "增量迁移",
+        "type": "horizontal"
+      },
+      {
+        "source": "同步任务",
+        "target": "新DB",
+        "label": "数据一致性校验",
+        "type": "horizontal"
+      },
+      {
+        "source": "业务",
+        "target": "老DB",
+        "label": "上线切换",
+        "type": "horizontal"
+      },
+      {
+        "source": "老DB",
+        "target": "新DB",
+        "label": "写新库",
+        "type": "horizontal"
+      },
+      {
+        "source": "同步任务",
+        "target": "老DB",
+        "label": "关闭增量同步",
+        "type": "horizontal"
+      },
+      {
+        "source": "同步任务",
+        "target": "老DB",
+        "label": "数据一致性校验",
+        "type": "horizontal"
+      },
+      {
+        "source": "同步任务",
+        "target": "老DB",
+        "label": "清理老数据",
+        "type": "horizontal"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "1. 选从库",
+        "position": "right"
+      },
+      {
+        "text": "2. 解析binlog",
+        "position": "right"
+      },
+      {
+        "text": "3. 数据一致性校验",
+        "position": "right"
+      },
+      {
+        "text": "4. 上线切换",
+        "position": "left"
+      },
+      {
+        "text": "5. 关闭增量同步",
+        "position": "right"
+      },
+      {
+        "text": "6. 数据一致性校验",
+        "position": "right"
+      },
+      {
+        "text": "7. 初验",
+        "position": "left"
+      },
+      {
+        "text": "8. 下载写库",
+        "position": "left"
+      },
+      {
+        "text": "9. 清理老数据",
+        "position": "right"
+      }
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "diagram1.png",
+      "title": "Database Migration Process"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "User performing operations",
+        "boundary": "actor",
+        "position": "left"
+      },
+      {
+        "name": "Source MySQL Database",
+        "description": "Source database for operations",
+        "boundary": "box",
+        "position": "center-left"
+      },
+      {
+        "name": "canal.Canal",
+        "description": "Binlog parser",
+        "boundary": "box",
+        "position": "center"
+      },
+      {
+        "name": "RowEventHandler",
+        "description": "Handles row events",
+        "boundary": "box",
+        "position": "center"
+      },
+      {
+        "name": "Binlog Capture and Parsing",
+        "description": "Captures and parses binlog",
+        "boundary": "box",
+        "position": "center-right"
+      },
+      {
+        "name": "Data Mapping and Conversion",
+        "description": "Maps and converts data",
+        "boundary": "box",
+        "position": "center-right"
+      },
+      {
+        "name": "Database Operations",
+        "description": "Performs database operations",
+        "boundary": "box",
+        "position": "center-right"
+      },
+      {
+        "name": "Destination Database",
+        "description": "Destination database",
+        "boundary": "box",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Source MySQL Database",
+        "label": "perform database operations",
+        "type": "horizontal"
+      },
+      {
+        "source": "Source MySQL Database",
+        "target": "canal.Canal",
+        "label": "produce binlog events",
+        "type": "horizontal"
+      },
+      {
+        "source": "canal.Canal",
+        "target": "RowEventHandler",
+        "label": "notify binlog events",
+        "type": "horizontal"
+      },
+      {
+        "source": "RowEventHandler",
+        "target": "Binlog Capture and Parsing",
+        "label": "parse binlog events",
+        "type": "horizontal"
+      },
+      {
+        "source": "Binlog Capture and Parsing",
+        "target": "Data Mapping and Conversion",
+        "label": "map data to Go structs",
+        "type": "horizontal"
+      },
+      {
+        "source": "Data Mapping and Conversion",
+        "target": "Database Operations",
+        "label": "prepare database",
+        "type": "horizontal"
+      },
+      {
+        "source": "Database Operations",
+        "target": "Destination Database",
+        "label": "insert/update/delete data",
+        "type": "horizontal"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Binlog Parser",
+        "components": [
+          "canal.Canal",
+          "RowEventHandler"
+        ],
+        "boundary": "box"
+      },
+      {
+        "name": "Binlog Event Processing",
+        "components": [
+          "Binlog Capture and Parsing",
+          "Data Mapping and Conversion",
+          "Database Operations"
+        ],
+        "boundary": "box"
+      }
+    ],
+    "metadata": {
+      "filename": "diagram2.png",
+      "title": "Binlog Processing Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [],
+    "unique_to_GroundTruth": [
+      "业务",
+      "老DB",
+      "新DB",
+      "同步任务"
+    ],
+    "unique_to_GeneratedImage": [
+      "User",
+      "Source MySQL Database",
+      "canal.Canal",
+      "RowEventHandler",
+      "Binlog Capture and Parsing",
+      "Data Mapping and Conversion",
+      "Database Operations",
+      "Destination Database"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "同步任务",
+        "target": "新DB",
+        "label": "全量迁移",
+        "type": "horizontal"
+      },
+      {
+        "source": "同步任务",
+        "target": "新DB",
+        "label": "增量迁移",
+        "type": "horizontal"
+      },
+      {
+        "source": "同步任务",
+        "target": "新DB",
+        "label": "数据一致性校验",
+        "type": "horizontal"
+      },
+      {
+        "source": "业务",
+        "target": "老DB",
+        "label": "上线切换",
+        "type": "horizontal"
+      },
+      {
+        "source": "老DB",
+        "target": "新DB",
+        "label": "写新库",
+        "type": "horizontal"
+      },
+      {
+        "source": "同步任务",
+        "target": "老DB",
+        "label": "关闭增量同步",
+        "type": "horizontal"
+      },
+      {
+        "source": "同步任务",
+        "target": "老DB",
+        "label": "数据一致性校验",
+        "type": "horizontal"
+      },
+      {
+        "source": "同步任务",
+        "target": "老DB",
+        "label": "清理老数据",
+        "type": "horizontal"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "Source MySQL Database",
+        "label": "perform database operations",
+        "type": "horizontal"
+      },
+      {
+        "source": "Source MySQL Database",
+        "target": "canal.Canal",
+        "label": "produce binlog events",
+        "type": "horizontal"
+      },
+      {
+        "source": "canal.Canal",
+        "target": "RowEventHandler",
+        "label": "notify binlog events",
+        "type": "horizontal"
+      },
+      {
+        "source": "RowEventHandler",
+        "target": "Binlog Capture and Parsing",
+        "label": "parse binlog events",
+        "type": "horizontal"
+      },
+      {
+        "source": "Binlog Capture and Parsing",
+        "target": "Data Mapping and Conversion",
+        "label": "map data to Go structs",
+        "type": "horizontal"
+      },
+      {
+        "source": "Data Mapping and Conversion",
+        "target": "Database Operations",
+        "label": "prepare database",
+        "type": "horizontal"
+      },
+      {
+        "source": "Database Operations",
+        "target": "Destination Database",
+        "label": "insert/update/delete data",
+        "type": "horizontal"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of database operations. The GroundTruth diagram focuses on a high-level database migration process, involving components like old and new databases, and synchronization tasks. It includes operations such as full and incremental migrations and data consistency checks. The GeneratedImage diagram details a binlog processing architecture, highlighting the flow from user operations to database updates, with components like binlog parsers and data mapping. There are no common components or connectors, as each diagram serves a distinct purpose. The GroundTruth diagram is more about the migration process, while the GeneratedImage diagram is about event processing. The GeneratedImage is rated 7 out of 10 for its clarity and detailed representation of the binlog processing architecture, but it lacks the broader context of a migration process seen in the GroundTruth.",
+    "Rating": 7
+  }
+}

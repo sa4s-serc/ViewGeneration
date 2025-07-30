@@ -1,0 +1,338 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Appian Oracle DB",
+        "description": "Database component within AWS Cloud VPC",
+        "boundary": "AWS Cloud",
+        "position": "left"
+      },
+      {
+        "name": "AWS Lambda",
+        "description": "Creates/deletes topics",
+        "boundary": "AWS Cloud VPC",
+        "position": "top-right"
+      },
+      {
+        "name": "AWS Fargate - Kafka Connect Cluster",
+        "description": "Connector for data",
+        "boundary": "AWS Cloud VPC",
+        "position": "middle-right"
+      },
+      {
+        "name": "CMS BigMAC",
+        "description": "Stores Appian data",
+        "boundary": "AWS Cloud VPC",
+        "position": "right"
+      },
+      {
+        "name": "AWS EventBridge",
+        "description": "Matches ECS Failure Events",
+        "boundary": "AWS Cloud",
+        "position": "bottom-left"
+      },
+      {
+        "name": "SNS Topic",
+        "description": "Sends alerts",
+        "boundary": "AWS Cloud",
+        "position": "bottom-right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Appian Oracle DB",
+        "target": "AWS Fargate - Kafka Connect Cluster",
+        "label": "VPC peering connection",
+        "type": "data flow"
+      },
+      {
+        "source": "AWS Lambda",
+        "target": "CMS BigMAC",
+        "label": "Appian data topics",
+        "type": "data flow"
+      },
+      {
+        "source": "AWS EventBridge",
+        "target": "SNS Topic",
+        "label": "ECS Failure Events",
+        "type": "event flow"
+      }
+    ],
+    "annotations": [
+      "Appian data is captured in real time by a JDBC connector",
+      "Appian data topics are created using KafkaJS",
+      "ECS Failure Events are matched by an EventBridge rule and sent to SNS for rotation fan out"
+    ],
+    "groups": [
+      {
+        "name": "AWS Cloud",
+        "components": [
+          "Appian Oracle DB",
+          "AWS Lambda",
+          "AWS Fargate - Kafka Connect Cluster",
+          "CMS BigMAC",
+          "AWS EventBridge",
+          "SNS Topic"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "AWS Cloud Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "GitHub",
+        "description": "Triggers CI/CD workflows",
+        "boundary": "None",
+        "position": "top-left"
+      },
+      {
+        "name": "GitHub Actions",
+        "description": "Part of GitHub for CI/CD",
+        "boundary": "GitHub",
+        "position": "inside"
+      },
+      {
+        "name": "Jira",
+        "description": "Syncs security findings",
+        "boundary": "None",
+        "position": "top-right"
+      },
+      {
+        "name": "AWS",
+        "description": "Hosts multiple services",
+        "boundary": "None",
+        "position": "right"
+      },
+      {
+        "name": "SSM Parameter Store",
+        "description": "Stores configuration parameters",
+        "boundary": "AWS",
+        "position": "inside"
+      },
+      {
+        "name": "Secrets Manager",
+        "description": "Manages sensitive data",
+        "boundary": "AWS",
+        "position": "inside"
+      },
+      {
+        "name": "ECS",
+        "description": "Deploys services",
+        "boundary": "AWS",
+        "position": "inside"
+      },
+      {
+        "name": "CloudWatch",
+        "description": "Logs application performance",
+        "boundary": "AWS",
+        "position": "inside"
+      },
+      {
+        "name": "SNS",
+        "description": "Sends alert notifications",
+        "boundary": "AWS",
+        "position": "inside"
+      },
+      {
+        "name": "Enterprise-CMCS_macpro-appian-connector",
+        "description": "Deploys/tests/destroys services",
+        "boundary": "None",
+        "position": "bottom"
+      },
+      {
+        "name": "run script",
+        "description": "Executes development tasks",
+        "boundary": "Enterprise-CMCS_macpro-appian-connector",
+        "position": "inside"
+      },
+      {
+        "name": "src/services",
+        "description": "Service source code",
+        "boundary": "Enterprise-CMCS_macpro-appian-connector",
+        "position": "inside"
+      },
+      {
+        "name": "Developer",
+        "description": "Initiates changes",
+        "boundary": "None",
+        "position": "bottom-left"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "GitHub",
+        "target": "GitHub Actions",
+        "label": "Trigger CI/CD workflows",
+        "type": "control flow"
+      },
+      {
+        "source": "GitHub",
+        "target": "Jira",
+        "label": "Sync security findings",
+        "type": "data flow"
+      },
+      {
+        "source": "GitHub Actions",
+        "target": "AWS",
+        "label": "Deploy services via Serverless Framework",
+        "type": "control flow"
+      },
+      {
+        "source": "AWS",
+        "target": "CloudWatch",
+        "label": "Log application performance",
+        "type": "data flow"
+      },
+      {
+        "source": "AWS",
+        "target": "SNS",
+        "label": "Send alert notifications",
+        "type": "event flow"
+      },
+      {
+        "source": "Enterprise-CMCS_macpro-appian-connector",
+        "target": "src/services",
+        "label": "Deploy/test/destroy services",
+        "type": "control flow"
+      },
+      {
+        "source": "Developer",
+        "target": "GitHub",
+        "label": "Push changes",
+        "type": "control flow"
+      }
+    ],
+    "annotations": [
+      "Execute development tasks",
+      "Provide performance insights",
+      "Notify about ECS failures"
+    ],
+    "groups": [
+      {
+        "name": "AWS",
+        "components": [
+          "SSM Parameter Store",
+          "Secrets Manager",
+          "ECS",
+          "CloudWatch",
+          "SNS"
+        ]
+      },
+      {
+        "name": "GitHub",
+        "components": [
+          "GitHub Actions"
+        ]
+      },
+      {
+        "name": "Enterprise-CMCS_macpro-appian-connector",
+        "components": [
+          "run script",
+          "src/services"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "CI/CD and AWS Services Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "SNS"
+    ],
+    "unique_to_GroundTruth": [
+      "Appian Oracle DB",
+      "AWS Lambda",
+      "AWS Fargate - Kafka Connect Cluster",
+      "CMS BigMAC",
+      "AWS EventBridge"
+    ],
+    "unique_to_GeneratedImage": [
+      "GitHub",
+      "GitHub Actions",
+      "Jira",
+      "AWS",
+      "SSM Parameter Store",
+      "Secrets Manager",
+      "ECS",
+      "CloudWatch",
+      "Enterprise-CMCS_macpro-appian-connector",
+      "run script",
+      "src/services",
+      "Developer"
+    ],
+    "common_connectors": [
+      {
+        "source": "AWS",
+        "target": "SNS",
+        "label": "Send alert notifications",
+        "type": "event flow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Appian Oracle DB",
+        "target": "AWS Fargate - Kafka Connect Cluster",
+        "label": "VPC peering connection",
+        "type": "data flow"
+      },
+      {
+        "source": "AWS Lambda",
+        "target": "CMS BigMAC",
+        "label": "Appian data topics",
+        "type": "data flow"
+      },
+      {
+        "source": "AWS EventBridge",
+        "target": "SNS Topic",
+        "label": "ECS Failure Events",
+        "type": "event flow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "GitHub",
+        "target": "GitHub Actions",
+        "label": "Trigger CI/CD workflows",
+        "type": "control flow"
+      },
+      {
+        "source": "GitHub",
+        "target": "Jira",
+        "label": "Sync security findings",
+        "type": "data flow"
+      },
+      {
+        "source": "GitHub Actions",
+        "target": "AWS",
+        "label": "Deploy services via Serverless Framework",
+        "type": "control flow"
+      },
+      {
+        "source": "AWS",
+        "target": "CloudWatch",
+        "label": "Log application performance",
+        "type": "data flow"
+      },
+      {
+        "source": "Enterprise-CMCS_macpro-appian-connector",
+        "target": "src/services",
+        "label": "Deploy/test/destroy services",
+        "type": "control flow"
+      },
+      {
+        "source": "Developer",
+        "target": "GitHub",
+        "label": "Push changes",
+        "type": "control flow"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of software architecture. The GroundTruth diagram focuses on AWS cloud services, specifically handling data flow from an Appian Oracle DB to various AWS components like Lambda, Fargate, and EventBridge. It emphasizes data capture, topic creation, and event handling. The GeneratedImage diagram, on the other hand, illustrates a CI/CD pipeline involving GitHub, AWS, and Jira, with a focus on deploying and managing services using AWS resources. Common elements include the use of SNS for notifications, but the context differs: GroundTruth uses it for ECS failure alerts, while GeneratedImage uses it for general alert notifications. The GroundTruth diagram is more focused on data processing and event handling within AWS, while the GeneratedImage diagram highlights a broader CI/CD process with integration into AWS services. The GeneratedImage is rated 7 out of 10 for accuracy and completeness, as it provides a comprehensive view of a CI/CD pipeline but lacks some specific AWS service interactions present in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

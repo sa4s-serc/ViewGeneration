@@ -1,0 +1,389 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Inbound Bus",
+        "description": "Entry point for messages",
+        "boundaries": "Top",
+        "position": "Top"
+      },
+      {
+        "name": "Capture Device",
+        "description": "Captures messages from the Inbound Bus",
+        "boundaries": "Middle",
+        "position": "Middle"
+      },
+      {
+        "name": "Capture Topic \"A\"",
+        "description": "Topic A for message capture",
+        "boundaries": "Middle",
+        "position": "Middle"
+      },
+      {
+        "name": "Capture Topic \"B\"",
+        "description": "Topic B for message capture",
+        "boundaries": "Middle",
+        "position": "Middle"
+      },
+      {
+        "name": "Deduplicator",
+        "description": "Removes duplicate messages",
+        "boundaries": "Middle",
+        "position": "Middle"
+      },
+      {
+        "name": "Outbound Topic",
+        "description": "Final destination for messages",
+        "boundaries": "Bottom",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Inbound Bus",
+        "target": "Capture Device",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Capture Device",
+        "target": "Capture Topic \"A\"",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Capture Device",
+        "target": "Capture Topic \"B\"",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Capture Topic \"A\"",
+        "target": "Deduplicator",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Capture Topic \"B\"",
+        "target": "Deduplicator",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Deduplicator",
+        "target": "Outbound Topic",
+        "label": "",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram",
+      "title": "Message Processing Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Source",
+        "description": "Origin of messages",
+        "boundaries": "Left",
+        "position": "Left"
+      },
+      {
+        "name": "Capture Devices",
+        "description": "Group of devices capturing messages",
+        "boundaries": "Middle",
+        "position": "Middle"
+      },
+      {
+        "name": "AeronCaptureDevice",
+        "description": "Captures Aeron messages",
+        "boundaries": "Middle",
+        "position": "Middle"
+      },
+      {
+        "name": "MulticastCaptureDevice",
+        "description": "Captures Multicast messages",
+        "boundaries": "Middle",
+        "position": "Middle"
+      },
+      {
+        "name": "WebsocketCaptureDevice",
+        "description": "Captures Websocket messages",
+        "boundaries": "Middle",
+        "position": "Middle"
+      },
+      {
+        "name": "Kafka Topics",
+        "description": "Topics for message capture",
+        "boundaries": "Middle",
+        "position": "Middle"
+      },
+      {
+        "name": "Capture Topics",
+        "description": "Topics for capturing messages",
+        "boundaries": "Middle",
+        "position": "Middle"
+      },
+      {
+        "name": "Outbound Topic",
+        "description": "Final destination for messages",
+        "boundaries": "Middle",
+        "position": "Middle"
+      },
+      {
+        "name": "Kafka Consumer Group",
+        "description": "Group consuming messages",
+        "boundaries": "Middle",
+        "position": "Middle"
+      },
+      {
+        "name": "Deduplicator",
+        "description": "Removes duplicate messages",
+        "boundaries": "Middle",
+        "position": "Middle"
+      },
+      {
+        "name": "CaptureQueue",
+        "description": "Queue for captured messages",
+        "boundaries": "Middle",
+        "position": "Middle"
+      },
+      {
+        "name": "Buffered Publisher",
+        "description": "Publishes buffered messages",
+        "boundaries": "Right",
+        "position": "Right"
+      },
+      {
+        "name": "RecoveryService",
+        "description": "Recovers deduplication state",
+        "boundaries": "Middle",
+        "position": "Middle"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Source",
+        "target": "AeronCaptureDevice",
+        "label": "send messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "Source",
+        "target": "MulticastCaptureDevice",
+        "label": "send messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "Source",
+        "target": "WebsocketCaptureDevice",
+        "label": "send messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "AeronCaptureDevice",
+        "target": "Capture Topics",
+        "label": "write Aeron messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "MulticastCaptureDevice",
+        "target": "Capture Topics",
+        "label": "write Multicast messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "WebsocketCaptureDevice",
+        "target": "Capture Topics",
+        "label": "write Websocket messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "Capture Topics",
+        "target": "Deduplicator",
+        "label": "consume messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "Deduplicator",
+        "target": "CaptureQueue",
+        "label": "deduplicate and buffer messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "CaptureQueue",
+        "target": "Buffered Publisher",
+        "label": "publish buffered messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "RecoveryService",
+        "target": "Deduplicator",
+        "label": "recover deduplication state",
+        "type": "Arrow"
+      },
+      {
+        "source": "Capture Topics",
+        "target": "Outbound Topic",
+        "label": "write unique messages",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Capture Devices",
+        "description": "Group of capture devices"
+      },
+      {
+        "name": "Kafka Topics",
+        "description": "Group of Kafka topics"
+      },
+      {
+        "name": "Kafka Consumer Group",
+        "description": "Group of Kafka consumers"
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram",
+      "title": "Advanced Message Processing Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Deduplicator",
+      "Outbound Topic"
+    ],
+    "unique_to_GroundTruth": [
+      "Inbound Bus",
+      "Capture Device",
+      "Capture Topic \"A\"",
+      "Capture Topic \"B\""
+    ],
+    "unique_to_GeneratedImage": [
+      "Source",
+      "Capture Devices",
+      "AeronCaptureDevice",
+      "MulticastCaptureDevice",
+      "WebsocketCaptureDevice",
+      "Kafka Topics",
+      "Capture Topics",
+      "Kafka Consumer Group",
+      "CaptureQueue",
+      "Buffered Publisher",
+      "RecoveryService"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Inbound Bus",
+        "target": "Capture Device",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Capture Device",
+        "target": "Capture Topic \"A\"",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Capture Device",
+        "target": "Capture Topic \"B\"",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Capture Topic \"A\"",
+        "target": "Deduplicator",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Capture Topic \"B\"",
+        "target": "Deduplicator",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Deduplicator",
+        "target": "Outbound Topic",
+        "label": "",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Source",
+        "target": "AeronCaptureDevice",
+        "label": "send messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "Source",
+        "target": "MulticastCaptureDevice",
+        "label": "send messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "Source",
+        "target": "WebsocketCaptureDevice",
+        "label": "send messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "AeronCaptureDevice",
+        "target": "Capture Topics",
+        "label": "write Aeron messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "MulticastCaptureDevice",
+        "target": "Capture Topics",
+        "label": "write Multicast messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "WebsocketCaptureDevice",
+        "target": "Capture Topics",
+        "label": "write Websocket messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "Capture Topics",
+        "target": "Deduplicator",
+        "label": "consume messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "Deduplicator",
+        "target": "CaptureQueue",
+        "label": "deduplicate and buffer messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "CaptureQueue",
+        "target": "Buffered Publisher",
+        "label": "publish buffered messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "RecoveryService",
+        "target": "Deduplicator",
+        "label": "recover deduplication state",
+        "type": "Arrow"
+      },
+      {
+        "source": "Capture Topics",
+        "target": "Outbound Topic",
+        "label": "write unique messages",
+        "type": "Arrow"
+      }
+    ],
+    "explanation": "The two diagrams represent different approaches to message processing architecture. Both diagrams include a Deduplicator and an Outbound Topic, indicating a shared functionality of deduplication and message forwarding. The GroundTruth diagram is simpler, focusing on a linear flow from an Inbound Bus through Capture Devices and Topics to a Deduplicator and then to an Outbound Topic. In contrast, the GeneratedImage diagram presents a more complex architecture with multiple specialized Capture Devices (Aeron, Multicast, Websocket) and Kafka integration, including Kafka Topics and a Kafka Consumer Group. It also introduces additional components like a CaptureQueue, Buffered Publisher, and RecoveryService, suggesting a more robust and scalable system. The GeneratedImage diagram is rated 8 out of 10 for its accuracy and completeness. It captures the core elements of message processing but adds complexity and additional components that may not be present in the GroundTruth diagram. The rating reflects the diagram's enhanced detail and potential for scalability, albeit at the cost of simplicity.",
+    "Rating": 8
+  }
+}

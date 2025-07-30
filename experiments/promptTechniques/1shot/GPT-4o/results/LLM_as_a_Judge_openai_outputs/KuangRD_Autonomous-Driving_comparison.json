@@ -1,0 +1,276 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Car/Simulator",
+        "description": "ROS Node",
+        "boundary": "none",
+        "position": "top right"
+      },
+      {
+        "name": "Perception",
+        "description": "Vehicle Subsystem",
+        "boundary": "blue box",
+        "position": "bottom left"
+      },
+      {
+        "name": "Obstacle Detection",
+        "description": "ROS Node",
+        "boundary": "inside Perception",
+        "position": "top"
+      },
+      {
+        "name": "Traffic Light Detection Node",
+        "description": "ROS Node",
+        "boundary": "inside Perception",
+        "position": "bottom"
+      },
+      {
+        "name": "Planning",
+        "description": "Vehicle Subsystem",
+        "boundary": "blue box",
+        "position": "bottom center"
+      },
+      {
+        "name": "Waypoint Loader",
+        "description": "ROS Node",
+        "boundary": "inside Planning",
+        "position": "top"
+      },
+      {
+        "name": "Waypoint Updater Node",
+        "description": "ROS Node",
+        "boundary": "inside Planning",
+        "position": "bottom"
+      },
+      {
+        "name": "Control",
+        "description": "Vehicle Subsystem",
+        "boundary": "blue box",
+        "position": "bottom right"
+      },
+      {
+        "name": "DBW Node",
+        "description": "ROS Node",
+        "boundary": "inside Control",
+        "position": "top"
+      },
+      {
+        "name": "Waypoint Follower",
+        "description": "ROS Node",
+        "boundary": "inside Control",
+        "position": "bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Car/Simulator",
+        "target": "Perception",
+        "label": "/image_color",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Car/Simulator",
+        "target": "Planning",
+        "label": "/current_pose",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Car/Simulator",
+        "target": "Control",
+        "label": "/current_velocity",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Car/Simulator",
+        "target": "Control",
+        "label": "/vehicle/dbw_enabled",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Perception",
+        "target": "Planning",
+        "label": "/obstacle_waypoint",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Perception",
+        "target": "Planning",
+        "label": "/traffic_waypoint",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Planning",
+        "target": "Control",
+        "label": "/final_waypoints",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Control",
+        "target": "Car/Simulator",
+        "label": "/vehicle/brake_cmd",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Control",
+        "target": "Car/Simulator",
+        "label": "/vehicle/steering_cmd",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Control",
+        "target": "Car/Simulator",
+        "label": "/vehicle/throttle_cmd",
+        "type": "ROS Topic"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "Legend",
+        "details": "ROS Node, ROS Topic, Vehicle Subsystem"
+      }
+    ],
+    "groups": [
+      {
+        "name": "Vehicle Subsystem",
+        "components": [
+          "Perception",
+          "Planning",
+          "Control"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "diagram1.png",
+      "title": null
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Waypoint Loader (Node)",
+        "description": "ROS Node",
+        "boundary": "none",
+        "position": "top left"
+      },
+      {
+        "name": "Waypoint Updater (Node)",
+        "description": "ROS Node",
+        "boundary": "none",
+        "position": "top center"
+      },
+      {
+        "name": "DBW Controller (Node)",
+        "description": "ROS Node",
+        "boundary": "none",
+        "position": "top right"
+      },
+      {
+        "name": "Traffic Light Detector (Node)",
+        "description": "ROS Node",
+        "boundary": "none",
+        "position": "top right"
+      },
+      {
+        "name": "Simulator/Car",
+        "description": "ROS Node",
+        "boundary": "none",
+        "position": "top right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Waypoint Loader (Node)",
+        "label": "Start Simulation",
+        "type": "sequence"
+      },
+      {
+        "source": "Waypoint Loader (Node)",
+        "target": "Waypoint Updater (Node)",
+        "label": "Load Waypoints",
+        "type": "sequence"
+      },
+      {
+        "source": "Waypoint Updater (Node)",
+        "target": "DBW Controller (Node)",
+        "label": "Control Commands (Drive-by-Wire)",
+        "type": "sequence"
+      },
+      {
+        "source": "Simulator/Car",
+        "target": "Traffic Light Detector (Node)",
+        "label": "Send Camera Image",
+        "type": "sequence"
+      },
+      {
+        "source": "Traffic Light Detector (Node)",
+        "target": "Waypoint Updater (Node)",
+        "label": "Update Waypoints based on Traffic Light",
+        "type": "sequence"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "Traffic Light Classification",
+        "details": "CNN Model, CUDA Acceleration"
+      }
+    ],
+    "groups": [
+      {
+        "name": "ROS-Based Autonomous Driving System",
+        "components": [
+          "Waypoint Loader (Node)",
+          "Waypoint Updater (Node)",
+          "DBW Controller (Node)",
+          "Traffic Light Detector (Node)",
+          "Simulator/Car"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "diagram2.png",
+      "title": "ROS-Based Autonomous Driving System"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Waypoint Loader",
+      "Waypoint Updater",
+      "DBW Node/Controller",
+      "Traffic Light Detection/Detector",
+      "Car/Simulator"
+    ],
+    "unique_to_GroundTruth": [
+      "Perception",
+      "Obstacle Detection",
+      "Control",
+      "Waypoint Follower"
+    ],
+    "unique_to_GeneratedImage": [
+      "User"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      "/image_color",
+      "/current_pose",
+      "/current_velocity",
+      "/vehicle/dbw_enabled",
+      "/obstacle_waypoint",
+      "/traffic_waypoint",
+      "/final_waypoints",
+      "/vehicle/brake_cmd",
+      "/vehicle/steering_cmd",
+      "/vehicle/throttle_cmd"
+    ],
+    "unique_connectors_GeneratedImage": [
+      "Start Simulation",
+      "Load Waypoints",
+      "Control Commands (Drive-by-Wire)",
+      "Send Camera Image",
+      "Update Waypoints based on Traffic Light"
+    ],
+    "explanation": "The two diagrams represent different aspects of a ROS-based autonomous driving system. The GroundTruth diagram focuses on the architectural layout of nodes and topics within a vehicle subsystem, highlighting the flow of data between perception, planning, and control components. The GeneratedImage diagram, on the other hand, is a sequence diagram that illustrates the interaction between nodes and a user, emphasizing the process flow and control commands. Common components include nodes related to waypoint loading, updating, and traffic light detection. However, the GroundTruth diagram includes additional components like Obstacle Detection and Waypoint Follower, which are not present in the GeneratedImage. The connectors in GroundTruth are specific ROS topics, while the GeneratedImage uses sequence flows to describe interactions. Overall, the GeneratedImage provides a more process-oriented view, while the GroundTruth offers a structural perspective. The GeneratedImage is rated 7 out of 10 for capturing key components but missing some structural details and connectors present in the GroundTruth.",
+    "Rating": 7
+  }
+}

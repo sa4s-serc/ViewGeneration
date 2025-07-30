@@ -1,0 +1,382 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Prometheus server",
+        "description": "Handles retrieval, storage, and HTTP server functions.",
+        "boundaries": "Orange box",
+        "positions": "Center"
+      },
+      {
+        "name": "Pushgateway",
+        "description": "Receives metrics from short-lived jobs.",
+        "boundaries": "Orange rectangle",
+        "positions": "Left"
+      },
+      {
+        "name": "Service discovery",
+        "description": "Discovers targets using Kubernetes and file_sd.",
+        "boundaries": "Blue box",
+        "positions": "Top center"
+      },
+      {
+        "name": "Alertmanager",
+        "description": "Manages alerts and notifications.",
+        "boundaries": "Orange rectangle",
+        "positions": "Top right"
+      },
+      {
+        "name": "Prometheus Web UI",
+        "description": "Provides a web interface for Prometheus.",
+        "boundaries": "Orange rectangle",
+        "positions": "Bottom right"
+      },
+      {
+        "name": "Grafana",
+        "description": "Data visualization tool.",
+        "boundaries": "Yellow box",
+        "positions": "Bottom right"
+      },
+      {
+        "name": "API clients",
+        "description": "Interact with Prometheus data.",
+        "boundaries": "Black box",
+        "positions": "Bottom right"
+      },
+      {
+        "name": "Short-lived jobs",
+        "description": "Push metrics at exit.",
+        "boundaries": "Oval",
+        "positions": "Top left"
+      },
+      {
+        "name": "Jobs/exporters",
+        "description": "Prometheus targets.",
+        "boundaries": "Dashed box",
+        "positions": "Bottom left"
+      },
+      {
+        "name": "Node",
+        "description": "HDD/SSD storage.",
+        "boundaries": "Gray box",
+        "positions": "Bottom center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Short-lived jobs",
+        "target": "Pushgateway",
+        "label": "push metrics at exit",
+        "type": "Arrow"
+      },
+      {
+        "source": "Pushgateway",
+        "target": "Prometheus server",
+        "label": "pull metrics",
+        "type": "Arrow"
+      },
+      {
+        "source": "Service discovery",
+        "target": "Prometheus server",
+        "label": "discover targets",
+        "type": "Arrow"
+      },
+      {
+        "source": "Prometheus server",
+        "target": "Alertmanager",
+        "label": "push alerts",
+        "type": "Arrow"
+      },
+      {
+        "source": "Alertmanager",
+        "target": "pagerduty",
+        "label": "notify",
+        "type": "Arrow"
+      },
+      {
+        "source": "Alertmanager",
+        "target": "Email",
+        "label": "notify",
+        "type": "Arrow"
+      },
+      {
+        "source": "Alertmanager",
+        "target": "etc",
+        "label": "notify",
+        "type": "Arrow"
+      },
+      {
+        "source": "Prometheus server",
+        "target": "Prometheus Web UI",
+        "label": "PromQL",
+        "type": "Arrow"
+      },
+      {
+        "source": "Prometheus server",
+        "target": "Grafana",
+        "label": "PromQL",
+        "type": "Arrow"
+      },
+      {
+        "source": "Prometheus server",
+        "target": "API clients",
+        "label": "PromQL",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Prometheus alerting",
+        "components": [
+          "Alertmanager",
+          "pagerduty",
+          "Email",
+          "etc"
+        ],
+        "boundaries": "Dashed box"
+      },
+      {
+        "name": "Data visualization and export",
+        "components": [
+          "Prometheus Web UI",
+          "Grafana",
+          "API clients"
+        ],
+        "boundaries": "Dashed box"
+      },
+      {
+        "name": "Prometheus targets",
+        "components": [
+          "Jobs/exporters"
+        ],
+        "boundaries": "Dashed box"
+      }
+    ],
+    "metadata": {
+      "filename": "prometheus_architecture.png",
+      "title": "Prometheus Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Prometheus",
+        "description": "Handles metrics scraping and querying.",
+        "boundaries": "Yellow box",
+        "positions": "Center"
+      },
+      {
+        "name": "Alertmanager",
+        "description": "Manages alerts based on rules.",
+        "boundaries": "Pink box",
+        "positions": "Right"
+      },
+      {
+        "name": "Grafana",
+        "description": "Visualizes data from Prometheus.",
+        "boundaries": "Green box",
+        "positions": "Bottom left"
+      },
+      {
+        "name": "Developer",
+        "description": "Sets up deployment.",
+        "boundaries": "Stick figure",
+        "positions": "Top left"
+      },
+      {
+        "name": "Docker Compose",
+        "description": "Deployment setup tool.",
+        "boundaries": "Rectangle",
+        "positions": "Top center"
+      },
+      {
+        "name": "Sample Node.js Application",
+        "description": "Exposes metrics.",
+        "boundaries": "Blue box",
+        "positions": "Top center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Developer",
+        "target": "Docker Compose",
+        "label": "deploy setup",
+        "type": "Arrow"
+      },
+      {
+        "source": "Sample Node.js Application",
+        "target": "Prometheus",
+        "label": "expose /metrics",
+        "type": "Arrow"
+      },
+      {
+        "source": "Prometheus",
+        "target": "Alertmanager",
+        "label": "send alerts based on rules",
+        "type": "Arrow"
+      },
+      {
+        "source": "Prometheus",
+        "target": "Grafana",
+        "label": "query metrics for dashboards",
+        "type": "Arrow"
+      },
+      {
+        "source": "Grafana",
+        "target": "dashboard-providers.yml Configuration",
+        "label": "configure dashboards",
+        "type": "Arrow"
+      },
+      {
+        "source": "Grafana",
+        "target": "datasource.yml Configuration",
+        "label": "configure Prometheus data source",
+        "type": "Arrow"
+      },
+      {
+        "source": "Prometheus",
+        "target": "prometheus.yml Configuration",
+        "label": "configure scrape targets and intervals",
+        "type": "Arrow"
+      },
+      {
+        "source": "Alertmanager",
+        "target": "prometheus.rules.yml Configuration",
+        "label": "configure alert rules",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "prometheus_setup.png",
+      "title": "Prometheus Setup"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Prometheus",
+      "Alertmanager",
+      "Grafana"
+    ],
+    "unique_to_GroundTruth": [
+      "Pushgateway",
+      "Service discovery",
+      "Prometheus Web UI",
+      "API clients",
+      "Short-lived jobs",
+      "Jobs/exporters",
+      "Node"
+    ],
+    "unique_to_GeneratedImage": [
+      "Developer",
+      "Docker Compose",
+      "Sample Node.js Application"
+    ],
+    "common_connectors": [
+      {
+        "source": "Prometheus",
+        "target": "Alertmanager",
+        "label": "send alerts based on rules",
+        "type": "Arrow"
+      },
+      {
+        "source": "Prometheus",
+        "target": "Grafana",
+        "label": "query metrics for dashboards",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Short-lived jobs",
+        "target": "Pushgateway",
+        "label": "push metrics at exit",
+        "type": "Arrow"
+      },
+      {
+        "source": "Pushgateway",
+        "target": "Prometheus server",
+        "label": "pull metrics",
+        "type": "Arrow"
+      },
+      {
+        "source": "Service discovery",
+        "target": "Prometheus server",
+        "label": "discover targets",
+        "type": "Arrow"
+      },
+      {
+        "source": "Prometheus server",
+        "target": "Prometheus Web UI",
+        "label": "PromQL",
+        "type": "Arrow"
+      },
+      {
+        "source": "Prometheus server",
+        "target": "API clients",
+        "label": "PromQL",
+        "type": "Arrow"
+      },
+      {
+        "source": "Alertmanager",
+        "target": "pagerduty",
+        "label": "notify",
+        "type": "Arrow"
+      },
+      {
+        "source": "Alertmanager",
+        "target": "Email",
+        "label": "notify",
+        "type": "Arrow"
+      },
+      {
+        "source": "Alertmanager",
+        "target": "etc",
+        "label": "notify",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Developer",
+        "target": "Docker Compose",
+        "label": "deploy setup",
+        "type": "Arrow"
+      },
+      {
+        "source": "Sample Node.js Application",
+        "target": "Prometheus",
+        "label": "expose /metrics",
+        "type": "Arrow"
+      },
+      {
+        "source": "Grafana",
+        "target": "dashboard-providers.yml Configuration",
+        "label": "configure dashboards",
+        "type": "Arrow"
+      },
+      {
+        "source": "Grafana",
+        "target": "datasource.yml Configuration",
+        "label": "configure Prometheus data source",
+        "type": "Arrow"
+      },
+      {
+        "source": "Prometheus",
+        "target": "prometheus.yml Configuration",
+        "label": "configure scrape targets and intervals",
+        "type": "Arrow"
+      },
+      {
+        "source": "Alertmanager",
+        "target": "prometheus.rules.yml Configuration",
+        "label": "configure alert rules",
+        "type": "Arrow"
+      }
+    ],
+    "explanation": "The two diagrams both feature Prometheus, Alertmanager, and Grafana as central components. The GroundTruth diagram focuses on the operational flow of Prometheus, including data ingestion and alerting, with additional components like Pushgateway, Service Discovery, and Prometheus Web UI. The GeneratedImage emphasizes setup and configuration, with components like Developer, Docker Compose, and Sample Node.js Application, highlighting the deployment and configuration aspects. The GroundTruth diagram has a more comprehensive view of the Prometheus ecosystem, while the GeneratedImage provides a detailed look at the setup process. The GeneratedImage is rated 7 out of 10 for its accuracy and completeness, as it captures key components but lacks some operational details present in the GroundTruth.",
+    "Rating": 7
+  }
+}
