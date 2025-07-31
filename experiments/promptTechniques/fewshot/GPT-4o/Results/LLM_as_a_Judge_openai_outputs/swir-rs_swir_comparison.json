@@ -1,0 +1,255 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Client",
+        "description": "Client component",
+        "boundaries": "Left side",
+        "position": "Top left"
+      },
+      {
+        "name": "SWIR",
+        "description": "Main processing unit",
+        "boundaries": "Center",
+        "position": "Center"
+      },
+      {
+        "name": "Messaging",
+        "description": "Handles messaging",
+        "boundaries": "Within SWIR",
+        "position": "Top right"
+      },
+      {
+        "name": "Persistence",
+        "description": "Handles data storage",
+        "boundaries": "Within SWIR",
+        "position": "Middle right"
+      },
+      {
+        "name": "Service Invocation And Discovery",
+        "description": "Handles service invocation",
+        "boundaries": "Within SWIR",
+        "position": "Bottom right"
+      },
+      {
+        "name": "OpenTelemetry API",
+        "description": "Handles telemetry",
+        "boundaries": "Bottom",
+        "position": "Bottom center"
+      },
+      {
+        "name": "Jaeger",
+        "description": "Telemetry tool",
+        "boundaries": "Outside SWIR",
+        "position": "Bottom right"
+      },
+      {
+        "name": "Prometheus",
+        "description": "Monitoring tool",
+        "boundaries": "Outside SWIR",
+        "position": "Bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Client",
+        "target": "SWIR",
+        "label": "REST HTTP1.1, HTTP2 (Hyper)",
+        "type": "Invoke"
+      },
+      {
+        "source": "SWIR",
+        "target": "Messaging",
+        "label": "Memory Channels",
+        "type": "Internal"
+      },
+      {
+        "source": "SWIR",
+        "target": "Persistence",
+        "label": "Memory Channels",
+        "type": "Internal"
+      },
+      {
+        "source": "SWIR",
+        "target": "Service Invocation And Discovery",
+        "label": "Memory Channels",
+        "type": "Internal"
+      },
+      {
+        "source": "SWIR",
+        "target": "OpenTelemetry API",
+        "label": "Invoke",
+        "type": "Telemetry"
+      },
+      {
+        "source": "Messaging",
+        "target": "Kafka Broker",
+        "label": "Pub/Sub",
+        "type": "External"
+      },
+      {
+        "source": "Messaging",
+        "target": "Nats Broker",
+        "label": "Pub/Sub",
+        "type": "External"
+      },
+      {
+        "source": "Messaging",
+        "target": "AWS Kinesis",
+        "label": "Pub/Sub",
+        "type": "External"
+      },
+      {
+        "source": "Persistence",
+        "target": "Redis",
+        "label": "Store/Retrieve",
+        "type": "External"
+      },
+      {
+        "source": "Persistence",
+        "target": "DynamoDB",
+        "label": "Store/Retrieve",
+        "type": "External"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Business Logic",
+        "description": "Logical grouping for business logic",
+        "position": "Left"
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram",
+      "title": "VM/Kubernetes Pod/AWS ECS Task"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Utilities",
+        "description": "Utility functions",
+        "boundaries": "Left",
+        "position": "Top left"
+      },
+      {
+        "name": "Frontend Handlers",
+        "description": "Handles frontend requests",
+        "boundaries": "Center",
+        "position": "Center"
+      },
+      {
+        "name": "Service Invocation",
+        "description": "Handles service invocation",
+        "boundaries": "Top",
+        "position": "Top center"
+      },
+      {
+        "name": "Persistence Handlers",
+        "description": "Handles data storage",
+        "boundaries": "Right",
+        "position": "Middle right"
+      },
+      {
+        "name": "Messaging Handlers",
+        "description": "Handles messaging",
+        "boundaries": "Right",
+        "position": "Bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Service Invocation",
+        "target": "gRPC Client",
+        "label": "Endpoint Resolution",
+        "type": "Internal"
+      },
+      {
+        "source": "Frontend Handlers",
+        "target": "Persistence Handlers",
+        "label": "Persistence",
+        "type": "Internal"
+      },
+      {
+        "source": "Frontend Handlers",
+        "target": "Messaging Handlers",
+        "label": "PubSub",
+        "type": "Internal"
+      },
+      {
+        "source": "Utilities",
+        "target": "Frontend Handlers",
+        "label": "Tracing",
+        "type": "Internal"
+      },
+      {
+        "source": "Utilities",
+        "target": "Frontend Handlers",
+        "label": "Metrics (OpenTelemetry)",
+        "type": "Internal"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Utilities",
+        "description": "Logical grouping for utilities",
+        "position": "Left"
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram",
+      "title": "Service Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Service Invocation",
+      "Messaging Handlers",
+      "Persistence Handlers"
+    ],
+    "unique_to_GroundTruth": [
+      "Client",
+      "SWIR",
+      "OpenTelemetry API",
+      "Jaeger",
+      "Prometheus"
+    ],
+    "unique_to_GeneratedImage": [
+      "Utilities",
+      "Frontend Handlers"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Client",
+        "target": "SWIR",
+        "label": "REST HTTP1.1, HTTP2 (Hyper)",
+        "type": "Invoke"
+      },
+      {
+        "source": "SWIR",
+        "target": "OpenTelemetry API",
+        "label": "Invoke",
+        "type": "Telemetry"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Service Invocation",
+        "target": "gRPC Client",
+        "label": "Endpoint Resolution",
+        "type": "Internal"
+      },
+      {
+        "source": "Utilities",
+        "target": "Frontend Handlers",
+        "label": "Tracing",
+        "type": "Internal"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on a cloud-native architecture with components like SWIR, which centralizes processing, and external integrations with telemetry tools like Jaeger and Prometheus. It emphasizes client interaction and telemetry. The GeneratedImage diagram, on the other hand, highlights service invocation and utility functions, with a clear separation of frontend handlers and utility components. Both diagrams share components related to messaging and persistence but differ in their architectural focus and component organization. The GroundTruth diagram is more comprehensive in terms of external integrations, while the GeneratedImage diagram provides a more modular approach to service handling. Rating: 7/10. The GeneratedImage captures core components like messaging and persistence but lacks the detailed integration and telemetry focus present in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

@@ -1,0 +1,328 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Alert Source",
+        "description": "Sources of alerts",
+        "boundaries": "Left",
+        "position": "Top Left"
+      },
+      {
+        "name": "Alerts",
+        "description": "Types of alerts",
+        "boundaries": "Center",
+        "position": "Top Center"
+      },
+      {
+        "name": "Pagerduty Team",
+        "description": "Handles incidents and triggers webhooks",
+        "boundaries": "Green Box",
+        "position": "Center Left"
+      },
+      {
+        "name": "Tekton Event Listener",
+        "description": "Listens for events",
+        "boundaries": "Diamond",
+        "position": "Center"
+      },
+      {
+        "name": "cadctl",
+        "description": "Handles alert investigations",
+        "boundaries": "Blue Box",
+        "position": "Center Right"
+      },
+      {
+        "name": "Update Incident Notes",
+        "description": "Updates notes after investigation",
+        "boundaries": "Rectangle",
+        "position": "Bottom Right"
+      },
+      {
+        "name": "Escalate alert to on-call SRE",
+        "description": "Escalates alerts if needed",
+        "boundaries": "Circle",
+        "position": "Bottom Center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "deadmanssnitch",
+        "target": "CHGM",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "app-sre alertmanager",
+        "target": "CPD",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "cluster alertmanager",
+        "target": "all cluster alerts",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "CHGM",
+        "target": "prod-deadmanssnitch",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "CPD",
+        "target": "app-sre-alertmanager",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "all cluster alerts",
+        "target": "<cluster>.openshiftapps.com-hive-cluster",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Pagerduty Team",
+        "target": "Tekton Event Listener",
+        "label": "webhook",
+        "type": "Arrow"
+      },
+      {
+        "source": "Tekton Event Listener",
+        "target": "cadctl",
+        "label": "yes",
+        "type": "Arrow"
+      },
+      {
+        "source": "Tekton Event Listener",
+        "target": "Escalate alert to on-call SRE",
+        "label": "no",
+        "type": "Arrow"
+      },
+      {
+        "source": "cadctl",
+        "target": "Update Incident Notes",
+        "label": "",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      "Incidents for the configured Pagerduty team will fire a webhook when triggered.",
+      "Tekton Interceptor: Alert investigation implemented in CAD?"
+    ],
+    "groups": [
+      {
+        "name": "Pagerduty services (team scoped)",
+        "components": [
+          "prod-deadmanssnitch",
+          "app-sre-alertmanager",
+          "<cluster>.openshiftapps.com-hive-cluster"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": ""
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "PagerDuty",
+        "description": "Source of alerts",
+        "boundaries": "Icon",
+        "position": "Left"
+      },
+      {
+        "name": "Tekton Interceptor",
+        "description": "Handles alert interception",
+        "boundaries": "Box",
+        "position": "Center Left"
+      },
+      {
+        "name": "cadctl",
+        "description": "Command-Line Tool for investigations",
+        "boundaries": "Box",
+        "position": "Center"
+      },
+      {
+        "name": "Investigations",
+        "description": "Handles investigation processes",
+        "boundaries": "Box",
+        "position": "Center Right"
+      },
+      {
+        "name": "External Integrations",
+        "description": "Interacts with external systems",
+        "boundaries": "Box",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "PagerDuty",
+        "target": "Tekton Interceptor HTTP Service",
+        "label": "Alert Webhook",
+        "type": "Arrow"
+      },
+      {
+        "source": "Tekton Interceptor HTTP Service",
+        "target": "Signature Verification & Alert Filtering",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Signature Verification & Alert Filtering",
+        "target": "cadctl",
+        "label": "Trigger cadctl",
+        "type": "Arrow"
+      },
+      {
+        "source": "cadctl",
+        "target": "Investigations",
+        "label": "Execute Investigation",
+        "type": "Arrow"
+      },
+      {
+        "source": "Investigations",
+        "target": "External Integrations",
+        "label": "Interact with Systems",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "External Integrations",
+        "components": [
+          "PagerDuty API",
+          "Network Verifier",
+          "Kubernetes",
+          "AWS",
+          "OCM"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": "OpenShift CAD System"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "cadctl"
+    ],
+    "unique_to_GroundTruth": [
+      "Alert Source",
+      "Alerts",
+      "Pagerduty Team",
+      "Tekton Event Listener",
+      "Update Incident Notes",
+      "Escalate alert to on-call SRE"
+    ],
+    "unique_to_GeneratedImage": [
+      "PagerDuty",
+      "Tekton Interceptor",
+      "Investigations",
+      "External Integrations"
+    ],
+    "common_connectors": [
+      {
+        "source": "cadctl",
+        "target": "Investigations",
+        "label": "Execute Investigation",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "deadmanssnitch",
+        "target": "CHGM",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "app-sre alertmanager",
+        "target": "CPD",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "cluster alertmanager",
+        "target": "all cluster alerts",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "CHGM",
+        "target": "prod-deadmanssnitch",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "CPD",
+        "target": "app-sre-alertmanager",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "all cluster alerts",
+        "target": "<cluster>.openshiftapps.com-hive-cluster",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Pagerduty Team",
+        "target": "Tekton Event Listener",
+        "label": "webhook",
+        "type": "Arrow"
+      },
+      {
+        "source": "Tekton Event Listener",
+        "target": "cadctl",
+        "label": "yes",
+        "type": "Arrow"
+      },
+      {
+        "source": "Tekton Event Listener",
+        "target": "Escalate alert to on-call SRE",
+        "label": "no",
+        "type": "Arrow"
+      },
+      {
+        "source": "cadctl",
+        "target": "Update Incident Notes",
+        "label": "",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "PagerDuty",
+        "target": "Tekton Interceptor HTTP Service",
+        "label": "Alert Webhook",
+        "type": "Arrow"
+      },
+      {
+        "source": "Tekton Interceptor HTTP Service",
+        "target": "Signature Verification & Alert Filtering",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Signature Verification & Alert Filtering",
+        "target": "cadctl",
+        "label": "Trigger cadctl",
+        "type": "Arrow"
+      },
+      {
+        "source": "Investigations",
+        "target": "External Integrations",
+        "label": "Interact with Systems",
+        "type": "Arrow"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of an alert management system. The GroundTruth diagram focuses on the flow of alerts from various sources to the Pagerduty team and subsequent handling by Tekton and cadctl, with a specific emphasis on alert escalation and note updating. The GeneratedImage diagram provides a broader view of the OpenShift CAD system, detailing interactions between components like Tekton Interceptor and cadctl, and external integrations. Common elements include the cadctl component, which is central to both systems. However, the GroundTruth diagram includes specific alert sources and escalation processes not present in the GeneratedImage. Conversely, the GeneratedImage includes detailed external integrations and a more structured investigation process. The GeneratedImage is rated 7 out of 10 for its accuracy and completeness, as it captures the core investigation process but lacks specific alert sources and escalation details found in the GroundTruth.",
+    "Rating": 7
+  }
+}

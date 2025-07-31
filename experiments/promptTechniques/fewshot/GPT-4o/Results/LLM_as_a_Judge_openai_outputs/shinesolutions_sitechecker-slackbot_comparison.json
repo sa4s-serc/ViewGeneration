@@ -1,0 +1,352 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "API Gateway",
+        "description": "Entry point for the system",
+        "boundaries": "Top center",
+        "position": "Connected to Master Lambda"
+      },
+      {
+        "name": "Master Lambda",
+        "description": "Coordinates tasks",
+        "boundaries": "Top center",
+        "position": "Connected to API Gateway and Worker Lambdas"
+      },
+      {
+        "name": "Worker Lambdas",
+        "description": "Distributed across regions",
+        "boundaries": "Various locations",
+        "position": "Connected to Master Lambda"
+      },
+      {
+        "name": "SiteChecker Bot",
+        "description": "Interacts with Slack",
+        "boundaries": "Right side",
+        "position": "Connected to Slack"
+      },
+      {
+        "name": "Slack",
+        "description": "User interaction",
+        "boundaries": "Right side",
+        "position": "Connected to SiteChecker Bot"
+      },
+      {
+        "name": "User",
+        "description": "End user",
+        "boundaries": "Far right",
+        "position": "Interacts with Slack"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "API Gateway",
+        "target": "Master Lambda",
+        "label": "Invoke",
+        "type": "Arrow"
+      },
+      {
+        "source": "Master Lambda",
+        "target": "Worker Lambdas",
+        "label": "Distribute tasks",
+        "type": "Arrow"
+      },
+      {
+        "source": "Worker Lambdas",
+        "target": "Master Lambda",
+        "label": "Return results",
+        "type": "Arrow"
+      },
+      {
+        "source": "SiteChecker Bot",
+        "target": "Slack",
+        "label": "Communicate",
+        "type": "Arrow"
+      },
+      {
+        "source": "User",
+        "target": "Slack",
+        "label": "Interact",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Worker Lambdas",
+        "description": "Regional distribution",
+        "boundaries": "Bottom"
+      }
+    ],
+    "metadata": {
+      "filename": "ground_truth_diagram.png",
+      "title": "AWS Lambda Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "API Gateway",
+        "description": "Handles API requests",
+        "boundaries": "Top center",
+        "position": "Connected to Master Lambda"
+      },
+      {
+        "name": "Master Lambda",
+        "description": "Manages task distribution",
+        "boundaries": "Top center",
+        "position": "Connected to API Gateway and Worker Lambdas"
+      },
+      {
+        "name": "Worker Lambda - Region 1",
+        "description": "Processes tasks",
+        "boundaries": "Bottom left",
+        "position": "Connected to Master Lambda"
+      },
+      {
+        "name": "Worker Lambda - Region 2",
+        "description": "Processes tasks",
+        "boundaries": "Bottom center",
+        "position": "Connected to Master Lambda"
+      },
+      {
+        "name": "Worker Lambda - Region N",
+        "description": "Processes tasks",
+        "boundaries": "Bottom right",
+        "position": "Connected to Master Lambda"
+      },
+      {
+        "name": "Slack Outgoing Webhook",
+        "description": "Triggers events",
+        "boundaries": "Top right",
+        "position": "Connected to API Gateway"
+      },
+      {
+        "name": "SiteChecker Logic",
+        "description": "Processes site checks",
+        "boundaries": "Bottom right",
+        "position": "Connected to Worker Lambdas"
+      },
+      {
+        "name": "Slack Formatter",
+        "description": "Formats Slack messages",
+        "boundaries": "Bottom right",
+        "position": "Connected to SiteChecker Logic"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Slack Outgoing Webhook",
+        "target": "API Gateway",
+        "label": "Trigger Event",
+        "type": "Arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Master Lambda",
+        "label": "Invoke",
+        "type": "Arrow"
+      },
+      {
+        "source": "Master Lambda",
+        "target": "Worker Lambda - Region 1",
+        "label": "Distribute task",
+        "type": "Arrow"
+      },
+      {
+        "source": "Master Lambda",
+        "target": "Worker Lambda - Region 2",
+        "label": "Distribute task",
+        "type": "Arrow"
+      },
+      {
+        "source": "Master Lambda",
+        "target": "Worker Lambda - Region N",
+        "label": "Distribute task",
+        "type": "Arrow"
+      },
+      {
+        "source": "Worker Lambda - Region 1",
+        "target": "Master Lambda",
+        "label": "Return result",
+        "type": "Arrow"
+      },
+      {
+        "source": "Worker Lambda - Region 2",
+        "target": "Master Lambda",
+        "label": "Return result",
+        "type": "Arrow"
+      },
+      {
+        "source": "Worker Lambda - Region N",
+        "target": "Master Lambda",
+        "label": "Return result",
+        "type": "Arrow"
+      },
+      {
+        "source": "SiteChecker Logic",
+        "target": "Worker Lambda - Region 1",
+        "label": "Check site",
+        "type": "Arrow"
+      },
+      {
+        "source": "SiteChecker Logic",
+        "target": "Worker Lambda - Region 2",
+        "label": "Check site",
+        "type": "Arrow"
+      },
+      {
+        "source": "SiteChecker Logic",
+        "target": "Worker Lambda - Region N",
+        "label": "Check site",
+        "type": "Arrow"
+      },
+      {
+        "source": "Slack Formatter",
+        "target": "SiteChecker Logic",
+        "label": "Format response",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Lambda Functions",
+        "description": "Task processing",
+        "boundaries": "Center"
+      },
+      {
+        "name": "SiteChecker Services",
+        "description": "Service logic",
+        "boundaries": "Bottom right"
+      }
+    ],
+    "metadata": {
+      "filename": "generated_image_diagram.png",
+      "title": "AWS Lambda Architecture with Slack Integration"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "API Gateway",
+      "Master Lambda"
+    ],
+    "unique_to_GroundTruth": [
+      "SiteChecker Bot",
+      "Slack",
+      "User"
+    ],
+    "unique_to_GeneratedImage": [
+      "Worker Lambda - Region 1",
+      "Worker Lambda - Region 2",
+      "Worker Lambda - Region N",
+      "Slack Outgoing Webhook",
+      "SiteChecker Logic",
+      "Slack Formatter"
+    ],
+    "common_connectors": [
+      {
+        "source": "API Gateway",
+        "target": "Master Lambda",
+        "label": "Invoke",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Master Lambda",
+        "target": "Worker Lambdas",
+        "label": "Distribute tasks",
+        "type": "Arrow"
+      },
+      {
+        "source": "Worker Lambdas",
+        "target": "Master Lambda",
+        "label": "Return results",
+        "type": "Arrow"
+      },
+      {
+        "source": "SiteChecker Bot",
+        "target": "Slack",
+        "label": "Communicate",
+        "type": "Arrow"
+      },
+      {
+        "source": "User",
+        "target": "Slack",
+        "label": "Interact",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Slack Outgoing Webhook",
+        "target": "API Gateway",
+        "label": "Trigger Event",
+        "type": "Arrow"
+      },
+      {
+        "source": "Master Lambda",
+        "target": "Worker Lambda - Region 1",
+        "label": "Distribute task",
+        "type": "Arrow"
+      },
+      {
+        "source": "Master Lambda",
+        "target": "Worker Lambda - Region 2",
+        "label": "Distribute task",
+        "type": "Arrow"
+      },
+      {
+        "source": "Master Lambda",
+        "target": "Worker Lambda - Region N",
+        "label": "Distribute task",
+        "type": "Arrow"
+      },
+      {
+        "source": "Worker Lambda - Region 1",
+        "target": "Master Lambda",
+        "label": "Return result",
+        "type": "Arrow"
+      },
+      {
+        "source": "Worker Lambda - Region 2",
+        "target": "Master Lambda",
+        "label": "Return result",
+        "type": "Arrow"
+      },
+      {
+        "source": "Worker Lambda - Region N",
+        "target": "Master Lambda",
+        "label": "Return result",
+        "type": "Arrow"
+      },
+      {
+        "source": "SiteChecker Logic",
+        "target": "Worker Lambda - Region 1",
+        "label": "Check site",
+        "type": "Arrow"
+      },
+      {
+        "source": "SiteChecker Logic",
+        "target": "Worker Lambda - Region 2",
+        "label": "Check site",
+        "type": "Arrow"
+      },
+      {
+        "source": "SiteChecker Logic",
+        "target": "Worker Lambda - Region N",
+        "label": "Check site",
+        "type": "Arrow"
+      },
+      {
+        "source": "Slack Formatter",
+        "target": "SiteChecker Logic",
+        "label": "Format response",
+        "type": "Arrow"
+      }
+    ],
+    "explanation": "The two diagrams represent similar AWS Lambda architectures with some differences. Both diagrams feature an API Gateway and a Master Lambda component, indicating a shared core architecture for handling API requests and task distribution. However, the GroundTruth diagram includes a SiteChecker Bot and Slack components, focusing on user interaction through Slack. In contrast, the GeneratedImage diagram provides more detailed components, such as individual Worker Lambdas for different regions and additional services like SiteChecker Logic and Slack Formatter. The connectors in the GeneratedImage are more detailed, specifying interactions between components, while the GroundTruth diagram provides a broader overview. The GeneratedImage diagram is rated 8 out of 10 for its accuracy and completeness, as it captures the core architecture and adds more specific details, although it lacks some user interaction elements present in the GroundTruth diagram.",
+    "Rating": 8
+  }
+}

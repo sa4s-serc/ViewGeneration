@@ -1,0 +1,232 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Jenkins",
+        "description": "Compiles code and packages images",
+        "position": "center"
+      },
+      {
+        "name": "Frontend Code",
+        "description": "Integrates webpack plugin, generates source maps, and packages zip",
+        "position": "left"
+      },
+      {
+        "name": "Static Resource Server",
+        "description": "Handles static resource requests from H5 server",
+        "position": "top right"
+      },
+      {
+        "name": "Offline Package Platform",
+        "description": "Downloads and uploads offline packages",
+        "position": "bottom left"
+      },
+      {
+        "name": "Client",
+        "description": "Installs offline full package",
+        "position": "bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Frontend Code",
+        "target": "Jenkins",
+        "label": "push"
+      },
+      {
+        "source": "Jenkins",
+        "target": "Static Resource Server",
+        "label": "Compile code and package images"
+      },
+      {
+        "source": "Static Resource Server",
+        "target": "Client",
+        "label": "Respond to static resource requests"
+      },
+      {
+        "source": "Offline Package Platform",
+        "target": "Client",
+        "label": "Download and install offline package"
+      }
+    ],
+    "annotations": [
+      "If the uploaded version is not the initial version, calculate the difference from the previous version."
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "offline_package_mechanism.png",
+      "title": "离线包运行机制"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Developer",
+        "description": "Configures the plugin",
+        "position": "top left"
+      },
+      {
+        "name": "Webpack Build Process",
+        "description": "Main process for building",
+        "position": "center"
+      },
+      {
+        "name": "OfflinePackagePlugin",
+        "description": "Handles configuration and options",
+        "position": "right"
+      },
+      {
+        "name": "Emit Stage",
+        "description": "Generates manifest and creates zip archive",
+        "position": "left"
+      },
+      {
+        "name": "Index.json Manifest",
+        "description": "Generated manifest file",
+        "position": "left"
+      },
+      {
+        "name": "Zip Archive Creation",
+        "description": "Creates zip archive",
+        "position": "left"
+      },
+      {
+        "name": "mime-types",
+        "description": "Detects MIME types",
+        "position": "right"
+      },
+      {
+        "name": "JSZip",
+        "description": "Library for zip creation",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Developer",
+        "target": "Webpack Build Process",
+        "label": "Configure Plugin"
+      },
+      {
+        "source": "Webpack Build Process",
+        "target": "OfflinePackagePlugin",
+        "label": "Hook into Emit"
+      },
+      {
+        "source": "OfflinePackagePlugin",
+        "target": "mime-types",
+        "label": "Detect MIME Types"
+      },
+      {
+        "source": "OfflinePackagePlugin",
+        "target": "JSZip",
+        "label": "Use JSZip Library"
+      },
+      {
+        "source": "Emit Stage",
+        "target": "Index.json Manifest",
+        "label": "Generate Manifest"
+      },
+      {
+        "source": "Emit Stage",
+        "target": "Zip Archive Creation",
+        "label": "Create Zip Archive"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Webpack Build Process",
+        "components": [
+          "OfflinePackagePlugin",
+          "Emit Stage"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "webpack_build_process.png",
+      "title": "Webpack Build Process"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      {
+        "name": "Zip Archive Creation",
+        "purpose": "Creates zip archive"
+      }
+    ],
+    "unique_to_GroundTruth": [
+      "Jenkins",
+      "Frontend Code",
+      "Static Resource Server",
+      "Offline Package Platform",
+      "Client"
+    ],
+    "unique_to_GeneratedImage": [
+      "Developer",
+      "Webpack Build Process",
+      "OfflinePackagePlugin",
+      "Emit Stage",
+      "Index.json Manifest",
+      "mime-types",
+      "JSZip"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Frontend Code",
+        "target": "Jenkins",
+        "label": "push"
+      },
+      {
+        "source": "Jenkins",
+        "target": "Static Resource Server",
+        "label": "Compile code and package images"
+      },
+      {
+        "source": "Static Resource Server",
+        "target": "Client",
+        "label": "Respond to static resource requests"
+      },
+      {
+        "source": "Offline Package Platform",
+        "target": "Client",
+        "label": "Download and install offline package"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Developer",
+        "target": "Webpack Build Process",
+        "label": "Configure Plugin"
+      },
+      {
+        "source": "Webpack Build Process",
+        "target": "OfflinePackagePlugin",
+        "label": "Hook into Emit"
+      },
+      {
+        "source": "OfflinePackagePlugin",
+        "target": "mime-types",
+        "label": "Detect MIME Types"
+      },
+      {
+        "source": "OfflinePackagePlugin",
+        "target": "JSZip",
+        "label": "Use JSZip Library"
+      },
+      {
+        "source": "Emit Stage",
+        "target": "Index.json Manifest",
+        "label": "Generate Manifest"
+      },
+      {
+        "source": "Emit Stage",
+        "target": "Zip Archive Creation",
+        "label": "Create Zip Archive"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on an offline package mechanism involving Jenkins, frontend code, and a static resource server, with a client-side installation process. The GeneratedImage diagram illustrates a webpack build process with a focus on plugin configuration and zip archive creation. Both diagrams share the concept of creating zip archives, but differ significantly in their components and processes. The GroundTruth diagram is more about deployment and client interaction, while the GeneratedImage diagram is about build processes and plugin management. The GeneratedImage is rated 7 out of 10 for its completeness in detailing the build process but lacks the deployment and client interaction aspects present in the GroundTruth.",
+    "Rating": 7
+  }
+}

@@ -1,0 +1,184 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Internet Gateway",
+        "description": "workshop internet gateway",
+        "boundary": "outside VPC",
+        "position": "top right"
+      },
+      {
+        "name": "VPC",
+        "description": "workshop vpc",
+        "boundary": "dashed line",
+        "position": "center"
+      },
+      {
+        "name": "IAM Role",
+        "description": "Workshop_EC2",
+        "boundary": "inside VPC",
+        "position": "top center"
+      },
+      {
+        "name": "NGINX",
+        "description": "EC2",
+        "boundary": "inside Public Subnet",
+        "position": "left center"
+      },
+      {
+        "name": "OpenSearch",
+        "description": "OpenSearch Domain (workshop-domain-vpc)",
+        "boundary": "inside Private Subnet",
+        "position": "right center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Internet Gateway",
+        "target": "NGINX",
+        "label": "https://<ec2-public-ip>/_dashboard",
+        "type": "arrow"
+      },
+      {
+        "source": "NGINX",
+        "target": "OpenSearch",
+        "label": "",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [
+      "Public Subnet",
+      "Private Subnet",
+      "Security Group (ec2 security group)",
+      "Security Group (open search security group)"
+    ],
+    "groups": [
+      {
+        "name": "Public Subnet",
+        "components": [
+          "NGINX"
+        ]
+      },
+      {
+        "name": "Private Subnet",
+        "components": [
+          "OpenSearch"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "AWS Architecture Diagram"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Internet",
+        "description": "",
+        "boundary": "outside AWS Cloud",
+        "position": "top"
+      },
+      {
+        "name": "AWS Cloud",
+        "description": "",
+        "boundary": "solid line",
+        "position": "center"
+      },
+      {
+        "name": "VPC",
+        "description": "",
+        "boundary": "inside AWS Cloud",
+        "position": "center"
+      },
+      {
+        "name": "Nginx Proxy EC2 Instance",
+        "description": "",
+        "boundary": "inside Public Subnet",
+        "position": "center"
+      },
+      {
+        "name": "OpenSearch Dashboard",
+        "description": "",
+        "boundary": "inside Private Subnet",
+        "position": "center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Internet",
+        "target": "Nginx Proxy EC2 Instance",
+        "label": "HTTPS",
+        "type": "arrow"
+      },
+      {
+        "source": "Nginx Proxy EC2 Instance",
+        "target": "OpenSearch Dashboard",
+        "label": "Forward HTTP",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [
+      "Public Subnet",
+      "Private Subnet"
+    ],
+    "groups": [
+      {
+        "name": "Public Subnet",
+        "components": [
+          "Nginx Proxy EC2 Instance"
+        ]
+      },
+      {
+        "name": "Private Subnet",
+        "components": [
+          "OpenSearch Dashboard"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": "AWS Cloud Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "NGINX",
+      "OpenSearch"
+    ],
+    "unique_to_GroundTruth": [
+      "Internet Gateway",
+      "IAM Role"
+    ],
+    "unique_to_GeneratedImage": [
+      "Internet",
+      "AWS Cloud"
+    ],
+    "common_connectors": [
+      {
+        "source": "NGINX",
+        "target": "OpenSearch",
+        "label": "",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Internet Gateway",
+        "target": "NGINX",
+        "label": "https://<ec2-public-ip>/_dashboard",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Internet",
+        "target": "Nginx Proxy EC2 Instance",
+        "label": "HTTPS",
+        "type": "arrow"
+      }
+    ],
+    "explanation": "Both diagrams depict a similar architecture with a public subnet containing an NGINX proxy and a private subnet containing an OpenSearch service. The GroundTruth diagram includes additional components such as an Internet Gateway and an IAM Role, which are not present in the GeneratedImage. The GeneratedImage includes an overarching AWS Cloud boundary, which is not explicitly shown in the GroundTruth. Connectors in both diagrams show communication between the NGINX proxy and OpenSearch, but differ in how they depict external access. The GroundTruth uses a specific URL pattern, while the GeneratedImage uses a generic Internet connection. Overall, the GeneratedImage captures the main components and connections but lacks some specific details present in the GroundTruth. Rating: 7/10. The GeneratedImage is accurate in depicting the core architecture but misses some components and specific details that are present in the GroundTruth.",
+    "Rating": 7
+  }
+}

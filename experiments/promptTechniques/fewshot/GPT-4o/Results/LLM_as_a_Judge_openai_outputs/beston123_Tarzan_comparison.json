@@ -1,0 +1,307 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Registry",
+        "description": "Manages servers and allocates unique IDs",
+        "boundaries": "solid",
+        "position": "top"
+      },
+      {
+        "name": "Tarzan Admin",
+        "description": "Admin interface for managing servers",
+        "boundaries": "solid",
+        "position": "top right"
+      },
+      {
+        "name": "Tarzan Server",
+        "description": "Handles transactions and communication",
+        "boundaries": "dashed",
+        "position": "center"
+      },
+      {
+        "name": "Application1 (Tarzan Client)",
+        "description": "Client application for transactions",
+        "boundaries": "dashed",
+        "position": "left"
+      },
+      {
+        "name": "Application2 (Tarzan Client)",
+        "description": "Client application for transactions",
+        "boundaries": "dashed",
+        "position": "left"
+      },
+      {
+        "name": "RocketMQ",
+        "description": "Message queue group",
+        "boundaries": "dashed",
+        "position": "right"
+      },
+      {
+        "name": "Other MQ",
+        "description": "Message queue group",
+        "boundaries": "dashed",
+        "position": "right"
+      },
+      {
+        "name": "Tarzan Store",
+        "description": "Data storage with MySQL",
+        "boundaries": "solid",
+        "position": "bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Registry",
+        "target": "Tarzan Server",
+        "label": "allocate unique id",
+        "type": "solid"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "Registry",
+        "label": "register/unregister",
+        "type": "solid"
+      },
+      {
+        "source": "Tarzan Admin",
+        "target": "Registry",
+        "label": "manage servers",
+        "type": "dashed"
+      },
+      {
+        "source": "Application1 (Tarzan Client)",
+        "target": "Tarzan Server",
+        "label": "1.Prepare",
+        "type": "solid"
+      },
+      {
+        "source": "Application1 (Tarzan Client)",
+        "target": "Tarzan Server",
+        "label": "2.Commit/Rollback",
+        "type": "solid"
+      },
+      {
+        "source": "Application2 (Tarzan Client)",
+        "target": "Tarzan Server",
+        "label": "Check Transaction State",
+        "type": "solid"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "RocketMQ",
+        "label": "Send",
+        "type": "solid"
+      },
+      {
+        "source": "RocketMQ",
+        "target": "Tarzan Server",
+        "label": "Return Result",
+        "type": "solid"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "Other MQ",
+        "label": "Send",
+        "type": "solid"
+      },
+      {
+        "source": "Other MQ",
+        "target": "Tarzan Server",
+        "label": "Return Result",
+        "type": "solid"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "Tarzan Store",
+        "label": "put",
+        "type": "solid"
+      },
+      {
+        "source": "Tarzan Store",
+        "target": "Tarzan Server",
+        "label": "get",
+        "type": "solid"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Producer Group",
+        "components": [
+          "Application1 (Tarzan Client)",
+          "Application2 (Tarzan Client)"
+        ]
+      },
+      {
+        "name": "MQ Group",
+        "components": [
+          "RocketMQ",
+          "Other MQ"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Tarzan System Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Client",
+        "description": "Handles transaction lifecycle",
+        "boundaries": "solid",
+        "position": "left"
+      },
+      {
+        "name": "Registry (Zookeeper)",
+        "description": "Service discovery and configuration",
+        "boundaries": "solid",
+        "position": "center top"
+      },
+      {
+        "name": "Cluster",
+        "description": "Handles clustering and load balancing",
+        "boundaries": "solid",
+        "position": "center"
+      },
+      {
+        "name": "Store",
+        "description": "Data storage and access",
+        "boundaries": "solid",
+        "position": "right"
+      },
+      {
+        "name": "Message Broker (RocketMQ)",
+        "description": "Handles message transactions",
+        "boundaries": "solid",
+        "position": "center right"
+      },
+      {
+        "name": "RPC (Netty)",
+        "description": "Handles RPC communication",
+        "boundaries": "solid",
+        "position": "bottom right"
+      },
+      {
+        "name": "Server",
+        "description": "Manages server operations",
+        "boundaries": "solid",
+        "position": "bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Client",
+        "target": "Registry (Zookeeper)",
+        "label": "Service Discovery",
+        "type": "solid"
+      },
+      {
+        "source": "Registry (Zookeeper)",
+        "target": "Cluster",
+        "label": "Data Operations",
+        "type": "solid"
+      },
+      {
+        "source": "Cluster",
+        "target": "Store",
+        "label": "Manage Data",
+        "type": "solid"
+      },
+      {
+        "source": "Store",
+        "target": "Message Broker (RocketMQ)",
+        "label": "Persist Transaction States",
+        "type": "solid"
+      },
+      {
+        "source": "Message Broker (RocketMQ)",
+        "target": "RPC (Netty)",
+        "label": "Notify Transactions",
+        "type": "solid"
+      },
+      {
+        "source": "Server",
+        "target": "Cluster",
+        "label": "Load Balancing",
+        "type": "solid"
+      },
+      {
+        "source": "Server",
+        "target": "Message Broker (RocketMQ)",
+        "label": "Configuration Management",
+        "type": "solid"
+      },
+      {
+        "source": "Message Broker (RocketMQ)",
+        "target": "Store",
+        "label": "Query Data",
+        "type": "solid"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Tarzan System",
+        "components": [
+          "Client",
+          "Registry (Zookeeper)",
+          "Cluster",
+          "Store",
+          "Message Broker (RocketMQ)",
+          "RPC (Netty)",
+          "Server"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Tarzan System Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Registry",
+      "Tarzan Server",
+      "RocketMQ"
+    ],
+    "unique_to_GroundTruth": [
+      "Tarzan Admin",
+      "Application1 (Tarzan Client)",
+      "Application2 (Tarzan Client)",
+      "Other MQ",
+      "Tarzan Store"
+    ],
+    "unique_to_GeneratedImage": [
+      "Client",
+      "Cluster",
+      "Store",
+      "RPC (Netty)",
+      "Server"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      "Registry to Tarzan Server",
+      "Tarzan Admin to Registry",
+      "Application1 to Tarzan Server",
+      "Application2 to Tarzan Server",
+      "Tarzan Server to RocketMQ",
+      "Tarzan Server to Other MQ",
+      "Tarzan Server to Tarzan Store"
+    ],
+    "unique_connectors_GeneratedImage": [
+      "Client to Registry (Zookeeper)",
+      "Registry (Zookeeper) to Cluster",
+      "Cluster to Store",
+      "Store to Message Broker (RocketMQ)",
+      "Message Broker (RocketMQ) to RPC (Netty)",
+      "Server to Cluster",
+      "Server to Message Broker (RocketMQ)",
+      "Message Broker (RocketMQ) to Store"
+    ],
+    "explanation": "The two diagrams represent the architecture of a system named 'Tarzan', but with different focuses and levels of detail. The GroundTruth diagram emphasizes the interaction between clients, servers, and message queues, with specific components like 'Tarzan Admin' and 'Tarzan Store'. The GeneratedImage diagram provides a more abstract view, focusing on system layers such as 'Cluster', 'Store', and 'RPC'. Both diagrams include a 'Registry' and 'RocketMQ', indicating common elements in service discovery and messaging. However, the GeneratedImage diagram introduces additional components like 'Client', 'Cluster', and 'RPC', suggesting a broader architectural perspective. The GroundTruth diagram's connectors are more detailed in terms of transaction management, while the GeneratedImage diagram focuses on data operations and communication. Overall, the GeneratedImage diagram offers a more comprehensive architectural view, but lacks some specific components and interactions found in the GroundTruth diagram. Rating: 7/10. The GeneratedImage diagram captures the overall architecture well but misses specific details and interactions present in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

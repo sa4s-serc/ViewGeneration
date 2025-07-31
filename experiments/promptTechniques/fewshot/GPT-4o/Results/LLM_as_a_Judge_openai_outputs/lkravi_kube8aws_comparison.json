@@ -1,0 +1,305 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "AWS",
+        "description": "Cloud provider",
+        "boundaries": "outermost",
+        "position": "top"
+      },
+      {
+        "name": "VPC",
+        "description": "Virtual Private Cloud",
+        "boundaries": "inside AWS",
+        "position": "top"
+      },
+      {
+        "name": "Public Subnet",
+        "description": "Subnet for public access",
+        "boundaries": "inside VPC",
+        "position": "top"
+      },
+      {
+        "name": "Network Load Balancer (NLB)",
+        "description": "Handles incoming traffic",
+        "boundaries": "inside Public Subnet",
+        "position": "top"
+      },
+      {
+        "name": "Bastion Host",
+        "description": "Access point for SSH",
+        "boundaries": "inside Public Subnet",
+        "position": "middle"
+      },
+      {
+        "name": "Private Subnet",
+        "description": "Subnet for internal resources",
+        "boundaries": "inside VPC",
+        "position": "right"
+      },
+      {
+        "name": "Worker Nodes",
+        "description": "Handles application workloads",
+        "boundaries": "inside Private Subnet",
+        "position": "right"
+      },
+      {
+        "name": "Master Nodes",
+        "description": "Manages cluster state",
+        "boundaries": "inside Private Subnet",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Admin",
+        "target": "Internet",
+        "label": "SSH",
+        "type": "arrow"
+      },
+      {
+        "source": "Internet",
+        "target": "Network Load Balancer (NLB)",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Internet",
+        "target": "Bastion Host",
+        "label": "SSH",
+        "type": "arrow"
+      },
+      {
+        "source": "Network Load Balancer (NLB)",
+        "target": "Worker Nodes",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Bastion Host",
+        "target": "Master Nodes",
+        "label": "",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Public Subnet",
+        "components": [
+          "Network Load Balancer (NLB)",
+          "Bastion Host"
+        ]
+      },
+      {
+        "name": "Private Subnet",
+        "components": [
+          "Worker Nodes",
+          "Master Nodes"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "ground_truth_diagram.png",
+      "title": "AWS Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "AWS",
+        "description": "Cloud provider",
+        "boundaries": "outermost",
+        "position": "top"
+      },
+      {
+        "name": "VPC",
+        "description": "Virtual Private Cloud",
+        "boundaries": "inside AWS",
+        "position": "top"
+      },
+      {
+        "name": "Public Subnet",
+        "description": "Subnet for public access",
+        "boundaries": "inside VPC",
+        "position": "top"
+      },
+      {
+        "name": "Public LB",
+        "description": "Public Load Balancer",
+        "boundaries": "inside Public Subnet",
+        "position": "left"
+      },
+      {
+        "name": "Bastion Host",
+        "description": "Access point for SSH",
+        "boundaries": "inside Public Subnet",
+        "position": "middle"
+      },
+      {
+        "name": "Private Subnet",
+        "description": "Subnet for internal resources",
+        "boundaries": "inside VPC",
+        "position": "bottom"
+      },
+      {
+        "name": "Private LB",
+        "description": "Private Load Balancer",
+        "boundaries": "inside Private Subnet",
+        "position": "right"
+      },
+      {
+        "name": "Master Nodes",
+        "description": "Manages cluster state",
+        "boundaries": "inside Private Subnet",
+        "position": "bottom"
+      },
+      {
+        "name": "Worker Nodes",
+        "description": "Handles application workloads",
+        "boundaries": "inside Private Subnet",
+        "position": "bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Public Users",
+        "target": "Public LB",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Public LB",
+        "target": "Private LB",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Bastion Host",
+        "target": "kubectl",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Private LB",
+        "target": "Master Nodes",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Private LB",
+        "target": "Worker Nodes",
+        "label": "",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Public Subnet",
+        "components": [
+          "Public LB",
+          "Bastion Host"
+        ]
+      },
+      {
+        "name": "Private Subnet",
+        "components": [
+          "Private LB",
+          "Master Nodes",
+          "Worker Nodes"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "generated_image.png",
+      "title": "AWS Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "AWS",
+      "VPC",
+      "Public Subnet",
+      "Bastion Host",
+      "Private Subnet",
+      "Master Nodes",
+      "Worker Nodes"
+    ],
+    "unique_to_GroundTruth": [
+      "Network Load Balancer (NLB)"
+    ],
+    "unique_to_GeneratedImage": [
+      "Public LB",
+      "Private LB"
+    ],
+    "common_connectors": [
+      {
+        "source": "Bastion Host",
+        "target": "Master Nodes",
+        "label": "",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Admin",
+        "target": "Internet",
+        "label": "SSH",
+        "type": "arrow"
+      },
+      {
+        "source": "Internet",
+        "target": "Network Load Balancer (NLB)",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Internet",
+        "target": "Bastion Host",
+        "label": "SSH",
+        "type": "arrow"
+      },
+      {
+        "source": "Network Load Balancer (NLB)",
+        "target": "Worker Nodes",
+        "label": "",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Public Users",
+        "target": "Public LB",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Public LB",
+        "target": "Private LB",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Bastion Host",
+        "target": "kubectl",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Private LB",
+        "target": "Master Nodes",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Private LB",
+        "target": "Worker Nodes",
+        "label": "",
+        "type": "arrow"
+      }
+    ],
+    "explanation": "Both diagrams represent an AWS architecture with a VPC containing public and private subnets. Common components include AWS, VPC, Public Subnet, Bastion Host, Private Subnet, Master Nodes, and Worker Nodes. The GroundTruth diagram features a Network Load Balancer (NLB) in the public subnet, while the GeneratedImage has a Public LB and a Private LB. Connectors differ mainly in the handling of traffic; the GroundTruth uses a single NLB, whereas the GeneratedImage separates public and private load balancing. The GroundTruth includes SSH access via the Internet, while the GeneratedImage connects Public Users directly to the Public LB. The GeneratedImage is rated 7 out of 10 for accuracy and completeness, as it captures the main components but diverges in connector details and load balancer configuration.",
+    "Rating": 7
+  }
+}

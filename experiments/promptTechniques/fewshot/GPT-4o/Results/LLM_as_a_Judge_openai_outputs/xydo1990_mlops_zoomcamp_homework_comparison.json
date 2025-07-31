@@ -1,0 +1,585 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "get_data",
+        "description": "images of minifigures",
+        "boundaries": "Training",
+        "position": "left"
+      },
+      {
+        "name": "data_feeling",
+        "description": "Jupyter",
+        "boundaries": "Training",
+        "position": "left"
+      },
+      {
+        "name": "train_model",
+        "description": "using train dataset",
+        "boundaries": "Training",
+        "position": "left"
+      },
+      {
+        "name": "get_model_from_registry",
+        "description": "Jupyter",
+        "boundaries": "Training",
+        "position": "left"
+      },
+      {
+        "name": "batch_prefect_flow_deployment",
+        "description": "",
+        "boundaries": "Production",
+        "position": "center"
+      },
+      {
+        "name": "streaming_send_data",
+        "description": "",
+        "boundaries": "Production",
+        "position": "center"
+      },
+      {
+        "name": "prediction_service_stream",
+        "description": "",
+        "boundaries": "Production",
+        "position": "center"
+      },
+      {
+        "name": "prediction_service",
+        "description": "",
+        "boundaries": "Production",
+        "position": "center"
+      },
+      {
+        "name": "Amazon EC2",
+        "description": "docker",
+        "boundaries": "Production",
+        "position": "top"
+      },
+      {
+        "name": "NGINX",
+        "description": "",
+        "boundaries": "Production",
+        "position": "center"
+      },
+      {
+        "name": "mlflow",
+        "description": "",
+        "boundaries": "Production",
+        "position": "center"
+      },
+      {
+        "name": "Amazon S3",
+        "description": "model artifacts",
+        "boundaries": "Production",
+        "position": "center"
+      },
+      {
+        "name": "backend store",
+        "description": "",
+        "boundaries": "Production",
+        "position": "center"
+      },
+      {
+        "name": "Prefect",
+        "description": "",
+        "boundaries": "Production",
+        "position": "center"
+      },
+      {
+        "name": "test/new data",
+        "description": "",
+        "boundaries": "Production",
+        "position": "center"
+      },
+      {
+        "name": "Flask",
+        "description": "",
+        "boundaries": "Production",
+        "position": "center"
+      },
+      {
+        "name": "mongoDB",
+        "description": "",
+        "boundaries": "Production",
+        "position": "right"
+      },
+      {
+        "name": "Evidently AI",
+        "description": "",
+        "boundaries": "Monitoring",
+        "position": "right"
+      },
+      {
+        "name": "Prometheus",
+        "description": "monitoring service",
+        "boundaries": "Monitoring",
+        "position": "right"
+      },
+      {
+        "name": "Grafana",
+        "description": "TODO",
+        "boundaries": "Monitoring",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "get_data",
+        "target": "data_feeling",
+        "label": "",
+        "type": "data flow"
+      },
+      {
+        "source": "data_feeling",
+        "target": "train_model",
+        "label": "",
+        "type": "data flow"
+      },
+      {
+        "source": "train_model",
+        "target": "mlflow",
+        "label": "stores models",
+        "type": "data flow"
+      },
+      {
+        "source": "mlflow",
+        "target": "NGINX",
+        "label": "marks best model as Production",
+        "type": "data flow"
+      },
+      {
+        "source": "NGINX",
+        "target": "prediction_service_stream",
+        "label": "gets best model",
+        "type": "data flow"
+      },
+      {
+        "source": "batch_prefect_flow_deployment",
+        "target": "Prefect",
+        "label": "creates deployment",
+        "type": "control flow"
+      },
+      {
+        "source": "Prefect",
+        "target": "batch_prefect_flow",
+        "label": "",
+        "type": "control flow"
+      },
+      {
+        "source": "batch_prefect_flow",
+        "target": "test/new data",
+        "label": "batch",
+        "type": "data flow"
+      },
+      {
+        "source": "batch_prefect_flow",
+        "target": "Flask",
+        "label": "",
+        "type": "control flow"
+      },
+      {
+        "source": "Flask",
+        "target": "prediction_service",
+        "label": "",
+        "type": "control flow"
+      },
+      {
+        "source": "prediction_service",
+        "target": "mongoDB",
+        "label": "json inputs and outputs",
+        "type": "data flow"
+      },
+      {
+        "source": "mongoDB",
+        "target": "Evidently AI",
+        "label": "",
+        "type": "data flow"
+      },
+      {
+        "source": "Evidently AI",
+        "target": "html report",
+        "label": "",
+        "type": "data flow"
+      },
+      {
+        "source": "Prometheus",
+        "target": "Grafana",
+        "label": "metrics",
+        "type": "data flow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      "Training",
+      "Production",
+      "Monitoring"
+    ],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "Training, Production, Monitoring"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "",
+        "boundaries": "Data Layer",
+        "position": "left"
+      },
+      {
+        "name": "Kaggle Data Source",
+        "description": "",
+        "boundaries": "Data Layer",
+        "position": "left"
+      },
+      {
+        "name": "Jupyter Notebook",
+        "description": "src/data_feeling.ipynb",
+        "boundaries": "Training",
+        "position": "center"
+      },
+      {
+        "name": "Train Model",
+        "description": "src/train_model.py",
+        "boundaries": "Training",
+        "position": "center"
+      },
+      {
+        "name": "MLflow Tracking",
+        "description": "",
+        "boundaries": "Training",
+        "position": "center"
+      },
+      {
+        "name": "Model Registry",
+        "description": "",
+        "boundaries": "Training",
+        "position": "center"
+      },
+      {
+        "name": "Docker",
+        "description": "",
+        "boundaries": "Deployment",
+        "position": "center"
+      },
+      {
+        "name": "Batch Prediction Service",
+        "description": "",
+        "boundaries": "Deployment",
+        "position": "center"
+      },
+      {
+        "name": "Streaming Prediction Service",
+        "description": "",
+        "boundaries": "Deployment",
+        "position": "center"
+      },
+      {
+        "name": "Prefect Workflow",
+        "description": "",
+        "boundaries": "Deployment",
+        "position": "center"
+      },
+      {
+        "name": "Evidently Monitoring",
+        "description": "",
+        "boundaries": "Monitoring",
+        "position": "right"
+      },
+      {
+        "name": "Prometheus",
+        "description": "",
+        "boundaries": "Monitoring",
+        "position": "right"
+      },
+      {
+        "name": "Grafana",
+        "description": "",
+        "boundaries": "Monitoring",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Kaggle Data Source",
+        "label": "Download Data",
+        "type": "data flow"
+      },
+      {
+        "source": "Kaggle Data Source",
+        "target": "Jupyter Notebook",
+        "label": "",
+        "type": "data flow"
+      },
+      {
+        "source": "Jupyter Notebook",
+        "target": "Train Model",
+        "label": "",
+        "type": "data flow"
+      },
+      {
+        "source": "Train Model",
+        "target": "MLflow Tracking",
+        "label": "Track Experiments",
+        "type": "data flow"
+      },
+      {
+        "source": "MLflow Tracking",
+        "target": "Model Registry",
+        "label": "Register Model",
+        "type": "data flow"
+      },
+      {
+        "source": "Model Registry",
+        "target": "Docker",
+        "label": "Deploy via Docker",
+        "type": "control flow"
+      },
+      {
+        "source": "Docker",
+        "target": "Batch Prediction Service",
+        "label": "Deploy Batch",
+        "type": "control flow"
+      },
+      {
+        "source": "Docker",
+        "target": "Streaming Prediction Service",
+        "label": "Deploy Streaming",
+        "type": "control flow"
+      },
+      {
+        "source": "Prefect Workflow",
+        "target": "Batch Prediction Service",
+        "label": "Orchestrate Workflow",
+        "type": "control flow"
+      },
+      {
+        "source": "Prefect Workflow",
+        "target": "Streaming Prediction Service",
+        "label": "Monitor Stream",
+        "type": "control flow"
+      },
+      {
+        "source": "Evidently Monitoring",
+        "target": "Prometheus",
+        "label": "Metrics",
+        "type": "data flow"
+      },
+      {
+        "source": "Prometheus",
+        "target": "Grafana",
+        "label": "Visualization",
+        "type": "data flow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      "Data Layer",
+      "Training",
+      "Deployment",
+      "Monitoring",
+      "Testing"
+    ],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": "Data Layer, Training, Deployment, Monitoring"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Jupyter Notebook",
+      "MLflow Tracking",
+      "Prometheus",
+      "Grafana",
+      "Prefect Workflow"
+    ],
+    "unique_to_GroundTruth": [
+      "get_data",
+      "train_model",
+      "get_model_from_registry",
+      "batch_prefect_flow_deployment",
+      "streaming_send_data",
+      "prediction_service_stream",
+      "prediction_service",
+      "Amazon EC2",
+      "NGINX",
+      "mlflow",
+      "Amazon S3",
+      "backend store",
+      "test/new data",
+      "Flask",
+      "mongoDB",
+      "Evidently AI"
+    ],
+    "unique_to_GeneratedImage": [
+      "User",
+      "Kaggle Data Source",
+      "Train Model",
+      "Model Registry",
+      "Docker",
+      "Batch Prediction Service",
+      "Streaming Prediction Service",
+      "Evidently Monitoring"
+    ],
+    "common_connectors": [
+      {
+        "source": "Prometheus",
+        "target": "Grafana",
+        "label": "metrics",
+        "type": "data flow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "get_data",
+        "target": "data_feeling",
+        "label": "",
+        "type": "data flow"
+      },
+      {
+        "source": "data_feeling",
+        "target": "train_model",
+        "label": "",
+        "type": "data flow"
+      },
+      {
+        "source": "train_model",
+        "target": "mlflow",
+        "label": "stores models",
+        "type": "data flow"
+      },
+      {
+        "source": "mlflow",
+        "target": "NGINX",
+        "label": "marks best model as Production",
+        "type": "data flow"
+      },
+      {
+        "source": "NGINX",
+        "target": "prediction_service_stream",
+        "label": "gets best model",
+        "type": "data flow"
+      },
+      {
+        "source": "batch_prefect_flow_deployment",
+        "target": "Prefect",
+        "label": "creates deployment",
+        "type": "control flow"
+      },
+      {
+        "source": "Prefect",
+        "target": "batch_prefect_flow",
+        "label": "",
+        "type": "control flow"
+      },
+      {
+        "source": "batch_prefect_flow",
+        "target": "test/new data",
+        "label": "batch",
+        "type": "data flow"
+      },
+      {
+        "source": "batch_prefect_flow",
+        "target": "Flask",
+        "label": "",
+        "type": "control flow"
+      },
+      {
+        "source": "Flask",
+        "target": "prediction_service",
+        "label": "",
+        "type": "control flow"
+      },
+      {
+        "source": "prediction_service",
+        "target": "mongoDB",
+        "label": "json inputs and outputs",
+        "type": "data flow"
+      },
+      {
+        "source": "mongoDB",
+        "target": "Evidently AI",
+        "label": "",
+        "type": "data flow"
+      },
+      {
+        "source": "Evidently AI",
+        "target": "html report",
+        "label": "",
+        "type": "data flow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "Kaggle Data Source",
+        "label": "Download Data",
+        "type": "data flow"
+      },
+      {
+        "source": "Kaggle Data Source",
+        "target": "Jupyter Notebook",
+        "label": "",
+        "type": "data flow"
+      },
+      {
+        "source": "Jupyter Notebook",
+        "target": "Train Model",
+        "label": "",
+        "type": "data flow"
+      },
+      {
+        "source": "Train Model",
+        "target": "MLflow Tracking",
+        "label": "Track Experiments",
+        "type": "data flow"
+      },
+      {
+        "source": "MLflow Tracking",
+        "target": "Model Registry",
+        "label": "Register Model",
+        "type": "data flow"
+      },
+      {
+        "source": "Model Registry",
+        "target": "Docker",
+        "label": "Deploy via Docker",
+        "type": "control flow"
+      },
+      {
+        "source": "Docker",
+        "target": "Batch Prediction Service",
+        "label": "Deploy Batch",
+        "type": "control flow"
+      },
+      {
+        "source": "Docker",
+        "target": "Streaming Prediction Service",
+        "label": "Deploy Streaming",
+        "type": "control flow"
+      },
+      {
+        "source": "Prefect Workflow",
+        "target": "Batch Prediction Service",
+        "label": "Orchestrate Workflow",
+        "type": "control flow"
+      },
+      {
+        "source": "Prefect Workflow",
+        "target": "Streaming Prediction Service",
+        "label": "Monitor Stream",
+        "type": "control flow"
+      },
+      {
+        "source": "Evidently Monitoring",
+        "target": "Prometheus",
+        "label": "Metrics",
+        "type": "data flow"
+      }
+    ],
+    "explanation": "The two diagrams share some common components such as Jupyter Notebook, MLflow Tracking, Prometheus, Grafana, and Prefect Workflow, indicating similar functionalities in training and monitoring. However, the GroundTruth diagram includes more detailed components related to production and monitoring, such as NGINX, Flask, and Evidently AI, which are absent in the GeneratedImage. The GeneratedImage includes a 'User' component and emphasizes a data source from Kaggle, which is not explicitly mentioned in the GroundTruth. The connectors in both diagrams show data and control flow, but they differ in their specific paths and labels. The GroundTruth diagram provides a more comprehensive view of the production environment, while the GeneratedImage focuses more on the training and deployment processes. Overall, the GeneratedImage captures some key elements but lacks the depth and detail of the GroundTruth, particularly in production and monitoring aspects. Based on its accuracy and completeness, the GeneratedImage is rated 6 out of 10.",
+    "Rating": 6
+  }
+}
