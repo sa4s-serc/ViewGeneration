@@ -1,0 +1,385 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "External User",
+        "description": "User interacting with the system",
+        "boundaries": "None",
+        "position": "Left"
+      },
+      {
+        "name": "API Gateway",
+        "description": "Entry point for API requests",
+        "boundaries": "None",
+        "position": "Left"
+      },
+      {
+        "name": "Lambda (CSV Reader)",
+        "description": "Reads CSV files",
+        "boundaries": "None",
+        "position": "Center"
+      },
+      {
+        "name": "S3",
+        "description": "Storage for CSV files",
+        "boundaries": "None",
+        "position": "Center"
+      },
+      {
+        "name": "SQS",
+        "description": "Queue for processing messages",
+        "boundaries": "None",
+        "position": "Center"
+      },
+      {
+        "name": "Lambda (Processor)",
+        "description": "Processes messages",
+        "boundaries": "None",
+        "position": "Center"
+      },
+      {
+        "name": "DynamoDB",
+        "description": "Database for storing processed data",
+        "boundaries": "None",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "External User",
+        "target": "API Gateway",
+        "label": "Request BIN data",
+        "type": "Request"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda (CSV Reader)",
+        "label": "Trigger CSV reading",
+        "type": "Trigger"
+      },
+      {
+        "source": "Lambda (CSV Reader)",
+        "target": "S3",
+        "label": "Read CSV file",
+        "type": "Read"
+      },
+      {
+        "source": "S3",
+        "target": "Lambda (CSV Reader)",
+        "label": "Return CSV data",
+        "type": "Return"
+      },
+      {
+        "source": "Lambda (CSV Reader)",
+        "target": "SQS",
+        "label": "Split and send messages",
+        "type": "Send"
+      },
+      {
+        "source": "SQS",
+        "target": "Lambda (Processor)",
+        "label": "Trigger processing",
+        "type": "Trigger"
+      },
+      {
+        "source": "Lambda (Processor)",
+        "target": "DynamoDB",
+        "label": "Store processed BIN data",
+        "type": "Store"
+      },
+      {
+        "source": "DynamoDB",
+        "target": "Lambda (Processor)",
+        "label": "Confirm storage",
+        "type": "Confirm"
+      },
+      {
+        "source": "Lambda (Processor)",
+        "target": "API Gateway",
+        "label": "Return response",
+        "type": "Return"
+      },
+      {
+        "source": "API Gateway",
+        "target": "External User",
+        "label": "Deliver BIN data",
+        "type": "Deliver"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "Sequence Diagram"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "S3",
+        "description": "CSV input storage",
+        "boundaries": "None",
+        "position": "Top Left"
+      },
+      {
+        "name": "CSV Reader",
+        "description": "Reads CSV files",
+        "boundaries": "None",
+        "position": "Middle Left"
+      },
+      {
+        "name": "SQS",
+        "description": "Queue service",
+        "boundaries": "None",
+        "position": "Bottom Left"
+      },
+      {
+        "name": "Kinesis",
+        "description": "Streaming data",
+        "boundaries": "None",
+        "position": "Middle"
+      },
+      {
+        "name": "DynamoDB Consumer",
+        "description": "Consumes data for DynamoDB",
+        "boundaries": "None",
+        "position": "Bottom"
+      },
+      {
+        "name": "DynamoDB",
+        "description": "Database",
+        "boundaries": "None",
+        "position": "Bottom Right"
+      },
+      {
+        "name": "API Gateway",
+        "description": "API entry point",
+        "boundaries": "None",
+        "position": "Top Right"
+      },
+      {
+        "name": "API Implementation",
+        "description": "Implements API logic",
+        "boundaries": "None",
+        "position": "Middle Right"
+      },
+      {
+        "name": "Custom Auth",
+        "description": "Authentication service",
+        "boundaries": "None",
+        "position": "Middle Right"
+      },
+      {
+        "name": "DynamoDB Auth",
+        "description": "Authorization for DynamoDB",
+        "boundaries": "None",
+        "position": "Bottom Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "S3",
+        "target": "CSV Reader",
+        "label": "CSV input",
+        "type": "Data Flow"
+      },
+      {
+        "source": "CSV Reader",
+        "target": "SQS",
+        "label": "Send to queue",
+        "type": "Data Flow"
+      },
+      {
+        "source": "CSV Reader",
+        "target": "Kinesis",
+        "label": "Stream data",
+        "type": "Data Flow"
+      },
+      {
+        "source": "SQS",
+        "target": "DynamoDB Consumer",
+        "label": "Queue processing",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Kinesis",
+        "target": "DynamoDB Consumer",
+        "label": "Stream processing",
+        "type": "Data Flow"
+      },
+      {
+        "source": "DynamoDB Consumer",
+        "target": "DynamoDB",
+        "label": "Store data",
+        "type": "Data Flow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "API Implementation",
+        "label": "API call",
+        "type": "Request"
+      },
+      {
+        "source": "API Implementation",
+        "target": "Custom Auth",
+        "label": "Authenticate",
+        "type": "Auth"
+      },
+      {
+        "source": "Custom Auth",
+        "target": "DynamoDB Auth",
+        "label": "Authorize",
+        "type": "Auth"
+      }
+    ],
+    "annotations": [
+      "Ingest",
+      "Internet"
+    ],
+    "groups": [
+      "Ingest",
+      "API"
+    ],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": "Architecture Diagram"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "S3",
+      "SQS",
+      "DynamoDB",
+      "API Gateway"
+    ],
+    "unique_to_GroundTruth": [
+      "External User",
+      "Lambda (CSV Reader)",
+      "Lambda (Processor)"
+    ],
+    "unique_to_GeneratedImage": [
+      "CSV Reader",
+      "Kinesis",
+      "DynamoDB Consumer",
+      "API Implementation",
+      "Custom Auth",
+      "DynamoDB Auth"
+    ],
+    "common_connectors": [
+      {
+        "source": "S3",
+        "target": "CSV Reader",
+        "label": "CSV input",
+        "type": "Data Flow"
+      },
+      {
+        "source": "CSV Reader",
+        "target": "SQS",
+        "label": "Send to queue",
+        "type": "Data Flow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "External User",
+        "target": "API Gateway",
+        "label": "Request BIN data",
+        "type": "Request"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda (CSV Reader)",
+        "label": "Trigger CSV reading",
+        "type": "Trigger"
+      },
+      {
+        "source": "Lambda (CSV Reader)",
+        "target": "S3",
+        "label": "Read CSV file",
+        "type": "Read"
+      },
+      {
+        "source": "S3",
+        "target": "Lambda (CSV Reader)",
+        "label": "Return CSV data",
+        "type": "Return"
+      },
+      {
+        "source": "SQS",
+        "target": "Lambda (Processor)",
+        "label": "Trigger processing",
+        "type": "Trigger"
+      },
+      {
+        "source": "Lambda (Processor)",
+        "target": "DynamoDB",
+        "label": "Store processed BIN data",
+        "type": "Store"
+      },
+      {
+        "source": "DynamoDB",
+        "target": "Lambda (Processor)",
+        "label": "Confirm storage",
+        "type": "Confirm"
+      },
+      {
+        "source": "Lambda (Processor)",
+        "target": "API Gateway",
+        "label": "Return response",
+        "type": "Return"
+      },
+      {
+        "source": "API Gateway",
+        "target": "External User",
+        "label": "Deliver BIN data",
+        "type": "Deliver"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "CSV Reader",
+        "target": "Kinesis",
+        "label": "Stream data",
+        "type": "Data Flow"
+      },
+      {
+        "source": "SQS",
+        "target": "DynamoDB Consumer",
+        "label": "Queue processing",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Kinesis",
+        "target": "DynamoDB Consumer",
+        "label": "Stream processing",
+        "type": "Data Flow"
+      },
+      {
+        "source": "DynamoDB Consumer",
+        "target": "DynamoDB",
+        "label": "Store data",
+        "type": "Data Flow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "API Implementation",
+        "label": "API call",
+        "type": "Request"
+      },
+      {
+        "source": "API Implementation",
+        "target": "Custom Auth",
+        "label": "Authenticate",
+        "type": "Auth"
+      },
+      {
+        "source": "Custom Auth",
+        "target": "DynamoDB Auth",
+        "label": "Authorize",
+        "type": "Auth"
+      }
+    ],
+    "explanation": "The GroundTruth diagram is a sequence diagram focusing on the flow of data from an external user request through various components to the storage in DynamoDB. It emphasizes the process of reading CSV files, processing them, and storing the results. The GeneratedImage diagram is an architecture diagram showing a broader system view, including data ingestion, streaming, and API interactions. Common components include S3, SQS, DynamoDB, and API Gateway. Unique elements in GroundTruth are focused on Lambda functions for processing, while GeneratedImage includes components like Kinesis and custom authentication services. The connectors in GroundTruth detail the sequence of operations, whereas GeneratedImage shows data flow and API interactions. The GeneratedImage is rated 7 out of 10 for capturing a broader architectural view but lacks the detailed sequence of operations present in GroundTruth.",
+    "Rating": 7
+  }
+}

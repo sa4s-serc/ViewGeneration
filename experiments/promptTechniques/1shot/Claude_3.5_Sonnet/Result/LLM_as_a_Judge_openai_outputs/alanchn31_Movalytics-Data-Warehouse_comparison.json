@@ -1,0 +1,394 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Kaggle API",
+        "description": "Data source for economic data",
+        "boundary": "Data Extraction",
+        "position": "left"
+      },
+      {
+        "name": "FRED",
+        "description": "Economic data source",
+        "boundary": "Data Extraction",
+        "position": "left"
+      },
+      {
+        "name": "Amazon EC2",
+        "description": "Data ingestion and processing",
+        "boundary": "Data Ingestion",
+        "position": "center"
+      },
+      {
+        "name": "Amazon S3",
+        "description": "Data storage for staging",
+        "boundary": "Data Storage",
+        "position": "right"
+      },
+      {
+        "name": "Apache Airflow",
+        "description": "Workflow orchestration",
+        "boundary": "Data Ingestion",
+        "position": "right"
+      },
+      {
+        "name": "Apache Spark",
+        "description": "Data processing",
+        "boundary": "Data Ingestion",
+        "position": "right"
+      },
+      {
+        "name": "Amazon Redshift",
+        "description": "Data warehouse",
+        "boundary": "Data Warehouse",
+        "position": "bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Kaggle API",
+        "target": "Amazon EC2",
+        "label": "Download",
+        "type": "data flow"
+      },
+      {
+        "source": "FRED",
+        "target": "Amazon EC2",
+        "label": "Download",
+        "type": "data flow"
+      },
+      {
+        "source": "Amazon EC2",
+        "target": "Amazon S3",
+        "label": "Staging",
+        "type": "data flow"
+      },
+      {
+        "source": "Amazon EC2",
+        "target": "Amazon Redshift",
+        "label": "Extract, Transform, Load",
+        "type": "data flow"
+      }
+    ],
+    "annotations": [
+      "Data Extraction",
+      "Data Ingestion",
+      "Data Storage",
+      "Data Warehouse"
+    ],
+    "groups": [
+      "Data Extraction",
+      "Data Ingestion",
+      "Data Storage",
+      "Data Warehouse"
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Data Pipeline Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Data Engineer",
+        "description": "User triggering the pipeline",
+        "boundary": "User",
+        "position": "left"
+      },
+      {
+        "name": "Airflow DAG",
+        "description": "Workflow orchestration",
+        "boundary": "Process",
+        "position": "left"
+      },
+      {
+        "name": "Bash Scripts",
+        "description": "Data extraction scripts",
+        "boundary": "Process",
+        "position": "center"
+      },
+      {
+        "name": "Python Scripts",
+        "description": "Data processing scripts",
+        "boundary": "Process",
+        "position": "center"
+      },
+      {
+        "name": "Apache Spark",
+        "description": "Data processing",
+        "boundary": "Process",
+        "position": "center"
+      },
+      {
+        "name": "S3",
+        "description": "Data storage",
+        "boundary": "Storage",
+        "position": "right"
+      },
+      {
+        "name": "Redshift Staging",
+        "description": "Staging area in Redshift",
+        "boundary": "Storage",
+        "position": "right"
+      },
+      {
+        "name": "Redshift DWH",
+        "description": "Data warehouse",
+        "boundary": "Storage",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Data Engineer",
+        "target": "Airflow DAG",
+        "label": "Trigger DAG",
+        "type": "control flow"
+      },
+      {
+        "source": "Airflow DAG",
+        "target": "Bash Scripts",
+        "label": "Execute data extraction",
+        "type": "control flow"
+      },
+      {
+        "source": "Bash Scripts",
+        "target": "S3",
+        "label": "Download MovieLens dataset",
+        "type": "data flow"
+      },
+      {
+        "source": "Bash Scripts",
+        "target": "S3",
+        "label": "Download CPI dataset",
+        "type": "data flow"
+      },
+      {
+        "source": "Airflow DAG",
+        "target": "Python Scripts",
+        "label": "Execute transformation",
+        "type": "control flow"
+      },
+      {
+        "source": "Python Scripts",
+        "target": "Apache Spark",
+        "label": "Process data",
+        "type": "data flow"
+      },
+      {
+        "source": "Apache Spark",
+        "target": "S3",
+        "label": "Read raw data",
+        "type": "data flow"
+      },
+      {
+        "source": "Apache Spark",
+        "target": "Redshift Staging",
+        "label": "Load transformed data",
+        "type": "data flow"
+      },
+      {
+        "source": "Airflow DAG",
+        "target": "Python Scripts",
+        "label": "Execute data quality checks",
+        "type": "control flow"
+      },
+      {
+        "source": "Python Scripts",
+        "target": "Apache Spark",
+        "label": "Verify data integrity",
+        "type": "data flow"
+      },
+      {
+        "source": "Airflow DAG",
+        "target": "Python Scripts",
+        "label": "Execute dimension loads",
+        "type": "control flow"
+      },
+      {
+        "source": "Python Scripts",
+        "target": "Redshift Staging",
+        "label": "Read staged data",
+        "type": "data flow"
+      },
+      {
+        "source": "Python Scripts",
+        "target": "Redshift DWH",
+        "label": "Upsert into dimension tables",
+        "type": "data flow"
+      },
+      {
+        "source": "Airflow DAG",
+        "target": "Python Scripts",
+        "label": "Execute fact table load",
+        "type": "control flow"
+      },
+      {
+        "source": "Python Scripts",
+        "target": "Redshift DWH",
+        "label": "Load fact table",
+        "type": "data flow"
+      }
+    ],
+    "annotations": [
+      "Trigger DAG",
+      "Execute data extraction",
+      "Execute transformation",
+      "Execute data quality checks",
+      "Execute dimension loads",
+      "Execute fact table load",
+      "Pipeline complete"
+    ],
+    "groups": [
+      "User",
+      "Process",
+      "Storage"
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Data Pipeline Sequence"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Apache Spark",
+      "S3",
+      "Redshift"
+    ],
+    "unique_to_GroundTruth": [
+      "Kaggle API",
+      "FRED",
+      "Amazon EC2",
+      "Amazon Redshift"
+    ],
+    "unique_to_GeneratedImage": [
+      "Data Engineer",
+      "Airflow DAG",
+      "Bash Scripts",
+      "Python Scripts",
+      "Redshift Staging",
+      "Redshift DWH"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Kaggle API",
+        "target": "Amazon EC2",
+        "label": "Download",
+        "type": "data flow"
+      },
+      {
+        "source": "FRED",
+        "target": "Amazon EC2",
+        "label": "Download",
+        "type": "data flow"
+      },
+      {
+        "source": "Amazon EC2",
+        "target": "Amazon S3",
+        "label": "Staging",
+        "type": "data flow"
+      },
+      {
+        "source": "Amazon EC2",
+        "target": "Amazon Redshift",
+        "label": "Extract, Transform, Load",
+        "type": "data flow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Data Engineer",
+        "target": "Airflow DAG",
+        "label": "Trigger DAG",
+        "type": "control flow"
+      },
+      {
+        "source": "Airflow DAG",
+        "target": "Bash Scripts",
+        "label": "Execute data extraction",
+        "type": "control flow"
+      },
+      {
+        "source": "Bash Scripts",
+        "target": "S3",
+        "label": "Download MovieLens dataset",
+        "type": "data flow"
+      },
+      {
+        "source": "Bash Scripts",
+        "target": "S3",
+        "label": "Download CPI dataset",
+        "type": "data flow"
+      },
+      {
+        "source": "Airflow DAG",
+        "target": "Python Scripts",
+        "label": "Execute transformation",
+        "type": "control flow"
+      },
+      {
+        "source": "Python Scripts",
+        "target": "Apache Spark",
+        "label": "Process data",
+        "type": "data flow"
+      },
+      {
+        "source": "Apache Spark",
+        "target": "S3",
+        "label": "Read raw data",
+        "type": "data flow"
+      },
+      {
+        "source": "Apache Spark",
+        "target": "Redshift Staging",
+        "label": "Load transformed data",
+        "type": "data flow"
+      },
+      {
+        "source": "Airflow DAG",
+        "target": "Python Scripts",
+        "label": "Execute data quality checks",
+        "type": "control flow"
+      },
+      {
+        "source": "Python Scripts",
+        "target": "Apache Spark",
+        "label": "Verify data integrity",
+        "type": "data flow"
+      },
+      {
+        "source": "Airflow DAG",
+        "target": "Python Scripts",
+        "label": "Execute dimension loads",
+        "type": "control flow"
+      },
+      {
+        "source": "Python Scripts",
+        "target": "Redshift Staging",
+        "label": "Read staged data",
+        "type": "data flow"
+      },
+      {
+        "source": "Python Scripts",
+        "target": "Redshift DWH",
+        "label": "Upsert into dimension tables",
+        "type": "data flow"
+      },
+      {
+        "source": "Airflow DAG",
+        "target": "Python Scripts",
+        "label": "Execute fact table load",
+        "type": "control flow"
+      },
+      {
+        "source": "Python Scripts",
+        "target": "Redshift DWH",
+        "label": "Load fact table",
+        "type": "data flow"
+      }
+    ],
+    "explanation": "The GroundTruth diagram represents a high-level architecture of a data pipeline, focusing on the flow of data from extraction to storage and processing. It includes components like Kaggle API, FRED, Amazon EC2, Amazon S3, Apache Airflow, Apache Spark, and Amazon Redshift. The GeneratedImage diagram, on the other hand, is a sequence diagram that details the interactions and processes involved in the data pipeline. It includes components like Data Engineer, Airflow DAG, Bash Scripts, Python Scripts, Apache Spark, S3, Redshift Staging, and Redshift DWH. Common components between the two diagrams include Apache Spark, S3, and Redshift, although they are represented differently. The GroundTruth diagram emphasizes data flow, while the GeneratedImage diagram focuses on process execution and control flow. The GeneratedImage diagram provides a more detailed view of the steps involved in the pipeline execution, whereas the GroundTruth diagram provides a broader overview of the architecture. Rating: 7. The GeneratedImage diagram is accurate in detailing the sequence of operations but lacks some components present in the GroundTruth diagram, such as Kaggle API and FRED. The focus on process execution provides valuable insight into the pipeline's operation, but the absence of certain data sources and high-level architectural elements affects completeness.",
+    "Rating": 7
+  }
+}

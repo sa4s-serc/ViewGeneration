@@ -1,0 +1,273 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Initiates requests",
+        "boundaries": "External",
+        "position": "Left"
+      },
+      {
+        "name": "API Handler",
+        "description": "Handles API requests",
+        "boundaries": "Internal",
+        "position": "Center"
+      },
+      {
+        "name": "Ingest Service",
+        "description": "Ingests data",
+        "boundaries": "Internal",
+        "position": "Center"
+      },
+      {
+        "name": "Aggregate Service",
+        "description": "Aggregates data",
+        "boundaries": "Internal",
+        "position": "Center"
+      },
+      {
+        "name": "Metrics Service",
+        "description": "Calculates metrics",
+        "boundaries": "Internal",
+        "position": "Center"
+      },
+      {
+        "name": "MongoDB",
+        "description": "Database",
+        "boundaries": "Internal",
+        "position": "Center"
+      },
+      {
+        "name": "Kubernetes",
+        "description": "Orchestration",
+        "boundaries": "External",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "API Handler",
+        "label": "api/v1/integrations, api/v1/dataflows",
+        "type": "HTTP"
+      },
+      {
+        "source": "API Handler",
+        "target": "Ingest Service",
+        "label": "",
+        "type": "Internal"
+      },
+      {
+        "source": "Ingest Service",
+        "target": "MongoDB",
+        "label": "",
+        "type": "Database"
+      },
+      {
+        "source": "Aggregate Service",
+        "target": "MongoDB",
+        "label": "",
+        "type": "Database"
+      },
+      {
+        "source": "MongoDB",
+        "target": "Metrics Service",
+        "label": "",
+        "type": "Database"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "API Layer",
+        "components": [
+          "API Handler"
+        ]
+      },
+      {
+        "name": "Service Layer",
+        "components": [
+          "Ingest Service",
+          "Aggregate Service",
+          "Metrics Service"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "DORA Metrics Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Kubernetes",
+        "description": "Orchestration",
+        "boundaries": "External",
+        "position": "Left"
+      },
+      {
+        "name": "API Gateway",
+        "description": "Routes requests",
+        "boundaries": "Internal",
+        "position": "Left"
+      },
+      {
+        "name": "DORA Backend",
+        "description": "Handles DORA metrics",
+        "boundaries": "Internal",
+        "position": "Center"
+      },
+      {
+        "name": "MongoDB",
+        "description": "Database",
+        "boundaries": "Internal",
+        "position": "Right"
+      },
+      {
+        "name": "GitLab",
+        "description": "Source control",
+        "boundaries": "External",
+        "position": "Right"
+      },
+      {
+        "name": "Prometheus",
+        "description": "Monitoring",
+        "boundaries": "External",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Kubernetes",
+        "target": "API Gateway",
+        "label": "Deploy application",
+        "type": "Deployment"
+      },
+      {
+        "source": "API Gateway",
+        "target": "DORA Backend",
+        "label": "Route requests",
+        "type": "HTTP"
+      },
+      {
+        "source": "DORA Backend",
+        "target": "MongoDB",
+        "label": "Store data",
+        "type": "Database"
+      },
+      {
+        "source": "DORA Backend",
+        "target": "GitLab",
+        "label": "Fetch data",
+        "type": "API"
+      },
+      {
+        "source": "DORA Backend",
+        "target": "Prometheus",
+        "label": "Send alerts",
+        "type": "Monitoring"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Backend Services",
+        "components": [
+          "DORA Backend"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": "DORA Metrics Sequence"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "MongoDB",
+      "Kubernetes"
+    ],
+    "unique_to_GroundTruth": [
+      "User",
+      "API Handler",
+      "Ingest Service",
+      "Aggregate Service",
+      "Metrics Service"
+    ],
+    "unique_to_GeneratedImage": [
+      "API Gateway",
+      "DORA Backend",
+      "GitLab",
+      "Prometheus"
+    ],
+    "common_connectors": [
+      {
+        "source": "DORA Backend",
+        "target": "MongoDB",
+        "label": "Store data",
+        "type": "Database"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "User",
+        "target": "API Handler",
+        "label": "api/v1/integrations, api/v1/dataflows",
+        "type": "HTTP"
+      },
+      {
+        "source": "API Handler",
+        "target": "Ingest Service",
+        "label": "",
+        "type": "Internal"
+      },
+      {
+        "source": "Ingest Service",
+        "target": "MongoDB",
+        "label": "",
+        "type": "Database"
+      },
+      {
+        "source": "Aggregate Service",
+        "target": "MongoDB",
+        "label": "",
+        "type": "Database"
+      },
+      {
+        "source": "MongoDB",
+        "target": "Metrics Service",
+        "label": "",
+        "type": "Database"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Kubernetes",
+        "target": "API Gateway",
+        "label": "Deploy application",
+        "type": "Deployment"
+      },
+      {
+        "source": "API Gateway",
+        "target": "DORA Backend",
+        "label": "Route requests",
+        "type": "HTTP"
+      },
+      {
+        "source": "DORA Backend",
+        "target": "GitLab",
+        "label": "Fetch data",
+        "type": "API"
+      },
+      {
+        "source": "DORA Backend",
+        "target": "Prometheus",
+        "label": "Send alerts",
+        "type": "Monitoring"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on a layered architecture with distinct services for ingesting, aggregating, and calculating metrics, all interacting with MongoDB. It emphasizes user interaction via an API Handler. The GeneratedImage diagram presents a sequence flow, highlighting the interaction between Kubernetes, an API Gateway, and a DORA Backend, with connections to GitLab and Prometheus for data fetching and monitoring. Both diagrams use MongoDB and Kubernetes, but they differ in their architectural focus: GroundTruth emphasizes service layers, while GeneratedImage emphasizes process flow. The GeneratedImage is rated 7 out of 10 for accurately depicting the sequence of operations but lacking the detailed service decomposition present in the GroundTruth.",
+    "Rating": 7
+  }
+}

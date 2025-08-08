@@ -1,0 +1,251 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Browser",
+        "description": "Client making requests",
+        "boundaries": "Oval",
+        "position": "Left"
+      },
+      {
+        "name": "ServiceA",
+        "description": "Handles requests and calls ServiceB",
+        "boundaries": "Rectangle",
+        "position": "Center"
+      },
+      {
+        "name": "ServiceB",
+        "description": "Provides greeting service",
+        "boundaries": "Rectangle",
+        "position": "Right"
+      },
+      {
+        "name": "callB",
+        "description": "Call to ServiceB",
+        "boundaries": "Oval",
+        "position": "Inside ServiceA"
+      },
+      {
+        "name": "greeting",
+        "description": "Greeting service",
+        "boundaries": "Oval",
+        "position": "Inside ServiceB"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Browser",
+        "target": "ServiceA",
+        "label": "Request GET /greetig",
+        "type": "Arrow"
+      },
+      {
+        "source": "ServiceA",
+        "target": "Browser",
+        "label": "Response",
+        "type": "Arrow"
+      },
+      {
+        "source": "callB",
+        "target": "ServiceB",
+        "label": "Retry 3 Times",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "Resilience4j- Retry",
+        "position": "Top"
+      }
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": null
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Client",
+        "description": "Initiates requests",
+        "boundaries": "Actor",
+        "position": "Left"
+      },
+      {
+        "name": "Service A",
+        "description": "Handles requests and interacts with Service B",
+        "boundaries": "Column",
+        "position": "Second from Left"
+      },
+      {
+        "name": "Service B",
+        "description": "Target service for requests",
+        "boundaries": "Column",
+        "position": "Third from Left"
+      },
+      {
+        "name": "Fallback Method",
+        "description": "Executes fallback operations",
+        "boundaries": "Column",
+        "position": "Fourth from Left"
+      },
+      {
+        "name": "Circuit Breaker",
+        "description": "Manages circuit state",
+        "boundaries": "Column",
+        "position": "Fifth from Left"
+      },
+      {
+        "name": "Rate Limiter",
+        "description": "Limits request rate",
+        "boundaries": "Column",
+        "position": "Sixth from Left"
+      },
+      {
+        "name": "Bulkhead",
+        "description": "Handles concurrent calls",
+        "boundaries": "Column",
+        "position": "Seventh from Left"
+      },
+      {
+        "name": "Retry",
+        "description": "Manages retry attempts",
+        "boundaries": "Column",
+        "position": "Eighth from Left"
+      },
+      {
+        "name": "Time Limiter",
+        "description": "Limits execution time",
+        "boundaries": "Column",
+        "position": "Ninth from Left"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Client",
+        "target": "Service A",
+        "label": "Request",
+        "type": "Arrow"
+      },
+      {
+        "source": "Service A",
+        "target": "Service B",
+        "label": "Call Service B",
+        "type": "Arrow"
+      },
+      {
+        "source": "Service B",
+        "target": "Service A",
+        "label": "Success response",
+        "type": "Arrow"
+      },
+      {
+        "source": "Service A",
+        "target": "Fallback Method",
+        "label": "Execute fallback",
+        "type": "Arrow"
+      },
+      {
+        "source": "Fallback Method",
+        "target": "Service A",
+        "label": "Fallback response",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "Rate limit exceeded error",
+        "position": "Above Connector"
+      },
+      {
+        "text": "Max retry attempts",
+        "position": "Loop"
+      }
+    ],
+    "groups": [
+      {
+        "name": "alt",
+        "description": "Alternative paths",
+        "position": "Middle"
+      },
+      {
+        "name": "loop",
+        "description": "Retry loop",
+        "position": "Middle"
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": null
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Service A",
+      "Service B"
+    ],
+    "unique_to_GroundTruth": [
+      "Browser",
+      "callB",
+      "greeting"
+    ],
+    "unique_to_GeneratedImage": [
+      "Client",
+      "Fallback Method",
+      "Circuit Breaker",
+      "Rate Limiter",
+      "Bulkhead",
+      "Retry",
+      "Time Limiter"
+    ],
+    "common_connectors": [
+      {
+        "source": "Service A",
+        "target": "Service B",
+        "label": "Call Service B"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Browser",
+        "target": "ServiceA",
+        "label": "Request GET /greetig"
+      },
+      {
+        "source": "ServiceA",
+        "target": "Browser",
+        "label": "Response"
+      },
+      {
+        "source": "callB",
+        "target": "ServiceB",
+        "label": "Retry 3 Times"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Client",
+        "target": "Service A",
+        "label": "Request"
+      },
+      {
+        "source": "Service B",
+        "target": "Service A",
+        "label": "Success response"
+      },
+      {
+        "source": "Service A",
+        "target": "Fallback Method",
+        "label": "Execute fallback"
+      },
+      {
+        "source": "Fallback Method",
+        "target": "Service A",
+        "label": "Fallback response"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on a simple interaction between a Browser, ServiceA, and ServiceB with a retry mechanism using Resilience4j. It highlights a specific request and response flow with a retry logic encapsulated within ServiceA. In contrast, the GeneratedImage diagram is more complex, showcasing a sequence diagram with additional components like Fallback Method, Circuit Breaker, and Rate Limiter, which are not present in the GroundTruth diagram. Both diagrams share the concept of Service A interacting with Service B, but the GeneratedImage diagram includes more sophisticated error handling and resilience patterns. The GroundTruth diagram is simpler and more focused, while the GeneratedImage diagram provides a more comprehensive view of potential failure handling. Rating: 7. The GeneratedImage diagram is detailed and includes advanced resilience patterns, but it diverges significantly from the simplicity and specific focus of the GroundTruth diagram. The rating reflects the completeness and complexity of the GeneratedImage, but it lacks the direct correspondence to the GroundTruth's specific scenario.",
+    "Rating": 7
+  }
+}

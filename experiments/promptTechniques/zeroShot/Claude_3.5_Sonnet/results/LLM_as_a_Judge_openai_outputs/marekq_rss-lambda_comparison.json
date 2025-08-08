@@ -1,0 +1,339 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Client",
+        "description": "Client",
+        "boundary": "circle",
+        "position": "left"
+      },
+      {
+        "name": "rss-3-rssdynamo-I7RLEF06YRE8",
+        "description": "AWS::Lambda",
+        "boundary": "circle",
+        "position": "center-left"
+      },
+      {
+        "name": "rss-3-rssdynamo-I7RLEF06YRE8",
+        "description": "AWS::Lambda::Function",
+        "boundary": "circle",
+        "position": "center"
+      },
+      {
+        "name": "rss-3-publicjsonbucket-5t30as7...",
+        "description": "AWS::S3::Bucket",
+        "boundary": "circle",
+        "position": "center-right"
+      },
+      {
+        "name": "rss-3-rssfeed-TZVV1JNVBSBY",
+        "description": "AWS::DynamoDB::Table",
+        "boundary": "circle",
+        "position": "top-right"
+      },
+      {
+        "name": "aws.amazon.com",
+        "description": "remote",
+        "boundary": "circle",
+        "position": "bottom-left"
+      },
+      {
+        "name": "comprehend",
+        "description": "AWS::comprehend",
+        "boundary": "circle",
+        "position": "bottom-center"
+      },
+      {
+        "name": "email",
+        "description": "AWS::email",
+        "boundary": "circle",
+        "position": "bottom-right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Client",
+        "target": "rss-3-rssdynamo-I7RLEF06YRE8",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "rss-3-rssdynamo-I7RLEF06YRE8",
+        "target": "rss-3-rssdynamo-I7RLEF06YRE8",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "rss-3-rssdynamo-I7RLEF06YRE8",
+        "target": "rss-3-publicjsonbucket-5t30as7...",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "rss-3-rssdynamo-I7RLEF06YRE8",
+        "target": "rss-3-rssfeed-TZVV1JNVBSBY",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "rss-3-rssdynamo-I7RLEF06YRE8",
+        "target": "aws.amazon.com",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "rss-3-rssdynamo-I7RLEF06YRE8",
+        "target": "comprehend",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "rss-3-rssdynamo-I7RLEF06YRE8",
+        "target": "email",
+        "label": "",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruth",
+      "title": "AWS Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "CloudWatch Event",
+        "description": "",
+        "boundary": "",
+        "position": ""
+      },
+      {
+        "name": "Step Function",
+        "description": "",
+        "boundary": "",
+        "position": ""
+      },
+      {
+        "name": "Lambda: rsscrawl",
+        "description": "",
+        "boundary": "",
+        "position": ""
+      },
+      {
+        "name": "S3",
+        "description": "",
+        "boundary": "",
+        "position": ""
+      },
+      {
+        "name": "Lambda: rssgetfeed",
+        "description": "",
+        "boundary": "",
+        "position": ""
+      },
+      {
+        "name": "DynamoDB",
+        "description": "",
+        "boundary": "",
+        "position": ""
+      },
+      {
+        "name": "AWS Comprehend",
+        "description": "",
+        "boundary": "",
+        "position": ""
+      },
+      {
+        "name": "SES",
+        "description": "",
+        "boundary": "",
+        "position": ""
+      },
+      {
+        "name": "Algolia",
+        "description": "",
+        "boundary": "",
+        "position": ""
+      }
+    ],
+    "connectors": [
+      {
+        "source": "CloudWatch Event",
+        "target": "Step Function",
+        "label": "Trigger (scheduled)",
+        "type": "arrow"
+      },
+      {
+        "source": "Step Function",
+        "target": "Lambda: rsscrawl",
+        "label": "Invoke",
+        "type": "arrow"
+      },
+      {
+        "source": "Lambda: rsscrawl",
+        "target": "S3",
+        "label": "Check for existing data",
+        "type": "arrow"
+      },
+      {
+        "source": "S3",
+        "target": "Lambda: rsscrawl",
+        "label": "Return data status",
+        "type": "arrow"
+      },
+      {
+        "source": "Lambda: rsscrawl",
+        "target": "Step Function",
+        "label": "Return feed list",
+        "type": "arrow"
+      },
+      {
+        "source": "Step Function",
+        "target": "Lambda: rssgetfeed",
+        "label": "Invoke with feed URL",
+        "type": "arrow"
+      },
+      {
+        "source": "Lambda: rssgetfeed",
+        "target": "AWS Comprehend",
+        "label": "Perform entity recognition",
+        "type": "arrow"
+      },
+      {
+        "source": "AWS Comprehend",
+        "target": "Lambda: rssgetfeed",
+        "label": "Return entities (tags)",
+        "type": "arrow"
+      },
+      {
+        "source": "Lambda: rssgetfeed",
+        "target": "DynamoDB",
+        "label": "Store blog post data",
+        "type": "arrow"
+      },
+      {
+        "source": "Lambda: rssgetfeed",
+        "target": "SES",
+        "label": "Send notification email",
+        "type": "arrow"
+      },
+      {
+        "source": "Lambda: rssgetfeed",
+        "target": "Algolia",
+        "label": "Index blog post",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImage",
+      "title": "Sequence Diagram"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "AWS Comprehend"
+    ],
+    "unique_to_GroundTruth": [
+      "Client",
+      "rss-3-rssdynamo-I7RLEF06YRE8",
+      "rss-3-publicjsonbucket-5t30as7...",
+      "rss-3-rssfeed-TZVV1JNVBSBY",
+      "aws.amazon.com",
+      "comprehend",
+      "email"
+    ],
+    "unique_to_GeneratedImage": [
+      "CloudWatch Event",
+      "Step Function",
+      "Lambda: rsscrawl",
+      "S3",
+      "Lambda: rssgetfeed",
+      "DynamoDB",
+      "SES",
+      "Algolia"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Client",
+        "target": "rss-3-rssdynamo-I7RLEF06YRE8"
+      },
+      {
+        "source": "rss-3-rssdynamo-I7RLEF06YRE8",
+        "target": "rss-3-rssdynamo-I7RLEF06YRE8"
+      },
+      {
+        "source": "rss-3-rssdynamo-I7RLEF06YRE8",
+        "target": "rss-3-publicjsonbucket-5t30as7..."
+      },
+      {
+        "source": "rss-3-rssdynamo-I7RLEF06YRE8",
+        "target": "rss-3-rssfeed-TZVV1JNVBSBY"
+      },
+      {
+        "source": "rss-3-rssdynamo-I7RLEF06YRE8",
+        "target": "aws.amazon.com"
+      },
+      {
+        "source": "rss-3-rssdynamo-I7RLEF06YRE8",
+        "target": "comprehend"
+      },
+      {
+        "source": "rss-3-rssdynamo-I7RLEF06YRE8",
+        "target": "email"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "CloudWatch Event",
+        "target": "Step Function"
+      },
+      {
+        "source": "Step Function",
+        "target": "Lambda: rsscrawl"
+      },
+      {
+        "source": "Lambda: rsscrawl",
+        "target": "S3"
+      },
+      {
+        "source": "S3",
+        "target": "Lambda: rsscrawl"
+      },
+      {
+        "source": "Lambda: rsscrawl",
+        "target": "Step Function"
+      },
+      {
+        "source": "Step Function",
+        "target": "Lambda: rssgetfeed"
+      },
+      {
+        "source": "Lambda: rssgetfeed",
+        "target": "AWS Comprehend"
+      },
+      {
+        "source": "AWS Comprehend",
+        "target": "Lambda: rssgetfeed"
+      },
+      {
+        "source": "Lambda: rssgetfeed",
+        "target": "DynamoDB"
+      },
+      {
+        "source": "Lambda: rssgetfeed",
+        "target": "SES"
+      },
+      {
+        "source": "Lambda: rssgetfeed",
+        "target": "Algolia"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of an architecture. The GroundTruth diagram is a component diagram showing various AWS services and their interactions, while the GeneratedImage is a sequence diagram illustrating the flow of operations over time. The common component between both diagrams is AWS Comprehend, indicating a shared functionality related to entity recognition. The GroundTruth diagram focuses on AWS services like Lambda, S3, and DynamoDB, while the GeneratedImage includes additional components like CloudWatch Event, Step Function, and Algolia, reflecting a broader scope of operations. The connectors in the GroundTruth diagram represent direct interactions between components, whereas the GeneratedImage shows a more detailed flow of operations and data exchanges. Overall, the GeneratedImage provides a more comprehensive view of the process flow, earning it a rating of 8 out of 10 for accuracy and completeness compared to the GroundTruth.",
+    "Rating": 8
+  }
+}

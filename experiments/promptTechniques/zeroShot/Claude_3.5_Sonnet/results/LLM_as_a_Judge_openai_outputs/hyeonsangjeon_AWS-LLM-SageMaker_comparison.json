@@ -1,0 +1,272 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "AWS Cloud",
+        "description": "Cloud infrastructure hosting the application",
+        "boundaries": "Top-left",
+        "position": "Top-left"
+      },
+      {
+        "name": "Streamlit",
+        "description": "User interface for interaction",
+        "boundaries": "Left",
+        "position": "Left"
+      },
+      {
+        "name": "Amazon SageMaker Endpoint, GPU",
+        "description": "LLM for embedding",
+        "boundaries": "Center",
+        "position": "Center"
+      },
+      {
+        "name": "Amazon SageMaker Endpoint GPU",
+        "description": "Korean LLM, ploy-glot 문장 생성기",
+        "boundaries": "Right",
+        "position": "Right"
+      },
+      {
+        "name": "Amazon OpenSearch Service",
+        "description": "Search service for embedding data",
+        "boundaries": "Bottom-left",
+        "position": "Bottom-left"
+      },
+      {
+        "name": "Amazon SageMaker Studio",
+        "description": "Documents to embeddings",
+        "boundaries": "Bottom-right",
+        "position": "Bottom-right"
+      },
+      {
+        "name": "Amazon S3",
+        "description": "Bank FAQ Corpus",
+        "boundaries": "Bottom",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Streamlit",
+        "target": "Amazon SageMaker Endpoint, GPU",
+        "label": "Query",
+        "type": "Solid Line"
+      },
+      {
+        "source": "Amazon SageMaker Endpoint, GPU",
+        "target": "Amazon OpenSearch Service",
+        "label": "Embedding Search",
+        "type": "Dashed Line"
+      },
+      {
+        "source": "Amazon OpenSearch Service",
+        "target": "Amazon SageMaker Endpoint, GPU",
+        "label": "Embedding Return",
+        "type": "Dashed Line"
+      },
+      {
+        "source": "Amazon SageMaker Endpoint, GPU",
+        "target": "Streamlit",
+        "label": "Answer",
+        "type": "Solid Line"
+      },
+      {
+        "source": "Amazon S3",
+        "target": "Amazon SageMaker Studio",
+        "label": "FAQ 전처리 to csv",
+        "type": "Dashed Line"
+      },
+      {
+        "source": "Amazon SageMaker Studio",
+        "target": "Amazon OpenSearch Service",
+        "label": "FAQ data embedding",
+        "type": "Dashed Line"
+      }
+    ],
+    "annotations": [
+      "rag 챗봇 로직",
+      "rag 데이터 처리 로직"
+    ],
+    "groups": [
+      "AWS Cloud"
+    ],
+    "metadata": {
+      "filename": "financial_services_chatbot_architecture.png",
+      "title": "금융데이터 FAQ Chatbot demo Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Streamlit UI",
+        "description": "User interface for interaction",
+        "boundaries": "Left",
+        "position": "Left"
+      },
+      {
+        "name": "RAG System",
+        "description": "Retrieval-Augmented Generation System",
+        "boundaries": "Center-left",
+        "position": "Center-left"
+      },
+      {
+        "name": "SageMaker Endpoint (LLM)",
+        "description": "Large Language Model endpoint",
+        "boundaries": "Center",
+        "position": "Center"
+      },
+      {
+        "name": "OpenSearch",
+        "description": "Search service for retrieving documents",
+        "boundaries": "Center-right",
+        "position": "Center-right"
+      },
+      {
+        "name": "Embedding Model",
+        "description": "Model for generating embeddings",
+        "boundaries": "Right",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Streamlit UI",
+        "target": "RAG System",
+        "label": "User query",
+        "type": "Solid Line"
+      },
+      {
+        "source": "RAG System",
+        "target": "Embedding Model",
+        "label": "Generate query embedding",
+        "type": "Dashed Line"
+      },
+      {
+        "source": "Embedding Model",
+        "target": "RAG System",
+        "label": "Query embedding",
+        "type": "Dashed Line"
+      },
+      {
+        "source": "RAG System",
+        "target": "OpenSearch",
+        "label": "Retrieve relevant documents",
+        "type": "Dashed Line"
+      },
+      {
+        "source": "OpenSearch",
+        "target": "RAG System",
+        "label": "Retrieved documents",
+        "type": "Dashed Line"
+      },
+      {
+        "source": "RAG System",
+        "target": "SageMaker Endpoint (LLM)",
+        "label": "Send constructed prompt",
+        "type": "Dashed Line"
+      },
+      {
+        "source": "SageMaker Endpoint (LLM)",
+        "target": "RAG System",
+        "label": "Generated response",
+        "type": "Dashed Line"
+      },
+      {
+        "source": "RAG System",
+        "target": "Streamlit UI",
+        "label": "Display response to user",
+        "type": "Solid Line"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "rag_system_sequence_diagram.png",
+      "title": "RAG System Sequence Diagram"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Streamlit",
+      "SageMaker Endpoint",
+      "OpenSearch"
+    ],
+    "unique_to_GroundTruth": [
+      "AWS Cloud",
+      "Amazon SageMaker Endpoint GPU",
+      "Amazon SageMaker Studio",
+      "Amazon S3"
+    ],
+    "unique_to_GeneratedImage": [
+      "RAG System",
+      "Embedding Model"
+    ],
+    "common_connectors": [
+      {
+        "source": "Streamlit",
+        "target": "SageMaker Endpoint",
+        "label": "Query/User query"
+      },
+      {
+        "source": "SageMaker Endpoint",
+        "target": "Streamlit",
+        "label": "Answer/Display response to user"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Amazon SageMaker Endpoint, GPU",
+        "target": "Amazon OpenSearch Service",
+        "label": "Embedding Search"
+      },
+      {
+        "source": "Amazon OpenSearch Service",
+        "target": "Amazon SageMaker Endpoint, GPU",
+        "label": "Embedding Return"
+      },
+      {
+        "source": "Amazon S3",
+        "target": "Amazon SageMaker Studio",
+        "label": "FAQ 전처리 to csv"
+      },
+      {
+        "source": "Amazon SageMaker Studio",
+        "target": "Amazon OpenSearch Service",
+        "label": "FAQ data embedding"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "RAG System",
+        "target": "Embedding Model",
+        "label": "Generate query embedding"
+      },
+      {
+        "source": "Embedding Model",
+        "target": "RAG System",
+        "label": "Query embedding"
+      },
+      {
+        "source": "RAG System",
+        "target": "OpenSearch",
+        "label": "Retrieve relevant documents"
+      },
+      {
+        "source": "OpenSearch",
+        "target": "RAG System",
+        "label": "Retrieved documents"
+      },
+      {
+        "source": "RAG System",
+        "target": "SageMaker Endpoint (LLM)",
+        "label": "Send constructed prompt"
+      },
+      {
+        "source": "SageMaker Endpoint (LLM)",
+        "target": "RAG System",
+        "label": "Generated response"
+      }
+    ],
+    "explanation": "The GroundTruth diagram represents a more detailed architecture of a financial services FAQ chatbot, highlighting specific AWS services like SageMaker, OpenSearch, and S3. It includes components for data processing and embedding, with a focus on Korean language processing. The GeneratedImage diagram is a sequence diagram for a RAG system, focusing on the interaction flow between components like Streamlit UI, RAG System, and SageMaker Endpoint. Both diagrams share components like Streamlit and SageMaker, but the GroundTruth diagram includes additional AWS services and specific data processing steps. The GeneratedImage diagram introduces a RAG System and an Embedding Model, focusing on the sequence of operations. The GroundTruth diagram is rated 8/10 for its completeness and specific architectural details, while the GeneratedImage diagram is rated 6/10 for its focus on interaction flow but lack of detailed component descriptions.",
+    "Rating": 7
+  }
+}

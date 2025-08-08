@@ -1,0 +1,400 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Console Server",
+        "description": "Contains Nginx and Django Web Application",
+        "boundaries": "Console Server",
+        "position": "top left"
+      },
+      {
+        "name": "Nginx",
+        "description": "Proxy/SSL Termination",
+        "boundaries": "Console Server",
+        "position": "inside Console Server"
+      },
+      {
+        "name": "Django Web Application",
+        "description": "Handles Async Tasks, Data Storage, File Access",
+        "boundaries": "Console Server",
+        "position": "inside Console Server"
+      },
+      {
+        "name": "Redis Queue",
+        "description": "Handles Async Tasks",
+        "boundaries": "None",
+        "position": "left"
+      },
+      {
+        "name": "PostgreSQL",
+        "description": "Data Storage",
+        "boundaries": "None",
+        "position": "bottom left"
+      },
+      {
+        "name": "NFS Client",
+        "description": "File Access",
+        "boundaries": "None",
+        "position": "bottom"
+      },
+      {
+        "name": "Shared Storage",
+        "description": "Contains NFS Server",
+        "boundaries": "None",
+        "position": "bottom"
+      },
+      {
+        "name": "NFS Server",
+        "description": "File Share",
+        "boundaries": "Shared Storage",
+        "position": "inside Shared Storage"
+      },
+      {
+        "name": "External Systems",
+        "description": "Big Data Analytics Platform",
+        "boundaries": "None",
+        "position": "center"
+      },
+      {
+        "name": "Engine Node",
+        "description": "Contains Scanning Engine",
+        "boundaries": "Engine Node",
+        "position": "right"
+      },
+      {
+        "name": "Scanning Engine",
+        "description": "Executes nmap/masscan",
+        "boundaries": "Engine Node",
+        "position": "inside Engine Node"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Nginx",
+        "target": "Django Web Application",
+        "label": "Proxy/SSL Termination",
+        "type": "solid"
+      },
+      {
+        "source": "Django Web Application",
+        "target": "Redis Queue",
+        "label": "Async Tasks",
+        "type": "solid"
+      },
+      {
+        "source": "Django Web Application",
+        "target": "PostgreSQL",
+        "label": "Data Storage",
+        "type": "solid"
+      },
+      {
+        "source": "Django Web Application",
+        "target": "NFS Client",
+        "label": "File Access",
+        "type": "solid"
+      },
+      {
+        "source": "NFS Client",
+        "target": "NFS Server",
+        "label": "File Share",
+        "type": "solid"
+      },
+      {
+        "source": "Django Web Application",
+        "target": "External Systems",
+        "label": "Results Storage, CSV Export, REST API",
+        "type": "solid"
+      },
+      {
+        "source": "External Systems",
+        "target": "Scanning Engine",
+        "label": "Executes",
+        "type": "solid"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Console Server",
+        "components": [
+          "Nginx",
+          "Django Web Application"
+        ]
+      },
+      {
+        "name": "Engine Node",
+        "components": [
+          "Scanning Engine"
+        ]
+      },
+      {
+        "name": "Shared Storage",
+        "components": [
+          "NFS Server"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "Software Architecture Diagram"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Console",
+        "description": "Contains Nginx, Django, PostgreSQL",
+        "boundaries": "Console",
+        "position": "left"
+      },
+      {
+        "name": "NGINX",
+        "description": "Handles TCP 22/80/443",
+        "boundaries": "Console",
+        "position": "inside Console"
+      },
+      {
+        "name": "Django",
+        "description": "Connected to uWSGI",
+        "boundaries": "Console",
+        "position": "inside Console"
+      },
+      {
+        "name": "PostgreSQL",
+        "description": "Database",
+        "boundaries": "Console",
+        "position": "inside Console"
+      },
+      {
+        "name": "Reverse web proxy",
+        "description": "Handles requests",
+        "boundaries": "None",
+        "position": "left"
+      },
+      {
+        "name": "Static",
+        "description": "Static files",
+        "boundaries": "None",
+        "position": "left"
+      },
+      {
+        "name": "Scan Results",
+        "description": "NFS share",
+        "boundaries": "None",
+        "position": "bottom"
+      },
+      {
+        "name": "Engine",
+        "description": "Contains engine.py, Target 1, Target 2",
+        "boundaries": "Engine",
+        "position": "right"
+      },
+      {
+        "name": "SSH/SSL Tunnel",
+        "description": "Secure connection",
+        "boundaries": "None",
+        "position": "center"
+      },
+      {
+        "name": "Firewall",
+        "description": "Security",
+        "boundaries": "None",
+        "position": "center"
+      },
+      {
+        "name": "engine.py",
+        "description": "Script",
+        "boundaries": "Engine",
+        "position": "inside Engine"
+      },
+      {
+        "name": "Target 1",
+        "description": "Target system",
+        "boundaries": "Engine",
+        "position": "inside Engine"
+      },
+      {
+        "name": "Target 2",
+        "description": "Target system",
+        "boundaries": "Engine",
+        "position": "inside Engine"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "NGINX",
+        "target": "Django",
+        "label": "uWSGI",
+        "type": "solid"
+      },
+      {
+        "source": "NGINX",
+        "target": "Static",
+        "label": "static",
+        "type": "solid"
+      },
+      {
+        "source": "NGINX",
+        "target": "Reverse web proxy",
+        "label": "reverse proxy",
+        "type": "solid"
+      },
+      {
+        "source": "Django",
+        "target": "PostgreSQL",
+        "label": "database connection",
+        "type": "solid"
+      },
+      {
+        "source": "Console",
+        "target": "SSH/SSL Tunnel",
+        "label": "secure connection",
+        "type": "dashed"
+      },
+      {
+        "source": "SSH/SSL Tunnel",
+        "target": "Engine",
+        "label": "secure connection",
+        "type": "dashed"
+      },
+      {
+        "source": "Firewall",
+        "target": "Engine",
+        "label": "security",
+        "type": "solid"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "NFS share",
+        "position": "bottom"
+      }
+    ],
+    "groups": [
+      {
+        "name": "Console",
+        "components": [
+          "NGINX",
+          "Django",
+          "PostgreSQL"
+        ]
+      },
+      {
+        "name": "Engine",
+        "components": [
+          "engine.py",
+          "Target 1",
+          "Target 2"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": "Software Architecture Diagram"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "NGINX",
+      "Django",
+      "PostgreSQL"
+    ],
+    "unique_to_GroundTruth": [
+      "Redis Queue",
+      "External Systems",
+      "Scanning Engine",
+      "NFS Client",
+      "NFS Server"
+    ],
+    "unique_to_GeneratedImage": [
+      "Reverse web proxy",
+      "Static",
+      "Scan Results",
+      "SSH/SSL Tunnel",
+      "Firewall",
+      "engine.py",
+      "Target 1",
+      "Target 2"
+    ],
+    "common_connectors": [
+      {
+        "source": "NGINX",
+        "target": "Django",
+        "label": "Proxy/SSL Termination or uWSGI",
+        "type": "solid"
+      },
+      {
+        "source": "Django",
+        "target": "PostgreSQL",
+        "label": "Data Storage or database connection",
+        "type": "solid"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Django Web Application",
+        "target": "Redis Queue",
+        "label": "Async Tasks",
+        "type": "solid"
+      },
+      {
+        "source": "Django Web Application",
+        "target": "NFS Client",
+        "label": "File Access",
+        "type": "solid"
+      },
+      {
+        "source": "NFS Client",
+        "target": "NFS Server",
+        "label": "File Share",
+        "type": "solid"
+      },
+      {
+        "source": "Django Web Application",
+        "target": "External Systems",
+        "label": "Results Storage, CSV Export, REST API",
+        "type": "solid"
+      },
+      {
+        "source": "External Systems",
+        "target": "Scanning Engine",
+        "label": "Executes",
+        "type": "solid"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "NGINX",
+        "target": "Static",
+        "label": "static",
+        "type": "solid"
+      },
+      {
+        "source": "NGINX",
+        "target": "Reverse web proxy",
+        "label": "reverse proxy",
+        "type": "solid"
+      },
+      {
+        "source": "Console",
+        "target": "SSH/SSL Tunnel",
+        "label": "secure connection",
+        "type": "dashed"
+      },
+      {
+        "source": "SSH/SSL Tunnel",
+        "target": "Engine",
+        "label": "secure connection",
+        "type": "dashed"
+      },
+      {
+        "source": "Firewall",
+        "target": "Engine",
+        "label": "security",
+        "type": "solid"
+      }
+    ],
+    "explanation": "The two diagrams represent similar architectures with some common components such as NGINX, Django, and PostgreSQL. The GroundTruth diagram includes components like Redis Queue, External Systems, and Scanning Engine which are not present in the GeneratedImage. Conversely, the GeneratedImage includes additional components like Reverse web proxy, Static, SSH/SSL Tunnel, and Firewall. The connectors in both diagrams show similar connections between NGINX and Django, and Django and PostgreSQL. However, the GroundTruth diagram has more detailed connections related to async tasks and file access, while the GeneratedImage focuses on security aspects with SSH/SSL Tunnel and Firewall. The GeneratedImage is rated 7 out of 10 for accuracy and completeness, as it captures the core components but lacks some specific details and additional components found in the GroundTruth.",
+    "Rating": 7
+  }
+}

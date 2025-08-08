@@ -1,0 +1,400 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Client",
+        "description": "External client",
+        "boundary": "external",
+        "position": "left"
+      },
+      {
+        "name": "WS App Layer",
+        "description": "Web service application layer",
+        "boundary": "internal",
+        "position": "center"
+      },
+      {
+        "name": "Spring Security",
+        "description": "Security component",
+        "boundary": "internal",
+        "position": "center"
+      },
+      {
+        "name": "Business Layer",
+        "description": "Business logic layer",
+        "boundary": "internal",
+        "position": "center"
+      },
+      {
+        "name": "Data Access Layer",
+        "description": "Data access logic",
+        "boundary": "internal",
+        "position": "center"
+      },
+      {
+        "name": "Spring Data",
+        "description": "Data management",
+        "boundary": "internal",
+        "position": "center"
+      },
+      {
+        "name": "NoSQL",
+        "description": "Database",
+        "boundary": "external",
+        "position": "right"
+      },
+      {
+        "name": "CACHE",
+        "description": "Cache storage",
+        "boundary": "external",
+        "position": "right"
+      },
+      {
+        "name": "JSON",
+        "description": "JSON data format",
+        "boundary": "external",
+        "position": "top"
+      },
+      {
+        "name": "DTO/JSON",
+        "description": "Data Transfer Object",
+        "boundary": "internal",
+        "position": "top"
+      },
+      {
+        "name": "Entity",
+        "description": "Entity object",
+        "boundary": "internal",
+        "position": "top"
+      },
+      {
+        "name": "Entity/POJO",
+        "description": "Plain Old Java Object",
+        "boundary": "internal",
+        "position": "top"
+      },
+      {
+        "name": "JSON Docs",
+        "description": "JSON documents",
+        "boundary": "external",
+        "position": "top"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Client",
+        "target": "WS App Layer",
+        "label": "HTTP Rest/JSON",
+        "type": "communication"
+      },
+      {
+        "source": "WS App Layer",
+        "target": "Spring Security",
+        "label": "Basic Auth",
+        "type": "security"
+      },
+      {
+        "source": "Spring Data",
+        "target": "NoSQL",
+        "label": "JDBC",
+        "type": "data"
+      },
+      {
+        "source": "Spring Data",
+        "target": "CACHE",
+        "label": "RESP over TCP",
+        "type": "data"
+      },
+      {
+        "source": "JSON",
+        "target": "DTO/JSON",
+        "label": "serialize",
+        "type": "data transformation"
+      },
+      {
+        "source": "DTO/JSON",
+        "target": "Entity",
+        "label": "transformed",
+        "type": "data transformation"
+      },
+      {
+        "source": "Entity",
+        "target": "Entity/POJO",
+        "label": "transformed",
+        "type": "data transformation"
+      },
+      {
+        "source": "Entity/POJO",
+        "target": "JSON Docs",
+        "label": "Mapped",
+        "type": "data transformation"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Application Layers",
+        "components": [
+          "WS App Layer",
+          "Business Layer",
+          "Data Access Layer"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "Software Architecture Diagram"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "External user",
+        "boundary": "external",
+        "position": "top"
+      },
+      {
+        "name": "Nginx Load Balancer",
+        "description": "Load balancing component",
+        "boundary": "internal",
+        "position": "center"
+      },
+      {
+        "name": "Spring Boot Application",
+        "description": "Main application",
+        "boundary": "internal",
+        "position": "center"
+      },
+      {
+        "name": "ShortURLController",
+        "description": "Controller for URL shortening",
+        "boundary": "internal",
+        "position": "center"
+      },
+      {
+        "name": "UrlShortenerService",
+        "description": "Service for URL shortening",
+        "boundary": "internal",
+        "position": "center"
+      },
+      {
+        "name": "ShortUrlRepository",
+        "description": "Repository for short URLs",
+        "boundary": "internal",
+        "position": "center"
+      },
+      {
+        "name": "KeyGenerator",
+        "description": "Key generation service",
+        "boundary": "internal",
+        "position": "center"
+      },
+      {
+        "name": "MongoDB",
+        "description": "Database",
+        "boundary": "external",
+        "position": "bottom"
+      },
+      {
+        "name": "Redis Cache",
+        "description": "Cache storage",
+        "boundary": "external",
+        "position": "bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Nginx Load Balancer",
+        "label": "HTTP Request",
+        "type": "communication"
+      },
+      {
+        "source": "Nginx Load Balancer",
+        "target": "Spring Boot Application",
+        "label": "Forward Request",
+        "type": "communication"
+      },
+      {
+        "source": "ShortURLController",
+        "target": "UrlShortenerService",
+        "label": "Process Request",
+        "type": "service call"
+      },
+      {
+        "source": "UrlShortenerService",
+        "target": "ShortUrlRepository",
+        "label": "CRUD Operations",
+        "type": "data"
+      },
+      {
+        "source": "UrlShortenerService",
+        "target": "KeyGenerator",
+        "label": "Generate Key",
+        "type": "service call"
+      },
+      {
+        "source": "ShortUrlRepository",
+        "target": "MongoDB",
+        "label": "Persist Data",
+        "type": "data"
+      },
+      {
+        "source": "ShortUrlRepository",
+        "target": "Redis Cache",
+        "label": "Cache Data",
+        "type": "data"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Spring Boot Components",
+        "components": [
+          "ShortURLController",
+          "UrlShortenerService",
+          "ShortUrlRepository",
+          "KeyGenerator"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": "URL Shortener Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      {
+        "name": "CACHE",
+        "description": "Cache storage"
+      },
+      {
+        "name": "NoSQL",
+        "description": "Database"
+      }
+    ],
+    "unique_to_GroundTruth": [
+      "Client",
+      "WS App Layer",
+      "Spring Security",
+      "Business Layer",
+      "Data Access Layer",
+      "Spring Data",
+      "JSON",
+      "DTO/JSON",
+      "Entity",
+      "Entity/POJO",
+      "JSON Docs"
+    ],
+    "unique_to_GeneratedImage": [
+      "User",
+      "Nginx Load Balancer",
+      "Spring Boot Application",
+      "ShortURLController",
+      "UrlShortenerService",
+      "ShortUrlRepository",
+      "KeyGenerator",
+      "MongoDB",
+      "Redis Cache"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Client",
+        "target": "WS App Layer",
+        "label": "HTTP Rest/JSON",
+        "type": "communication"
+      },
+      {
+        "source": "WS App Layer",
+        "target": "Spring Security",
+        "label": "Basic Auth",
+        "type": "security"
+      },
+      {
+        "source": "Spring Data",
+        "target": "NoSQL",
+        "label": "JDBC",
+        "type": "data"
+      },
+      {
+        "source": "Spring Data",
+        "target": "CACHE",
+        "label": "RESP over TCP",
+        "type": "data"
+      },
+      {
+        "source": "JSON",
+        "target": "DTO/JSON",
+        "label": "serialize",
+        "type": "data transformation"
+      },
+      {
+        "source": "DTO/JSON",
+        "target": "Entity",
+        "label": "transformed",
+        "type": "data transformation"
+      },
+      {
+        "source": "Entity",
+        "target": "Entity/POJO",
+        "label": "transformed",
+        "type": "data transformation"
+      },
+      {
+        "source": "Entity/POJO",
+        "target": "JSON Docs",
+        "label": "Mapped",
+        "type": "data transformation"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "Nginx Load Balancer",
+        "label": "HTTP Request",
+        "type": "communication"
+      },
+      {
+        "source": "Nginx Load Balancer",
+        "target": "Spring Boot Application",
+        "label": "Forward Request",
+        "type": "communication"
+      },
+      {
+        "source": "ShortURLController",
+        "target": "UrlShortenerService",
+        "label": "Process Request",
+        "type": "service call"
+      },
+      {
+        "source": "UrlShortenerService",
+        "target": "ShortUrlRepository",
+        "label": "CRUD Operations",
+        "type": "data"
+      },
+      {
+        "source": "UrlShortenerService",
+        "target": "KeyGenerator",
+        "label": "Generate Key",
+        "type": "service call"
+      },
+      {
+        "source": "ShortUrlRepository",
+        "target": "MongoDB",
+        "label": "Persist Data",
+        "type": "data"
+      },
+      {
+        "source": "ShortUrlRepository",
+        "target": "Redis Cache",
+        "label": "Cache Data",
+        "type": "data"
+      }
+    ],
+    "explanation": "The GroundTruth diagram represents a layered architecture with a focus on web services and data transformation, including components like Spring Security and Spring Data. The GeneratedImage diagram is centered around a URL shortener application with components like Nginx Load Balancer and Spring Boot Application. Both diagrams include cache and database components, but they differ significantly in structure and purpose. The GroundTruth diagram emphasizes data flow and transformation, while the GeneratedImage diagram highlights service orchestration and load balancing. The generated image is rated 6 out of 10 for accuracy and completeness, as it captures a different architectural scenario but lacks some of the detailed data transformation processes found in the GroundTruth diagram.",
+    "Rating": 6
+  }
+}

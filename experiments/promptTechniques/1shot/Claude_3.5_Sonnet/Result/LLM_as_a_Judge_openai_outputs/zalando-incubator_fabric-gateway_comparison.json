@@ -1,0 +1,215 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Kubernetes API Server",
+        "description": "Handles API requests",
+        "boundaries": "Rectangle",
+        "position": "Center"
+      },
+      {
+        "name": "Metacontroller",
+        "description": "Manages custom controllers",
+        "boundaries": "Rectangle",
+        "position": "Right"
+      },
+      {
+        "name": "Ingress Skipper Config",
+        "description": "Configures Ingress rules",
+        "boundaries": "Rectangle",
+        "position": "Far Right"
+      },
+      {
+        "name": "Gateway Operator HTTP Service",
+        "description": "Handles HTTP requests",
+        "boundaries": "Rectangle",
+        "position": "Bottom"
+      },
+      {
+        "name": "Gateway Operator Admission Controller",
+        "description": "Checks resource admission",
+        "boundaries": "Rectangle",
+        "position": "Bottom Left"
+      },
+      {
+        "name": "Gateway Operator Ingress Derivation",
+        "description": "Derives Ingress rules",
+        "boundaries": "Rectangle",
+        "position": "Bottom Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "kubectl",
+        "target": "Kubernetes API Server",
+        "label": "1. Create/Update FabricGateway Resource",
+        "type": "Async"
+      },
+      {
+        "source": "Kubernetes API Server",
+        "target": "Resource Admission Controller Checks",
+        "label": "2",
+        "type": "Sync"
+      },
+      {
+        "source": "Kubernetes API Server",
+        "target": "Metacontroller",
+        "label": "3. Notification of resource persistence",
+        "type": "Async"
+      },
+      {
+        "source": "Metacontroller",
+        "target": "Ingress Skipper Config",
+        "label": "4. Derive Ingress Definitions",
+        "type": "Sync"
+      },
+      {
+        "source": "Metacontroller",
+        "target": "Kubernetes API Server",
+        "label": "5. Inform K8s of Required Ingresses",
+        "type": "Sync"
+      },
+      {
+        "source": "Kubernetes API Server",
+        "target": "Ingress Skipper Config",
+        "label": "6. Create/Update Ingress Resources",
+        "type": "Sync"
+      }
+    ],
+    "annotations": [
+      "Gateway: Control Flow"
+    ],
+    "groups": [
+      {
+        "name": "Gateway Operator HTTP Service",
+        "components": [
+          "Gateway Operator Admission Controller",
+          "Gateway Operator Ingress Derivation"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "ground_truth_diagram.png",
+      "title": "Gateway: Control Flow"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "API Client",
+        "description": "Initiates API requests",
+        "boundaries": "Actor",
+        "position": "Left"
+      },
+      {
+        "name": "Kubernetes API",
+        "description": "Handles API requests",
+        "boundaries": "Rectangle",
+        "position": "Left"
+      },
+      {
+        "name": "FabricGateway Operator",
+        "description": "Manages FabricGateway resources",
+        "boundaries": "Rectangle",
+        "position": "Center"
+      },
+      {
+        "name": "Skipper",
+        "description": "Handles routing",
+        "boundaries": "Rectangle",
+        "position": "Right"
+      },
+      {
+        "name": "Backend Service",
+        "description": "Processes requests",
+        "boundaries": "Rectangle",
+        "position": "Far Right"
+      },
+      {
+        "name": "Zalando IAM",
+        "description": "Manages authentication",
+        "boundaries": "Database",
+        "position": "Far Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "API Client",
+        "target": "Kubernetes API",
+        "label": "Request API",
+        "type": "Sync"
+      },
+      {
+        "source": "Kubernetes API",
+        "target": "FabricGateway Operator",
+        "label": "Notify FabricGateway CRD change",
+        "type": "Sync"
+      },
+      {
+        "source": "FabricGateway Operator",
+        "target": "Skipper",
+        "label": "Apply Ingress resource",
+        "type": "Sync"
+      },
+      {
+        "source": "Skipper",
+        "target": "Backend Service",
+        "label": "Forward request",
+        "type": "Sync"
+      },
+      {
+        "source": "Backend Service",
+        "target": "Zalando IAM",
+        "label": "Authenticate (if required)",
+        "type": "Sync"
+      }
+    ],
+    "annotations": [
+      "Authentication successful",
+      "Authorization successful",
+      "Rate limit not exceeded"
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "generated_image_diagram.png",
+      "title": "Sequence Diagram"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Kubernetes API"
+    ],
+    "unique_to_GroundTruth": [
+      "Metacontroller",
+      "Ingress Skipper Config",
+      "Gateway Operator HTTP Service",
+      "Gateway Operator Admission Controller",
+      "Gateway Operator Ingress Derivation"
+    ],
+    "unique_to_GeneratedImage": [
+      "API Client",
+      "FabricGateway Operator",
+      "Skipper",
+      "Backend Service",
+      "Zalando IAM"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      "Create/Update FabricGateway Resource",
+      "Resource Admission Controller Checks",
+      "Notification of resource persistence",
+      "Derive Ingress Definitions",
+      "Inform K8s of Required Ingresses",
+      "Create/Update Ingress Resources"
+    ],
+    "unique_connectors_GeneratedImage": [
+      "Request API",
+      "Notify FabricGateway CRD change",
+      "Apply Ingress resource",
+      "Forward request",
+      "Authenticate (if required)"
+    ],
+    "explanation": "The GroundTruth diagram focuses on the control flow within a Kubernetes-based gateway system, highlighting components like the Metacontroller and Ingress Skipper Config. It emphasizes the process of creating and updating resources within Kubernetes. The GeneratedImage diagram, however, is a sequence diagram that illustrates the interaction between an API client and various services, including Kubernetes API, FabricGateway Operator, and Skipper. It includes authentication and authorization steps, which are not present in the GroundTruth diagram. The GroundTruth diagram is more focused on the internal processes and resource management, while the GeneratedImage diagram provides a broader view of the interaction between different services and includes security aspects. Based on its accuracy and completeness, the generated image is rated 6 out of 10. It captures some core components like the Kubernetes API but lacks several specific elements and processes detailed in the GroundTruth diagram.",
+    "Rating": 6
+  }
+}

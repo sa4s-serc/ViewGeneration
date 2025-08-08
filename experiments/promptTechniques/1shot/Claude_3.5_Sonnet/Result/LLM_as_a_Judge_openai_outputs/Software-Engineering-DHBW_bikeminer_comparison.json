@@ -1,0 +1,238 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Bikeminer App",
+        "description": "Mobile application for users",
+        "boundaries": "Outside Docker Network",
+        "position": "Left"
+      },
+      {
+        "name": "Server",
+        "description": "Handles API requests",
+        "boundaries": "Inside Docker Network",
+        "position": "Center"
+      },
+      {
+        "name": "Datenbank",
+        "description": "MariaDB database",
+        "boundaries": "Inside Docker Network",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Bikeminer App",
+        "target": "Server",
+        "label": "Fast API",
+        "type": "HTTP Request"
+      },
+      {
+        "source": "Server",
+        "target": "Bikeminer App",
+        "label": "Response Body",
+        "type": "HTTP Response"
+      },
+      {
+        "source": "Server",
+        "target": "Datenbank",
+        "label": "DB Query",
+        "type": "Database Query"
+      },
+      {
+        "source": "Datenbank",
+        "target": "Server",
+        "label": "Query Result",
+        "type": "Database Response"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Docker Network",
+        "components": [
+          "Server",
+          "Datenbank"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Bikeminer Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Flutter App",
+        "description": "Mobile application for users",
+        "boundaries": "Mobile Apps",
+        "position": "Left"
+      },
+      {
+        "name": "Android App",
+        "description": "Legacy mobile application",
+        "boundaries": "Mobile Apps",
+        "position": "Left"
+      },
+      {
+        "name": "FastAPI Backend",
+        "description": "Handles API requests",
+        "boundaries": "Backend",
+        "position": "Center"
+      },
+      {
+        "name": "MariaDB",
+        "description": "Database",
+        "boundaries": "Backend",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Flutter App",
+        "target": "FastAPI Backend",
+        "label": "POST /login",
+        "type": "HTTP Request"
+      },
+      {
+        "source": "FastAPI Backend",
+        "target": "Flutter App",
+        "label": "JWT token",
+        "type": "HTTP Response"
+      },
+      {
+        "source": "FastAPI Backend",
+        "target": "MariaDB",
+        "label": "Verify credentials",
+        "type": "Database Query"
+      },
+      {
+        "source": "MariaDB",
+        "target": "FastAPI Backend",
+        "label": "User data",
+        "type": "Database Response"
+      },
+      {
+        "source": "Flutter App",
+        "target": "FastAPI Backend",
+        "label": "POST /rides",
+        "type": "HTTP Request"
+      },
+      {
+        "source": "FastAPI Backend",
+        "target": "MariaDB",
+        "label": "Store ride data",
+        "type": "Database Query"
+      },
+      {
+        "source": "MariaDB",
+        "target": "FastAPI Backend",
+        "label": "Confirmation",
+        "type": "Database Response"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Mobile Apps",
+        "components": [
+          "Flutter App",
+          "Android App"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Bikeminer Sequence Diagram"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "MariaDB"
+    ],
+    "unique_to_GroundTruth": [
+      "Bikeminer App",
+      "Server",
+      "Datenbank"
+    ],
+    "unique_to_GeneratedImage": [
+      "Flutter App",
+      "Android App",
+      "FastAPI Backend"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Bikeminer App",
+        "target": "Server",
+        "label": "Fast API",
+        "type": "HTTP Request"
+      },
+      {
+        "source": "Server",
+        "target": "Bikeminer App",
+        "label": "Response Body",
+        "type": "HTTP Response"
+      },
+      {
+        "source": "Server",
+        "target": "Datenbank",
+        "label": "DB Query",
+        "type": "Database Query"
+      },
+      {
+        "source": "Datenbank",
+        "target": "Server",
+        "label": "Query Result",
+        "type": "Database Response"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Flutter App",
+        "target": "FastAPI Backend",
+        "label": "POST /login",
+        "type": "HTTP Request"
+      },
+      {
+        "source": "FastAPI Backend",
+        "target": "Flutter App",
+        "label": "JWT token",
+        "type": "HTTP Response"
+      },
+      {
+        "source": "FastAPI Backend",
+        "target": "MariaDB",
+        "label": "Verify credentials",
+        "type": "Database Query"
+      },
+      {
+        "source": "MariaDB",
+        "target": "FastAPI Backend",
+        "label": "User data",
+        "type": "Database Response"
+      },
+      {
+        "source": "Flutter App",
+        "target": "FastAPI Backend",
+        "label": "POST /rides",
+        "type": "HTTP Request"
+      },
+      {
+        "source": "FastAPI Backend",
+        "target": "MariaDB",
+        "label": "Store ride data",
+        "type": "Database Query"
+      },
+      {
+        "source": "MariaDB",
+        "target": "FastAPI Backend",
+        "label": "Confirmation",
+        "type": "Database Response"
+      }
+    ],
+    "explanation": "The GroundTruth diagram represents a high-level architecture with a focus on Docker containers and a single mobile app interacting with a server and database. The GeneratedImage diagram is a sequence diagram detailing interactions between mobile apps, a FastAPI backend, and a MariaDB database. Both diagrams share the MariaDB component but differ in their representation of the server/backend and mobile applications. The GroundTruth diagram uses a Docker Network to encapsulate components, while the GeneratedImage diagram specifies user interactions and API calls in detail. The GeneratedImage diagram is more detailed in terms of process flow, but lacks the Docker context present in the GroundTruth diagram. Rating: 7/10. The GeneratedImage diagram is accurate in terms of interactions but lacks the architectural context provided by Docker in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

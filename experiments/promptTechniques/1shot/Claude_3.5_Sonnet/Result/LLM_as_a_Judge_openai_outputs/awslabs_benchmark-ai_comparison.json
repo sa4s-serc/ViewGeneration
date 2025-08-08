@@ -1,0 +1,505 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Client",
+        "description": "",
+        "boundaries": "box",
+        "position": "left"
+      },
+      {
+        "name": "SageMaker",
+        "description": "",
+        "boundaries": "box",
+        "position": "center-left"
+      },
+      {
+        "name": "ECS",
+        "description": "",
+        "boundaries": "box",
+        "position": "center-right"
+      },
+      {
+        "name": "S3",
+        "description": "",
+        "boundaries": "box",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Client",
+        "target": "SageMaker",
+        "label": "estimator(python content, image).fit()",
+        "type": "arrow"
+      },
+      {
+        "source": "SageMaker",
+        "target": "ECS",
+        "label": "download inputs",
+        "type": "arrow"
+      },
+      {
+        "source": "ECS",
+        "target": "S3",
+        "label": "inputs data",
+        "type": "arrow"
+      },
+      {
+        "source": "ECS",
+        "target": "ECS",
+        "label": "run image/mount data",
+        "type": "arrow"
+      },
+      {
+        "source": "ECS",
+        "target": "ECS",
+        "label": "copy python",
+        "type": "arrow"
+      },
+      {
+        "source": "ECS",
+        "target": "ECS",
+        "label": "exec python",
+        "type": "arrow"
+      },
+      {
+        "source": "ECS",
+        "target": "S3",
+        "label": "upload outputs",
+        "type": "arrow"
+      },
+      {
+        "source": "S3",
+        "target": "SageMaker",
+        "label": "get output",
+        "type": "arrow"
+      },
+      {
+        "source": "SageMaker",
+        "target": "Client",
+        "label": "output",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": ""
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "",
+        "boundaries": "actor",
+        "position": "left"
+      },
+      {
+        "name": "bai-bff",
+        "description": "",
+        "boundaries": "box",
+        "position": "center-left"
+      },
+      {
+        "name": "executor",
+        "description": "",
+        "boundaries": "box",
+        "position": "center-left"
+      },
+      {
+        "name": "watcher",
+        "description": "",
+        "boundaries": "box",
+        "position": "center-left"
+      },
+      {
+        "name": "sm-executor",
+        "description": "",
+        "boundaries": "box",
+        "position": "center-left"
+      },
+      {
+        "name": "fetcher-dispatcher",
+        "description": "",
+        "boundaries": "box",
+        "position": "center"
+      },
+      {
+        "name": "fetcher",
+        "description": "",
+        "boundaries": "box",
+        "position": "center"
+      },
+      {
+        "name": "metrics-pusher",
+        "description": "",
+        "boundaries": "box",
+        "position": "center-right"
+      },
+      {
+        "name": "metrics-extractor",
+        "description": "",
+        "boundaries": "box",
+        "position": "center-right"
+      },
+      {
+        "name": "cloudwatch-exporter",
+        "description": "",
+        "boundaries": "box",
+        "position": "right"
+      },
+      {
+        "name": "Kafka",
+        "description": "",
+        "boundaries": "cylinder",
+        "position": "right"
+      },
+      {
+        "name": "Kubernetes",
+        "description": "",
+        "boundaries": "cylinder",
+        "position": "right"
+      },
+      {
+        "name": "SageMaker",
+        "description": "",
+        "boundaries": "cylinder",
+        "position": "right"
+      },
+      {
+        "name": "AWS CloudWatch",
+        "description": "",
+        "boundaries": "cylinder",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "bai-bff",
+        "label": "Submit benchmark job",
+        "type": "arrow"
+      },
+      {
+        "source": "bai-bff",
+        "target": "executor",
+        "label": "Publish job submission event",
+        "type": "arrow"
+      },
+      {
+        "source": "executor",
+        "target": "watcher",
+        "label": "Consume job submission event",
+        "type": "arrow"
+      },
+      {
+        "source": "watcher",
+        "target": "sm-executor",
+        "label": "Create job resources",
+        "type": "arrow"
+      },
+      {
+        "source": "sm-executor",
+        "target": "fetcher-dispatcher",
+        "label": "Publish job created event",
+        "type": "arrow"
+      },
+      {
+        "source": "fetcher-dispatcher",
+        "target": "fetcher",
+        "label": "Dispatch data fetching job",
+        "type": "arrow"
+      },
+      {
+        "source": "fetcher",
+        "target": "fetcher",
+        "label": "Download datasets/models",
+        "type": "arrow"
+      },
+      {
+        "source": "fetcher",
+        "target": "metrics-pusher",
+        "label": "Publish data fetched event",
+        "type": "arrow"
+      },
+      {
+        "source": "metrics-pusher",
+        "target": "metrics-extractor",
+        "label": "Consume data fetched event",
+        "type": "arrow"
+      },
+      {
+        "source": "metrics-extractor",
+        "target": "cloudwatch-exporter",
+        "label": "Push job metrics",
+        "type": "arrow"
+      },
+      {
+        "source": "cloudwatch-exporter",
+        "target": "Kafka",
+        "label": "Export metrics",
+        "type": "arrow"
+      },
+      {
+        "source": "Kafka",
+        "target": "Kubernetes",
+        "label": "Consume metrics",
+        "type": "arrow"
+      },
+      {
+        "source": "Kubernetes",
+        "target": "SageMaker",
+        "label": "Manage SageMaker job lifecycle",
+        "type": "arrow"
+      },
+      {
+        "source": "SageMaker",
+        "target": "AWS CloudWatch",
+        "label": "Publish SageMaker job updates",
+        "type": "arrow"
+      },
+      {
+        "source": "AWS CloudWatch",
+        "target": "User",
+        "label": "Provide job status and results",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": ""
+    }
+  },
+  "comparison": {
+    "common_components": [
+      {
+        "name": "SageMaker",
+        "description": ""
+      }
+    ],
+    "unique_to_GroundTruth": [
+      {
+        "name": "Client",
+        "description": ""
+      },
+      {
+        "name": "ECS",
+        "description": ""
+      },
+      {
+        "name": "S3",
+        "description": ""
+      }
+    ],
+    "unique_to_GeneratedImage": [
+      {
+        "name": "User",
+        "description": ""
+      },
+      {
+        "name": "bai-bff",
+        "description": ""
+      },
+      {
+        "name": "executor",
+        "description": ""
+      },
+      {
+        "name": "watcher",
+        "description": ""
+      },
+      {
+        "name": "sm-executor",
+        "description": ""
+      },
+      {
+        "name": "fetcher-dispatcher",
+        "description": ""
+      },
+      {
+        "name": "fetcher",
+        "description": ""
+      },
+      {
+        "name": "metrics-pusher",
+        "description": ""
+      },
+      {
+        "name": "metrics-extractor",
+        "description": ""
+      },
+      {
+        "name": "cloudwatch-exporter",
+        "description": ""
+      },
+      {
+        "name": "Kafka",
+        "description": ""
+      },
+      {
+        "name": "Kubernetes",
+        "description": ""
+      },
+      {
+        "name": "AWS CloudWatch",
+        "description": ""
+      }
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Client",
+        "target": "SageMaker",
+        "label": "estimator(python content, image).fit()",
+        "type": "arrow"
+      },
+      {
+        "source": "SageMaker",
+        "target": "ECS",
+        "label": "download inputs",
+        "type": "arrow"
+      },
+      {
+        "source": "ECS",
+        "target": "S3",
+        "label": "inputs data",
+        "type": "arrow"
+      },
+      {
+        "source": "ECS",
+        "target": "ECS",
+        "label": "run image/mount data",
+        "type": "arrow"
+      },
+      {
+        "source": "ECS",
+        "target": "ECS",
+        "label": "copy python",
+        "type": "arrow"
+      },
+      {
+        "source": "ECS",
+        "target": "ECS",
+        "label": "exec python",
+        "type": "arrow"
+      },
+      {
+        "source": "ECS",
+        "target": "S3",
+        "label": "upload outputs",
+        "type": "arrow"
+      },
+      {
+        "source": "S3",
+        "target": "SageMaker",
+        "label": "get output",
+        "type": "arrow"
+      },
+      {
+        "source": "SageMaker",
+        "target": "Client",
+        "label": "output",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "bai-bff",
+        "label": "Submit benchmark job",
+        "type": "arrow"
+      },
+      {
+        "source": "bai-bff",
+        "target": "executor",
+        "label": "Publish job submission event",
+        "type": "arrow"
+      },
+      {
+        "source": "executor",
+        "target": "watcher",
+        "label": "Consume job submission event",
+        "type": "arrow"
+      },
+      {
+        "source": "watcher",
+        "target": "sm-executor",
+        "label": "Create job resources",
+        "type": "arrow"
+      },
+      {
+        "source": "sm-executor",
+        "target": "fetcher-dispatcher",
+        "label": "Publish job created event",
+        "type": "arrow"
+      },
+      {
+        "source": "fetcher-dispatcher",
+        "target": "fetcher",
+        "label": "Dispatch data fetching job",
+        "type": "arrow"
+      },
+      {
+        "source": "fetcher",
+        "target": "fetcher",
+        "label": "Download datasets/models",
+        "type": "arrow"
+      },
+      {
+        "source": "fetcher",
+        "target": "metrics-pusher",
+        "label": "Publish data fetched event",
+        "type": "arrow"
+      },
+      {
+        "source": "metrics-pusher",
+        "target": "metrics-extractor",
+        "label": "Consume data fetched event",
+        "type": "arrow"
+      },
+      {
+        "source": "metrics-extractor",
+        "target": "cloudwatch-exporter",
+        "label": "Push job metrics",
+        "type": "arrow"
+      },
+      {
+        "source": "cloudwatch-exporter",
+        "target": "Kafka",
+        "label": "Export metrics",
+        "type": "arrow"
+      },
+      {
+        "source": "Kafka",
+        "target": "Kubernetes",
+        "label": "Consume metrics",
+        "type": "arrow"
+      },
+      {
+        "source": "Kubernetes",
+        "target": "SageMaker",
+        "label": "Manage SageMaker job lifecycle",
+        "type": "arrow"
+      },
+      {
+        "source": "SageMaker",
+        "target": "AWS CloudWatch",
+        "label": "Publish SageMaker job updates",
+        "type": "arrow"
+      },
+      {
+        "source": "AWS CloudWatch",
+        "target": "User",
+        "label": "Provide job status and results",
+        "type": "arrow"
+      }
+    ],
+    "explanation": "The two diagrams represent different architectural designs. The GroundTruth diagram focuses on a sequence involving a Client, SageMaker, ECS, and S3, primarily dealing with data processing and transfer. In contrast, the GeneratedImage diagram includes a broader set of components, such as bai-bff, executor, watcher, and others, indicating a more complex workflow involving job submission, monitoring, and metric extraction. Both diagrams include SageMaker, but the context and interactions differ significantly. The GroundTruth diagram is more linear and straightforward, while the GeneratedImage diagram shows a more intricate system with multiple services and data flows. The GeneratedImage is rated 7 out of 10 for accuracy and completeness, as it captures a complex workflow but lacks some direct parallels to the simpler sequence in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

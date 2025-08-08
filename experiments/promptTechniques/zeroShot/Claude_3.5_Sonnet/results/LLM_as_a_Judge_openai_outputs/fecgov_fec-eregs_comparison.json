@@ -1,0 +1,450 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "eRegulations project document",
+        "description": "https://eregs.github.io",
+        "boundaries": "Rectangular",
+        "position": "Top left"
+      },
+      {
+        "name": "GovInfo(xml)",
+        "description": "https://www.govinfo.gov/bulkdata/CFR/",
+        "boundaries": "Rectangular",
+        "position": "Middle left"
+      },
+      {
+        "name": "fr-notices",
+        "description": "Edit notice xml",
+        "boundaries": "Rectangular",
+        "position": "Middle left"
+      },
+      {
+        "name": "Django library (Regulations Site)",
+        "description": "https://regulations-site.readthedocs.io/en/latest/ https://github.com/eregs/regulations-site",
+        "boundaries": "Rectangular",
+        "position": "Top center"
+      },
+      {
+        "name": "API library (Regulations Core)",
+        "description": "https://github.com/eregs/regulations-core (Python 3.6) Django and Haystack application",
+        "boundaries": "Rectangular",
+        "position": "Center"
+      },
+      {
+        "name": "Regulations Parser",
+        "description": "https://github.com/eregs/regulations-parser (Python 3.5)",
+        "boundaries": "Rectangular",
+        "position": "Bottom center"
+      },
+      {
+        "name": "fec-eregs app",
+        "description": "https://github.com/fecgov/fec-eregs",
+        "boundaries": "Rectangular",
+        "position": "Top right"
+      },
+      {
+        "name": "fec-eregs API",
+        "description": "https://fec-{0}-eregs.app.cloud.gov/regulations/api",
+        "boundaries": "Dashed rectangular",
+        "position": "Inside fec-eregs app"
+      },
+      {
+        "name": "fec-eregs-db",
+        "description": "",
+        "boundaries": "Dashed rectangular",
+        "position": "Bottom right"
+      },
+      {
+        "name": "fec api (openFEC)",
+        "description": "",
+        "boundaries": "Rectangular",
+        "position": "Bottom center"
+      },
+      {
+        "name": "Elasticsearch",
+        "description": "",
+        "boundaries": "Rectangular",
+        "position": "Bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "GovInfo(xml)",
+        "target": "fr-notices",
+        "label": "Input(xml)",
+        "type": "Arrow"
+      },
+      {
+        "source": "fr-notices",
+        "target": "Regulations Parser",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Regulations Parser",
+        "target": "API library (Regulations Core)",
+        "label": "Output (Json)",
+        "type": "Arrow"
+      },
+      {
+        "source": "Django library (Regulations Site)",
+        "target": "fec-eregs app",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "API library (Regulations Core)",
+        "target": "fec-eregs app",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "fec-eregs app",
+        "target": "fec-eregs API",
+        "label": "Get",
+        "type": "Arrow"
+      },
+      {
+        "source": "fec-eregs API",
+        "target": "fec-eregs-db",
+        "label": "Post",
+        "type": "Arrow"
+      },
+      {
+        "source": "fec api (openFEC)",
+        "target": "Elasticsearch",
+        "label": "load_regulations",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "eRegs General Architecture",
+        "position": "Top center"
+      },
+      {
+        "text": "CFR (The Code of Federal Regulations)",
+        "position": "Bottom left"
+      },
+      {
+        "text": "Parse regulation locally: Python 3.7.9 --running the API Python 3.6.1-- parsing the regulations",
+        "position": "Bottom left"
+      }
+    ],
+    "groups": [
+      {
+        "name": "CFR Structure",
+        "components": [
+          "Title",
+          "Parts",
+          "SubPart/Section",
+          "Paragraph Sub-Paragraph"
+        ],
+        "position": "Bottom left"
+      }
+    ],
+    "metadata": {
+      "filename": "eRegs_General_Architecture.png",
+      "title": "eRegs General Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Developer",
+        "description": "",
+        "boundaries": "Actor",
+        "position": "Left"
+      },
+      {
+        "name": "Git Repository",
+        "description": "",
+        "boundaries": "Rectangular",
+        "position": "Left"
+      },
+      {
+        "name": "Cloud Foundry CLI",
+        "description": "",
+        "boundaries": "Rectangular",
+        "position": "Left center"
+      },
+      {
+        "name": "Cloud.gov",
+        "description": "",
+        "boundaries": "Rectangular",
+        "position": "Center"
+      },
+      {
+        "name": "PostgreSQL",
+        "description": "",
+        "boundaries": "Cylinder",
+        "position": "Right center"
+      },
+      {
+        "name": "ElasticSearch",
+        "description": "",
+        "boundaries": "Cylinder",
+        "position": "Right center"
+      },
+      {
+        "name": "Django App",
+        "description": "",
+        "boundaries": "Rectangular",
+        "position": "Right"
+      },
+      {
+        "name": "User",
+        "description": "",
+        "boundaries": "Actor",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Developer",
+        "target": "Git Repository",
+        "label": "Push code",
+        "type": "Arrow"
+      },
+      {
+        "source": "Git Repository",
+        "target": "Cloud Foundry CLI",
+        "label": "Trigger deployment",
+        "type": "Arrow"
+      },
+      {
+        "source": "Cloud Foundry CLI",
+        "target": "Cloud.gov",
+        "label": "Deploy application",
+        "type": "Arrow"
+      },
+      {
+        "source": "Cloud.gov",
+        "target": "Django App",
+        "label": "Start Django application",
+        "type": "Arrow"
+      },
+      {
+        "source": "Cloud.gov",
+        "target": "PostgreSQL",
+        "label": "Provision PostgreSQL",
+        "type": "Arrow"
+      },
+      {
+        "source": "Cloud.gov",
+        "target": "ElasticSearch",
+        "label": "Provision ElasticSearch",
+        "type": "Arrow"
+      },
+      {
+        "source": "PostgreSQL",
+        "target": "Cloud.gov",
+        "label": "Initialize database",
+        "type": "Arrow"
+      },
+      {
+        "source": "ElasticSearch",
+        "target": "Cloud.gov",
+        "label": "Initialize search index",
+        "type": "Arrow"
+      },
+      {
+        "source": "Developer",
+        "target": "Cloud Foundry CLI",
+        "label": "Run load_regs task",
+        "type": "Arrow"
+      },
+      {
+        "source": "Cloud.gov",
+        "target": "PostgreSQL",
+        "label": "Store regulation data",
+        "type": "Arrow"
+      },
+      {
+        "source": "Cloud.gov",
+        "target": "ElasticSearch",
+        "label": "Index regulation data",
+        "type": "Arrow"
+      },
+      {
+        "source": "User",
+        "target": "Django App",
+        "label": "Request regulation",
+        "type": "Arrow"
+      },
+      {
+        "source": "Django App",
+        "target": "Cloud.gov",
+        "label": "Fetch regulation data",
+        "type": "Arrow"
+      },
+      {
+        "source": "Cloud.gov",
+        "target": "ElasticSearch",
+        "label": "Search regulation (if needed)",
+        "type": "Arrow"
+      },
+      {
+        "source": "Cloud.gov",
+        "target": "Django App",
+        "label": "Display regulation",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "Deployment_Process.png",
+      "title": ""
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Django App",
+      "ElasticSearch"
+    ],
+    "unique_to_GroundTruth": [
+      "eRegulations project document",
+      "GovInfo(xml)",
+      "fr-notices",
+      "Django library (Regulations Site)",
+      "API library (Regulations Core)",
+      "Regulations Parser",
+      "fec-eregs app",
+      "fec-eregs API",
+      "fec-eregs-db",
+      "fec api (openFEC)"
+    ],
+    "unique_to_GeneratedImage": [
+      "Developer",
+      "Git Repository",
+      "Cloud Foundry CLI",
+      "Cloud.gov",
+      "PostgreSQL",
+      "User"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "GovInfo(xml)",
+        "target": "fr-notices",
+        "label": "Input(xml)"
+      },
+      {
+        "source": "fr-notices",
+        "target": "Regulations Parser",
+        "label": ""
+      },
+      {
+        "source": "Regulations Parser",
+        "target": "API library (Regulations Core)",
+        "label": "Output (Json)"
+      },
+      {
+        "source": "Django library (Regulations Site)",
+        "target": "fec-eregs app",
+        "label": ""
+      },
+      {
+        "source": "API library (Regulations Core)",
+        "target": "fec-eregs app",
+        "label": ""
+      },
+      {
+        "source": "fec-eregs app",
+        "target": "fec-eregs API",
+        "label": "Get"
+      },
+      {
+        "source": "fec-eregs API",
+        "target": "fec-eregs-db",
+        "label": "Post"
+      },
+      {
+        "source": "fec api (openFEC)",
+        "target": "Elasticsearch",
+        "label": "load_regulations"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Developer",
+        "target": "Git Repository",
+        "label": "Push code"
+      },
+      {
+        "source": "Git Repository",
+        "target": "Cloud Foundry CLI",
+        "label": "Trigger deployment"
+      },
+      {
+        "source": "Cloud Foundry CLI",
+        "target": "Cloud.gov",
+        "label": "Deploy application"
+      },
+      {
+        "source": "Cloud.gov",
+        "target": "Django App",
+        "label": "Start Django application"
+      },
+      {
+        "source": "Cloud.gov",
+        "target": "PostgreSQL",
+        "label": "Provision PostgreSQL"
+      },
+      {
+        "source": "Cloud.gov",
+        "target": "ElasticSearch",
+        "label": "Provision ElasticSearch"
+      },
+      {
+        "source": "PostgreSQL",
+        "target": "Cloud.gov",
+        "label": "Initialize database"
+      },
+      {
+        "source": "ElasticSearch",
+        "target": "Cloud.gov",
+        "label": "Initialize search index"
+      },
+      {
+        "source": "Developer",
+        "target": "Cloud Foundry CLI",
+        "label": "Run load_regs task"
+      },
+      {
+        "source": "Cloud.gov",
+        "target": "PostgreSQL",
+        "label": "Store regulation data"
+      },
+      {
+        "source": "Cloud.gov",
+        "target": "ElasticSearch",
+        "label": "Index regulation data"
+      },
+      {
+        "source": "User",
+        "target": "Django App",
+        "label": "Request regulation"
+      },
+      {
+        "source": "Django App",
+        "target": "Cloud.gov",
+        "label": "Fetch regulation data"
+      },
+      {
+        "source": "Cloud.gov",
+        "target": "ElasticSearch",
+        "label": "Search regulation (if needed)"
+      },
+      {
+        "source": "Cloud.gov",
+        "target": "Django App",
+        "label": "Display regulation"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on the architecture of the eRegs system, detailing components like Django library, API library, and various data sources and sinks. It emphasizes the flow of data from input XML to JSON output and the interaction with the fec-eregs app and database. The GeneratedImage diagram, on the other hand, illustrates a deployment process involving a developer, Git repository, and cloud services like Cloud.gov and PostgreSQL. It outlines the steps from code push to regulation display. Common elements include the use of Django and Elasticsearch, but the diagrams serve different purposes: one is architectural, and the other is procedural. The GroundTruth diagram is more detailed in terms of specific components and data flow, while the GeneratedImage provides a high-level overview of deployment steps. Rating: 6/10. The GeneratedImage is accurate in depicting a deployment process but lacks the detailed architectural components and data flow present in the GroundTruth diagram.",
+    "Rating": 6
+  }
+}

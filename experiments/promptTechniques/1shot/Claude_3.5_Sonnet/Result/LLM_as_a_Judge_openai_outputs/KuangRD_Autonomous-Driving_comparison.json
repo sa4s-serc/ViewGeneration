@@ -1,0 +1,283 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Car/Simulator",
+        "description": "Simulates the vehicle environment",
+        "boundaries": "ROS Node",
+        "position": "Top right"
+      },
+      {
+        "name": "Perception",
+        "description": "Handles obstacle and traffic light detection",
+        "boundaries": "Vehicle Subsystem",
+        "position": "Bottom left"
+      },
+      {
+        "name": "Obstacle Detection",
+        "description": "Detects obstacles",
+        "boundaries": "ROS Node",
+        "position": "Within Perception"
+      },
+      {
+        "name": "Traffic Light Detection Node",
+        "description": "Detects traffic lights",
+        "boundaries": "ROS Node",
+        "position": "Within Perception"
+      },
+      {
+        "name": "Planning",
+        "description": "Handles waypoint planning",
+        "boundaries": "Vehicle Subsystem",
+        "position": "Bottom center"
+      },
+      {
+        "name": "Waypoint Loader",
+        "description": "Loads waypoints",
+        "boundaries": "ROS Node",
+        "position": "Within Planning"
+      },
+      {
+        "name": "Waypoint Updater Node",
+        "description": "Updates waypoints",
+        "boundaries": "ROS Node",
+        "position": "Within Planning"
+      },
+      {
+        "name": "Control",
+        "description": "Handles vehicle control",
+        "boundaries": "Vehicle Subsystem",
+        "position": "Bottom right"
+      },
+      {
+        "name": "DBW Node",
+        "description": "Drive-by-wire control",
+        "boundaries": "ROS Node",
+        "position": "Within Control"
+      },
+      {
+        "name": "Waypoint Follower",
+        "description": "Follows waypoints",
+        "boundaries": "ROS Node",
+        "position": "Within Control"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Car/Simulator",
+        "target": "Perception",
+        "label": "/image_color",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Car/Simulator",
+        "target": "Planning",
+        "label": "/current_pose",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Car/Simulator",
+        "target": "Control",
+        "label": "/current_velocity",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Car/Simulator",
+        "target": "Control",
+        "label": "/vehicle/dbw_enabled",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Perception",
+        "target": "Planning",
+        "label": "/obstacle_waypoint",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Perception",
+        "target": "Planning",
+        "label": "/traffic_waypoint",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Planning",
+        "target": "Control",
+        "label": "/final_waypoints",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Control",
+        "target": "Car/Simulator",
+        "label": "Vehicle/brake_cmd",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Control",
+        "target": "Car/Simulator",
+        "label": "Vehicle/steering_cmd",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Control",
+        "target": "Car/Simulator",
+        "label": "Vehicle/throttle_cmd",
+        "type": "ROS Topic"
+      }
+    ],
+    "annotations": [
+      "Legend: ROS Node, ROS Topic, Vehicle Subsystem"
+    ],
+    "groups": [
+      {
+        "name": "Vehicle Subsystem",
+        "components": [
+          "Perception",
+          "Planning",
+          "Control"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "architecture_diagram_1.png",
+      "title": "ROS Vehicle Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Initiates and monitors the system",
+        "boundaries": "Actor",
+        "position": "Left"
+      },
+      {
+        "name": "Waypoint Loader",
+        "description": "Loads waypoints",
+        "boundaries": "Component",
+        "position": "Top"
+      },
+      {
+        "name": "Waypoint Updater",
+        "description": "Updates waypoints",
+        "boundaries": "Component",
+        "position": "Top"
+      },
+      {
+        "name": "Traffic Light Detector",
+        "description": "Detects traffic lights",
+        "boundaries": "Component",
+        "position": "Top"
+      },
+      {
+        "name": "DBW Controller",
+        "description": "Controls vehicle drive-by-wire",
+        "boundaries": "Component",
+        "position": "Top"
+      },
+      {
+        "name": "Vehicle/Simulator",
+        "description": "Simulates the vehicle environment",
+        "boundaries": "Component",
+        "position": "Top"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Waypoint Loader",
+        "label": "Initialize",
+        "type": "Message"
+      },
+      {
+        "source": "Waypoint Loader",
+        "target": "Waypoint Updater",
+        "label": "Load waypoints",
+        "type": "Message"
+      },
+      {
+        "source": "Waypoint Updater",
+        "target": "Traffic Light Detector",
+        "label": "Request traffic light state",
+        "type": "Message"
+      },
+      {
+        "source": "Traffic Light Detector",
+        "target": "Waypoint Updater",
+        "label": "Return light state",
+        "type": "Message"
+      },
+      {
+        "source": "Waypoint Updater",
+        "target": "DBW Controller",
+        "label": "Send updated waypoints",
+        "type": "Message"
+      },
+      {
+        "source": "DBW Controller",
+        "target": "Vehicle/Simulator",
+        "label": "Apply throttle/brake/steering",
+        "type": "Message"
+      },
+      {
+        "source": "Vehicle/Simulator",
+        "target": "DBW Controller",
+        "label": "Vehicle state feedback",
+        "type": "Message"
+      }
+    ],
+    "annotations": [
+      "Loop: Continuous Operation"
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "architecture_diagram_2.png",
+      "title": "Sequence Diagram for Vehicle Control"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Waypoint Loader",
+      "Waypoint Updater",
+      "Traffic Light Detector",
+      "DBW Controller",
+      "Vehicle/Simulator"
+    ],
+    "unique_to_GroundTruth": [
+      "Car/Simulator",
+      "Perception",
+      "Obstacle Detection",
+      "Traffic Light Detection Node",
+      "Planning",
+      "Control",
+      "DBW Node",
+      "Waypoint Follower"
+    ],
+    "unique_to_GeneratedImage": [
+      "User"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      "/image_color",
+      "/current_pose",
+      "/current_velocity",
+      "/vehicle/dbw_enabled",
+      "/obstacle_waypoint",
+      "/traffic_waypoint",
+      "/final_waypoints",
+      "Vehicle/brake_cmd",
+      "Vehicle/steering_cmd",
+      "Vehicle/throttle_cmd"
+    ],
+    "unique_connectors_GeneratedImage": [
+      "Initialize",
+      "Load waypoints",
+      "Request traffic light state",
+      "Return light state",
+      "Send updated waypoints",
+      "Apply throttle/brake/steering",
+      "Vehicle state feedback"
+    ],
+    "explanation": "The GroundTruth diagram represents a static architecture of a ROS-based vehicle system, showing components like Perception, Planning, and Control subsystems with their respective nodes and topics. The GeneratedImage diagram is a sequence diagram illustrating the dynamic interaction between components such as the Waypoint Loader, Updater, Traffic Light Detector, and DBW Controller. Both diagrams share common components like the Waypoint Loader, Updater, Traffic Light Detector, DBW Controller, and Vehicle/Simulator, but differ in their representation and focus. The GroundTruth diagram focuses on the static structure, while the GeneratedImage emphasizes the sequence of operations. The GeneratedImage is rated 7 out of 10 for accuracy and completeness, as it captures the interaction flow well but lacks the detailed static architecture present in the GroundTruth.",
+    "Rating": 7
+  }
+}

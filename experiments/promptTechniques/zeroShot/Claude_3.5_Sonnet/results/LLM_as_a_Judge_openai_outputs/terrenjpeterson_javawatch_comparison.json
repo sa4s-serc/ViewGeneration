@@ -1,0 +1,395 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Device",
+        "description": "Includes Python SDK (boto) and RaPi Camera",
+        "boundaries": "Cloud",
+        "position": "Top left"
+      },
+      {
+        "name": "S3 Bucket",
+        "description": "Stores images",
+        "boundaries": "AWS",
+        "position": "Top center"
+      },
+      {
+        "name": "Lambda",
+        "description": "Rules engine",
+        "boundaries": "AWS",
+        "position": "Top center"
+      },
+      {
+        "name": "Amazon Rekognition",
+        "description": "Image recognition service",
+        "boundaries": "AWS",
+        "position": "Top right"
+      },
+      {
+        "name": "Coffee Beans",
+        "description": "Monitored by device",
+        "boundaries": "Local",
+        "position": "Bottom left"
+      },
+      {
+        "name": "www.javawatcher.com",
+        "description": "Companion App",
+        "boundaries": "Web",
+        "position": "Center"
+      },
+      {
+        "name": "Amazon Dash Replenishment Service API's",
+        "description": "Order placement and notifications",
+        "boundaries": "Amazon",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Device",
+        "target": "S3 Bucket",
+        "label": "Uploads",
+        "type": "Data flow"
+      },
+      {
+        "source": "Device",
+        "target": "Coffee Beans",
+        "label": "Monitors",
+        "type": "Monitoring"
+      },
+      {
+        "source": "S3 Bucket",
+        "target": "Lambda",
+        "label": "",
+        "type": "Data flow"
+      },
+      {
+        "source": "Lambda",
+        "target": "Amazon Rekognition",
+        "label": "",
+        "type": "Data flow"
+      },
+      {
+        "source": "Amazon Rekognition",
+        "target": "Amazon Dash Replenishment Service API's",
+        "label": "Order Placed",
+        "type": "Data flow"
+      },
+      {
+        "source": "www.javawatcher.com",
+        "target": "Amazon Dash Replenishment Service API's",
+        "label": "Device Registered",
+        "type": "Data flow"
+      },
+      {
+        "source": "Amazon Dash Replenishment Service API's",
+        "target": "www.javawatcher.com",
+        "label": "Notifications",
+        "type": "Data flow"
+      },
+      {
+        "source": "Customer",
+        "target": "Coffee Beans",
+        "label": "Consumes",
+        "type": "Interaction"
+      },
+      {
+        "source": "Customer",
+        "target": "www.javawatcher.com",
+        "label": "Registers",
+        "type": "Interaction"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "AWS",
+        "components": [
+          "S3 Bucket",
+          "Lambda",
+          "Amazon Rekognition"
+        ]
+      },
+      {
+        "name": "Cloud",
+        "components": [
+          "Device"
+        ]
+      },
+      {
+        "name": "Local",
+        "components": [
+          "Coffee Beans"
+        ]
+      },
+      {
+        "name": "Web",
+        "components": [
+          "www.javawatcher.com"
+        ]
+      },
+      {
+        "name": "Amazon",
+        "components": [
+          "Amazon Dash Replenishment Service API's"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "Coffee Monitoring System Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Raspberry Pi",
+        "description": "Captures and uploads images",
+        "boundaries": "Local",
+        "position": "Left"
+      },
+      {
+        "name": "S3 Bucket",
+        "description": "Stores uploaded images",
+        "boundaries": "AWS",
+        "position": "Left center"
+      },
+      {
+        "name": "checkImage Lambda",
+        "description": "Processes images",
+        "boundaries": "AWS",
+        "position": "Center"
+      },
+      {
+        "name": "Rekognition",
+        "description": "Detects labels in images",
+        "boundaries": "AWS",
+        "position": "Right center"
+      },
+      {
+        "name": "labelCheck Lambda",
+        "description": "Confirms labels",
+        "boundaries": "AWS",
+        "position": "Right"
+      },
+      {
+        "name": "DRS",
+        "description": "Order placement service",
+        "boundaries": "Amazon",
+        "position": "Far right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Raspberry Pi",
+        "target": "S3 Bucket",
+        "label": "Upload image",
+        "type": "Data flow"
+      },
+      {
+        "source": "S3 Bucket",
+        "target": "checkImage Lambda",
+        "label": "Trigger Lambda",
+        "type": "Data flow"
+      },
+      {
+        "source": "checkImage Lambda",
+        "target": "Rekognition",
+        "label": "detect_labels()",
+        "type": "Data flow"
+      },
+      {
+        "source": "Rekognition",
+        "target": "checkImage Lambda",
+        "label": "Return labels",
+        "type": "Data flow"
+      },
+      {
+        "source": "checkImage Lambda",
+        "target": "labelCheck Lambda",
+        "label": "Confirm 'Bean' label",
+        "type": "Data flow"
+      },
+      {
+        "source": "labelCheck Lambda",
+        "target": "DRS",
+        "label": "Place order",
+        "type": "Data flow"
+      },
+      {
+        "source": "DRS",
+        "target": "labelCheck Lambda",
+        "label": "Order confirmation",
+        "type": "Data flow"
+      },
+      {
+        "source": "labelCheck Lambda",
+        "target": "S3 Bucket",
+        "label": "Store results",
+        "type": "Data flow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "[Bean level low]",
+        "position": "Center"
+      }
+    ],
+    "groups": [
+      {
+        "name": "AWS",
+        "components": [
+          "S3 Bucket",
+          "checkImage Lambda",
+          "Rekognition",
+          "labelCheck Lambda"
+        ]
+      },
+      {
+        "name": "Local",
+        "components": [
+          "Raspberry Pi"
+        ]
+      },
+      {
+        "name": "Amazon",
+        "components": [
+          "DRS"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": "Coffee Monitoring Sequence Diagram"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "S3 Bucket",
+      "Rekognition",
+      "DRS"
+    ],
+    "unique_to_GroundTruth": [
+      "Device",
+      "Lambda",
+      "Coffee Beans",
+      "www.javawatcher.com",
+      "Amazon Dash Replenishment Service API's",
+      "Customer"
+    ],
+    "unique_to_GeneratedImage": [
+      "Raspberry Pi",
+      "checkImage Lambda",
+      "labelCheck Lambda"
+    ],
+    "common_connectors": [
+      {
+        "source": "S3 Bucket",
+        "target": "Rekognition",
+        "type": "Data flow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Device",
+        "target": "S3 Bucket",
+        "label": "Uploads",
+        "type": "Data flow"
+      },
+      {
+        "source": "Device",
+        "target": "Coffee Beans",
+        "label": "Monitors",
+        "type": "Monitoring"
+      },
+      {
+        "source": "Lambda",
+        "target": "Amazon Rekognition",
+        "label": "",
+        "type": "Data flow"
+      },
+      {
+        "source": "Amazon Rekognition",
+        "target": "Amazon Dash Replenishment Service API's",
+        "label": "Order Placed",
+        "type": "Data flow"
+      },
+      {
+        "source": "www.javawatcher.com",
+        "target": "Amazon Dash Replenishment Service API's",
+        "label": "Device Registered",
+        "type": "Data flow"
+      },
+      {
+        "source": "Amazon Dash Replenishment Service API's",
+        "target": "www.javawatcher.com",
+        "label": "Notifications",
+        "type": "Data flow"
+      },
+      {
+        "source": "Customer",
+        "target": "Coffee Beans",
+        "label": "Consumes",
+        "type": "Interaction"
+      },
+      {
+        "source": "Customer",
+        "target": "www.javawatcher.com",
+        "label": "Registers",
+        "type": "Interaction"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Raspberry Pi",
+        "target": "S3 Bucket",
+        "label": "Upload image",
+        "type": "Data flow"
+      },
+      {
+        "source": "S3 Bucket",
+        "target": "checkImage Lambda",
+        "label": "Trigger Lambda",
+        "type": "Data flow"
+      },
+      {
+        "source": "checkImage Lambda",
+        "target": "Rekognition",
+        "label": "detect_labels()",
+        "type": "Data flow"
+      },
+      {
+        "source": "Rekognition",
+        "target": "checkImage Lambda",
+        "label": "Return labels",
+        "type": "Data flow"
+      },
+      {
+        "source": "checkImage Lambda",
+        "target": "labelCheck Lambda",
+        "label": "Confirm 'Bean' label",
+        "type": "Data flow"
+      },
+      {
+        "source": "labelCheck Lambda",
+        "target": "DRS",
+        "label": "Place order",
+        "type": "Data flow"
+      },
+      {
+        "source": "DRS",
+        "target": "labelCheck Lambda",
+        "label": "Order confirmation",
+        "type": "Data flow"
+      },
+      {
+        "source": "labelCheck Lambda",
+        "target": "S3 Bucket",
+        "label": "Store results",
+        "type": "Data flow"
+      }
+    ],
+    "explanation": "The GroundTruth diagram represents a high-level architecture of a coffee monitoring system, highlighting components such as the device, AWS services, and customer interactions. The GeneratedImage diagram is a sequence diagram detailing the process flow from image capture to order placement. Common components include S3 Bucket, Rekognition, and DRS. The GroundTruth diagram includes additional components like the companion app and customer interactions, which are absent in the GeneratedImage. The GeneratedImage focuses on the sequence of operations, introducing components like checkImage Lambda and labelCheck Lambda, not present in the GroundTruth. The GroundTruth diagram provides a broader architectural view, while the GeneratedImage offers a detailed process flow. Rating: 7/10. The GeneratedImage accurately represents the process flow but lacks the broader architectural context and some components present in the GroundTruth.",
+    "Rating": 7
+  }
+}

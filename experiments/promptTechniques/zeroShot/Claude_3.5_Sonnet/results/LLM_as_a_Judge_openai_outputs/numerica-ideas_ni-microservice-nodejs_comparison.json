@@ -1,0 +1,300 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Client",
+        "description": "User devices accessing the system",
+        "boundaries": "External",
+        "position": "Top left"
+      },
+      {
+        "name": "AWS Cloud",
+        "description": "Cloud environment hosting the services",
+        "boundaries": "External",
+        "position": "Center"
+      },
+      {
+        "name": "VPC",
+        "description": "Virtual Private Cloud",
+        "boundaries": "Internal",
+        "position": "Center left"
+      },
+      {
+        "name": "AWS API Gateway",
+        "description": "API management",
+        "boundaries": "Internal",
+        "position": "Center left"
+      },
+      {
+        "name": "AWS Lambda",
+        "description": "Serverless compute service",
+        "boundaries": "Internal",
+        "position": "Center"
+      },
+      {
+        "name": "ElasticCache - Redis",
+        "description": "In-memory data store",
+        "boundaries": "Internal",
+        "position": "Center"
+      },
+      {
+        "name": "AWS SNS",
+        "description": "Simple Notification Service",
+        "boundaries": "Internal",
+        "position": "Center"
+      },
+      {
+        "name": "MongoDB 1, 2, 3",
+        "description": "Database instances",
+        "boundaries": "Internal",
+        "position": "Center right"
+      },
+      {
+        "name": "Monitoring",
+        "description": "System monitoring",
+        "boundaries": "Internal",
+        "position": "Right"
+      },
+      {
+        "name": "Backups Storage",
+        "description": "Data backup storage",
+        "boundaries": "Internal",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Client",
+        "target": "AWS API Gateway",
+        "label": "Internet",
+        "type": "HTTP"
+      },
+      {
+        "source": "AWS API Gateway",
+        "target": "AWS Lambda",
+        "label": "API",
+        "type": "Invoke"
+      },
+      {
+        "source": "AWS Lambda",
+        "target": "ElasticCache - Redis",
+        "label": "GET/SET",
+        "type": "Data Access"
+      },
+      {
+        "source": "AWS Lambda",
+        "target": "AWS SNS",
+        "label": "PUB/SUB",
+        "type": "Event"
+      },
+      {
+        "source": "AWS SNS",
+        "target": "MongoDB 1, 2, 3",
+        "label": "CRUD",
+        "type": "Data Access"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "VPC",
+        "description": "Virtual Private Cloud",
+        "components": [
+          "AWS API Gateway",
+          "AWS Lambda"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "AWS Cloud Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Client",
+        "description": "User devices accessing the system",
+        "boundaries": "External",
+        "position": "Top left"
+      },
+      {
+        "name": "API Gateway",
+        "description": "API management",
+        "boundaries": "Internal",
+        "position": "Top"
+      },
+      {
+        "name": "Article Microservice",
+        "description": "Handles article data",
+        "boundaries": "Internal",
+        "position": "Top"
+      },
+      {
+        "name": "Redis Cache",
+        "description": "In-memory data store",
+        "boundaries": "Internal",
+        "position": "Top"
+      },
+      {
+        "name": "MongoDB",
+        "description": "Database",
+        "boundaries": "Internal",
+        "position": "Top"
+      },
+      {
+        "name": "Redis Pub/Sub",
+        "description": "Message broker",
+        "boundaries": "Internal",
+        "position": "Top"
+      },
+      {
+        "name": "AWS SNS",
+        "description": "Simple Notification Service",
+        "boundaries": "Internal",
+        "position": "Top"
+      },
+      {
+        "name": "Other Microservices",
+        "description": "Additional services",
+        "boundaries": "Internal",
+        "position": "Top"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Client",
+        "target": "API Gateway",
+        "label": "Request article",
+        "type": "HTTP"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Article Microservice",
+        "label": "Forward request",
+        "type": "HTTP"
+      },
+      {
+        "source": "Article Microservice",
+        "target": "Redis Cache",
+        "label": "Check cache",
+        "type": "Data Access"
+      },
+      {
+        "source": "Article Microservice",
+        "target": "MongoDB",
+        "label": "Fetch article",
+        "type": "Data Access"
+      },
+      {
+        "source": "Article Microservice",
+        "target": "Redis Pub/Sub",
+        "label": "Publish event",
+        "type": "Event"
+      },
+      {
+        "source": "Article Microservice",
+        "target": "AWS SNS",
+        "label": "Notify of article action",
+        "type": "Event"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Microservices Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Client",
+      "API Gateway",
+      "AWS SNS",
+      "Redis Cache"
+    ],
+    "unique_to_GroundTruth": [
+      "AWS Cloud",
+      "VPC",
+      "AWS Lambda",
+      "ElasticCache - Redis",
+      "MongoDB 1, 2, 3",
+      "Monitoring",
+      "Backups Storage"
+    ],
+    "unique_to_GeneratedImage": [
+      "Article Microservice",
+      "MongoDB",
+      "Redis Pub/Sub",
+      "Other Microservices"
+    ],
+    "common_connectors": [
+      {
+        "source": "Client",
+        "target": "API Gateway",
+        "label": "Internet/Request article",
+        "type": "HTTP"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "AWS API Gateway",
+        "target": "AWS Lambda",
+        "label": "API",
+        "type": "Invoke"
+      },
+      {
+        "source": "AWS Lambda",
+        "target": "ElasticCache - Redis",
+        "label": "GET/SET",
+        "type": "Data Access"
+      },
+      {
+        "source": "AWS Lambda",
+        "target": "AWS SNS",
+        "label": "PUB/SUB",
+        "type": "Event"
+      },
+      {
+        "source": "AWS SNS",
+        "target": "MongoDB 1, 2, 3",
+        "label": "CRUD",
+        "type": "Data Access"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "API Gateway",
+        "target": "Article Microservice",
+        "label": "Forward request",
+        "type": "HTTP"
+      },
+      {
+        "source": "Article Microservice",
+        "target": "Redis Cache",
+        "label": "Check cache",
+        "type": "Data Access"
+      },
+      {
+        "source": "Article Microservice",
+        "target": "MongoDB",
+        "label": "Fetch article",
+        "type": "Data Access"
+      },
+      {
+        "source": "Article Microservice",
+        "target": "Redis Pub/Sub",
+        "label": "Publish event",
+        "type": "Event"
+      },
+      {
+        "source": "Article Microservice",
+        "target": "AWS SNS",
+        "label": "Notify of article action",
+        "type": "Event"
+      }
+    ],
+    "explanation": "The two diagrams represent different architectural styles. The GroundTruth diagram focuses on AWS cloud services, showcasing components like AWS Lambda, ElasticCache, and multiple MongoDB instances within a VPC. It highlights cloud infrastructure and data flow between services. The GeneratedImage diagram presents a microservices architecture, emphasizing service interactions and data flow, with components like Article Microservice and Redis Pub/Sub. Common elements include Client, API Gateway, AWS SNS, and Redis Cache, but their roles and interactions differ. The GroundTruth diagram is more infrastructure-oriented, while the GeneratedImage diagram is service-oriented. The GeneratedImage diagram is rated 7 out of 10 for accuracy and completeness, as it captures key elements but lacks some infrastructure details present in the GroundTruth.",
+    "Rating": 7
+  }
+}

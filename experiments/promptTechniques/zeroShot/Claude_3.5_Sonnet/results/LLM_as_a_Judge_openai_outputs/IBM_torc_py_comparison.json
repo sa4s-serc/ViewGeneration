@@ -1,0 +1,231 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Compute node",
+        "description": "Contains MPI Process with Worker and Server Threads",
+        "boundaries": "Dashed rectangle",
+        "positions": [
+          "Top",
+          "Bottom"
+        ]
+      },
+      {
+        "name": "MPI Process",
+        "description": "Contains Worker Thread and Server Thread",
+        "boundaries": "Solid rectangle",
+        "positions": [
+          "Inside Compute node"
+        ]
+      },
+      {
+        "name": "Worker Thread",
+        "description": "Part of MPI Process",
+        "boundaries": "Circle",
+        "positions": [
+          "Inside MPI Process"
+        ]
+      },
+      {
+        "name": "Server Thread",
+        "description": "Part of MPI Process",
+        "boundaries": "Circle",
+        "positions": [
+          "Inside MPI Process"
+        ]
+      },
+      {
+        "name": "Task Queue",
+        "description": "Queue for tasks",
+        "boundaries": "Rectangle",
+        "positions": [
+          "Center"
+        ]
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Compute node",
+        "target": "Task Queue",
+        "label": "MPI",
+        "type": "Arrow"
+      },
+      {
+        "source": "Task Queue",
+        "target": "Task Queue (in detail)",
+        "label": "Level",
+        "type": "Dotted line"
+      }
+    ],
+    "annotations": [
+      "Task Queue (in detail)",
+      "Level"
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "Compute Node and Task Queue Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Main Application",
+        "description": "Starts the process",
+        "boundaries": "Vertical line",
+        "positions": [
+          "Left"
+        ]
+      },
+      {
+        "name": "TorcPoolExecutor",
+        "description": "Handles task execution",
+        "boundaries": "Vertical line",
+        "positions": [
+          "Center"
+        ]
+      },
+      {
+        "name": "Task Queue",
+        "description": "Queue for tasks",
+        "boundaries": "Vertical line",
+        "positions": [
+          "Center"
+        ]
+      },
+      {
+        "name": "Worker Threads",
+        "description": "Executes tasks",
+        "boundaries": "Vertical line",
+        "positions": [
+          "Center"
+        ]
+      },
+      {
+        "name": "Server Thread",
+        "description": "Handles server tasks",
+        "boundaries": "Vertical line",
+        "positions": [
+          "Center"
+        ]
+      },
+      {
+        "name": "MPI",
+        "description": "Handles communication",
+        "boundaries": "Vertical line",
+        "positions": [
+          "Right"
+        ]
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Main Application",
+        "target": "TorcPoolExecutor",
+        "label": "start()",
+        "type": "Arrow"
+      },
+      {
+        "source": "TorcPoolExecutor",
+        "target": "Task Queue",
+        "label": "enqueue(task)",
+        "type": "Arrow"
+      },
+      {
+        "source": "Task Queue",
+        "target": "Worker Threads",
+        "label": "assign task",
+        "type": "Arrow"
+      },
+      {
+        "source": "Worker Threads",
+        "target": "Server Thread",
+        "label": "execute task",
+        "type": "Arrow"
+      },
+      {
+        "source": "Server Thread",
+        "target": "MPI",
+        "label": "send stolen task",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      "Task Scheduling",
+      "New Task Received",
+      "Idle Worker Available",
+      "Task Stealing Request"
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": "Task Execution Sequence"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Task Queue",
+      "Server Thread"
+    ],
+    "unique_to_GroundTruth": [
+      "Compute node",
+      "MPI Process",
+      "Worker Thread"
+    ],
+    "unique_to_GeneratedImage": [
+      "Main Application",
+      "TorcPoolExecutor",
+      "Worker Threads",
+      "MPI"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Compute node",
+        "target": "Task Queue",
+        "label": "MPI",
+        "type": "Arrow"
+      },
+      {
+        "source": "Task Queue",
+        "target": "Task Queue (in detail)",
+        "label": "Level",
+        "type": "Dotted line"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Main Application",
+        "target": "TorcPoolExecutor",
+        "label": "start()",
+        "type": "Arrow"
+      },
+      {
+        "source": "TorcPoolExecutor",
+        "target": "Task Queue",
+        "label": "enqueue(task)",
+        "type": "Arrow"
+      },
+      {
+        "source": "Task Queue",
+        "target": "Worker Threads",
+        "label": "assign task",
+        "type": "Arrow"
+      },
+      {
+        "source": "Worker Threads",
+        "target": "Server Thread",
+        "label": "execute task",
+        "type": "Arrow"
+      },
+      {
+        "source": "Server Thread",
+        "target": "MPI",
+        "label": "send stolen task",
+        "type": "Arrow"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on the architectural layout of compute nodes and task queues, highlighting the MPI process and its threads. The GeneratedImage diagram, however, illustrates a sequence of task execution, detailing interactions between components like the Main Application, TorcPoolExecutor, and MPI. Both diagrams share components like the Task Queue and Server Thread, but differ in their focus and detail. The GroundTruth emphasizes structural components, while the GeneratedImage provides a dynamic interaction flow. Rating: 7/10. The GeneratedImage effectively captures the task execution process but lacks some structural elements present in the GroundTruth, such as the detailed depiction of compute nodes and MPI processes.",
+    "Rating": 7
+  }
+}

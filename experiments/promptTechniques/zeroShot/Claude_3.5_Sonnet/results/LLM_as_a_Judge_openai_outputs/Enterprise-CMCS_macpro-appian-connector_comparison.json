@@ -1,0 +1,284 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Appian Oracle DB",
+        "description": "Database in AWS Cloud",
+        "boundaries": "AWS Cloud",
+        "position": "Left"
+      },
+      {
+        "name": "AWS Lambda - create/delete topics",
+        "description": "Creates and deletes topics using KafkaJS",
+        "boundaries": "AWS Cloud > VPC > Private subnet",
+        "position": "Top"
+      },
+      {
+        "name": "AWS Fargate - Kafka Connect Cluster",
+        "description": "Kafka Connect Cluster",
+        "boundaries": "AWS Cloud > VPC > Private subnet",
+        "position": "Middle"
+      },
+      {
+        "name": "CMS BigMAC",
+        "description": "Stores Appian data",
+        "boundaries": "AWS Cloud",
+        "position": "Right"
+      },
+      {
+        "name": "AWS EventBridge",
+        "description": "Matches ECS Failure Events",
+        "boundaries": "AWS Cloud",
+        "position": "Bottom Left"
+      },
+      {
+        "name": "SNS Topic",
+        "description": "Sends alerts",
+        "boundaries": "AWS Cloud",
+        "position": "Bottom Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Appian Oracle DB",
+        "target": "AWS Lambda - create/delete topics",
+        "label": "VPC peering connection",
+        "type": "Connection"
+      },
+      {
+        "source": "AWS Lambda - create/delete topics",
+        "target": "CMS BigMAC",
+        "label": "Appian data is sent to BigMAC",
+        "type": "Data Flow"
+      },
+      {
+        "source": "AWS EventBridge",
+        "target": "SNS Topic",
+        "label": "ECS Failure Events",
+        "type": "Event"
+      }
+    ],
+    "annotations": [
+      "Appian data is captured in real time by a JDBC connector",
+      "Appian data topics are created using KafkaJS. Development branch topics are automatically deleted when no longer needed.",
+      "Appian data is sent to BigMAC and stored in the topics created by the topics service (above).",
+      "ECS Failure Events are matched by an EventBridge rule and sent to SNS for rotation fan out."
+    ],
+    "groups": [
+      {
+        "name": "AWS Cloud",
+        "components": [
+          "Appian Oracle DB",
+          "AWS Lambda - create/delete topics",
+          "AWS Fargate - Kafka Connect Cluster",
+          "CMS BigMAC",
+          "AWS EventBridge",
+          "SNS Topic"
+        ]
+      },
+      {
+        "name": "VPC",
+        "components": [
+          "AWS Lambda - create/delete topics",
+          "AWS Fargate - Kafka Connect Cluster"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "AWS Cloud Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "GitHub Repository",
+        "description": "Source code repository",
+        "boundaries": "None",
+        "position": "Left"
+      },
+      {
+        "name": "GitHub Actions",
+        "description": "CI/CD pipeline",
+        "boundaries": "None",
+        "position": "Left Center"
+      },
+      {
+        "name": "AWS ECS",
+        "description": "Deploys Kafka Connector",
+        "boundaries": "None",
+        "position": "Center"
+      },
+      {
+        "name": "Appian",
+        "description": "Extracts data changes",
+        "boundaries": "None",
+        "position": "Right Center"
+      },
+      {
+        "name": "Kafka",
+        "description": "Streams data changes",
+        "boundaries": "None",
+        "position": "Right"
+      },
+      {
+        "name": "BigMAC",
+        "description": "Forwards data changes",
+        "boundaries": "None",
+        "position": "Right"
+      },
+      {
+        "name": "AWS SNS",
+        "description": "Triggers alerts",
+        "boundaries": "None",
+        "position": "Right"
+      },
+      {
+        "name": "AWS CloudWatch",
+        "description": "Monitors alerts",
+        "boundaries": "None",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "GitHub Repository",
+        "target": "GitHub Actions",
+        "label": "Trigger deployment",
+        "type": "Control Flow"
+      },
+      {
+        "source": "GitHub Actions",
+        "target": "AWS ECS",
+        "label": "Deploy Kafka Connector",
+        "type": "Deployment"
+      },
+      {
+        "source": "AWS ECS",
+        "target": "Appian",
+        "label": "Extract data changes",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Appian",
+        "target": "Kafka",
+        "label": "Stream data changes",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Kafka",
+        "target": "BigMAC",
+        "label": "Forward data changes",
+        "type": "Data Flow"
+      },
+      {
+        "source": "BigMAC",
+        "target": "AWS SNS",
+        "label": "Trigger alerts (if needed)",
+        "type": "Event"
+      },
+      {
+        "source": "AWS SNS",
+        "target": "AWS CloudWatch",
+        "label": "Monitor alerts",
+        "type": "Monitoring"
+      }
+    ],
+    "annotations": [
+      "Notify developers"
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": "Data Flow Sequence"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Appian",
+      "BigMAC",
+      "AWS SNS"
+    ],
+    "unique_to_GroundTruth": [
+      "Appian Oracle DB",
+      "AWS Lambda - create/delete topics",
+      "AWS Fargate - Kafka Connect Cluster",
+      "AWS EventBridge",
+      "SNS Topic"
+    ],
+    "unique_to_GeneratedImage": [
+      "GitHub Repository",
+      "GitHub Actions",
+      "AWS ECS",
+      "Kafka",
+      "AWS CloudWatch"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Appian Oracle DB",
+        "target": "AWS Lambda - create/delete topics",
+        "label": "VPC peering connection",
+        "type": "Connection"
+      },
+      {
+        "source": "AWS Lambda - create/delete topics",
+        "target": "CMS BigMAC",
+        "label": "Appian data is sent to BigMAC",
+        "type": "Data Flow"
+      },
+      {
+        "source": "AWS EventBridge",
+        "target": "SNS Topic",
+        "label": "ECS Failure Events",
+        "type": "Event"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "GitHub Repository",
+        "target": "GitHub Actions",
+        "label": "Trigger deployment",
+        "type": "Control Flow"
+      },
+      {
+        "source": "GitHub Actions",
+        "target": "AWS ECS",
+        "label": "Deploy Kafka Connector",
+        "type": "Deployment"
+      },
+      {
+        "source": "AWS ECS",
+        "target": "Appian",
+        "label": "Extract data changes",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Appian",
+        "target": "Kafka",
+        "label": "Stream data changes",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Kafka",
+        "target": "BigMAC",
+        "label": "Forward data changes",
+        "type": "Data Flow"
+      },
+      {
+        "source": "BigMAC",
+        "target": "AWS SNS",
+        "label": "Trigger alerts (if needed)",
+        "type": "Event"
+      },
+      {
+        "source": "AWS SNS",
+        "target": "AWS CloudWatch",
+        "label": "Monitor alerts",
+        "type": "Monitoring"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of a system architecture. The GroundTruth diagram focuses on the cloud infrastructure, detailing components like Appian Oracle DB, AWS Lambda, and AWS Fargate, and their interactions within the AWS Cloud environment. It emphasizes data flow and event handling using AWS services. The GeneratedImage diagram, on the other hand, illustrates a sequence of operations involving GitHub, AWS ECS, and Kafka, focusing on the deployment and data processing workflow. Common components include Appian, BigMAC, and AWS SNS, but their roles and connections differ between diagrams. The GroundTruth diagram is more infrastructure-centric, while the GeneratedImage diagram is process-oriented. The GeneratedImage is rated 7 out of 10 for accuracy and completeness, as it captures the process flow well but lacks the infrastructure details present in the GroundTruth.",
+    "Rating": 7
+  }
+}
