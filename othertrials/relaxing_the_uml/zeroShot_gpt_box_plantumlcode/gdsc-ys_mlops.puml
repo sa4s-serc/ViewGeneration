@@ -1,0 +1,41 @@
+@startuml
+package "MLOps Framework" {
+    component "Nginx Reverse Proxy" as N1
+    component "MLflow Tracking Server" as M1
+    component "MySQL Database" as DB1
+    component "AWS S3" as S3
+}
+
+package "Client-Side Tools" {
+    actor "ML Developer" as C1
+}
+
+C1 -> N1 : "HTTP/S Requests"
+N1 -> M1 : "Routes to MLflow"
+M1 -> DB1 : "Store Metadata"
+M1 -> S3 : "Store & Retrieve Artifacts"
+C1 -> M1 : "Track Experiments"
+
+note right of N1
+    Acts as a reverse proxy
+    Routes external requests
+end note
+
+note right of M1
+    Manages experiment tracking
+    Provides REST API endpoints
+end note
+
+note right of DB1
+    Stores MLflow metadata
+end note
+
+note right of S3
+    Houses model artifacts
+end note
+
+note left of C1
+    Uses MLflow to track experiments
+end note
+
+@enduml

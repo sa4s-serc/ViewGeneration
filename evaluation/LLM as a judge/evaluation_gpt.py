@@ -1,3 +1,8 @@
+'''This script uses OpenAI's GPT-4o model to compare two sets of software architecture diagrams.
+It extracts structured information from both diagrams and generates a JSON report with comparisons.
+The script handles images with the same stem name in both folders, ensuring that only valid comparisons are made.
+It also manages API interactions with OpenAI, including error handling and response parsing.'''
+
 import os
 import json
 import re
@@ -119,7 +124,7 @@ def get_files_by_stem(folder):
 def main():
     output_dir = "LLM_as_a_Judge_openai_outputs"
     folder1 = "./initial_images"
-    folder2 = "./oneShot_claude_output_images"
+    folder2 = "./fewShot_claude_output_images"
 
     files1 = get_files_by_stem(folder1)
     files2 = get_files_by_stem(folder2)

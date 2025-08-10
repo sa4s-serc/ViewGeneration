@@ -1,3 +1,8 @@
+
+'''This script downloads images from a CSV file containing image URLs and repository names.
+It handles GitHub blob URLs, ensures the correct file extension is used, and saves images in a specified directory.These are the ground truth initial images
+'''
+
 import csv
 import os
 import requests

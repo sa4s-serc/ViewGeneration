@@ -12,7 +12,7 @@ def extract_repo_url(link):
     match = re.match(r"(https://github\.com/[^/]+/[^/]+)", link)
     return match.group(1) + "/" if match else link
 
-genai.configure(api_key="AIzaSyA19TLhE8m7qJuNy5VaKB7Ns7f_ymsWH4I")
+genai.configure(api_key="")
 
 def get_chatgpt_response(link):
     try:

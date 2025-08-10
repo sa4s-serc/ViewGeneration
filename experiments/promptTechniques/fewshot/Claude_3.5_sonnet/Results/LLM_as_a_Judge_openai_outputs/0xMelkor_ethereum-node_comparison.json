@@ -1,0 +1,506 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "influxdb:1.8.0",
+        "description": "Pod",
+        "boundaries": "Volume claim 10GB HDD",
+        "position": "left"
+      },
+      {
+        "name": "lighthouse",
+        "description": "Pod",
+        "boundaries": "Volume claim 500GB SSD, Volume jwtsecret",
+        "position": "top right"
+      },
+      {
+        "name": "geth",
+        "description": "Pod",
+        "boundaries": "Volume claim 2TB SSD, Volume jwtsecret",
+        "position": "center"
+      },
+      {
+        "name": "nginx",
+        "description": "Pod",
+        "boundaries": "",
+        "position": "bottom center"
+      },
+      {
+        "name": "Consensus peers",
+        "description": "",
+        "boundaries": "",
+        "position": "top right"
+      },
+      {
+        "name": "Execution peers",
+        "description": "",
+        "boundaries": "",
+        "position": "center right"
+      },
+      {
+        "name": "dApps",
+        "description": "",
+        "boundaries": "",
+        "position": "bottom right"
+      },
+      {
+        "name": "Grafana server",
+        "description": "",
+        "boundaries": "",
+        "position": "bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "influxdb:1.8.0",
+        "target": "geth",
+        "label": "Cluster IP - TCP 8086 InfluxQL",
+        "type": "blue arrow"
+      },
+      {
+        "source": "lighthouse",
+        "target": "geth",
+        "label": "Cluster IP - TCP 8551 Auth RPC",
+        "type": "green arrow"
+      },
+      {
+        "source": "geth",
+        "target": "nginx",
+        "label": "Cluster IP - TCP 8545 RPC, Cluster IP - TCP 8546 WS",
+        "type": "red arrows"
+      },
+      {
+        "source": "nginx",
+        "target": "dApps",
+        "label": "Ingress Static IP",
+        "type": "red arrow"
+      },
+      {
+        "source": "nginx",
+        "target": "Grafana server",
+        "label": "Cluster IP - TCP 80 http",
+        "type": "blue arrow"
+      },
+      {
+        "source": "lighthouse",
+        "target": "Consensus peers",
+        "label": "Node port - TCP 30403 P2P, Node port - UDP 30404 P2P",
+        "type": "green arrows"
+      },
+      {
+        "source": "geth",
+        "target": "Execution peers",
+        "label": "Node port - TCP 30303 P2P, Node port - UDP 30304 P2P",
+        "type": "black arrows"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Consensus peers",
+        "description": "",
+        "position": "top right"
+      },
+      {
+        "name": "Execution peers",
+        "description": "",
+        "position": "center right"
+      },
+      {
+        "name": "dApps",
+        "description": "",
+        "position": "bottom right"
+      },
+      {
+        "name": "Grafana server",
+        "description": "",
+        "position": "bottom right"
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": ""
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Cloud Build (CI/CD)",
+        "description": "Google Cloud Platform",
+        "boundaries": "",
+        "position": "top left"
+      },
+      {
+        "name": "Secret Manager",
+        "description": "Google Cloud Platform",
+        "boundaries": "",
+        "position": "top left"
+      },
+      {
+        "name": "GKE Cluster",
+        "description": "",
+        "boundaries": "",
+        "position": "center"
+      },
+      {
+        "name": "Ingress",
+        "description": "<network>",
+        "boundaries": "",
+        "position": "center"
+      },
+      {
+        "name": "Nginx Service",
+        "description": "Reverse Proxy",
+        "boundaries": "",
+        "position": "center"
+      },
+      {
+        "name": "Nginx Pod",
+        "description": "nginx.conf (with API key)",
+        "boundaries": "",
+        "position": "center"
+      },
+      {
+        "name": "InfluxDB Service",
+        "description": "Headless",
+        "boundaries": "",
+        "position": "center"
+      },
+      {
+        "name": "Geth Service",
+        "description": "ClusterIP",
+        "boundaries": "",
+        "position": "center"
+      },
+      {
+        "name": "Geth Pod",
+        "description": "Execution Layer (RPC/WS ports)",
+        "boundaries": "",
+        "position": "center"
+      },
+      {
+        "name": "InfluxDB StatefulSet",
+        "description": "",
+        "boundaries": "",
+        "position": "center"
+      },
+      {
+        "name": "Lighthouse Pod",
+        "description": "Consensus Layer",
+        "boundaries": "",
+        "position": "center"
+      },
+      {
+        "name": "Lighthouse Service",
+        "description": "ClusterIP",
+        "boundaries": "",
+        "position": "center"
+      },
+      {
+        "name": "Persistent Storage",
+        "description": "",
+        "boundaries": "",
+        "position": "bottom center"
+      },
+      {
+        "name": "InfluxDB PVC",
+        "description": "",
+        "boundaries": "",
+        "position": "bottom center"
+      },
+      {
+        "name": "Geth PVC",
+        "description": "2000Gi",
+        "boundaries": "",
+        "position": "bottom center"
+      },
+      {
+        "name": "Lighthouse PVC",
+        "description": "500Gi",
+        "boundaries": "",
+        "position": "bottom center"
+      },
+      {
+        "name": "External Users",
+        "description": "",
+        "boundaries": "",
+        "position": "top"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Cloud Build (CI/CD)",
+        "target": "GKE Cluster",
+        "label": "deploy manifests",
+        "type": "dashed arrow"
+      },
+      {
+        "source": "Secret Manager",
+        "target": "GKE Cluster",
+        "label": "fetch secrets",
+        "type": "dashed arrow"
+      },
+      {
+        "source": "External Users",
+        "target": "GKE Cluster",
+        "label": "HTTPS",
+        "type": "dashed arrow"
+      },
+      {
+        "source": "GKE Cluster",
+        "target": "Ingress",
+        "label": "",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Ingress",
+        "target": "Nginx Service",
+        "label": "",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Nginx Service",
+        "target": "Nginx Pod",
+        "label": "Reverse Proxy",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Nginx Pod",
+        "target": "InfluxDB Service",
+        "label": "metrics proxy",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Nginx Pod",
+        "target": "Geth Service",
+        "label": "RPC/WS proxy",
+        "type": "solid arrow"
+      },
+      {
+        "source": "InfluxDB Service",
+        "target": "InfluxDB StatefulSet",
+        "label": "metrics push",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Geth Service",
+        "target": "Geth Pod",
+        "label": "",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Geth Pod",
+        "target": "InfluxDB StatefulSet",
+        "label": "data",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Geth Pod",
+        "target": "Lighthouse Pod",
+        "label": "JWT auth",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Lighthouse Service",
+        "target": "Lighthouse Pod",
+        "label": "",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Lighthouse Pod",
+        "target": "Geth Pod",
+        "label": "data",
+        "type": "solid arrow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "Repository: 0xMelkor_ethereum-node",
+        "position": "right"
+      },
+      {
+        "text": "- JWT secrets\n- InfluxDB creds\n- API keys",
+        "position": "right"
+      }
+    ],
+    "groups": [
+      {
+        "name": "Google Cloud Platform",
+        "description": "",
+        "position": "top left"
+      },
+      {
+        "name": "Persistent Storage",
+        "description": "",
+        "position": "bottom center"
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": ""
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Nginx Pod",
+      "Geth Pod",
+      "Lighthouse Pod",
+      "InfluxDB StatefulSet"
+    ],
+    "unique_to_GroundTruth": [
+      "influxdb:1.8.0",
+      "Consensus peers",
+      "Execution peers",
+      "dApps",
+      "Grafana server"
+    ],
+    "unique_to_GeneratedImage": [
+      "Cloud Build (CI/CD)",
+      "Secret Manager",
+      "GKE Cluster",
+      "Ingress",
+      "Nginx Service",
+      "InfluxDB Service",
+      "Geth Service",
+      "Lighthouse Service",
+      "Persistent Storage",
+      "InfluxDB PVC",
+      "Geth PVC",
+      "Lighthouse PVC",
+      "External Users"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "influxdb:1.8.0",
+        "target": "geth",
+        "label": "Cluster IP - TCP 8086 InfluxQL",
+        "type": "blue arrow"
+      },
+      {
+        "source": "lighthouse",
+        "target": "geth",
+        "label": "Cluster IP - TCP 8551 Auth RPC",
+        "type": "green arrow"
+      },
+      {
+        "source": "geth",
+        "target": "nginx",
+        "label": "Cluster IP - TCP 8545 RPC, Cluster IP - TCP 8546 WS",
+        "type": "red arrows"
+      },
+      {
+        "source": "nginx",
+        "target": "dApps",
+        "label": "Ingress Static IP",
+        "type": "red arrow"
+      },
+      {
+        "source": "nginx",
+        "target": "Grafana server",
+        "label": "Cluster IP - TCP 80 http",
+        "type": "blue arrow"
+      },
+      {
+        "source": "lighthouse",
+        "target": "Consensus peers",
+        "label": "Node port - TCP 30403 P2P, Node port - UDP 30404 P2P",
+        "type": "green arrows"
+      },
+      {
+        "source": "geth",
+        "target": "Execution peers",
+        "label": "Node port - TCP 30303 P2P, Node port - UDP 30304 P2P",
+        "type": "black arrows"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Cloud Build (CI/CD)",
+        "target": "GKE Cluster",
+        "label": "deploy manifests",
+        "type": "dashed arrow"
+      },
+      {
+        "source": "Secret Manager",
+        "target": "GKE Cluster",
+        "label": "fetch secrets",
+        "type": "dashed arrow"
+      },
+      {
+        "source": "External Users",
+        "target": "GKE Cluster",
+        "label": "HTTPS",
+        "type": "dashed arrow"
+      },
+      {
+        "source": "GKE Cluster",
+        "target": "Ingress",
+        "label": "",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Ingress",
+        "target": "Nginx Service",
+        "label": "",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Nginx Service",
+        "target": "Nginx Pod",
+        "label": "Reverse Proxy",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Nginx Pod",
+        "target": "InfluxDB Service",
+        "label": "metrics proxy",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Nginx Pod",
+        "target": "Geth Service",
+        "label": "RPC/WS proxy",
+        "type": "solid arrow"
+      },
+      {
+        "source": "InfluxDB Service",
+        "target": "InfluxDB StatefulSet",
+        "label": "metrics push",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Geth Service",
+        "target": "Geth Pod",
+        "label": "",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Geth Pod",
+        "target": "InfluxDB StatefulSet",
+        "label": "data",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Geth Pod",
+        "target": "Lighthouse Pod",
+        "label": "JWT auth",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Lighthouse Service",
+        "target": "Lighthouse Pod",
+        "label": "",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Lighthouse Pod",
+        "target": "Geth Pod",
+        "label": "data",
+        "type": "solid arrow"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of a software architecture involving similar components but with different focuses. The GroundTruth diagram emphasizes the network and storage connections between pods and external peers, highlighting specific ports and protocols used for communication. It includes components like 'Consensus peers', 'Execution peers', 'dApps', and 'Grafana server', which are not present in the GeneratedImage.\n\nThe GeneratedImage diagram focuses on the deployment and service structure within a Google Cloud Platform environment, detailing services like 'Ingress', 'Nginx Service', and 'GKE Cluster'. It includes external interactions with 'External Users' and the use of 'Persistent Storage', which are absent in the GroundTruth.\n\nBoth diagrams share common components such as 'Nginx Pod', 'Geth Pod', 'Lighthouse Pod', and 'InfluxDB StatefulSet', but they are organized differently. The GroundTruth diagram uses direct connections with specific port labels, while the GeneratedImage diagram uses service abstractions and emphasizes cloud deployment.\n\nOverall, the GeneratedImage is rated 7 out of 10 for accuracy and completeness. It captures the core components but diverges in focus and lacks some specific network details present in the GroundTruth.",
+    "Rating": 7
+  }
+}

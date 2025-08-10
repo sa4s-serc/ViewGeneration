@@ -1,0 +1,318 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Car/Simulator",
+        "description": "ROS Node",
+        "boundaries": "None",
+        "position": "Top right"
+      },
+      {
+        "name": "Perception",
+        "description": "Vehicle Subsystem",
+        "boundaries": "Blue box",
+        "position": "Bottom left"
+      },
+      {
+        "name": "Obstacle Detection",
+        "description": "ROS Node",
+        "boundaries": "Inside Perception",
+        "position": "Top"
+      },
+      {
+        "name": "Traffic Light Detection Node",
+        "description": "ROS Node",
+        "boundaries": "Inside Perception",
+        "position": "Bottom"
+      },
+      {
+        "name": "Planning",
+        "description": "Vehicle Subsystem",
+        "boundaries": "Blue box",
+        "position": "Bottom center"
+      },
+      {
+        "name": "Waypoint Loader",
+        "description": "ROS Node",
+        "boundaries": "Inside Planning",
+        "position": "Top"
+      },
+      {
+        "name": "Waypoint Updater Node",
+        "description": "ROS Node",
+        "boundaries": "Inside Planning",
+        "position": "Bottom"
+      },
+      {
+        "name": "Control",
+        "description": "Vehicle Subsystem",
+        "boundaries": "Blue box",
+        "position": "Bottom right"
+      },
+      {
+        "name": "DBW Node",
+        "description": "ROS Node",
+        "boundaries": "Inside Control",
+        "position": "Top"
+      },
+      {
+        "name": "Waypoint Follower",
+        "description": "ROS Node",
+        "boundaries": "Inside Control",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Car/Simulator",
+        "target": "Perception",
+        "label": "/image_color",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Car/Simulator",
+        "target": "Planning",
+        "label": "/current_pose",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Car/Simulator",
+        "target": "Control",
+        "label": "/current_velocity",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Car/Simulator",
+        "target": "Control",
+        "label": "/vehicle/dbw_enabled",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Perception",
+        "target": "Planning",
+        "label": "/obstacle_waypoint",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Perception",
+        "target": "Planning",
+        "label": "/traffic_waypoint",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Planning",
+        "target": "Control",
+        "label": "/final_waypoints",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Control",
+        "target": "Car/Simulator",
+        "label": "/vehicle/brake_cmd",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Control",
+        "target": "Car/Simulator",
+        "label": "/vehicle/steering_cmd",
+        "type": "ROS Topic"
+      },
+      {
+        "source": "Control",
+        "target": "Car/Simulator",
+        "label": "/vehicle/throttle_cmd",
+        "type": "ROS Topic"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "Legend",
+        "position": "Top left"
+      }
+    ],
+    "groups": [
+      {
+        "name": "Vehicle Subsystem",
+        "description": "Logical group of components",
+        "boundaries": "Blue boxes"
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "None"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Camera",
+        "description": "Component",
+        "boundaries": "None",
+        "position": "Top left"
+      },
+      {
+        "name": "Traffic Light Detector",
+        "description": "Component",
+        "boundaries": "None",
+        "position": "Top left"
+      },
+      {
+        "name": "Waypoint Loader",
+        "description": "Component",
+        "boundaries": "None",
+        "position": "Top center"
+      },
+      {
+        "name": "Waypoint Updater",
+        "description": "Component",
+        "boundaries": "None",
+        "position": "Top center"
+      },
+      {
+        "name": "Waypoint Follower",
+        "description": "Component",
+        "boundaries": "None",
+        "position": "Top center"
+      },
+      {
+        "name": "Twist Controller",
+        "description": "Component",
+        "boundaries": "None",
+        "position": "Top center"
+      },
+      {
+        "name": "DBW Node",
+        "description": "Component",
+        "boundaries": "None",
+        "position": "Top right"
+      },
+      {
+        "name": "Vehicle/Simulator",
+        "description": "Component",
+        "boundaries": "None",
+        "position": "Top right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Initialization",
+        "target": "Waypoint Loader",
+        "label": "Load waypoints from CSV",
+        "type": "Process"
+      },
+      {
+        "source": "Waypoint Loader",
+        "target": "Initialization",
+        "label": "Publish base waypoints",
+        "type": "Process"
+      },
+      {
+        "source": "Camera",
+        "target": "Traffic Light Detector",
+        "label": "Camera image",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Traffic Light Detector",
+        "target": "Planning Loop",
+        "label": "Traffic light status",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Planning Loop",
+        "target": "Waypoint Updater",
+        "label": "Final waypoints",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Control Loop",
+        "target": "DBW Node",
+        "label": "Actuator commands",
+        "type": "Data Flow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "Runs at camera frame rate",
+        "position": "Bottom left"
+      },
+      {
+        "text": "Updates at 50Hz",
+        "position": "Bottom center"
+      },
+      {
+        "text": "Drive-by-wire interface",
+        "position": "Bottom right"
+      }
+    ],
+    "groups": [
+      {
+        "name": "Initialization",
+        "description": "Logical group of processes",
+        "boundaries": "Horizontal section"
+      },
+      {
+        "name": "Perception Loop",
+        "description": "Logical group of processes",
+        "boundaries": "Horizontal section"
+      },
+      {
+        "name": "Planning Loop",
+        "description": "Logical group of processes",
+        "boundaries": "Horizontal section"
+      },
+      {
+        "name": "Control Loop",
+        "description": "Logical group of processes",
+        "boundaries": "Horizontal section"
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "eqbal_CarND_Capstone_CarX – Self-Driving Car Control Flow"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Waypoint Loader",
+      "Waypoint Updater",
+      "Waypoint Follower",
+      "DBW Node",
+      "Vehicle/Simulator",
+      "Traffic Light Detector"
+    ],
+    "unique_to_GroundTruth": [
+      "Car/Simulator",
+      "Perception",
+      "Obstacle Detection",
+      "Control"
+    ],
+    "unique_to_GeneratedImage": [
+      "Camera",
+      "Twist Controller"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      "/image_color",
+      "/current_pose",
+      "/current_velocity",
+      "/vehicle/dbw_enabled",
+      "/obstacle_waypoint",
+      "/traffic_waypoint",
+      "/final_waypoints",
+      "/vehicle/brake_cmd",
+      "/vehicle/steering_cmd",
+      "/vehicle/throttle_cmd"
+    ],
+    "unique_connectors_GeneratedImage": [
+      "Load waypoints from CSV",
+      "Publish base waypoints",
+      "Camera image",
+      "Traffic light status",
+      "Final waypoints",
+      "Actuator commands"
+    ],
+    "explanation": "The GroundTruth diagram focuses on a ROS-based architecture with nodes and topics, emphasizing the flow of data between different vehicle subsystems. It includes specific components like 'Perception' and 'Control' subsystems, which are not explicitly represented in the GeneratedImage. The GeneratedImage, on the other hand, is a sequence diagram that outlines the flow of control and data in a self-driving car system, highlighting processes like 'Initialization', 'Perception Loop', 'Planning Loop', and 'Control Loop'. Both diagrams share components like 'Waypoint Loader', 'Waypoint Updater', 'Waypoint Follower', 'DBW Node', and 'Vehicle/Simulator', but the GeneratedImage includes a 'Camera' and 'Twist Controller' which are absent in the GroundTruth. The GroundTruth diagram uses ROS topics for communication, while the GeneratedImage uses process flows, indicating a difference in focus and detail. Overall, the GeneratedImage captures the procedural flow well but lacks the detailed node-topic interactions present in the GroundTruth. Rating: 7/10. The GeneratedImage is accurate in depicting the control flow but misses some architectural details present in the GroundTruth.",
+    "Rating": 7
+  }
+}

@@ -1,0 +1,375 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Client Applications",
+        "description": "External clients interacting with the system",
+        "boundaries": "cloud",
+        "position": "top left"
+      },
+      {
+        "name": "Frontend (Go)",
+        "description": "Handles incoming requests and metrics",
+        "boundaries": "box",
+        "position": "left"
+      },
+      {
+        "name": "HTTP API (/track)",
+        "description": "API endpoint for tracking",
+        "boundaries": "rectangle",
+        "position": "inside Frontend"
+      },
+      {
+        "name": "Prometheus Metrics (/metrics)",
+        "description": "Metrics endpoint",
+        "boundaries": "rectangle",
+        "position": "inside Frontend"
+      },
+      {
+        "name": "Event Validator",
+        "description": "Validates incoming events",
+        "boundaries": "rectangle",
+        "position": "inside Frontend"
+      },
+      {
+        "name": "Event Batcher",
+        "description": "Batches events for processing",
+        "boundaries": "rectangle",
+        "position": "inside Frontend"
+      },
+      {
+        "name": "Pub/Sub Publisher",
+        "description": "Publishes events to Pub/Sub",
+        "boundaries": "rectangle",
+        "position": "inside Frontend"
+      },
+      {
+        "name": "Stackdriver",
+        "description": "Monitoring and logging",
+        "boundaries": "rectangle",
+        "position": "right of Frontend"
+      },
+      {
+        "name": "Google Cloud Platform",
+        "description": "Cloud infrastructure",
+        "boundaries": "cloud",
+        "position": "right"
+      },
+      {
+        "name": "Cloud Storage (Schema Bucket)",
+        "description": "Stores schemas",
+        "boundaries": "rectangle",
+        "position": "inside Google Cloud Platform"
+      },
+      {
+        "name": "Backend (Java Dataflow)",
+        "description": "Processes data using Dataflow",
+        "boundaries": "box",
+        "position": "inside Google Cloud Platform"
+      },
+      {
+        "name": "Schema Loader",
+        "description": "Loads schemas for processing",
+        "boundaries": "rectangle",
+        "position": "inside Backend"
+      },
+      {
+        "name": "Dataflow Pipeline",
+        "description": "Processes data in a pipeline",
+        "boundaries": "rectangle",
+        "position": "inside Backend"
+      },
+      {
+        "name": "Event Mapper",
+        "description": "Maps events to schemas",
+        "boundaries": "rectangle",
+        "position": "inside Backend"
+      },
+      {
+        "name": "BigQuery",
+        "description": "Data warehouse for analytics",
+        "boundaries": "cylinder",
+        "position": "bottom right"
+      },
+      {
+        "name": "Event Tables",
+        "description": "Stores processed event data",
+        "boundaries": "rectangle",
+        "position": "inside BigQuery"
+      },
+      {
+        "name": "Error Table",
+        "description": "Stores error data",
+        "boundaries": "rectangle",
+        "position": "inside BigQuery"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Client Applications",
+        "target": "HTTP API (/track)",
+        "label": "Request",
+        "type": "arrow"
+      },
+      {
+        "source": "HTTP API (/track)",
+        "target": "Event Validator",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Event Validator",
+        "target": "Event Batcher",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Event Batcher",
+        "target": "Pub/Sub Publisher",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Pub/Sub Publisher",
+        "target": "Pub/Sub",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Prometheus Metrics (/metrics)",
+        "target": "Stackdriver",
+        "label": "Metrics",
+        "type": "arrow"
+      },
+      {
+        "source": "Pub/Sub",
+        "target": "Schema Loader",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Schema Loader",
+        "target": "Dataflow Pipeline",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Dataflow Pipeline",
+        "target": "Event Mapper",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Event Mapper",
+        "target": "Event Tables",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Event Mapper",
+        "target": "Error Table",
+        "label": "",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Frontend",
+        "components": [
+          "HTTP API (/track)",
+          "Prometheus Metrics (/metrics)",
+          "Event Validator",
+          "Event Batcher",
+          "Pub/Sub Publisher"
+        ]
+      },
+      {
+        "name": "Backend",
+        "components": [
+          "Schema Loader",
+          "Dataflow Pipeline",
+          "Event Mapper"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "GroundTruth Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Banias Frontend",
+        "description": "Frontend component handling user interactions",
+        "boundaries": "box",
+        "position": "left"
+      },
+      {
+        "name": "Cloud Pub/Sub",
+        "description": "Messaging service for event ingestion",
+        "boundaries": "hexagon",
+        "position": "center"
+      },
+      {
+        "name": "Cloud Dataflow",
+        "description": "Stream and batch data processing",
+        "boundaries": "hexagon",
+        "position": "right of Cloud Pub/Sub"
+      },
+      {
+        "name": "BigQuery",
+        "description": "Data warehouse for analytics",
+        "boundaries": "hexagon",
+        "position": "right of Cloud Dataflow"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Banias Frontend",
+        "target": "Cloud Pub/Sub",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Cloud Pub/Sub",
+        "target": "Cloud Dataflow",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Cloud Dataflow",
+        "target": "BigQuery",
+        "label": "",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": "Banias Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Cloud Pub/Sub",
+      "Cloud Dataflow",
+      "BigQuery"
+    ],
+    "unique_to_GroundTruth": [
+      "Client Applications",
+      "Frontend (Go)",
+      "HTTP API (/track)",
+      "Prometheus Metrics (/metrics)",
+      "Event Validator",
+      "Event Batcher",
+      "Pub/Sub Publisher",
+      "Stackdriver",
+      "Google Cloud Platform",
+      "Cloud Storage (Schema Bucket)",
+      "Backend (Java Dataflow)",
+      "Schema Loader",
+      "Dataflow Pipeline",
+      "Event Mapper",
+      "Event Tables",
+      "Error Table"
+    ],
+    "unique_to_GeneratedImage": [
+      "Banias Frontend"
+    ],
+    "common_connectors": [
+      {
+        "source": "Cloud Pub/Sub",
+        "target": "Cloud Dataflow",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Cloud Dataflow",
+        "target": "BigQuery",
+        "label": "",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Client Applications",
+        "target": "HTTP API (/track)",
+        "label": "Request",
+        "type": "arrow"
+      },
+      {
+        "source": "HTTP API (/track)",
+        "target": "Event Validator",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Event Validator",
+        "target": "Event Batcher",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Event Batcher",
+        "target": "Pub/Sub Publisher",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Pub/Sub Publisher",
+        "target": "Pub/Sub",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Prometheus Metrics (/metrics)",
+        "target": "Stackdriver",
+        "label": "Metrics",
+        "type": "arrow"
+      },
+      {
+        "source": "Pub/Sub",
+        "target": "Schema Loader",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Schema Loader",
+        "target": "Dataflow Pipeline",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Dataflow Pipeline",
+        "target": "Event Mapper",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Event Mapper",
+        "target": "Event Tables",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Event Mapper",
+        "target": "Error Table",
+        "label": "",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Banias Frontend",
+        "target": "Cloud Pub/Sub",
+        "label": "",
+        "type": "arrow"
+      }
+    ],
+    "explanation": "The GroundTruth diagram is more detailed with specific components like 'Client Applications', 'Frontend (Go)', and various processing stages within the 'Backend (Java Dataflow)'. It also includes monitoring components like 'Stackdriver'. The GeneratedImage focuses on a simplified flow from 'Banias Frontend' to 'BigQuery' via 'Cloud Pub/Sub' and 'Cloud Dataflow'. Both diagrams share common components like 'Cloud Pub/Sub', 'Cloud Dataflow', and 'BigQuery', but the GroundTruth provides a more comprehensive view of the architecture. The GeneratedImage lacks the detailed processing and monitoring components found in the GroundTruth. Rating: 6/10. The GeneratedImage captures the core flow but misses the detailed processing and monitoring elements present in the GroundTruth.",
+    "Rating": 6
+  }
+}

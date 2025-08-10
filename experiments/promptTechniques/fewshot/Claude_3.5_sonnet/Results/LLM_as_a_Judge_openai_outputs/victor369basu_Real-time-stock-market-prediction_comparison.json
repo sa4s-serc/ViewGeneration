@@ -1,0 +1,372 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Data Source",
+        "description": "CSV Files",
+        "boundaries": "External",
+        "position": "Top left"
+      },
+      {
+        "name": "producer.js",
+        "description": "Reads stock data and publishes to Kafka",
+        "boundaries": "Internal",
+        "position": "Below Data Source"
+      },
+      {
+        "name": "Kafka Topics",
+        "description": "Message broker",
+        "boundaries": "Internal",
+        "position": "Center"
+      },
+      {
+        "name": "consumer.js",
+        "description": "Consumes data from Kafka",
+        "boundaries": "Internal",
+        "position": "Below Kafka Topics"
+      },
+      {
+        "name": "MongoDB",
+        "description": "Stores raw and historical data",
+        "boundaries": "Internal",
+        "position": "Center right"
+      },
+      {
+        "name": "tf_train.js",
+        "description": "Trains model with historical data",
+        "boundaries": "Internal",
+        "position": "Right center"
+      },
+      {
+        "name": "tf_model.js",
+        "description": "LSTM Model",
+        "boundaries": "Internal",
+        "position": "Bottom center"
+      },
+      {
+        "name": "ml_consumer.js",
+        "description": "Consumes predictions",
+        "boundaries": "Internal",
+        "position": "Bottom left"
+      },
+      {
+        "name": "pre_process.js",
+        "description": "MinMaxScalar for scaling data",
+        "boundaries": "Internal",
+        "position": "Bottom"
+      },
+      {
+        "name": "Client",
+        "description": "Sends training/validation requests",
+        "boundaries": "External",
+        "position": "Top right"
+      },
+      {
+        "name": "server.js",
+        "description": "Handles HTTP/Socket.IO requests",
+        "boundaries": "Internal",
+        "position": "Right"
+      },
+      {
+        "name": "tf_validate.js",
+        "description": "Validates model with test data",
+        "boundaries": "Internal",
+        "position": "Right bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Data Source",
+        "target": "producer.js",
+        "label": "read stock data",
+        "type": "Data flow"
+      },
+      {
+        "source": "producer.js",
+        "target": "Kafka Topics",
+        "label": "publish data",
+        "type": "Data flow"
+      },
+      {
+        "source": "Kafka Topics",
+        "target": "consumer.js",
+        "label": "consume data",
+        "type": "Data flow"
+      },
+      {
+        "source": "consumer.js",
+        "target": "MongoDB",
+        "label": "store raw data",
+        "type": "Data flow"
+      },
+      {
+        "source": "MongoDB",
+        "target": "tf_train.js",
+        "label": "historical data",
+        "type": "Data flow"
+      },
+      {
+        "source": "tf_train.js",
+        "target": "tf_model.js",
+        "label": "train",
+        "type": "Data flow"
+      },
+      {
+        "source": "tf_model.js",
+        "target": "ml_consumer.js",
+        "label": "predictions",
+        "type": "Data flow"
+      },
+      {
+        "source": "ml_consumer.js",
+        "target": "pre_process.js",
+        "label": "scale data",
+        "type": "Data flow"
+      },
+      {
+        "source": "Client",
+        "target": "server.js",
+        "label": "training/validation requests",
+        "type": "Control flow"
+      },
+      {
+        "source": "server.js",
+        "target": "tf_train.js",
+        "label": "trigger training",
+        "type": "Control flow"
+      },
+      {
+        "source": "server.js",
+        "target": "tf_validate.js",
+        "label": "trigger validation",
+        "type": "Control flow"
+      },
+      {
+        "source": "tf_model.js",
+        "target": "tf_validate.js",
+        "label": "load weights",
+        "type": "Data flow"
+      },
+      {
+        "source": "tf_validate.js",
+        "target": "server.js",
+        "label": "store metrics",
+        "type": "Data flow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Ground Truth Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Data Source",
+        "description": "Source of data",
+        "boundaries": "External",
+        "position": "Left"
+      },
+      {
+        "name": "Kafka",
+        "description": "Message broker",
+        "boundaries": "Internal",
+        "position": "Center"
+      },
+      {
+        "name": "MongoDB",
+        "description": "Database",
+        "boundaries": "Internal",
+        "position": "Right center"
+      },
+      {
+        "name": "TensorFlow.js",
+        "description": "Machine learning library",
+        "boundaries": "Internal",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Data Source",
+        "target": "Kafka",
+        "label": "",
+        "type": "Data flow"
+      },
+      {
+        "source": "Kafka",
+        "target": "MongoDB",
+        "label": "",
+        "type": "Data flow"
+      },
+      {
+        "source": "MongoDB",
+        "target": "TensorFlow.js",
+        "label": "Validate(20% data)",
+        "type": "Data flow"
+      },
+      {
+        "source": "MongoDB",
+        "target": "TensorFlow.js",
+        "label": "Train(80% data)",
+        "type": "Data flow"
+      },
+      {
+        "source": "TensorFlow.js",
+        "target": "TensorFlow.js",
+        "label": "Model weights",
+        "type": "Data flow"
+      },
+      {
+        "source": "TensorFlow.js",
+        "target": "TensorFlow.js",
+        "label": "Real-time prediction",
+        "type": "Data flow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Generated Image Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Data Source",
+      "MongoDB"
+    ],
+    "unique_to_GroundTruth": [
+      "producer.js",
+      "Kafka Topics",
+      "consumer.js",
+      "tf_train.js",
+      "tf_model.js",
+      "ml_consumer.js",
+      "pre_process.js",
+      "Client",
+      "server.js",
+      "tf_validate.js"
+    ],
+    "unique_to_GeneratedImage": [
+      "Kafka",
+      "TensorFlow.js"
+    ],
+    "common_connectors": [
+      {
+        "source": "Data Source",
+        "target": "Kafka",
+        "type": "Data flow"
+      },
+      {
+        "source": "MongoDB",
+        "target": "TensorFlow.js",
+        "type": "Data flow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "producer.js",
+        "target": "Kafka Topics",
+        "label": "publish data",
+        "type": "Data flow"
+      },
+      {
+        "source": "Kafka Topics",
+        "target": "consumer.js",
+        "label": "consume data",
+        "type": "Data flow"
+      },
+      {
+        "source": "consumer.js",
+        "target": "MongoDB",
+        "label": "store raw data",
+        "type": "Data flow"
+      },
+      {
+        "source": "MongoDB",
+        "target": "tf_train.js",
+        "label": "historical data",
+        "type": "Data flow"
+      },
+      {
+        "source": "tf_train.js",
+        "target": "tf_model.js",
+        "label": "train",
+        "type": "Data flow"
+      },
+      {
+        "source": "tf_model.js",
+        "target": "ml_consumer.js",
+        "label": "predictions",
+        "type": "Data flow"
+      },
+      {
+        "source": "ml_consumer.js",
+        "target": "pre_process.js",
+        "label": "scale data",
+        "type": "Data flow"
+      },
+      {
+        "source": "Client",
+        "target": "server.js",
+        "label": "training/validation requests",
+        "type": "Control flow"
+      },
+      {
+        "source": "server.js",
+        "target": "tf_train.js",
+        "label": "trigger training",
+        "type": "Control flow"
+      },
+      {
+        "source": "server.js",
+        "target": "tf_validate.js",
+        "label": "trigger validation",
+        "type": "Control flow"
+      },
+      {
+        "source": "tf_model.js",
+        "target": "tf_validate.js",
+        "label": "load weights",
+        "type": "Data flow"
+      },
+      {
+        "source": "tf_validate.js",
+        "target": "server.js",
+        "label": "store metrics",
+        "type": "Data flow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "MongoDB",
+        "target": "TensorFlow.js",
+        "label": "Validate(20% data)",
+        "type": "Data flow"
+      },
+      {
+        "source": "MongoDB",
+        "target": "TensorFlow.js",
+        "label": "Train(80% data)",
+        "type": "Data flow"
+      },
+      {
+        "source": "TensorFlow.js",
+        "target": "TensorFlow.js",
+        "label": "Model weights",
+        "type": "Data flow"
+      },
+      {
+        "source": "TensorFlow.js",
+        "target": "TensorFlow.js",
+        "label": "Real-time prediction",
+        "type": "Data flow"
+      }
+    ],
+    "explanation": "The Ground Truth diagram is more detailed, including specific components for data processing, model training, and validation. It uses a Kafka Topics component for message brokering, while the Generated Image diagram simplifies this with a generic Kafka component. Both diagrams include a Data Source and MongoDB, but the Ground Truth diagram has additional components like producer.js, consumer.js, and various TensorFlow.js scripts for specific tasks. The Generated Image diagram focuses on the flow of data through MongoDB and TensorFlow.js for training and validation, lacking the detailed processing steps seen in the Ground Truth. The Generated Image diagram is rated 6 out of 10 for accuracy and completeness, as it captures the high-level flow but misses the detailed components and connections present in the Ground Truth.",
+    "Rating": 6
+  }
+}

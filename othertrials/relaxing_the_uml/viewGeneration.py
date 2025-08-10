@@ -1,65 +1,72 @@
 import os
 import subprocess
-from openai import OpenAI
+import openai
 import json
 import glob
 import shutil
 import tempfile
-client = OpenAI(api_key="")
+openai.api_key = ""
 
 def get_plantuml_from_summary(view_details, error_message=None, code=None):
-    diagram_instruction = f'''
-You are expert software architect. Your task is to design a view for the system based on the architectural knowledge provided. Based on the following repository summary and its architectural metadata, generate a valid PlantUML code for the view.
-Base the design on the complete architectural and metadata information provided below. 
-Use your architectural reasoning to represent components, connectors, and any relevant architectural style mentioned.
-Use the architectural style or concern specified to guide your view generation. 
-Include only one diagram in your response using valid PlantUML syntax.
-'''
-    user_prompt = "Here is the repository metadata:\n\n" 
-    
+    # The System Prompt now contains all instructions and constraints.
+    # It is more direct and uses a numbered list for clarity.
+    system_prompt = """You are an expert software architect specializing in software architecture views.
+Your sole task is to generate a single, complete, and valid architectural view diagram based on the architectural knowledge provided by the user.Use plantuml to represent the architectural notation given in the metadata.
+
+**Instructions & Constraints:**
+1.  **Output Format:** Your response MUST contain ONLY the PlantUML code. Do not include any explanations, apologies, or markdown fences like ```plantuml. Your entire response must start with `@startuml` and end with `@enduml`.
+2.  **Adherence to Data:** The diagram must accurately represent the components, connectors, behaviors, and architectural styles described in the user's metadata.
+3.  **Architectural Reasoning:** Apply your knowledge of software architecture to create a logical and well-structured diagram that respects the specified concern and scope.
+4.  **Completeness:** Ensure all key components and their primary relationships from the metadata are visible in the diagram.
+5.  **Clarity:** You are also specializing in creating clear diagrams in a 'box and arrows' style using PlantUML syntax.
+6.  **Architectural Notation:** Use appropriate syntax given in the metadata and conventions to represent the architectural elements accurately **please use plantuml as only means of representation**.
+"""
+
+    # The User Prompt is now clean and contains ONLY data.
+    # Bolding the keys can help the model parse the information.
+    user_prompt_parts = ["Here is the complete architectural knowledge for the system:\n"]
     for key, value in view_details.items():
-        if value: # Only add if the value is not None or empty
-            # Format key from 'repo_name' to 'Repository Name'
+        if value:
             formatted_key = key.replace('_', ' ').title()
-            user_prompt += f"{formatted_key}: {value}\n"
+            user_prompt_parts.append(f"- **{formatted_key}:** {value}")
+    
+    user_prompt = "\n".join(user_prompt_parts)
 
-
-    # Include retry guidance if needed
+    # The retry instruction is now more prominent and prepended to the system prompt.
     if error_message:
-        diagram_instruction += f"\nNote: A previous attempt failed with the following error:\n{error_message}\nProblematic code:\n{code}\nPlease correct and regenerate."
-
-    user_prompt += "Generate a valid PlantUML code for the view.\n"
-    user_prompt += "Ensure the diagram:\n"
-    user_prompt += "- Clearly shows system components and their relationships.\n"
-    user_prompt += "- Matches the described system behavior if applicable.\n"
-    user_prompt += "- Is valid PlantUML code with no explanation.\n"
+        retry_instruction = f"""**CRITICAL CORRECTION:** A previous attempt failed. You MUST fix the error and generate a valid diagram.
+- **Error from previous attempt:** {error_message}
+- **Problematic Code to fix:**
+```plantuml
+{code}
+```"""
     try:
-        response = client.chat.completions.create(
+        response = openai.ChatCompletion.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": diagram_instruction},
+                {"role": "system", "content": system_prompt + retry_instruction if error_message else system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
             temperature=0.7,
             max_tokens=1024,
             stream=False
         )
-        return response.choices[0].message.content
+        return response.choices[0].message.get("content", "")
     except Exception as e:
         return f"Error: {e}"
 
 
 def save_plantuml_code(puml_code, repo_name):
-    os.makedirs("zeroShot_gpt_plantumlcode", exist_ok=True)
+    os.makedirs("zeroShot_gpt_box_plantumlcode", exist_ok=True)
     # clean_repo_name = repo_name.replace('/', '_').replace('\\', '_').rstrip('_')
-    file_path = os.path.join("zeroShot_gpt_plantumlcode", f"{repo_name}.puml")
+    file_path = os.path.join("zeroShot_gpt_box_plantumlcode", f"{repo_name}.puml")
     with open(file_path, "w", encoding="utf-8") as file:
         file.write(puml_code)
     return file_path
 
 
 
-def compile_plantuml(repo_name, input_path, output_dir="../zeroShot_gpt_output_images"):
+def compile_plantuml(repo_name, input_path, output_dir="./zeroShot_gpt_box_output_images"):
     os.makedirs(output_dir, exist_ok=True)
 
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -123,7 +130,7 @@ def process_view(repo_name, view_details):
 def main():
     input_jsonl = "../../experiments/Architectural_knowledge_extraction/generated_summaries.jsonl"
     global_cnt = 0
-
+    total=0
     try:
         with open(input_jsonl, 'r', encoding='utf-8') as f:
             entries = [json.loads(line) for line in f]
@@ -163,6 +170,8 @@ def main():
 
     for entry in entries:
         required_keys = ["Repository Name", "summary", "Concern", "Behavior"]
+        if total>10:
+            break
         if all(key in entry for key in required_keys):
             clean_repo_name = entry["Repository Name"].replace('/', '_').replace('\\', '_').rstrip('_')
             
@@ -176,6 +185,7 @@ def main():
                     view_details[internal_key] = f"({explanation}): {value}"
 
             global_cnt += process_view(clean_repo_name, view_details)
+            total += 1
             print(f"Processed entry: {clean_repo_name}")
         else:
             print(f"Skipping entry due to missing required fields: {entry}")

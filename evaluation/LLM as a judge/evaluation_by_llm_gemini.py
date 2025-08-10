@@ -1,3 +1,7 @@
+'''This script uses Google Gemini to compare two sets of software architecture diagrams.
+It extracts structured information from both diagrams and generates a JSON report with comparisons.
+The script handles images with the same stem name in both folders, ensuring that only valid comparisons are made.
+It also manages API interactions with Google Gemini, including error handling and response parsing.'''
 import os
 import csv
 import json

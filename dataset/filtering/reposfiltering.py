@@ -1,6 +1,6 @@
 import csv
 import requests
-
+'''This script filters a CSV file to extract rows where the 'Image URL' field contains valid URLs. and removes the rows with invalid URLs.or archived'''
 def check_url_accessibility(url):
     try:
         response = requests.head(url, allow_redirects=True, timeout=5)

@@ -1,0 +1,84 @@
+@startuml
+package "jseats" {
+    package "Core" {
+        class SeatAllocatorProcessor {
+            + applyFilters()
+            + executeAllocation()
+            + applyDecorators()
+        }
+        class ProcessorConfig {
+            + loadFromXML()
+            + saveToXML()
+        }
+        class SeatAllocatorResolver {
+            + resolveMethod(name)
+            + resolveFilter(name)
+            + resolveDecorator(name)
+            + resolveTieBreaker(name)
+        }
+    }
+
+    package "Model" {
+        class Candidate
+        class Tally {
+            + loadFromXML()
+        }
+        class Result
+        class ResultDecorator {
+            + decorate(Result)
+        }
+        class TallyFilter {
+            + filter(Tally)
+        }
+        class SeatAllocationMethod {
+            + allocateSeats(Tally)
+        }
+        class TieBreaker {
+            + breakTie(Candidate, Candidate)
+        }
+    }
+
+    package "CLI" {
+        class SeatAllocatorLauncher {
+            + main(args)
+        }
+    }
+
+    package "Logging" {
+        class SLF4J
+        class Logback
+    }
+}
+
+SeatAllocatorLauncher --> SeatAllocatorProcessor : control flow
+SeatAllocatorProcessor --> ProcessorConfig : uses
+SeatAllocatorProcessor --> SeatAllocatorResolver : resolves components
+SeatAllocatorProcessor --> TallyFilter : applies
+SeatAllocatorProcessor --> SeatAllocationMethod : executes
+SeatAllocatorProcessor --> ResultDecorator : applies
+SeatAllocatorProcessor --> TieBreaker : resolves
+ProcessorConfig --> Tally : manages
+ProcessorConfig -up-|> XML : serialization/deserialization
+Tally --> Candidate : aggregates
+SLF4J --> Logback : utilizes
+
+note right of SeatAllocatorProcessor
+    Orchestrates seat allocation
+    process using filters, methods,
+    and decorators.
+end note
+
+note bottom of SeatAllocatorResolver
+    Resolves components dynamically
+    based on names provided.
+end note
+
+note top of ProcessorConfig
+    Manages configuration through
+    XML serialization/deserialization.
+end note
+
+note top of SeatAllocatorLauncher
+    Entry point for CLI operations.
+end note
+@enduml

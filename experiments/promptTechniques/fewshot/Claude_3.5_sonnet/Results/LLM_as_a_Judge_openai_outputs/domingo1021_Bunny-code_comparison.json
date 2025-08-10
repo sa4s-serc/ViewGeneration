@@ -1,0 +1,479 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Frontend Repo",
+        "description": "Vue 3 application",
+        "boundaries": "GitHub",
+        "position": "top left"
+      },
+      {
+        "name": "Backend Repo",
+        "description": "Node.js application",
+        "boundaries": "GitHub",
+        "position": "middle left"
+      },
+      {
+        "name": "Storage",
+        "description": "S3 bucket",
+        "boundaries": null,
+        "position": "top middle"
+      },
+      {
+        "name": "CDN",
+        "description": "CloudFront",
+        "boundaries": null,
+        "position": "top right"
+      },
+      {
+        "name": "End User",
+        "description": null,
+        "boundaries": null,
+        "position": "top far right"
+      },
+      {
+        "name": "Coding Sandbox",
+        "description": "Docker + Node.js + Exporter",
+        "boundaries": "dashed box",
+        "position": "middle left"
+      },
+      {
+        "name": "Reverse Proxy",
+        "description": "Nginx",
+        "boundaries": null,
+        "position": "middle right"
+      },
+      {
+        "name": "Express",
+        "description": null,
+        "boundaries": null,
+        "position": "middle right"
+      },
+      {
+        "name": "Database",
+        "description": "Redis, MySQL, InfluxDB",
+        "boundaries": "dashed box",
+        "position": "bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Frontend Repo",
+        "target": "Storage",
+        "label": "Build and upload",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Backend Repo",
+        "target": "Reverse Proxy",
+        "label": "Deploy",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Storage",
+        "target": "CDN",
+        "label": null,
+        "type": "solid arrow"
+      },
+      {
+        "source": "Coding Sandbox",
+        "target": "Reverse Proxy",
+        "label": "Upload Coding Archives",
+        "type": "dotted arrow"
+      },
+      {
+        "source": "Reverse Proxy",
+        "target": "End User",
+        "label": "Socket connection\nAPI request / response",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Coding Sandbox",
+        "target": "Reverse Proxy",
+        "label": "Arrange sandbox jobs",
+        "type": "solid arrow"
+      }
+    ],
+    "annotations": [
+      "Cache Invalidation",
+      "Git Push"
+    ],
+    "groups": [
+      {
+        "name": "Coding Sandbox",
+        "components": [
+          "Docker",
+          "Node.js",
+          "Exporter"
+        ]
+      },
+      {
+        "name": "Database",
+        "components": [
+          "Redis",
+          "MySQL",
+          "InfluxDB"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "architecture_diagram_1.png",
+      "title": null
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": null,
+        "boundaries": null,
+        "position": "left"
+      },
+      {
+        "name": "CloudFront CDN",
+        "description": null,
+        "boundaries": null,
+        "position": "top"
+      },
+      {
+        "name": "Nginx Reverse Proxy",
+        "description": null,
+        "boundaries": null,
+        "position": "top"
+      },
+      {
+        "name": "Express Backend",
+        "description": null,
+        "boundaries": null,
+        "position": "top"
+      },
+      {
+        "name": "Socket.IO Server",
+        "description": null,
+        "boundaries": null,
+        "position": "top"
+      },
+      {
+        "name": "Redis Cache",
+        "description": null,
+        "boundaries": null,
+        "position": "top"
+      },
+      {
+        "name": "MySQL Database",
+        "description": null,
+        "boundaries": null,
+        "position": "top"
+      },
+      {
+        "name": "InfluxDB",
+        "description": null,
+        "boundaries": null,
+        "position": "top"
+      },
+      {
+        "name": "Docker Sandbox",
+        "description": null,
+        "boundaries": null,
+        "position": "top"
+      },
+      {
+        "name": "S3 Storage",
+        "description": null,
+        "boundaries": null,
+        "position": "top"
+      },
+      {
+        "name": "CloudWatch",
+        "description": null,
+        "boundaries": null,
+        "position": "top"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Nginx Reverse Proxy",
+        "label": "Forward request (HTTPS)",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Nginx Reverse Proxy",
+        "target": "Express Backend",
+        "label": "Route to /api/auth",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Express Backend",
+        "target": "Socket.IO Server",
+        "label": "Validate credentials",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Socket.IO Server",
+        "target": "Redis Cache",
+        "label": "User data",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Redis Cache",
+        "target": "Express Backend",
+        "label": "Generate JWT token",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Express Backend",
+        "target": "User",
+        "label": "Return JWT",
+        "type": "solid arrow"
+      },
+      {
+        "source": "User",
+        "target": "Nginx Reverse Proxy",
+        "label": "Forward code submission",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Nginx Reverse Proxy",
+        "target": "Express Backend",
+        "label": "POST /api/workspace/run",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Express Backend",
+        "target": "Docker Sandbox",
+        "label": "Create sandbox container",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Docker Sandbox",
+        "target": "InfluxDB",
+        "label": "Store time-series data",
+        "type": "solid arrow"
+      },
+      {
+        "source": "InfluxDB",
+        "target": "Express Backend",
+        "label": "Data stored",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Express Backend",
+        "target": "User",
+        "label": "Return results",
+        "type": "solid arrow"
+      },
+      {
+        "source": "User",
+        "target": "Nginx Reverse Proxy",
+        "label": "WebSocket upgrade",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Nginx Reverse Proxy",
+        "target": "Socket.IO Server",
+        "label": "Socket connection",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Socket.IO Server",
+        "target": "Redis Cache",
+        "label": "Authenticate JWT",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Redis Cache",
+        "target": "Socket.IO Server",
+        "label": "Verify user/battle",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Socket.IO Server",
+        "target": "User",
+        "label": "Broadcast results",
+        "type": "solid arrow"
+      }
+    ],
+    "annotations": [
+      "User Authentication",
+      "Code Execution in Workspace",
+      "Real-time Battle Valley",
+      "Monitoring & Logging"
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "architecture_diagram_2.png",
+      "title": "domingo1021_Bunny-code - Deployment Sequence Diagram"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "User",
+      "Nginx Reverse Proxy",
+      "Express Backend",
+      "Redis Cache",
+      "MySQL Database",
+      "InfluxDB",
+      "Docker Sandbox",
+      "S3 Storage",
+      "CloudFront CDN"
+    ],
+    "unique_to_GroundTruth": [
+      "Frontend Repo",
+      "Backend Repo",
+      "Coding Sandbox",
+      "Reverse Proxy",
+      "Database"
+    ],
+    "unique_to_GeneratedImage": [
+      "Socket.IO Server",
+      "CloudWatch"
+    ],
+    "common_connectors": [
+      {
+        "source": "User",
+        "target": "Nginx Reverse Proxy",
+        "label": "Socket connection",
+        "type": "solid arrow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Frontend Repo",
+        "target": "Storage",
+        "label": "Build and upload",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Backend Repo",
+        "target": "Reverse Proxy",
+        "label": "Deploy",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Storage",
+        "target": "CDN",
+        "label": null,
+        "type": "solid arrow"
+      },
+      {
+        "source": "Coding Sandbox",
+        "target": "Reverse Proxy",
+        "label": "Upload Coding Archives",
+        "type": "dotted arrow"
+      },
+      {
+        "source": "Coding Sandbox",
+        "target": "Reverse Proxy",
+        "label": "Arrange sandbox jobs",
+        "type": "solid arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "Nginx Reverse Proxy",
+        "label": "Forward request (HTTPS)",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Nginx Reverse Proxy",
+        "target": "Express Backend",
+        "label": "Route to /api/auth",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Express Backend",
+        "target": "Socket.IO Server",
+        "label": "Validate credentials",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Socket.IO Server",
+        "target": "Redis Cache",
+        "label": "User data",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Redis Cache",
+        "target": "Express Backend",
+        "label": "Generate JWT token",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Express Backend",
+        "target": "User",
+        "label": "Return JWT",
+        "type": "solid arrow"
+      },
+      {
+        "source": "User",
+        "target": "Nginx Reverse Proxy",
+        "label": "Forward code submission",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Nginx Reverse Proxy",
+        "target": "Express Backend",
+        "label": "POST /api/workspace/run",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Express Backend",
+        "target": "Docker Sandbox",
+        "label": "Create sandbox container",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Docker Sandbox",
+        "target": "InfluxDB",
+        "label": "Store time-series data",
+        "type": "solid arrow"
+      },
+      {
+        "source": "InfluxDB",
+        "target": "Express Backend",
+        "label": "Data stored",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Express Backend",
+        "target": "User",
+        "label": "Return results",
+        "type": "solid arrow"
+      },
+      {
+        "source": "User",
+        "target": "Nginx Reverse Proxy",
+        "label": "WebSocket upgrade",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Nginx Reverse Proxy",
+        "target": "Socket.IO Server",
+        "label": "Socket connection",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Socket.IO Server",
+        "target": "Redis Cache",
+        "label": "Authenticate JWT",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Redis Cache",
+        "target": "Socket.IO Server",
+        "label": "Verify user/battle",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Socket.IO Server",
+        "target": "User",
+        "label": "Broadcast results",
+        "type": "solid arrow"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of a software system. The GroundTruth diagram focuses on the deployment architecture, showing components like the Frontend and Backend Repositories, Storage, CDN, and Coding Sandbox, with connections for deployment and data flow. The GeneratedImage diagram is a sequence diagram that details the interactions between components during user authentication, code execution, and real-time operations. Common components include User, Nginx Reverse Proxy, Express Backend, and various databases. Unique elements in the GroundTruth include the Frontend and Backend Repositories and the Coding Sandbox, while the GeneratedImage includes the Socket.IO Server and CloudWatch. The connectors in the GroundTruth emphasize deployment and data storage processes, whereas the GeneratedImage focuses on user interactions and data processing sequences. The GeneratedImage provides a more detailed view of the interactions but lacks some deployment details present in the GroundTruth. Overall, the GeneratedImage is rated 7 out of 10 for accuracy and completeness, as it captures detailed interactions but misses some architectural components and connections present in the GroundTruth.",
+    "Rating": 7
+  }
+}

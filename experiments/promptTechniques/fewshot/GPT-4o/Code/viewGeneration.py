@@ -6,7 +6,7 @@ import glob
 import shutil
 import tempfile
 # Initialize DeepSeek client
-client = OpenAI(api_key="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")
+client = OpenAI(api_key="")
 
 def load_few_shot_example(json_path="examples.json"):
     try:

@@ -1,0 +1,57 @@
+@startuml
+actor User
+
+package "kryptokrauts/ae-prediction-cards" {
+  
+  package "Frontend" {
+    component "App.tsx" as FrontendApp
+    component "WalletClient" as WalletClient
+    component "PredictionCardsApi" as PredictionCardsApi
+    note right of FrontendApp
+      React-based frontend
+      for user interaction
+    end note
+  }
+
+  package "Backend Services" {
+    component "Oracle Service" as OracleService
+    component "Process Prediction Service" as ProcessPredictionService
+    note right of OracleService
+      Registers oracle and
+      queries for prediction outcomes
+    end note
+    note right of ProcessPredictionService
+      Monitors blockchain events
+      and processes prediction results
+    end note
+  }
+
+  package "Smart Contract" {
+    component "PredictionCards.aes" as SmartContract
+    note right of SmartContract
+      Aeternity smart contract
+      governing predictions and NFT renting
+    end note
+  }
+
+  database "Aeternity Blockchain" as Blockchain
+  
+}
+
+User --> FrontendApp : Interacts with
+
+FrontendApp --> WalletClient : Uses
+FrontendApp --> PredictionCardsApi : Uses
+
+PredictionCardsApi --> SmartContract : API Calls
+SmartContract --> Blockchain : Executes / Stores
+
+ProcessPredictionService --> Blockchain : Monitors
+ProcessPredictionService --> OracleService : Triggers Oracle Query
+OracleService --> Blockchain : Registers / Queries
+
+Blockchain --> ProcessPredictionService : Sends Events
+ProcessPredictionService --> SmartContract : Calls Functions
+
+SmartContract --> FrontendApp : Updates Status
+@enduml

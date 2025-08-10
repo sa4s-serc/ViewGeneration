@@ -1,0 +1,362 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Appian Oracle DB",
+        "description": "Appian data is captured in real time by a JDBC connector",
+        "boundaries": "AWS Cloud",
+        "position": "left"
+      },
+      {
+        "name": "AWS Lambda - create/delete topics",
+        "description": "Appian data topics are created using KafkaJS.",
+        "boundaries": "AWS Cloud > VPC > Private subnet",
+        "position": "top"
+      },
+      {
+        "name": "AWS Fargate - Kafka Connect Cluster",
+        "description": "Connector for Appian data",
+        "boundaries": "AWS Cloud > VPC > Private subnet",
+        "position": "middle"
+      },
+      {
+        "name": "CMS BigMAC",
+        "description": "Appian data is sent to BigMAC and stored in the topics created by the topics service.",
+        "boundaries": "AWS Cloud",
+        "position": "right"
+      },
+      {
+        "name": "AWS EventBridge",
+        "description": "ECS Failure Events are matched by an EventBridge rule.",
+        "boundaries": "AWS Cloud",
+        "position": "bottom left"
+      },
+      {
+        "name": "SNS Topic",
+        "description": "Alerts",
+        "boundaries": "AWS Cloud",
+        "position": "bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Appian Oracle DB",
+        "target": "AWS Lambda - create/delete topics",
+        "label": "VPC peering connection",
+        "type": "bidirectional"
+      },
+      {
+        "source": "AWS Lambda - create/delete topics",
+        "target": "CMS BigMAC",
+        "label": "Appian data",
+        "type": "unidirectional"
+      },
+      {
+        "source": "AWS EventBridge",
+        "target": "SNS Topic",
+        "label": "alerts",
+        "type": "unidirectional"
+      }
+    ],
+    "annotations": [
+      "Appian data topics are created using KafkaJS. Development branch topics are automatically deleted when no longer needed.",
+      "Appian data is sent to BigMAC and stored in the topics created by the topics service (above).",
+      "ECS Failure Events are matched by an EventBridge rule and sent to SNS for notification fan out."
+    ],
+    "groups": [
+      {
+        "name": "AWS Cloud",
+        "components": [
+          "Appian Oracle DB",
+          "AWS Lambda - create/delete topics",
+          "AWS Fargate - Kafka Connect Cluster",
+          "CMS BigMAC",
+          "AWS EventBridge",
+          "SNS Topic"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "AWS Architecture with Appian and Kafka"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Kafka Connector",
+        "description": "Handles data changes from Appian",
+        "boundaries": "AWS Services",
+        "position": "top"
+      },
+      {
+        "name": "ECS Service",
+        "description": "Part of Kafka Connector",
+        "boundaries": "AWS Services",
+        "position": "top"
+      },
+      {
+        "name": "Connector Logic",
+        "description": "Handles logic for Kafka Connector",
+        "boundaries": "AWS Services",
+        "position": "top"
+      },
+      {
+        "name": "SNS Topic",
+        "description": "Sends notifications",
+        "boundaries": "AWS Services",
+        "position": "middle left"
+      },
+      {
+        "name": "CloudWatch",
+        "description": "Logs and metrics",
+        "boundaries": "AWS Services",
+        "position": "middle"
+      },
+      {
+        "name": "SSM Parameter Store",
+        "description": "Stores configurations",
+        "boundaries": "AWS Services",
+        "position": "middle"
+      },
+      {
+        "name": "Secrets Manager",
+        "description": "Manages secrets",
+        "boundaries": "AWS Services",
+        "position": "middle"
+      },
+      {
+        "name": "EventBridge",
+        "description": "Processes events",
+        "boundaries": "AWS Services",
+        "position": "middle"
+      },
+      {
+        "name": "Alert Service",
+        "description": "Processes alerts",
+        "boundaries": "Monitoring & Alerts",
+        "position": "middle right"
+      },
+      {
+        "name": "DORA Dashboard",
+        "description": "Metrics dashboard",
+        "boundaries": "Monitoring & Alerts",
+        "position": "middle right"
+      },
+      {
+        "name": "BigMAC",
+        "description": "Streams data",
+        "boundaries": "Monitoring & Alerts",
+        "position": "bottom right"
+      },
+      {
+        "name": "Developer",
+        "description": "Deploys and pushes code",
+        "boundaries": "External",
+        "position": "bottom left"
+      },
+      {
+        "name": "GitHub Actions",
+        "description": "Triggers security scans",
+        "boundaries": "External",
+        "position": "bottom left"
+      },
+      {
+        "name": "Security Hub",
+        "description": "Receives security scan results",
+        "boundaries": "External",
+        "position": "bottom left"
+      },
+      {
+        "name": "Jira",
+        "description": "Syncs findings",
+        "boundaries": "External",
+        "position": "bottom left"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Appian",
+        "target": "Kafka Connector",
+        "label": "data changes",
+        "type": "unidirectional"
+      },
+      {
+        "source": "Kafka Connector",
+        "target": "BigMAC",
+        "label": "stream data",
+        "type": "unidirectional"
+      },
+      {
+        "source": "Developer",
+        "target": "GitHub Actions",
+        "label": "deploy",
+        "type": "unidirectional"
+      },
+      {
+        "source": "GitHub Actions",
+        "target": "Security Hub",
+        "label": "security scan results",
+        "type": "unidirectional"
+      },
+      {
+        "source": "Security Hub",
+        "target": "Jira",
+        "label": "sync findings",
+        "type": "unidirectional"
+      },
+      {
+        "source": "SNS Topic",
+        "target": "CloudWatch",
+        "label": "notifications",
+        "type": "unidirectional"
+      },
+      {
+        "source": "CloudWatch",
+        "target": "EventBridge",
+        "label": "trigger rules",
+        "type": "unidirectional"
+      },
+      {
+        "source": "EventBridge",
+        "target": "Alert Service",
+        "label": "process events",
+        "type": "unidirectional"
+      }
+    ],
+    "annotations": [
+      "logs/metrics send alerts",
+      "get config",
+      "get secrets",
+      "metrics"
+    ],
+    "groups": [
+      {
+        "name": "AWS Services",
+        "components": [
+          "Kafka Connector",
+          "ECS Service",
+          "Connector Logic",
+          "SNS Topic",
+          "CloudWatch",
+          "SSM Parameter Store",
+          "Secrets Manager",
+          "EventBridge"
+        ]
+      },
+      {
+        "name": "Monitoring & Alerts",
+        "components": [
+          "Alert Service",
+          "DORA Dashboard",
+          "BigMAC"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": "Kafka and AWS Services Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "SNS Topic",
+      "EventBridge",
+      "BigMAC"
+    ],
+    "unique_to_GroundTruth": [
+      "Appian Oracle DB",
+      "AWS Lambda - create/delete topics",
+      "AWS Fargate - Kafka Connect Cluster",
+      "CMS BigMAC"
+    ],
+    "unique_to_GeneratedImage": [
+      "Kafka Connector",
+      "ECS Service",
+      "Connector Logic",
+      "CloudWatch",
+      "SSM Parameter Store",
+      "Secrets Manager",
+      "Developer",
+      "GitHub Actions",
+      "Security Hub",
+      "Jira",
+      "Alert Service",
+      "DORA Dashboard"
+    ],
+    "common_connectors": [
+      {
+        "source": "EventBridge",
+        "target": "SNS Topic",
+        "label": "alerts",
+        "type": "unidirectional"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Appian Oracle DB",
+        "target": "AWS Lambda - create/delete topics",
+        "label": "VPC peering connection",
+        "type": "bidirectional"
+      },
+      {
+        "source": "AWS Lambda - create/delete topics",
+        "target": "CMS BigMAC",
+        "label": "Appian data",
+        "type": "unidirectional"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Appian",
+        "target": "Kafka Connector",
+        "label": "data changes",
+        "type": "unidirectional"
+      },
+      {
+        "source": "Kafka Connector",
+        "target": "BigMAC",
+        "label": "stream data",
+        "type": "unidirectional"
+      },
+      {
+        "source": "Developer",
+        "target": "GitHub Actions",
+        "label": "deploy",
+        "type": "unidirectional"
+      },
+      {
+        "source": "GitHub Actions",
+        "target": "Security Hub",
+        "label": "security scan results",
+        "type": "unidirectional"
+      },
+      {
+        "source": "Security Hub",
+        "target": "Jira",
+        "label": "sync findings",
+        "type": "unidirectional"
+      },
+      {
+        "source": "SNS Topic",
+        "target": "CloudWatch",
+        "label": "notifications",
+        "type": "unidirectional"
+      },
+      {
+        "source": "CloudWatch",
+        "target": "EventBridge",
+        "label": "trigger rules",
+        "type": "unidirectional"
+      },
+      {
+        "source": "EventBridge",
+        "target": "Alert Service",
+        "label": "process events",
+        "type": "unidirectional"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on a specific AWS architecture involving Appian and Kafka, with components like AWS Lambda and AWS Fargate. It emphasizes data flow from Appian Oracle DB to CMS BigMAC. The GeneratedImage diagram presents a broader AWS services architecture, including Kafka Connector, ECS Service, and various AWS services like CloudWatch and Secrets Manager. Both diagrams share components like SNS Topic, EventBridge, and BigMAC. However, the GeneratedImage includes additional elements like Developer interactions and security processes. The GroundTruth diagram is more focused on a specific data flow, while the GeneratedImage provides a comprehensive view of AWS services and monitoring. Rating: 7. The GeneratedImage provides a detailed and comprehensive architecture but lacks some specific components and connections present in the GroundTruth diagram, such as the direct connection from Appian Oracle DB to AWS Lambda.",
+    "Rating": 7
+  }
+}

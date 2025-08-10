@@ -1,0 +1,351 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "S3 CSV Input",
+        "description": "CSV input source",
+        "boundaries": "orange box",
+        "position": "top left"
+      },
+      {
+        "name": "CSV Reader Lambda",
+        "description": "Processes CSV input",
+        "boundaries": "orange box",
+        "position": "middle left"
+      },
+      {
+        "name": "Kinesis",
+        "description": "Data streaming service",
+        "boundaries": "orange box",
+        "position": "middle right"
+      },
+      {
+        "name": "SQS",
+        "description": "Queue service",
+        "boundaries": "orange box",
+        "position": "bottom left"
+      },
+      {
+        "name": "DynamoDB Consumer",
+        "description": "Consumes data into DynamoDB",
+        "boundaries": "orange box",
+        "position": "bottom middle"
+      },
+      {
+        "name": "API Gateway",
+        "description": "Entry point for API requests",
+        "boundaries": "green box",
+        "position": "top right"
+      },
+      {
+        "name": "API Implementation",
+        "description": "Handles API logic",
+        "boundaries": "green box",
+        "position": "middle right"
+      },
+      {
+        "name": "Custom Auth",
+        "description": "Custom authentication logic",
+        "boundaries": "green box",
+        "position": "middle right"
+      },
+      {
+        "name": "DynamoDB",
+        "description": "Database storage",
+        "boundaries": "cylinder",
+        "position": "bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "S3 CSV Input",
+        "target": "CSV Reader Lambda",
+        "label": "Ingest",
+        "type": "arrow"
+      },
+      {
+        "source": "CSV Reader Lambda",
+        "target": "Kinesis",
+        "label": "Data Stream",
+        "type": "arrow"
+      },
+      {
+        "source": "CSV Reader Lambda",
+        "target": "SQS",
+        "label": "Batch",
+        "type": "arrow"
+      },
+      {
+        "source": "Kinesis",
+        "target": "DynamoDB Consumer",
+        "label": "Stream",
+        "type": "arrow"
+      },
+      {
+        "source": "SQS",
+        "target": "DynamoDB Consumer",
+        "label": "Batch",
+        "type": "arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "API Implementation",
+        "label": "API Request",
+        "type": "arrow"
+      },
+      {
+        "source": "API Implementation",
+        "target": "Custom Auth",
+        "label": "Auth",
+        "type": "arrow"
+      },
+      {
+        "source": "API Implementation",
+        "target": "DynamoDB",
+        "label": "Query",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [
+      "Ingest",
+      "Batch",
+      "Stream"
+    ],
+    "groups": [
+      "Ingest",
+      "API"
+    ],
+    "metadata": {
+      "filename": "GroundTruth",
+      "title": "SAKURA"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "External Client",
+        "description": "User accessing the system",
+        "boundaries": "icon",
+        "position": "top"
+      },
+      {
+        "name": "API Gateway",
+        "description": "Entry point for API requests",
+        "boundaries": "blue box",
+        "position": "top middle"
+      },
+      {
+        "name": "CSV Reader Lambda",
+        "description": "Processes CSV input",
+        "boundaries": "yellow box",
+        "position": "middle"
+      },
+      {
+        "name": "Message Processor Lambda",
+        "description": "Processes messages",
+        "boundaries": "yellow box",
+        "position": "middle"
+      },
+      {
+        "name": "API Handler Lambda",
+        "description": "Handles API logic",
+        "boundaries": "yellow box",
+        "position": "middle"
+      },
+      {
+        "name": "Kinesis",
+        "description": "Data streaming service",
+        "boundaries": "red cylinder",
+        "position": "bottom left"
+      },
+      {
+        "name": "SQS",
+        "description": "Queue service",
+        "boundaries": "red cylinder",
+        "position": "bottom left"
+      },
+      {
+        "name": "S3",
+        "description": "CSV Files storage",
+        "boundaries": "green cylinder",
+        "position": "bottom right"
+      },
+      {
+        "name": "DynamoDB",
+        "description": "BIN Data storage",
+        "boundaries": "green cylinder",
+        "position": "bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "External Client",
+        "target": "API Gateway",
+        "label": "API request",
+        "type": "arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "API Handler Lambda",
+        "label": "Route request",
+        "type": "arrow"
+      },
+      {
+        "source": "CSV Reader Lambda",
+        "target": "Kinesis",
+        "label": "Stream BIN records",
+        "type": "arrow"
+      },
+      {
+        "source": "CSV Reader Lambda",
+        "target": "SQS",
+        "label": "New CSV file triggers",
+        "type": "arrow"
+      },
+      {
+        "source": "Kinesis",
+        "target": "Message Processor Lambda",
+        "label": "Send BIN records",
+        "type": "arrow"
+      },
+      {
+        "source": "SQS",
+        "target": "Message Processor Lambda",
+        "label": "Poll messages",
+        "type": "arrow"
+      },
+      {
+        "source": "Message Processor Lambda",
+        "target": "DynamoDB",
+        "label": "Store processed BIN data",
+        "type": "arrow"
+      },
+      {
+        "source": "API Handler Lambda",
+        "target": "DynamoDB",
+        "label": "Query BIN data",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [
+      "API request",
+      "Stream BIN records"
+    ],
+    "groups": [
+      "Lambda Functions",
+      "Messaging",
+      "Storage"
+    ],
+    "metadata": {
+      "filename": "GeneratedImage",
+      "title": "Lambda Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "CSV Reader Lambda",
+      "Kinesis",
+      "SQS",
+      "API Gateway",
+      "DynamoDB"
+    ],
+    "unique_to_GroundTruth": [
+      "S3 CSV Input",
+      "DynamoDB Consumer",
+      "API Implementation",
+      "Custom Auth"
+    ],
+    "unique_to_GeneratedImage": [
+      "External Client",
+      "Message Processor Lambda",
+      "API Handler Lambda",
+      "S3"
+    ],
+    "common_connectors": [
+      {
+        "source": "CSV Reader Lambda",
+        "target": "Kinesis",
+        "label": "Stream",
+        "type": "arrow"
+      },
+      {
+        "source": "CSV Reader Lambda",
+        "target": "SQS",
+        "label": "Batch",
+        "type": "arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "API Handler Lambda",
+        "label": "Route request",
+        "type": "arrow"
+      },
+      {
+        "source": "API Handler Lambda",
+        "target": "DynamoDB",
+        "label": "Query",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "S3 CSV Input",
+        "target": "CSV Reader Lambda",
+        "label": "Ingest",
+        "type": "arrow"
+      },
+      {
+        "source": "Kinesis",
+        "target": "DynamoDB Consumer",
+        "label": "Stream",
+        "type": "arrow"
+      },
+      {
+        "source": "SQS",
+        "target": "DynamoDB Consumer",
+        "label": "Batch",
+        "type": "arrow"
+      },
+      {
+        "source": "API Implementation",
+        "target": "Custom Auth",
+        "label": "Auth",
+        "type": "arrow"
+      },
+      {
+        "source": "API Implementation",
+        "target": "DynamoDB",
+        "label": "Query",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "External Client",
+        "target": "API Gateway",
+        "label": "API request",
+        "type": "arrow"
+      },
+      {
+        "source": "Kinesis",
+        "target": "Message Processor Lambda",
+        "label": "Send BIN records",
+        "type": "arrow"
+      },
+      {
+        "source": "SQS",
+        "target": "Message Processor Lambda",
+        "label": "Poll messages",
+        "type": "arrow"
+      },
+      {
+        "source": "Message Processor Lambda",
+        "target": "DynamoDB",
+        "label": "Store processed BIN data",
+        "type": "arrow"
+      }
+    ],
+    "explanation": "The two diagrams share several common components such as the CSV Reader Lambda, Kinesis, SQS, API Gateway, and DynamoDB. However, the GroundTruth diagram includes components like S3 CSV Input, DynamoDB Consumer, API Implementation, and Custom Auth, which are not present in the GeneratedImage. Conversely, the GeneratedImage introduces an External Client, Message Processor Lambda, API Handler Lambda, and S3 storage, which are absent in the GroundTruth. Both diagrams depict similar data flow patterns with common connectors between CSV Reader Lambda, Kinesis, and SQS, as well as between API Gateway and DynamoDB. The GroundTruth focuses more on ingestion and API implementation details, while the GeneratedImage emphasizes a broader architecture with client interaction and message processing. The GeneratedImage is rated 7 out of 10 for its accuracy and completeness. It captures the core components and interactions but lacks some specific elements found in the GroundTruth, such as the detailed API implementation and custom authentication logic.",
+    "Rating": 7
+  }
+}

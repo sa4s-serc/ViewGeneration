@@ -1,0 +1,85 @@
+@startuml
+package "lvyahui8/http-proxy" {
+    package "proxy-server" {
+        class HttpProxyServer {
+            +setupNettyServer()
+        }
+        class ClientToProxyHandler {
+            +handleClientRequest()
+        }
+        class ProxyToServerInboundHandler {
+            +handleBackendResponse()
+        }
+        class EntitysManager {
+            +loadProxyEntities()
+            +reloadConfiguration()
+        }
+        class GlobalExceptionHandler {
+            +handleException()
+        }
+        class EventLoopGroupManager {
+            +manageThreads()
+        }
+        class Bootstrap {
+            +serverSetup()
+        }
+        package "org.lyh.http.proxy.filter" {
+            interface ProxyRequestFilter
+            interface ProxyResponseFilter
+            class AttackRequestFilter
+            class DefaultProxyResponseFilter
+        }
+        package "org.lyh.http.proxy.msg" {
+            class MsgTranslater
+            class MsgCode
+            class StandardResponse
+        }
+        file entitys.json
+    }
+
+    package "test-client" {
+        class TestClientApp {
+            +sendLoadTestRequests()
+        }
+    }
+
+    package "test-server" {
+        class TestServerMain {
+            +startTestServer()
+        }
+        class TestResource {
+            +implementRESTEndpoints()
+        }
+    }
+
+    package "proxy-sdk" {
+        // Additional SDK components if necessary
+    }
+}
+
+HttpProxyServer --> ClientToProxyHandler : function_calls
+ClientToProxyHandler --> ProxyToServerInboundHandler : function_calls
+EntitysManager --> entitys.json : data_flow
+GlobalExceptionHandler --> StandardResponse : function_calls
+EntitysManager <.. ProxyRequestFilter : function_calls
+EntitysManager <.. ProxyResponseFilter : function_calls
+TestClientApp --> HttpProxyServer : data_flow
+TestServerMain --> TestResource : function_calls
+EventLoopGroupManager --> Bootstrap : function_calls
+
+note right of HttpProxyServer
+    Main class to setup and bind Netty server
+end note
+
+note right of EntitysManager
+    Manages routing rules from entitys.json
+end note
+
+note right of GlobalExceptionHandler
+    Centralizes error handling with standardized responses
+end note
+
+note bottom of "lvyahui8/http-proxy"
+    Modular Design, Maintainability, and Dynamic Configuration
+end note
+@enduml

@@ -7,7 +7,7 @@ import tempfile
 import anthropic
 
 # Claude API key included directly here — replace with your real key or secure via env var
-client = anthropic.Anthropic(api_key="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")
+client = anthropic.Anthropic(api_key="")
 
 def get_plantuml_from_summary(summary, repo_name, concern, behavior, error_message=None, code=None):
     # Choose diagram type
