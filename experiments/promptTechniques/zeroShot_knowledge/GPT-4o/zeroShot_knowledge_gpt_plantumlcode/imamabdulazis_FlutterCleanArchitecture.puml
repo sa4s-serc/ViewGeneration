@@ -1,0 +1,82 @@
+```plantuml
+@startuml imamabdulazis_FlutterCleanArchitecture
+
+package "imamabdulazis_FlutterCleanArchitecture" {
+
+    package "Core" {
+        class HttpClient
+        class HttpRetrier
+        class Failure
+        class Exception
+        class SentryExceptions
+    }
+
+    package "Features" {
+        package "Data" {
+            class UserRepository
+            class AppRepository
+            class DataSourceFactory
+            class NetworkDataSource
+            class LocalDataSource
+        }
+
+        package "Domain" {
+            class UserEntity
+            class AppEntity
+            class CheckBindStatusUsecase
+            class LoginUseCase
+            class GetPreferredLanguageUseCase
+            class UpdateLanguageUseCase
+        }
+
+        package "Presentation" {
+            class HomeScreen
+            class LoginScreen
+            class MenuScreen
+            class AppBloc
+        }
+
+        package "DI" {
+            class InjectionContainer
+        }
+    }
+
+    package "App" {
+        class MyApp
+        class Routes
+        class Localization
+    }
+
+    package "Platform" {
+        class Android
+        class iOS
+    }
+
+    MyApp --> Routes : uses
+    MyApp --> Localization : uses
+    MyApp --> InjectionContainer : uses
+    MyApp --> AppBloc : manages
+
+    UserRepository <|-- DataSourceFactory
+    DataSourceFactory --> NetworkDataSource : creates
+    DataSourceFactory --> LocalDataSource : creates
+
+    AppBloc --> HomeScreen : manages
+    AppBloc --> LoginScreen : manages
+    AppBloc --> MenuScreen : manages
+
+    CheckBindStatusUsecase --> UserRepository : uses
+    LoginUseCase --> UserRepository : uses
+    GetPreferredLanguageUseCase --> AppRepository : uses
+    UpdateLanguageUseCase --> AppRepository : uses
+
+    Android --> MyApp : configures
+    iOS --> MyApp : configures
+
+    HttpClient --> HttpRetrier : uses
+    Failure --> Exception : extends
+    SentryExceptions --> Exception : extends
+}
+
+@enduml
+```

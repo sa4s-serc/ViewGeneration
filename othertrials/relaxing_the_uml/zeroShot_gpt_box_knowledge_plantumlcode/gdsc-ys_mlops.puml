@@ -1,0 +1,26 @@
+@startuml
+!define AWSS3 https://raw.githubusercontent.com/RicardoNiepel/Mermaid-PlantUML-icons/main/AWS/AmazonS3/AmazonS3.png
+!define MySQL https://raw.githubusercontent.com/RicardoNiepel/Mermaid-PlantUML-icons/main/AWS/AmazonRDS/AmazonRDS_MySQL.png
+!define Docker https://raw.githubusercontent.com/RicardoNiepel/Mermaid-PlantUML-icons/main/DevOps/Docker.png
+!define Nginx https://raw.githubusercontent.com/RicardoNiepel/Mermaid-PlantUML-icons/main/DevOps/NGINX.png
+!define MLflow https://raw.githubusercontent.com/RicardoNiepel/Mermaid-PlantUML-icons/main/Miscellaneous/Mlflow.png
+!define Client https://raw.githubusercontent.com/RicardoNiepel/Mermaid-PlantUML-icons/main/Miscellaneous/User.png
+
+skinparam componentStyle rectangle
+
+package "MLOps Framework" {
+    component "Nginx Reverse Proxy" <<Nginx>> as nginx
+    component "MLflow Tracking Server" <<MLflow>> as mlflow
+    component "MySQL Database" <<MySQL>> as mysql
+    component "AWS S3 Artifact Store" <<AWSS3>> as s3
+}
+
+package "Client-Side Tools" {
+    component "ML Developer" <<Client>> as developer
+}
+
+developer -down-> nginx : Access MLflow UI
+nginx -right-> mlflow : Routes Requests
+mlflow -right-> mysql : Stores Metadata
+mlflow -right-> s3 : Manages Artifacts
+@enduml

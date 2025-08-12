@@ -1,18 +1,20 @@
 import os
 import subprocess
-import openai
+from openai import OpenAI
 import json
 import glob
 import shutil
 import tempfile
-openai.api_key = ""
+client = OpenAI(api_key="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")
 
 def get_plantuml_from_summary(view_details, error_message=None, code=None):
     # The System Prompt now contains all instructions and constraints.
     # It is more direct and uses a numbered list for clarity.
+    with open("information.txt", "r", encoding="utf-8") as f:
+        knowledge_base = f.read()
     system_prompt = """You are an expert software architect specializing in software architecture views.
 Your sole task is to generate a single, complete, and valid architectural view diagram based on the architectural knowledge provided by the user.Use plantuml to represent the architectural notation given in the metadata.
-
+Here is the architectural knowledge which can give you more information on creating views {knowledge_base}.
 **Instructions & Constraints:**
 1.  **Output Format:** Your response MUST contain ONLY the PlantUML code. Do not include any explanations, apologies, or markdown fences like ```plantuml. Your entire response must start with `@startuml` and end with `@enduml`.
 2.  **Adherence to Data:** The diagram must accurately represent the components, connectors, behaviors, and architectural styles described in the user's metadata.
@@ -41,7 +43,7 @@ Your sole task is to generate a single, complete, and valid architectural view d
 {code}
 ```"""
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
                 {"role": "system", "content": system_prompt + retry_instruction if error_message else system_prompt},
@@ -51,22 +53,22 @@ Your sole task is to generate a single, complete, and valid architectural view d
             max_tokens=1024,
             stream=False
         )
-        return response.choices[0].message.get("content", "")
+        return response.choices[0].message.content
     except Exception as e:
         return f"Error: {e}"
 
 
 def save_plantuml_code(puml_code, repo_name):
-    os.makedirs("zeroShot_gpt_box_plantumlcode", exist_ok=True)
+    os.makedirs("zeroShot_gpt_box_knowledge_plantumlcode", exist_ok=True)
     # clean_repo_name = repo_name.replace('/', '_').replace('\\', '_').rstrip('_')
-    file_path = os.path.join("zeroShot_gpt_box_plantumlcode", f"{repo_name}.puml")
+    file_path = os.path.join("zeroShot_gpt_box_knowledge_plantumlcode", f"{repo_name}.puml")
     with open(file_path, "w", encoding="utf-8") as file:
         file.write(puml_code)
     return file_path
 
 
 
-def compile_plantuml(repo_name, input_path, output_dir="./zeroShot_gpt_box_output_images"):
+def compile_plantuml(repo_name, input_path, output_dir="./zeroShot_gpt_box_knowledge_output_images"):
     os.makedirs(output_dir, exist_ok=True)
 
     with tempfile.TemporaryDirectory() as temp_dir:

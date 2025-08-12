@@ -6,31 +6,42 @@ import glob
 import shutil
 import tempfile
 # Initialize DeepSeek client
-client = OpenAI(api_key="")
+client = OpenAI(api_key="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")
 
 def get_plantuml_from_summary(summary, repo_name, concern, behavior, error_message=None, code=None):
+    # Load architectural knowledge
+    with open("information.txt", "r", encoding="utf-8") as f:
+        knowledge_base = f.read()
+
     # Decide on diagram type based on behavior
     if behavior == "dynamic":
         diagram_instruction = f'''
-You are expert software architect. Your task is to design a view for the system based on the architectural knowledge provided. Use PlantUML diagrams. Based on the following repository summary and system behavior, generate a **PlantUML sequence diagram** to show dynamic interactions.
+{knowledge_base}
+
+You are an expert software architect. Your task is to design a view for the system based on the architectural knowledge provided.
+Use PlantUML diagrams. Based on the following repository summary and system behavior, generate a *PlantUML* code to show dynamic interactions.
 
 **Behavioral focus:** {concern}
 
 Ensure the diagram:
 - Accurately represents runtime message flow between components or services.
 - Matches the described system behavior.
-- Is valid PlantUML code with no explanation.
-this is the repository name, so please name the generate image the with the same {repo_name}.
+- Is valid PlantUML code with no explanation.It can be semi-formal
+This is the repository name, so please name the generated image with the same {repo_name}.
 '''
     else:
         diagram_instruction = f'''
-You are expert software architect. Your task is to design a view for the system based on the architectural knowledge provided. Use PlantUML diagrams. Based on the following repository summary, generate a **PlantUML component diagram** to capture the static architecture. Focus on the architectural concern: **{concern}**.
+{knowledge_base}
+
+You are an expert software architect. Your task is to design a view for the system based on the architectural knowledge provided.
+Use PlantUML diagrams. Based on the following repository summary, generate a **PlantUML** to capture the static architecture.
+Focus on the architectural concern: **{concern}**.
 
 Ensure the diagram:
 - Clearly shows system components and their relationships.
 - Highlights how the architecture addresses the specified concern.
 - Is valid PlantUML code with no explanation.
-this is the repository name, so please name the generate image the with the same {repo_name}.
+This is the repository name, so please name the generated image with the same {repo_name}.
 '''
 
     # Include retry guidance if needed
@@ -53,17 +64,18 @@ this is the repository name, so please name the generate image the with the same
         return f"Error: {e}"
 
 
+
 def save_plantuml_code(puml_code, repo_name):
-    os.makedirs("zeroShot_gpt_plantumlcode", exist_ok=True)
+    os.makedirs("zeroShot_knowledge_gpt_plantumlcode", exist_ok=True)
     # clean_repo_name = repo_name.replace('/', '_').replace('\\', '_').rstrip('_')
-    file_path = os.path.join("zeroShot_gpt_plantumlcode", f"{repo_name}.puml")
+    file_path = os.path.join("zeroShot_knowledge_gpt_plantumlcode", f"{repo_name}.puml")
     with open(file_path, "w", encoding="utf-8") as file:
         file.write(puml_code)
     return file_path
 
 
 
-def compile_plantuml(repo_name, input_path, output_dir="../zeroShot_gpt_output_images"):
+def compile_plantuml(repo_name, input_path, output_dir="../zeroShot_knowledge_gpt_output_images"):
     os.makedirs(output_dir, exist_ok=True)
 
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -123,12 +135,13 @@ def process_view(repo_name, summary, concern, behavior):
     return cnt
 
 def main():
-    input_jsonl = "../../../../Architectural_knowledge_extraction/generated_summaries.jsonl"
+    input_jsonl = "../../../Architectural_knowledge_extraction/generated_summaries.jsonl"
     column_name1 = "Repository Name"
     column_name2 = "summary"
     column_name3 = "Concern"
     column_name4 = "Behavior"
     global_cnt=0
+    count=0
 
     try:
         with open(input_jsonl, 'r', encoding='utf-8') as f:
@@ -138,10 +151,13 @@ def main():
         return
 
     for entry in entries:
+        if count > 10:
+            break
         if all(key in entry for key in [column_name1, column_name2, column_name3, column_name4]):
             clean_repo_name = entry[column_name1].replace('/', '_').replace('\\', '_').rstrip('_')
             global_cnt += process_view(clean_repo_name, entry[column_name2], entry[column_name3], entry[column_name4])
             print(f"Processed entry: {clean_repo_name}")
+            count += 1
         else:
             print(f"Skipping entry due to missing required fields: {entry}")
 

@@ -1,0 +1,32 @@
+```plantuml
+@startuml hyeonsangjeon_youtube-dl-nas
+
+actor User
+
+package "hyeonsangjeon_youtube-dl-nas" {
+    component WebInterface as WI
+    component REST_API as API
+    component Authenticator
+    component DownloadQueue
+    component DownloadWorker
+    component WebSocketServer as WSS
+    component Scheduler
+    component "yt-dlp/youtube-dl" as Downloader
+
+    User -> WI : Access Web Interface
+    User -> API : Send Download Request
+    WI -> Authenticator : Login Request
+    API -> Authenticator : Authenticate
+    Authenticator --> WI : Login Success
+    Authenticator --> API : Auth Success
+    WI -> WSS : Connect for Updates
+    API -> DownloadQueue : Add to Queue
+    DownloadQueue -> DownloadWorker : Start Download
+    DownloadWorker -> Downloader : Execute Download
+    DownloadWorker -> WSS : Send Progress Updates
+    WSS -> WI : Push Updates
+    Scheduler -> Downloader : Trigger Update
+}
+
+@enduml
+```

@@ -1,0 +1,56 @@
+@startuml
+rectangle "Web Server" as WebServer {
+  rectangle "Web Interface" as WebInterface
+  rectangle "REST API" as RESTAPI
+  rectangle "WebSocket Handler" as WebSocketHandler
+}
+
+rectangle "Download Management" as DownloadManagement {
+  rectangle "Queue Manager" as QueueManager
+  rectangle "Download Worker" as DownloadWorker
+}
+
+rectangle "Authentication" as Authentication {
+  rectangle "Basic Auth" as BasicAuth
+  rectangle "Auth.json" as AuthJson
+}
+
+rectangle "Containerization" as Containerization {
+  rectangle "Docker" as Docker
+}
+
+rectangle "Update Scheduler" as UpdateScheduler {
+  rectangle "apscheduler" as Apscheduler
+}
+
+rectangle "Storage" as Storage {
+  rectangle "downfolder" as Downfolder
+}
+
+WebServer -down-> WebInterface : "Login"
+WebServer -down-> RESTAPI : "Submit Requests"
+WebServer -down-> WebSocketHandler : "Monitor Progress"
+
+DownloadManagement -down-> QueueManager : "Manage Queue"
+DownloadManagement -down-> DownloadWorker : "Process Download"
+
+Authentication -down-> BasicAuth : "Validate"
+Authentication -down-> AuthJson : "Store Credentials"
+
+Containerization -down-> Docker : "Deploy & Configure"
+
+UpdateScheduler -down-> Apscheduler : "Schedule Updates"
+
+WebInterface -right-> BasicAuth : "Authenticate"
+RESTAPI -right-> BasicAuth : "Authenticate"
+
+QueueManager -down-> DownloadWorker : "Send Task"
+
+WebSocketHandler -right-> WebInterface : "Send Updates"
+
+DownloadWorker -down-> Downfolder : "Store Files"
+
+rectangle "Firewall" as Firewall {
+  [Internet] -right-> WebServer : "Client Requests"
+}
+@enduml

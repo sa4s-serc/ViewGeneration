@@ -1,0 +1,106 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+skinparam ArrowColor #555
+
+package "CLI" {
+  component "SeatAllocatorLauncher (CLI)" as Launcher
+}
+
+package "Config & Serialization" {
+  component "ProcessorConfig (XML)" as ProcessorConfig
+  component "JAXB" as JAXB
+  ProcessorConfig <--> JAXB
+}
+
+package "Core" {
+  component "SeatAllocatorProcessor" as Processor
+  component "SeatAllocatorResolver" as Resolver
+}
+
+package "Model" {
+  component Candidate
+  component Tally
+  component Result
+  Candidate --> Tally
+}
+
+package "Interfaces" {
+  interface "SeatAllocationMethod" as IMethod
+  interface "TallyFilter" as IFilter
+  interface "ResultDecorator" as IDecorator
+  interface "TieBreaker" as ITie
+}
+
+package "Implementations" {
+  package "Seat Allocation Methods" {
+    component "D'Hondt" as Dhondt
+    component "Sainte-Laguë" as Sainte
+    component "Danish" as Danish
+    component "Imperiali (Highest Averages)" as ImperialiAvg
+    component "Largest Remainder (Hare)" as Hare
+    component "Largest Remainder (Droop)" as Droop
+    component "Largest Remainder (Imperiali)" as ImperialiLR
+    component "Majority-based (Simple/Absolute/Qualified)" as Majority
+    component "Equal Proportions (Huntington–Hill)" as HH
+  }
+  
+  package "Tally Filters" {
+    component "Threshold / Custom" as ThresholdFilter
+  }
+  
+  package "Result Decorators" {
+    component "Suffix / Custom" as SuffixDecorator
+  }
+  
+  package "Tie Breakers" {
+    component "Random" as RandomTB
+    component "Minority-based" as MinorityTB
+    component "Interactive" as InteractiveTB
+  }
+}
+
+package "Logging" {
+  component "SLF4J" as SLF4J
+  component "Logback\n(logback.xml, logback-cli.xml)" as Logback
+  SLF4J --> Logback
+}
+
+' Control flow / dependencies
+Launcher --> ProcessorConfig
+Launcher --> Processor
+
+Tally --> Processor
+Processor --> Result
+
+ProcessorConfig --> Resolver
+Processor --> Resolver
+
+Resolver ..> IMethod
+Resolver ..> IFilter
+Resolver ..> IDecorator
+Resolver ..> ITie
+
+Processor ..> IMethod
+Processor ..> IFilter
+Processor ..> IDecorator
+Processor ..> ITie
+
+Dhondt ..|> IMethod
+Sainte ..|> IMethod
+Danish ..|> IMethod
+ImperialiAvg ..|> IMethod
+Hare ..|> IMethod
+Droop ..|> IMethod
+ImperialiLR ..|> IMethod
+Majority ..|> IMethod
+HH ..|> IMethod
+
+ThresholdFilter ..|> IFilter
+SuffixDecorator ..|> IDecorator
+RandomTB ..|> ITie
+MinorityTB ..|> ITie
+InteractiveTB ..|> ITie
+
+Processor --> SLF4J
+@enduml
