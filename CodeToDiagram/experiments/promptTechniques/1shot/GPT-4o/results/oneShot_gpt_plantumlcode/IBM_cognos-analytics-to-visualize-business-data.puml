@@ -1,0 +1,37 @@
+```plantuml
+@startuml IBM_cognos-analytics-to-visualize-business-data
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Node.js Environment" as NodeJS {
+  rectangle "create-product-data.js" as CreateData
+  rectangle "save-product-reviews.js" as SaveReviews
+}
+
+rectangle "IBM Db2 Warehouse" as Db2Warehouse #lightblue
+rectangle "Netezza Performance Server" as Netezza #lightblue
+
+rectangle "IBM Cognos Analytics" as Cognos #lightyellow
+
+' ========== Connections ==========
+User --> NodeJS : Initiates data generation
+
+' Node.js interactions
+CreateData --> Db2Warehouse : Generate & load business data
+CreateData --> Netezza : (alternative) Generate & load business data
+SaveReviews --> Db2Warehouse : Load product reviews
+SaveReviews --> Netezza : (alternative) Load product reviews
+
+' IBM Cognos Analytics interactions
+Cognos --> Db2Warehouse : Connect to data warehouse
+Cognos --> Netezza : (alternative) Connect to data warehouse
+Cognos --> Cognos : Create data modules\nBuild dashboards
+
+@enduml
+```

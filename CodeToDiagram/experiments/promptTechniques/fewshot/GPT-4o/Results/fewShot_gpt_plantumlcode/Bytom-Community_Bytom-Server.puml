@@ -1,0 +1,130 @@
+```plantuml
+@startuml Bytom-Community_Bytom-Server
+skinparam linetype ortho
+skinparam defaultTextAlignment center
+
+actor "User" as user
+
+package "Bytom Server" {
+    rectangle "Blockchain Core" as core
+    rectangle "Peer-to-Peer Networking" as p2p
+    rectangle "Block Synchronization" as netsync
+    rectangle "Mining" as mining
+    rectangle "Data Store" as datastore
+    rectangle "gRPC API" as grpc
+    rectangle "Access Token Mgmt" as tokenmgmt
+    rectangle "Transaction Handling" as txhandling
+    rectangle "Bytom VM" as vm
+    rectangle "State Management" as state
+    rectangle "Wallet Functionality" as wallet
+    rectangle "Pseudohsm" as pseudohsm
+    rectangle "Secure Connections" as secureconn
+    rectangle "Event Handling" as events
+    rectangle "CLI" as cli
+}
+
+user --> cli
+cli --> grpc
+cli --> wallet
+
+user --> grpc
+grpc --> core
+grpc --> txhandling
+grpc --> vm
+grpc --> wallet
+grpc --> tokenmgmt
+
+core --> netsync
+core --> p2p
+core --> txhandling
+core --> state
+core --> mining
+
+p2p --> events
+netsync --> events
+
+mining --> core
+
+txhandling --> state
+txhandling --> datastore
+
+wallet --> pseudohsm
+wallet --> secureconn
+
+secureconn --> p2p
+
+note right of core
+  - Protocol
+  - Consensus
+  - Validation
+end note
+
+note right of p2p
+  - Peer Discovery
+  - Message Routing
+end note
+
+note right of netsync
+  - Block Fetching
+  - Transaction Sync
+end note
+
+note top of mining
+  - Tensority Algorithm
+  - Block Template
+end note
+
+note top of datastore
+  - LevelDB Abstraction
+end note
+
+note left of grpc
+  - ApiService
+  - rpc.proto
+end note
+
+note left of tokenmgmt
+  - Access Token
+  - Authentication
+end note
+
+note right of txhandling
+  - Transaction Generation
+  - Validation
+  - UTXO Management
+end note
+
+note right of vm
+  - Smart Contract Execution
+  - Opcodes
+end note
+
+note right of state
+  - State-based UTXO Model
+end note
+
+note left of wallet
+  - Account Management
+  - Transaction Signing
+end note
+
+note left of pseudohsm
+  - Dev/Test HSM Emulation
+end note
+
+note left of secureconn
+  - NaCl's secretbox
+end note
+
+note left of events
+  - Event-Driven
+  - Channel Communication
+end note
+
+note left of cli
+  - bytomd
+  - bytomcli
+end note
+
+@enduml
+```

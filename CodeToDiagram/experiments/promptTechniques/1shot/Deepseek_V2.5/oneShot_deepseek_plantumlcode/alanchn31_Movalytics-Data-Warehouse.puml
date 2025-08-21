@@ -1,0 +1,37 @@
+@startuml alanchn31_Movalytics-Data-Warehouse
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+rectangle "Kaggle API" as Kaggle
+rectangle "FRED API" as FRED
+rectangle "S3 Bucket" as S3
+rectangle "Apache Airflow" as Airflow {
+  rectangle "DAG Scheduler" as Scheduler
+  rectangle "Web Server" as Webserver
+}
+rectangle "Apache Spark" as Spark
+rectangle "Amazon Redshift" as Redshift
+
+' ========== Data Flow ==========
+Kaggle --> S3 : MovieLens dataset (CSV)
+FRED --> S3 : CPI data (CSV)
+
+Airflow --> S3 : Trigger ETL pipeline
+S3 --> Spark : Read raw data
+Spark --> Redshift : Write to staging tables
+Redshift --> Redshift : Upsert to dimension tables
+
+' ========== Control Flow ==========
+Webserver --> Scheduler : Submit DAG
+Scheduler --> Spark : Execute Spark jobs
+Spark --> Scheduler : Job completion status
+Scheduler --> Redshift : Run data quality checks
+Redshift --> Scheduler : Data quality results
+
+' ========== Internal Airflow ==========
+Webserver -right-> Scheduler : Monitor DAG runs
+@enduml

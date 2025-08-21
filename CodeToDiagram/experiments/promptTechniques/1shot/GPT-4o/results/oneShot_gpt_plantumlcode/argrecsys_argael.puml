@@ -1,0 +1,50 @@
+```plantuml
+@startuml argrecsys_argael
+skinparam rectangle {
+  BackgroundColor<<gui>> #d9e7fd
+  BackgroundColor<<data>> #d8f5d3
+  BackgroundColor<<io>> #fddddd
+  BackgroundColor<<utils>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "GUI Layer" <<gui>> {
+  rectangle "ArgaelForm.java\n(Main GUI)" as ArgaelForm
+  rectangle "ReportFormatter.java\n(HTML Reports)" as ReportFormatter
+  rectangle "InitParams.java\n(Init Parameters)" as InitParams
+  ArgaelForm --> ReportFormatter
+  ArgaelForm --> InitParams
+}
+
+package "Data Management Layer" <<data>> {
+  rectangle "DataManager.java\n(Data Persistence)" as DataManager
+  rectangle "ArgumentModel.java\n(Argument Data Model)" as ArgumentModel
+  rectangle "TreeNode.java\n(Comment Threading)" as TreeNode
+  rectangle "SelectedItems.java\n(Queue of AC IDs)" as SelectedItems
+  DataManager --> ArgumentModel
+  DataManager --> TreeNode
+  DataManager --> SelectedItems
+}
+
+package "IO Layer" <<io>> {
+  rectangle "IOManager.java\n(File IO)" as IOManager
+  rectangle "FileUtils.java\n(File Utilities)" as FileUtils
+  IOManager --> FileUtils
+}
+
+package "Utility Layer" <<utils>> {
+  rectangle "StringUtils.java\n(String Manipulation)" as StringUtils
+}
+
+rectangle "JSONL Data\n(Proposals & Comments)" as JSONL
+rectangle "Config Files\n(params.json, users.txt)" as ConfigFiles
+
+ArgaelForm --> DataManager
+ArgaelForm --> IOManager
+ReportFormatter --> ConfigFiles
+DataManager --> JSONL
+IOManager --> JSONL
+InitParams --> ConfigFiles
+@enduml
+```

@@ -1,0 +1,64 @@
+```plantuml
+@startuml beston123_Tarzan
+
+actor Client
+actor Admin
+
+skinparam rectangle {
+  BackgroundColor<<server>> #d8f5d3
+  BackgroundColor<<client>> #d9e7fd
+  BackgroundColor<<registry>> #fddddd
+  BackgroundColor<<broker>> #fff1c9
+  BackgroundColor<<store>> #f3e5f5
+  BackgroundColor<<rpc>> #e0f7fa
+  Style roundrect
+}
+
+package "Server" <<server>> {
+  rectangle "ServerController" as ServerController
+  rectangle "ConfigManager" as ConfigManager
+  rectangle "ScheduledServiceManager" as ScheduledServiceManager
+  rectangle "MessageResendService" as MessageResendService
+}
+
+package "Client" <<client>> {
+  rectangle "MQClient" as MQClient
+  rectangle "TransactionLifecycleManager" as TransactionLifecycleManager
+}
+
+package "Registry" <<registry>> {
+  rectangle "ServerRegistry" as ServerRegistry
+  rectangle "Discovery" as Discovery
+}
+
+package "Message Broker" <<broker>> {
+  rectangle "RocketMQ" as RocketMQ
+}
+
+package "Store" <<store>> {
+  rectangle "RocketMQStoreService" as RocketMQStoreService
+  rectangle "ToSendMessage" as ToSendMessage
+  rectangle "MessageConsume" as MessageConsume
+}
+
+package "RPC" <<rpc>> {
+  rectangle "RpcClient" as RpcClient
+  rectangle "RpcServer" as RpcServer
+}
+
+Client -> MQClient: Send Message
+MQClient -> ServerController: Forward Message
+ServerController -> RocketMQ: Publish Message
+RocketMQ -> RocketMQStoreService: Persist Message
+RocketMQStoreService -> ToSendMessage: Save message data
+ServerController -> ScheduledServiceManager: Schedule Resend Task
+ScheduledServiceManager -> MessageResendService: Check and Resend Messages
+
+Admin -> ConfigManager: Update Configurations
+ConfigManager -> ServerRegistry: Update Service Info
+ServerRegistry -> Discovery: Notify Service Update
+
+RpcClient -> RpcServer: Remote Procedure Call
+
+@enduml
+```

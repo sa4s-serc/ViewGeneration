@@ -1,0 +1,28 @@
+```plantuml
+@startuml IBM_vpc-flowlogs-log-analysis
+
+actor COS as User
+participant "IBM Cloud Object Storage" as COS
+participant "Handler.js" as Handler
+participant "IBM Log Analysis API" as LogAnalysis
+participant "Archive Bucket" as Archive
+
+User -> COS: New Flow Log
+COS -> Handler: Trigger Event
+activate Handler
+
+Handler -> COS: Retrieve Compressed Log
+Handler -> Handler: Decompress Log
+Handler -> Handler: Parse and Transform Log
+
+Handler -> LogAnalysis: Forward Processed Log
+activate LogAnalysis
+LogAnalysis --> Handler: Acknowledgement
+deactivate LogAnalysis
+
+Handler -> Archive: Copy Processed Log
+Handler -> COS: Delete Log from Receiver Bucket
+deactivate Handler
+
+@enduml
+```

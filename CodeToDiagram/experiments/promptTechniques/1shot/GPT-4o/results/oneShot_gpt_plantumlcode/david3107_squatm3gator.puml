@@ -1,0 +1,43 @@
+```plantuml
+@startuml david3107_squatm3gator
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<infrastructure>> #fddddd
+  BackgroundColor<<redis>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend (squatm3-ui)" <<frontend>> {
+  rectangle "index.html" as HTML
+  rectangle "CSS Files\n(bootstrap.min.css,\nmdb.min.css,\nstyle.min.css)" as CSS
+  rectangle "JavaScript" as JS
+  HTML --> CSS
+  HTML --> JS
+}
+
+package "Backend" <<backend>> {
+  rectangle "Flask Application\n(server.py)" as FlaskApp
+  rectangle "Domain Squatting\nCore (squatme.py)" as SquatMe
+  rectangle "Redis Communication\n(wrapper/)" as RedisWrapper
+  rectangle "Attack Modules\n(modules/)" as Modules
+  rectangle "Configuration\n(config.py)" as Config
+  FlaskApp --> SquatMe
+  FlaskApp --> RedisWrapper
+  SquatMe --> Modules
+  SquatMe --> Config
+  RedisWrapper --> Redis
+}
+
+package "Infrastructure" <<infrastructure>> {
+  rectangle "Dockerfile" as Dockerfile
+  rectangle "docker-compose.yml" as DockerCompose
+  Dockerfile --> DockerCompose
+}
+
+database "Redis Service" <<redis>> as Redis
+FlaskApp --> Redis
+
+@enduml
+```

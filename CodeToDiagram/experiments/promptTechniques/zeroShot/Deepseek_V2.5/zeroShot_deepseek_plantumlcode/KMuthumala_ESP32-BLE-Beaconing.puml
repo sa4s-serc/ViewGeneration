@@ -1,0 +1,43 @@
+```plantuml
+@startuml KMuthumala_ESP32-BLE-Beaconing
+
+participant "ESP32 Device" as ESP32
+participant "WiFi Network" as WiFi
+participant "MQTT Broker" as MQTT
+participant "BLE Beacons" as Beacons
+
+== Initialization ==
+ESP32 -> ESP32: setup()
+activate ESP32
+ESP32 -> WiFi: setup_wifi()
+ESP32 -> MQTT: connect()
+ESP32 -> ESP32: Initialize BLE Scanner
+deactivate ESP32
+
+== Main Loop ==
+loop Every Scan Interval
+    ESP32 -> ESP32: loop()
+    activate ESP32
+
+    alt WiFi Connected
+        ESP32 -> MQTT: check connection
+        alt MQTT Connected
+            ESP32 -> Beacons: Start BLE Scan
+            activate Beacons
+            Beacons -> ESP32: MAC & RSSI data
+            deactivate Beacons
+
+            ESP32 -> ESP32: format_data_to_JSON()
+            ESP32 -> MQTT: publish(JSON_data)
+        else MQTT Disconnected
+            ESP32 -> MQTT: reconnect()
+        end
+    else WiFi Disconnected
+        ESP32 -> WiFi: reconnect()
+    end
+
+    deactivate ESP32
+end
+
+@enduml
+```

@@ -1,0 +1,58 @@
+```plantuml
+@startuml microsoft_azure-realtime-fraud-detection
+
+skinparam rectangle {
+  BackgroundColor<<event>> #d9e7fd
+  BackgroundColor<<process>> #d8f5d3
+  BackgroundColor<<ml>> #fddddd
+  BackgroundColor<<storage>> #fff1c9
+  Style roundrect
+}
+
+actor "Event Generator" as EG
+
+package "Azure Event Hub" <<event>> {
+  rectangle "Ingest Transaction Events" as Ingest
+}
+
+package "Azure Stream Analytics" <<process>> {
+  rectangle "Process Event Stream" as StreamProcess
+  rectangle "Persist Data" as Persist
+}
+
+package "Azure Machine Learning" <<ml>> {
+  rectangle "Train Model" as Train
+  rectangle "Deploy Model" as Deploy
+}
+
+package "Azure Functions" <<process>> {
+  rectangle "Orchestrate Workflow" as Orchestrate
+  rectangle "Benford's Law Calculation" as Benfords
+  rectangle "Fraud Ring Detection" as FraudRing
+}
+
+package "Azure Synapse Analytics" <<storage>> {
+  rectangle "Historical Analysis" as Historical
+}
+
+package "Azure Cosmos DB" <<storage>> {
+  rectangle "SQL API Storage" as SQLStorage
+  rectangle "Gremlin API Graph" as GremlinGraph
+}
+
+EG -> Ingest : Generate Events
+Ingest -> StreamProcess : Send Event Stream
+StreamProcess -> Persist : Enrich & Persist Data
+Persist -> SQLStorage : Store Transaction Data
+Persist -> GremlinGraph : Model Relationships
+StreamProcess -> Orchestrate : Trigger Functions
+Orchestrate -> Benfords : Calculate Benford's Law
+Orchestrate -> FraudRing : Identify Fraud Rings
+FraudRing -> GremlinGraph : Store Detected Rings
+Benfords -> SQLStorage : Store Benford Results
+StreamProcess -> Deploy : Trigger Scoring
+Deploy -> Train : Utilize Trained Model
+SQLStorage -> Historical : Data for Reporting
+
+@enduml
+```

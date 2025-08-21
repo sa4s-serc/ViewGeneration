@@ -1,0 +1,39 @@
+@startuml CodisLabs_codis
+
+skinparam component {
+  BackgroundColor<<proxy>> #LightBlue
+  BackgroundColor<<redis>> #LightGreen
+  BackgroundColor<<client>> #LightYellow
+  BackgroundColor<<monitor>> #LightPink
+}
+
+cloud "Client Applications" {
+  [Redis Client Libraries] as ClientLib <<client>>
+}
+
+package "Codis Cluster" {
+  [Codis Proxy] as Proxy <<proxy>>
+  [Codis Dashboard] as Dashboard <<monitor>>
+  [Codis Fe] as Fe <<monitor>>
+  
+  package "Redis Instances" {
+    [Redis Server 1] as Redis1 <<redis>>
+    [Redis Server 2] as Redis2 <<redis>>
+    [Redis Server N] as RedisN <<redis>>
+  }
+  
+  [ZooKeeper] as ZK
+}
+
+ClientLib --> Proxy : Connects to
+Proxy --> Redis1
+Proxy --> Redis2
+Proxy --> RedisN
+Proxy ..> Dashboard : Monitored by
+Dashboard --> ZK : Stores metadata
+Fe --> Dashboard : Manages
+Dashboard --> Redis1 : Manages
+Dashboard --> Redis2 : Manages
+Dashboard --> RedisN : Manages
+
+@enduml

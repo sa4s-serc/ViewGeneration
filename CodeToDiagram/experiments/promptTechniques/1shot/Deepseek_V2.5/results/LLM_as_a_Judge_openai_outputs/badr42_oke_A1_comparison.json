@@ -1,0 +1,415 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "OCI Region",
+        "description": "Region containing the infrastructure",
+        "boundaries": "Outer boundary",
+        "position": "Top"
+      },
+      {
+        "name": "Availability Domain 1",
+        "description": "Contains Fault Domains",
+        "boundaries": "Inner boundary",
+        "position": "Center"
+      },
+      {
+        "name": "Fault Domain 1",
+        "description": "Contains Pod1 and Worker Node",
+        "boundaries": "Inner boundary",
+        "position": "Left"
+      },
+      {
+        "name": "Fault Domain 2",
+        "description": "Contains Pod2 and Worker Node",
+        "boundaries": "Inner boundary",
+        "position": "Right"
+      },
+      {
+        "name": "Pod1",
+        "description": "Kubernetes Pod",
+        "boundaries": "None",
+        "position": "Inside Fault Domain 1"
+      },
+      {
+        "name": "Pod2",
+        "description": "Kubernetes Pod",
+        "boundaries": "None",
+        "position": "Inside Fault Domain 2"
+      },
+      {
+        "name": "Worker Node",
+        "description": "Node running the pods",
+        "boundaries": "None",
+        "position": "Inside Fault Domains"
+      },
+      {
+        "name": "Load Balancer",
+        "description": "Distributes traffic",
+        "boundaries": "None",
+        "position": "Bottom"
+      },
+      {
+        "name": "Internet Gateway",
+        "description": "Gateway to the internet",
+        "boundaries": "None",
+        "position": "Bottom"
+      },
+      {
+        "name": "User",
+        "description": "External user accessing the system",
+        "boundaries": "None",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Internet Gateway",
+        "label": "Access",
+        "type": "Arrow"
+      },
+      {
+        "source": "Internet Gateway",
+        "target": "Load Balancer",
+        "label": "Traffic",
+        "type": "Arrow"
+      },
+      {
+        "source": "Load Balancer",
+        "target": "Pod1",
+        "label": "Traffic",
+        "type": "Arrow"
+      },
+      {
+        "source": "Pod1",
+        "target": "Pod2",
+        "label": "Traffic",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      "Container Engine for Kubernetes"
+    ],
+    "groups": [
+      "VCN",
+      "Subnet"
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "OCI Kubernetes Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Infrastructure (Terraform)",
+        "description": "Infrastructure setup using Terraform",
+        "boundaries": "Outer boundary",
+        "position": "Left"
+      },
+      {
+        "name": "Networking",
+        "description": "Networking components",
+        "boundaries": "Outer boundary",
+        "position": "Center"
+      },
+      {
+        "name": "Kubernetes",
+        "description": "Kubernetes setup",
+        "boundaries": "Outer boundary",
+        "position": "Right"
+      },
+      {
+        "name": "Application",
+        "description": "Application deployment",
+        "boundaries": "Outer boundary",
+        "position": "Far Right"
+      },
+      {
+        "name": "main.tf",
+        "description": "Main Terraform file",
+        "boundaries": "None",
+        "position": "Inside Infrastructure"
+      },
+      {
+        "name": "variables.tf",
+        "description": "Terraform variables",
+        "boundaries": "None",
+        "position": "Inside Infrastructure"
+      },
+      {
+        "name": "generate-keys.sh",
+        "description": "Script to generate keys",
+        "boundaries": "None",
+        "position": "Inside Infrastructure"
+      },
+      {
+        "name": "VCN",
+        "description": "Virtual Cloud Network",
+        "boundaries": "None",
+        "position": "Inside Networking"
+      },
+      {
+        "name": "Subnets",
+        "description": "Network subnets",
+        "boundaries": "None",
+        "position": "Inside Networking"
+      },
+      {
+        "name": "Gateways",
+        "description": "Network gateways",
+        "boundaries": "None",
+        "position": "Inside Networking"
+      },
+      {
+        "name": "Route Tables",
+        "description": "Routing tables",
+        "boundaries": "None",
+        "position": "Inside Networking"
+      },
+      {
+        "name": "Security Lists",
+        "description": "Security configurations",
+        "boundaries": "None",
+        "position": "Inside Networking"
+      },
+      {
+        "name": "OKE Cluster",
+        "description": "Oracle Kubernetes Engine Cluster",
+        "boundaries": "None",
+        "position": "Inside Kubernetes"
+      },
+      {
+        "name": "Node Pool (Ampere A1)",
+        "description": "Node pool configuration",
+        "boundaries": "None",
+        "position": "Inside Kubernetes"
+      },
+      {
+        "name": "kubeconfig",
+        "description": "Kubernetes configuration",
+        "boundaries": "None",
+        "position": "Inside Kubernetes"
+      },
+      {
+        "name": "nginx_deployment.yaml",
+        "description": "Nginx deployment configuration",
+        "boundaries": "None",
+        "position": "Inside Application"
+      },
+      {
+        "name": "setup_nginx.sh",
+        "description": "Script to set up Nginx",
+        "boundaries": "None",
+        "position": "Inside Application"
+      },
+      {
+        "name": "Nginx Service (LoadBalancer)",
+        "description": "Nginx service with load balancing",
+        "boundaries": "None",
+        "position": "Inside Application"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "main.tf",
+        "target": "variables.tf",
+        "label": "Dependency",
+        "type": "Arrow"
+      },
+      {
+        "source": "main.tf",
+        "target": "generate-keys.sh",
+        "label": "Dependency",
+        "type": "Arrow"
+      },
+      {
+        "source": "VCN",
+        "target": "Subnets",
+        "label": "Contains",
+        "type": "Arrow"
+      },
+      {
+        "source": "Subnets",
+        "target": "Gateways",
+        "label": "Contains",
+        "type": "Arrow"
+      },
+      {
+        "source": "Gateways",
+        "target": "Route Tables",
+        "label": "Contains",
+        "type": "Arrow"
+      },
+      {
+        "source": "Route Tables",
+        "target": "Security Lists",
+        "label": "Contains",
+        "type": "Arrow"
+      },
+      {
+        "source": "OKE Cluster",
+        "target": "Node Pool (Ampere A1)",
+        "label": "Contains",
+        "type": "Arrow"
+      },
+      {
+        "source": "Node Pool (Ampere A1)",
+        "target": "kubeconfig",
+        "label": "Contains",
+        "type": "Arrow"
+      },
+      {
+        "source": "nginx_deployment.yaml",
+        "target": "setup_nginx.sh",
+        "label": "Deployment",
+        "type": "Arrow"
+      },
+      {
+        "source": "setup_nginx.sh",
+        "target": "Nginx Service (LoadBalancer)",
+        "label": "Setup",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      "Infrastructure",
+      "Networking",
+      "Kubernetes",
+      "Application"
+    ],
+    "metadata": {
+      "filename": "GeneratedDiagram.png",
+      "title": "Terraform and Kubernetes Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "VCN",
+      "Subnets",
+      "Load Balancer"
+    ],
+    "unique_to_GroundTruth": [
+      "OCI Region",
+      "Availability Domain 1",
+      "Fault Domain 1",
+      "Fault Domain 2",
+      "Pod1",
+      "Pod2",
+      "Worker Node",
+      "Internet Gateway",
+      "User"
+    ],
+    "unique_to_GeneratedImage": [
+      "Infrastructure (Terraform)",
+      "Networking",
+      "Kubernetes",
+      "Application",
+      "main.tf",
+      "variables.tf",
+      "generate-keys.sh",
+      "Gateways",
+      "Route Tables",
+      "Security Lists",
+      "OKE Cluster",
+      "Node Pool (Ampere A1)",
+      "kubeconfig",
+      "nginx_deployment.yaml",
+      "setup_nginx.sh",
+      "Nginx Service (LoadBalancer)"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "User",
+        "target": "Internet Gateway",
+        "label": "Access",
+        "type": "Arrow"
+      },
+      {
+        "source": "Internet Gateway",
+        "target": "Load Balancer",
+        "label": "Traffic",
+        "type": "Arrow"
+      },
+      {
+        "source": "Load Balancer",
+        "target": "Pod1",
+        "label": "Traffic",
+        "type": "Arrow"
+      },
+      {
+        "source": "Pod1",
+        "target": "Pod2",
+        "label": "Traffic",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "main.tf",
+        "target": "variables.tf",
+        "label": "Dependency",
+        "type": "Arrow"
+      },
+      {
+        "source": "main.tf",
+        "target": "generate-keys.sh",
+        "label": "Dependency",
+        "type": "Arrow"
+      },
+      {
+        "source": "VCN",
+        "target": "Subnets",
+        "label": "Contains",
+        "type": "Arrow"
+      },
+      {
+        "source": "Subnets",
+        "target": "Gateways",
+        "label": "Contains",
+        "type": "Arrow"
+      },
+      {
+        "source": "Gateways",
+        "target": "Route Tables",
+        "label": "Contains",
+        "type": "Arrow"
+      },
+      {
+        "source": "Route Tables",
+        "target": "Security Lists",
+        "label": "Contains",
+        "type": "Arrow"
+      },
+      {
+        "source": "OKE Cluster",
+        "target": "Node Pool (Ampere A1)",
+        "label": "Contains",
+        "type": "Arrow"
+      },
+      {
+        "source": "Node Pool (Ampere A1)",
+        "target": "kubeconfig",
+        "label": "Contains",
+        "type": "Arrow"
+      },
+      {
+        "source": "nginx_deployment.yaml",
+        "target": "setup_nginx.sh",
+        "label": "Deployment",
+        "type": "Arrow"
+      },
+      {
+        "source": "setup_nginx.sh",
+        "target": "Nginx Service (LoadBalancer)",
+        "label": "Setup",
+        "type": "Arrow"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on the deployment architecture within an OCI region, detailing components like Pods, Worker Nodes, and Load Balancers, emphasizing the physical and network layout. In contrast, the GeneratedImage diagram illustrates the infrastructure setup using Terraform, focusing on the logical structure and dependencies between components like Terraform files, Kubernetes setup, and application deployment scripts. Both diagrams share common elements like VCN and Subnets, but they serve different purposes: one is more physical and network-oriented, while the other is more logical and configuration-oriented. The GeneratedImage diagram is rated 7 out of 10 for its accuracy and completeness, as it effectively captures the logical setup but lacks the detailed physical deployment aspects present in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

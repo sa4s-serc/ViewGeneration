@@ -1,0 +1,36 @@
+@startuml Cpanchal1_Chatbot101-with-AWS-Lambda
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Webex Teams" as Webex {
+}
+
+rectangle "AWS API Gateway" as APIGW #lightblue {
+}
+
+rectangle "AWS Lambda" as Lambda #palegreen {
+  rectangle "chatbot.py" as Chatbot
+}
+
+rectangle "icanhazdadjoke.com" as JokeAPI #lightyellow
+
+' ========== Connections ==========
+User -> Webex : Mentions bot in chat
+
+Webex -> APIGW : Sends webhook request\n(trigger event)
+APIGW -> Lambda : Invokes Lambda function
+
+Lambda -> Chatbot : main()
+Chatbot -> JokeAPI : getJoke()\n(HTTP GET request)
+JokeAPI --> Chatbot : Returns joke\n(JSON response)
+Chatbot -> Webex : postJoke()\n(Webex Teams API call)
+Webex --> User : Displays joke in chat
+
+Lambda --> APIGW : Returns success message
+@enduml

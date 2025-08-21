@@ -1,0 +1,61 @@
+```plantuml
+@startuml UnoSD_UnoCash
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Blazor Frontend" as Frontend #lightblue {
+}
+
+rectangle "Azure Functions Backend" as Backend #lightgreen {
+  rectangle "ExpenseReader" as ExpenseReader
+  rectangle "ExpenseWriter" as ExpenseWriter
+  rectangle "ReceiptParser" as ReceiptParser
+}
+
+rectangle "Azure Services" as AzureServices #lightgrey {
+  rectangle "Azure Blob Storage" as BlobStorage
+  rectangle "Azure Table Storage" as TableStorage
+  rectangle "Azure Form Recognizer" as FormRecognizer
+  rectangle "Azure AD" as AzureAD
+}
+
+rectangle "Pulumi Infrastructure" as Pulumi #lightpink {
+}
+
+rectangle "Azure API Management" as APIMgmt #lightyellow {
+}
+
+' ========== Connections ==========
+User --> Frontend : Interacts with
+
+' Frontend interactions
+Frontend --> Backend : HTTP Request for expense operations
+Frontend --> BlobStorage : Upload receipts
+
+' Backend interactions
+Backend --> TableStorage : Store/Retrieve expenses
+ExpenseReader --> TableStorage : Read expense data
+ExpenseWriter --> TableStorage : Write expense data
+ReceiptParser --> BlobStorage : Retrieve uploaded receipts
+ReceiptParser --> FormRecognizer : Analyze receipt images
+
+' Azure Services interactions
+Frontend --> AzureAD : Authentication
+Backend --> AzureAD : Authorization
+
+' Infrastructure and Deployment
+Pulumi --> AzureServices : Provision resources
+Pulumi --> APIMgmt : Configure API endpoints and policies
+Pulumi --> AzureAD : Configure authentication
+
+' API Management
+Frontend --> APIMgmt : Access API via gateway
+
+@enduml
+```

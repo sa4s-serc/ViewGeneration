@@ -1,0 +1,54 @@
+@startuml domingo1021_Bunny-code
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+package "Client" {
+  actor "User"
+  rectangle "Web Browser" as Browser
+}
+
+package "Reverse Proxy" {
+  rectangle "Nginx" as Nginx #orange
+}
+
+package "Backend Services" {
+  rectangle "Express API" as Express #lightblue
+  rectangle "Socket.IO" as SocketIO #lightblue
+  rectangle "JWT Auth" as JWT #lightblue
+}
+
+package "Data Stores" {
+  database "MySQL" as MySQL #lightgreen
+  database "InfluxDB" as InfluxDB #lightgreen
+  database "Redis" as Redis #lightgreen
+}
+
+package "Execution" {
+  rectangle "Docker Sandbox" as Sandbox #pink
+}
+
+package "Cloud Services" {
+  rectangle "S3 Storage" as S3 #yellow
+  rectangle "CloudFront CDN" as CloudFront #yellow
+  rectangle "CloudWatch" as CloudWatch #yellow
+}
+
+User --> Browser
+Browser --> Nginx : HTTPS
+Nginx --> Express : API Requests
+Nginx --> SocketIO : WebSocket
+Express --> JWT : Authentication
+Express --> MySQL : Persistent Data
+Express --> InfluxDB : Time Series Data
+Express --> Redis : Caching
+Express --> Sandbox : Code Execution
+SocketIO --> Redis : Real-time State
+Sandbox --> S3 : Store Code/Results
+Express --> S3 : File Storage
+Express --> CloudFront : CDN Delivery
+Express --> CloudWatch : Monitoring
+@enduml

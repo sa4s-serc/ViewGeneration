@@ -1,0 +1,34 @@
+```plantuml
+@startuml hyper-prog_hasses
+skinparam backgroundColor #f0f0f0
+skinparam componentStyle rectangle
+skinparam ArrowColor #black
+
+actor "Web Server" as WebServer
+actor "Clients" as Clients
+
+package "SSE Server (hasses)" {
+    rectangle "hasses.c\nMain Event Loop" as MainLoop
+    rectangle "chat.c/h\nSSE Logic" as ChatLogic
+    rectangle "cdata.c/h\nClient Management" as ClientMgmt
+    rectangle "cio.c/h\nI/O Management" as IOMgmt
+}
+
+database "FIFO / TCP Socket" as CommChannel
+
+WebServer -> CommChannel : Send messages
+CommChannel -> MainLoop : Receive messages
+
+MainLoop -> ChatLogic : Parse SSE headers
+MainLoop -> ClientMgmt : Manage client state
+MainLoop -> IOMgmt : Handle I/O events
+
+Clients -> MainLoop : Subscribe/Unsubscribe
+
+ChatLogic -> Clients : Send SSE messages
+ClientMgmt -> Clients : Handle timeouts
+
+MainLoop -> CommChannel : Status monitoring
+
+@enduml
+```

@@ -1,0 +1,363 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "App Gateway WAF",
+        "description": "Web Application Firewall",
+        "boundaries": "Hub VNET",
+        "position": "Top Left"
+      },
+      {
+        "name": "Firewall",
+        "description": "Network Security",
+        "boundaries": "Hub VNET",
+        "position": "Middle Left"
+      },
+      {
+        "name": "Private DNS Zones",
+        "description": "DNS Management",
+        "boundaries": "Hub VNET",
+        "position": "Bottom Left"
+      },
+      {
+        "name": "Keyvault Private endpoint",
+        "description": "Secure Key Management",
+        "boundaries": "Keyvault Subnet",
+        "position": "Top Middle"
+      },
+      {
+        "name": "Web App",
+        "description": "Application Hosting",
+        "boundaries": "ASE Subnet",
+        "position": "Middle Middle"
+      },
+      {
+        "name": "SQL Private endpoint",
+        "description": "Database Access",
+        "boundaries": "Data Subnet",
+        "position": "Bottom Middle"
+      },
+      {
+        "name": "SQL Database",
+        "description": "Data Storage",
+        "boundaries": "Spoke VNET",
+        "position": "Bottom Right"
+      },
+      {
+        "name": "Key Vault",
+        "description": "Secure Secrets Management",
+        "boundaries": "Internet",
+        "position": "Top Right"
+      },
+      {
+        "name": "Internet",
+        "description": "External Network",
+        "boundaries": null,
+        "position": "Top Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "App Gateway WAF",
+        "target": "Web App",
+        "label": "Peering",
+        "type": "Network"
+      },
+      {
+        "source": "Firewall",
+        "target": "Web App",
+        "label": "UDR",
+        "type": "Network"
+      },
+      {
+        "source": "Private DNS Zones",
+        "target": "Firewall",
+        "label": null,
+        "type": "Network"
+      },
+      {
+        "source": "Web App",
+        "target": "Keyvault Private endpoint",
+        "label": null,
+        "type": "Network"
+      },
+      {
+        "source": "SQL Private endpoint",
+        "target": "SQL Database",
+        "label": "Private Link",
+        "type": "Network"
+      },
+      {
+        "source": "Key Vault",
+        "target": "Internet",
+        "label": null,
+        "type": "Network"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Hub VNET",
+        "components": [
+          "App Gateway WAF",
+          "Firewall",
+          "Private DNS Zones"
+        ]
+      },
+      {
+        "name": "Keyvault Subnet",
+        "components": [
+          "Keyvault Private endpoint"
+        ]
+      },
+      {
+        "name": "ASE Subnet",
+        "components": [
+          "Web App"
+        ]
+      },
+      {
+        "name": "Data Subnet",
+        "components": [
+          "SQL Private endpoint"
+        ]
+      },
+      {
+        "name": "Spoke VNET",
+        "components": [
+          "SQL Database"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": null
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Hub VNet",
+        "description": "Network Hub",
+        "boundaries": null,
+        "position": "Top Left"
+      },
+      {
+        "name": "Route Table",
+        "description": "UDR Route",
+        "boundaries": "Hub VNet",
+        "position": "Middle Left"
+      },
+      {
+        "name": "Azure Firewall",
+        "description": "Network Security",
+        "boundaries": "Hub VNet",
+        "position": "Bottom Left"
+      },
+      {
+        "name": "Spoke VNet",
+        "description": "Network Spoke",
+        "boundaries": null,
+        "position": "Middle"
+      },
+      {
+        "name": "Private Endpoint Subnet",
+        "description": "Database Access",
+        "boundaries": "Spoke VNet",
+        "position": "Middle Bottom"
+      },
+      {
+        "name": "SQL Database Private Endpoint",
+        "description": "Data Storage",
+        "boundaries": "Spoke VNet",
+        "position": "Bottom"
+      },
+      {
+        "name": "App Service Subnet",
+        "description": "Application Hosting",
+        "boundaries": "Spoke VNet",
+        "position": "Middle Top"
+      },
+      {
+        "name": "App Service (.NET)",
+        "description": "Application Hosting",
+        "boundaries": "App Service Subnet",
+        "position": "Middle Top"
+      },
+      {
+        "name": "Azure SQL Database",
+        "description": "Data Storage",
+        "boundaries": null,
+        "position": "Bottom Right"
+      },
+      {
+        "name": "Key Vault",
+        "description": "Secure Secrets Management",
+        "boundaries": null,
+        "position": "Top Right"
+      },
+      {
+        "name": "Internet",
+        "description": "External Network",
+        "boundaries": null,
+        "position": "Top Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Route Table",
+        "target": "Azure Firewall",
+        "label": "UDR Route",
+        "type": "Network"
+      },
+      {
+        "source": "Azure Firewall",
+        "target": "Spoke VNet",
+        "label": "Outbound Traffic",
+        "type": "Network"
+      },
+      {
+        "source": "Spoke VNet",
+        "target": "SQL Database Private Endpoint",
+        "label": "Private Link",
+        "type": "Network"
+      },
+      {
+        "source": "App Service (.NET)",
+        "target": "Key Vault",
+        "label": "Connection Strings",
+        "type": "Network"
+      },
+      {
+        "source": "App Service (.NET)",
+        "target": "Internet",
+        "label": "HTTPS",
+        "type": "Network"
+      }
+    ],
+    "annotations": [
+      "Outbound Traffic Inspection",
+      "Private Link No Public Access",
+      "VNet Integrated No Public Endpoints"
+    ],
+    "groups": [
+      {
+        "name": "Hub VNet",
+        "components": [
+          "Route Table",
+          "Azure Firewall"
+        ]
+      },
+      {
+        "name": "Spoke VNet",
+        "components": [
+          "Private Endpoint Subnet",
+          "SQL Database Private Endpoint",
+          "App Service Subnet"
+        ]
+      },
+      {
+        "name": "App Service Subnet",
+        "components": [
+          "App Service (.NET)"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": null
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Azure Firewall",
+      "SQL Database",
+      "Key Vault",
+      "Internet"
+    ],
+    "unique_to_GroundTruth": [
+      "App Gateway WAF",
+      "Private DNS Zones",
+      "Keyvault Private endpoint",
+      "Web App",
+      "SQL Private endpoint"
+    ],
+    "unique_to_GeneratedImage": [
+      "Hub VNet",
+      "Route Table",
+      "Spoke VNet",
+      "Private Endpoint Subnet",
+      "SQL Database Private Endpoint",
+      "App Service Subnet",
+      "App Service (.NET)"
+    ],
+    "common_connectors": [
+      {
+        "source": "Azure Firewall",
+        "target": "Spoke VNet",
+        "label": "Outbound Traffic",
+        "type": "Network"
+      },
+      {
+        "source": "Spoke VNet",
+        "target": "SQL Database Private Endpoint",
+        "label": "Private Link",
+        "type": "Network"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "App Gateway WAF",
+        "target": "Web App",
+        "label": "Peering",
+        "type": "Network"
+      },
+      {
+        "source": "Firewall",
+        "target": "Web App",
+        "label": "UDR",
+        "type": "Network"
+      },
+      {
+        "source": "Private DNS Zones",
+        "target": "Firewall",
+        "label": null,
+        "type": "Network"
+      },
+      {
+        "source": "Web App",
+        "target": "Keyvault Private endpoint",
+        "label": null,
+        "type": "Network"
+      },
+      {
+        "source": "Key Vault",
+        "target": "Internet",
+        "label": null,
+        "type": "Network"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Route Table",
+        "target": "Azure Firewall",
+        "label": "UDR Route",
+        "type": "Network"
+      },
+      {
+        "source": "App Service (.NET)",
+        "target": "Key Vault",
+        "label": "Connection Strings",
+        "type": "Network"
+      },
+      {
+        "source": "App Service (.NET)",
+        "target": "Internet",
+        "label": "HTTPS",
+        "type": "Network"
+      }
+    ],
+    "explanation": "The two diagrams represent similar network architectures with some differences in components and connections. Both diagrams include key components such as Azure Firewall, SQL Database, Key Vault, and Internet. However, the GroundTruth diagram includes additional components like App Gateway WAF, Private DNS Zones, and specific endpoints for Keyvault and SQL. The GeneratedImage diagram introduces a more detailed network structure with components such as Hub VNet, Route Table, and App Service (.NET). Connectors in both diagrams show network flows, but they differ in specifics like the presence of a Route Table in the GeneratedImage and the use of Peering in the GroundTruth. Overall, the GeneratedImage provides a more detailed view of network segmentation and traffic flow, while the GroundTruth focuses on endpoint security and application hosting. The GeneratedImage is rated 7 out of 10 for accuracy and completeness, as it captures the essential network components and connections but lacks some specific elements present in the GroundTruth.",
+    "Rating": 7
+  }
+}

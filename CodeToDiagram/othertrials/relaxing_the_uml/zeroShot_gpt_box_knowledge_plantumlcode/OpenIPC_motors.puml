@@ -1,0 +1,52 @@
+@startuml
+title OpenIPC Motors Control Flow
+
+package "Application Layer" {
+    [Camera Application]
+}
+
+package "Daemon Layer" {
+    [Motors Daemon]
+    note right of [Motors Daemon] : Implements Façade Pattern
+}
+
+package "Driver Wrapper Layer" {
+    [GPIO Wrapper]
+    [I2C Wrapper]
+    [SPI Wrapper]
+    [UART Wrapper]
+    note right of [GPIO Wrapper] : Adapter Pattern
+    note right of [I2C Wrapper] : Adapter Pattern
+    note right of [SPI Wrapper] : Adapter Pattern
+    note right of [UART Wrapper] : Adapter Pattern
+}
+
+package "Kernel Driver Layer" {
+    [GPIO Driver]
+    [I2C Driver]
+    [SPI Driver]
+    [UART Driver]
+}
+
+package "Hardware Layer" {
+    [Motor Hardware]
+}
+
+[Camera Application] --> [Motors Daemon] : Unix Socket Communication
+
+[Motors Daemon] --> [GPIO Wrapper] : Function Call
+[Motors Daemon] --> [I2C Wrapper] : Function Call
+[Motors Daemon] --> [SPI Wrapper] : Function Call
+[Motors Daemon] --> [UART Wrapper] : Function Call
+
+[GPIO Wrapper] --> [GPIO Driver] : Function Call
+[I2C Wrapper] --> [I2C Driver] : Function Call
+[SPI Wrapper] --> [SPI Driver] : Function Call
+[UART Wrapper] --> [UART Driver] : Function Call
+
+[GPIO Driver] --> [Motor Hardware] : Direct Control
+[I2C Driver] --> [Motor Hardware] : Direct Control
+[SPI Driver] --> [Motor Hardware] : Direct Control
+[UART Driver] --> [Motor Hardware] : Direct Control
+
+@enduml

@@ -1,0 +1,35 @@
+@startuml mrubash1_trainspotting
+
+participant "Video_Camera" as VC
+participant "Input_Deque" as ID
+participant "Video_Sensor" as VS
+participant "Video_Detector" as VD
+participant "TensorFlow_Model" as TF
+participant "Data_Storage" as DS
+
+loop Continuous Operation
+    VC -> VC: Capture frame
+    VC -> VC: Adjust camera settings
+    VC -> ID: Add frame to deque
+    
+    VS -> ID: Get frame from deque
+    VS -> VS: Perform background subtraction
+    VS -> VS: Apply noise reduction
+    VS -> VS: Extract ROIs
+    
+    VD -> VS: Get processed frame
+    VD -> VD: Detect motion in ROIs
+    
+    alt Significant motion detected
+        VD -> VD: Determine train direction
+        VD -> TF: Classify object
+        TF --> VD: Return classification
+        
+        VD -> DS: Store event data
+        VD -> DS: Sample frames around event
+    end
+    
+    VD -> DS: Update motion data
+end
+
+@enduml

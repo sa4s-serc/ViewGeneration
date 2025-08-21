@@ -1,0 +1,69 @@
+```plantuml
+@startuml david3107_squatm3gator
+
+skinparam monochrome true
+skinparam componentStyle uml2
+skinparam defaultFontName Courier
+
+package "Frontend" {
+    [Web UI] as UI
+    UI - [Bootstrap/MDB CSS]
+    UI - [jQuery]
+    UI - [Socket.IO Client]
+}
+
+package "Backend" {
+    [Flask Server] as Server
+    [Redis] as Redis
+
+    package "Core Modules" {
+        [SquatM3 Engine] as Engine
+        [Attack Modules] as Attacks
+        [GoDaddy API] as Godaddy
+        [WHOIS Lookup] as Whois
+    }
+
+    package "Job Processing" {
+        [Producer] as Producer
+        [Consumer] as Consumer
+    }
+}
+
+package "Security Components" {
+    [Input Validation] as Validation
+    [Rate Limiter] as RateLimit
+    [API Key Management] as APIKeys
+    [HTTPS/TLS] as TLS
+}
+
+' Connections
+UI --> Server : REST API (HTTPS)
+UI -[hidden]-> Server
+Server --> Redis : Session/JQ
+Server --> Producer : Enqueue jobs
+Producer --> Redis : Push jobs
+Consumer --> Redis : Pop jobs
+Consumer --> Engine : Process jobs
+Engine --> Attacks : Generate variants
+Engine --> Godaddy : Check availability
+Engine --> Whois : Get domain info
+
+' Security connections
+Validation --> UI : Sanitize input
+RateLimit --> Server : API protection
+APIKeys --> Godaddy : Secure access
+TLS --> Server : Encrypt traffic
+TLS --> UI : Secure connection
+
+note right of APIKeys
+    Stores GoDaddy API credentials
+    in encrypted config
+end note
+
+note left of RateLimit
+    Protects against API abuse
+    and DoS attacks
+end note
+
+@enduml
+```

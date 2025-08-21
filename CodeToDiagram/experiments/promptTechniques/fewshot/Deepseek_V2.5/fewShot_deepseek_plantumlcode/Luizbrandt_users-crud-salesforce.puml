@@ -1,0 +1,46 @@
+@startuml Luizbrandt_users-crud-salesforce
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<api>> #d9e7fd
+  BackgroundColor<<mule>> #d8f5d3
+  BackgroundColor<<salesforce>> #fff1c9
+  BackgroundColor<<security>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+actor "Client Application" as Client
+
+package "API Layer" <<api>> {
+  rectangle "API Kit Router" as Router
+  rectangle "RAML Specification" as RAML
+  rectangle "Error Handler" as ErrorHandler
+}
+
+package "Mule Layer" <<mule>> {
+  rectangle "CRUD Flows" as Flows
+  rectangle "DataWeave\nTransformations" as DW
+  rectangle "Global Config" as Config
+}
+
+package "Salesforce" <<salesforce>> {
+  database "Custom_User__c" as SFObject
+}
+
+package "Security" <<security>> {
+  rectangle "Secure Properties" as SecureProps
+  database "secure-properties.yaml" as PropsFile
+}
+
+Client --> Router : REST Requests
+Router --> RAML : Validates against
+Router --> Flows : Routes to\nappropriate flow
+Flows --> DW : Transforms data
+Flows --> Config : Uses global\nconnectors
+Flows --> ErrorHandler : Handles errors
+Flows --> SFObject : CRUD operations
+Config --> SecureProps : Gets credentials
+SecureProps --> PropsFile : Reads encrypted\ncredentials
+ErrorHandler --> Client : Returns\nconsistent errors
+DW --> Client : Returns\ntransformed data
+@enduml

@@ -1,0 +1,38 @@
+```plantuml
+@startuml unnmdnwb3_dora
+
+actor User
+participant "DORA API" as DoraAPI
+participant "GitLab Connector" as GitLab
+participant "Prometheus Connector" as Prometheus
+participant "MongoDB Service" as MongoDB
+participant "Metrics Calculation" as Metrics
+
+User -> DoraAPI: Request DORA Metrics (GET /metrics)
+activate DoraAPI
+
+DoraAPI -> GitLab: Fetch GitLab Data (repos, PRs, pipelines)
+activate GitLab
+GitLab --> DoraAPI: Raw GitLab Data
+deactivate GitLab
+
+DoraAPI -> Prometheus: Query Alert Data
+activate Prometheus
+Prometheus --> DoraAPI: Alert Metrics
+deactivate Prometheus
+
+DoraAPI -> MongoDB: Retrieve Aggregated Data
+activate MongoDB
+MongoDB --> DoraAPI: Stored Metrics Data
+deactivate MongoDB
+
+DoraAPI -> Metrics: Calculate DORA Metrics
+activate Metrics
+Metrics --> DoraAPI: Calculated Metrics
+deactivate Metrics
+
+DoraAPI --> User: Return DORA Metrics
+deactivate DoraAPI
+
+@enduml
+```

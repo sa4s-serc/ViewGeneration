@@ -1,0 +1,68 @@
+```plantuml
+@startuml RunnersHi_RunnersHi_Server
+
+actor User
+participant "Client App" as Client
+participant "Express Server" as Server
+participant "Socket.IO" as Socket
+participant "Auth Middleware" as Auth
+participant "User Controller" as UserCtrl
+participant "User Model" as UserModel
+participant "Matching Controller" as MatchCtrl
+participant "Matching Model" as MatchModel
+participant "Database" as DB
+
+User -> Client: Login/Register
+Client -> Server: POST /api/auth/login
+Server -> Auth: Verify credentials
+Auth -> UserCtrl: Handle authentication
+UserCtrl -> UserModel: Query user data
+UserModel -> DB: SELECT user
+DB --> UserModel: User data
+UserModel --> UserCtrl: User object
+UserCtrl --> Auth: Auth response
+Auth --> Server: JWT token
+Server --> Client: Auth response with token
+
+User -> Client: Request matching
+Client -> Socket: Emit 'findMatch' event
+Socket -> MatchCtrl: Handle match request
+MatchCtrl -> MatchModel: Find suitable opponent
+MatchModel -> DB: Query available runners
+DB --> MatchModel: Runner data
+MatchModel --> MatchCtrl: Match result
+MatchCtrl -> Socket: Emit 'matchFound' event
+Socket --> Client: Notify match found
+
+User -> Client: Start running
+Client -> Socket: Emit 'startRunning' event
+Socket -> MatchCtrl: Handle running start
+MatchCtrl -> MatchModel: Create running session
+MatchModel -> DB: INSERT running data
+DB --> MatchModel: Session ID
+MatchModel --> MatchCtrl: Session confirmation
+MatchCtrl -> Socket: Emit 'runningStarted' event
+Socket --> Client: Confirm running started
+
+User -> Client: Send location updates
+Client -> Socket: Emit 'locationUpdate' event
+Socket -> MatchCtrl: Handle location update
+MatchCtrl -> MatchModel: Store coordinates
+MatchModel -> DB: UPDATE session data
+DB --> MatchModel: Update confirmation
+MatchModel --> MatchCtrl: Update status
+MatchCtrl -> Socket: Emit 'opponentUpdate' event
+Socket --> Client: Update opponent position
+
+User -> Client: Finish running
+Client -> Socket: Emit 'finishRun' event
+Socket -> MatchCtrl: Handle run completion
+MatchCtrl -> MatchModel: Finalize session
+MatchModel -> DB: UPDATE results
+DB --> MatchModel: Completion status
+MatchModel --> MatchCtrl: Run summary
+MatchCtrl -> Socket: Emit 'runCompleted' event
+Socket --> Client: Send final results
+
+@enduml
+```

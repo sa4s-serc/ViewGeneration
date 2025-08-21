@@ -1,0 +1,66 @@
+@startuml
+actor User
+
+cloud AWS {
+    package "API Gateway" {
+        [Frontend] 
+        component LF1 as "LF1.py - Lex Handler"
+        component LF2 as "LF2.py - Chatbot Interaction"
+        component getFixtures as "getFixtures.py"
+        component scrapeMatchData as "scrapeMatchData.py"
+        component getScore as "getScore.py"
+        component getLiveScores as "getLiveScores.py"
+        component standings as "standings.py"
+        component predictions as "predictions.py"
+    }
+
+    package "Kafka Infrastructure" {
+        component producer as "producer.js"
+        component consumer as "consumer.js"
+    }
+
+    component Cognito
+    component S3
+    component SageMaker
+    component ES as "ElasticSearch"
+    component EC2
+    component DynamoDB
+    component SQS
+    component SNS
+    component Lex
+    component CloudWatch
+}
+
+User --> [Frontend] : "Access UI"
+[Frontend] --> "API Gateway" : "API Requests"
+
+"API Gateway" --> LF1 : "Handle Lex Requests"
+"API Gateway" --> LF2 : "Process Chatbot Requests"
+"API Gateway" --> getFixtures : "Fetch Fixtures"
+"API Gateway" --> scrapeMatchData : "Parse Match Data"
+"API Gateway" --> getScore : "Retrieve Scores"
+"API Gateway" --> getLiveScores : "Fetch Live Scores"
+"API Gateway" --> standings : "Fetch Standings"
+"API Gateway" --> predictions : "Predict Outcomes"
+
+LF1 --> Lex : "Chatbot Interaction"
+LF2 --> SQS : "Queue Requests"
+LF2 --> SNS : "Send SMS"
+getFixtures --> ES : "Query Fixtures"
+scrapeMatchData --> S3 : "Trigger on Upload"
+scrapeMatchData --> DynamoDB : "Store Standings"
+getScore --> ES : "Query Match Data"
+getScore --> DynamoDB : "Retrieve Details"
+getLiveScores --> DynamoDB : "Query Live Scores"
+standings --> DynamoDB : "Retrieve Standings"
+predictions --> SageMaker : "Invoke ML Models"
+
+producer --> "Kafka Infrastructure" : "Publish Data"
+consumer --> DynamoDB : "Store Updates"
+
+Cognito --> [Frontend] : "User Authentication"
+S3 --> [Frontend] : "Serve Static Content"
+EC2 --> "Kafka Infrastructure" : "Host Kafka"
+
+CloudWatch --> "API Gateway" : "Monitor & Analytics"
+@enduml

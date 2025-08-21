@@ -1,0 +1,41 @@
+@startuml marmarek_qubes-app-u2f
+
+skinparam component {
+  BackgroundColor<<VM>> LightBlue
+  BackgroundColor<<Protocol>> LightGreen
+  BackgroundColor<<Security>> Pink
+}
+
+package "Browser VM" <<VM>> {
+  [CTAPHID Emulation] as HIDEmu
+  [Qrexec Client] as QrexecClient
+}
+
+package "sys-usb VM" <<VM>> {
+  [Qrexec Server] as QrexecServer
+  [USB HID Driver] as USBDriver
+}
+
+package "CTAP Proxy" {
+  [CTAP1/U2F Handler] <<Protocol>>
+  [CTAP2 Handler] <<Protocol>>
+  [Policy Enforcement] <<Security>>
+}
+
+cloud "Physical USB CTAP Token" as USBToken
+
+HIDEmu --> QrexecClient : CTAP requests
+QrexecClient --> QrexecServer : Secure IPC
+QrexecServer --> [CTAP1/U2F Handler]
+QrexecServer --> [CTAP2 Handler]
+[CTAP1/U2F Handler] --> [Policy Enforcement]
+[CTAP2 Handler] --> [Policy Enforcement]
+[Policy Enforcement] --> USBDriver : Approved requests
+USBDriver --> USBToken : HID communication
+
+note right of [Policy Enforcement]
+  Enforces access control
+  based on Qrexec policies
+end note
+
+@enduml

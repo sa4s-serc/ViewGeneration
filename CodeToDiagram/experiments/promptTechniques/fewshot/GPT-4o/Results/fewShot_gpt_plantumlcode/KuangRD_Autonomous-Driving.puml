@@ -1,0 +1,67 @@
+```plantuml
+@startuml KuangRD_Autonomous-Driving
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "User" as user
+
+package "Core Libraries" {
+  rectangle "Eigen" as eigen
+  rectangle "nlohmann::json" as nlohmann
+  rectangle "µWebSockets" as uws
+  rectangle "BLAS/LAPACK" as blas
+}
+
+package "Deep Learning" {
+  rectangle "TensorFlow/Keras" as tf
+  rectangle "Traffic Light Classifier" as classifier
+}
+
+package "ROS Components" {
+  rectangle "Waypoint Loader" as wp_loader
+  rectangle "Waypoint Updater" as wp_updater
+  rectangle "DBW Controller" as dbw
+  rectangle "Traffic Light Detection" as tld
+}
+
+package "Control Systems" {
+  rectangle "PID Controller" as pid
+}
+
+package "Data Handling" {
+  rectangle "HDF5 Model Files" as hdf5
+  rectangle "Matrix Market Format" as mmf
+}
+
+package "Deployment" {
+  rectangle "CMake Build System" as cmake
+  rectangle "Docker Container" as docker
+}
+
+user --> tf : Initiates Training
+tf --> classifier : Trains Model
+classifier --> ros : Deploys Model
+ros --> wp_loader : Loads Waypoints
+ros --> wp_updater : Updates Waypoints
+ros --> dbw : Controls Drive-By-Wire
+ros --> tld : Detects Traffic Lights
+
+eigen --> ros : Provides Linear Algebra
+nlohmann --> ros : Handles JSON Messages
+uws --> ros : Facilitates WebSocket Comm
+blas --> eigen : Optimizes Operations
+
+hdf5 --> tf : Stores Model Weights
+mmf --> eigen : Supports Sparse Matrices
+
+pid --> dbw : Controls Steering
+
+cmake --> ros : Manages Build Process
+docker --> ros : Ensures Consistency
+
+@enduml
+```

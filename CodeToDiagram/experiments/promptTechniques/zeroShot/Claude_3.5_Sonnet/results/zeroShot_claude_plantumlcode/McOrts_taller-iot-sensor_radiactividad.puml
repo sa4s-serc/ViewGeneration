@@ -1,0 +1,30 @@
+@startuml McOrts_taller-iot-sensor_radiactividad
+
+participant "Geiger Counter Module" as GCM
+participant "ESP8266 (WEMOS D1 mini Pro)" as ESP
+participant "Wi-Fi Network" as WiFi
+participant "MQTT Broker" as MQTT
+participant "Node-RED" as NodeRED
+participant "GMC.MAP Platform" as GMCMAP
+
+autonumber
+
+ESP -> WiFi : Connect to network
+activate ESP
+
+ESP -> MQTT : Connect to broker
+activate MQTT
+
+loop Continuous Monitoring
+    GCM -> ESP : Generate radiation pulse
+    ESP -> ESP : Count pulse (Interrupt)
+    ESP -> ESP : Calculate CPM
+    ESP -> MQTT : Publish CPM data
+    MQTT -> NodeRED : Forward CPM data
+    NodeRED -> GMCMAP : Process and send data
+end
+
+MQTT -> ESP : Receive control command
+ESP -> ESP : Execute command (e.g., LED control)
+
+@enduml

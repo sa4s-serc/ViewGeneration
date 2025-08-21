@@ -1,0 +1,86 @@
+```plantuml
+@startuml Azure_AzureStack-QuickStart-Templates
+
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
+
+skinparam componentStyle uml2
+skinparam monochrome true
+skinparam defaultFontName Arial
+skinparam nodesep 20
+skinparam ranksep 30
+
+rectangle "Azure Stack" as azureStack {
+    component "ARM Templates" as armTemplates {
+        component "azuredeploy.json" as mainTemplate
+        component "parameters.json" as params
+        component "nestedTemplates" as nested
+    }
+
+    component "Scripts" as scripts {
+        component "PowerShell" as psScripts
+        component "Shell Scripts" as shellScripts
+    }
+
+    component "Configuration Files" as configFiles {
+        component "XML/YAML" as xmlYaml
+        component "DSC Configs" as dsc
+    }
+}
+
+rectangle "Azure Public Cloud" as azurePublic {
+    component "Azure Resources" as azureResources {
+        component "VMs" as vms
+        component "Networking" as networking
+        component "Storage" as storage
+    }
+}
+
+component "Key Vault" as keyVault {
+    component "Certificates" as certs
+    component "Secrets" as secrets
+}
+
+component "Admin Website" as adminSite {
+    component "Blockchain Monitor" as blockchainMonitor
+}
+
+component "Validation Framework" as validation {
+    component "Test Scripts" as testScripts
+}
+
+' Main connections
+armTemplates --> scripts : "Invokes"
+armTemplates --> azureResources : "Deploys to"
+armTemplates --> keyVault : "References secrets"
+scripts --> configFiles : "Uses"
+azureStack -[hidden]-> azurePublic : "Hybrid Connection"
+adminSite --> azureResources : "Monitors"
+validation --> armTemplates : "Validates"
+
+' Deployment concern annotations
+note top of armTemplates
+  **Deployment**: ARM templates enable
+  Infrastructure as Code (IaC) for
+  consistent hybrid deployments
+end note
+
+note right of azureResources
+  **Performance**: Load balancers and
+  HA configurations ensure scalability
+  and fault tolerance
+end note
+
+note left of keyVault
+  **Security**: Centralized secrets management
+  with Key Vault prevents credential
+  exposure in templates
+end note
+
+note bottom of scripts
+  **Connectivity**: Hybrid connection scripts
+  bridge Azure and Azure Stack environments
+end note
+
+@enduml
+```

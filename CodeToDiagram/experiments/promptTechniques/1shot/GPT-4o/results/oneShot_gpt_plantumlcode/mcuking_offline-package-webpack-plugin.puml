@@ -1,0 +1,37 @@
+```plantuml
+@startuml mcuking_offline-package-webpack-plugin
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor Developer
+
+rectangle "Webpack Build Process" as Webpack {
+  rectangle "Emit Phase" as Emit #lightsteelblue
+}
+
+rectangle "OfflinePackagePlugin" as Plugin #lightyellow {
+  rectangle "jszip" as JSZip #aliceblue
+  rectangle "mime-types" as MimeTypes #aliceblue
+}
+
+rectangle "File System" as FS #mistyrose
+
+' ========== Connections ==========
+Developer --> Webpack
+
+' Webpack interactions
+Webpack --> Plugin : Initialize with configuration
+Emit --> Plugin : Trigger during emit phase
+
+' OfflinePackagePlugin interactions
+Plugin --> FS : Read files for zipping
+Plugin --> JSZip : Create zip archive
+Plugin --> MimeTypes : Detect MIME types
+Plugin --> FS : Write index.json\nand zip file
+
+@enduml
+```

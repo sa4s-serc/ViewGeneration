@@ -1,0 +1,25 @@
+```plantuml
+@startuml IBM_kubernetes-storage
+
+actor User
+participant "Kubernetes API" as K8sAPI
+participant "IBM Cloud Storage" as IBMStorage
+participant "Guestbook App" as Guestbook
+participant "Helm" as Helm
+participant "MongoDB" as MongoDB
+
+User -> K8sAPI: kubectl apply -f deployment.yaml
+K8sAPI -> IBMStorage: Request storage provisioning
+IBMStorage --> K8sAPI: Provisioned storage details
+K8sAPI -> Helm: Install MongoDB chart
+Helm -> K8sAPI: Create MongoDB deployment
+K8sAPI -> IBMStorage: Request persistent volume
+IBMStorage --> K8sAPI: Persistent volume created
+K8sAPI -> Guestbook: Deploy application
+Guestbook -> MongoDB: Connect to database
+MongoDB --> Guestbook: Connection established
+Guestbook --> K8sAPI: Application running
+K8sAPI --> User: Deployment complete
+
+@enduml
+```

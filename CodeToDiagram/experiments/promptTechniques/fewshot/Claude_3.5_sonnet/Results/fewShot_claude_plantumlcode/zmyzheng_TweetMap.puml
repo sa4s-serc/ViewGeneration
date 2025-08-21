@@ -1,0 +1,48 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+cloud "Twitter API" as TwitterAPI
+
+rectangle "Tweet Collector" as TweetCollector #lightblue
+queue "Kafka" as Kafka #orange
+rectangle "Flink Processor" as FlinkProcessor #lightgreen
+database "Elasticsearch" as Elasticsearch #yellow
+rectangle "REST API Server" as RESTAPIServer #pink
+rectangle "Frontend (Angular)" as Frontend #lightgrey
+
+' Static connections
+TwitterAPI --> TweetCollector : Streams tweets
+TweetCollector --> Kafka : Pushes tweets
+Kafka --> FlinkProcessor : Consumes tweets
+FlinkProcessor --> Elasticsearch : Stores processed tweets
+RESTAPIServer --> Elasticsearch : Queries data
+Frontend --> RESTAPIServer : API calls
+User --> Frontend : Interacts
+
+' Dynamic data flow
+TweetCollector -[#red,dotted]-> Kafka : <<push>>
+Kafka -[#red,dotted]-> FlinkProcessor : <<consume>>
+FlinkProcessor -[#red,dotted]-> Elasticsearch : <<store>>
+RESTAPIServer -[#blue,dotted]-> Elasticsearch : <<query>>
+Frontend -[#blue,dotted]-> RESTAPIServer : <<request/response>>
+
+rectangle "Kubernetes Cluster" {
+  [Tweet Collector Pod]
+  [Flink Processor Pod]
+  [REST API Server Pod]
+  [Frontend Pod]
+}
+
+note bottom of [Tweet Collector Pod]
+  Deployed via
+  tweet-collector.yaml
+end note
+
+@enduml

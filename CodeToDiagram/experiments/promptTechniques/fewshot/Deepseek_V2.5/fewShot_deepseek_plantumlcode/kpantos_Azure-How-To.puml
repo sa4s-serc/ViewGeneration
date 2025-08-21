@@ -1,0 +1,52 @@
+### Actual Output:
+@startuml kpantos_Azure-How-To
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Bot Security Scenario" {
+  rectangle "Internet" as internet1
+  rectangle "Azure Application Gateway\nwith WAF" as appGateway1 #lightblue
+  rectangle "Azure App Service\n(Bot Application)" as botApp #lightgreen
+  rectangle "Let's Encrypt\nSSL Certificate" as letsEncrypt #pink
+
+  internet1 --> appGateway1
+  appGateway1 --> botApp
+  letsEncrypt --> appGateway1
+}
+
+package "Kerberos API Scenario" {
+  rectangle "Internet" as internet2
+  rectangle "Azure API Management" as apim #lightblue
+  rectangle "Azure AD Application Proxy" as appProxy #lightblue
+  rectangle "On-Premises API\n(Simulated in Azure VM)" as onPremApi #lightgreen
+  rectangle "Azure AD Connect" as aadConnect #pink
+  rectangle "Azure Active Directory" as aad #pink
+  rectangle "Service Principal\nName (SPN)" as spn #pink
+
+  internet2 --> apim
+  apim --> appProxy
+  appProxy --> onPremApi
+  aadConnect --> aad
+  aad --> appProxy
+  spn --> onPremApi
+}
+
+note right of appGateway1
+  Defense in Depth Strategy
+  Reverse Proxy Pattern
+end note
+
+note right of apim
+  Gateway Pattern
+  Proxy Pattern
+end note
+
+note right of aadConnect
+  Hybrid Cloud Connectivity
+end note
+@enduml

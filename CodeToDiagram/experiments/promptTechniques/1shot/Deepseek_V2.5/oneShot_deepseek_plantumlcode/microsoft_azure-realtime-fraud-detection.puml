@@ -1,0 +1,49 @@
+@startuml microsoft_azure-realtime-fraud-detection
+skinparam rectangle {
+  BackgroundColor<<ingestion>> #d9e7fd
+  BackgroundColor<<processing>> #d8f5d3
+  BackgroundColor<<ml>> #fddddd
+  BackgroundColor<<storage>> #fff1c9
+  BackgroundColor<<orchestration>> #e6d9ff
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+rectangle "Event Generator" <<ingestion>> as EventGenerator
+
+package "Data Ingestion" <<ingestion>> {
+  rectangle "Azure Event Hub" as EventHub
+  EventGenerator --> EventHub
+}
+
+package "Stream Processing" <<processing>> {
+  rectangle "Azure Stream Analytics" as StreamAnalytics
+  EventHub --> StreamAnalytics
+}
+
+package "Machine Learning" <<ml>> {
+  rectangle "Azure ML (Training)" as MLTraining
+  rectangle "Azure ML (Model)" as MLModel
+  rectangle "Azure ML (Scoring)" as MLScoring
+  MLTraining --> MLModel
+  MLModel --> MLScoring
+  StreamAnalytics --> MLScoring
+}
+
+package "Orchestration" <<orchestration>> {
+  rectangle "Azure Functions" as Functions
+  Functions --> "Benford's Law" as Benford
+  Functions --> "Fraud Ring Detection" as FraudRing
+  MLScoring --> Functions
+}
+
+package "Data Storage" <<storage>> {
+  rectangle "Azure Synapse" as Synapse
+  rectangle "Cosmos DB (SQL API)" as CosmosSQL
+  rectangle "Cosmos DB (Gremlin API)" as CosmosGremlin
+  StreamAnalytics --> Synapse
+  StreamAnalytics --> CosmosSQL
+  Functions --> CosmosGremlin
+}
+
+@enduml

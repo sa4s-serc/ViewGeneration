@@ -1,0 +1,55 @@
+@startuml dsc-sookmyung_2023-mention-all-SolutionChallenge
+
+skinparam componentStyle uml2
+
+cloud "Google Cloud Platform" {
+  component "Google Kubernetes Engine" as GKE {
+    node "Spring Boot Backend" {
+      [AuthController]
+      [EducationController]
+      [CprCallController]
+      [DispatchService]
+      [FirebaseCloudMessageUtil]
+    }
+  }
+  
+  database "Cloud SQL" as SQL
+  
+  component "Firebase" {
+    [Authentication]
+    [Real-time Database]
+    [Cloud Messaging]
+  }
+}
+
+node "Android App" {
+  [Kotlin Code]
+  [TensorFlow Lite]
+  [Google Maps SDK]
+}
+
+node "iOS App" {
+  [Swift Code]
+  [TensorFlow Lite] as TFLiteIOS
+  [Google Maps SDK] as MapsSDKIOS
+}
+
+actor User
+
+User --> [Android App]
+User --> [iOS App]
+
+[Android App] --> [Authentication]
+[Android App] --> [Real-time Database]
+[Android App] --> [Cloud Messaging]
+[Android App] --> GKE : REST API
+
+[iOS App] --> [Authentication]
+[iOS App] --> [Real-time Database]
+[iOS App] --> [Cloud Messaging]
+[iOS App] --> GKE : REST API
+
+GKE --> SQL : JDBC
+GKE --> [Cloud Messaging] : Send notifications
+
+@enduml

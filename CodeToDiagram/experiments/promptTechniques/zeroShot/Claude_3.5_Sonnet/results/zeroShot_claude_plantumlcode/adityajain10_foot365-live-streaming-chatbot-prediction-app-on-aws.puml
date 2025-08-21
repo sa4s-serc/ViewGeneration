@@ -1,0 +1,64 @@
+@startuml adityajain10_foot365-live-streaming-chatbot-prediction-app-on-aws
+
+actor User
+participant "Frontend" as FE
+participant "API Gateway" as APIG
+participant "Lambda Functions" as LF
+participant "DynamoDB" as DDB
+participant "ElasticSearch" as ES
+participant "SageMaker" as SM
+participant "Lex" as LEX
+participant "SQS" as SQS
+participant "SNS" as SNS
+participant "Kafka" as KFK
+participant "External Football API" as EXT
+
+User -> FE: Access Foot365 app
+FE -> APIG: Request data
+APIG -> LF: Trigger appropriate function
+
+alt Get Standings
+    LF -> DDB: Fetch standings data
+    DDB --> LF: Return standings
+    LF --> APIG: Process and return standings
+    APIG --> FE: Display standings
+end
+
+alt Get Predictions
+    LF -> SM: Request prediction
+    SM --> LF: Return prediction
+    LF --> APIG: Process and return prediction
+    APIG --> FE: Display prediction
+end
+
+alt Get Live Scores
+    LF -> ES: Query match data
+    ES --> LF: Return match data
+    LF -> DDB: Fetch live scores
+    DDB --> LF: Return live scores
+    LF --> APIG: Process and return live scores
+    APIG --> FE: Display live scores
+end
+
+alt Chatbot Interaction
+    User -> FE: Send chatbot message
+    FE -> APIG: Forward message
+    APIG -> LEX: Process message
+    LEX -> LF: Trigger LF1 for intent handling
+    alt Fixture Request
+        LF -> ES: Query fixtures
+        ES --> LF: Return fixtures
+    end
+    LF -> SQS: Enqueue request
+    SQS -> LF: Trigger LF2
+    LF -> SNS: Send SMS notification
+    LF --> APIG: Return chatbot response
+    APIG --> FE: Display chatbot response
+end
+
+loop Live Score Updates
+    EXT -> KFK: Push live score data
+    KFK -> DDB: Update live scores
+end
+
+@enduml

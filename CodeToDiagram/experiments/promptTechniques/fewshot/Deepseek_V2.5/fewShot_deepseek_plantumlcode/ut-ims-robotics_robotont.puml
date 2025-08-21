@@ -1,0 +1,70 @@
+### Output:
+@startuml ut-ims-robotics_robotont
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<driver>> #d9e7fd
+  BackgroundColor<<teleop>> #d8f5d3
+  BackgroundColor<<training>> #fff1c9
+  BackgroundColor<<description>> #fddddd
+  BackgroundColor<<sensors>> #d4f0f0
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "robotont_driver" <<driver>> {
+  rectangle "Serial Communication" as Serial
+  rectangle "Hardware Interface" as Hardware
+  rectangle "Odometry Calculation" as Odometry
+  rectangle "robotont_params.yaml" as Params
+  Serial --> Hardware
+  Hardware --> Odometry
+  Odometry --> Params
+}
+
+package "robotont_teleop" <<teleop>> {
+  rectangle "Joystick Control" as Joystick
+  rectangle "Keyboard Control" as Keyboard
+  rectangle "Navigation Stack" as NavStack
+  rectangle "Safety Timer" as Safety
+  Joystick --> Safety
+  Keyboard --> Safety
+  Safety --> NavStack
+}
+
+package "robotont_training" <<training>> {
+  rectangle "AR Tag Tracking" as AR
+  rectangle "Training Exercises" as Exercises
+  rectangle "Praktikum Scripts" as Praktikum
+  Exercises --> AR
+  Exercises --> Praktikum
+}
+
+package "robotont_description" <<description>> {
+  rectangle "URDF Models" as URDF
+  rectangle "Meshes (STL)" as Meshes
+  rectangle "Materials" as Materials
+  URDF --> Meshes
+  Meshes --> Materials
+}
+
+package "robotont_sensors" <<sensors>> {
+  rectangle "LaserScan Processing" as LaserScan
+  rectangle "Distance Conversion" as Distance
+  rectangle "LaserScanSplit Message" as CustomMsg
+  LaserScan --> Distance
+  Distance --> CustomMsg
+}
+
+rectangle "Gazebo Simulation" as Gazebo
+rectangle "Realsense D435" as Realsense
+rectangle "Move_Base" as MoveBase
+rectangle "TF Transformations" as TF
+
+Serial --> Gazebo
+Hardware --> Realsense
+NavStack --> MoveBase
+Odometry --> TF
+AR --> Realsense
+LaserScan --> Realsense
+CustomMsg --> MoveBase
+@enduml

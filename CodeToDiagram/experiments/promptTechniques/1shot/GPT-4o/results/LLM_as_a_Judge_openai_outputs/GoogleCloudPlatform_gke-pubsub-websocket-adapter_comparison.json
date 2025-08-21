@@ -1,0 +1,222 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Browser",
+        "description": "Client component",
+        "boundaries": "External",
+        "position": "Left"
+      },
+      {
+        "name": "websocketd",
+        "description": "Handles WebSocket connections",
+        "boundaries": "Compute Engine",
+        "position": "Center"
+      },
+      {
+        "name": "pulltop",
+        "description": "Pulls messages from Pub/Sub",
+        "boundaries": "Compute Engine",
+        "position": "Center"
+      },
+      {
+        "name": "Cloud Pub/Sub topic",
+        "description": "Message broker",
+        "boundaries": "pubsub-public-data project",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Browser",
+        "target": "websocketd",
+        "label": "WebSockets",
+        "type": "Bidirectional"
+      },
+      {
+        "source": "websocketd",
+        "target": "pulltop",
+        "label": "<STDOUT>",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "pulltop",
+        "target": "Cloud Pub/Sub topic",
+        "label": "Pull Subscription",
+        "type": "Unidirectional"
+      }
+    ],
+    "annotations": [
+      "Your GCP project",
+      "pubsub-public-data project"
+    ],
+    "groups": [
+      {
+        "name": "Your GCP project",
+        "components": [
+          "websocketd",
+          "pulltop"
+        ],
+        "boundaries": "Compute Engine"
+      },
+      {
+        "name": "pubsub-public-data project",
+        "components": [
+          "Cloud Pub/Sub topic"
+        ],
+        "boundaries": "External"
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Google Cloud Platform Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "WebClient",
+        "description": "Client component",
+        "boundaries": "External",
+        "position": "Left"
+      },
+      {
+        "name": "websocketd",
+        "description": "Handles WebSocket connections",
+        "boundaries": "GKE",
+        "position": "Center"
+      },
+      {
+        "name": "pulltop",
+        "description": "Pulls messages from Pub/Sub",
+        "boundaries": "GKE",
+        "position": "Center"
+      },
+      {
+        "name": "Google Cloud Pub/Sub",
+        "description": "Message broker",
+        "boundaries": "External",
+        "position": "Bottom"
+      },
+      {
+        "name": "Ephemeral POSIX Storage",
+        "description": "Temporary storage",
+        "boundaries": "GKE",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "WebClient",
+        "target": "websocketd",
+        "label": "Connect via WebSocket",
+        "type": "Bidirectional"
+      },
+      {
+        "source": "websocketd",
+        "target": "pulltop",
+        "label": "Request latest messages",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "pulltop",
+        "target": "Ephemeral POSIX Storage",
+        "label": "Store messages temporarily",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "pulltop",
+        "target": "Google Cloud Pub/Sub",
+        "label": "Deliver messages",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "Google Cloud Pub/Sub",
+        "target": "pulltop",
+        "label": "Pull messages from topic",
+        "type": "Unidirectional"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "GKE",
+        "components": [
+          "websocketd",
+          "pulltop",
+          "Ephemeral POSIX Storage"
+        ],
+        "boundaries": "Internal"
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "GKE Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "websocketd",
+      "pulltop"
+    ],
+    "unique_to_GroundTruth": [
+      "Browser",
+      "Cloud Pub/Sub topic"
+    ],
+    "unique_to_GeneratedImage": [
+      "WebClient",
+      "Google Cloud Pub/Sub",
+      "Ephemeral POSIX Storage"
+    ],
+    "common_connectors": [
+      {
+        "source": "websocketd",
+        "target": "pulltop",
+        "label": "Request latest messages",
+        "type": "Unidirectional"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Browser",
+        "target": "websocketd",
+        "label": "WebSockets",
+        "type": "Bidirectional"
+      },
+      {
+        "source": "pulltop",
+        "target": "Cloud Pub/Sub topic",
+        "label": "Pull Subscription",
+        "type": "Unidirectional"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "WebClient",
+        "target": "websocketd",
+        "label": "Connect via WebSocket",
+        "type": "Bidirectional"
+      },
+      {
+        "source": "pulltop",
+        "target": "Ephemeral POSIX Storage",
+        "label": "Store messages temporarily",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "pulltop",
+        "target": "Google Cloud Pub/Sub",
+        "label": "Deliver messages",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "Google Cloud Pub/Sub",
+        "target": "pulltop",
+        "label": "Pull messages from topic",
+        "type": "Unidirectional"
+      }
+    ],
+    "explanation": "Both diagrams feature 'websocketd' and 'pulltop' components, indicating a shared core functionality of handling WebSocket connections and pulling messages. The GroundTruth diagram focuses on a Google Cloud Platform setup with a browser client and a Cloud Pub/Sub topic, while the GeneratedImage diagram uses a GKE setup with a WebClient and additional ephemeral storage. The GeneratedImage diagram includes more detailed storage and message flow, suggesting a more complex architecture. The GroundTruth diagram is simpler, focusing on core message handling. The generated image is rated 7 out of 10 for capturing the main components and connections but missing some elements like the direct browser connection and the specific Pub/Sub topic.",
+    "Rating": 7
+  }
+}

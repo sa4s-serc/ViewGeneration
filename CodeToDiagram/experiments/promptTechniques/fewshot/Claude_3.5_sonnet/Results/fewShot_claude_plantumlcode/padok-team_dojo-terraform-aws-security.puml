@@ -1,0 +1,58 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+!define AWSCOLOR #232F3E
+!define AWSORANGE #FF9900
+
+rectangle "Terraform Security Dojo" as DOJO #AWSCOLOR {
+  rectangle "VSCode Remote Box" as VSCODE #AWSORANGE
+  
+  rectangle "Terraform Configuration" as TERRAFORM {
+    rectangle "main.tf" as MAIN
+    rectangle "variables.tf" as VARS
+    rectangle "output.tf" as OUTPUT
+    rectangle "_providers.tf" as PROVIDERS
+    rectangle "_backend.tf" as BACKEND
+    rectangle "network.tf" as NETWORK
+  }
+  
+  rectangle "Environment Configs" as ENVS {
+    rectangle "dev.tfvars" as DEV
+    rectangle "prd.tfvars" as PRD
+  }
+  
+  rectangle "Bootstrap" as BOOTSTRAP {
+    rectangle "bootstrap/main.tf" as BOOTSTRAPMAIN
+    rectangle "bootstrap/output.tf" as BOOTSTRAPOUTPUT
+  }
+  
+  rectangle "Solution Examples" as SOLUTION {
+    rectangle "step_1" as STEP1
+    rectangle "step_2" as STEP2
+    rectangle "step_3" as STEP3
+  }
+}
+
+cloud "AWS" as AWS #AWSORANGE {
+  rectangle "VPC" as VPC
+  rectangle "EC2 Instances" as EC2
+  rectangle "Load Balancer" as LB
+  rectangle "Security Groups" as SG
+}
+
+VSCODE --> TERRAFORM : Interacts with
+TERRAFORM --> ENVS : Uses
+TERRAFORM --> BOOTSTRAP : Initializes
+TERRAFORM --> AWS : Deploys to
+BOOTSTRAP --> VPC : Creates
+MAIN --> EC2 : Defines
+MAIN --> LB : Configures
+NETWORK --> SG : Sets up
+SOLUTION .[#gray]> TERRAFORM : Provides examples
+
+@enduml

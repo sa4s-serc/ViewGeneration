@@ -1,0 +1,48 @@
+```plantuml
+@startuml IBM_IBM-Spectrum-Scale-Security-Posture
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor Admin
+
+rectangle "Spectrum Scale Cluster" as Cluster #lightyellow {
+  rectangle "Security Posture Collector\n(security_posture.py)" as Collector #lightblue
+}
+
+rectangle "Local System" as LocalSystem #lightgrey {
+  rectangle "fetch_security_posture_and_upload_to_ES.sh" as Orchestrator #lightgreen
+  rectangle "split_json_for_kibana.py" as JsonSplitter #thistle
+}
+
+rectangle "Elasticsearch" as Elasticsearch #lightcoral
+
+rectangle "cronjob.py" as CronJob #khaki
+
+rectangle "Kibana" as Kibana #aliceblue
+
+' ========== Connections ==========
+Admin --> CronJob : schedule job
+
+' CronJob interactions
+CronJob --> Orchestrator : trigger data collection and upload
+
+' Orchestrator interactions
+Orchestrator --> Cluster : connect and execute Collector
+Collector --> Orchestrator : return JSON data
+
+' JsonSplitter interactions
+Orchestrator --> JsonSplitter : pass JSON data
+JsonSplitter --> Orchestrator : return split JSON files
+
+' Elasticsearch interactions
+Orchestrator --> Elasticsearch : upload split JSON via curl
+
+' Kibana interactions
+Elasticsearch --> Kibana : visualize data
+
+@enduml
+```

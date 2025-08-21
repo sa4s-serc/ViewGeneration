@@ -1,0 +1,35 @@
+@startuml
+!theme plain
+
+participant "Streamlit UI" as UI
+participant "RAG System" as RAG
+participant "SageMaker Endpoint\n(LLM)" as LLM
+participant "OpenSearch" as OS
+participant "Embedding Model" as EM
+
+UI -> RAG: User query
+activate RAG
+
+RAG -> EM: Generate query embedding
+activate EM
+EM --> RAG: Query embedding
+deactivate EM
+
+RAG -> OS: Retrieve relevant documents
+activate OS
+OS --> RAG: Retrieved documents
+deactivate OS
+
+RAG -> RAG: Construct prompt with retrieved info
+
+RAG -> LLM: Send constructed prompt
+activate LLM
+LLM --> RAG: Generated response
+deactivate LLM
+
+RAG -> RAG: Process and format response
+
+RAG --> UI: Display response to user
+deactivate RAG
+
+@enduml

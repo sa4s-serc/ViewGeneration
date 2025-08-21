@@ -1,0 +1,72 @@
+@startuml emreturgutce_stock-management
+
+skinparam component {
+  BackgroundColor LightBlue
+  BorderColor Black
+  ArrowColor Black
+}
+
+cloud "AWS" {
+  [S3 Bucket] as S3
+}
+
+node "Application Server" {
+  [Express.js Server] as Express
+  
+  package "Controllers" {
+    [User Controller]
+    [Car Controller]
+    [Supplier Controller]
+    [Customer Controller]
+    [Sale Controller]
+  }
+  
+  package "Middleware" {
+    [Auth Middleware]
+    [Validation Middleware]
+    [Rate Limiting]
+  }
+  
+  package "Utils" {
+    [Image Upload]
+    [Email Sender]
+    [PDF Generator]
+  }
+  
+  [Database Client] as DBClient
+  [Redis Client] as RedisClient
+}
+
+database "PostgreSQL" as Postgres
+database "Redis" as Redis
+
+Express --> [User Controller]
+Express --> [Car Controller]
+Express --> [Supplier Controller]
+Express --> [Customer Controller]
+Express --> [Sale Controller]
+
+[User Controller] --> [Auth Middleware]
+[Car Controller] --> [Auth Middleware]
+[Supplier Controller] --> [Auth Middleware]
+[Customer Controller] --> [Auth Middleware]
+[Sale Controller] --> [Auth Middleware]
+
+Express --> [Validation Middleware]
+Express --> [Rate Limiting]
+
+[User Controller] --> DBClient
+[Car Controller] --> DBClient
+[Supplier Controller] --> DBClient
+[Customer Controller] --> DBClient
+[Sale Controller] --> DBClient
+
+[Image Upload] --> S3
+[Email Sender] --> [SMTP Server]
+[Auth Middleware] --> RedisClient
+[Rate Limiting] --> RedisClient
+
+DBClient --> Postgres
+RedisClient --> Redis
+
+@enduml

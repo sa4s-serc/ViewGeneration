@@ -1,0 +1,41 @@
+```plantuml
+@startuml lkravi_kube8aws
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "Admin"
+
+cloud "Internet" as internet
+rectangle "AWS" {
+  rectangle "VPC\n10.0.0.0/16" {
+
+    rectangle "Public Subnet" as pub_subnet {
+      rectangle "Network Load Balancer (NLB)" as nlb #orange
+    }
+
+    rectangle "Private Subnet" as priv_subnet {
+      rectangle "Master Nodes" as master_nodes #orange
+      rectangle "Worker Nodes" as worker_nodes #orange
+    }
+
+    rectangle "Public Subnet\n(Bastion Host)" as bastion_subnet {
+      rectangle "Bastion Host" as bastion #orange
+    }
+  }
+}
+
+"Admin" --> internet
+internet --> nlb
+nlb --> master_nodes
+nlb --> worker_nodes
+
+bastion --> master_nodes
+bastion --> worker_nodes
+bastion --> internet : SSH
+
+@enduml
+```

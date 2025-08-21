@@ -1,0 +1,49 @@
+@startuml CMU-RERC-APT_tiramisu3-pr
+
+[Mobile Client] as Client
+[Java Frontend] as Frontend
+[Backend Data Processing] as Backend
+[Python Predictor] as Predictor
+queue "AWS SQS" as MessageQueue
+database "DynamoDB" as DynamoDB
+database "Postgres DB" as PostgresDB
+
+Client --> Frontend : HTTP Requests
+Frontend --> Client : HTTP Responses
+
+Frontend --> Backend : Fetch Real-time Data
+Frontend --> Predictor : Request Predictions
+Frontend --> PostgresDB : Log User Interactions
+
+Backend --> MessageQueue : Publish Transit Updates
+Backend --> DynamoDB : Store Transit Data
+
+Predictor --> PostgresDB : Fetch Historical Data
+Predictor --> Frontend : Provide Predictions
+
+MessageQueue --> Backend : Consume Transit Updates
+
+note right of Backend
+  FeedGrabber
+  ObservationProcessor
+  DynamoCleaner
+end note
+
+note right of Frontend
+  SchedulesForLocationServlet
+  WriteFavRouteServlet
+  ReadFavRouteServlet
+  StatusLogServlet
+  ButtonLogServlet
+  FocusLogServlet
+  AlarmProcessor
+end note
+
+note right of Client
+  FavRoutesService
+  FavStopsService
+  AlarmService
+  HandleSettingsService
+end note
+
+@enduml

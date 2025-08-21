@@ -1,0 +1,312 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Registry",
+        "description": "Handles server management and unique ID allocation",
+        "boundaries": "Solid",
+        "position": "Top center"
+      },
+      {
+        "name": "Tarzan Admin",
+        "description": "Manages servers",
+        "boundaries": "Solid",
+        "position": "Top right"
+      },
+      {
+        "name": "Tarzan Server",
+        "description": "Core server component",
+        "boundaries": "Dashed",
+        "position": "Center"
+      },
+      {
+        "name": "Tarzan Store",
+        "description": "Storage component using MySQL",
+        "boundaries": "Solid",
+        "position": "Bottom center"
+      },
+      {
+        "name": "Application1 (Tarzan Client)",
+        "description": "Client application",
+        "boundaries": "Dashed",
+        "position": "Left"
+      },
+      {
+        "name": "Application2 (Tarzan Client)",
+        "description": "Client application",
+        "boundaries": "Dashed",
+        "position": "Left"
+      },
+      {
+        "name": "RocketMQ",
+        "description": "Message queue",
+        "boundaries": "Dashed",
+        "position": "Right"
+      },
+      {
+        "name": "Other MQ",
+        "description": "Alternative message queue",
+        "boundaries": "Dashed",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Registry",
+        "target": "Tarzan Server",
+        "label": "allocate unique id",
+        "type": "Solid"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "Tarzan Store",
+        "label": "put/get",
+        "type": "Solid"
+      },
+      {
+        "source": "Application1 (Tarzan Client)",
+        "target": "Tarzan Server",
+        "label": "1.Prepare, 2.Commit/Rollback",
+        "type": "Solid"
+      },
+      {
+        "source": "Application2 (Tarzan Client)",
+        "target": "Tarzan Server",
+        "label": "Check Transaction State",
+        "type": "Solid"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "RocketMQ",
+        "label": "Send/Return Result",
+        "type": "Solid"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "Other MQ",
+        "label": "Send/Return Result",
+        "type": "Solid"
+      },
+      {
+        "source": "Tarzan Admin",
+        "target": "Registry",
+        "label": "manage servers",
+        "type": "Dashed"
+      },
+      {
+        "source": "Registry",
+        "target": "Tarzan Server",
+        "label": "register/unregister",
+        "type": "Solid"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Producer Group",
+        "components": [
+          "Application1 (Tarzan Client)",
+          "Application2 (Tarzan Client)"
+        ]
+      },
+      {
+        "name": "MQ Group",
+        "components": [
+          "RocketMQ",
+          "Other MQ"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Tarzan Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Tarzan Client",
+        "description": "Client component",
+        "boundaries": "Solid",
+        "position": "Left"
+      },
+      {
+        "name": "Tarzan Server",
+        "description": "Core server component",
+        "boundaries": "Solid",
+        "position": "Center"
+      },
+      {
+        "name": "RocketMQ",
+        "description": "Message queue",
+        "boundaries": "Solid",
+        "position": "Center right"
+      },
+      {
+        "name": "Zookeeper",
+        "description": "Coordination service",
+        "boundaries": "Solid",
+        "position": "Center right"
+      },
+      {
+        "name": "Database",
+        "description": "Storage component",
+        "boundaries": "Solid",
+        "position": "Right"
+      },
+      {
+        "name": "Redis",
+        "description": "In-memory data store",
+        "boundaries": "Solid",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Client",
+        "target": "Tarzan Client",
+        "label": "Send message",
+        "type": "Solid"
+      },
+      {
+        "source": "Tarzan Client",
+        "target": "Tarzan Server",
+        "label": "Discover server",
+        "type": "Solid"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "RocketMQ",
+        "label": "Send message",
+        "type": "Solid"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "Database",
+        "label": "Store message",
+        "type": "Solid"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "Redis",
+        "label": "Acquire lock",
+        "type": "Solid"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "Scheduled Task",
+        "location": "Loop section"
+      },
+      {
+        "text": "Message not confirmed",
+        "location": "Alternative section"
+      }
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Tarzan Sequence"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Tarzan Server",
+      "RocketMQ"
+    ],
+    "unique_to_GroundTruth": [
+      "Registry",
+      "Tarzan Admin",
+      "Tarzan Store",
+      "Application1 (Tarzan Client)",
+      "Application2 (Tarzan Client)",
+      "Other MQ"
+    ],
+    "unique_to_GeneratedImage": [
+      "Tarzan Client",
+      "Zookeeper",
+      "Database",
+      "Redis"
+    ],
+    "common_connectors": [
+      {
+        "source": "Tarzan Server",
+        "target": "RocketMQ",
+        "label": "Send message",
+        "type": "Solid"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Registry",
+        "target": "Tarzan Server",
+        "label": "allocate unique id",
+        "type": "Solid"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "Tarzan Store",
+        "label": "put/get",
+        "type": "Solid"
+      },
+      {
+        "source": "Application1 (Tarzan Client)",
+        "target": "Tarzan Server",
+        "label": "1.Prepare, 2.Commit/Rollback",
+        "type": "Solid"
+      },
+      {
+        "source": "Application2 (Tarzan Client)",
+        "target": "Tarzan Server",
+        "label": "Check Transaction State",
+        "type": "Solid"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "Other MQ",
+        "label": "Send/Return Result",
+        "type": "Solid"
+      },
+      {
+        "source": "Tarzan Admin",
+        "target": "Registry",
+        "label": "manage servers",
+        "type": "Dashed"
+      },
+      {
+        "source": "Registry",
+        "target": "Tarzan Server",
+        "label": "register/unregister",
+        "type": "Solid"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Client",
+        "target": "Tarzan Client",
+        "label": "Send message",
+        "type": "Solid"
+      },
+      {
+        "source": "Tarzan Client",
+        "target": "Tarzan Server",
+        "label": "Discover server",
+        "type": "Solid"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "Database",
+        "label": "Store message",
+        "type": "Solid"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "Redis",
+        "label": "Acquire lock",
+        "type": "Solid"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on a high-level architectural overview, highlighting components like the Registry, Tarzan Admin, and Tarzan Store, which are absent in the GeneratedImage. The GeneratedImage provides a sequence flow, emphasizing interactions between components such as Tarzan Client, Zookeeper, and Redis, which are not present in the GroundTruth. Both diagrams share common components like Tarzan Server and RocketMQ, but they serve different purposes: GroundTruth illustrates a static architecture, while GeneratedImage shows dynamic interactions. The GeneratedImage lacks some components and connections present in the GroundTruth, suggesting a different focus. Rating: 6/10. The GeneratedImage captures some core elements but misses several components and connections from the GroundTruth, indicating partial accuracy and completeness.",
+    "Rating": 6
+  }
+}

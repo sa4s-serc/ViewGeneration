@@ -1,0 +1,57 @@
+```plantuml
+@startuml CodisLabs_codis
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<concurrency>> #d8f5d3
+  BackgroundColor<<extensibility>> #fddddd
+  BackgroundColor<<memory>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Redis Components" <<core>> {
+  rectangle "Server Header\n(server.h)" as ServerHeader
+  rectangle "Event Loop\n(ae)" as EventLoop
+  rectangle "Memory Allocator\n(zmalloc)" as MemoryAllocator
+  rectangle "IO Abstraction\n(rio)" as IOAbstraction
+  rectangle "Networking & Config\n(Networking.c, config.c)" as NetworkingConfig
+}
+
+package "Concurrency & Scalability" <<concurrency>> {
+  rectangle "Event Loop\n(ae)" as EventLoopConcurrency
+  rectangle "Single-Threaded Core" as SingleThreaded
+  rectangle "Cluster Management\n(Redis Cluster)" as ClusterManagement
+  rectangle "Connection Pooling" as ConnectionPooling
+}
+
+package "Extensibility & Integrations" <<extensibility>> {
+  rectangle "Lua Scripting" as LuaScripting
+  rectangle "Client Libraries\n(hiredis, redigo)" as ClientLibraries
+  rectangle "Redis Sentinel\nHigh Availability" as RedisSentinel
+  rectangle "Monitoring & Telemetry\n(StatsD, InfluxDB)" as MonitoringTelemetry
+}
+
+package "Memory Management & Allocators" <<memory>> {
+  rectangle "Memory Allocation" as MemoryAllocation
+  rectangle "Jemalloc" as Jemalloc
+  rectangle "Thread Cache" as ThreadCache
+}
+
+ServerHeader --> EventLoop
+ServerHeader --> MemoryAllocator
+ServerHeader --> IOAbstraction
+ServerHeader --> NetworkingConfig
+
+EventLoopConcurrency --> EventLoop
+EventLoopConcurrency --> SingleThreaded
+ClusterManagement --> EventLoop
+ClusterManagement --> ConnectionPooling
+
+LuaScripting --> RedisSentinel
+LuaScripting --> ClientLibraries
+MonitoringTelemetry --> RedisSentinel
+
+MemoryAllocation --> Jemalloc
+MemoryAllocation --> ThreadCache
+@enduml
+```

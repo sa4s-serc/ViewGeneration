@@ -1,0 +1,64 @@
+Here's a PlantUML component diagram for the DeFiBus broker based on the provided summary:
+
+@startuml
+skinparam component {
+  BackgroundColor LightSkyBlue
+  BorderColor Black
+  ArrowColor Black
+}
+
+[DeFiBrokerController] as Controller
+[DeFiProducerManager] as ProducerMgr
+[DeFiConsumerManager] as ConsumerMgr
+[ConsumeQueueManager] as QueueMgr
+[DeFiSendMessageProcessor] as SendProc
+[DeFiReplyMessageProcessor] as ReplyProc
+[DeFiAdminBrokerProcessor] as AdminProc
+[QueueListeningMonitor] as QueueMonitor
+[AdjustQueueNumStrategy] as QueueStrategy
+[MessageRedirectManager] as RedirectMgr
+[DeFiPluginMessageStore] as MessageStore
+[DeFiPullMessageProcessor] as PullProc
+[ClientRebalanceResultManager] as RebalanceMgr
+[DeFiTopicConfigManager] as TopicConfigMgr
+[DeFiBusBroker2Client] as Broker2Client
+
+database "RocketMQ Core" as RocketMQ
+
+Controller -down-> ProducerMgr
+Controller -down-> ConsumerMgr
+Controller -down-> QueueMgr
+Controller -down-> SendProc
+Controller -down-> ReplyProc
+Controller -down-> AdminProc
+Controller -down-> QueueMonitor
+Controller -down-> QueueStrategy
+Controller -down-> RedirectMgr
+Controller -down-> MessageStore
+Controller -down-> PullProc
+Controller -down-> RebalanceMgr
+Controller -down-> TopicConfigMgr
+Controller -down-> Broker2Client
+
+MessageStore -down-> RocketMQ : extends
+
+ProducerMgr -[hidden]right- ConsumerMgr
+ConsumerMgr -[hidden]right- QueueMgr
+QueueMgr -[hidden]right- SendProc
+SendProc -[hidden]right- ReplyProc
+ReplyProc -[hidden]right- AdminProc
+AdminProc -[hidden]right- QueueMonitor
+QueueMonitor -[hidden]right- QueueStrategy
+QueueStrategy -[hidden]right- RedirectMgr
+RedirectMgr -[hidden]right- PullProc
+PullProc -[hidden]right- RebalanceMgr
+RebalanceMgr -[hidden]right- TopicConfigMgr
+TopicConfigMgr -[hidden]right- Broker2Client
+
+cloud "Producers" as Producers
+cloud "Consumers" as Consumers
+
+Producers -down-> Controller : Send Messages
+Controller -up-> Consumers : Deliver Messages
+
+@enduml

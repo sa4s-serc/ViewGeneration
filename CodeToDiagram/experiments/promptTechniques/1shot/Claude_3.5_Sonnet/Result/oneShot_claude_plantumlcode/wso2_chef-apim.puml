@@ -1,0 +1,33 @@
+@startuml wso2_chef-apim
+
+skinparam componentStyle uml2
+
+actor "DevOps Engineer" as DevOps
+component "Chef Workstation" as ChefWS
+component "Chef Server" as ChefServer
+node "Target Node" {
+  component "Chef Client" as ChefClient
+  component "WSO2 API Manager" as APIM {
+    component "Key Manager" as KM
+    component "Publisher" as PUB
+    component "Store" as STORE
+    component "Traffic Manager" as TM
+    component "Gateway Manager" as GM
+    component "Gateway Worker" as GW
+  }
+  database "MySQL" as DB
+}
+
+DevOps -> ChefWS : Uploads cookbook
+ChefWS -> ChefServer : Uploads cookbook
+ChefServer -> ChefClient : Sends cookbook
+ChefClient -> APIM : Installs and configures
+
+KM ..> DB : Connects
+PUB ..> DB : Connects
+STORE ..> DB : Connects
+TM ..> DB : Connects
+GM ..> DB : Connects
+GW ..> DB : Connects
+
+@enduml

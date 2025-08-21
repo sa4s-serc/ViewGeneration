@@ -1,0 +1,77 @@
+@startuml takoko55_LectureLens
+
+skinparam component {
+  BackgroundColor<<Frontend>> LightBlue
+  BackgroundColor<<Backend>> LightGreen
+  BackgroundColor<<Database>> LightYellow
+}
+
+package "Frontend (React)" <<Frontend>> {
+  [App.jsx]
+  [SyllabusSearch.jsx]
+  [GlassCard.jsx]
+  [LecturePage.jsx]
+  [ReviewItem.jsx]
+  [Auth.jsx]
+  [ReviewPost.jsx]
+  [useQueryReviews.jsx]
+  [useMutateReview.jsx]
+  [store/index.jsx]
+}
+
+package "Backend (Go)" <<Backend>> {
+  [main.go]
+  [router/router.go]
+  package "controller" {
+    [UserController]
+    [ReviewController]
+  }
+  package "usecase" {
+    [UserUsecase]
+    [ReviewUsecase]
+  }
+  package "repository" {
+    [UserRepository]
+    [ReviewRepository]
+  }
+  package "model" {
+    [User]
+    [Review]
+  }
+  [db/db.go]
+  [migrate/migrate.go]
+}
+
+database "PostgreSQL" <<Database>> {
+  [Users]
+  [Lectures]
+  [Reviews]
+}
+
+[App.jsx] --> [SyllabusSearch.jsx]
+[App.jsx] --> [LecturePage.jsx]
+[App.jsx] --> [Auth.jsx]
+[LecturePage.jsx] --> [ReviewItem.jsx]
+[LecturePage.jsx] --> [ReviewPost.jsx]
+[SyllabusSearch.jsx] --> [GlassCard.jsx]
+[ReviewPost.jsx] --> [useMutateReview.jsx]
+[LecturePage.jsx] --> [useQueryReviews.jsx]
+[ReviewPost.jsx] --> [store/index.jsx]
+
+[main.go] --> [router/router.go]
+[router/router.go] --> [UserController]
+[router/router.go] --> [ReviewController]
+[UserController] --> [UserUsecase]
+[ReviewController] --> [ReviewUsecase]
+[UserUsecase] --> [UserRepository]
+[ReviewUsecase] --> [ReviewRepository]
+[UserRepository] --> [User]
+[ReviewRepository] --> [Review]
+[UserRepository] --> [db/db.go]
+[ReviewRepository] --> [db/db.go]
+[db/db.go] --> PostgreSQL
+[migrate/migrate.go] --> PostgreSQL
+
+Frontend --> [router/router.go] : RESTful API
+
+@enduml

@@ -1,0 +1,451 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Browser",
+        "description": "Client making requests",
+        "boundaries": "Oval",
+        "position": "Left"
+      },
+      {
+        "name": "ServiceA",
+        "description": "Handles requests with retry logic",
+        "boundaries": "Rectangle",
+        "position": "Center"
+      },
+      {
+        "name": "callB",
+        "description": "Internal call within ServiceA",
+        "boundaries": "Oval",
+        "position": "Inside ServiceA"
+      },
+      {
+        "name": "ServiceB",
+        "description": "Service receiving requests",
+        "boundaries": "Rectangle",
+        "position": "Right"
+      },
+      {
+        "name": "greeting",
+        "description": "Endpoint in ServiceB",
+        "boundaries": "Oval",
+        "position": "Inside ServiceB"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Browser",
+        "target": "ServiceA",
+        "label": "Request GET /greetig",
+        "type": "Arrow"
+      },
+      {
+        "source": "ServiceA",
+        "target": "Browser",
+        "label": "Response",
+        "type": "Arrow"
+      },
+      {
+        "source": "callB",
+        "target": "ServiceB",
+        "label": "Retry 3 Times",
+        "type": "Arrow"
+      },
+      {
+        "source": "ServiceA",
+        "target": "ServiceB",
+        "label": "callB",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "Resilience4j- Retry",
+        "position": "Top"
+      }
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "diagram1.png",
+      "title": null
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Initiates load test",
+        "boundaries": "Stick figure",
+        "position": "Left"
+      },
+      {
+        "name": "JMeter",
+        "description": "Sends requests",
+        "boundaries": "Rectangle",
+        "position": "Center"
+      },
+      {
+        "name": "Service A",
+        "description": "Handles requests with resilience patterns",
+        "boundaries": "Rectangle",
+        "position": "Center"
+      },
+      {
+        "name": "Circuit Breaker",
+        "description": "Manages circuit state",
+        "boundaries": "Rectangle",
+        "position": "Inside Service A"
+      },
+      {
+        "name": "Time Limiter",
+        "description": "Limits execution time",
+        "boundaries": "Rectangle",
+        "position": "Inside Service A"
+      },
+      {
+        "name": "Bulkhead",
+        "description": "Manages concurrency",
+        "boundaries": "Rectangle",
+        "position": "Inside Service A"
+      },
+      {
+        "name": "Rate Limiter",
+        "description": "Limits request rate",
+        "boundaries": "Rectangle",
+        "position": "Inside Service A"
+      },
+      {
+        "name": "Retry",
+        "description": "Retries if needed",
+        "boundaries": "Rectangle",
+        "position": "Inside Service A"
+      },
+      {
+        "name": "Fallback Mechanism",
+        "description": "Provides fallback",
+        "boundaries": "Rectangle",
+        "position": "Below Service A"
+      },
+      {
+        "name": "Service B",
+        "description": "Receives requests",
+        "boundaries": "Rectangle",
+        "position": "Right"
+      },
+      {
+        "name": "Error Response",
+        "description": "Handles errors",
+        "boundaries": "Rectangle",
+        "position": "Inside Service B"
+      },
+      {
+        "name": "Slow Response",
+        "description": "Handles slow responses",
+        "boundaries": "Rectangle",
+        "position": "Inside Service B"
+      },
+      {
+        "name": "Monitoring",
+        "description": "Monitors metrics",
+        "boundaries": "Cloud",
+        "position": "Right"
+      },
+      {
+        "name": "Prometheus",
+        "description": "Collects metrics",
+        "boundaries": "Rectangle",
+        "position": "Inside Monitoring"
+      },
+      {
+        "name": "Grafana",
+        "description": "Visualizes data",
+        "boundaries": "Rectangle",
+        "position": "Inside Monitoring"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "JMeter",
+        "label": "Initiates load test",
+        "type": "Arrow"
+      },
+      {
+        "source": "JMeter",
+        "target": "Service A",
+        "label": "Sends requests",
+        "type": "Arrow"
+      },
+      {
+        "source": "Service A",
+        "target": "Service B",
+        "label": "Calls with time limit",
+        "type": "Arrow"
+      },
+      {
+        "source": "Service B",
+        "target": "Service A",
+        "label": "Error response",
+        "type": "Arrow"
+      },
+      {
+        "source": "Service B",
+        "target": "Service A",
+        "label": "Slow response",
+        "type": "Arrow"
+      },
+      {
+        "source": "Circuit Breaker",
+        "target": "Fallback Mechanism",
+        "label": "Circuit open",
+        "type": "Arrow"
+      },
+      {
+        "source": "Time Limiter",
+        "target": "Fallback Mechanism",
+        "label": "Time limit exceeded",
+        "type": "Arrow"
+      },
+      {
+        "source": "Bulkhead",
+        "target": "Fallback Mechanism",
+        "label": "Concurrency limit reached",
+        "type": "Arrow"
+      },
+      {
+        "source": "Rate Limiter",
+        "target": "Fallback Mechanism",
+        "label": "Rate exceeded",
+        "type": "Arrow"
+      },
+      {
+        "source": "Retry",
+        "target": "Fallback Mechanism",
+        "label": "Max retries reached",
+        "type": "Arrow"
+      },
+      {
+        "source": "Service A",
+        "target": "Prometheus",
+        "label": "Metrics",
+        "type": "Arrow"
+      },
+      {
+        "source": "Prometheus",
+        "target": "Grafana",
+        "label": "Data for visualization",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Service A",
+        "description": "Contains resilience patterns",
+        "components": [
+          "Circuit Breaker",
+          "Time Limiter",
+          "Bulkhead",
+          "Rate Limiter",
+          "Retry"
+        ]
+      },
+      {
+        "name": "Monitoring",
+        "description": "Contains monitoring tools",
+        "components": [
+          "Prometheus",
+          "Grafana"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "diagram2.png",
+      "title": null
+    }
+  },
+  "comparison": {
+    "common_components": [
+      {
+        "name": "Service A",
+        "description": "Handles requests"
+      },
+      {
+        "name": "Service B",
+        "description": "Receives requests"
+      }
+    ],
+    "unique_to_GroundTruth": [
+      {
+        "name": "Browser",
+        "description": "Client making requests"
+      },
+      {
+        "name": "callB",
+        "description": "Internal call within ServiceA"
+      },
+      {
+        "name": "greeting",
+        "description": "Endpoint in ServiceB"
+      }
+    ],
+    "unique_to_GeneratedImage": [
+      {
+        "name": "User",
+        "description": "Initiates load test"
+      },
+      {
+        "name": "JMeter",
+        "description": "Sends requests"
+      },
+      {
+        "name": "Circuit Breaker",
+        "description": "Manages circuit state"
+      },
+      {
+        "name": "Time Limiter",
+        "description": "Limits execution time"
+      },
+      {
+        "name": "Bulkhead",
+        "description": "Manages concurrency"
+      },
+      {
+        "name": "Rate Limiter",
+        "description": "Limits request rate"
+      },
+      {
+        "name": "Retry",
+        "description": "Retries if needed"
+      },
+      {
+        "name": "Fallback Mechanism",
+        "description": "Provides fallback"
+      },
+      {
+        "name": "Error Response",
+        "description": "Handles errors"
+      },
+      {
+        "name": "Slow Response",
+        "description": "Handles slow responses"
+      },
+      {
+        "name": "Monitoring",
+        "description": "Monitors metrics"
+      },
+      {
+        "name": "Prometheus",
+        "description": "Collects metrics"
+      },
+      {
+        "name": "Grafana",
+        "description": "Visualizes data"
+      }
+    ],
+    "common_connectors": [
+      {
+        "source": "Service A",
+        "target": "Service B",
+        "label": "Request handling",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Browser",
+        "target": "ServiceA",
+        "label": "Request GET /greetig",
+        "type": "Arrow"
+      },
+      {
+        "source": "ServiceA",
+        "target": "Browser",
+        "label": "Response",
+        "type": "Arrow"
+      },
+      {
+        "source": "callB",
+        "target": "ServiceB",
+        "label": "Retry 3 Times",
+        "type": "Arrow"
+      },
+      {
+        "source": "ServiceA",
+        "target": "ServiceB",
+        "label": "callB",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "JMeter",
+        "label": "Initiates load test",
+        "type": "Arrow"
+      },
+      {
+        "source": "JMeter",
+        "target": "Service A",
+        "label": "Sends requests",
+        "type": "Arrow"
+      },
+      {
+        "source": "Service B",
+        "target": "Service A",
+        "label": "Error response",
+        "type": "Arrow"
+      },
+      {
+        "source": "Service B",
+        "target": "Service A",
+        "label": "Slow response",
+        "type": "Arrow"
+      },
+      {
+        "source": "Circuit Breaker",
+        "target": "Fallback Mechanism",
+        "label": "Circuit open",
+        "type": "Arrow"
+      },
+      {
+        "source": "Time Limiter",
+        "target": "Fallback Mechanism",
+        "label": "Time limit exceeded",
+        "type": "Arrow"
+      },
+      {
+        "source": "Bulkhead",
+        "target": "Fallback Mechanism",
+        "label": "Concurrency limit reached",
+        "type": "Arrow"
+      },
+      {
+        "source": "Rate Limiter",
+        "target": "Fallback Mechanism",
+        "label": "Rate exceeded",
+        "type": "Arrow"
+      },
+      {
+        "source": "Retry",
+        "target": "Fallback Mechanism",
+        "label": "Max retries reached",
+        "type": "Arrow"
+      },
+      {
+        "source": "Service A",
+        "target": "Prometheus",
+        "label": "Metrics",
+        "type": "Arrow"
+      },
+      {
+        "source": "Prometheus",
+        "target": "Grafana",
+        "label": "Data for visualization",
+        "type": "Arrow"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of a software architecture involving services A and B. The GroundTruth diagram focuses on a simple interaction with retry logic using Resilience4j, highlighting a direct request-response cycle between a browser and services. The GeneratedImage diagram is more complex, illustrating a load testing scenario with JMeter and various resilience patterns like circuit breaker, time limiter, and bulkhead within Service A. It also includes a monitoring system with Prometheus and Grafana. The GroundTruth diagram is simpler and more focused on a single interaction, while the GeneratedImage diagram provides a comprehensive view of resilience and monitoring mechanisms. The generated image is rated 8 out of 10 for its detailed depiction of resilience patterns and monitoring, though it lacks the simplicity and directness of the GroundTruth diagram.",
+    "Rating": 8
+  }
+}

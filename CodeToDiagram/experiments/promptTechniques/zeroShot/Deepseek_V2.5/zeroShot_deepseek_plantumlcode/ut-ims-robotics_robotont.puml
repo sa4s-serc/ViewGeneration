@@ -1,0 +1,58 @@
+@startuml ut-ims-robotics_robotont
+
+package "robotont_driver" {
+    [Serial Communication] as serial
+    [Hardware Interface] as hw_interface
+    [Odometry Calculator] as odom
+}
+
+package "robotont_teleop" {
+    [Teleop Joy Node] as teleop_joy
+    [Gazebo Teleop Joy Node] as gazebo_teleop
+}
+
+package "robotont_training" {
+    [Training Exercises] as training
+    [AR Tag Tracking] as ar_tracking
+}
+
+package "robotont_description" {
+    [URDF Models] as urdf
+    [Meshes] as meshes
+    [Materials] as materials
+}
+
+package "robotont_sensors" {
+    [LaserScan Processor] as laserscan
+}
+
+package "External ROS" {
+    [ROS Master] as ros_master
+    [Navigation Stack] as nav_stack
+    [Gazebo] as gazebo
+    [Realsense D435] as realsense
+}
+
+serial -- hw_interface : "serial data"
+hw_interface -- odom : "encoder data"
+hw_interface -- ros_master : "sensor data"
+odom -- ros_master : "odometry"
+
+teleop_joy -- ros_master : "cmd_vel"
+gazebo_teleop -- ros_master : "cmd_vel"
+gazebo_teleop -- gazebo : "simulation control"
+
+training -- ros_master : "training topics"
+ar_tracking -- ros_master : "ar tag data"
+
+urdf -- gazebo : "robot model"
+meshes -- urdf
+materials -- urdf
+
+laserscan -- ros_master : "LaserScanSplit"
+realsense -- ros_master : "camera data"
+
+nav_stack -- ros_master : "navigation"
+ros_master -- gazebo : "simulation data"
+
+@enduml

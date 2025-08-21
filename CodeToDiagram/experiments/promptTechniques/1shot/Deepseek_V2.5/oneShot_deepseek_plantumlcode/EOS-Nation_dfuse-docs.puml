@@ -1,0 +1,60 @@
+@startuml EOS-Nation_dfuse-docs
+skinparam rectangle {
+  BackgroundColor<<api>> #d9e7fd
+  BackgroundColor<<core>> #d8f5d3
+  BackgroundColor<<storage>> #fddddd
+  BackgroundColor<<cli>> #fff1c9
+  BackgroundColor<<integration>> #e6d9fd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "API Layer" <<api>> {
+  rectangle "GraphQL API" as GraphQL
+  rectangle "REST API" as REST
+  rectangle "gRPC Interface" as gRPC
+  GraphQL --> gRPC
+  REST --> gRPC
+}
+
+package "Core Services" <<core>> {
+  rectangle "mindreader" as MindReader
+  rectangle "relayer" as Relayer
+  rectangle "search" as Search
+  rectangle "dgraphql" as DGraphQL
+  rectangle "Indexing Engine" as Indexing
+  MindReader --> Relayer
+  Relayer --> Search
+  Search --> DGraphQL
+  DGraphQL --> gRPC
+  Search --> Indexing
+}
+
+package "Storage Layer" <<storage>> {
+  rectangle "BigTable" as BigTable
+  rectangle "TiKV" as TiKV
+  rectangle "Badger" as Badger
+  rectangle "Object Store" as ObjectStore
+  Indexing --> BigTable
+  Indexing --> TiKV
+  Indexing --> Badger
+  MindReader --> ObjectStore
+}
+
+package "CLI Tools" <<cli>> {
+  rectangle "dfuseeos CLI" as CLI
+  CLI --> gRPC
+  CLI --> REST
+}
+
+package "Integrations" <<integration>> {
+  rectangle "nodeos" as Nodeos
+  rectangle "EOSIO Chains" as Chains
+  MindReader --> Nodeos
+  gRPC --> Chains
+}
+
+rectangle "Authentication" as Auth
+GraphQL --> Auth
+REST --> Auth
+@enduml

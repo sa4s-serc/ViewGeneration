@@ -1,0 +1,229 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Compute node",
+        "description": "Contains MPI Process with Worker and Server Threads",
+        "boundaries": "dashed box",
+        "positions": "left"
+      },
+      {
+        "name": "MPI Process",
+        "description": "Contains Worker Thread and Server Thread",
+        "boundaries": "solid box",
+        "positions": "inside Compute node"
+      },
+      {
+        "name": "Worker Thread",
+        "description": "Part of MPI Process",
+        "boundaries": "circle",
+        "positions": "top"
+      },
+      {
+        "name": "Server Thread",
+        "description": "Part of MPI Process",
+        "boundaries": "circle",
+        "positions": "bottom"
+      },
+      {
+        "name": "Task Queue",
+        "description": "Queue for tasks",
+        "boundaries": "rectangle",
+        "positions": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "MPI Process",
+        "target": "Task Queue",
+        "label": "Task Queue",
+        "type": "arrow"
+      },
+      {
+        "source": "Compute node",
+        "target": "Compute node",
+        "label": "MPI",
+        "type": "dashed arrow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "Task Queue (in detail)",
+        "position": "top right"
+      },
+      {
+        "text": "Level",
+        "position": "center"
+      }
+    ],
+    "groups": [
+      {
+        "name": "Compute node",
+        "components": [
+          "MPI Process",
+          "Worker Thread",
+          "Server Thread"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "MPI Process Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Worker Process (Rank N)",
+        "description": "Contains Server Thread, Task Queue, and Worker Threads",
+        "boundaries": "solid box",
+        "positions": "top"
+      },
+      {
+        "name": "Main Process (Rank 0)",
+        "description": "Contains Server Thread, Task Queue, and Worker Threads",
+        "boundaries": "solid box",
+        "positions": "bottom"
+      },
+      {
+        "name": "Server Thread",
+        "description": "Handles tasks",
+        "boundaries": "rectangle",
+        "positions": "inside Worker/Main Process"
+      },
+      {
+        "name": "Task Queue",
+        "description": "Queue for tasks",
+        "boundaries": "rectangle",
+        "positions": "inside Worker/Main Process"
+      },
+      {
+        "name": "Worker Threads",
+        "description": "Executes tasks",
+        "boundaries": "rectangle",
+        "positions": "right"
+      },
+      {
+        "name": "User",
+        "description": "Interacts with Main Process",
+        "boundaries": "stick figure",
+        "positions": "bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Server Thread",
+        "target": "Task Queue",
+        "label": "push/pull tasks",
+        "type": "arrow"
+      },
+      {
+        "source": "Task Queue",
+        "target": "Worker Threads",
+        "label": "assign tasks",
+        "type": "arrow"
+      },
+      {
+        "source": "Worker Threads",
+        "target": "Server Thread",
+        "label": "task completed",
+        "type": "arrow"
+      },
+      {
+        "source": "Main Process",
+        "target": "User",
+        "label": "submit()/map0()/spmd()",
+        "type": "arrow"
+      },
+      {
+        "source": "Worker Process",
+        "target": "Main Process",
+        "label": "MPI/communication",
+        "type": "curved arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Worker Process",
+        "components": [
+          "Server Thread",
+          "Task Queue",
+          "Worker Threads"
+        ]
+      },
+      {
+        "name": "Main Process",
+        "components": [
+          "Server Thread",
+          "Task Queue",
+          "Worker Threads"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "MPI Task Management"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Server Thread",
+      "Task Queue",
+      "Worker Thread/Threads"
+    ],
+    "unique_to_GroundTruth": [
+      "Compute node",
+      "MPI Process"
+    ],
+    "unique_to_GeneratedImage": [
+      "Worker Process (Rank N)",
+      "Main Process (Rank 0)",
+      "User"
+    ],
+    "common_connectors": [
+      {
+        "source": "Server Thread",
+        "target": "Task Queue",
+        "label": "Task Queue/push/pull tasks",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Compute node",
+        "target": "Compute node",
+        "label": "MPI",
+        "type": "dashed arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Task Queue",
+        "target": "Worker Threads",
+        "label": "assign tasks",
+        "type": "arrow"
+      },
+      {
+        "source": "Worker Threads",
+        "target": "Server Thread",
+        "label": "task completed",
+        "type": "arrow"
+      },
+      {
+        "source": "Main Process",
+        "target": "User",
+        "label": "submit()/map0()/spmd()",
+        "type": "arrow"
+      },
+      {
+        "source": "Worker Process",
+        "target": "Main Process",
+        "label": "MPI/communication",
+        "type": "curved arrow"
+      }
+    ],
+    "explanation": "The two diagrams both depict architectures involving MPI processes and task management. Common components include the Server Thread, Task Queue, and Worker Threads, indicating a shared focus on task distribution and execution. The GroundTruth diagram emphasizes a simpler, node-based architecture with MPI Processes, while the GeneratedImage diagram provides a more detailed view with distinct Worker and Main Processes, and includes user interaction. The GroundTruth diagram uses a more abstract representation, while the GeneratedImage diagram offers a detailed communication flow. The GeneratedImage diagram is rated 8 out of 10 for its accuracy and completeness, as it captures the essential elements and adds more detail, though it introduces new elements not present in the GroundTruth.",
+    "Rating": 8
+  }
+}

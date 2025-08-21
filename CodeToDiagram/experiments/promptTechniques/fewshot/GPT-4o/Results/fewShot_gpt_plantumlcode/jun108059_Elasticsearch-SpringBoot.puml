@@ -1,0 +1,68 @@
+```plantuml
+@startuml jun108059_Elasticsearch-SpringBoot
+left to right direction
+
+skinparam rectangle {
+  BackgroundColor #d9e7fd
+  BorderColor black
+  Style roundrect
+}
+
+package "Spring Boot Application" {
+  rectangle "Controller Layer" <<Service>> {
+    rectangle "ServiceManagementController" as ServiceMgmtCtrl
+    rectangle "HomeController" as HomeCtrl
+    rectangle "APIController" as APICtrl
+  }
+
+  rectangle "Service Layer" <<Service>> {
+    rectangle "IndexService" as IndexService
+  }
+
+  rectangle "Repository Layer" <<Service>> {
+    rectangle "ServiceRepository" as ServiceRepo
+    rectangle "BulkRepository" as BulkRepo
+    rectangle "JdbcTemplateServiceRepository" as JdbcTemplateServiceRepo
+    rectangle "JdbcTemplateBulkRepository" as JdbcTemplateBulkRepo
+  }
+
+  rectangle "Elasticsearch Client Layer" <<Service>> {
+    rectangle "ElasticsearchClient" as ESClient
+  }
+}
+
+package "External Systems" {
+  rectangle "MySQL Database" as MySQL
+  rectangle "Elasticsearch" as Elasticsearch
+}
+
+package "Configuration" {
+  rectangle "SpringConfig" as SpringConfig
+  rectangle "ESConfig" as ESConfig
+  rectangle "application.yml" as AppYml
+}
+
+' Connections
+ServiceMgmtCtrl --> IndexService
+HomeCtrl --> IndexService
+APICtrl --> IndexService
+
+IndexService --> ServiceRepo
+IndexService --> BulkRepo
+IndexService --> ESClient
+
+ServiceRepo --> JdbcTemplateServiceRepo
+BulkRepo --> JdbcTemplateBulkRepo
+
+JdbcTemplateServiceRepo --> MySQL
+JdbcTemplateBulkRepo --> MySQL
+
+ESClient --> Elasticsearch
+
+SpringConfig --> ServiceRepo
+SpringConfig --> BulkRepo
+ESConfig --> ESClient
+AppYml --> SpringConfig
+AppYml --> ESConfig
+@enduml
+```

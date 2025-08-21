@@ -1,0 +1,58 @@
+```plantuml
+@startuml badr42_oke_A1
+skinparam rectangle {
+  BackgroundColor<<infrastructure>> #f0f8ff
+  BackgroundColor<<networking>> #e6ffe6
+  BackgroundColor<<compute>> #fff5e6
+  BackgroundColor<<k8s>> #e6f2ff
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Terraform Configuration" <<infrastructure>> {
+  rectangle "main.tf" as MainTF
+  rectangle "variables.tf" as VariablesTF
+  rectangle "nginx_deployment.yaml" as NginxYAML
+  rectangle "setup_nginx.sh" as SetupNginx
+}
+
+package "Networking Infrastructure" <<networking>> {
+  rectangle "Virtual Cloud Network (VCN)" as VCN
+  rectangle "Subnets" as Subnets
+  rectangle "Internet Gateway (IGW)" as IGW
+  rectangle "NAT Gateway (NGW)" as NGW
+  rectangle "Service Gateway (SGW)" as SGW
+  rectangle "Route Tables" as RouteTables
+  rectangle "Security Lists" as SecurityLists
+  MainTF --> VCN
+  VCN --> Subnets
+  Subnets --> IGW
+  Subnets --> NGW
+  Subnets --> SGW
+  SGW --> RouteTables
+  SGW --> SecurityLists
+}
+
+package "Compute Resources" <<compute>> {
+  rectangle "OKE Cluster" as OKECluster
+  rectangle "Node Pool" as NodePool
+  rectangle "Worker Nodes" as WorkerNodes
+  rectangle "Node Shape: VM.Standard.A1.Flex" as NodeShape
+  MainTF --> OKECluster
+  OKECluster --> NodePool
+  NodePool --> WorkerNodes
+  NodePool --> NodeShape
+}
+
+package "Kubernetes Components" <<k8s>> {
+  rectangle "Kubeconfig Retrieval" as Kubeconfig
+  rectangle "Nginx Deployment" as NginxDeployment
+  rectangle "LoadBalancer Service" as LoadBalancer
+  NginxYAML --> NginxDeployment
+  SetupNginx --> NginxDeployment
+  NginxDeployment --> LoadBalancer
+}
+
+MainTF --> Kubeconfig
+@enduml
+```

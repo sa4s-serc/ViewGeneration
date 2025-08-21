@@ -1,0 +1,50 @@
+@startuml
+!define AWS_AWSCloud(x,y) rectangle "AWS Cloud" as x #SandyBrown
+!define AWS_VPC(x,y) rectangle "VPC" as x #LightBlue
+!define AWS_Bastion(x,y) package "Bastion Host" as x #LightGray
+!define AWS_EC2(x,y) rectangle "EC2 Instance" as x #White
+!define AWS_NLB(x,y) rectangle "Network Load Balancer" as x #Yellow
+!define AWS_SecurityGroup(x,y) package "Security Group" as x #LightGreen
+!define AWS_Template(x,y) package "Template" as x #LightCyan
+!define AWS_Ansible(x,y) rectangle "Ansible" as x #LightPink
+!define AWS_Terraform(x,y) rectangle "Terraform" as x #LightCoral
+
+AWS_AWSCloud(aws, "AWS Cloud") {
+    AWS_VPC(vpc, "VPC") {
+        AWS_Bastion(bastion, "Bastion Host") {
+            AWS_EC2(bastion_ec2, "Bastion EC2")
+            AWS_Ansible(ansible, "Ansible")
+        }
+        
+        AWS_NLB(nlb, "Network Load Balancer")
+        
+        AWS_EC2(master, "Master Node EC2")
+        AWS_EC2(worker1, "Worker Node EC2")
+        AWS_EC2(worker2, "Worker Node EC2")
+        
+        AWS_SecurityGroup(sg, "Security Group")
+    }
+}
+
+AWS_Terraform(terraform, "Terraform") {
+    AWS_Template(template, "Inventory Template")
+}
+
+bastion_ec2 --> nlb : "SSH access"
+bastion_ec2 -- ansible
+ansible -- master : "Playbooks execute"
+
+nlb --> master : "API requests"
+nlb --> worker1 : "API requests"
+nlb --> worker2 : "API requests"
+
+master --> worker1 : "Kubernetes"
+master --> worker2 : "Kubernetes"
+
+terraform ..> template : "Generates Inventory"
+terraform ..> bastion_ec2 : "Provision Bastion"
+terraform ..> master : "Provision Master"
+terraform ..> worker1 : "Provision Worker"
+terraform ..> worker2 : "Provision Worker"
+terraform ..> sg : "Configure Security Group"
+@enduml

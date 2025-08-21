@@ -1,0 +1,55 @@
+```plantuml
+@startuml itselavia_edge-computing-platform-for-deep-learning-apps
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Frontend" as FE {
+}
+
+rectangle "Backend" as Backend #lightsteelblue {
+  rectangle "Flask Service" as FlaskService #skyblue
+  rectangle "Model Manager" as ModelManager #lightcoral
+}
+
+rectangle "Kubernetes" as Kubernetes #lightyellow {
+  rectangle "KubeEdge" as KubeEdge #lightgoldenrodyellow
+}
+
+rectangle "GCP" as GCP #palegreen {
+  rectangle "Cloud Functions" as CloudFunctions #lightgreen
+  rectangle "Google Cloud Storage" as GCS #aliceblue
+  rectangle "Cloud SQL" as CloudSQL #khaki
+}
+
+rectangle "Inference" as Inference #lavender {
+  rectangle "TensorRT" as TensorRT #thistle
+  rectangle "TensorFlow Lite" as TFLite #plum
+}
+
+' ========== Connections ==========
+User --> FE
+
+' Frontend interactions
+FE <--> Backend : create projects\n upload models\n deploy services\n view cluster status
+
+' Backend interactions
+Backend <--> GCS : upload model files\n configuration data
+Backend --> CloudFunctions : trigger TFLite conversion
+ModelManager --> Kubernetes : manage deployment\n scale models
+FlaskService --> CloudSQL : manage user/project data
+
+' Kubernetes interactions
+Kubernetes <--> KubeEdge : deploy models at edge
+
+' Inference interactions
+KubeEdge --> Inference : perform object detection\n using TensorRT or TFLite
+Inference --> KubeEdge : return inference results
+
+@enduml
+```

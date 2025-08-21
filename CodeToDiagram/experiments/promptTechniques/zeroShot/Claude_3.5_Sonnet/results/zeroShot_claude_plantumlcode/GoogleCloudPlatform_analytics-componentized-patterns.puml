@@ -1,0 +1,47 @@
+@startuml
+participant "Client" as C
+participant "Kubeflow Pipeline" as KFP
+participant "BigQuery ML" as BQML
+participant "Cloud Storage" as GCS
+participant "AI Platform Prediction" as AIP
+participant "ScaNN Service" as ScaNN
+participant "Google Ads API" as GAds
+
+C -> KFP: Trigger pipeline
+activate KFP
+
+KFP -> BQML: Prepare data
+BQML --> KFP: Data prepared
+
+KFP -> BQML: Train model
+BQML --> KFP: Model trained
+
+KFP -> BQML: Evaluate model
+BQML --> KFP: Evaluation metrics
+
+KFP -> BQML: Extract embeddings
+BQML --> KFP: Embeddings extracted
+
+KFP -> GCS: Store model artifacts
+GCS --> KFP: Artifacts stored
+
+KFP -> AIP: Deploy model
+AIP --> KFP: Model deployed
+
+KFP -> ScaNN: Build ScaNN index
+ScaNN --> KFP: Index built
+
+KFP -> AIP: Deploy ScaNN service
+AIP --> KFP: ScaNN service deployed
+
+KFP -> GAds: Create lookalike audience
+GAds --> KFP: Audience created
+
+KFP --> C: Pipeline completed
+deactivate KFP
+
+C -> AIP: Real-time prediction request
+AIP -> ScaNN: Item similarity lookup
+ScaNN --> AIP: Similar items
+AIP --> C: Recommendation response
+@enduml

@@ -1,0 +1,58 @@
+```plantuml
+@startuml michaelsrichter_azure.owasp
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor DevOps
+
+rectangle "Deployment Scripts" as DeployScripts {
+  rectangle "ARM Templates" as ARM
+  rectangle "PowerShell Scripts" as PS
+}
+
+rectangle "Azure Environment" as Azure {
+  rectangle "Virtual Network" as VNet
+  rectangle "Load Balancer" as LB
+  rectangle "Virtual Machines" as VM
+  rectangle "Storage Accounts" as Storage
+}
+
+rectangle "Web Application Firewall" as WAF {
+  rectangle "ModSecurity" as ModSec
+  rectangle "Core Rule Sets" as CRS
+}
+
+rectangle "Web Applications" as WebApps {
+  rectangle "ASP.NET MVC Apps" as ASPNet
+  rectangle "Node.js App" as NodeApp
+}
+
+rectangle "Client Libraries" as ClientLibs {
+  rectangle "jQuery" as jQuery
+  rectangle "Bootstrap" as Bootstrap
+  rectangle "Modernizr" as Modernizr
+  rectangle "Respond.js" as RespondJS
+}
+
+' ========== Connections ==========
+
+DevOps --> DeployScripts
+DeployScripts --> ARM : Deploy Resources
+DeployScripts --> PS : Execute Scripts
+ARM --> Azure : Provision Resources
+PS --> Azure : Configure Resources
+
+WebApps --> Azure : Host Applications
+WebApps --> WAF : Secure with WAF
+
+ModSec --> CRS : Use Security Rules
+WAF --> Azure : Protect Applications
+
+ClientLibs --> WebApps : Enhance UI/UX
+
+@enduml
+```

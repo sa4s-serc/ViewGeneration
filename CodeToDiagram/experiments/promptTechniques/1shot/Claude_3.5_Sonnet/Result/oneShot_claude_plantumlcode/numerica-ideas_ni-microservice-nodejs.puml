@@ -1,0 +1,56 @@
+@startuml numerica-ideas_ni-microservice-nodejs
+
+actor Client
+
+participant "API Gateway" as Gateway
+participant "Express App" as Express
+participant "Article Controller" as Controller
+participant "Article Service" as Service
+database "MongoDB" as MongoDB
+database "Redis Cache" as Redis
+queue "Redis Pub/Sub" as RedisPubSub
+queue "AWS SNS" as SNS
+
+alt Server Deployment
+    Client -> Gateway : HTTP Request
+    Gateway -> Express : Route Request
+    Express -> Controller : Handle Request
+    Controller -> Service : Process Article
+    Service -> Redis : Check Cache
+    alt Cache Miss
+        Service -> MongoDB : Fetch Data
+        MongoDB --> Service : Return Data
+        Service -> Redis : Update Cache
+    end
+    Service --> Controller : Return Result
+    Controller --> Express : Send Response
+    Express --> Gateway : Forward Response
+    Gateway --> Client : HTTP Response
+    
+    group Inter-Service Communication
+        Service -> RedisPubSub : Publish Event
+        RedisPubSub -> Service : Subscribe to Events
+    end
+else Lambda Deployment
+    Client -> Gateway : HTTP Request
+    Gateway -> Express : Trigger Lambda
+    Express -> Controller : Handle Request
+    Controller -> Service : Process Article
+    Service -> Redis : Check Cache
+    alt Cache Miss
+        Service -> MongoDB : Fetch Data
+        MongoDB --> Service : Return Data
+        Service -> Redis : Update Cache
+    end
+    Service --> Controller : Return Result
+    Controller --> Express : Send Response
+    Express --> Gateway : Lambda Response
+    Gateway --> Client : HTTP Response
+    
+    group Inter-Service Communication
+        Service -> SNS : Publish Event
+        SNS -> Service : Subscribe to Events
+    end
+end
+
+@enduml

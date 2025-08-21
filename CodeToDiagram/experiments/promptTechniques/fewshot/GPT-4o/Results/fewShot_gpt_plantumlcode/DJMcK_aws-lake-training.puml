@@ -1,0 +1,40 @@
+```plantuml
+@startuml DJMcK_aws-lake-training
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "User"
+
+package "AWS Services" {
+  rectangle "S3" as S3 #lightblue
+  rectangle "EMR (Spark)" as EMR #lightblue
+  rectangle "Glue" as Glue #lightblue
+  rectangle "Athena" as Athena #lightblue
+  rectangle "Comprehend Medical" as Comprehend #lightblue
+  rectangle "Lambda" as Lambda #lightblue
+  rectangle "Step Functions" as StepFunctions #lightblue
+}
+
+package "Data Lake Architecture" {
+  rectangle "Raw Zone" as RawZone
+  rectangle "Landing Zone" as LandingZone
+  rectangle "Curated Zone" as CuratedZone
+}
+
+User --> S3 : Upload FDA Data
+S3 --> EMR : Trigger Spark Job
+EMR --> LandingZone : Transform & Load Data
+LandingZone --> Glue : Catalog Data
+Glue --> Athena : Create Metadata Catalog
+Athena --> Lambda : Query Data
+Lambda --> Comprehend : Extract Medical Entities
+Comprehend --> Lambda : Return Extracted Data
+Lambda --> StepFunctions : Trigger Processing Workflow
+StepFunctions --> Lambda : Step Execution
+Lambda --> CuratedZone : Store Processed Data
+@enduml
+```

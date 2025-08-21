@@ -1,0 +1,63 @@
+@startuml openshift_configuration-anomaly-detection
+
+skinparam componentStyle uml2
+
+actor "PagerDuty" as PD
+component "Tekton Interceptor" as TI
+component "Tekton PipelineRun" as TPR
+component "cadctl" as CADCTL
+component "OCM" as OCM
+component "AWS" as AWS
+component "Kubernetes" as K8S
+database "OpenShift Cluster" as OC
+
+PD -> TI : Alert Webhook
+activate TI
+
+TI -> TI : Validate Signature
+TI -> TI : Check Handler Availability
+
+alt Handler Available
+    TI -> TPR : Trigger Pipeline
+    activate TPR
+    
+    TPR -> CADCTL : Execute Investigation
+    activate CADCTL
+    
+    CADCTL -> OCM : Retrieve Cluster Info
+    activate OCM
+    OCM --> CADCTL : Cluster Data
+    deactivate OCM
+    
+    CADCTL -> AWS : Login & Verify Network
+    activate AWS
+    AWS --> CADCTL : AWS Data
+    deactivate AWS
+    
+    CADCTL -> K8S : Fetch Resources
+    activate K8S
+    K8S --> CADCTL : Cluster Resources
+    deactivate K8S
+    
+    CADCTL -> OC : Inspect & Analyze
+    activate OC
+    OC --> CADCTL : Analysis Results
+    deactivate OC
+    
+    CADCTL -> PD : Update Incident
+    activate PD
+    PD --> CADCTL : Confirmation
+    deactivate PD
+    
+    CADCTL --> TPR : Investigation Complete
+    deactivate CADCTL
+    
+    TPR --> TI : Pipeline Complete
+    deactivate TPR
+else No Handler
+    TI -> PD : No Action Taken
+end
+
+deactivate TI
+
+@enduml

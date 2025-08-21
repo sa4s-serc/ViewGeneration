@@ -1,0 +1,17 @@
+@startuml
+participant "IoT Device" as IoT
+participant "RabbitMQ Broker" as RMQ
+participant "Nuclio Function (Producer)" as Producer
+participant "Nuclio Function (Consumer)" as Consumer
+participant "Logger" as Logger
+
+IoT -> RMQ: Send temperature data (MQTT/AMQP)
+RMQ -> Producer: Trigger event
+Producer -> Producer: Generate temperature event
+Producer -> RMQ: Publish event to queue/topic
+RMQ -> Consumer: Trigger event processing
+Consumer -> Consumer: Process temperature data
+Consumer -> RMQ: Publish processed data
+RMQ -> Logger: Consume processed data
+Logger -> Logger: Log data to console
+@enduml

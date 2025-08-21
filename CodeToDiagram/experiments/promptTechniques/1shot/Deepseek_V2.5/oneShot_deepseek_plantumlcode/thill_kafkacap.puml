@@ -1,0 +1,55 @@
+@startuml thill_kafkacap
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+rectangle "Source" as Source
+
+rectangle "Capture Devices" as CaptureDevices {
+  rectangle "AeronCaptureDevice" as Aeron
+  rectangle "MulticastCaptureDevice" as Multicast
+  rectangle "WebsocketCaptureDevice" as Websocket
+}
+
+rectangle "Kafka Topics" as KafkaTopics {
+  rectangle "Capture Topic 1" as Topic1
+  rectangle "Capture Topic 2" as Topic2
+  rectangle "Capture Topic N" as TopicN
+}
+
+rectangle "Deduplicator" as Deduplicator {
+  rectangle "DedupStrategy" as Strategy
+  rectangle "CaptureQueue" as Queue
+  rectangle "RecordPopulator" as Populator
+}
+
+rectangle "Outbound Kafka" as Outbound {
+  rectangle "Deduplicated Topic" as DedupTopic
+}
+
+rectangle "RecoveryService" as RecoveryService
+
+' ========== Connections ==========
+Source --> Aeron : Messages
+Source --> Multicast : Messages
+Source --> Websocket : Messages
+
+Aeron --> Topic1 : Publish
+Multicast --> Topic2 : Publish
+Websocket --> TopicN : Publish
+
+Topic1 --> Deduplicator : Consume
+Topic2 --> Deduplicator : Consume
+TopicN --> Deduplicator : Consume
+
+Deduplicator --> Strategy : Apply deduplication
+Deduplicator --> Queue : Buffer messages
+Deduplicator --> Populator : Create Kafka records
+Deduplicator --> DedupTopic : Publish deduplicated
+
+RecoveryService --> DedupTopic : Read last offsets
+RecoveryService --> Deduplicator : Restore state
+@enduml

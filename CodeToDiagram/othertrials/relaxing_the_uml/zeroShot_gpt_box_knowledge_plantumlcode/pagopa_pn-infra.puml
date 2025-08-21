@@ -1,0 +1,54 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+
+package "Piattaforma Notifiche Infrastructure" {
+    package "API Gateway" {
+        [API Gateway] <<API>> #lightblue
+    }
+
+    package "Lambda Functions" {
+        [Lambda Processing] <<Function>> #lightyellow
+        [Reverse Proxy Lambda] <<Function>> #lightyellow
+    }
+
+    package "Microservices" {
+        [ECS Cluster] <<Service>> #lightgreen
+    }
+
+    package "Event System" {
+        [EventBridge] <<Event>> #lightpink
+        [SNS Topic] <<MessageQueue>> #lightpink
+        [SQS Queue] <<MessageQueue>> #lightpink
+    }
+
+    package "Data Management" {
+        [DynamoDB] <<Database>> #lightgray
+        [S3 Bucket] <<Storage>> #lightgray
+        [Kinesis Stream] <<Stream>> #lightgray
+    }
+
+    package "Monitoring & Logging" {
+        [CloudWatch] <<Monitoring>> #lightpurple
+        [CloudTrail] <<Audit>> #lightpurple
+    }
+
+    package "Authentication" {
+        [Cognito] <<AuthService>> #lightorange
+    }
+}
+
+[API Gateway] --> [Cognito] : "authenticate"
+[API Gateway] -right-> [Lambda Processing] : "invoke"
+[API Gateway] -right-> [Reverse Proxy Lambda] : "invoke"
+[Lambda Processing] --> [EventBridge] : "send event"
+[EventBridge] --> [SNS Topic] : "trigger"
+[SNS Topic] --> [SQS Queue] : "publish"
+[SQS Queue] --> [Lambda Processing] : "consume message"
+[Lambda Processing] --> [ECS Cluster] : "interact"
+[Lambda Processing] --> [DynamoDB] : "read/write"
+[Lambda Processing] --> [S3 Bucket] : "store logs"
+[Kinesis Stream] --> [CloudWatch] : "stream logs"
+[CloudTrail] --> [CloudWatch] : "audit logs"
+
+@enduml

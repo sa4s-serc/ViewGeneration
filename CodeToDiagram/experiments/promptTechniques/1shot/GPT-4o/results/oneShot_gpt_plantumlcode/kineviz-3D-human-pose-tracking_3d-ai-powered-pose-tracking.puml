@@ -1,0 +1,36 @@
+```plantuml
+@startuml kineviz-3D-human-pose-tracking_3d-ai-powered-pose-tracking
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor WebcamClient as WC
+actor ReceiverClient as RC
+
+rectangle "Node.js Server" as Server #lightsteelblue {
+  rectangle "Express.js" as Express
+  rectangle "Socket.IO" as SocketIO
+}
+
+rectangle "TensorFlow.js Models" as TFModels #palegreen {
+  rectangle "PoseNet/MoveNet" as PoseModels
+}
+
+rectangle "Kineviz GraphXR" as GraphXR #aliceblue
+
+' ========== Connections ==========
+WC -> SocketIO : send 2D pose data
+RC <- SocketIO : receive 3D pose data
+
+SocketIO -> Express : handle incoming skeleton data
+Express -> SocketIO : broadcast pose data to clients
+
+Server -> PoseModels : use models for 2D pose estimation
+PoseModels -> Server : return 2D pose estimations
+
+Server -> GraphXR : send 3D skeleton data for visualization
+@enduml
+```

@@ -1,0 +1,655 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Github Users",
+        "description": "User interaction",
+        "boundaries": "external",
+        "position": "left"
+      },
+      {
+        "name": "Github",
+        "description": "Github platform",
+        "boundaries": "internal",
+        "position": "left"
+      },
+      {
+        "name": "Github Action",
+        "description": "CI/CD action",
+        "boundaries": "internal",
+        "position": "center-left"
+      },
+      {
+        "name": "RouteS3",
+        "description": "Routing to S3",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "Cloudfront Distribution",
+        "description": "Content delivery",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "API Gateway",
+        "description": "API management",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "API Service",
+        "description": "Handles API requests",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "Ingest Bucket",
+        "description": "Stores raw files",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "Ingest Service",
+        "description": "Processes raw files",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "Output Bucket",
+        "description": "Stores serialized coverage",
+        "boundaries": "internal",
+        "position": "center-right"
+      },
+      {
+        "name": "Coverage Event Bus",
+        "description": "Event handling",
+        "boundaries": "internal",
+        "position": "center-right"
+      },
+      {
+        "name": "Orchestrator Service",
+        "description": "Coordinates processes",
+        "boundaries": "internal",
+        "position": "right"
+      },
+      {
+        "name": "Event Store",
+        "description": "Stores events",
+        "boundaries": "internal",
+        "position": "right"
+      },
+      {
+        "name": "Loadable Coverage Bucket",
+        "description": "Stores loadable coverage",
+        "boundaries": "internal",
+        "position": "center-right"
+      },
+      {
+        "name": "Analytics Warehouse",
+        "description": "Data analytics",
+        "boundaries": "internal",
+        "position": "center-right"
+      },
+      {
+        "name": "Analyse Service",
+        "description": "Analyzes data",
+        "boundaries": "internal",
+        "position": "center-right"
+      },
+      {
+        "name": "Query Cache",
+        "description": "Caches queries",
+        "boundaries": "internal",
+        "position": "center-right"
+      },
+      {
+        "name": "Publish Service",
+        "description": "Publishes results",
+        "boundaries": "internal",
+        "position": "center-left"
+      },
+      {
+        "name": "Publisher FIFO Queue",
+        "description": "Queues messages",
+        "boundaries": "internal",
+        "position": "center-left"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Github Users",
+        "target": "Github",
+        "label": "Send job webhook events",
+        "type": "HTTP"
+      },
+      {
+        "source": "Github",
+        "target": "Github Action",
+        "label": "Invoke action",
+        "type": "HTTP"
+      },
+      {
+        "source": "Github Action",
+        "target": "Ingest Bucket",
+        "label": "Upload coverage file",
+        "type": "HTTP"
+      },
+      {
+        "source": "Ingest Bucket",
+        "target": "Ingest Service",
+        "label": "Ingest raw file",
+        "type": "S3"
+      },
+      {
+        "source": "Ingest Service",
+        "target": "Coverage Event Bus",
+        "label": "Ingest successful event",
+        "type": "Event"
+      },
+      {
+        "source": "Coverage Event Bus",
+        "target": "Orchestrator Service",
+        "label": "Ingest events",
+        "type": "Event"
+      },
+      {
+        "source": "Orchestrator Service",
+        "target": "Event Store",
+        "label": "Job state change event",
+        "type": "Event"
+      },
+      {
+        "source": "API Service",
+        "target": "RouteS3",
+        "label": "Get signed upload URL",
+        "type": "HTTP"
+      },
+      {
+        "source": "RouteS3",
+        "target": "Cloudfront Distribution",
+        "label": "",
+        "type": "HTTP"
+      },
+      {
+        "source": "Cloudfront Distribution",
+        "target": "API Gateway",
+        "label": "",
+        "type": "HTTP"
+      },
+      {
+        "source": "API Gateway",
+        "target": "API Service",
+        "label": "",
+        "type": "HTTP"
+      },
+      {
+        "source": "API Service",
+        "target": "Output Bucket",
+        "label": "Serialized line coverage",
+        "type": "S3"
+      },
+      {
+        "source": "Output Bucket",
+        "target": "Coverage Event Bus",
+        "label": "Uploads finalized event",
+        "type": "Event"
+      },
+      {
+        "source": "Coverage Event Bus",
+        "target": "Analyse Service",
+        "label": "Queryable line coverage",
+        "type": "Event"
+      },
+      {
+        "source": "Analyse Service",
+        "target": "Query Cache",
+        "label": "Coverage uploads",
+        "type": "Cache"
+      },
+      {
+        "source": "Query Cache",
+        "target": "Analytics Warehouse",
+        "label": "Load",
+        "type": "Data"
+      },
+      {
+        "source": "Analytics Warehouse",
+        "target": "Analyse Service",
+        "label": "Query",
+        "type": "Data"
+      },
+      {
+        "source": "Analyse Service",
+        "target": "Publish Service",
+        "label": "Publish coverage results",
+        "type": "Event"
+      },
+      {
+        "source": "Publish Service",
+        "target": "Publisher FIFO Queue",
+        "label": "Publish messages (grouped)",
+        "type": "Queue"
+      },
+      {
+        "source": "Publisher FIFO Queue",
+        "target": "Github Users",
+        "label": "Push coverage analysis to PR",
+        "type": "HTTP"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Coverage Analysis System"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User/GitHub",
+        "description": "User interaction",
+        "boundaries": "external",
+        "position": "left"
+      },
+      {
+        "name": "GitHub App",
+        "description": "GitHub application",
+        "boundaries": "internal",
+        "position": "left"
+      },
+      {
+        "name": "API Service",
+        "description": "Handles API requests",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "Orchestrator",
+        "description": "Coordinates processes",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "Analyse Service",
+        "description": "Analyzes data",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "Publish Service",
+        "description": "Publishes results",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "S3",
+        "description": "Storage service",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "DynamoDB",
+        "description": "Database service",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "BigQuery",
+        "description": "Data analytics",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "EventBridge",
+        "description": "Event handling",
+        "boundaries": "internal",
+        "position": "center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User/GitHub",
+        "target": "GitHub App",
+        "label": "Trigger coverage analysis",
+        "type": "HTTP"
+      },
+      {
+        "source": "GitHub App",
+        "target": "API Service",
+        "label": "Send webhook",
+        "type": "HTTP"
+      },
+      {
+        "source": "API Service",
+        "target": "Orchestrator",
+        "label": "Validate webhook",
+        "type": "HTTP"
+      },
+      {
+        "source": "Orchestrator",
+        "target": "API Service",
+        "label": "Enqueue webhook event",
+        "type": "Event"
+      },
+      {
+        "source": "User/GitHub",
+        "target": "GitHub App",
+        "label": "Upload coverage report",
+        "type": "HTTP"
+      },
+      {
+        "source": "GitHub App",
+        "target": "S3",
+        "label": "Store raw coverage data",
+        "type": "S3"
+      },
+      {
+        "source": "S3",
+        "target": "Orchestrator",
+        "label": "Process upload event",
+        "type": "Event"
+      },
+      {
+        "source": "Orchestrator",
+        "target": "Analyse Service",
+        "label": "Fetch coverage data",
+        "type": "Data"
+      },
+      {
+        "source": "Analyse Service",
+        "target": "BigQuery",
+        "label": "Query historical data",
+        "type": "Data"
+      },
+      {
+        "source": "BigQuery",
+        "target": "Analyse Service",
+        "label": "Perform analysis",
+        "type": "Data"
+      },
+      {
+        "source": "Analyse Service",
+        "target": "DynamoDB",
+        "label": "Store analysis results",
+        "type": "Data"
+      },
+      {
+        "source": "DynamoDB",
+        "target": "Analyse Service",
+        "label": "Emit analysis complete event",
+        "type": "Event"
+      },
+      {
+        "source": "Analyse Service",
+        "target": "Publish Service",
+        "label": "Trigger publishing",
+        "type": "Event"
+      },
+      {
+        "source": "Publish Service",
+        "target": "GitHub App",
+        "label": "Update PR with coverage data",
+        "type": "HTTP"
+      },
+      {
+        "source": "GitHub App",
+        "target": "User/GitHub",
+        "label": "Return coverage badge",
+        "type": "HTTP"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Coverage Analysis Sequence"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "API Service",
+      "Orchestrator",
+      "Analyse Service",
+      "Publish Service"
+    ],
+    "unique_to_GroundTruth": [
+      "Github Users",
+      "Github",
+      "Github Action",
+      "RouteS3",
+      "Cloudfront Distribution",
+      "API Gateway",
+      "Ingest Bucket",
+      "Ingest Service",
+      "Output Bucket",
+      "Coverage Event Bus",
+      "Event Store",
+      "Loadable Coverage Bucket",
+      "Analytics Warehouse",
+      "Query Cache",
+      "Publisher FIFO Queue"
+    ],
+    "unique_to_GeneratedImage": [
+      "User/GitHub",
+      "GitHub App",
+      "S3",
+      "DynamoDB",
+      "BigQuery",
+      "EventBridge"
+    ],
+    "common_connectors": [
+      {
+        "source": "Analyse Service",
+        "target": "Publish Service",
+        "label": "Trigger publishing",
+        "type": "Event"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Github Users",
+        "target": "Github",
+        "label": "Send job webhook events",
+        "type": "HTTP"
+      },
+      {
+        "source": "Github",
+        "target": "Github Action",
+        "label": "Invoke action",
+        "type": "HTTP"
+      },
+      {
+        "source": "Github Action",
+        "target": "Ingest Bucket",
+        "label": "Upload coverage file",
+        "type": "HTTP"
+      },
+      {
+        "source": "Ingest Bucket",
+        "target": "Ingest Service",
+        "label": "Ingest raw file",
+        "type": "S3"
+      },
+      {
+        "source": "Ingest Service",
+        "target": "Coverage Event Bus",
+        "label": "Ingest successful event",
+        "type": "Event"
+      },
+      {
+        "source": "Coverage Event Bus",
+        "target": "Orchestrator Service",
+        "label": "Ingest events",
+        "type": "Event"
+      },
+      {
+        "source": "Orchestrator Service",
+        "target": "Event Store",
+        "label": "Job state change event",
+        "type": "Event"
+      },
+      {
+        "source": "API Service",
+        "target": "RouteS3",
+        "label": "Get signed upload URL",
+        "type": "HTTP"
+      },
+      {
+        "source": "RouteS3",
+        "target": "Cloudfront Distribution",
+        "label": "",
+        "type": "HTTP"
+      },
+      {
+        "source": "Cloudfront Distribution",
+        "target": "API Gateway",
+        "label": "",
+        "type": "HTTP"
+      },
+      {
+        "source": "API Gateway",
+        "target": "API Service",
+        "label": "",
+        "type": "HTTP"
+      },
+      {
+        "source": "API Service",
+        "target": "Output Bucket",
+        "label": "Serialized line coverage",
+        "type": "S3"
+      },
+      {
+        "source": "Output Bucket",
+        "target": "Coverage Event Bus",
+        "label": "Uploads finalized event",
+        "type": "Event"
+      },
+      {
+        "source": "Coverage Event Bus",
+        "target": "Analyse Service",
+        "label": "Queryable line coverage",
+        "type": "Event"
+      },
+      {
+        "source": "Analyse Service",
+        "target": "Query Cache",
+        "label": "Coverage uploads",
+        "type": "Cache"
+      },
+      {
+        "source": "Query Cache",
+        "target": "Analytics Warehouse",
+        "label": "Load",
+        "type": "Data"
+      },
+      {
+        "source": "Analytics Warehouse",
+        "target": "Analyse Service",
+        "label": "Query",
+        "type": "Data"
+      },
+      {
+        "source": "Publish Service",
+        "target": "Publisher FIFO Queue",
+        "label": "Publish messages (grouped)",
+        "type": "Queue"
+      },
+      {
+        "source": "Publisher FIFO Queue",
+        "target": "Github Users",
+        "label": "Push coverage analysis to PR",
+        "type": "HTTP"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User/GitHub",
+        "target": "GitHub App",
+        "label": "Trigger coverage analysis",
+        "type": "HTTP"
+      },
+      {
+        "source": "GitHub App",
+        "target": "API Service",
+        "label": "Send webhook",
+        "type": "HTTP"
+      },
+      {
+        "source": "API Service",
+        "target": "Orchestrator",
+        "label": "Validate webhook",
+        "type": "HTTP"
+      },
+      {
+        "source": "Orchestrator",
+        "target": "API Service",
+        "label": "Enqueue webhook event",
+        "type": "Event"
+      },
+      {
+        "source": "User/GitHub",
+        "target": "GitHub App",
+        "label": "Upload coverage report",
+        "type": "HTTP"
+      },
+      {
+        "source": "GitHub App",
+        "target": "S3",
+        "label": "Store raw coverage data",
+        "type": "S3"
+      },
+      {
+        "source": "S3",
+        "target": "Orchestrator",
+        "label": "Process upload event",
+        "type": "Event"
+      },
+      {
+        "source": "Orchestrator",
+        "target": "Analyse Service",
+        "label": "Fetch coverage data",
+        "type": "Data"
+      },
+      {
+        "source": "Analyse Service",
+        "target": "BigQuery",
+        "label": "Query historical data",
+        "type": "Data"
+      },
+      {
+        "source": "BigQuery",
+        "target": "Analyse Service",
+        "label": "Perform analysis",
+        "type": "Data"
+      },
+      {
+        "source": "Analyse Service",
+        "target": "DynamoDB",
+        "label": "Store analysis results",
+        "type": "Data"
+      },
+      {
+        "source": "DynamoDB",
+        "target": "Analyse Service",
+        "label": "Emit analysis complete event",
+        "type": "Event"
+      },
+      {
+        "source": "Publish Service",
+        "target": "GitHub App",
+        "label": "Update PR with coverage data",
+        "type": "HTTP"
+      },
+      {
+        "source": "GitHub App",
+        "target": "User/GitHub",
+        "label": "Return coverage badge",
+        "type": "HTTP"
+      }
+    ],
+    "explanation": "The two diagrams represent different views of a coverage analysis system. The GroundTruth diagram focuses on the infrastructure components and their interactions, while the GeneratedImage diagram presents a sequence of operations. Common components include the API Service, Orchestrator, Analyse Service, and Publish Service. The GroundTruth diagram includes more detailed infrastructure elements like S3, Event Bus, and specific AWS services, while the GeneratedImage diagram emphasizes the flow of data and events, including components like DynamoDB and BigQuery. The connectors in the GroundTruth diagram are more focused on data flow between services, whereas the GeneratedImage diagram details the sequence of operations. The GeneratedImage diagram is rated 7 out of 10 for accuracy and completeness, as it captures the process flow well but lacks the detailed infrastructure elements present in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

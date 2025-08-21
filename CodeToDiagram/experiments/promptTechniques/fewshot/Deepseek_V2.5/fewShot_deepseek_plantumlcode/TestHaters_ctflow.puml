@@ -1,0 +1,57 @@
+@startuml TestHaters_ctflow
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<integration>> #fddddd
+  BackgroundColor<<db>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+left to right direction
+
+package "VS Code Extension" <<frontend>> {
+  rectangle "VS Code UI" as VSCodeUI
+  rectangle "Webview Panel" as Webview
+  rectangle "Extension Host" as ExtensionHost
+  VSCodeUI --> Webview
+  Webview --> ExtensionHost
+}
+
+package "React Webview UI" <<frontend>> {
+  rectangle "Flow Editor" as FlowEditor
+  rectangle "Node Menu Panel" as NodeMenu
+  rectangle "Compile Panel" as CompilePanel
+  rectangle "Custom Nodes" as CustomNodes
+  FlowEditor --> NodeMenu
+  FlowEditor --> CompilePanel
+  FlowEditor --> CustomNodes
+}
+
+package "Compiler" <<backend>> {
+  rectangle "Graph Traversal" as Graph
+  rectangle "Node Compilers" as NodeCompilers
+  rectangle "Cypress Code Gen" as CypressGen
+  Graph --> NodeCompilers
+  NodeCompilers --> CypressGen
+}
+
+package "Execution" <<integration>> {
+  rectangle "Cypress Runner" as Cypress
+  rectangle "Test Results" as Results
+  CypressGen --> Cypress
+  Cypress --> Results
+}
+
+package "Collaboration" <<integration>> {
+  rectangle "Firebase" as Firebase
+  rectangle "WebSockets" as WS
+  CustomNodes --> Firebase
+  FlowEditor --> WS
+}
+
+ExtensionHost --> FlowEditor : Messaging API
+ExtensionHost --> Graph : Compile Command
+CypressGen --> ExtensionHost : Generated Code
+Results --> ExtensionHost : Test Output
+@enduml

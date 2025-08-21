@@ -1,0 +1,73 @@
+```plantuml
+@startuml minism_hotel
+skinparam rectangle {
+  BackgroundColor<<master>> #d9e7fd
+  BackgroundColor<<spawner>> #d8f5d3
+  BackgroundColor<<shared>> #f0f8ff
+  BackgroundColor<<database>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+skinparam linetype ortho
+
+package "Master Server" <<master>> {
+  rectangle "REST API" as RestAPI
+  rectangle "gRPC Server" as GrpcServer
+  rectangle "Session Management" as SessionManagement
+  rectangle "Reaper" as Reaper
+  database "SQLite DB" as SQLiteDB <<database>>
+}
+
+package "Spawner" <<spawner>> {
+  rectangle "gRPC Server" as SpawnerGrpc
+  rectangle "Game Server Management" as GameServerManagement
+}
+
+package "Shared Libraries" <<shared>> {
+  rectangle "Configuration Loading" as ConfigLoading
+  rectangle "Environment Variables" as EnvVars
+  rectangle "Logging" as Logging
+  rectangle "Crypto" as Crypto
+  rectangle "Utils & Models" as UtilsModels
+}
+
+package "Communication" {
+  rectangle "Protobuf Messages" as Protobuf
+}
+
+package "Build & Deployment" {
+  rectangle "Makefile" as Makefile
+  rectangle "Docker Compose" as DockerCompose
+  rectangle "Examples" as Examples
+}
+
+package "Testing" {
+  rectangle "Integration Tests" as IntegrationTests
+}
+
+Protobuf -[hidden]-> RestAPI
+RestAPI --> SessionManagement
+RestAPI --> Reaper
+GrpcServer --> SessionManagement
+GrpcServer --> Reaper
+SessionManagement --> SQLiteDB
+Reaper --> SQLiteDB
+
+SpawnerGrpc --> GameServerManagement
+SpawnerGrpc --> GrpcServer
+
+ConfigLoading -[hidden]-> EnvVars
+EnvVars -[hidden]-> Logging
+Logging -[hidden]-> Crypto
+Crypto -[hidden]-> UtilsModels
+
+GrpcServer --> Protobuf
+SpawnerGrpc --> Protobuf
+
+Makefile -[hidden]-> DockerCompose
+DockerCompose -[hidden]-> Examples
+
+RestAPI --> IntegrationTests
+
+@enduml
+```

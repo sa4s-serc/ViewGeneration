@@ -1,0 +1,53 @@
+@startuml qunarcorp_m_adr_qapm_open_source
+
+participant "Application" as App
+participant "QAPM" as QAPM
+participant "QConfigManager" as Config
+participant "TracePlugin" as Plugin
+participant "WatchMan" as WatchMan
+participant "NetworkTracer" as NetTracer
+participant "MemoryTracer" as MemTracer
+participant "CpuTracer" as CpuTracer
+participant "BatteryTracer" as BatTracer
+participant "Storage" as Storage
+participant "DataSender" as Sender
+
+App -> QAPM: initialize(config)
+activate QAPM
+
+QAPM -> Config: setConfig(config)
+QAPM -> Plugin: onCreate()
+activate Plugin
+
+Plugin -> WatchMan: startWatch()
+activate WatchMan
+
+WatchMan -> NetTracer: start()
+WatchMan -> MemTracer: start()
+WatchMan -> CpuTracer: start()
+WatchMan -> BatTracer: start()
+
+loop For each activity lifecycle event
+    App -> WatchMan: onActivityEvent()
+    WatchMan -> NetTracer: collect()
+    WatchMan -> MemTracer: collect()
+    WatchMan -> CpuTracer: collect()
+    WatchMan -> BatTracer: collect()
+end
+
+WatchMan -> Storage: storeData()
+activate Storage
+
+Storage -> Sender: sendData()
+activate Sender
+
+Sender --> QAPM: dataReported
+deactivate Sender
+
+QAPM --> App: performanceData
+deactivate Storage
+deactivate WatchMan
+deactivate Plugin
+deactivate QAPM
+
+@enduml

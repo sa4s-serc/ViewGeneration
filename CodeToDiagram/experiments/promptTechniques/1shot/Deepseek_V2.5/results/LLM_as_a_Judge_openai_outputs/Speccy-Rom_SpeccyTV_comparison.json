@@ -1,0 +1,407 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Users",
+        "description": "User interface",
+        "boundaries": "External",
+        "position": "Left"
+      },
+      {
+        "name": "NGINX",
+        "description": "Web server",
+        "boundaries": "Internal",
+        "position": "Center"
+      },
+      {
+        "name": "Async API",
+        "description": "Handles asynchronous requests",
+        "boundaries": "Movies Service",
+        "position": "Top"
+      },
+      {
+        "name": "Redis",
+        "description": "Cache",
+        "boundaries": "Movies Service",
+        "position": "Top Right"
+      },
+      {
+        "name": "ES",
+        "description": "Elasticsearch",
+        "boundaries": "Movies Service",
+        "position": "Top Right"
+      },
+      {
+        "name": "ETL",
+        "description": "Extract, Transform, Load",
+        "boundaries": "Movies Service",
+        "position": "Right"
+      },
+      {
+        "name": "Movies Admin",
+        "description": "Admin interface",
+        "boundaries": "Movies Service",
+        "position": "Middle"
+      },
+      {
+        "name": "Postgres",
+        "description": "Database",
+        "boundaries": "Movies Service",
+        "position": "Middle Right"
+      },
+      {
+        "name": "Movies Streaming Converter",
+        "description": "Converts streaming formats",
+        "boundaries": "Movies Streaming Service",
+        "position": "Top"
+      },
+      {
+        "name": "Airflow ETL",
+        "description": "Manages ETL processes",
+        "boundaries": "Movies Streaming Service",
+        "position": "Top Right"
+      },
+      {
+        "name": "Movies Streaming Admin",
+        "description": "Admin interface for streaming",
+        "boundaries": "Movies Streaming Service",
+        "position": "Middle"
+      },
+      {
+        "name": "Postgres Streaming",
+        "description": "Streaming database",
+        "boundaries": "Movies Streaming Service",
+        "position": "Middle Right"
+      },
+      {
+        "name": "S3",
+        "description": "Storage service",
+        "boundaries": "Movies Streaming Service",
+        "position": "Bottom Right"
+      },
+      {
+        "name": "Movies Streaming API",
+        "description": "API for streaming",
+        "boundaries": "Movies Streaming Service",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Users",
+        "target": "NGINX",
+        "label": "Accesses",
+        "type": "HTTP"
+      },
+      {
+        "source": "NGINX",
+        "target": "Async API",
+        "label": "Forwards to",
+        "type": "HTTP"
+      },
+      {
+        "source": "Async API",
+        "target": "Redis",
+        "label": "Reads from and writes to",
+        "type": "Data"
+      },
+      {
+        "source": "Async API",
+        "target": "ES",
+        "label": "Reads from and writes to",
+        "type": "Data"
+      },
+      {
+        "source": "ETL",
+        "target": "ES",
+        "label": "Writes to",
+        "type": "Data"
+      },
+      {
+        "source": "Movies Admin",
+        "target": "Postgres",
+        "label": "Reads from and writes to",
+        "type": "Data"
+      },
+      {
+        "source": "Movies Streaming Converter",
+        "target": "Airflow ETL",
+        "label": "Triggers",
+        "type": "Process"
+      },
+      {
+        "source": "Movies Streaming Admin",
+        "target": "Postgres Streaming",
+        "label": "Reads from and writes to",
+        "type": "Data"
+      },
+      {
+        "source": "Airflow ETL",
+        "target": "Postgres Streaming",
+        "label": "Reads from and writes to",
+        "type": "Data"
+      },
+      {
+        "source": "Airflow ETL",
+        "target": "S3",
+        "label": "Writes to",
+        "type": "Data"
+      },
+      {
+        "source": "Movies Streaming API",
+        "target": "S3",
+        "label": "Reads from",
+        "type": "Data"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Movies Service",
+        "components": [
+          "Async API",
+          "Redis",
+          "ES",
+          "ETL",
+          "Movies Admin",
+          "Postgres"
+        ]
+      },
+      {
+        "name": "Movies Streaming Service",
+        "components": [
+          "Movies Streaming Converter",
+          "Airflow ETL",
+          "Movies Streaming Admin",
+          "Postgres Streaming",
+          "S3",
+          "Movies Streaming API"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Movies and Streaming Service Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "User interface",
+        "boundaries": "External",
+        "position": "Top"
+      },
+      {
+        "name": "Streaming Converter",
+        "description": "Converts streaming formats",
+        "boundaries": "Streaming Services",
+        "position": "Top"
+      },
+      {
+        "name": "ETL Pipeline",
+        "description": "Manages ETL processes",
+        "boundaries": "Streaming Services",
+        "position": "Middle"
+      },
+      {
+        "name": "Streaming Admin",
+        "description": "Admin interface for streaming",
+        "boundaries": "Streaming Services",
+        "position": "Middle"
+      },
+      {
+        "name": "Auth Service",
+        "description": "Authentication service",
+        "boundaries": "Authentication",
+        "position": "Middle"
+      },
+      {
+        "name": "Billing Service",
+        "description": "Handles billing",
+        "boundaries": "Billing",
+        "position": "Middle"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Streaming Converter",
+        "target": "ETL Pipeline",
+        "label": "Triggers conversion",
+        "type": "Process"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Streaming Services",
+        "components": [
+          "Streaming Converter",
+          "ETL Pipeline",
+          "Streaming Admin"
+        ]
+      },
+      {
+        "name": "Authentication",
+        "components": [
+          "Auth Service"
+        ]
+      },
+      {
+        "name": "Billing",
+        "components": [
+          "Billing Service"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImage.puml",
+      "title": "SpeccyTV Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      {
+        "name": "Streaming Converter",
+        "description": "Converts streaming formats"
+      },
+      {
+        "name": "ETL Pipeline",
+        "description": "Manages ETL processes"
+      },
+      {
+        "name": "Streaming Admin",
+        "description": "Admin interface for streaming"
+      }
+    ],
+    "unique_to_GroundTruth": [
+      {
+        "name": "Users",
+        "description": "User interface"
+      },
+      {
+        "name": "NGINX",
+        "description": "Web server"
+      },
+      {
+        "name": "Async API",
+        "description": "Handles asynchronous requests"
+      },
+      {
+        "name": "Redis",
+        "description": "Cache"
+      },
+      {
+        "name": "ES",
+        "description": "Elasticsearch"
+      },
+      {
+        "name": "Movies Admin",
+        "description": "Admin interface"
+      },
+      {
+        "name": "Postgres",
+        "description": "Database"
+      },
+      {
+        "name": "Postgres Streaming",
+        "description": "Streaming database"
+      },
+      {
+        "name": "S3",
+        "description": "Storage service"
+      },
+      {
+        "name": "Movies Streaming API",
+        "description": "API for streaming"
+      }
+    ],
+    "unique_to_GeneratedImage": [
+      {
+        "name": "User",
+        "description": "User interface"
+      },
+      {
+        "name": "Auth Service",
+        "description": "Authentication service"
+      },
+      {
+        "name": "Billing Service",
+        "description": "Handles billing"
+      }
+    ],
+    "common_connectors": [
+      {
+        "source": "Streaming Converter",
+        "target": "ETL Pipeline",
+        "label": "Triggers",
+        "type": "Process"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Users",
+        "target": "NGINX",
+        "label": "Accesses",
+        "type": "HTTP"
+      },
+      {
+        "source": "NGINX",
+        "target": "Async API",
+        "label": "Forwards to",
+        "type": "HTTP"
+      },
+      {
+        "source": "Async API",
+        "target": "Redis",
+        "label": "Reads from and writes to",
+        "type": "Data"
+      },
+      {
+        "source": "Async API",
+        "target": "ES",
+        "label": "Reads from and writes to",
+        "type": "Data"
+      },
+      {
+        "source": "ETL",
+        "target": "ES",
+        "label": "Writes to",
+        "type": "Data"
+      },
+      {
+        "source": "Movies Admin",
+        "target": "Postgres",
+        "label": "Reads from and writes to",
+        "type": "Data"
+      },
+      {
+        "source": "Movies Streaming Admin",
+        "target": "Postgres Streaming",
+        "label": "Reads from and writes to",
+        "type": "Data"
+      },
+      {
+        "source": "Airflow ETL",
+        "target": "Postgres Streaming",
+        "label": "Reads from and writes to",
+        "type": "Data"
+      },
+      {
+        "source": "Airflow ETL",
+        "target": "S3",
+        "label": "Writes to",
+        "type": "Data"
+      },
+      {
+        "source": "Movies Streaming API",
+        "target": "S3",
+        "label": "Reads from",
+        "type": "Data"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [],
+    "explanation": "The GroundTruth diagram provides a detailed architecture for a movie and streaming service, including components like NGINX, Redis, and various databases, with a clear separation between the Movies Service and Movies Streaming Service. The GeneratedImage diagram focuses on a more abstract representation, highlighting streaming, authentication, and billing services. Common elements include the Streaming Converter and ETL Pipeline, but the GeneratedImage lacks many specific components and connections found in the GroundTruth. The GeneratedImage is rated 5 out of 10 for accuracy and completeness, as it captures some core elements but misses detailed components and connections present in the GroundTruth.",
+    "Rating": 5
+  }
+}

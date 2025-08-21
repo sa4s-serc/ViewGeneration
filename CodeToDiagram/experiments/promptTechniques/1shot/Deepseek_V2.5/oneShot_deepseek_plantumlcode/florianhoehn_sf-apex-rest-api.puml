@@ -1,0 +1,60 @@
+@startuml florianhoehn_sf-apex-rest-api
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<example>> #d8f5d3
+  BackgroundColor<<logging>> #fddddd
+  BackgroundColor<<external>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Components" <<core>> {
+  rectangle "RestWrapper" as Wrapper
+  rectangle "RestResponse" as Response
+  rectangle "RestCallout" as Callout
+  Wrapper <|-- Response
+}
+
+package "Logging" <<logging>> {
+  rectangle "RestLogBuilder" as LogBuilder
+  rectangle "Rest_Log__c" as LogObject
+  LogBuilder --> LogObject
+}
+
+package "Example Implementation" <<example>> {
+  rectangle "ExampleRatingRestResource" as RestResource
+  rectangle "ExampleRatingCallout" as RatingCallout
+  RestResource --> Response
+  RatingCallout --> Callout
+}
+
+package "External Systems" <<external>> {
+  rectangle "External REST API" as ExternalAPI
+}
+
+Callout --> ExternalAPI
+RatingCallout --> ExternalAPI
+LogBuilder --> LogObject
+RestResource --> LogBuilder
+RatingCallout --> LogBuilder
+
+@enduml
+
+@startuml florianhoehn_sf-apex-rest-api-sequence
+actor Client
+participant "ExampleRatingRestResource" as Resource
+participant "RestResponse" as Response
+participant "RestLogBuilder" as Logger
+participant "ExampleRatingCallout" as Callout
+participant "External API" as External
+
+Client -> Resource: REST Request
+Resource -> Response: Create response
+Resource -> Logger: Log request
+Resource -> Callout: Make callout
+Callout -> External: HTTP Request
+External --> Callout: HTTP Response
+Callout --> Resource: Return data
+Resource --> Client: Return response
+Resource -> Logger: Log response
+@enduml

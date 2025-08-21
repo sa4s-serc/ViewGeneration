@@ -1,0 +1,41 @@
+```plantuml
+@startuml UBC-CIC_Student-Connect-App
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Frontend (PWA)" as Frontend {
+  rectangle "ReactJS" as React
+}
+
+rectangle "AWS Services" as AWS #lightblue {
+  rectangle "AWS Cognito" as Cognito #lightyellow
+  rectangle "DynamoDB" as DynamoDB #lightgrey
+  rectangle "Elasticsearch" as Elasticsearch #lightcoral
+  rectangle "S3 Data Lake" as S3 #aliceblue
+  rectangle "Lambda Functions" as Lambda #lightgreen
+}
+
+rectangle "Admin Console" as AdminConsole #lightsteelblue {
+  rectangle "Kibana" as Kibana
+}
+
+' ========== Connections ==========
+User --> React : Interact with PWA
+React --> Cognito : User Authentication
+React --> DynamoDB : Fetch/Store User Preferences
+React --> Elasticsearch : Perform Search Queries
+React --> Lambda : Trigger Backend Processes
+Lambda --> DynamoDB : Fetch and Update Data
+Lambda --> Elasticsearch : Update Indices
+Lambda --> S3 : Store Data for Archival
+DynamoDB --> Elasticsearch : Sync Data via Streams
+DynamoDB --> Lambda : Trigger on Data Change
+Kibana --> Elasticsearch : Data Visualization and Management
+@enduml
+```

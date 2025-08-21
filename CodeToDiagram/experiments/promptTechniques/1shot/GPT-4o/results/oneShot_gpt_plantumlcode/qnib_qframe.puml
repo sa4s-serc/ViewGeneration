@@ -1,0 +1,76 @@
+```plantuml
+@startuml qnib_qframe
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<plugin>> #d8f5d3
+  BackgroundColor<<system>> #fddddd
+  BackgroundColor<<data>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Components" <<core>> {
+  rectangle "Collector" as Collector
+  rectangle "Filter" as Filter
+  rectangle "Handler" as Handler
+  rectangle "QChan" as QChan
+  Collector --> QChan
+  Filter --> QChan
+  Handler --> QChan
+}
+
+package "Plugin Implementations" <<plugin>> {
+  rectangle "Docker Event Collector" as DockerCollector
+  rectangle "Grok Filter" as GrokFilter
+  rectangle "InfluxDB Handler" as InfluxHandler
+  DockerCollector -up-> Collector
+  GrokFilter -up-> Filter
+  InfluxHandler -up-> Handler
+}
+
+package "System Interactions" <<system>> {
+  rectangle "System Call Abstraction" as SysCall
+  rectangle "Cgo Usage" as Cgo
+  rectangle "InmemSocket" as InmemSocket
+  QChan --> SysCall
+  Collector --> Cgo
+  Filter --> Cgo
+  Handler --> Cgo
+  InmemSocket -- Cgo
+}
+
+package "Data Structures" <<data>> {
+  rectangle "Metric" as Metric
+  rectangle "ContainerStats" as ContainerStats
+  rectangle "Configuration" as Configuration
+  Collector --> Metric
+  Filter --> ContainerStats
+  Configuration --> Collector
+  Configuration --> Filter
+  Configuration --> Handler
+}
+
+package "Security" <<system>> {
+  rectangle "TLS Configuration" as TLS
+  rectangle "Key Management" as KeyMgmt
+  rectangle "JWS Signatures" as JWS
+  rectangle "Memory Management" as MemMgmt
+  Cgo --> TLS
+  SysCall --> KeyMgmt
+  JWS --> Filter
+  MemMgmt --> SysCall
+}
+
+package "API/Data Standards" <<data>> {
+  rectangle "JSON Web Signatures" as JWSData
+  rectangle "OCI Image Spec" as OCI
+  rectangle "UUID Support" as UUID
+  rectangle "SWAGGER.yaml" as SWAGGER
+  JWSData --> JWS
+  OCI --> DockerCollector
+  UUID --> Filter
+  SWAGGER --> Configuration
+}
+
+@enduml
+```

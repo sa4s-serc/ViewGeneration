@@ -1,0 +1,47 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+rectangle "Data Sources" {
+  [Kaggle MovieLens Dataset] as kaggle
+  [St. Louis FRED CPI Dataset] as fred
+}
+
+rectangle "S3 Bucket" as s3 #lightblue
+
+rectangle "Apache Airflow" as airflow #lightgreen {
+  [DAG: movies_dwh_dag.py] as dag
+  [BashOperator] as bash
+  [PostgresOperator] as postgres
+  [DataQualityOperator] as dq
+}
+
+rectangle "Apache Spark" as spark #orange {
+  [load_staging_ratings.py] as ratings
+  [load_staging_movies.py] as movies
+}
+
+database "Amazon Redshift" as redshift #pink {
+  [Staging Tables] as staging
+  [Dimension Tables] as dim
+  [Fact Tables] as fact
+}
+
+kaggle --> s3 : Extract
+fred --> s3 : Extract
+s3 --> spark : Read
+spark --> staging : Transform & Load
+dag --> bash : Trigger
+dag --> postgres : Execute SQL
+dag --> dq : Check Quality
+bash --> spark : Execute
+postgres --> staging : Create/Insert
+postgres --> dim : Upsert
+postgres --> fact : Upsert
+dq --> redshift : Validate
+
+@enduml

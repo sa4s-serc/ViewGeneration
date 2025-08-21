@@ -1,0 +1,61 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam defaultTextAlignment center
+
+' Main components
+[Blockchain Core] as BC #lightgreen
+[P2P Network] as P2P #lightblue
+[Block Synchronization] as SYNC #yellow
+[Mining] as MINE #orange
+[gRPC API] as API #pink
+[Bytom Virtual Machine] as VM #purple
+[Wallet] as WALLET #cyan
+[Key Management] as KEY #red
+
+' Data stores
+database "LevelDB" as DB
+
+' External components
+cloud "Other Nodes" as NODES
+
+' Connections
+BC <--> P2P
+BC <--> SYNC
+BC <--> MINE
+BC <--> VM
+BC <--> WALLET
+BC <--> KEY
+BC <--> DB
+
+P2P <--> NODES : Peer Discovery\nBlock/Tx Propagation
+
+API --> BC : Read/Write
+API --> WALLET : Manage
+API --> KEY : Secure
+
+SYNC --> P2P : Fetch Blocks
+MINE --> P2P : Broadcast New Blocks
+
+' Dynamic behavior
+NODES -[#red,dotted]-> P2P : New Block/Tx
+P2P -[#red,dotted]-> BC : Validate
+BC -[#red,dotted]-> VM : Execute Contract
+BC -[#red,dotted]-> DB : Update State
+MINE -[#red,dotted]-> BC : New Block
+API -[#red,dotted]-> WALLET : Create Tx
+WALLET -[#red,dotted]-> KEY : Sign Tx
+WALLET -[#red,dotted]-> P2P : Broadcast Tx
+
+legend right
+  |Color|Component Type|
+  |<#lightgreen>| Blockchain Core |
+  |<#lightblue>| Networking |
+  |<#yellow>| Synchronization |
+  |<#orange>| Mining |
+  |<#pink>| API |
+  |<#purple>| Virtual Machine |
+  |<#cyan>| Wallet |
+  |<#red>| Security |
+endlegend
+
+@enduml

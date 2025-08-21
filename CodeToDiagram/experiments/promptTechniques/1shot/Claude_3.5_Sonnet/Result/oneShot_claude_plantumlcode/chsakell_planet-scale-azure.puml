@@ -1,0 +1,63 @@
+@startuml chsakell_planet-scale-azure
+
+!define AzurePuml https://raw.githubusercontent.com/plantuml-stdlib/Azure-PlantUML/release/2-1/dist
+!includeurl AzurePuml/AzureCommon.puml
+!includeurl AzurePuml/Databases/AzureCosmosDb.puml
+!includeurl AzurePuml/Databases/AzureSqlDatabase.puml
+!includeurl AzurePuml/Networking/AzureTrafficManager.puml
+!includeurl AzurePuml/Web/AzureCDN.puml
+!includeurl AzurePuml/Analytics/AzureCognitiveSearch.puml
+!includeurl AzurePuml/Databases/AzureRedisCache.puml
+!includeurl AzurePuml/Integration/AzureServiceBus.puml
+!includeurl AzurePuml/Compute/AzureAppService.puml
+!includeurl AzurePuml/Compute/AzureFunction.puml
+
+skinparam linetype ortho
+
+AzureTrafficManager(trafficManager, "Azure Traffic Manager", "Global routing")
+AzureCDN(cdn, "Azure CDN", "Static content caching")
+
+rectangle "Region 1" {
+    AzureAppService(webApp1, "Web App", ".NET Core & Angular")
+    AzureCosmosDb(cosmosDb1, "Cosmos DB", "Product catalog")
+    AzureSqlDatabase(sqlDb1, "SQL Database", "Transactional data")
+    AzureRedisCache(redis1, "Redis Cache", "Shopping cart")
+    AzureServiceBus(serviceBus1, "Service Bus", "Order processing")
+    AzureCognitiveSearch(search1, "Azure Search", "Product search")
+    AzureFunction(webJob1, "WebJob", "Background processing")
+}
+
+rectangle "Region 2" {
+    AzureAppService(webApp2, "Web App", ".NET Core & Angular")
+    AzureCosmosDb(cosmosDb2, "Cosmos DB", "Product catalog")
+    AzureSqlDatabase(sqlDb2, "SQL Database", "Transactional data")
+    AzureRedisCache(redis2, "Redis Cache", "Shopping cart")
+    AzureServiceBus(serviceBus2, "Service Bus", "Order processing")
+    AzureCognitiveSearch(search2, "Azure Search", "Product search")
+    AzureFunction(webJob2, "WebJob", "Background processing")
+}
+
+trafficManager --> webApp1
+trafficManager --> webApp2
+cdn --> webApp1
+cdn --> webApp2
+
+webApp1 --> cosmosDb1
+webApp1 --> sqlDb1
+webApp1 --> redis1
+webApp1 --> serviceBus1
+webApp1 --> search1
+
+webApp2 --> cosmosDb2
+webApp2 --> sqlDb2
+webApp2 --> redis2
+webApp2 --> serviceBus2
+webApp2 --> search2
+
+webJob1 --> serviceBus1
+webJob2 --> serviceBus2
+
+cosmosDb1 <--> cosmosDb2 : Geo-replication
+sqlDb1 <--> sqlDb2 : Geo-replication
+
+@enduml

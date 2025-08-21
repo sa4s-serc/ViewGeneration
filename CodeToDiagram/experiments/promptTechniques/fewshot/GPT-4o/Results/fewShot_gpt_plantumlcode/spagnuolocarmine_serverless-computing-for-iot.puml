@@ -1,0 +1,53 @@
+```plantuml
+@startuml spagnuolocarmine_serverless-computing-for-iot
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "IoT Device" as IoTDevice
+
+package "Message Broker" {
+  rectangle "RabbitMQ" as RabbitMQ #lightblue
+}
+
+package "Serverless Platform" {
+  rectangle "Nuclio" as Nuclio #lightgreen
+}
+
+package "AMQP Example" {
+  rectangle "AMQP Producer\n(send_temperature.js)" as AMQPProducer #orange
+  rectangle "AMQP Consumer\n(amqpconsume.yaml)" as AMQPConsumer #orange
+}
+
+package "MQTT Example" {
+  rectangle "MQTT Producer\n(mqttrandomevent.yaml)" as MQTTProducer #pink
+  rectangle "MQTT Consumer\n(mqttconsume.yaml)" as MQTTConsumer #pink
+}
+
+rectangle "Logger\n(logger.js)" as Logger #lightgrey
+
+' IoT Device interactions
+IoTDevice --> AMQPProducer : Send Temperature Data
+IoTDevice --> MQTTProducer : Send Random Events
+
+' Message Broker routing
+AMQPProducer --> RabbitMQ : AMQP Queue
+MQTTProducer --> RabbitMQ : MQTT Topic
+
+' Nuclio functions consuming messages
+RabbitMQ --> AMQPConsumer : AMQP Queue
+RabbitMQ --> MQTTConsumer : MQTT Topic
+
+' Logger for message tracking
+AMQPConsumer --> Logger
+MQTTConsumer --> Logger
+
+' Nuclio function execution
+Nuclio <.. AMQPConsumer : Deploy Function
+Nuclio <.. MQTTConsumer : Deploy Function
+
+@enduml
+```

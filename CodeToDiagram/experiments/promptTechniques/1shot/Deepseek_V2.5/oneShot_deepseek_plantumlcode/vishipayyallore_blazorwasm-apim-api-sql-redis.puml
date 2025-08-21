@@ -1,0 +1,47 @@
+@startuml vishipayyallore_blazorwasm-apim-api-sql-redis
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Blazor WASM" as Blazor {
+}
+
+rectangle "Azure API Management" as APIM {
+}
+
+rectangle "ASP.NET Core API" as API {
+  rectangle "BooksController" as Controller
+  rectangle "BooksBLL" as BLL
+}
+
+rectangle "Redis Cache" as Redis #lightyellow
+
+rectangle "SQL Database" as SQL #aliceblue
+
+' ========== Connections ==========
+User -> Blazor : Browse books\nAdd/edit books\nAuthenticate
+
+Blazor -> APIM : HTTP requests
+APIM -> Controller : Route requests
+Controller -> BLL : Call business logic
+
+BLL -> Redis : Check cache (cache-aside)
+alt Cache hit
+  Redis -> BLL : Return cached data
+else Cache miss
+  BLL -> SQL : Query database
+  SQL -> BLL : Return data
+  BLL -> Redis : Store in cache
+end
+
+BLL -> Controller : Return result
+Controller -> APIM : Return response
+APIM -> Blazor : Return data
+Blazor -> User : Display results
+
+@enduml

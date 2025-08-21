@@ -1,0 +1,49 @@
+```plantuml
+@startuml qaware_cloud-native-weather-javaee
+skinparam rectangle {
+  BackgroundColor<<rest>> #d9e7fd
+  BackgroundColor<<service>> #d8f5d3
+  BackgroundColor<<repository>> #fddddd
+  BackgroundColor<<api>> #fff1c9
+  BackgroundColor<<database>> #f9f2ec
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "JavaEE Application" {
+  package "REST Layer" <<rest>> {
+    rectangle "PayaraMicroWeatherResource" as WeatherResource
+    rectangle "PayaraMicroWeatherLivenessCheck" as LivenessCheck
+    rectangle "PayaraMicroWeatherReadinessCheck" as ReadinessCheck
+  }
+
+  package "Service Layer" <<service>> {
+    rectangle "PayaraMicroWeatherService" as WeatherService
+  }
+
+  package "Repository Layer" <<repository>> {
+    rectangle "PayaraMicroWeatherRepository" as WeatherRepository
+    rectangle "PayaraMicroWeather" as WeatherEntity
+  }
+
+  package "External API Integration" <<api>> {
+    rectangle "OpenWeatherMap" as OpenWeatherMap
+    rectangle "OpenWeatherMapConnector" as WeatherConnector
+  }
+
+  database "PostgreSQL Database" <<database>> as Database
+
+  WeatherResource --> WeatherService
+  WeatherService --> WeatherRepository
+  WeatherRepository --> WeatherEntity
+  WeatherRepository --> Database
+
+  WeatherService --> WeatherConnector
+  WeatherConnector --> OpenWeatherMap
+
+  WeatherResource --> LivenessCheck
+  WeatherResource --> ReadinessCheck
+}
+
+@enduml
+```

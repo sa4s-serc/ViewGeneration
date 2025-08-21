@@ -1,0 +1,53 @@
+Here's a PlantUML sequence diagram representing the security-focused behavior of the Nightingale Project Reference Client:
+
+```plantuml
+@startuml nightingaleproject_Reference-Client
+
+actor "User" as user
+participant "React UI" as ui
+participant "RecordController" as controller
+participant "TimedHostedService" as service
+participant "AppDbContext" as db
+participant "NVSS API Server" as nvss
+
+user -> ui: Upload VRDR record
+ui -> controller: POST /api/record
+controller -> controller: Validate request
+controller -> db: Store MessageItem
+controller --> ui: Return submission status
+
+service -> db: Poll for new messages
+activate service
+service -> service: Prepare VRDR message
+service -> nvss: Submit message
+activate nvss
+nvss --> service: Return acknowledgement
+deactivate nvss
+service -> db: Update message status
+deactivate service
+
+service -> nvss: Poll for responses
+activate service
+nvss --> service: Return coded responses
+service -> db: Store ResponseItem
+deactivate service
+
+user -> ui: Request message status
+ui -> controller: GET /api/record/{id}
+controller -> db: Retrieve message and response
+controller --> ui: Return status information
+
+@enduml
+```
+
+This sequence diagram focuses on the security-related aspects of the Nightingale Project Reference Client:
+
+1. User interaction is limited to the React UI, which acts as a front-end barrier.
+2. All requests go through the RecordController, which validates incoming requests before processing.
+3. Sensitive data (VRDR records) is stored in the database via AppDbContext, not exposed directly.
+4. The TimedHostedService handles all interactions with the NVSS API Server, acting as a secure intermediary.
+5. Message submission and response retrieval are done asynchronously, reducing potential attack vectors.
+6. The system uses polling mechanisms for both new messages and responses, which can help mitigate certain types of attacks.
+7. All status information is retrieved through the controller, ensuring proper access control and data filtering.
+
+This diagram illustrates the separation of concerns and the controlled flow of data, which are important aspects of the system's security architecture.

@@ -1,0 +1,33 @@
+@startuml aws-solutions_iot-device-simulator
+
+actor User
+participant "AWS CloudFormation" as CF
+participant "API Gateway" as API
+participant "Lambda (Microservices)" as Lambda
+participant "DynamoDB" as DDB
+participant "Step Functions" as SF
+participant "Lambda (Simulator)" as SimLambda
+participant "IoT Core" as IoT
+
+User -> CF : Deploy solution
+CF -> CF : Create resources
+
+User -> API : Configure simulation
+API -> Lambda : Handle request
+Lambda -> DDB : Store configuration
+
+User -> API : Start simulation
+API -> Lambda : Initiate simulation
+Lambda -> SF : Trigger workflow
+
+SF -> SimLambda : Execute simulation step
+SimLambda -> SimLambda : Generate device data
+SimLambda -> IoT : Publish data
+
+IoT --> User : Receive simulated data
+
+User -> API : Stop simulation
+API -> Lambda : Stop request
+Lambda -> SF : Terminate workflow
+
+@enduml

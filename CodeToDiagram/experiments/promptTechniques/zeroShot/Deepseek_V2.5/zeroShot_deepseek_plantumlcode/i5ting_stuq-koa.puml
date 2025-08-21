@@ -1,0 +1,32 @@
+```plantuml
+@startuml i5ting_stuq-koa
+
+actor User
+participant "Koa Application" as KoaApp
+participant "Middleware Stack" as Middleware
+participant "Route Handler" as Route
+participant "Database (MongoDB)" as DB
+
+User -> KoaApp: HTTP Request
+activate KoaApp
+
+KoaApp -> Middleware: Process request through middleware
+activate Middleware
+Middleware -> Middleware: Execute middleware functions
+Middleware --> KoaApp: Modified context
+deactivate Middleware
+
+KoaApp -> Route: Route matching
+activate Route
+Route -> DB: Database query (if needed)
+activate DB
+DB --> Route: Query results
+deactivate DB
+Route --> KoaApp: Response data
+deactivate Route
+
+KoaApp --> User: HTTP Response
+deactivate KoaApp
+
+@enduml
+```

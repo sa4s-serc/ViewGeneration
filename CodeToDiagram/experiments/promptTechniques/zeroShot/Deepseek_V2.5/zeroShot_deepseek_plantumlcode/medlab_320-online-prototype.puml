@@ -1,0 +1,45 @@
+```plantuml
+@startuml medlab_320-online-prototype
+
+package "Frontend" {
+  [React Application] as frontend
+  component "Routing (react-router-dom)" as routing
+  component "UI Components (antd)" as ui
+  component "State Management (Redux)" as state
+  component "Mock Data (mockjs)" as mock
+}
+
+package "Backend" {
+  [.NET Core API] as backend
+  component "Authentication (JWT/OAuth)" as auth
+  component "Database (EF Core)" as db
+  component "Logging (Serilog)" as logging
+  component "File Storage (MinIO)" as storage
+}
+
+package "Testing" {
+  [SIT Framework] as testing
+  component "UI Tests (Puppeteer)" as uitests
+  component "API Tests" as apitests
+}
+
+package "Infrastructure" {
+  [Kubernetes] as k8s
+  [Docker] as docker
+  [EFK Stack] as efk
+}
+
+frontend --> backend : REST API
+backend --> auth : uses
+backend --> db : uses
+backend --> logging : uses
+backend --> storage : uses
+testing --> frontend : tests
+testing --> backend : tests
+k8s --> docker : orchestrates
+k8s --> efk : logging
+k8s --> backend : hosts
+k8s --> frontend : hosts
+
+@enduml
+```

@@ -1,0 +1,60 @@
+@startuml Melacon_WirelessTransportEmulator
+
+skinparam component {
+  BackgroundColor<<container>> LightBlue
+  BackgroundColor<<core>> LightGreen
+  BackgroundColor<<interface>> LightYellow
+}
+
+cloud "SDN Controller" as SDN
+
+package "Wireless Transport Emulator" {
+  [Configuration Files] as Config
+  [YANG Models] as YANG
+  
+  component "Emulator Core" <<core>> {
+    [OpenYuma NETCONF Server] as NETCONF
+    [YANG Processor] as YANGProc
+    [Data Validation] as DataVal
+    [Code Generator] as CodeGen
+    [Scripting Engine] as ScriptEng
+  }
+  
+  interface "CLI (yangcli)" as CLI
+  
+  package "Network Elements" {
+    component "NE Container 1" <<container>> {
+      [NETCONF Server 1] as NS1
+      [SIL 1] as SIL1
+    }
+    component "NE Container 2" <<container>> {
+      [NETCONF Server 2] as NS2
+      [SIL 2] as SIL2
+    }
+  }
+  
+  component "veth pairs" as VETH
+}
+
+SDN -down-> CLI : Manages
+CLI -down-> NETCONF : Interacts
+
+Config -up-> YANGProc : Configures
+YANG -up-> YANGProc : Defines
+
+YANGProc -down-> DataVal : Validates
+YANGProc -down-> CodeGen : Generates
+YANGProc -down-> NETCONF : Configures
+
+NETCONF -down-> NS1 : Manages
+NETCONF -down-> NS2 : Manages
+
+NS1 -down-> SIL1 : Implements
+NS2 -down-> SIL2 : Implements
+
+SIL1 -- VETH
+SIL2 -- VETH
+
+ScriptEng -left-> NETCONF : Executes scripts
+
+@enduml

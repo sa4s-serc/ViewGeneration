@@ -1,0 +1,83 @@
+```plantuml
+@startuml CodisLabs_codis
+
+package "Codis System" {
+    node "Codis Proxy" {
+        [Codis Proxy]
+    }
+    
+    node "Redis Cluster" {
+        [Redis Node 1]
+        [Redis Node 2]
+        [Redis Node 3]
+        
+        [Redis Node 1] --> [Redis Node 2] : Gossip Protocol
+        [Redis Node 2] --> [Redis Node 3] : Gossip Protocol
+        [Redis Node 3] --> [Redis Node 1] : Gossip Protocol
+    }
+
+    [Codis Proxy] --> [Redis Cluster]
+}
+
+package "Client Libraries" {
+    node "hiredis" {
+        [hiredis]
+    }
+    node "redigo" {
+        [redigo]
+    }
+    
+    [hiredis] --> [Codis Proxy]
+    [redigo] --> [Codis Proxy]
+}
+
+package "Persistence" {
+    node "RDB Snapshots" {
+        [RDB Snapshots]
+    }
+    node "AOF Logs" {
+        [AOF Logs]
+    }
+    
+    [Codis Proxy] --> [RDB Snapshots]
+    [Codis Proxy] --> [AOF Logs]
+}
+
+package "High Availability" {
+    node "Redis Sentinel" {
+        [Redis Sentinel]
+    }
+    
+    [Redis Sentinel] --> [Redis Cluster]
+}
+
+package "Memory Management" {
+    node "Jemalloc" {
+        [Jemalloc]
+    }
+    
+    [Codis Proxy] --> [Jemalloc]
+}
+
+package "Telemetry" {
+    node "StatsD" {
+        [StatsD]
+    }
+    node "InfluxDB" {
+        [InfluxDB]
+    }
+    
+    [Codis Proxy] --> [StatsD]
+    [Codis Proxy] --> [InfluxDB]
+}
+
+package "Scripting" {
+    node "Lua Scripts" {
+        [Lua Scripts]
+    }
+    
+    [Lua Scripts] --> [Codis Proxy]
+}
+
+@enduml
+```

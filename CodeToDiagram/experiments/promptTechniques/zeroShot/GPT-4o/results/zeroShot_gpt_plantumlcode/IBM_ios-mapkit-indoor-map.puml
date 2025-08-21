@@ -1,0 +1,34 @@
+```plantuml
+@startuml IBM_ios-mapkit-indoor-map
+
+actor User
+
+participant "iOS App\n(ViewController.swift)" as iOSApp
+participant "Backend\n(app.js)" as Backend
+database "MongoDB" as Database
+
+User -> iOSApp: Open App
+iOSApp -> iOSApp: Initialize Map
+iOSApp -> Backend: GET /maps/floorplan
+Backend -> Database: Fetch Floorplan PDF
+Database --> Backend: Floorplan PDF
+Backend --> iOSApp: Floorplan PDF
+
+iOSApp -> iOSApp: Render Floorplan
+iOSApp -> Backend: GET /events/heatmap
+Backend -> Database: Fetch Heatmap Data
+Database --> Backend: Heatmap Data
+Backend --> iOSApp: Heatmap Data
+
+iOSApp -> iOSApp: Generate Heatmap Overlay
+User -> iOSApp: Interact with Map
+iOSApp -> iOSApp: Convert Coordinates
+
+User -> iOSApp: Trigger Event
+iOSApp -> Backend: POST /events/trigger
+Backend -> Database: Store Event
+Database --> Backend: Acknowledge Event
+Backend --> iOSApp: Confirmation
+
+@enduml
+```

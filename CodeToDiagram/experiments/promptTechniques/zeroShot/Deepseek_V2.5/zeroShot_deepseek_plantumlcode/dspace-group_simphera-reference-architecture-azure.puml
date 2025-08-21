@@ -1,0 +1,37 @@
+```plantuml
+@startuml dspace-group_simphera-reference-architecture-azure
+
+actor User
+participant "Terraform CLI" as Terraform
+participant "Azure Resource Manager" as ARM
+participant "Azure Kubernetes Service (AKS)" as AKS
+participant "PostgreSQL Flexible Server" as PostgreSQL
+participant "MinIO Storage Account" as MinIO
+participant "Azure Key Vault" as KeyVault
+participant "Azure Virtual Network" as VNet
+participant "Log Analytics" as LogAnalytics
+participant "Bastion Host" as Bastion
+
+User -> Terraform: Executes terraform apply
+Terraform -> ARM: Authenticates & sends deployment request
+ARM -> VNet: Creates Virtual Network & Subnets
+ARM -> AKS: Provisions Kubernetes Cluster
+ARM -> PostgreSQL: Deploys PostgreSQL Flexible Server
+ARM -> MinIO: Creates Storage Account for MinIO
+ARM -> KeyVault: Provisions Key Vault for secrets
+ARM -> LogAnalytics: (Optional) Sets up Log Analytics
+ARM -> Bastion: (Optional) Deploys Bastion Host
+
+AKS -> KeyVault: Retrieves secrets (kubeconfig, credentials)
+PostgreSQL -> KeyVault: Stores/retrieves database credentials
+MinIO -> KeyVault: Manages storage access keys
+Bastion -> VNet: Provides secure access to private resources
+
+User <-- Terraform: Returns outputs (kubeconfig, endpoints)
+User -> AKS: Deploys SIMPHERA applications
+AKS -> PostgreSQL: Connects to database
+AKS -> MinIO: Uses object storage
+AKS -> LogAnalytics: (Optional) Sends monitoring data
+
+@enduml
+```

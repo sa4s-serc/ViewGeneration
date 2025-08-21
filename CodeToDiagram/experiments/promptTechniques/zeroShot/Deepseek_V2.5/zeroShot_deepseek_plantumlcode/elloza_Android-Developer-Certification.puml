@@ -1,0 +1,50 @@
+```plantuml
+@startuml elloza_Android-Developer-Certification
+
+package "Android Application" {
+    [MainActivity] as MainActivity
+    [RibotsAdapter] as RibotsAdapter
+    [MainPresenter] as MainPresenter
+    [DataManager] as DataManager
+    [SyncService] as SyncService
+    [DatabaseHelper] as DatabaseHelper
+    [RibotsService] as RibotsService
+    [BaseApplication] as BaseApplication
+}
+
+package "External Libraries" {
+    [Dagger 2] as Dagger
+    [RxJava 2] as RxJava
+    [Retrofit] as Retrofit
+    [SqlBrite] as SqlBrite
+    [Timber] as Timber
+    [Crashlytics] as Crashlytics
+}
+
+package "Testing" {
+    [Unit Tests] as UnitTests
+    [UI Tests] as UITests
+}
+
+MainActivity --> RibotsAdapter : uses
+MainActivity --> MainPresenter : updates\nnotifies
+MainPresenter --> DataManager : requests data
+DataManager --> SyncService : triggers sync
+DataManager --> DatabaseHelper : stores/retrieves
+DataManager --> RibotsService : fetches data
+DatabaseHelper --> SqlBrite : uses
+RibotsService --> Retrofit : uses
+BaseApplication --> Dagger : initializes
+BaseApplication --> Timber : initializes
+BaseApplication --> Crashlytics : initializes
+
+MainPresenter ..> RxJava : observes streams
+DataManager ..> RxJava : handles async
+SyncService ..> RxJava : schedules tasks
+
+UnitTests --> MainPresenter : tests
+UnitTests --> DataManager : tests
+UITests --> MainActivity : tests
+
+@enduml
+```

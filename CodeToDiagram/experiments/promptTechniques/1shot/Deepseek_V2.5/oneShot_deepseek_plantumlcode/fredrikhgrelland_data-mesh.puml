@@ -1,0 +1,55 @@
+@startuml fredrikhgrelland_data-mesh
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "SQLPad" as SQLPad {
+}
+
+rectangle "Presto" as Presto {
+}
+
+rectangle "Hive Metastore" as Hive {
+}
+
+rectangle "MinIO" as MinIO {
+}
+
+rectangle "Consul" as Consul {
+}
+
+rectangle "Nomad" as Nomad {
+}
+
+rectangle "Example CSV Service" as CSVService {
+}
+
+' ========== Connections ==========
+User --> SQLPad : Execute SQL Queries
+SQLPad --> Presto : Submit Queries
+Presto --> Hive : Get Schema Metadata
+Presto --> MinIO : Read/Write Data
+Presto --> Consul : Service Discovery
+Hive --> MinIO : Store/Retrieve Metadata
+MinIO --> Consul : Service Registration
+Nomad --> Consul : Service Registration
+Nomad --> MinIO : Deploy/Manage
+Nomad --> Hive : Deploy/Manage
+Nomad --> Presto : Deploy/Manage
+Nomad --> SQLPad : Deploy/Manage
+Nomad --> CSVService : Deploy/Manage
+CSVService --> MinIO : Write Example Data
+CSVService --> Hive : Register Schema
+
+' Consul Connect secure connections
+Presto -[hidden]-> Consul : mTLS
+Hive -[hidden]-> Consul : mTLS
+MinIO -[hidden]-> Consul : mTLS
+SQLPad -[hidden]-> Consul : mTLS
+CSVService -[hidden]-> Consul : mTLS
+@enduml

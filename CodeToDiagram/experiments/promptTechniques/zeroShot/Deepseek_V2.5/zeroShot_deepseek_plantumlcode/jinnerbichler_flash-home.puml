@@ -1,0 +1,27 @@
+```plantuml
+@startuml jinnerbichler_flash-home
+
+actor User
+participant "Home Assistant" as HA
+participant "Coffee Client" as CC
+participant "Flash Server (Coffee Machine)" as FSCM
+participant "Flash Server (Provider)" as FSP
+participant "IOTA Tangle" as Tangle
+
+User -> HA: Triggers "Make Coffee"
+HA -> CC: MQTT Publish (make_coffee)
+CC -> FSCM: HTTP Request (create payment)
+FSCM -> FSP: HTTP Request (initiate channel)
+FSP -> FSCM: HTTP Response (channel details)
+FSCM -> CC: HTTP Response (payment request)
+CC -> FSCM: HTTP Request (signed payment)
+FSCM -> FSP: HTTP Request (verify payment)
+FSP -> Tangle: Submit transaction
+Tangle -> FSP: Transaction confirmed
+FSP -> FSCM: HTTP Response (payment confirmed)
+FSCM -> CC: HTTP Response (confirmation)
+CC -> HA: MQTT Publish (status update)
+HA -> User: UI Update (coffee ready)
+
+@enduml
+```

@@ -1,0 +1,59 @@
+@startuml SpektraSystems_CloudLabs-Azure
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "Lab User" as User
+
+rectangle "Local Machine" as Local {
+  rectangle "PowerShell Scripts" as PS
+  rectangle "Lab Instructions" as Docs
+}
+
+rectangle "Azure Portal" as Portal {
+  rectangle "Azure Migrate" as Migrate
+  rectangle "Virtual Machines" as VMs
+  rectangle "Azure Functions" as Functions
+  rectangle "Azure Monitor" as Monitor
+}
+
+rectangle "On-Premises" as OnPrem {
+  rectangle "Hyper-V VMs" as HyperV
+}
+
+rectangle "Cloud Services" as Cloud {
+  rectangle "Cosmos DB" as Cosmos
+  rectangle "Blob Storage" as Blob
+  rectangle "Log Analytics" as Logs
+}
+
+' ========== Connections ==========
+User --> Docs : Follows
+User --> Portal : Interacts with
+User --> PS : Executes
+
+Docs --> Portal : Guides configuration
+PS --> Portal : Automates setup
+
+Portal --> Migrate : Creates project\nAssesses VMs\nReplicates servers
+Migrate --> OnPrem : Connects to Hyper-V
+Migrate --> VMs : Creates migrated VMs
+
+Portal --> VMs : Deploys\nConfigures\nMonitors
+VMs --> Blob : Stores data
+
+Portal --> Functions : Publishes\nManages
+Functions --> Cosmos : Reads/Writes data
+Functions --> Monitor : Sends telemetry
+
+Portal --> Monitor : Configures alerts\nViews metrics
+Monitor --> Logs : Queries logs
+Monitor --> VMs : Collects metrics
+Monitor --> Functions : Collects telemetry
+
+OnPrem --> HyperV : Hosts VMs
+HyperV --> Migrate : Replicates to Azure
+@enduml

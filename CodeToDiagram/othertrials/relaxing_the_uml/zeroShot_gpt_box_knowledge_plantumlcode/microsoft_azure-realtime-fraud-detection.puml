@@ -1,0 +1,34 @@
+@startuml
+actor User
+
+package Azure {
+    cloud "Azure Event Hub" as EventHub
+    queue "Azure Stream Analytics" as StreamAnalytics
+    database "Azure Synapse Analytics" as Synapse
+    database "Azure Cosmos DB (SQL API)" as CosmosSQL
+    database "Azure Cosmos DB (Gremlin API)" as CosmosGremlin
+    component "Azure Machine Learning" as MachineLearning
+    folder "Azure Functions" as Functions
+}
+
+package "Event Generator" {
+    component "Event Generator" as EventGenerator
+}
+
+User --> EventGenerator : Simulates\nTransaction Events
+EventGenerator --> EventHub : Ingests\nTransaction Events
+
+EventHub --> StreamAnalytics : Data Flow
+StreamAnalytics --> Synapse : Persist Data
+StreamAnalytics --> CosmosSQL : Persist Data
+
+MachineLearning <-left- StreamAnalytics : Enrich with\nFraud Scores
+Functions <-left- StreamAnalytics : Triggers Orchestration
+
+Functions <-right- MachineLearning : ML Model\nDeployment
+Functions --> MachineLearning : Model Training\nand Management
+
+CosmosGremlin <-right- Functions : Fraud Ring\nDetection
+CosmosSQL <-right- Functions : Benford's Law\nCalculation
+
+@enduml

@@ -1,0 +1,348 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Azure Storage",
+        "description": "Unstructured documents (pdf, docx, txt, etc.)",
+        "boundaries": "Knowledge Base",
+        "position": "left"
+      },
+      {
+        "name": "Azure Form Recognizer",
+        "description": "Extracted paragraphs",
+        "boundaries": null,
+        "position": "center-left"
+      },
+      {
+        "name": "Azure Translator",
+        "description": "Translate (optional)",
+        "boundaries": null,
+        "position": "center"
+      },
+      {
+        "name": "Azure OpenAI Service Embeddings",
+        "description": "Embedding of paragraphs using OpenAI",
+        "boundaries": "Search Layer",
+        "position": "center-right"
+      },
+      {
+        "name": "Vector Database",
+        "description": "Vectors",
+        "boundaries": "Search Layer",
+        "position": "center-right"
+      },
+      {
+        "name": "Azure OpenAI Answering Prompt",
+        "description": "Top k paragraphs",
+        "boundaries": null,
+        "position": "right"
+      },
+      {
+        "name": "Users",
+        "description": "Questions and Answers",
+        "boundaries": null,
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Azure Storage",
+        "target": "Azure Form Recognizer",
+        "label": "Raw documents",
+        "type": "arrow"
+      },
+      {
+        "source": "Azure Form Recognizer",
+        "target": "Azure Translator",
+        "label": "Extracted dialogs",
+        "type": "arrow"
+      },
+      {
+        "source": "Azure Translator",
+        "target": "Azure OpenAI Service Embeddings",
+        "label": "Translate (optional)",
+        "type": "arrow"
+      },
+      {
+        "source": "Azure OpenAI Service Embeddings",
+        "target": "Vector Database",
+        "label": "Vectors",
+        "type": "arrow"
+      },
+      {
+        "source": "Vector Database",
+        "target": "Azure OpenAI Answering Prompt",
+        "label": "Top k paragraphs",
+        "type": "arrow"
+      },
+      {
+        "source": "Azure OpenAI Answering Prompt",
+        "target": "Users",
+        "label": "Answers",
+        "type": "arrow"
+      },
+      {
+        "source": "Users",
+        "target": "Azure OpenAI Embeddings",
+        "label": "Questions",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [
+      "There is a red blinking light on C4 button in my SP-300a machine, which part do I need to replace?",
+      "You need to replace parts a & b. Here's the link to order them."
+    ],
+    "groups": [
+      {
+        "name": "Knowledge Base",
+        "components": [
+          "Azure Storage"
+        ]
+      },
+      {
+        "name": "Search Layer",
+        "components": [
+          "Azure OpenAI Service Embeddings",
+          "Vector Database"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Q&A with Semantic Answering with Azure OpenAI Service"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Streamlit Web App",
+        "description": "Trigger Batch Processing",
+        "boundaries": null,
+        "position": "left"
+      },
+      {
+        "name": "Azure Function SmartProcessing",
+        "description": "Process",
+        "boundaries": null,
+        "position": "center-left"
+      },
+      {
+        "name": "Azure Function BatchPushResults",
+        "description": "Push Results",
+        "boundaries": null,
+        "position": "center"
+      },
+      {
+        "name": "Azure Blob Storage",
+        "description": "Store Documents",
+        "boundaries": null,
+        "position": "center"
+      },
+      {
+        "name": "Azure Queue",
+        "description": "Manage Messages",
+        "boundaries": null,
+        "position": "center-right"
+      },
+      {
+        "name": "PGVector Vector Store",
+        "description": "Store Embeddings",
+        "boundaries": null,
+        "position": "right"
+      },
+      {
+        "name": "Redis Vector Store",
+        "description": "Store Embeddings",
+        "boundaries": null,
+        "position": "right"
+      },
+      {
+        "name": "Azure Cognitive Search Vector Store",
+        "description": "Search Document Chunks",
+        "boundaries": null,
+        "position": "right"
+      },
+      {
+        "name": "Azure OpenAI Service",
+        "description": "Create Document Embeddings",
+        "boundaries": null,
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Streamlit Web App",
+        "label": "Ask Question",
+        "type": "arrow"
+      },
+      {
+        "source": "Streamlit Web App",
+        "target": "Azure Function SmartProcessing",
+        "label": "Trigger Batch Processing",
+        "type": "arrow"
+      },
+      {
+        "source": "Azure Function SmartProcessing",
+        "target": "Azure Function BatchPushResults",
+        "label": "Process",
+        "type": "arrow"
+      },
+      {
+        "source": "Azure Function BatchPushResults",
+        "target": "Azure Blob Storage",
+        "label": "Push Results",
+        "type": "arrow"
+      },
+      {
+        "source": "Azure Blob Storage",
+        "target": "Azure Queue",
+        "label": "Store Documents",
+        "type": "arrow"
+      },
+      {
+        "source": "Azure Queue",
+        "target": "PGVector Vector Store",
+        "label": "Manage Messages",
+        "type": "arrow"
+      },
+      {
+        "source": "PGVector Vector Store",
+        "target": "Redis Vector Store",
+        "label": "Store Embeddings",
+        "type": "arrow"
+      },
+      {
+        "source": "Redis Vector Store",
+        "target": "Azure Cognitive Search Vector Store",
+        "label": "Store Embeddings",
+        "type": "arrow"
+      },
+      {
+        "source": "Azure Cognitive Search Vector Store",
+        "target": "Azure OpenAI Service",
+        "label": "Search Document Chunks",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Azure OpenAI Embeddings QnA"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      {
+        "name": "Azure OpenAI Service",
+        "purpose": "Embeddings and processing"
+      }
+    ],
+    "unique_to_GroundTruth": [
+      "Azure Storage",
+      "Azure Form Recognizer",
+      "Azure Translator",
+      "Vector Database",
+      "Azure OpenAI Answering Prompt",
+      "Users"
+    ],
+    "unique_to_GeneratedImage": [
+      "Streamlit Web App",
+      "Azure Function SmartProcessing",
+      "Azure Function BatchPushResults",
+      "Azure Blob Storage",
+      "Azure Queue",
+      "PGVector Vector Store",
+      "Redis Vector Store",
+      "Azure Cognitive Search Vector Store"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Azure Storage",
+        "target": "Azure Form Recognizer",
+        "label": "Raw documents"
+      },
+      {
+        "source": "Azure Form Recognizer",
+        "target": "Azure Translator",
+        "label": "Extracted dialogs"
+      },
+      {
+        "source": "Azure Translator",
+        "target": "Azure OpenAI Service Embeddings",
+        "label": "Translate (optional)"
+      },
+      {
+        "source": "Azure OpenAI Service Embeddings",
+        "target": "Vector Database",
+        "label": "Vectors"
+      },
+      {
+        "source": "Vector Database",
+        "target": "Azure OpenAI Answering Prompt",
+        "label": "Top k paragraphs"
+      },
+      {
+        "source": "Azure OpenAI Answering Prompt",
+        "target": "Users",
+        "label": "Answers"
+      },
+      {
+        "source": "Users",
+        "target": "Azure OpenAI Embeddings",
+        "label": "Questions"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "Streamlit Web App",
+        "label": "Ask Question"
+      },
+      {
+        "source": "Streamlit Web App",
+        "target": "Azure Function SmartProcessing",
+        "label": "Trigger Batch Processing"
+      },
+      {
+        "source": "Azure Function SmartProcessing",
+        "target": "Azure Function BatchPushResults",
+        "label": "Process"
+      },
+      {
+        "source": "Azure Function BatchPushResults",
+        "target": "Azure Blob Storage",
+        "label": "Push Results"
+      },
+      {
+        "source": "Azure Blob Storage",
+        "target": "Azure Queue",
+        "label": "Store Documents"
+      },
+      {
+        "source": "Azure Queue",
+        "target": "PGVector Vector Store",
+        "label": "Manage Messages"
+      },
+      {
+        "source": "PGVector Vector Store",
+        "target": "Redis Vector Store",
+        "label": "Store Embeddings"
+      },
+      {
+        "source": "Redis Vector Store",
+        "target": "Azure Cognitive Search Vector Store",
+        "label": "Store Embeddings"
+      },
+      {
+        "source": "Azure Cognitive Search Vector Store",
+        "target": "Azure OpenAI Service",
+        "label": "Search Document Chunks"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on a semantic answering system using Azure OpenAI Service, with a clear flow from document storage to user interaction, emphasizing document processing and translation. The GeneratedImage diagram presents a more complex architecture involving multiple vector stores and processing functions, highlighting a batch processing approach. Both diagrams share the use of Azure OpenAI for embeddings, but differ significantly in components and connectors. The GroundTruth diagram is more straightforward and user-focused, while the GeneratedImage diagram is more detailed and process-oriented. Rating: 7/10. The GeneratedImage diagram is accurate in terms of component naming and purpose but lacks the simplicity and direct user interaction focus seen in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

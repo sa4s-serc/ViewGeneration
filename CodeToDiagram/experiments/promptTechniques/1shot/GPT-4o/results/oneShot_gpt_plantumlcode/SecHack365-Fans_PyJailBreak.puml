@@ -1,0 +1,76 @@
+```plantuml
+@startuml SecHack365-Fans_PyJailBreak
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<redux>> #d8f5d3
+  BackgroundColor<<components>> #fddddd
+  BackgroundColor<<pages>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend (React & Next.js)" <<frontend>> {
+  package "State Management (Redux Toolkit)" <<redux>> {
+    rectangle "emulateSlice.ts" as EmulateSlice
+    rectangle "endPointsSlice.ts" as EndPointsSlice
+    rectangle "payloadsSlice.ts" as PayloadsSlice
+    rectangle "dialogSlice.ts" as DialogSlice
+    rectangle "store.ts" as Store
+    EmulateSlice --> Store
+    EndPointsSlice --> Store
+    PayloadsSlice --> Store
+    DialogSlice --> Store
+  }
+
+  package "React Components" <<components>> {
+    rectangle "RequestForm.tsx" as RequestForm
+    rectangle "ExecuteAttack.tsx" as ExecuteAttack
+    rectangle "importFile.tsx" as ImportFile
+    rectangle "DataGridFooters.tsx" as DataGridFooters
+    rectangle "DialogEditor.tsx" as DialogEditor
+    rectangle "statusChip.tsx" as StatusChip
+    RequestForm --> ExecuteAttack
+    RequestForm --> Store
+    ImportFile --> PayloadsSlice
+    DataGridFooters --> PayloadsSlice
+    DialogEditor --> DialogSlice
+  }
+
+  package "Next.js Pages" <<pages>> {
+    rectangle "index.tsx" as Index
+    rectangle "_app.tsx" as App
+    rectangle "openapi.tsx" as OpenAPI
+    App --> Store
+    Index --> RequestForm
+    OpenAPI --> "Swagger UI"
+  }
+}
+
+note right of ExecuteAttack
+  Acts as API client
+  for scan execution
+  and result retrieval
+end note
+
+note right of PayloadsSlice
+  Manages payloads list
+  and selection
+end note
+
+note left of EndPointsSlice
+  Manages API endpoint
+  and target configuration
+end note
+
+note right of EmulateSlice
+  Manages emulation
+  mode state
+end note
+
+note left of DialogSlice
+  Manages dialog state
+  for payload editor
+end note
+
+@enduml
+```

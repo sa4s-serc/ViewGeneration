@@ -1,0 +1,76 @@
+@startuml
+skinparam componentStyle rectangle
+
+package "OCI Jenkins Deployment" {
+    component "main.tf" as main_tf
+    component "variables.tf" as variables_tf
+    component "outputs.tf" as outputs_tf
+    component "versions.tf" as versions_tf
+
+    package "Jenkins Modules" {
+        package "Jenkins Controller" {
+            component "jenkins-controller" as jenkins_controller
+            component "main.tf" as jc_main_tf
+            component "setup.sh" as jc_setup_sh
+        }
+
+        package "Jenkins Agent" {
+            component "jenkins-agent" as jenkins_agent
+            component "main.tf" as ja_main_tf
+            component "config.sh" as ja_config_sh
+        }
+    }
+
+    package "Examples" {
+        component "single_instance_public" as example_single
+        component "quick_start" as example_quick
+        component "bastion_service" as example_bastion
+    }
+}
+
+package "OCI Resources" {
+    component "VCN" as vcn
+    component "Subnets" as subnets
+    component "Security Lists" as security_lists
+    component "Internet Gateways" as internet_gateways
+    component "NAT Gateways" as nat_gateways
+    component "Load Balancers" as load_balancers
+    component "Bastion Host" as bastion_host
+}
+
+main_tf --> jenkins_controller : "composes"
+main_tf --> jenkins_agent : "composes"
+main_tf <.. variables_tf : "uses"
+main_tf <.. outputs_tf : "provides"
+main_tf <.. versions_tf : "specifies"
+
+jenkins_controller --> jc_main_tf
+jenkins_controller --> jc_setup_sh
+jenkins_agent --> ja_main_tf
+jenkins_agent --> ja_config_sh
+
+example_single --> main_tf
+example_quick --> main_tf
+example_bastion --> main_tf
+
+vcn --> subnets
+subnets --> jenkins_controller
+subnets --> jenkins_agent
+subnets --> load_balancers
+subnets --> bastion_host
+
+load_balancers --> jenkins_controller : "distributes traffic"
+bastion_host --> jenkins_controller : "secure access"
+
+internet_gateways --> vcn
+nat_gateways --> vcn
+
+note right of load_balancers
+    Ensures high availability
+    and scalability.
+end note
+
+note left of bastion_host
+    Secure access option.
+end note
+@enduml

@@ -1,0 +1,275 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Represents the user interacting with the system",
+        "boundaries": "External",
+        "position": "Top left"
+      },
+      {
+        "name": "API Handler",
+        "description": "Handles API requests",
+        "boundaries": "Internal",
+        "position": "Middle"
+      },
+      {
+        "name": "Ingest Service",
+        "description": "Ingests data",
+        "boundaries": "Internal",
+        "position": "Middle"
+      },
+      {
+        "name": "Aggregate Service",
+        "description": "Aggregates data",
+        "boundaries": "Internal",
+        "position": "Middle"
+      },
+      {
+        "name": "Metrics Service",
+        "description": "Calculates metrics",
+        "boundaries": "Internal",
+        "position": "Middle"
+      },
+      {
+        "name": "MongoDB",
+        "description": "Database for storing data",
+        "boundaries": "Internal",
+        "position": "Middle right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "API Handler",
+        "label": "api/v1/integrations, api/v1/dataflows",
+        "type": "HTTP"
+      },
+      {
+        "source": "API Handler",
+        "target": "Ingest Service",
+        "label": "1",
+        "type": "Internal"
+      },
+      {
+        "source": "Ingest Service",
+        "target": "Aggregate Service",
+        "label": "2",
+        "type": "Internal"
+      },
+      {
+        "source": "Aggregate Service",
+        "target": "MongoDB",
+        "label": "3",
+        "type": "Database"
+      },
+      {
+        "source": "MongoDB",
+        "target": "Metrics Service",
+        "label": "4",
+        "type": "Database"
+      }
+    ],
+    "annotations": [
+      "external providers",
+      "Lead-Time for Changes",
+      "Deployment Frequency",
+      "Change-Failure Rate",
+      "Mean-Time to Restore"
+    ],
+    "groups": [
+      {
+        "name": "external providers",
+        "components": [
+          "Integration",
+          "Version Control",
+          "Pipeline / Build Server",
+          "Telemetry"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruth",
+      "title": null
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Represents the user interacting with the system",
+        "boundaries": "External",
+        "position": "Top left"
+      },
+      {
+        "name": "REST API (Gin-Gonic)",
+        "description": "Handles REST API requests",
+        "boundaries": "Internal",
+        "position": "Top"
+      },
+      {
+        "name": "API Handlers",
+        "description": "Handles API logic",
+        "boundaries": "Internal",
+        "position": "Top"
+      },
+      {
+        "name": "Trigger Service",
+        "description": "Triggers events",
+        "boundaries": "Internal",
+        "position": "Middle"
+      },
+      {
+        "name": "Metrics Calculation",
+        "description": "Calculates metrics",
+        "boundaries": "Internal",
+        "position": "Middle"
+      },
+      {
+        "name": "MongoDB DAO",
+        "description": "Database access object",
+        "boundaries": "Internal",
+        "position": "Bottom"
+      },
+      {
+        "name": "MongoDB",
+        "description": "Database for storing data",
+        "boundaries": "Internal",
+        "position": "Bottom"
+      },
+      {
+        "name": "Prometheus",
+        "description": "Monitoring system",
+        "boundaries": "External",
+        "position": "Left"
+      },
+      {
+        "name": "GitLab API",
+        "description": "External API for GitLab",
+        "boundaries": "External",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "REST API (Gin-Gonic)",
+        "label": "Collect HTTP metrics",
+        "type": "HTTP"
+      },
+      {
+        "source": "REST API (Gin-Gonic)",
+        "target": "API Handlers",
+        "label": "",
+        "type": "Internal"
+      },
+      {
+        "source": "API Handlers",
+        "target": "Trigger Service",
+        "label": "",
+        "type": "Internal"
+      },
+      {
+        "source": "Trigger Service",
+        "target": "Metrics Calculation",
+        "label": "Future: Event-driven metrics calculation",
+        "type": "Internal"
+      },
+      {
+        "source": "Metrics Calculation",
+        "target": "MongoDB DAO",
+        "label": "",
+        "type": "Database"
+      },
+      {
+        "source": "MongoDB DAO",
+        "target": "MongoDB",
+        "label": "",
+        "type": "Database"
+      },
+      {
+        "source": "Metrics Calculation",
+        "target": "Prometheus",
+        "label": "Query alerts",
+        "type": "Monitoring"
+      },
+      {
+        "source": "Metrics Calculation",
+        "target": "GitLab API",
+        "label": "Fetch repos/commits/pipelines",
+        "type": "External API"
+      }
+    ],
+    "annotations": [
+      "Exposes endpoints for: Integrations, Dataflows, Metrics retrieval",
+      "Calculates: Deployment Frequency, Lead Time, Change Failure Rate, MTTR"
+    ],
+    "groups": [
+      {
+        "name": "Services",
+        "components": [
+          "Trigger Service",
+          "Metrics Calculation"
+        ]
+      },
+      {
+        "name": "Connectors",
+        "components": [
+          "Prometheus",
+          "GitLab API"
+        ]
+      },
+      {
+        "name": "Data Access",
+        "components": [
+          "MongoDB DAO",
+          "MongoDB"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImage",
+      "title": "DORA Metrics API"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "User",
+      "MongoDB"
+    ],
+    "unique_to_GroundTruth": [
+      "API Handler",
+      "Ingest Service",
+      "Aggregate Service",
+      "Metrics Service"
+    ],
+    "unique_to_GeneratedImage": [
+      "REST API (Gin-Gonic)",
+      "API Handlers",
+      "Trigger Service",
+      "Metrics Calculation",
+      "MongoDB DAO",
+      "Prometheus",
+      "GitLab API"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "User",
+        "target": "API Handler",
+        "label": "api/v1/integrations, api/v1/dataflows",
+        "type": "HTTP"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "REST API (Gin-Gonic)",
+        "label": "Collect HTTP metrics",
+        "type": "HTTP"
+      }
+    ],
+    "explanation": "The two diagrams depict different architectural designs for handling metrics. The GroundTruth diagram focuses on a linear flow with components like API Handler, Ingest Service, and Aggregate Service, leading to a Metrics Service. The GeneratedImage diagram, titled 'DORA Metrics API', presents a more modular design with distinct services for triggering and calculating metrics, and includes external connectors like Prometheus and GitLab API. Both diagrams share common elements like the User and MongoDB. However, the GeneratedImage includes additional components and connectors, suggesting a more complex architecture. The GroundTruth diagram is simpler and more straightforward. Based on accuracy, completeness, and similarity, the GeneratedImage is rated 7 out of 10. It captures the essence of a metrics API but introduces additional complexity not present in the GroundTruth.",
+    "Rating": 7
+  }
+}

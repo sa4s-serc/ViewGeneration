@@ -1,0 +1,214 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Mast...",
+        "description": "Master node components",
+        "boundaries": "Master node",
+        "positions": "Top center"
+      },
+      {
+        "name": "Namenode",
+        "description": "Contains Spark master and HDFS Namenode",
+        "boundaries": "Within Mast...",
+        "positions": "Top"
+      },
+      {
+        "name": "History server",
+        "description": "Contains YARN historyserver",
+        "boundaries": "Within Mast...",
+        "positions": "Middle"
+      },
+      {
+        "name": "Resource manager",
+        "description": "Contains YARN resourcemanager",
+        "boundaries": "Within Mast...",
+        "positions": "Bottom"
+      },
+      {
+        "name": "Node 1",
+        "description": "Worker node 1",
+        "boundaries": "Node",
+        "positions": "Bottom left"
+      },
+      {
+        "name": "Node n",
+        "description": "Worker node n",
+        "boundaries": "Node",
+        "positions": "Bottom right"
+      },
+      {
+        "name": "Pod from DaemonSet",
+        "description": "Pod running on nodes",
+        "boundaries": "Within Node 1 and Node n",
+        "positions": "Center"
+      },
+      {
+        "name": "Datanode",
+        "description": "Contains Spark worker and HDFS Datanode",
+        "boundaries": "Within Pod from DaemonSet",
+        "positions": "Top"
+      },
+      {
+        "name": "Nodemanager",
+        "description": "Contains YARN Nodemanager",
+        "boundaries": "Within Pod from DaemonSet",
+        "positions": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Namenode",
+        "target": "Datanode",
+        "label": "Data flow",
+        "type": "Bidirectional"
+      },
+      {
+        "source": "History server",
+        "target": "Datanode",
+        "label": "Data flow",
+        "type": "Bidirectional"
+      },
+      {
+        "source": "Resource manager",
+        "target": "Nodemanager",
+        "label": "Resource management",
+        "type": "Bidirectional"
+      }
+    ],
+    "annotations": [
+      "Kubernetes environment"
+    ],
+    "groups": [
+      "Master node",
+      "Worker nodes"
+    ],
+    "metadata": {
+      "filename": "diagram1.svg",
+      "title": "Kubernetes environment"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Configuration",
+        "description": "Contains ConfigMaps, Environment Variables, Python Scripts",
+        "boundaries": "Configuration block",
+        "positions": "Top left"
+      },
+      {
+        "name": "Docker Images",
+        "description": "Contains Apache Spark Image, Hadoop Base Image",
+        "boundaries": "Docker Images block",
+        "positions": "Middle left"
+      },
+      {
+        "name": "Kubernetes",
+        "description": "Contains Services, StatefulSets",
+        "boundaries": "Kubernetes block",
+        "positions": "Bottom left"
+      },
+      {
+        "name": "Kubernetes Cluster",
+        "description": "Contains NameNode + Spark Master + HiBench, HistoryServer, ResourceManager, DataNode + NodeManager",
+        "boundaries": "Cluster block",
+        "positions": "Center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Configuration",
+        "target": "Kubernetes Cluster",
+        "label": "Configuration flow",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "Docker Images",
+        "target": "Kubernetes Cluster",
+        "label": "Image deployment",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "Kubernetes",
+        "target": "Kubernetes Cluster",
+        "label": "Service management",
+        "type": "Unidirectional"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      "Configuration",
+      "Docker Images",
+      "Kubernetes",
+      "Kubernetes Cluster"
+    ],
+    "metadata": {
+      "filename": "diagram2.svg",
+      "title": "Kubernetes Cluster Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Namenode",
+      "History server",
+      "Resource manager",
+      "Datanode",
+      "Nodemanager"
+    ],
+    "unique_to_GroundTruth": [
+      "Mast...",
+      "Node 1",
+      "Node n",
+      "Pod from DaemonSet"
+    ],
+    "unique_to_GeneratedImage": [
+      "Configuration",
+      "Docker Images",
+      "Kubernetes",
+      "Kubernetes Cluster"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Namenode",
+        "target": "Datanode",
+        "label": "Data flow",
+        "type": "Bidirectional"
+      },
+      {
+        "source": "History server",
+        "target": "Datanode",
+        "label": "Data flow",
+        "type": "Bidirectional"
+      },
+      {
+        "source": "Resource manager",
+        "target": "Nodemanager",
+        "label": "Resource management",
+        "type": "Bidirectional"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Configuration",
+        "target": "Kubernetes Cluster",
+        "label": "Configuration flow",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "Docker Images",
+        "target": "Kubernetes Cluster",
+        "label": "Image deployment",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "Kubernetes",
+        "target": "Kubernetes Cluster",
+        "label": "Service management",
+        "type": "Unidirectional"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of a Kubernetes-based architecture. The GroundTruth diagram focuses on the internal components of a Kubernetes environment, detailing the master and worker nodes, and their interactions. It highlights components such as Namenode, History server, and Resource manager, and their connections to Datanode and Nodemanager. The GeneratedImage diagram, on the other hand, provides a broader view of the Kubernetes cluster architecture, including configuration, Docker images, and Kubernetes services. It lacks the detailed node-level breakdown found in the GroundTruth diagram but introduces additional elements like Configuration and Docker Images. The common components between the diagrams include Namenode, History server, Resource manager, Datanode, and Nodemanager, but the connectors and specific architectural focus differ significantly. The GroundTruth diagram is more focused on node-level interactions, while the GeneratedImage diagram emphasizes overall cluster configuration and management. Rating: 6. The GeneratedImage diagram captures the overall cluster architecture but lacks the detailed node-level interactions and specific components present in the GroundTruth diagram.",
+    "Rating": 6
+  }
+}

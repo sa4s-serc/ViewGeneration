@@ -1,0 +1,64 @@
+```plantuml
+@startuml rackerlabs_scantron
+
+skinparam componentStyle uml2
+skinparam monochrome true
+skinparam nodesep 10
+skinparam ranksep 20
+
+title Scantron System Architecture - Performance & Deployment View
+
+package "Console (Web Frontend)" {
+    component "Django Application" {
+        component "REST API" as api
+        component "Scheduler" as scheduler
+        component "Result Processor" as result_processor
+        component "Web UI" as webui
+    }
+    
+    component "Redis Queue" as redis
+    component "Nginx" as nginx
+}
+
+package "Engines (Scanning Nodes)" {
+    component "Engine Service" as engine {
+        component "Nmap Scanner" as nmap
+        component "Masscan Scanner" as masscan
+    }
+    
+    component "NFS Client" as nfs_client
+}
+
+cloud "External Systems" as external
+
+database "PostgreSQL" as db
+storage "NFS Storage" as nfs
+
+' Core relationships
+api -right-> db : "Stores scan configs"
+scheduler -right-> db : "Reads schedules"
+result_processor -right-> db : "Stores processed results"
+webui -left-> api : "Uses"
+
+nginx -up-> api : "Proxies requests"
+redis -up-> scheduler : "Async tasks"
+
+engine -up-> api : "Polls for jobs"
+engine -right-> nfs_client : "Stores raw results"
+nfs_client -down-> nfs : "Mounts"
+
+nmap -up-> engine : "Scan execution"
+masscan -up-> engine : "Scan execution"
+
+result_processor -down-> nfs : "Reads raw results"
+external -up-> api : "API integration"
+
+' Performance annotations
+note top of api: "Caching layer\nfor frequent queries"
+note right of nginx: "SSL termination\nand load balancing"
+note left of redis: "Async job queue\nimproves responsiveness"
+note bottom of nfs: "Shared storage\nenables distributed processing"
+note right of engine: "Multiple instances\nfor horizontal scaling"
+
+@enduml
+```

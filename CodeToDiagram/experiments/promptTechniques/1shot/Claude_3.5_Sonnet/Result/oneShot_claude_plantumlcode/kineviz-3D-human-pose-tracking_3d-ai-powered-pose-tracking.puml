@@ -1,0 +1,28 @@
+@startuml kineviz-3D-human-pose-tracking_3d-ai-powered-pose-tracking
+
+actor "Webcam Client 1" as WC1
+actor "Webcam Client 2" as WC2
+actor "Receiver Client" as RC
+
+participant "Node.js Server" as Server
+participant "TensorFlow.js\n(PoseNet/MoveNet)" as TF
+participant "Socket.IO" as SIO
+participant "GraphXR" as GXR
+
+WC1 -> TF: Capture video feed
+WC2 -> TF: Capture video feed
+TF -> TF: Estimate 2D poses
+
+WC1 -> SIO: Send 2D pose data
+WC2 -> SIO: Send 2D pose data
+
+SIO -> Server: Receive 2D pose data
+
+Server -> Server: Reconstruct 3D pose
+
+Server -> SIO: Broadcast 3D pose data
+
+SIO -> RC: Receive 3D pose data
+RC -> GXR: Visualize 3D skeleton
+
+@enduml

@@ -1,0 +1,50 @@
+```plantuml
+@startuml rubenbupe_proyectos-data
+
+!define RECTANGLE class
+
+skinparam component {
+  BackgroundColor<<GCP>> LightBlue
+  BorderColor<<GCP>> Blue
+}
+
+cloud "Google Cloud Platform" <<GCP>> {
+  rectangle "GKE Cluster" {
+    [Nginx Ingress] as ingress
+    [Cert-Manager] as certmanager
+    
+    package "Application Services" {
+      [Frontend (Next.js)] as frontend
+      [API (Flask)] as api
+      [Metrics API (Node.js)] as metrics
+    }
+    
+    database "MongoDB" as mongodb
+    queue "RabbitMQ" as rabbitmq
+    
+    [HorizontalPodAutoscaler] as hpa
+  }
+}
+
+[Positionstack API] as positionstack
+[Let's Encrypt] as letsencrypt
+
+frontend --> api : HTTP/WebSocket
+api --> mongodb : Reads/Writes
+api --> rabbitmq : Publishes events
+metrics --> rabbitmq : Consumes events
+metrics --> mongodb : Reads/Writes
+
+ingress --> frontend
+ingress --> api
+ingress --> metrics
+
+certmanager --> letsencrypt : ACME protocol
+api --> positionstack : Geocoding requests
+
+hpa --> frontend : Scales
+hpa --> api : Scales
+hpa --> metrics : Scales
+
+@enduml
+```

@@ -1,0 +1,42 @@
+Based on the provided summary and the specified concern (data_flow) and behavior (static, dynamic), I'll create a PlantUML sequence diagram that illustrates the data flow in the serverdevcamp_camp4_quadcore system. This diagram will show both static components and dynamic interactions.
+
+@startuml serverdevcamp_camp4_quadcore
+
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 20
+skinparam maxmessagesize 60
+
+actor User
+participant "React Frontend" as Frontend
+participant "API Gateway" as Gateway
+participant "AuthServer" as Auth
+database Redis
+participant "DataPipeline" as Pipeline
+participant "DataProcessing" as Processing
+database Kafka
+database Cassandra
+participant "DataSending" as Sending
+participant "UserActivity" as Activity
+
+User -> Frontend : Interacts
+Frontend -> Gateway : API Request
+Gateway -> Auth : Validate JWT
+
+alt Valid Token
+    Auth -> Gateway : Token Valid
+    Gateway -> Pipeline : Forward Request
+    Pipeline -> Kafka : Stream Data
+    Kafka -> Processing : Process Data
+    Processing -> Cassandra : Store Processed Data
+    Cassandra -> Sending : Retrieve Data
+    Sending -> Frontend : Send Real-time Data (WebSocket)
+    Activity -> Cassandra : Fetch User Activity
+    Activity -> Frontend : Send User Activity
+else Invalid Token
+    Auth -> Gateway : Token Invalid
+    Gateway -> Frontend : Unauthorized
+end
+
+Frontend -> User : Update UI
+
+@enduml

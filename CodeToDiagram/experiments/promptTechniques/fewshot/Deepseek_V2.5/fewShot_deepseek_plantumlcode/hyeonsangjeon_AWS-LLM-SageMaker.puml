@@ -1,0 +1,54 @@
+@startuml hyeonsangjeon_AWS-LLM-SageMaker
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "User" as user
+
+rectangle "Streamlit UI" as streamlit {
+  component "Chat Interface"
+  component "Query Processor"
+}
+
+rectangle "AWS Services" {
+  rectangle "SageMaker Endpoint" as sagemaker {
+    component "LLM Model\n(KULLM-Polyglot)"
+    component "DJLServing"
+  }
+
+  rectangle "OpenSearch" as opensearch {
+    component "Vector Index"
+    component "Document Store"
+  }
+}
+
+rectangle "Utils" {
+  component "Prompter"
+  component "Inference Library"
+  component "Embedding Model"
+}
+
+user -> streamlit : Ask Question
+streamlit -> Prompter : Format Prompt
+Prompter -> sagemaker : Generate Response
+streamlit -> Embedding Model : Create Query Embedding
+Embedding Model -> opensearch : Search Similar Vectors
+opensearch -> streamlit : Return Relevant Documents
+streamlit -> Prompter : Augment Prompt with Context
+Prompter -> sagemaker : Generate Final Response
+sagemaker -> streamlit : Return Answer
+streamlit -> user : Display Answer
+
+note right of sagemaker
+  Uses DeepSpeed for optimized inference
+  QLoRA fine-tuned models
+end note
+
+note left of opensearch
+  FAISS for local testing
+  Vector similarity search
+end note
+@enduml

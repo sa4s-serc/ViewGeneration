@@ -1,0 +1,48 @@
+```plantuml
+@startuml eProsima_Integration-Service
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Integration Service" as IS #lightblue {
+  rectangle "Core Library" as Core
+  rectangle "System Handles" as SH {
+    rectangle "Fast DDS" as FastDDS
+    rectangle "ROS 1/2" as ROS
+    rectangle "WebSocket" as WebSocket
+    rectangle "FIWARE" as FIWARE
+  }
+  rectangle "Configuration Parser" as ConfigParser
+}
+
+rectangle "JSON-XTypes Conversion" as Conversion #lightgreen
+
+rectangle "Middleware Systems" as Middleware #lightcoral {
+  rectangle "DDS" as DDS
+  rectangle "ROS" as ROSSystem
+  rectangle "WebSocket Server" as WebSocketServer
+  rectangle "FIWARE System" as FIWARESystem
+}
+
+' ========== Connections ==========
+User --> IS
+
+' Integration Service interactions
+IS <--> ConfigParser : parse YAML configuration
+IS <--> SH : communicate with middlewares
+IS --> Conversion : convert JSON <-> xtypes::DynamicData
+Conversion --> IS : converted data
+
+' Middleware interactions
+FastDDS <--> DDS
+ROS <--> ROSSystem
+WebSocket <--> WebSocketServer
+FIWARE <--> FIWARESystem
+
+@enduml
+```

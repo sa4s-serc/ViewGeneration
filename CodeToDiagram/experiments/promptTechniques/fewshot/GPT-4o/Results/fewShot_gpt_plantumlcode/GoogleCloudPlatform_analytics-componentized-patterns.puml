@@ -1,0 +1,51 @@
+```plantuml
+@startuml GoogleCloudPlatform_analytics-componentized-patterns
+
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+left to right direction
+
+package "Data Preparation" {
+  rectangle "BigQuery\nData Processing" as DataPrep #lightgrey
+  rectangle "Dataflow\nTransformations" as Dataflow #lightgrey
+  rectangle "Cloud Storage\nModel Artifacts" as CloudStorage #lightgrey
+}
+
+package "Model Training & Evaluation" {
+  rectangle "BigQuery ML\nModel Training" as BQMLTraining #lightblue
+  rectangle "Kubeflow Pipelines\nOrchestration" as KFP #lightblue
+  rectangle "Vertex AI\nModel Evaluation" as VertexAI #lightblue
+}
+
+package "Serving & Deployment" {
+  rectangle "AI Platform Prediction\nModel Deployment" as AIPlatform #lightgreen
+  rectangle "Vertex AI Endpoints" as VertexAIEndpoints #lightgreen
+  rectangle "Custom Container\nScaNN Index" as ScaNNContainer #lightgreen
+}
+
+package "Marketing Activation & Visualization" {
+  rectangle "Google Ads API\nLookalike Audiences" as GoogleAds #lightyellow
+  rectangle "Data Studio\nVisualization" as DataStudio #lightyellow
+}
+
+actor "User"
+
+User --> DataPrep : Initiate Data Processing
+DataPrep --> BQMLTraining : Prepare Training Data
+Dataflow --> CloudStorage : Store Artifacts
+BQMLTraining --> KFP : Train Model
+KFP --> VertexAI : Evaluate Model
+VertexAI --> AIPlatform : Deploy Model
+VertexAI --> VertexAIEndpoints : Deploy Endpoint
+ScaNNContainer --> AIPlatform : Serve ScaNN Index
+AIPlatform --> User : Serve Predictions
+
+GoogleAds --> User : Activate Marketing
+DataStudio --> User : Visualize Data
+
+@enduml
+```

@@ -1,0 +1,43 @@
+Here's the PlantUML sequence diagram for the Luizbrandt_users-crud-salesforce system:
+
+```plantuml
+@startuml Luizbrandt_users-crud-salesforce
+title User CRUD Operations in Salesforce
+
+actor Client
+participant "API Kit Router" as Router
+participant "CRUD Flow" as CRUDFlow
+participant "DataWeave Transformer" as DW
+participant "Salesforce Connector" as SF
+database "Salesforce" as SFDB
+
+Client -> Router: HTTP Request (CRUD operation)
+Router -> CRUDFlow: Route based on operation type
+
+alt Create/Update
+    CRUDFlow -> DW: Transform request payload
+    DW -> CRUDFlow: Transformed Salesforce object
+    CRUDFlow -> SF: Execute operation
+    SF -> SFDB: Create/Update record
+    SFDB --> SF: Operation result
+    SF --> CRUDFlow: Response
+    CRUDFlow -> DW: Transform response
+    DW --> CRUDFlow: Transformed response
+else Read
+    CRUDFlow -> SF: Query record(s)
+    SF -> SFDB: Execute query
+    SFDB --> SF: Query results
+    SF --> CRUDFlow: Response
+    CRUDFlow -> DW: Transform response
+    DW --> CRUDFlow: Transformed response
+else Delete
+    CRUDFlow -> SF: Delete record
+    SF -> SFDB: Execute deletion
+    SFDB --> SF: Operation result
+    SF --> CRUDFlow: Response
+end
+
+CRUDFlow --> Router: Operation response
+Router --> Client: HTTP Response
+@enduml
+```

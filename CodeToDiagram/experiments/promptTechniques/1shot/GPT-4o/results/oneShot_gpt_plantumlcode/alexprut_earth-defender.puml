@@ -1,0 +1,55 @@
+```plantuml
+@startuml alexprut_earth-defender
+
+skinparam rectangle {
+  BackgroundColor<<client>> #d9e7fd
+  BackgroundColor<<server>> #d8f5d3
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Client-Side (Three.js)" <<client>> {
+  rectangle "Game" as Game
+  rectangle "GameClient" as GameClient
+  rectangle "GameDOMHandler" as GameDOMHandler
+  rectangle "GameElements" as GameElements
+  rectangle "TextureLoader" as TextureLoader
+  rectangle "Light" as Light
+  rectangle "Earth, Sun, Moon" as CelestialBodies
+  rectangle "SpaceShip, Bullet, Meteorite" as GameObjects
+
+  Game --> GameClient
+  Game --> GameDOMHandler
+  Game --> GameElements
+  GameElements --> CelestialBodies
+  GameElements --> GameObjects
+  Game --> TextureLoader
+  Game --> Light
+}
+
+package "Server-Side (Erlang/OTP)" <<server>> {
+  rectangle "slave_handler.erl" as SlaveHandler
+  rectangle "websocket_handler.erl" as WebSocketHandler
+  rectangle "player.erl" as Player
+  rectangle "utils.erl" as Utils
+  rectangle "local_rooms_state.erl" as LocalRoomsState
+  rectangle "room.erl" as Room
+  rectangle "earth_defender_sup.erl" as EarthDefenderSup
+  rectangle "monitor_mesh.erl" as MonitorMesh
+  rectangle "earth_defender_app.erl" as EarthDefenderApp
+  rectangle "Configuration Files" as ConfigFiles
+
+  EarthDefenderApp --> EarthDefenderSup
+  EarthDefenderApp --> WebSocketHandler
+  WebSocketHandler --> Room
+  Room --> Player
+  Room --> LocalRoomsState
+  EarthDefenderSup --> SlaveHandler
+  EarthDefenderSup --> MonitorMesh
+  Player --> Utils
+}
+
+GameClient --> WebSocketHandler
+
+@enduml
+```

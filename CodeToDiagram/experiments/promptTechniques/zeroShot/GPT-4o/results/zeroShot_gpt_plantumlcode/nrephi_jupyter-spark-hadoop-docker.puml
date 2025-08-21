@@ -1,0 +1,37 @@
+```plantuml
+@startuml nrephi_jupyter-spark-hadoop-docker
+
+package "Jupyter Spark Standalone Cluster" {
+    [JupyterLab] <<Docker Container>>
+    [Spark Master] <<Docker Container>>
+    [Spark Worker] <<Docker Container>>
+}
+
+package "Hadoop Ecosystem" {
+    [Hadoop NameNode] <<Docker Container>>
+    [Hadoop DataNode] <<Docker Container>>
+    [Hive Metastore] <<Docker Container>>
+    [Hive Server] <<Docker Container>>
+    [Hue] <<Docker Container>>
+    [MySQL] <<Docker Container>>
+    [PostgreSQL] <<Docker Container>>
+}
+
+[Shared Workspace] <<Volume>>
+
+node "Docker Network" {
+    [JupyterLab] --> [Spark Master]
+    [Spark Master] --> [Spark Worker]
+    [JupyterLab] --> [Shared Workspace]
+    [Spark Worker] --> [Shared Workspace]
+
+    [Hadoop NameNode] --> [Hadoop DataNode]
+    [Hive Server] --> [Hive Metastore]
+    [Hive Metastore] --> [PostgreSQL]
+    [Hue] --> [MySQL]
+    [Hue] --> [Hadoop NameNode]
+    [Hue] --> [Hive Server]
+}
+
+@enduml
+```

@@ -1,0 +1,52 @@
+```plantuml
+@startuml EOS-Nation_dfuse-docs
+
+!define RECTANGLE class
+
+skinparam component {
+  BackgroundColor<<API>> LightBlue
+  BackgroundColor<<Storage>> LightGreen
+  BackgroundColor<<Service>> LightYellow
+}
+
+rectangle "dfuse System" {
+  [GraphQL API] <<API>>
+  [Search API] <<API>>
+  [Authentication] <<Service>>
+  [mindreader] <<Service>>
+  [relayer] <<Service>>
+  [search] <<Service>>
+  [dgraphql] <<Service>>
+  [dfuseeos CLI] <<Service>>
+  
+  database "BigTable" <<Storage>>
+  database "TiKV" <<Storage>>
+  database "Badger" <<Storage>>
+  
+  [nodeos] <<Service>>
+}
+
+[GraphQL API] --> [dgraphql]
+[Search API] --> [search]
+[Authentication] --> [GraphQL API]
+[Authentication] --> [Search API]
+
+[mindreader] --> [nodeos] : Reads data
+[mindreader] --> [relayer] : Streams data
+[relayer] --> [search] : Indexes data
+[relayer] --> [dgraphql] : Provides data
+
+[search] --> BigTable
+[search] --> TiKV
+[search] --> Badger
+
+[dfuseeos CLI] --> [mindreader] : Manages
+[dfuseeos CLI] --> [relayer] : Manages
+[dfuseeos CLI] --> [search] : Manages
+[dfuseeos CLI] --> [dgraphql] : Manages
+
+[External Client] --> [GraphQL API] : Queries/Subscriptions
+[External Client] --> [Search API] : Searches
+
+@enduml
+```

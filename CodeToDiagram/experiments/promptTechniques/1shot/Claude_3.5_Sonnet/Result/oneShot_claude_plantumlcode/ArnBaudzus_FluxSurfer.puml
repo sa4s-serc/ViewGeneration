@@ -1,0 +1,58 @@
+@startuml ArnBaudzus_FluxSurfer
+
+skinparam component {
+  BackgroundColor<<core>> LightBlue
+  BackgroundColor<<solver>> LightGreen
+  BackgroundColor<<util>> LightYellow
+}
+
+component "QuantumSystem" <<core>> {
+  [State]
+  [Edge]
+}
+
+component "Solvers" <<solver>> {
+  [Solver] <<interface>>
+  [SingleStepScheme] <<interface>>
+  [ODE Solvers]
+  [MonteCarloWanderer]
+}
+
+component "Experiment" <<core>> {
+  [WorkSource]
+}
+
+component "Data Storage" <<util>> {
+  [GraphML Writer]
+  [JSON Writer]
+  [CSV Writer]
+}
+
+component "Utilities" <<util>> {
+  [Binary Number Utility]
+  [XML Parser]
+}
+
+component "Physical Formulas" <<util>>
+
+[QuantumSystem] --> [State]
+[QuantumSystem] --> [Edge]
+[QuantumSystem] --> [GraphML Writer]
+
+[Solver] <|-- [ODE Solvers]
+[Solver] <|-- [MonteCarloWanderer]
+[SingleStepScheme] <-- [ODE Solvers]
+
+[Experiment] --> [QuantumSystem]
+[Experiment] --> [Solver]
+[Experiment] --> [WorkSource]
+[Experiment] --> [JSON Writer]
+[Experiment] --> [CSV Writer]
+
+[ODE Solvers] --> [Physical Formulas]
+[MonteCarloWanderer] --> [Physical Formulas]
+
+[Utilities] --> [XML Parser]
+[Utilities] --> [Binary Number Utility]
+
+@enduml

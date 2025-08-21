@@ -1,0 +1,60 @@
+```plantuml
+@startuml IBM_spectrum-protect-sppmon
+skinparam rectangle {
+  BackgroundColor<<core>> #d9d9f9
+  BackgroundColor<<influx>> #d9f5d3
+  BackgroundColor<<grafana>> #fddddd
+  BackgroundColor<<sppcheck>> #f9d9d9
+  BackgroundColor<<connection>> #d9f9f9
+  BackgroundColor<<scripts>> #f9f9d9
+}
+
+actor User
+
+package "SPPMon Core Engine" <<core>> {
+  rectangle "sppmon.py" as SPPMonEntry
+  rectangle "sppmonMethods/*" as SPPMonMethods
+  SPPMonEntry --> SPPMonMethods : orchestrates
+}
+
+package "InfluxDB" <<influx>> {
+  rectangle "influx_client.py" as InfluxClient
+  rectangle "influx/*" as InfluxModules
+  SPPMonMethods --> InfluxClient : stores data
+  InfluxClient --> InfluxModules : interacts with
+}
+
+package "Grafana" <<grafana>> {
+  rectangle "Grafana Dashboards" as GrafanaDashboards
+  InfluxClient --> GrafanaDashboards : visualizes data
+}
+
+package "SPPCheck" <<sppcheck>> {
+  rectangle "sppcheck.py" as SPPCheckEntry
+  rectangle "sppCheck/*" as SPPCheckModules
+  SPPCheckEntry --> SPPCheckModules : handles analysis
+  SPPCheckEntry --> InfluxClient : stores reports
+}
+
+package "REST API & SSH Clients" <<connection>> {
+  rectangle "rest_client.py" as RestClient
+  rectangle "ssh_client.py" as SshClient
+  rectangle "api_queries.py" as ApiQueries
+  SPPMonMethods --> RestClient : uses for REST
+  SPPMonMethods --> SshClient : uses for SSH
+  ApiQueries --> RestClient : wraps
+}
+
+package "Installer & Config Scripts" <<scripts>> {
+  rectangle "installer.sh" as InstallerScript
+  rectangle "addConfigFile.py" as ConfigScript
+  rectangle "addCrontabConfig.py" as CrontabScript
+  User --> InstallerScript : automates install
+  InstallerScript --> ConfigScript : generates config
+  InstallerScript --> CrontabScript : sets cron jobs
+}
+
+User --> SPPMonEntry : triggers data collection
+User --> SPPCheckEntry : generates reports
+@enduml
+```

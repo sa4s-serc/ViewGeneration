@@ -1,0 +1,52 @@
+@startuml iceland2k14_Kangrand
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<crypto>> #d8f5d3
+  BackgroundColor<<compute>> #fddddd
+  BackgroundColor<<io>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Components" <<core>> {
+  rectangle "Kangaroo" as Kangaroo
+  rectangle "Main" as Main
+  rectangle "Thread" as Thread
+  rectangle "Timer" as Timer
+  Main --> Kangaroo
+  Kangaroo --> Thread
+  Kangaroo --> Timer
+}
+
+package "Cryptography" <<crypto>> {
+  rectangle "Secp256K1" as Secp256K1
+  rectangle "HashTable" as HashTable
+  rectangle "Int Arithmetic" as IntArith
+  Kangaroo --> Secp256K1
+  Kangaroo --> HashTable
+  Secp256K1 --> IntArith
+}
+
+package "Computation" <<compute>> {
+  rectangle "GPU Engine" as GPUEngine
+  rectangle "CPU Processing" as CPU
+  Kangaroo --> GPUEngine
+  Kangaroo --> CPU
+}
+
+package "I/O & Network" <<io>> {
+  rectangle "Network" as Network
+  rectangle "Backup" as Backup
+  rectangle "Workfile Merge" as Merge
+  Kangaroo --> Network
+  Kangaroo --> Backup
+  Kangaroo --> Merge
+}
+
+database "Work Files" as WorkFiles
+Backup --> WorkFiles
+Merge --> WorkFiles
+
+cloud "Clients" as Clients
+Network --> Clients
+@enduml

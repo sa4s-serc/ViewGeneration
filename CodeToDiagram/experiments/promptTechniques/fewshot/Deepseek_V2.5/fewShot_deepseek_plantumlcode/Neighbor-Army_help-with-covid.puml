@@ -1,0 +1,57 @@
+@startuml Neighbor-Army_help-with-covid
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<integration>> #fddddd
+  BackgroundColor<<auth>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend (Next.js)" <<frontend>> {
+  rectangle "Home Page" as Home
+  rectangle "Offer Help Form" as OfferHelp
+  rectangle "Request Help Page" as RequestHelp
+  rectangle "Address Input\n(Google Maps API)" as AddressInput
+}
+
+package "Backend (Firebase)" <<backend>> {
+  rectangle "Firebase Functions" as Functions
+  rectangle "Firestore Database" as Firestore
+  rectangle "Authentication" as FirebaseAuth
+}
+
+package "External Services" <<integration>> {
+  rectangle "Onfleet\nTask Management" as Onfleet
+  rectangle "SendGrid\nEmail" as SendGrid
+  rectangle "Twilio\nPhone/Zip Verification" as Twilio
+}
+
+package "Authentication Flow" <<auth>> {
+  rectangle "Cookie Session" as Cookie
+  rectangle "API Routes" as APIRoutes
+  rectangle "Auth Utilities" as AuthUtils
+}
+
+Home --> FirebaseAuth
+OfferHelp --> FirebaseAuth
+RequestHelp --> FirebaseAuth
+
+Home --> Functions
+OfferHelp --> Functions
+RequestHelp --> Functions
+AddressInput --> Functions
+
+Functions --> Firestore
+Functions --> Onfleet
+Functions --> SendGrid
+Functions --> Twilio
+
+FirebaseAuth --> Cookie
+Cookie --> APIRoutes
+APIRoutes --> AuthUtils
+AuthUtils --> FirebaseAuth
+
+AddressInput --> GoogleMapsAPI
+@enduml

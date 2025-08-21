@@ -1,0 +1,36 @@
+```plantuml
+@startuml IBM_logdna-cos
+
+participant "COS Bucket" as COS
+participant "Serverless Function" as Function
+participant "LogDNA API" as LogDNA
+participant "Archive COS Bucket" as Archive
+
+COS -> Function: Object Created Event
+activate Function
+
+Function -> COS: Download Log File
+COS --> Function: Log File (Zipped)
+
+Function -> Function: Unzip and Parse Logs
+Function -> Function: Format Logs for LogDNA
+
+loop For each batch (5000 logs)
+    Function -> LogDNA: Send Logs (POST)
+    alt Success
+        LogDNA --> Function: 200 OK
+    else Failure
+        LogDNA --> Function: Error
+        Function -> Function: Retry (3 attempts)
+    end
+end
+
+Function -> Archive: Copy Processed File
+Archive --> Function: Success
+Function -> COS: Delete Original File
+COS --> Function: Success
+
+deactivate Function
+
+@enduml
+```

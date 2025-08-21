@@ -1,0 +1,62 @@
+@startuml dsc-sookmyung_2023-mention-all-SolutionChallenge
+
+skinparam rectangle {
+  BackgroundColor #EEEBDC
+  BorderColor #333333
+  RoundCorner 20
+}
+
+cloud "Google Cloud Platform" {
+  rectangle "Google Kubernetes Engine" as GKE {
+    rectangle "Spring Boot Backend" as Backend {
+      [AuthService]
+      [EducationProgressService]
+      [DispatchService]
+      [AddressService]
+      [FirebaseCloudMessageUtil]
+    }
+  }
+  database "Cloud SQL" as CloudSQL
+  rectangle "Firebase" {
+    [Authentication]
+    [Realtime Database]
+    [Cloud Messaging]
+  }
+}
+
+rectangle "Android App" as AndroidApp {
+  [Kotlin Code]
+  [TensorFlow Lite]
+  [Google Maps SDK]
+  [Firebase SDK]
+}
+
+rectangle "iOS App" as iOSApp {
+  [Swift Code]
+  [TensorFlow Lite]
+  [Google Maps SDK]
+  [Firebase SDK]
+}
+
+actor User
+
+User --> AndroidApp
+User --> iOSApp
+
+AndroidApp --> Backend : REST API
+iOSApp --> Backend : REST API
+
+Backend --> CloudSQL : Data Persistence
+Backend --> [Authentication] : User Auth
+Backend --> [Realtime Database] : Real-time Data
+Backend --> [Cloud Messaging] : Push Notifications
+
+AndroidApp --> [Authentication] : User Auth
+AndroidApp --> [Realtime Database] : Real-time Data
+AndroidApp --> [Cloud Messaging] : Receive Notifications
+
+iOSApp --> [Authentication] : User Auth
+iOSApp --> [Realtime Database] : Real-time Data
+iOSApp --> [Cloud Messaging] : Receive Notifications
+
+@enduml

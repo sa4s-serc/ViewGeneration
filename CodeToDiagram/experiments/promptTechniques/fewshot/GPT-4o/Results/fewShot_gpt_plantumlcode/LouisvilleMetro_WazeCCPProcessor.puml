@@ -1,0 +1,52 @@
+```plantuml
+@startuml LouisvilleMetro_WazeCCPProcessor
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "Waze CCP Feed" as WazeFeed
+actor "API Consumer" as APIConsumer
+
+package "AWS Cloud" {
+  rectangle "S3 Bucket\n(Data Lake)" as S3Bucket #lightblue
+  rectangle "SQS Queue" as SQS #lightblue
+  rectangle "SNS Topic" as SNS #lightblue
+  rectangle "API Gateway" as APIGateway #lightblue
+  database "Aurora PostgreSQL" as AuroraDB #lightblue
+
+  rectangle "Lambda Functions" {
+    rectangle "waze-data-download" as DownloadLambda #lightgreen
+    rectangle "waze-data-process" as ProcessLambda #lightgreen
+    rectangle "waze-data-alerts-processing" as AlertsLambda #lightgreen
+    rectangle "waze-data-jams-processing" as JamsLambda #lightgreen
+    rectangle "waze-data-irregularities-processing" as IrregularitiesLambda #lightgreen
+    rectangle "waze-db-initialize" as DBInitializeLambda #lightgreen
+    rectangle "waze-data-api" as APILambda #lightgreen
+  }
+}
+
+WazeFeed --> DownloadLambda : Fetch Data
+DownloadLambda --> S3Bucket : Store JSON Files
+S3Bucket --> ProcessLambda : Trigger on New File
+
+ProcessLambda --> SQS : Queue Data Processing
+SQS --> AlertsLambda : Process Alerts
+SQS --> JamsLambda : Process Jams
+SQS --> IrregularitiesLambda : Process Irregularities
+
+AlertsLambda --> AuroraDB : Store Alerts
+JamsLambda --> AuroraDB : Store Jams
+IrregularitiesLambda --> AuroraDB : Store Irregularities
+
+DBInitializeLambda --> AuroraDB : Init & Update Schema
+
+APIConsumer --> APIGateway : API Requests
+APIGateway --> APILambda : Route Requests
+APILambda --> AuroraDB : Query Data
+
+ProcessLambda --> SNS : Notify Processing Status
+@enduml
+```

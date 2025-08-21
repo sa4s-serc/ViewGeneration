@@ -1,0 +1,61 @@
+```plantuml
+@startuml NeuralDev-io_arclytics_simcct
+
+!define RECTANGLE class
+
+skinparam component {
+  BackgroundColor<<Frontend>> LightBlue
+  BackgroundColor<<Backend>> LightGreen
+  BackgroundColor<<Database>> Yellow
+  BackgroundColor<<Cache>> Orange
+  BackgroundColor<<Logging>> Purple
+  BackgroundColor<<Monitoring>> Pink
+}
+
+cloud "Google Kubernetes Engine" {
+  [Kubernetes Cluster] as k8s
+
+  node "Frontend Pod" {
+    [React Client] <<Frontend>>
+  }
+
+  node "Backend Pods" {
+    [SimCCT Service] <<Backend>>
+    [Celery Worker] <<Backend>>
+  }
+
+  node "Database Pods" {
+    [MongoDB] <<Database>>
+    [Redis] <<Cache>>
+  }
+
+  node "Logging Pod" {
+    [Fluentd] <<Logging>>
+  }
+
+  node "Monitoring Pod" {
+    [Elastic APM] <<Monitoring>>
+  }
+
+  node "API Documentation" {
+    [Swagger] <<Frontend>>
+  }
+}
+
+cloud "External Services" {
+  [Elasticsearch] <<Database>>
+  [Kibana] <<Frontend>>
+}
+
+[React Client] --> [SimCCT Service] : REST API
+[SimCCT Service] --> [MongoDB] : Data Persistence
+[SimCCT Service] --> [Redis] : Caching & Session
+[SimCCT Service] --> [Celery Worker] : Async Tasks
+[Celery Worker] --> [Redis] : Message Queue
+[SimCCT Service] --> [Fluentd] : Logs
+[Fluentd] --> [Elasticsearch] : Log Storage
+[Kibana] --> [Elasticsearch] : Log Visualization
+[SimCCT Service] --> [Elastic APM] : Performance Monitoring
+
+@enduml
+```

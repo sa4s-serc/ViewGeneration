@@ -1,0 +1,32 @@
+```plantuml
+@startuml castle-finance_vault-transaction-indexer
+
+actor EventBridge as EB
+participant "index-transaction-ids Lambda" as L1
+participant SNS
+participant SQS
+participant "download-raw-transaction Lambda" as L2
+participant DynamoDB_Raw as DB1
+participant "normalize-raw-transaction Lambda" as L3
+participant DynamoDB_Normalized as DB2
+participant Solscan
+
+EB -> L1: Trigger index-transaction-ids
+L1 -> Solscan: Fetch transaction IDs
+Solscan -> L1: Return transaction IDs
+L1 -> SNS: Publish transaction IDs
+
+SNS ->> SQS: Send message with transaction IDs
+SQS ->> L2: Consume message
+
+L2 -> Solscan: Fetch raw transaction data
+Solscan -> L2: Return raw transaction data
+L2 -> DB1: Store raw transaction data
+
+DB1 -> L3: Trigger on data insert
+L3 -> DB1: Fetch raw data
+L3 -> L3: Normalize transaction data
+L3 -> DB2: Store normalized transaction data
+
+@enduml
+```

@@ -1,0 +1,48 @@
+```plantuml
+@startuml IBM_torc_py_scheduling_sequence
+
+actor User
+participant "Main Process (Rank 0)" as Main
+participant "Worker Process (Rank N)" as Worker
+participant "Server Thread" as Server
+participant "Task Queue (torc_q)" as Queue
+participant "Worker Thread" as WThread
+
+User -> Main: start() or launch()
+Main -> Server: Initialize server thread
+Server --> Main: Initialized
+Main -> Queue: Initialize task queue
+Queue --> Main: Initialized
+
+loop For each task
+    User -> Main: submit(task)
+    Main -> Server: Send task to workers
+    Server -> Worker: MPI_Send(task)
+    Worker -> Server: Receive task
+    Server -> Queue: Enqueue task
+    Queue --> Server: Task enqueued
+    Server -> WThread: Notify available task
+    WThread -> Queue: Dequeue task
+    Queue --> WThread: Task retrieved
+    WThread -> WThread: Execute task
+    alt If task completes
+        WThread -> Server: Send result
+        Server -> Main: MPI_Send(result)
+        Main -> User: Return result (via future)
+    else If task needs stealing
+        Worker -> Server: Request task steal
+        Server -> OtherWorker: MPI_Send(steal_request)
+        OtherWorker -> Server: MPI_Send(task)
+        Server -> Queue: Enqueue stolen task
+    end
+end
+
+User -> Main: shutdown()
+Main -> Server: Terminate
+Server -> Worker: MPI_Send(terminate)
+Worker -> Server: Cleanup
+Server --> Main: Terminated
+Main --> User: Shutdown complete
+
+@enduml
+```

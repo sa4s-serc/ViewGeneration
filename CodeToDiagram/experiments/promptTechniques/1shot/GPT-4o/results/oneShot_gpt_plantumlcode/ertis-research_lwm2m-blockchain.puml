@@ -1,0 +1,47 @@
+```plantuml
+@startuml ertis-research_lwm2m-blockchain
+
+actor User
+
+participant "Angular Anomaly App" as AngularApp
+participant "Spring Boot Backend" as Backend
+participant "Web3j" as Web3j
+participant "AnomalyStore Contract" as AnomalyContract
+participant "UserStore Contract" as UserContract
+participant "ClientStore Contract" as ClientContract
+participant "LwM2M Server" as LwM2MServer
+participant "Bootstrap Server" as BootstrapServer
+participant "LwM2M Client" as LwM2MClient
+
+User -> AngularApp: Access Anomaly Detection UI
+AngularApp -> Backend: Request Anomaly Data
+Backend -> Web3j: Interact with Smart Contracts
+Web3j -> AnomalyContract: Query Anomaly Data
+AnomalyContract --> Web3j: Return Anomaly Data
+Web3j --> Backend: Return Anomaly Data
+Backend --> AngularApp: Send Anomaly Data
+
+User -> AngularApp: Login
+AngularApp -> Backend: Validate User with JWT
+Backend -> Web3j: Validate User
+Web3j -> UserContract: Check User Credentials
+UserContract --> Web3j: Return Validation Result
+Web3j --> Backend: Return Validation Result
+Backend --> AngularApp: Send Validation Result
+
+AngularApp -> Backend: Register New LwM2M Client
+Backend -> Web3j: Register Client
+Web3j -> ClientContract: Add Client
+ClientContract --> Web3j: Confirm Registration
+Web3j --> Backend: Confirm Registration
+Backend --> AngularApp: Registration Confirmed
+
+LwM2MClient -> LwM2MServer: Send Data
+LwM2MServer -> BootstrapServer: Retrieve Security Info
+BootstrapServer -> ClientContract: Get Security Configs
+ClientContract --> BootstrapServer: Return Security Configs
+BootstrapServer --> LwM2MServer: Return Security Info
+LwM2MServer --> LwM2MClient: Acknowledge Data
+
+@enduml
+```

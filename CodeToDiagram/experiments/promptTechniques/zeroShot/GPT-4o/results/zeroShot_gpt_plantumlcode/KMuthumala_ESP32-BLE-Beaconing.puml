@@ -1,0 +1,41 @@
+```plantuml
+@startuml KMuthumala_ESP32-BLE-Beaconing
+
+actor User
+participant "ESP32" as ESP
+participant "BLE Devices" as BLE
+participant "WiFi Network" as WiFi
+participant "MQTT Broker" as MQTT
+
+User -> ESP: Start System
+ESP -> WiFi: Connect to WiFi
+WiFi -> ESP: Connection Established
+
+loop Continuous Scanning
+    ESP -> BLE: Scan for BLE devices
+    BLE -> ESP: Return MAC addresses and RSSI
+end
+
+ESP -> MQTT: Connect to MQTT Broker
+MQTT -> ESP: Connection Established
+
+loop Data Transmission
+    ESP -> MQTT: Publish BLE data in JSON format
+    MQTT -> ESP: Acknowledge Receipt
+end
+
+ESP -> MQTT: Subscribe to command topic
+MQTT -> ESP: Incoming Commands
+
+alt WiFi Connection Lost
+    ESP -> WiFi: Reconnect to WiFi
+    WiFi -> ESP: Reconnection Successful
+end
+
+alt MQTT Connection Lost
+    ESP -> MQTT: Reconnect to MQTT Broker
+    MQTT -> ESP: Reconnection Successful
+end
+
+@enduml
+```

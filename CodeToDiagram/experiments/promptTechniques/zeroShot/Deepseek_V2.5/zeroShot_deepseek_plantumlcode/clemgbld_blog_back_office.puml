@@ -1,0 +1,68 @@
+```plantuml
+@startuml clemgbld_blog_back_office
+
+package "Frontend" {
+    component "App" as App
+    component "Authentication" as Auth
+    component "ArticleManagement" as Articles
+    component "EmailManagement" as Emails
+    component "UIComponents" as UI
+    component "RichTextEditor" as Editor
+}
+
+package "State Management" {
+    component "ReduxStore" as Redux
+    component "ArticlesSlice" as ArticleSlice
+    component "AuthSlice" as AuthSlice
+    component "EmailsSlice" as EmailSlice
+}
+
+package "Infrastructure" {
+    component "APIService" as API
+    component "LocalStorage" as Storage
+    component "InMemoryServices" as Mock
+}
+
+package "External Services" {
+    component "BackendAPI" as Backend
+    component "PlateEditor" as Plate
+}
+
+' Connectivity relationships
+App --> Auth : uses
+App --> Articles : uses
+App --> Emails : uses
+App --> UI : uses
+App --> Editor : uses
+
+Auth --> Redux : dispatches actions
+Articles --> Redux : dispatches actions
+Emails --> Redux : dispatches actions
+
+Redux --> ArticleSlice : manages
+Redux --> AuthSlice : manages
+Redux --> EmailSlice : manages
+
+ArticleSlice --> API : fetches data
+AuthSlice --> API : authenticates
+EmailSlice --> API : fetches data
+AuthSlice --> Storage : persists session
+
+API --> Backend : HTTP requests
+Editor --> Plate : integrates
+
+' Optional mock connectivity
+API .down.> Mock : can be replaced\nfor testing
+
+note right of API
+    Implements ports/interfaces
+    for backend communication
+end note
+
+note left of Redux
+    Centralized state management
+    with dependency injection
+end note
+
+@enduml
+```

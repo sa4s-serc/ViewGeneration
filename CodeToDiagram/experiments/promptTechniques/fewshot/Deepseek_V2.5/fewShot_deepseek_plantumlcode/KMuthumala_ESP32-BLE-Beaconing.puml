@@ -1,0 +1,40 @@
+@startuml KMuthumala_ESP32-BLE-Beaconing
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+rectangle "ESP32" as ESP32 {
+  rectangle "WiFi Module" as WiFi
+  rectangle "BLE Scanner" as BLE
+  rectangle "MQTT Client" as MQTT
+  rectangle "JSON Formatter" as JSON
+}
+
+rectangle "WiFi Network" as WiFiNet
+rectangle "MQTT Broker" as Broker
+rectangle "Data Processor" as Processor
+
+BLE --> JSON : MAC, RSSI
+JSON --> MQTT : JSON Data
+MQTT --> WiFi : Publish
+WiFi --> WiFiNet : Connect
+WiFiNet --> Broker : Transmit
+Broker --> Processor : Subscribe
+
+note right of ESP32
+  Implicit FSM:
+  - Connected
+  - Scanning
+  - Publishing
+  - Reconnecting
+end note
+
+note right of Broker
+  Observer Pattern:
+  - ESP32 as Publisher
+  - Data Processor as Subscriber
+end note
+@enduml

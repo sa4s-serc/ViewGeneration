@@ -1,0 +1,48 @@
+Here's a PlantUML sequence diagram showing the deployment and data flow for the `fecgov_fec-eregs` system:
+
+```plantuml
+@startuml fecgov_fec-eregs
+
+actor User
+participant Frontend as "Frontend\n(Django Templates/JS)"
+participant Backend as "Backend\n(Django Application)"
+participant Database as "PostgreSQL\nDatabase"
+participant ElasticSearch
+participant CloudFoundry as "Cloud Foundry\n(cloud.gov)"
+participant CMS as "External CMS"
+
+== Deployment Phase ==
+User -> CloudFoundry: Trigger deployment (CF push)
+CloudFoundry -> Backend: Deploy application
+CloudFoundry -> Database: Provision PostgreSQL service
+CloudFoundry -> ElasticSearch: Provision ElasticSearch service
+Backend -> Database: Run migrations
+Backend -> ElasticSearch: Initialize indices
+
+== Data Flow Phase ==
+User -> Frontend: Access regulation page
+Frontend -> Backend: GET /regulation/[section]
+Backend -> Database: Query regulation data
+Database --> Backend: Return MPTT structure
+Backend -> ElasticSearch: Search supplements (if needed)
+ElasticSearch --> Backend: Return search results
+Backend --> Frontend: Render response
+
+Frontend -> CMS: Fetch CMS content (async)
+CMS --> Frontend: Return CMS data
+Frontend -> Frontend: Combine data and render
+
+User -> Frontend: Search regulations
+Frontend -> Backend: POST /search {query}
+Backend -> ElasticSearch: Full-text search
+ElasticSearch --> Backend: Return results
+Backend --> Frontend: Display results
+
+== Data Update Flow ==
+User -> Backend: Admin uploads new regulation
+Backend -> Database: Store new version
+Backend -> ElasticSearch: Update index
+Backend -> Database: Calculate diffs (regcore_diff)
+
+@enduml
+```

@@ -1,0 +1,36 @@
+@startuml IBM_datastax-cassandra-clickstream
+
+actor User
+participant "Next.js Frontend" as Frontend
+participant "Redux Store" as Redux
+participant "Next.js API Routes" as API
+participant "clicks.service.js" as ClicksService
+database "DSE/Cassandra" as Database
+
+User -> Frontend : Browses products
+Frontend -> API : GET /api/products
+API -> Frontend : Return product data
+Frontend -> ClicksService : trackPageBrowsing()
+ClicksService -> Database : Insert page view data
+
+User -> Frontend : Adds product to cart
+Frontend -> Redux : Dispatch add to cart action
+Redux -> API : POST /api/products (add to cart)
+API -> ClicksService : addToCart()
+ClicksService -> Database : Insert add to cart event
+
+User -> Frontend : Views clickstream history
+Frontend -> API : GET /api/history
+API -> ClicksService : getActivity()
+ClicksService -> Database : Query clickstream data
+Database --> ClicksService : Return clickstream data
+ClicksService --> API : Process data
+API --> Frontend : Return processed history
+Frontend --> User : Display clickstream history
+
+User -> Frontend : Signs in
+Frontend -> API : POST /api/auth/[...nextauth]
+API -> Frontend : Return authentication result
+Frontend -> Redux : Update user state
+
+@enduml

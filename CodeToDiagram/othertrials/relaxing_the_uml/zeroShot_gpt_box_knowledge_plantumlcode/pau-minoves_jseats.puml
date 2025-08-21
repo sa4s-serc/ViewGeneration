@@ -1,0 +1,66 @@
+@startuml
+package "org.jseats" {
+  class SeatAllocatorProcessor {
+    +process(Tally): Result
+  }
+
+  class ProcessorConfig {
+    +loadFromXML(file: String)
+  }
+
+  class SeatAllocatorResolver {
+    +resolveMethod(name: String): SeatAllocationMethod
+    +resolveFilter(name: String): TallyFilter
+    +resolveDecorator(name: String): ResultDecorator
+    +resolveTieBreaker(name: String): TieBreaker
+  }
+
+  package "model" {
+    class Candidate
+
+    class Tally {
+      +loadFromXML(file: String)
+      +addCandidate(candidate: Candidate)
+    }
+
+    class Result {
+    }
+
+    interface SeatAllocationMethod {
+      +allocate(Tally): Result
+    }
+    
+    interface TallyFilter {
+      +filter(Tally): Tally
+    }
+    
+    interface ResultDecorator {
+      +decorate(Result): Result
+    }
+    
+    interface TieBreaker {
+      +resolveTie(Tally): Candidate
+    }
+  }
+
+  SeatAllocatorProcessor --> ProcessorConfig : "uses"
+  SeatAllocatorProcessor --> SeatAllocatorResolver : "uses"
+  SeatAllocatorProcessor --> model.Tally : "processes"
+  SeatAllocatorProcessor --> model.Result : "produces"
+
+  SeatAllocatorResolver --> SeatAllocationMethod : "resolves"
+  SeatAllocatorResolver --> TallyFilter : "resolves"
+  SeatAllocatorResolver --> ResultDecorator : "resolves"
+  SeatAllocatorResolver --> TieBreaker : "resolves"
+
+  model.Tally --> model.Candidate : "contains"
+}
+
+package "org.jseats.cli" {
+  class SeatAllocatorLauncher {
+    +main(args: String[])
+  }
+  SeatAllocatorLauncher --> SeatAllocatorProcessor : "launches"
+}
+
+@enduml

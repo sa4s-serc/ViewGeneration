@@ -1,0 +1,44 @@
+@startuml hyeonsangjeon_youtube-dl-nas
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Web Interface" as WebUI {
+}
+
+rectangle "REST API" as API {
+}
+
+rectangle "youtube-dl-server.py" as Server {
+  rectangle "Download Queue" as Queue #palegreen
+  rectangle "Download Worker" as Worker #lightsteelblue
+  rectangle "WebSocket Handler" as WS #lightyellow
+}
+
+rectangle "External Services" as External {
+  rectangle "YouTube" as YouTube #aliceblue
+  rectangle "Proxy (if configured)" as Proxy #mistyrose
+}
+
+' ========== Connections ==========
+User --> WebUI : Submit download request\nLogin
+User --> API : REST calls (authenticated)
+
+WebUI --> Server : HTTP requests
+API --> Server : HTTP requests
+
+Server --> Queue : Add download task
+Queue --> Worker : Process next task
+Worker --> YouTube : Download video via yt-dlp/youtube-dl
+Worker --> Proxy : Optional proxy connection
+
+Server --> WS : Real-time updates
+WS --> WebUI : WebSocket messages
+
+Server --> Server : Daily update scheduler\n(yt-dlp/youtube-dl)
+@enduml

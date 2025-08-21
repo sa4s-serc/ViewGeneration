@@ -1,0 +1,60 @@
+```plantuml
+@startuml nrephi_jupyter-spark-hadoop-docker
+
+!define DOCKER_COMPOSE #FFD700
+!define SPARK #FF6347
+!define HADOOP #4682B4
+!define DATABASE #32CD32
+!define UI #9370DB
+
+skinparam component {
+    BackgroundColor<<Docker Compose>> DOCKER_COMPOSE
+    BackgroundColor<<Spark>> SPARK
+    BackgroundColor<<Hadoop>> HADOOP
+    BackgroundColor<<Database>> DATABASE
+    BackgroundColor<<UI>> UI
+    BorderColor #000000
+    ArrowColor #000000
+}
+
+component "Docker Host" <<Docker Compose>> {
+    component "JupyterLab" <<UI>> {
+        [Notebook Interface]
+    }
+
+    component "Spark Cluster" <<Spark>> {
+        component "Spark Master" <<Spark>> as master
+        component "Spark Worker 1" <<Spark>> as worker1
+        component "Spark Worker 2" <<Spark>> as worker2
+    }
+
+    component "Hadoop Ecosystem" <<Hadoop>> {
+        component "NameNode" <<Hadoop>> as namenode
+        component "DataNode" <<Hadoop>> as datanode
+        component "Hive Server" <<Hadoop>> as hiveserver
+        component "Hive Metastore" <<Hadoop>> as metastore
+        component "Hue" <<UI>> as hue
+    }
+
+    component "Databases" <<Database>> {
+        component "PostgreSQL" <<Database>> as postgres
+        component "MySQL" <<Database>> as mysql
+    }
+}
+
+[Notebook Interface] --> master : Submits Spark jobs
+master --> worker1 : Distributes tasks
+master --> worker2 : Distributes tasks
+
+namenode --> datanode : Manages HDFS
+hiveserver --> metastore : Queries metadata
+metastore --> postgres : Stores metadata
+hue --> mysql : Stores configuration
+hue --> namenode : Accesses HDFS
+hiveserver --> namenode : Accesses HDFS
+
+[Notebook Interface] --> namenode : Reads/Writes HDFS
+[Notebook Interface] --> hiveserver : Executes Hive queries
+
+@enduml
+```

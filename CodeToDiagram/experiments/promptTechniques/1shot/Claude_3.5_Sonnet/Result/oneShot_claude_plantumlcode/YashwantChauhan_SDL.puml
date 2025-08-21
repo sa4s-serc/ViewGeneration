@@ -1,0 +1,44 @@
+@startuml YashwantChauhan_SDL
+
+actor User
+participant "Web Browser" as Browser
+participant "Django Views" as Views
+participant "Django Models" as Models
+database "SQLite Database" as DB
+participant "ML Classifier" as ML
+
+User -> Browser: Access IDS website
+Browser -> Views: GET request
+
+alt User not authenticated
+    Views -> Browser: Show login/signup page
+    User -> Browser: Enter credentials
+    Browser -> Views: POST credentials
+    Views -> Models: Validate user
+    Models -> DB: Query user data
+    DB --> Models: Return user data
+    Models --> Views: User validated
+    Views -> Browser: Redirect to dashboard
+else User authenticated
+    Views -> Browser: Show dashboard
+end
+
+User -> Browser: Upload traffic file
+Browser -> Views: POST file
+Views -> Models: Process file
+Models -> ML: Classify traffic
+ML --> Models: Return classification
+Models -> DB: Save results
+DB --> Models: Confirm save
+Models --> Views: Return results
+Views -> Browser: Display results and recommendations
+
+User -> Browser: View history
+Browser -> Views: GET history
+Views -> Models: Fetch history
+Models -> DB: Query history data
+DB --> Models: Return history data
+Models --> Views: Return history
+Views -> Browser: Display history
+
+@enduml

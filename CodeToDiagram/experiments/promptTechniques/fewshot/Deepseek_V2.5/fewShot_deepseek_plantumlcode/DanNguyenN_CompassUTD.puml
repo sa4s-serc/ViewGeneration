@@ -1,0 +1,68 @@
+@startuml DanNguyenN_CompassUTD
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<api>> #d8f5d3
+  BackgroundColor<<inference>> #fff1c9
+  BackgroundColor<<tools>> #fddddd
+  BackgroundColor<<storage>> #d4f0f0
+  BackgroundColor<<external>> #e6e6fa
+  Style roundrect
+}
+
+package "Frontend" <<frontend>> {
+  [Chat UI] as ChatUI
+}
+
+package "API Layer" <<api>> {
+  [FastAPI] as FastAPI
+}
+
+package "Inference Layer" <<inference>> {
+  [CompassInference] as Inference
+  [Langchain Agent] as Langchain
+  [PaLM 2 LLM] as PaLM
+}
+
+package "Tool Layer" <<tools>> {
+  [Course Search] as CourseSearch
+  [Degree Search] as DegreeSearch
+  [General Search] as GeneralSearch
+  [Definition Lookup] as Definition
+  [RateMyProfessor] as RMP
+}
+
+package "Storage" <<storage>> {
+  [MongoDB] as MongoDB
+}
+
+package "External Services" <<external>> {
+  [UTD Catalog] as UTD
+  [RateMyProfessor API] as RMPAPI
+  [Google Search API] as Google
+}
+
+ChatUI --> FastAPI
+FastAPI --> Inference
+Inference --> Langchain
+Langchain --> PaLM
+Langchain --> CourseSearch
+Langchain --> DegreeSearch
+Langchain --> GeneralSearch
+Langchain --> Definition
+Langchain --> RMP
+
+CourseSearch --> UTD
+DegreeSearch --> UTD
+GeneralSearch --> Google
+Definition --> Google
+RMP --> RMPAPI
+
+FastAPI --> MongoDB
+Inference --> MongoDB
+
+note right of Inference
+  ReAct Pattern:
+  Reasoning → Action → Execution
+end note
+@enduml

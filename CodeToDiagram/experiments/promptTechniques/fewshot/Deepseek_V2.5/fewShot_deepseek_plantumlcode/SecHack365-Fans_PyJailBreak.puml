@@ -1,0 +1,42 @@
+@startuml SecHack365-Fans_PyJailBreak
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<integration>> #fddddd
+  BackgroundColor<<db>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend (Next.js/React)" <<frontend>> {
+  rectangle "UI Components" as UI
+  rectangle "Redux Toolkit" as Redux
+  rectangle "Zod Validation" as Zod
+  rectangle "Swagger UI" as Swagger
+  UI --> Redux
+  Redux --> Zod
+}
+
+package "Backend API" <<backend>> {
+  rectangle "Scan Execution" as ScanAPI
+  rectangle "Payload Management" as PayloadAPI
+  rectangle "Emulation Mode" as EmulationAPI
+}
+
+package "Target Server" <<integration>> {
+  rectangle "Python Server" as Target
+}
+
+database "Payload Storage" <<db>> as PayloadDB
+
+UI --> ScanAPI : Execute Scan
+UI --> PayloadAPI : Manage Payloads
+UI --> EmulationAPI : Toggle Emulation
+ScanAPI --> Target : Send Requests
+PayloadAPI --> PayloadDB : CRUD Operations
+EmulationAPI --> Target : Simulate Requests
+Swagger --> ScanAPI : API Docs
+Swagger --> PayloadAPI : API Docs
+Swagger --> EmulationAPI : API Docs
+@enduml

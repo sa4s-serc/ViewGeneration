@@ -1,0 +1,45 @@
+Here's a PlantUML sequence diagram representing the control flow of the IBM Cognos Analytics system based on the provided repository summary:
+
+```plantuml
+@startuml IBM_cognos-analytics-to-visualize-business-data
+
+actor User
+participant "Node.js Scripts" as NodeJS
+participant "CSV Files" as CSV
+database "Data Warehouse\n(Db2 or Netezza)" as DW
+participant "IBM Cognos Analytics" as Cognos
+
+User -> NodeJS: Run data generation scripts
+activate NodeJS
+
+NodeJS -> NodeJS: Generate sample business data
+NodeJS -> CSV: Write data to CSV files
+activate CSV
+
+NodeJS -> DW: Load data into warehouse
+activate DW
+CSV --> DW: Data ingestion
+deactivate CSV
+
+User -> Cognos: Connect to data warehouse
+activate Cognos
+
+Cognos -> DW: Establish connection
+DW --> Cognos: Connection established
+
+User -> Cognos: Create data modules
+Cognos -> DW: Query data
+DW --> Cognos: Return data
+
+User -> Cognos: Build dashboards and visualizations
+Cognos -> Cognos: Process and visualize data
+
+User -> Cognos: Analyze data
+Cognos --> User: Display interactive visualizations
+
+deactivate NodeJS
+deactivate DW
+deactivate Cognos
+
+@enduml
+```

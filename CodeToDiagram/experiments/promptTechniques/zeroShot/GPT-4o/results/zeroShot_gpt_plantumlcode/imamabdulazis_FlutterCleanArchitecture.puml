@@ -1,0 +1,84 @@
+```plantuml
+@startuml imamabdulazis_FlutterCleanArchitecture
+
+package "imamabdulazis_FlutterCleanArchitecture" {
+    
+    package "Core" {
+        [HttpClient]
+        [HttpRetrier]
+        [DeviceManager]
+        [ErrorHandling]
+        [UseCaseAbstractions]
+    }
+    
+    package "Data Layer" {
+        [RemoteDataSource]
+        [LocalDataSource]
+        [DataModels]
+        [RepositoryImplementations]
+    }
+    
+    package "Domain Layer" {
+        [Entities]
+        [UseCases]
+        [RepositoryInterfaces]
+    }
+    
+    package "Presentation Layer" {
+        [UIComponents]
+        [Screens]
+        [BloCs]
+    }
+    
+    package "Dependency Injection" {
+        [InjectionContainer]
+    }
+    
+    package "Firebase Integration" {
+        [FirebaseMessaging]
+    }
+    
+    package "Error Management" {
+        [SentryIntegration]
+    }
+    
+    package "Utilities" {
+        [Localization]
+        [ThemeManagement]
+        [SharedPreferences]
+        [Routing]
+    }
+
+    ' Define relationships
+    [HttpClient] --> [RemoteDataSource]
+    [HttpRetrier] --> [HttpClient]
+    [DeviceManager] --> [FirebaseMessaging]
+    [ErrorHandling] --> [SentryIntegration]
+    [UseCaseAbstractions] <.. [UseCases]
+    
+    [RemoteDataSource] --> [RepositoryImplementations]
+    [LocalDataSource] --> [RepositoryImplementations]
+    [DataModels] --> [RemoteDataSource]
+    [DataModels] --> [LocalDataSource]
+    
+    [Entities] <.. [DataModels]
+    [Entities] <.. [RepositoryInterfaces]
+    [UseCases] --> [RepositoryInterfaces]
+    
+    [UIComponents] <.. [Screens]
+    [BloCs] --> [UseCases]
+    [Screens] --> [BloCs]
+    
+    [InjectionContainer] --> [Core]
+    [InjectionContainer] --> [Data Layer]
+    [InjectionContainer] --> [Domain Layer]
+    [InjectionContainer] --> [Presentation Layer]
+    
+    [Localization] --> [Utilities]
+    [ThemeManagement] --> [Utilities]
+    [SharedPreferences] --> [Utilities]
+    [Routing] --> [Utilities]
+}
+
+@enduml
+```

@@ -1,0 +1,67 @@
+@startuml CMU-RERC-APT_tiramisu3-pr
+
+actor User
+participant "Mobile App" as App
+participant "Java Frontend" as Frontend
+participant "Backend" as Backend
+participant "Predictor" as Predictor
+database "DynamoDB" as DynamoDB
+database "Postgres" as Postgres
+queue "AWS SQS" as SQS
+
+User -> App : Open app
+activate App
+
+App -> Frontend : Request nearby routes
+activate Frontend
+Frontend -> DynamoDB : Fetch real-time data
+Frontend --> App : Return nearby routes
+deactivate Frontend
+
+User -> App : Select route
+App -> Frontend : Request route details
+activate Frontend
+Frontend -> DynamoDB : Fetch route data
+Frontend --> App : Return route details
+deactivate Frontend
+
+User -> App : Set alarm
+App -> Backend : Create alarm
+activate Backend
+Backend -> SQS : Queue alarm
+Backend --> App : Confirm alarm set
+deactivate Backend
+
+loop Periodic check
+    Backend -> SQS : Poll for alarms
+    activate Backend
+    Backend -> DynamoDB : Check real-time data
+    alt Alarm condition met
+        Backend -> App : Send notification
+    end
+    deactivate Backend
+end
+
+User -> App : Interact with app
+App -> Frontend : Log user interaction
+activate Frontend
+Frontend -> Postgres : Store interaction data
+deactivate Frontend
+
+App -> Predictor : Request route prediction
+activate Predictor
+Predictor -> Postgres : Fetch historical data
+Predictor -> App : Return predicted route
+deactivate Predictor
+
+App -> Frontend : Fetch personalized data
+activate Frontend
+Frontend -> DynamoDB : Get real-time data
+Frontend -> Postgres : Get user preferences
+Frontend --> App : Return personalized info
+deactivate Frontend
+
+User -> App : Close app
+deactivate App
+
+@enduml

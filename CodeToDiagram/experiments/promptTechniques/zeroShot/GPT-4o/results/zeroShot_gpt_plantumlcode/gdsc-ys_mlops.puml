@@ -1,0 +1,34 @@
+```plantuml
+@startuml gdsc-ys_mlops
+
+actor ML_Developer
+participant "Client-Side Tools" as Client
+participant "Nginx Reverse Proxy" as Nginx
+participant "MLflow Tracking Server" as MLflow
+participant "MySQL Database" as MySQL
+participant "AWS S3" as S3
+
+ML_Developer -> Client: Initiate Experiment Tracking
+Client -> MLflow: Log Experiment Details
+MLflow -> MySQL: Store Metadata
+MLflow -> S3: Upload Artifacts
+
+ML_Developer -> Client: Request Experiment Data
+Client -> Nginx: HTTP Request
+Nginx -> MLflow: Forward Request
+MLflow -> MySQL: Fetch Metadata
+MLflow -> S3: Retrieve Artifacts
+MLflow -> Nginx: Send Experiment Data
+Nginx -> Client: Forward Response
+
+ML_Developer -> Client: Deploy Model
+Client -> MLflow: Build Docker Image
+MLflow -> S3: Fetch Model Artifacts
+MLflow -> Docker: Build Container Image
+
+ML_Developer -> Client: Query Model Registry
+Client -> MLflow: REST API Call
+MLflow -> MySQL: Retrieve Model Information
+
+@enduml
+```

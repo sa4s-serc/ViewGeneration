@@ -1,0 +1,35 @@
+```plantuml
+@startuml ev2900_OpenSearch_Dashboard_Nginx_Proxy
+
+component "Public Internet" as internet {
+    [User]
+}
+
+component "AWS VPC" as vpc {
+    component "Public Subnet" as publicSubnet {
+        [Nginx Proxy Server] as nginx
+    }
+
+    component "Private Subnet" as privateSubnet {
+        [OpenSearch Dashboard] as opensearch
+    }
+}
+
+component "AWS Services" as aws {
+    [CloudFormation] as cf
+    [IAM] as iam
+    [EC2] as ec2
+    [VPC] as vpcService
+    [OpenSearch Service] as osService
+}
+
+internet --> nginx : HTTPS (443)
+nginx --> opensearch : HTTP (80)
+
+cf --> iam : Creates roles
+cf --> ec2 : Deploys instance
+cf --> vpcService : Configures network
+cf --> osService : Provisions domain
+
+@enduml
+```

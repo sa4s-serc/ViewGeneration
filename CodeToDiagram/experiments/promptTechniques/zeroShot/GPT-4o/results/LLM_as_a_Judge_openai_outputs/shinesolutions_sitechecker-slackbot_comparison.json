@@ -1,0 +1,205 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Master Lambda",
+        "description": "Handles main logic and coordination",
+        "boundaries": "AWS",
+        "position": "Top center"
+      },
+      {
+        "name": "Worker Lambdas",
+        "description": "Distributed across regions",
+        "boundaries": "AWS",
+        "position": "Bottom"
+      },
+      {
+        "name": "API Gateway",
+        "description": "Entry point for API requests",
+        "boundaries": "AWS",
+        "position": "Top center"
+      },
+      {
+        "name": "SiteChecker Bot",
+        "description": "Interacts with Slack",
+        "boundaries": "External",
+        "position": "Right"
+      },
+      {
+        "name": "Slack",
+        "description": "Communication platform",
+        "boundaries": "External",
+        "position": "Right"
+      },
+      {
+        "name": "User",
+        "description": "Interacts with the system",
+        "boundaries": "External",
+        "position": "Far right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "API Gateway",
+        "target": "Master Lambda",
+        "label": "Invoke",
+        "type": "Arrow"
+      },
+      {
+        "source": "Master Lambda",
+        "target": "Worker Lambdas",
+        "label": "Invoke",
+        "type": "Arrow"
+      },
+      {
+        "source": "SiteChecker Bot",
+        "target": "Slack",
+        "label": "Outgoing Webhook",
+        "type": "Arrow"
+      },
+      {
+        "source": "Slack",
+        "target": "User",
+        "label": "Interaction",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      "Worker Lambdas distributed across regions"
+    ],
+    "groups": [
+      {
+        "name": "AWS",
+        "components": [
+          "Master Lambda",
+          "Worker Lambdas",
+          "API Gateway"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "AWS Lambda Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Master Lambda Function",
+        "description": "Handles main logic and coordination",
+        "boundaries": "AWS",
+        "position": "Top left"
+      },
+      {
+        "name": "Worker Lambda Function",
+        "description": "Performs site checks",
+        "boundaries": "AWS",
+        "position": "Bottom left"
+      },
+      {
+        "name": "API Gateway",
+        "description": "Entry point for API requests",
+        "boundaries": "AWS",
+        "position": "Top center"
+      },
+      {
+        "name": "Slack",
+        "description": "Communication platform",
+        "boundaries": "External",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "API Gateway",
+        "target": "Master Lambda Function",
+        "label": "Invoke",
+        "type": "Arrow"
+      },
+      {
+        "source": "Master Lambda Function",
+        "target": "Worker Lambda Function",
+        "label": "Invoke",
+        "type": "Arrow"
+      },
+      {
+        "source": "Worker Lambda Function",
+        "target": "Slack",
+        "label": "Send Summary",
+        "type": "Arrow"
+      },
+      {
+        "source": "Slack",
+        "target": "API Gateway",
+        "label": "Outgoing Webhook",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "AWS",
+        "components": [
+          "Master Lambda Function",
+          "Worker Lambda Function",
+          "API Gateway"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": "AWS Lambda Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Master Lambda",
+      "Worker Lambdas",
+      "API Gateway",
+      "Slack"
+    ],
+    "unique_to_GroundTruth": [
+      "SiteChecker Bot",
+      "User"
+    ],
+    "unique_to_GeneratedImage": [],
+    "common_connectors": [
+      {
+        "source": "API Gateway",
+        "target": "Master Lambda",
+        "label": "Invoke"
+      },
+      {
+        "source": "Master Lambda",
+        "target": "Worker Lambdas",
+        "label": "Invoke"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "SiteChecker Bot",
+        "target": "Slack",
+        "label": "Outgoing Webhook"
+      },
+      {
+        "source": "Slack",
+        "target": "User",
+        "label": "Interaction"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Worker Lambda Function",
+        "target": "Slack",
+        "label": "Send Summary"
+      },
+      {
+        "source": "Slack",
+        "target": "API Gateway",
+        "label": "Outgoing Webhook"
+      }
+    ],
+    "explanation": "Both diagrams represent an AWS Lambda architecture involving Master and Worker Lambda functions, an API Gateway, and Slack integration. The GroundTruth diagram includes additional components like the SiteChecker Bot and User, which are not present in the GeneratedImage. The connectors in both diagrams show similar invocation patterns between the API Gateway and Lambda functions. However, the GroundTruth diagram includes a direct interaction between the SiteChecker Bot and Slack, while the GeneratedImage shows a summary being sent from the Worker Lambda to Slack. The GeneratedImage is rated 7 out of 10 for accuracy and completeness, as it captures the core architecture but lacks some components and interactions present in the GroundTruth.",
+    "Rating": 7
+  }
+}

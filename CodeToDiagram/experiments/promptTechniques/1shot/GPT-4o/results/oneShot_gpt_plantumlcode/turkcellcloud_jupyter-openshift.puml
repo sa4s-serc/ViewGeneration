@@ -1,0 +1,56 @@
+```plantuml
+@startuml turkcellcloud_jupyter-openshift
+skinparam rectangle {
+  BackgroundColor<<component>> #d9e7fd
+  BackgroundColor<<config>> #fddddd
+  BackgroundColor<<images>> #d8f5d3
+  BackgroundColor<<security>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "JupyterHub Deployment" <<component>> {
+  rectangle "JupyterHub" as JupyterHub
+  rectangle "JupyterLab" as JupyterLab
+  rectangle "KubeSpawner" as KubeSpawner
+  rectangle "LDAP Authenticator" as LDAPAuth
+  rectangle "Persistent Storage" as PersistentStorage
+  rectangle "Idle Server Culling" as IdleCulling
+
+  JupyterHub --> JupyterLab
+  JupyterHub --> KubeSpawner
+  JupyterHub --> LDAPAuth
+  JupyterHub --> PersistentStorage
+  JupyterHub --> IdleCulling
+}
+
+package "Configuration" <<config>> {
+  rectangle "OpenShift Template\n(template-jupyterhub.yaml)" as OSTemplate
+  rectangle "ConfigMap\n(configmap-jupyterhub.yaml)" as ConfigMap
+  rectangle "Network Policy\n(netpol-datascience.yaml)" as NetPolicy
+
+  OSTemplate --> JupyterHub
+  ConfigMap --> JupyterHub
+  NetPolicy --> JupyterHub
+}
+
+package "Custom Images" <<images>> {
+  rectangle "JupyterHub Image\n(Dockerfile)" as JHImage
+  rectangle "Notebook Image (CPU)\n(Dockerfile)" as NBImageCPU
+  rectangle "Notebook Image (GPU)\n(Dockerfile)" as NBImageGPU
+
+  JHImage --> JupyterHub
+  NBImageCPU --> JupyterHub
+  NBImageGPU --> JupyterHub
+}
+
+package "Security" <<security>> {
+  rectangle "Role-Based Access Control\n(RBAC)" as RBAC
+  rectangle "Profile-Based Resource\nAllocation" as ProfileResource
+
+  RBAC --> JupyterHub
+  ProfileResource --> KubeSpawner
+}
+
+@enduml
+```

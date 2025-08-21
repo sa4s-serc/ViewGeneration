@@ -1,0 +1,44 @@
+```plantuml
+@startuml kpantos_Azure-How-To
+skinparam rectangle {
+  BackgroundColor<<bot>> #d9e7fd
+  BackgroundColor<<kerberos>> #fddddd
+  BackgroundColor<<azure>> #d8f5d3
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Secure Bot Exposure with WAF" <<bot>> {
+  rectangle "Bot Application\n(Microsoft Bot Framework)" as BotApp
+  rectangle "Azure App Service" as AppService
+  rectangle "Azure Application Gateway" as AppGateway
+  rectangle "Web Application Firewall\n(WAF)" as WAF
+  rectangle "Let's Encrypt\n(SSL/TLS Certificates)" as LetsEncrypt
+  BotApp --> AppService
+  AppService --> AppGateway
+  AppGateway --> WAF
+  WAF --> LetsEncrypt
+}
+
+package "Kerberos Secured On-Prem API Exposure with APIM" <<kerberos>> {
+  rectangle "On-Premises API\n(Simulated in Azure)" as OnPremAPI
+  rectangle "Azure AD Application Proxy" as ADProxy
+  rectangle "Azure API Management\n(APIM)" as APIM
+  rectangle "Azure AD Connect" as ADConnect
+  rectangle "Service Principal Name\n(SPN)" as SPN
+  OnPremAPI --> ADProxy
+  ADProxy --> APIM
+  APIM --> ADConnect
+  APIM --> SPN
+}
+
+package "Azure Services" <<azure>> {
+  rectangle "Azure AD" as AzureAD
+  rectangle "Infrastructure as Code\n(ARM Templates)" as ARM
+  AzureAD --> ADProxy
+  AzureAD --> ADConnect
+  ARM --> OnPremAPI
+}
+
+@enduml
+```

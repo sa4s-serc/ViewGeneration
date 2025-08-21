@@ -1,0 +1,55 @@
+```plantuml
+@startuml s-sokolko_smev3_adapter_service
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "REST API" as API {
+  rectangle "smev_int/views.py\n(HTTP Handlers)" as Views #lightyellow
+}
+
+rectangle "SMEV3 Adapter" as Adapter #lightsteelblue {
+  rectangle "smev_int/adapter.py\n(Adapter Class)" as AdapterClass
+}
+
+rectangle "Business Logic" as Logic #aliceblue {
+  rectangle "smev_int/processors/query.py\n(QueryProcessor)" as QueryProcessor
+}
+
+rectangle "Data Access" as DataAccess #mistyrose {
+  rectangle "smev_int/models.py\n(Data Models)" as Models
+}
+
+rectangle "MongoDB" as MongoDB #palegreen
+
+rectangle "Schema Management" as SchemaMgmt #lavender {
+  rectangle "smev_int/schema_loader/\nLoader" as Loader
+}
+
+rectangle "SMEV3 System" as SMEV3 #lightgrey
+
+' ========== Connections ==========
+User --> API : Schedule Query\nGet Document
+
+' REST API interactions
+API --> Logic : Handle request
+Logic --> Adapter : Send Query to SMEV3
+Adapter --> SMEV3 : SOAP Request
+
+' SMEV3 response handling
+SMEV3 --> Adapter : SOAP Response
+Adapter --> Logic : Process Response
+Logic --> DataAccess : Save to MongoDB
+DataAccess --> MongoDB : Async Save Operation
+
+' Schema management
+Logic --> SchemaMgmt : Load XSDs
+SchemaMgmt --> AdapterClass : Validate against XSD
+
+@enduml
+```

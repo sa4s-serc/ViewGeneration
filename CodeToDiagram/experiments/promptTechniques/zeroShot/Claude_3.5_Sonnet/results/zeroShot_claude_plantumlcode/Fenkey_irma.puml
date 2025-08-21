@@ -1,0 +1,46 @@
+@startuml Fenkey_irma
+
+component "IRMA Framework" {
+    component "irmacall (C Engine)" {
+        [Request Handler]
+        [HTTP Client (Fetcher)]
+        [Key-Value Storage]
+        [Logging System]
+        [SMTP Support]
+        [Cryptography]
+        [Fuse (Circuit Breaker)]
+        [Buffer Management]
+        [Async DNS Resolution]
+    }
+
+    component "irmakit (C# Framework)" {
+        [Configuration System]
+        [Session Management]
+        [Request/Response Handling]
+        [Attribute-Driven Routing]
+        [Template Engine Integration]
+        [Utilities]
+        [Code Generation]
+    }
+
+    [FastCGI Interface]
+    [Mono Runtime]
+}
+
+[Web Server] --> [FastCGI Interface]
+[FastCGI Interface] --> [irmacall (C Engine)]
+[irmacall (C Engine)] --> [Mono Runtime]
+[Mono Runtime] --> [irmakit (C# Framework)]
+
+[Key-Value Storage] --> [Memcached]
+[Key-Value Storage] --> [Redis]
+
+[HTTP Client (Fetcher)] --> [External Services]
+
+[SMTP Support] --> [Email Server]
+
+[Configuration System] ..> [JSON Config Files] : reads
+
+[Template Engine Integration] --> [NVelocity]
+
+@enduml

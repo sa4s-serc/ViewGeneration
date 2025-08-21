@@ -1,0 +1,43 @@
+@startuml qunarcorp_m_adr_qapm_open_source
+
+actor Developer
+participant "Android App" as App
+participant "QAPM Library" as QAPM
+participant "Tracers" as Tracers
+participant "Storage" as Storage
+participant "Network Sender" as Sender
+participant "Remote Server" as Server
+
+Developer -> App : Integrates QAPM
+activate App
+
+App -> QAPM : Initialize
+activate QAPM
+
+QAPM -> Tracers : Start monitoring
+activate Tracers
+
+loop Application Lifecycle
+    App -> Tracers : Trigger events
+    Tracers -> Tracers : Collect metrics
+    Tracers -> Storage : Store data
+    activate Storage
+    Storage -> Storage : Persist metrics
+    deactivate Storage
+end
+
+QAPM -> Sender : Send collected data
+activate Sender
+Sender -> Server : Report metrics
+Server --> Sender : Acknowledge
+Sender --> QAPM : Confirm sent
+deactivate Sender
+
+Developer -> App : Review performance
+App -> QAPM : Request metrics
+QAPM -> Storage : Retrieve data
+Storage --> QAPM : Return metrics
+QAPM --> App : Display metrics
+App --> Developer : Show performance data
+
+@enduml

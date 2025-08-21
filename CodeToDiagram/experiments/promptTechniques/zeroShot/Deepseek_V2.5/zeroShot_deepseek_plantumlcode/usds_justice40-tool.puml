@@ -1,0 +1,34 @@
+```plantuml
+@startuml usds_justice40-tool
+
+actor User
+participant "Client App (React)" as Client
+participant "Data Pipeline (ETL)" as Pipeline
+participant "Scoring Engine" as Scoring
+participant "Map Tile Generator" as MapGen
+database "S3 Data Lake" as S3
+
+User -> Client: Interacts with map/interface
+Client -> Pipeline: Requests data (API call)
+Pipeline -> S3: Retrieves raw datasets
+S3 --> Pipeline: Returns raw data
+Pipeline -> Pipeline: Transforms data (ETL)
+Pipeline -> S3: Stores processed data
+Pipeline --> Client: Returns processed data
+
+Client -> Scoring: Requests community scores
+Scoring -> S3: Retrieves processed data
+S3 --> Scoring: Returns processed data
+Scoring -> Scoring: Calculates scores
+Scoring -> S3: Stores score results
+Scoring --> Client: Returns score results
+
+Client -> MapGen: Requests map tiles
+MapGen -> S3: Retrieves GeoJSON data
+S3 --> MapGen: Returns spatial data
+MapGen -> MapGen: Generates vector tiles
+MapGen --> Client: Returns map tiles
+
+Client -> Client: Renders UI with data/scores/tiles
+@enduml
+```

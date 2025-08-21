@@ -1,0 +1,47 @@
+```plantuml
+@startuml shinesolutions_sitechecker-slackbot
+skinparam rectangle {
+  BackgroundColor<<lambda>> #f0f8ff
+  BackgroundColor<<integration>> #e6ffe6
+  BackgroundColor<<worker>> #ffebcd
+  BackgroundColor<<master>> #cfe2f3
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Slack Bot System" {
+  
+  rectangle "Slack Outgoing Webhook" <<integration>> {
+    rectangle "Slack Command\n(Facade Pattern)" as SlackCommand
+    rectangle "Message Formatting\nand Parsing" as SlackFormatting
+  }
+  
+  rectangle "Master Lambda Function" <<master>> {
+    rectangle "API Gateway" as APIGateway
+    rectangle "Token Authentication" as Auth
+    rectangle "URL Extraction\nand Distribution" as URLDistribution
+    rectangle "Results Aggregation\nand Formatting" as Aggregation
+    SlackCommand --> APIGateway
+    APIGateway --> Auth
+    Auth --> URLDistribution
+    URLDistribution --> WorkerLambda
+    Aggregation --> SlackFormatting
+  }
+  
+  rectangle "Worker Lambda Functions" <<worker>> {
+    rectangle "HTTP Request\n(bagofrequest)" as HTTPRequest
+    rectangle "Return Status Code\nand Info" as StatusCode
+    URLDistribution --> HTTPRequest
+    HTTPRequest --> StatusCode
+    StatusCode --> Aggregation
+  }
+  
+  SlackFormatting --> SlackCommand
+}
+
+package "AWS Regions\n(Distributed Workers)" {
+  rectangle "Worker Lambda" <<worker>> as WorkerLambda
+}
+
+@enduml
+```

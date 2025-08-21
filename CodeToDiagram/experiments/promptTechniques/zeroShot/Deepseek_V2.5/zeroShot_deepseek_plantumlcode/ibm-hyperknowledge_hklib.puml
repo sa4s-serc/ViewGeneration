@@ -1,0 +1,116 @@
+```plantuml
+@startuml ibm-hyperknowledge_hklib
+
+package "Core Entity Layer" {
+    abstract class HKEntity {
+        +id: string
+        +type: string
+        +properties: Map<string, any>
+        +getProperty()
+        +setProperty()
+    }
+
+    class Node {
+        +interfaces: string[]
+    }
+
+    class Context {
+        +parent: Context
+    }
+
+    class Link {
+        +anchors: Anchor[]
+    }
+
+    class Connector {
+        +semantics: string
+    }
+
+    class Reference {
+        +target: HKEntity
+    }
+
+    class Trail {
+        +sequence: HKEntity[]
+    }
+
+    HKEntity <|-- Node
+    HKEntity <|-- Context
+    HKEntity <|-- Link
+    HKEntity <|-- Connector
+    HKEntity <|-- Reference
+    HKEntity <|-- Trail
+
+    class VirtualNode
+    class VirtualContext
+    class VirtualLink
+
+    Node <|-- VirtualNode
+    Context <|-- VirtualContext
+    Link <|-- VirtualLink
+}
+
+package "Data Access Layer" {
+    class HKDatasource {
+        +createRepository()
+        +deleteRepository()
+        +saveEntity()
+        +deleteEntity()
+        +queryHyQL()
+        +querySPARQL()
+    }
+
+    class HKObserverFactory {
+        +createObserver()
+    }
+
+    interface ObserverClient {
+        +subscribe()
+        +unsubscribe()
+    }
+
+    class RestObserverClient
+    class RabbitMQObserverClient
+
+    ObserverClient <|-- RestObserverClient
+    ObserverClient <|-- RabbitMQObserverClient
+}
+
+package "Utility Layer" {
+    class Hyperify {
+        +toHKGraph()
+    }
+
+    class Deserializer {
+        +fromJSON()
+    }
+
+    class GraphBuilder {
+        +createNode()
+        +createLink()
+    }
+
+    class FI {
+        +anchor: FIAnchor
+        +operator: FIOperator
+    }
+}
+
+package "External Data" {
+    class WordnetIntegration
+    class DBpediaIntegration
+}
+
+HKDatasource --> HKEntity : manages
+HKDatasource --> ObserverClient : notifies
+HKObserverFactory --> ObserverClient : creates
+HKEntity <-- Deserializer : deserializes
+HKEntity --> Hyperify : converts to
+GraphBuilder --> HKEntity : creates
+VirtualNode --> WordnetIntegration : uses
+VirtualNode --> DBpediaIntegration : uses
+Link --> Connector : uses
+Link --> Anchor : contains
+
+@enduml
+```

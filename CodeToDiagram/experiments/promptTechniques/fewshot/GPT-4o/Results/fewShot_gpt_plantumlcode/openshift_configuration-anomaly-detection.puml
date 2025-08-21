@@ -1,0 +1,52 @@
+```plantuml
+@startuml openshift_configuration-anomaly-detection
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "PagerDuty" as PD
+
+rectangle "OpenShift CAD System" {
+  rectangle "Tekton Interceptor" as Interceptor {
+    rectangle "Tekton Interceptor\nHTTP Service" as InterceptorService #lightblue
+    rectangle "Signature Verification\n& Alert Filtering" as InterceptorLogic #lightblue
+  }
+
+  rectangle "cadctl\n(Command-Line Tool)" as Cadctl {
+    rectangle "cadctl investigate\nSubcommand" as InvestigateCmd #lightgreen
+    rectangle "Alert Remediation\n& Pre-Investigation" as AlertLogic #lightgreen
+  }
+
+  rectangle "Investigations" as Investigations {
+    rectangle "Investigation Interface" as InvestigationInterface #lightyellow
+    rectangle "Ready Made Investigations" as ReadyMadeInvestigations #lightyellow
+  }
+  
+  rectangle "External Integrations" as ExternalSystems {
+    rectangle "OCM" as OCM #lightpink
+    rectangle "AWS" as AWS #lightpink
+    rectangle "Kubernetes" as Kubernetes #lightpink
+    rectangle "Network Verifier" as NetworkVerifier #lightpink
+    rectangle "PagerDuty API" as PagerDutyAPI #lightpink
+  }
+}
+
+PD --> InterceptorService : Alert Webhook
+InterceptorService --> InterceptorLogic : Validate & Filter Alert
+InterceptorLogic --> Cadctl : Trigger cadctl
+Cadctl --> InvestigateCmd : Execute Investigation
+InvestigateCmd --> InvestigationInterface : Select Investigation
+InvestigationInterface --> ReadyMadeInvestigations
+
+ReadyMadeInvestigations --> ExternalSystems : Interact with Systems
+ExternalSystems --> OCM
+ExternalSystems --> AWS
+ExternalSystems --> Kubernetes
+ExternalSystems --> NetworkVerifier
+ExternalSystems --> PagerDutyAPI
+
+@enduml
+```

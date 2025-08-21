@@ -1,0 +1,64 @@
+@startuml cordon-thiago_airflow-spark
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+
+package "Orchestration" {
+  rectangle "Apache Airflow" as airflow #lightblue
+  rectangle "DAGs" as dags #lightblue
+}
+
+package "Processing" {
+  rectangle "Spark Core" as spark_core #lightgreen
+  rectangle "Spark SQL" as spark_sql #lightgreen
+  rectangle "Spark MLlib" as spark_mllib #lightgreen
+  rectangle "Spark Streaming" as spark_streaming #lightgreen
+  rectangle "GraphX" as graphx #lightgreen
+}
+
+package "Data Sources" {
+  rectangle "CSV/JSON/Parquet" as files #pink
+  rectangle "Kafka" as kafka #pink
+  rectangle "PostgreSQL" as postgres #pink
+  rectangle "HDFS" as hdfs #pink
+}
+
+package "Infrastructure" {
+  rectangle "Kubernetes" as k8s #orange
+  rectangle "Docker" as docker #orange
+}
+
+package "Clients" {
+  rectangle "Jupyter Notebooks" as notebooks #violet
+  rectangle "R Language" as rlang #violet
+  rectangle "Scala/Java" as scala #violet
+  rectangle "Python" as python #violet
+}
+
+airflow --> dags
+dags --> spark_core
+dags --> spark_sql
+dags --> spark_mllib
+dags --> spark_streaming
+dags --> graphx
+
+spark_core --> files
+spark_core --> kafka
+spark_core --> postgres
+spark_core --> hdfs
+
+spark_sql --> postgres
+spark_streaming --> kafka
+spark_mllib --> files
+
+k8s --> docker
+docker --> spark_core
+
+notebooks --> spark_core
+rlang --> spark_core
+scala --> spark_core
+python --> spark_core
+@enduml

@@ -1,0 +1,46 @@
+```plantuml
+@startuml azuregomez_SecurePaaS
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam node {
+  BackgroundColor #d9e7fd
+  BorderColor black
+  Style roundrect
+}
+
+actor "Administrator" as Admin
+
+package "Azure Environment" {
+  node "VNet" {
+    node "App Service" as AppService {
+      [Web App]
+    }
+
+    node "Azure SQL Database" as SQLDatabase {
+      [SQL DB]
+    }
+  }
+
+  node "Azure Firewall" as Firewall
+
+  node "Web Application Firewall (WAF)" as WAF
+
+  rectangle "Azure Key Vault" as KeyVault
+
+  rectangle "Private Endpoint" as PrivateEndpoint
+
+  [Admin] --> AppService : Deploy & Manage
+  AppService --> WAF
+  AppService --> Firewall
+  Firewall --> SQLDatabase : Inspect Outbound Traffic
+  AppService --> PrivateEndpoint
+  SQLDatabase --> PrivateEndpoint
+  AppService --> KeyVault : Access Secrets
+}
+
+@enduml
+```

@@ -1,0 +1,278 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "TD Galaxy",
+        "description": "Makes sure the request goes to the right place",
+        "boundaries": "Hosted on Vercel",
+        "position": "Center"
+      },
+      {
+        "name": "TD Obos",
+        "description": "The event application system",
+        "boundaries": "Hosted on Heroku",
+        "position": "Top Right"
+      },
+      {
+        "name": "TD Gatekeeper",
+        "description": "The central authentication service for TD",
+        "boundaries": "Hosted on Heroku",
+        "position": "Middle Right"
+      },
+      {
+        "name": "TD Portal",
+        "description": "The events page",
+        "boundaries": "Hosted on Vercel",
+        "position": "Bottom Right"
+      },
+      {
+        "name": "TD Gigabrowser",
+        "description": "The static website",
+        "boundaries": "Hosted on Vercel",
+        "position": "Bottom Left"
+      },
+      {
+        "name": "PostgreSQL DB",
+        "description": "Database on Heroku",
+        "boundaries": "Circle",
+        "position": "Top Right"
+      },
+      {
+        "name": "MongoDB Cloud",
+        "description": "Cloud database",
+        "boundaries": "Circle",
+        "position": "Middle Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Your browser",
+        "target": "TD Galaxy",
+        "label": "HTTP Request/Response",
+        "type": "Bidirectional"
+      },
+      {
+        "source": "TD Galaxy",
+        "target": "TD Obos",
+        "label": "tamudatathon.com/app/**",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "TD Galaxy",
+        "target": "TD Gatekeeper",
+        "label": "tamudatathon.com/auth/**",
+        "type": "Bidirectional"
+      },
+      {
+        "source": "TD Galaxy",
+        "target": "TD Portal",
+        "label": "tamudatathon.com/events/**",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "TD Galaxy",
+        "target": "TD Gigabrowser",
+        "label": "tamudatathon.com/** (Fallback)",
+        "type": "Bidirectional"
+      },
+      {
+        "source": "TD Obos",
+        "target": "PostgreSQL DB",
+        "label": "Registration data",
+        "type": "Bidirectional"
+      },
+      {
+        "source": "TD Gatekeeper",
+        "target": "MongoDB Cloud",
+        "label": "User data",
+        "type": "Bidirectional"
+      }
+    ],
+    "annotations": [
+      "Because everything is under one domain cookies are shared",
+      "Bootstrapping an app is easy",
+      "All TD apps are platform/language agnostic"
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "TD_Architecture.png",
+      "title": "TD Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Router (Nginx)",
+        "description": "Routes requests to appropriate services",
+        "boundaries": "Galaxy System",
+        "position": "Center"
+      },
+      {
+        "name": "Gigabrowser",
+        "description": "Static website content",
+        "boundaries": "Galaxy System",
+        "position": "Bottom Left"
+      },
+      {
+        "name": "OBOS",
+        "description": "Event management services",
+        "boundaries": "Galaxy System",
+        "position": "Bottom Center"
+      },
+      {
+        "name": "Gatekeeper",
+        "description": "Provides auth services",
+        "boundaries": "Galaxy System",
+        "position": "Bottom Right"
+      },
+      {
+        "name": "User",
+        "description": "Accesses tamudatathon.com",
+        "boundaries": "Outside",
+        "position": "Top"
+      },
+      {
+        "name": "Docker",
+        "description": "Builds & runs",
+        "boundaries": "Cloud",
+        "position": "Top Right"
+      },
+      {
+        "name": "Heroku",
+        "description": "Hosts",
+        "boundaries": "Cloud",
+        "position": "Top Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Router (Nginx)",
+        "label": "Accesses tamudatathon.com",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "Router (Nginx)",
+        "target": "Gigabrowser",
+        "label": "Static website content",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "Router (Nginx)",
+        "target": "OBOS",
+        "label": "/obos/*",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "Router (Nginx)",
+        "target": "Gatekeeper",
+        "label": "/auth/*",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "Docker",
+        "target": "Heroku",
+        "label": "Builds & runs",
+        "type": "Bidirectional"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Galaxy System",
+        "description": "Logical grouping of core components"
+      }
+    ],
+    "metadata": {
+      "filename": "Galaxy_System.png",
+      "title": "Galaxy System"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Gigabrowser",
+      "OBOS",
+      "Gatekeeper"
+    ],
+    "unique_to_GroundTruth": [
+      "TD Galaxy",
+      "TD Portal",
+      "PostgreSQL DB",
+      "MongoDB Cloud"
+    ],
+    "unique_to_GeneratedImage": [
+      "Router (Nginx)",
+      "User",
+      "Docker",
+      "Heroku"
+    ],
+    "common_connectors": [
+      {
+        "source": "Router (Nginx)",
+        "target": "Gigabrowser",
+        "label": "Static website content",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "Router (Nginx)",
+        "target": "OBOS",
+        "label": "/obos/*",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "Router (Nginx)",
+        "target": "Gatekeeper",
+        "label": "/auth/*",
+        "type": "Unidirectional"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Your browser",
+        "target": "TD Galaxy",
+        "label": "HTTP Request/Response",
+        "type": "Bidirectional"
+      },
+      {
+        "source": "TD Galaxy",
+        "target": "TD Portal",
+        "label": "tamudatathon.com/events/**",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "TD Galaxy",
+        "target": "TD Gigabrowser",
+        "label": "tamudatathon.com/** (Fallback)",
+        "type": "Bidirectional"
+      },
+      {
+        "source": "TD Obos",
+        "target": "PostgreSQL DB",
+        "label": "Registration data",
+        "type": "Bidirectional"
+      },
+      {
+        "source": "TD Gatekeeper",
+        "target": "MongoDB Cloud",
+        "label": "User data",
+        "type": "Bidirectional"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "Router (Nginx)",
+        "label": "Accesses tamudatathon.com",
+        "type": "Unidirectional"
+      },
+      {
+        "source": "Docker",
+        "target": "Heroku",
+        "label": "Builds & runs",
+        "type": "Bidirectional"
+      }
+    ],
+    "explanation": "Both diagrams describe a system architecture for handling requests to tamudatathon.com. The GroundTruth diagram focuses on specific applications like TD Galaxy, TD Portal, and databases (PostgreSQL and MongoDB), highlighting how requests are routed and authenticated. The GeneratedImage diagram abstracts these into a 'Galaxy System' with a Router (Nginx) and emphasizes infrastructure components like Docker and Heroku. Common components include Gigabrowser, OBOS, and Gatekeeper, but the GroundTruth provides more detail on user interactions and data flow, while the GeneratedImage highlights infrastructure. The GeneratedImage is rated 7 out of 10 for capturing core components but lacking in detailed data flow and specific application interactions.",
+    "Rating": 7
+  }
+}

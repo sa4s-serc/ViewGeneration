@@ -1,0 +1,58 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "Attacker" as Attacker
+
+rectangle "Malware (induct)" as Malware {
+  rectangle "Network Communication\n(UDP/IRC)" as Network
+  rectangle "Custom VM\n(Encryption)" as VM
+  rectangle "Anti-Debugging" as AntiDebug
+  rectangle "File Encryption" as FileEncrypt
+  rectangle "Persistence\n(crontab)" as Persist
+}
+
+rectangle "SSHD Exploit" as SSHD {
+  rectangle "Core Dump Analysis" as CoreDump
+  rectangle "ECC Key Recovery" as ECC
+  rectangle "Shellcode Analysis" as Shellcode
+  rectangle "Smart Contract\nInteraction" as SmartContract
+}
+
+rectangle "Mobile App" as Mobile {
+  rectangle "Gesture Handling" as Gesture
+  rectangle "XOR Encryption" as XOR
+  rectangle "Device Info\nVerification" as DeviceInfo
+}
+
+cloud "Remote C2 Server" as C2
+database "Encrypted Files" as EncFiles
+database "BIOS/Disk Image" as BIOS
+database "Smart Contracts" as Contracts
+
+Attacker --> Malware
+Malware --> Network
+Network --> C2
+Malware --> VM
+VM --> FileEncrypt
+FileEncrypt --> EncFiles
+Malware --> AntiDebug
+Malware --> Persist
+
+Attacker --> SSHD
+SSHD --> CoreDump
+SSHD --> ECC
+SSHD --> Shellcode
+SSHD --> SmartContract
+SmartContract --> Contracts
+SSHD --> BIOS
+
+Attacker --> Mobile
+Mobile --> Gesture
+Mobile --> XOR
+Mobile --> DeviceInfo
+@enduml

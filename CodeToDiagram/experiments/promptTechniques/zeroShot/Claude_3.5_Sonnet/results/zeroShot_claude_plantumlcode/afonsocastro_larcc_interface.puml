@@ -1,0 +1,30 @@
+@startuml afonsocastro_larcc_interface
+
+skinparam componentStyle uml2
+
+[UR10e Control Interface] as UR10e
+[MoveIt! Integration] as MoveIt
+[Robot Kinematics] as Kinematics
+[LARCC Workcell Description] as Workcell
+[RealSense Camera Support] as RealSense
+[3D Model Definitions] as Models
+
+cloud "ROS" {
+  [ur_robot_driver]
+  [realsense2_camera]
+  [ur10e_moveit_config]
+}
+
+UR10e --> [ur_robot_driver]
+RealSense --> [realsense2_camera]
+MoveIt --> [ur10e_moveit_config]
+
+Kinematics --> MoveIt : Provides IK/FK solvers
+Workcell --> MoveIt : Defines work cell layout
+Models --> Workcell : Provides 3D meshes
+
+[ur_robot_driver] --> UR10e : Controls
+[realsense2_camera] --> RealSense : Manages
+[ur10e_moveit_config] --> MoveIt : Configures
+
+@enduml

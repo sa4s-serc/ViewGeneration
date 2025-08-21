@@ -1,0 +1,76 @@
+```plantuml
+@startuml WeBankFinTech_DeFiBus
+skinparam componentStyle rectangle
+skinparam linetype ortho
+
+package "DeFiBus Broker" {
+    component "DeFiBrokerController" as BrokerController
+    component "DeFiProducerManager" as ProducerManager
+    component "DeFiConsumerManager" as ConsumerManager
+    component "ConsumeQueueManager" as QueueManager
+    component "DeFiSendMessageProcessor" as SendProcessor
+    component "DeFiReplyMessageProcessor" as ReplyProcessor
+    component "DeFiAdminBrokerProcessor" as AdminProcessor
+    component "QueueListeningMonitor" as QueueMonitor
+    component "AdjustQueueNumStrategy" as QueueStrategy
+    component "MessageRedirectManager" as RedirectManager
+    component "DeFiPluginMessageStore" as PluginStore
+    component "DeFiPullMessageProcessor" as PullProcessor
+    component "ClientRebalanceResultManager" as RebalanceManager
+    component "DeFiTopicConfigManager" as TopicConfigManager
+    component "DeFiBusBroker2Client" as Broker2Client
+}
+
+package "RocketMQ Core" {
+    component "BrokerController" as RocketController
+    component "MessageStore" as RocketStore
+}
+
+RocketController <|-- BrokerController
+RocketStore <|-- PluginStore
+
+BrokerController --> ProducerManager
+BrokerController --> ConsumerManager
+BrokerController --> QueueManager
+BrokerController --> SendProcessor
+BrokerController --> ReplyProcessor
+BrokerController --> AdminProcessor
+BrokerController --> QueueMonitor
+BrokerController --> QueueStrategy
+BrokerController --> RedirectManager
+BrokerController --> PullProcessor
+BrokerController --> RebalanceManager
+BrokerController --> TopicConfigManager
+BrokerController --> Broker2Client
+
+QueueManager --> PluginStore
+QueueManager --> QueueStrategy
+QueueManager --> RedirectManager
+
+QueueStrategy --> ConsumerManager
+
+RedirectManager --> SendProcessor
+RedirectManager --> QueueManager
+
+note bottom of BrokerController
+    - Central controller managing components
+    - Extends RocketMQ's BrokerController
+end note
+
+note bottom of QueueManager
+    - Manages consumption queues
+    - Implements queue isolation and depth limits
+end note
+
+note bottom of PluginStore
+    - Decorator for RocketMQ's MessageStore
+    - Adds DeFiBus-specific functionalities
+end note
+
+note bottom of RedirectManager
+    - Manages message redirection
+    - Based on client IP and configuration
+end note
+
+@enduml
+```

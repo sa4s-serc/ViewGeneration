@@ -1,0 +1,44 @@
+```plantuml
+@startuml DanNguyenN_CompassUTD
+skinparam rectangle {
+  BackgroundColor<<api>> #d9e7fd
+  BackgroundColor<<inference>> #fddddd
+  BackgroundColor<<tools>> #d8f5d3
+  BackgroundColor<<webscraping>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "API Layer" <<api>> {
+  rectangle "FastAPI\nBackend" as FastAPI
+  rectangle "MongoDB\nStorage" as MongoDB
+  FastAPI --> MongoDB : "Store Chat History"
+}
+
+package "Inference Layer" <<inference>> {
+  rectangle "LLM Initialization" as LLM
+  rectangle "Langchain\nAgent" as Langchain
+  rectangle "Input Processing" as InputProcessing
+  FastAPI --> InputProcessing : "Handle Requests"
+  InputProcessing --> LLM : "Initialize LLMs"
+  LLM --> Langchain : "Configure & Run"
+}
+
+package "Tool Layer" <<tools>> {
+  rectangle "Course Search Tool" as CourseTool
+  rectangle "Degree Search Tool" as DegreeTool
+  rectangle "General Info Search Tool" as GeneralTool
+  rectangle "RateMyProfessor Tool" as RMPTool
+  Langchain --> CourseTool
+  Langchain --> DegreeTool
+  Langchain --> GeneralTool
+  Langchain --> RMPTool
+}
+
+package "Web Scraping Layer" <<webscraping>> {
+  rectangle "HTML & PDF\nText Extractor" as TextExtractor
+  Langchain --> TextExtractor : "Extract Text"
+}
+
+@enduml
+```

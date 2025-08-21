@@ -1,0 +1,34 @@
+```plantuml
+@startuml eProsima_FIWARE-SH
+
+actor Integration_Service
+participant SystemHandle
+participant NGSIV2Connector
+participant Listener
+participant Publisher
+participant Subscriber
+participant "FIWARE Context Broker" as FIWARE
+
+Integration_Service -> SystemHandle: Initialize
+SystemHandle -> NGSIV2Connector: Configure with YAML
+SystemHandle -> Listener: Start Listening on port
+SystemHandle -> Publisher: Create Publisher
+SystemHandle -> Subscriber: Create Subscriber
+
+activate Integration_Service
+
+note right of Integration_Service: Publishing data flow
+Integration_Service -> Publisher: Publish Data
+Publisher -> NGSIV2Connector: Convert xtypes to JSON
+NGSIV2Connector -> FIWARE: Send Data using NGSIv2 API
+
+note right of FIWARE: Receiving data flow
+FIWARE -> Listener: Push Notification
+Listener -> NGSIV2Connector: Forward Notification
+NGSIV2Connector -> Subscriber: Convert JSON to xtypes
+Subscriber -> Integration_Service: Deliver Data
+
+deactivate Integration_Service
+
+@enduml
+```

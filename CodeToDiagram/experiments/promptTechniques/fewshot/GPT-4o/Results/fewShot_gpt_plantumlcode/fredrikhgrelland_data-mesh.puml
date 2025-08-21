@@ -1,0 +1,63 @@
+```plantuml
+@startuml fredrikhgrelland_data-mesh
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "Developer"
+
+package "Vagrant Environment" {
+  rectangle "Vagrant" as Vagrant #lightgrey
+}
+
+package "Infrastructure as Code" {
+  rectangle "Terraform" as Terraform #lightblue
+  rectangle "Ansible" as Ansible #lightgreen
+}
+
+package "Service Orchestration" {
+  rectangle "Nomad" as Nomad #lightpink
+  rectangle "Nomad Jobs" as NomadJobs #lightpink
+}
+
+package "Service Mesh" {
+  rectangle "Consul" as Consul #lightyellow
+  rectangle "Consul Connect" as ConsulConnect #lightyellow
+}
+
+package "Data Services" {
+  rectangle "MinIO" as MinIO #lightblue
+  rectangle "Hive Metastore" as Hive #lightblue
+  rectangle "Presto" as Presto #lightblue
+  rectangle "SQLPad" as SQLPad #lightblue
+}
+
+package "Testing & CI/CD" {
+  rectangle "GitHub Actions" as GitHubActions #lightgrey
+}
+
+Developer --> Vagrant
+Vagrant --> Ansible
+Ansible --> Terraform
+Terraform --> Nomad
+Nomad --> NomadJobs
+
+NomadJobs --> MinIO
+NomadJobs --> Hive
+NomadJobs --> Presto
+NomadJobs --> SQLPad
+
+NomadJobs --> Consul
+Consul --> ConsulConnect
+
+MinIO --> ConsulConnect
+Hive --> ConsulConnect
+Presto --> ConsulConnect
+SQLPad --> ConsulConnect
+
+GitHubActions --> NomadJobs
+@enduml
+```

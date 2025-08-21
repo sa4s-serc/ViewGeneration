@@ -1,0 +1,69 @@
+```plantuml
+@startuml fecgov_fec-eregs
+skinparam rectangle {
+  BackgroundColor white
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+skinparam defaultTextAlignment center
+
+actor "Administrator" as Admin
+actor "User" as User
+
+package "Frontend" {
+  rectangle "Django Templates\n(SCSS, HTML)" as Templates
+  rectangle "JavaScript\n(Interacts with API)" as JS
+  rectangle "SCSS (Neat Grid)" as SCSS
+}
+
+package "Backend (Django)" {
+  rectangle "Views" as Views
+  rectangle "Models\n(PostgreSQL)" as Models
+  rectangle "Django Settings\n(Production, Development)" as Settings
+  rectangle "WSGI Entry Point" as WSGI
+  rectangle "API Layer" as API
+  rectangle "Extensions\n(eregs_extensions)" as Extensions
+}
+
+package "Data Stores" {
+  database "PostgreSQL\n(FEC Regulations)" as PostgreSQL
+  database "Elasticsearch\n(Keyword Search)" as Elasticsearch
+}
+
+package "Deployment" {
+  rectangle "Cloud Foundry\n(manifest_*.yml)" as CF
+  rectangle "Automation\n(tasks.py)" as Automation
+}
+
+package "CMS & External Services" {
+  rectangle "FEC CMS" as CMS
+  rectangle "External API" as ExternalAPI
+}
+
+Admin --> CF : Deploy
+Admin --> Automation : Automate Tasks
+User --> Templates : View Regulations
+User --> JS : Interact via API
+
+Templates --> Views
+Views --> Models
+Models --> PostgreSQL
+API --> Extensions
+Extensions --> API
+SCSS --> Templates
+
+Views --> API
+API --> PostgreSQL
+API --> Elasticsearch
+
+CMS --> Templates : Content
+ExternalAPI --> JS : Data Fetch
+
+Settings --> WSGI
+
+CF --> WSGI : Deployment
+Automation --> CF : Push Code
+Automation --> CF : Network Policies
+@enduml
+```

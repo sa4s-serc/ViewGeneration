@@ -1,0 +1,55 @@
+```plantuml
+@startuml onlybakam_reinvent2022-vote-app
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Next.js Frontend" as FE {
+  rectangle "pages/index.tsx" as Page
+}
+
+rectangle "AWS AppSync\n(GraphQL API)" as AppSync #lightblue {
+  rectangle "Mutations" as Mutations {
+    rectangle "AddVote" as AddVote
+  }
+  rectangle "Subscriptions" as Subscriptions {
+    rectangle "OnPlusOne" as OnPlusOne
+  }
+}
+
+rectangle "AWS Lambda\nResolvers" as Resolvers #lightgrey {
+  rectangle "publishToSNS" as PublishSNS
+  rectangle "saveToDynamodb" as SaveDynamoDB
+  rectangle "translateMessage" as TranslateMsg
+}
+
+rectangle "AWS DynamoDB" as DynamoDB #wheat
+rectangle "AWS SNS" as SNS #lightyellow
+rectangle "AWS Translate" as Translate #aliceblue
+
+' ========== Connections ==========
+User --> Page : vote (BR/CM) and select message
+
+' Frontend interactions
+Page --> AppSync : execute AddVote mutation
+
+' AppSync interactions
+AddVote --> Resolvers : trigger resolver pipeline
+Resolvers --> PublishSNS : publish vote event
+Resolvers --> SaveDynamoDB : save vote data
+Resolvers --> TranslateMsg : translate message
+
+PublishSNS --> SNS : publish event
+SaveDynamoDB --> DynamoDB : store vote
+
+' Subscriptions for real-time updates
+AppSync <--> Page : subscribe to OnPlusOne\n for vote updates
+
+TranslateMsg --> Translate : translate message to English
+@enduml
+```

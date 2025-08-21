@@ -1,0 +1,67 @@
+@startuml hypertrack_live-app-android
+skinparam rectangle {
+  BackgroundColor<<ui>> #d9e7fd
+  BackgroundColor<<logic>> #d8f5d3
+  BackgroundColor<<data>> #fff1c9
+  BackgroundColor<<external>> #fddddd
+  BackgroundColor<<sdk>> #d4f0f0
+}
+
+left to right direction
+
+actor User
+
+package "UI Layer" <<ui>> {
+  [Main Activity] as MainActivity
+  [Map View] as MapView
+  [Settings View] as SettingsView
+}
+
+package "Application Logic" <<logic>> {
+  [CognitoClient] as CognitoClient
+  [BackendClientFactory] as BackendFactory
+  [GeofenceApiAdapter] as GeofenceAdapter
+  [AccessTokenRepository] as TokenRepo
+}
+
+package "Backend Module" <<data>> {
+  [Backend API Client] as BackendClient
+  [Trip Model] as TripModel
+  [Place Model] as PlaceModel
+}
+
+package "External Services" <<external>> {
+  [AWS Cognito] as Cognito
+  [HyperTrack Trips API] as HyperTrackAPI
+  [Google Maps API] as MapsAPI
+  [Branch.io] as BranchIO
+}
+
+package "SDK Integration" <<sdk>> {
+  [HyperTrack SDK] as HyperTrackSDK
+}
+
+User --> MainActivity
+MainActivity --> MapView
+MainActivity --> SettingsView
+
+MainActivity --> CognitoClient
+MainActivity --> BackendFactory
+MainActivity --> GeofenceAdapter
+
+CognitoClient --> Cognito
+BackendFactory --> BackendClient
+BackendClient --> HyperTrackAPI
+GeofenceAdapter --> MapsAPI
+
+MainActivity --> HyperTrackSDK
+HyperTrackSDK --> MapsAPI
+
+MainActivity --> TokenRepo
+TokenRepo --> CognitoClient
+
+BackendClient --> TripModel
+BackendClient --> PlaceModel
+
+MainActivity --> BranchIO
+@enduml

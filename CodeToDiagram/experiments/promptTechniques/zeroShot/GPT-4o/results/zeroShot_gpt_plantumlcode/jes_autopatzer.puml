@@ -1,0 +1,51 @@
+```plantuml
+@startuml jes_autopatzer
+
+actor User
+participant "React UI" as UI
+participant "Electron App" as Electron
+participant "Lichess API" as Lichess
+participant "Arduino (Teensy)" as Teensy
+participant "Perl Script" as Perl
+participant "Stepper Motor Driver" as Motor
+participant "Hall Effect Sensors" as Sensors
+participant "CD4051B Multiplexer" as Multiplexer
+
+User -> UI: Open App
+UI -> Electron: Initialize
+Electron -> Lichess: Connect WebSocket
+Lichess --> Electron: Connection Established
+
+User -> UI: Start Game
+UI -> Electron: Fetch Board State
+Electron -> Lichess: Request Game State
+Lichess --> Electron: Deliver Game State
+Electron -> Perl: Process Game Data
+
+Perl -> Teensy: Send Movement Commands
+Teensy -> Motor: Move Piece
+Motor -> Sensors: Check Position
+Sensors -> Multiplexer: Send Sensor Data
+Multiplexer -> Teensy: Relay Sensor Data
+
+Teensy -> Perl: Report Piece Position
+Perl -> UI: Update Board State
+UI -> User: Display Updated Board
+
+User -> UI: Make Move
+UI -> Electron: Validate Move
+Electron -> Lichess: Send Move
+Lichess --> Electron: Confirm Move
+Electron -> Perl: Communicate Move
+
+Perl -> Teensy: Execute Move
+Teensy -> Motor: Move Piece
+Motor -> Sensors: Check Position
+Sensors -> Multiplexer: Send Sensor Data
+Multiplexer -> Teensy: Relay Sensor Data
+Teensy -> Perl: Confirm Position
+Perl -> UI: Update Board
+UI -> User: Show Move Confirmation
+
+@enduml
+```

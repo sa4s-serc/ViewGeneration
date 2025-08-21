@@ -1,0 +1,56 @@
+```plantuml
+@startuml opstree_OT-Microservices-Training
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Frontend" as FE {
+}
+
+rectangle "API Gateway\n(Spring Boot)" as Gateway #lightblue {
+}
+
+rectangle "Attendance Service\n(Golang + Gin)" as AttendanceService #lightsteelblue
+
+rectangle "Employee Service\n(Golang + Gin)" as EmployeeService #lightsteelblue
+
+rectangle "Salary Service\n(Golang + Gin)" as SalaryService #lightsteelblue
+
+rectangle "Notification Service\n(Python)" as NotificationService #lightyellow
+
+rectangle "Databases" as Databases #aliceblue {
+  rectangle "MySQL" as MySQL #lightgrey
+  rectangle "Elasticsearch" as Elasticsearch #lightgrey
+}
+
+rectangle "Webserver\n(Nginx)" as Webserver #lightcoral
+
+' ========== Connections ==========
+User --> FE
+
+' Frontend interactions
+FE --> Gateway : User requests
+
+' API Gateway interactions
+Gateway --> AttendanceService : Route to Attendance API
+Gateway --> EmployeeService : Route to Employee API
+Gateway --> SalaryService : Route to Salary API
+Gateway --> NotificationService : Route to Notification API
+
+' Service interactions
+AttendanceService --> MySQL : Store/Retrieve data
+EmployeeService --> MySQL : Store/Retrieve data
+SalaryService --> MySQL : Store/Retrieve salary data
+NotificationService --> Elasticsearch : Retrieve employee data
+NotificationService --> NotificationService : Send email notifications
+
+' Webserver interaction
+FE --> Webserver : Load UI components
+
+@enduml
+```

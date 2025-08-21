@@ -1,0 +1,53 @@
+@startuml 23fa-cpsc490_canyough
+
+skinparam component {
+  BackgroundColor<<core>> #DDEBF7
+  BackgroundColor<<service>> #E2F0D9
+  BackgroundColor<<data>> #FFF2CC
+}
+
+component "Product Mixer" <<core>> {
+  [ProductPipeline]
+  [MixerPipeline]
+  [RecommendationPipeline]
+  [CandidatePipeline]
+}
+
+component "Components" <<core>> {
+  [Candidate Sources]
+  [Feature Hydrators]
+  [Filters]
+  [Gates]
+  [Scorers]
+  [Transformers]
+  [Cursors]
+}
+
+component "Navi Serving Server" <<service>>
+component "Cr-Mixer" <<service>>
+component "Follow Recommendations Service (FRS)" <<service>>
+component "Home Mixer" <<service>>
+
+database "Data Sources" <<data>> {
+  [Manhattan]
+  [Memcached]
+  [Strato]
+}
+
+cloud "External Services" {
+  [User Signal Service]
+  [Real Graph]
+  [Earlybird]
+  [TweetyPie]
+}
+
+[Product Mixer] --> [Components] : uses
+[Cr-Mixer] --> [Product Mixer] : uses
+[Follow Recommendations Service (FRS)] --> [Product Mixer] : uses
+[Home Mixer] --> [Product Mixer] : uses
+
+[Components] --> [Navi Serving Server] : ML serving
+[Components] --> [Data Sources] : data access
+[Components] --> [External Services] : data fetching
+
+@enduml

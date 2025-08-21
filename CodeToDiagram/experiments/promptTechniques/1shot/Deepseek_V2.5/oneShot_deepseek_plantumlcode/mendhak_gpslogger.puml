@@ -1,0 +1,58 @@
+@startuml mendhak_gpslogger
+skinparam rectangle {
+  BackgroundColor<<ui>> #d9e7fd
+  BackgroundColor<<core>> #d8f5d3
+  BackgroundColor<<storage>> #fff1c9
+  BackgroundColor<<integration>> #fddddd
+  BackgroundColor<<config>> #e6d9fd
+}
+skinparam defaultTextAlignment center
+
+package "UI Layer" <<ui>> {
+  rectangle "Activities/Fragments" as UI
+  rectangle "Notifications" as Notifications
+  rectangle "Tasker Integration" as Tasker
+}
+
+package "Core Layer" <<core>> {
+  rectangle "GpsLoggingService" as Service
+  rectangle "Location Listeners" as Listeners
+  rectangle "Event Bus" as EventBus
+  rectangle "WorkManager" as WorkManager
+}
+
+package "Storage Layer" <<storage>> {
+  rectangle "FileLoggerFactory" as LoggerFactory
+  rectangle "File Loggers\n(GPX, KML, CSV)" as Loggers
+  rectangle "SharedPreferences" as Prefs
+}
+
+package "Integration Layer" <<integration>> {
+  rectangle "FileSender" as Sender
+  rectangle "Upload Workers\n(GoogleDrive, SFTP, etc)" as Workers
+  rectangle "OAuth Handlers" as OAuth
+}
+
+package "Configuration" <<config>> {
+  rectangle "AppSettings" as AppSettings
+  rectangle "PreferenceHelper" as PrefHelper
+}
+
+UI --> Service
+UI --> PrefHelper
+Service --> Listeners
+Listeners --> EventBus
+EventBus --> UI
+EventBus --> Notifications
+Service --> LoggerFactory
+LoggerFactory --> Loggers
+Loggers --> Storage
+PrefHelper --> Prefs
+AppSettings --> PrefHelper
+Service --> WorkManager
+WorkManager --> Workers
+Workers --> Sender
+Sender --> OAuth
+Sender --> ExternalServices
+Tasker --> Service
+@enduml

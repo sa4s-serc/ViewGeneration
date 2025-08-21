@@ -1,0 +1,49 @@
+@startuml SV-97_HumanResourceMachine
+skinparam componentStyle rectangle
+skinparam defaultTextAlignment center
+
+package "HRM Virtual Machine" {
+  [Tokenizer] as TK
+  [Translator/Assembler] as TA
+  [Bytecode Disassembler] as BD
+  [Virtual Machine] as VM
+  [Logger] as LOG
+
+  component "Input" {
+    [HRM Assembly Code] as ASM
+  }
+
+  component "Output" {
+    [Bytecode] as BC
+    [Execution Results] as RES
+  }
+
+  ASM --> TK : Tokenize
+  TK --> TA : Tokens
+  TA --> BC : Assemble
+  BC --> BD : Disassemble
+  BC --> VM : Execute
+  VM --> RES : Generate
+
+  LOG ..> TK : Log
+  LOG ..> TA : Log
+  LOG ..> BD : Log
+  LOG ..> VM : Log
+}
+
+note right of TK
+  Implemented in
+  Python and Rust
+end note
+
+note right of TA
+  Python: 2-step translation
+  Rust: Direct assembly
+end note
+
+note right of VM
+  Uses function pointers
+  for instruction dispatch
+end note
+
+@enduml

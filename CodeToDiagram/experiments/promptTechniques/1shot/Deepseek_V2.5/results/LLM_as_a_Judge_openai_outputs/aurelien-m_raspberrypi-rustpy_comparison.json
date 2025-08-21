@@ -1,0 +1,221 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "STM32",
+        "description": "Controls the motors and the LEDs\nWS2812 LED strip + HC-05 Bluetooth dongle",
+        "boundaries": "Rectangle",
+        "position": "Top"
+      },
+      {
+        "name": "RPi",
+        "description": "",
+        "boundaries": "Rectangle",
+        "position": "Middle"
+      },
+      {
+        "name": "Hardware control",
+        "description": "Full control of the demo.py script",
+        "boundaries": "Rectangle",
+        "position": "Inside RPi"
+      },
+      {
+        "name": "Web Server",
+        "description": "Rocket engine + Askama Templates",
+        "boundaries": "Rectangle",
+        "position": "Inside RPi"
+      },
+      {
+        "name": "Laptop/Smartphone/Tablet",
+        "description": "",
+        "boundaries": "Rectangle",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "STM32",
+        "target": "RPi",
+        "label": "Bluetooth connection",
+        "type": "Wireless"
+      },
+      {
+        "source": "Hardware control",
+        "target": "Web Server",
+        "label": "ZeroMQ Messaging",
+        "type": "Messaging"
+      },
+      {
+        "source": "Web Server",
+        "target": "Laptop/Smartphone/Tablet",
+        "label": "WebSocket",
+        "type": "WebSocket"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "RPi",
+        "components": [
+          "Hardware control",
+          "Web Server"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "diagram1.png",
+      "title": null
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Python Controller",
+        "description": "demo_controller_app.py, rpipy.py",
+        "boundaries": "Rectangle",
+        "position": "Middle"
+      },
+      {
+        "name": "Rust Hardware Library",
+        "description": "rppal GPIO",
+        "boundaries": "Rectangle",
+        "position": "Middle"
+      },
+      {
+        "name": "Raspberry Pi",
+        "description": "Set LED States",
+        "boundaries": "Rectangle",
+        "position": "Middle"
+      },
+      {
+        "name": "Rust Web Server",
+        "description": "Authentication, WebSocket Handler, Rocket Framework",
+        "boundaries": "Rectangle",
+        "position": "Middle"
+      },
+      {
+        "name": "Web Browser",
+        "description": "",
+        "boundaries": "Rectangle",
+        "position": "Left"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Web Browser",
+        "target": "Rust Web Server",
+        "label": "HTTP Requests (Login, Control Commands)",
+        "type": "HTTP"
+      },
+      {
+        "source": "Rust Web Server",
+        "target": "Python Controller",
+        "label": "Send Status Updates via ZMQ/Serial",
+        "type": "Messaging"
+      },
+      {
+        "source": "Python Controller",
+        "target": "Rust Hardware Library",
+        "label": "Call Hardware Functions",
+        "type": "Function Call"
+      },
+      {
+        "source": "Rust Hardware Library",
+        "target": "Raspberry Pi",
+        "label": "GPIO Control",
+        "type": "Control"
+      },
+      {
+        "source": "Raspberry Pi",
+        "target": "LEDs",
+        "label": "Set LED States",
+        "type": "Control"
+      },
+      {
+        "source": "Rust Web Server",
+        "target": "Web Browser",
+        "label": "WebSocket (Real-time Updates)",
+        "type": "WebSocket"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "diagram2.png",
+      "title": null
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Web Server",
+      "Raspberry Pi"
+    ],
+    "unique_to_GroundTruth": [
+      "STM32",
+      "Hardware control",
+      "Laptop/Smartphone/Tablet"
+    ],
+    "unique_to_GeneratedImage": [
+      "Python Controller",
+      "Rust Hardware Library",
+      "Web Browser",
+      "LEDs"
+    ],
+    "common_connectors": [
+      {
+        "source": "Web Server",
+        "target": "Web Browser",
+        "label": "WebSocket",
+        "type": "WebSocket"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "STM32",
+        "target": "RPi",
+        "label": "Bluetooth connection",
+        "type": "Wireless"
+      },
+      {
+        "source": "Hardware control",
+        "target": "Web Server",
+        "label": "ZeroMQ Messaging",
+        "type": "Messaging"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Web Browser",
+        "target": "Rust Web Server",
+        "label": "HTTP Requests (Login, Control Commands)",
+        "type": "HTTP"
+      },
+      {
+        "source": "Rust Web Server",
+        "target": "Python Controller",
+        "label": "Send Status Updates via ZMQ/Serial",
+        "type": "Messaging"
+      },
+      {
+        "source": "Python Controller",
+        "target": "Rust Hardware Library",
+        "label": "Call Hardware Functions",
+        "type": "Function Call"
+      },
+      {
+        "source": "Rust Hardware Library",
+        "target": "Raspberry Pi",
+        "label": "GPIO Control",
+        "type": "Control"
+      },
+      {
+        "source": "Raspberry Pi",
+        "target": "LEDs",
+        "label": "Set LED States",
+        "type": "Control"
+      }
+    ],
+    "explanation": "The two diagrams share some common components, such as the Web Server and Raspberry Pi, indicating a similar architectural purpose. However, the GroundTruth diagram includes an STM32 component and focuses on Bluetooth connections and ZeroMQ messaging, while the GeneratedImage diagram includes a Python Controller and Rust Hardware Library, emphasizing HTTP requests and GPIO control. The WebSocket connection is a common feature, but the specific implementation details differ. The GroundTruth diagram is simpler, focusing on high-level interactions, whereas the GeneratedImage diagram provides more detailed interactions and components. Based on accuracy, completeness, and similarity, the GeneratedImage is rated a 7 out of 10. It captures the core elements but differs in component details and connections.",
+    "Rating": 7
+  }
+}

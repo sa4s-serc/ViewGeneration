@@ -1,0 +1,48 @@
+@startuml arkaneshiro_Sound-Zone
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<storage>> #fddddd
+  BackgroundColor<<db>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend (React/Redux)" <<frontend>> {
+  rectangle "App Component" as App
+  rectangle "Sound Component" as Sound
+  rectangle "SoundBar" as SoundBar
+  rectangle "Upload Component" as Upload
+  rectangle "Auth Components" as Auth
+  rectangle "Redux Store" as Redux
+  rectangle "Router" as Router
+
+  App --> Sound
+  App --> SoundBar
+  App --> Upload
+  App --> Auth
+  App --> Redux
+  App --> Router
+}
+
+package "Backend (Node.js/Express)" <<backend>> {
+  rectangle "API Controllers" as Controllers
+  rectangle "Authentication" as AuthService
+  rectangle "Sound Service" as SoundService
+  rectangle "User Service" as UserService
+}
+
+package "Storage" <<storage>> {
+  rectangle "Cloudinary" as Cloudinary
+}
+
+database "PostgreSQL" <<db>> as DB
+
+App --> Controllers : HTTP Requests
+Controllers --> AuthService
+Controllers --> SoundService
+Controllers --> UserService
+SoundService --> Cloudinary : Upload/Retrieve
+UserService --> DB : CRUD Operations
+AuthService --> DB : User Auth
+@enduml

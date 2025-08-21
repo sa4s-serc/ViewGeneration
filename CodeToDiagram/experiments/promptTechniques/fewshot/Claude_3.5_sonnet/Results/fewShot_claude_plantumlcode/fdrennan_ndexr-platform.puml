@@ -1,0 +1,72 @@
+@startuml fdrennan_ndexr-platform
+skinparam component {
+  BackgroundColor LightGray
+  BorderColor Black
+}
+skinparam database {
+  BackgroundColor PaleGreen
+  BorderColor DarkGreen
+}
+skinparam cloud {
+  BackgroundColor LightBlue
+  BorderColor Blue
+}
+
+cloud "AWS" {
+  [EC2 Instances] as EC2
+  [S3] as S3
+  [SNS] as SNS
+}
+
+component "Data Ingestion" {
+  [PRAW (Python)] as PRAW
+}
+
+database "PostgreSQL" as PostgreSQL
+
+component "Data Processing" {
+  [Airflow] as Airflow
+  [Python Scripts] as PythonScripts
+  [R Scripts] as RScripts
+}
+
+component "API Layer" {
+  [R Plumber API] as PlumberAPI
+}
+
+component "User Interface" {
+  [Shiny App] as ShinyApp
+}
+
+component "Search" {
+  [Elasticsearch] as Elasticsearch
+}
+
+component "Monitoring" {
+  [Glances] as Glances
+}
+
+component "Infrastructure" {
+  [Docker] as Docker
+  [NGINX] as NGINX
+}
+
+PRAW --> PostgreSQL : Store data
+Airflow --> PRAW : Orchestrate data ingestion
+Airflow --> PythonScripts : Manage tasks
+Airflow --> RScripts : Manage tasks
+PythonScripts --> PostgreSQL : Process data
+RScripts --> PostgreSQL : Process data
+PlumberAPI --> PostgreSQL : Retrieve data
+ShinyApp --> PlumberAPI : Request data
+NGINX --> PlumberAPI : Load balance
+Docker --> PlumberAPI : Containerize
+Docker --> ShinyApp : Containerize
+Docker --> Airflow : Containerize
+EC2 --> Airflow : Host
+EC2 --> PostgreSQL : Host
+S3 <--> EC2 : Store/Retrieve data
+SNS <--> EC2 : Notifications
+Elasticsearch --> PostgreSQL : Index data
+Glances --> EC2 : Monitor
+@enduml

@@ -1,0 +1,336 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Electron",
+        "description": "Framework for building cross-platform desktop apps",
+        "position": "top-left"
+      },
+      {
+        "name": "React.js",
+        "description": "JavaScript library for building user interfaces",
+        "position": "middle-left"
+      },
+      {
+        "name": "Redux",
+        "description": "State management library",
+        "position": "bottom-left"
+      },
+      {
+        "name": "GitHub",
+        "description": "Platform for version control and collaboration",
+        "position": "bottom-left"
+      },
+      {
+        "name": "Sentry",
+        "description": "Error tracking tool",
+        "position": "top-right"
+      },
+      {
+        "name": "Matomo",
+        "description": "Web analytics platform",
+        "position": "bottom-right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Electron",
+        "target": "Sentry",
+        "label": "Remontées d'erreur",
+        "type": "data flow"
+      },
+      {
+        "source": "Electron",
+        "target": "Matomo",
+        "label": "Données d'usage",
+        "type": "data flow"
+      },
+      {
+        "source": "GitHub",
+        "target": "Electron",
+        "label": "Continuous Integration/Continuous Deployment",
+        "type": "process flow"
+      },
+      {
+        "source": "GitHub",
+        "target": "Electron",
+        "label": "Releases",
+        "type": "process flow"
+      },
+      {
+        "source": "GitHub",
+        "target": "Electron",
+        "label": "Issues/Pull requests",
+        "type": "process flow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Archifiltre",
+        "components": [
+          "Electron",
+          "React.js",
+          "Redux"
+        ],
+        "boundary": "yellow box"
+      }
+    ],
+    "metadata": {
+      "filename": "archifiltre_diagram.png",
+      "title": "Archifiltre Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "UI (React)",
+        "description": "User Interface built with React",
+        "position": "left"
+      },
+      {
+        "name": "Main Process (Electron)",
+        "description": "Main process handling core operations",
+        "position": "center-left"
+      },
+      {
+        "name": "Async Worker (Child Process)",
+        "description": "Handles asynchronous tasks",
+        "position": "center"
+      },
+      {
+        "name": "File System",
+        "description": "Handles file operations",
+        "position": "center-right"
+      },
+      {
+        "name": "Redux Store",
+        "description": "Stores application state",
+        "position": "right"
+      },
+      {
+        "name": "Export Service",
+        "description": "Handles export operations",
+        "position": "right"
+      },
+      {
+        "name": "Sentry",
+        "description": "Error tracking tool",
+        "position": "far-right"
+      },
+      {
+        "name": "Matomo",
+        "description": "Web analytics platform",
+        "position": "far-right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "UI (React)",
+        "label": "Load File System",
+        "type": "interaction"
+      },
+      {
+        "source": "UI (React)",
+        "target": "Main Process (Electron)",
+        "label": "ipc:load-filesystem",
+        "type": "message"
+      },
+      {
+        "source": "Main Process (Electron)",
+        "target": "Async Worker (Child Process)",
+        "label": "Start hash calculation",
+        "type": "message"
+      },
+      {
+        "source": "Async Worker (Child Process)",
+        "target": "Main Process (Electron)",
+        "label": "Hash results",
+        "type": "message"
+      },
+      {
+        "source": "Main Process (Electron)",
+        "target": "UI (React)",
+        "label": "Update state with files+hashes",
+        "type": "message"
+      },
+      {
+        "source": "User",
+        "target": "UI (React)",
+        "label": "Request Export (CSV/Excel/etc)",
+        "type": "interaction"
+      },
+      {
+        "source": "UI (React)",
+        "target": "Export Service",
+        "label": "Generate export",
+        "type": "message"
+      },
+      {
+        "source": "Export Service",
+        "target": "UI (React)",
+        "label": "Export file",
+        "type": "message"
+      },
+      {
+        "source": "UI (React)",
+        "target": "Sentry",
+        "label": "Report error",
+        "type": "message"
+      },
+      {
+        "source": "UI (React)",
+        "target": "Matomo",
+        "label": "Track user action",
+        "type": "message"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "[Error occurs]",
+        "context": "Alternative flow if an error occurs"
+      },
+      {
+        "text": "[Analytics enabled]",
+        "context": "Optional flow if analytics is enabled"
+      }
+    ],
+    "groups": [
+      {
+        "name": "Process Flow",
+        "components": [
+          "UI (React)",
+          "Main Process (Electron)",
+          "Async Worker (Child Process)",
+          "File System",
+          "Redux Store",
+          "Export Service"
+        ],
+        "boundary": "sequence diagram"
+      }
+    ],
+    "metadata": {
+      "filename": "sequence_diagram.png",
+      "title": "System Sequence Diagram"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Electron",
+      "React.js",
+      "Redux",
+      "Sentry",
+      "Matomo"
+    ],
+    "unique_to_GroundTruth": [
+      "GitHub"
+    ],
+    "unique_to_GeneratedImage": [
+      "UI (React)",
+      "Main Process (Electron)",
+      "Async Worker (Child Process)",
+      "File System",
+      "Redux Store",
+      "Export Service"
+    ],
+    "common_connectors": [
+      {
+        "source": "Electron",
+        "target": "Sentry",
+        "label": "Error reporting",
+        "type": "data/message flow"
+      },
+      {
+        "source": "Electron",
+        "target": "Matomo",
+        "label": "Usage data",
+        "type": "data/message flow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "GitHub",
+        "target": "Electron",
+        "label": "Continuous Integration/Continuous Deployment",
+        "type": "process flow"
+      },
+      {
+        "source": "GitHub",
+        "target": "Electron",
+        "label": "Releases",
+        "type": "process flow"
+      },
+      {
+        "source": "GitHub",
+        "target": "Electron",
+        "label": "Issues/Pull requests",
+        "type": "process flow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "UI (React)",
+        "label": "Load File System",
+        "type": "interaction"
+      },
+      {
+        "source": "UI (React)",
+        "target": "Main Process (Electron)",
+        "label": "ipc:load-filesystem",
+        "type": "message"
+      },
+      {
+        "source": "Main Process (Electron)",
+        "target": "Async Worker (Child Process)",
+        "label": "Start hash calculation",
+        "type": "message"
+      },
+      {
+        "source": "Async Worker (Child Process)",
+        "target": "Main Process (Electron)",
+        "label": "Hash results",
+        "type": "message"
+      },
+      {
+        "source": "Main Process (Electron)",
+        "target": "UI (React)",
+        "label": "Update state with files+hashes",
+        "type": "message"
+      },
+      {
+        "source": "User",
+        "target": "UI (React)",
+        "label": "Request Export (CSV/Excel/etc)",
+        "type": "interaction"
+      },
+      {
+        "source": "UI (React)",
+        "target": "Export Service",
+        "label": "Generate export",
+        "type": "message"
+      },
+      {
+        "source": "Export Service",
+        "target": "UI (React)",
+        "label": "Export file",
+        "type": "message"
+      },
+      {
+        "source": "UI (React)",
+        "target": "Sentry",
+        "label": "Report error",
+        "type": "message"
+      },
+      {
+        "source": "UI (React)",
+        "target": "Matomo",
+        "label": "Track user action",
+        "type": "message"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of the same system. The GroundTruth diagram focuses on the high-level architecture, showing components like Electron, React.js, Redux, and external services like Sentry and Matomo. It also includes GitHub as a source of CI/CD and version control processes. In contrast, the GeneratedImage is a sequence diagram detailing the interactions between components during specific operations, such as file loading and export processes. It includes additional components like the UI, Main Process, Async Worker, and Export Service, which are not explicitly shown in the GroundTruth diagram. While both diagrams share common components like Electron, React.js, Redux, Sentry, and Matomo, they differ in their focus and detail level. The GroundTruth diagram highlights the overall architecture and external integrations, whereas the GeneratedImage provides a detailed view of the process flow and interactions. Based on its accuracy and completeness, the GeneratedImage is rated 8 out of 10. It effectively complements the GroundTruth by providing detailed process flows but lacks the broader architectural context provided by the GroundTruth.",
+    "Rating": 8
+  }
+}

@@ -1,0 +1,34 @@
+Here's the PlantUML sequence diagram for the `s-sokolko_smev3_adapter_service` focusing on data flow:
+
+```plantuml
+@startuml s-sokolko_smev3_adapter_service
+participant Client
+participant "API Layer\n(views.py)" as API
+participant "Query Processor\n(query.py)" as Processor
+participant "SMEV3 Adapter\n(adapter.py)" as Adapter
+participant "Schema Loader\n(loader.py)" as Schema
+participant "MongoDB" as DB
+
+Client -> API: HTTP Request (POST /schedule_query)
+API -> Processor: Process request
+Processor -> Schema: Validate request schema
+Schema --> Processor: Validation result
+Processor -> Adapter: Send SOAP request
+Adapter -> SMEV3_System: SOAP call
+SMEV3_System --> Adapter: SOAP response
+Adapter --> Processor: Processed response
+Processor -> DB: Store request data
+DB --> Processor: Storage confirmation
+Processor --> API: Response data
+API -> Client: HTTP Response
+
+... Polling loop ...
+
+Processor -> Adapter: Check for responses
+Adapter -> SMEV3_System: Poll SOAP request
+SMEV3_System --> Adapter: SOAP response (if available)
+Adapter --> Processor: Processed response
+Processor -> DB: Update request status/data
+DB --> Processor: Storage confirmation
+@enduml
+```

@@ -1,0 +1,66 @@
+```plantuml
+@startuml imamabdulazis_FlutterCleanArchitecture
+
+skinparam componentStyle uml2
+skinparam monochrome true
+
+package "Presentation Layer" {
+    component "UI Widgets" as UI
+    component "BLoCs" as BLOC
+    component "Screens" as SCREENS
+}
+
+package "Domain Layer" {
+    component "Entities" as ENTITIES
+    component "Use Cases" as USECASES
+    component "Repository Interfaces" as REPO_IFACES
+}
+
+package "Data Layer" {
+    component "Repositories" as REPOS
+    component "Data Sources" as DATASOURCES
+    component "Models" as MODELS
+}
+
+package "Core" {
+    component "Networking" as NETWORK
+    component "Error Handling" as ERROR
+    component "Dependency Injection" as DI
+    component "Localization" as L10N
+    component "Theme Management" as THEME
+}
+
+UI --> BLOC : "State updates"
+BLOC --> USECASES : "Executes"
+USECASES --> REPO_IFACES : "Depends on"
+REPO_IFACES <|.. REPOS : "Implements"
+REPOS --> DATASOURCES : "Fetches from"
+DATASOURCES --> NETWORK : "Uses"
+DATASOURCES --> MODELS : "Converts to"
+MODELS --> ENTITIES : "Maps to"
+SCREENS --> UI : "Composes"
+SCREENS --> L10N : "Uses"
+SCREENS --> THEME : "Uses"
+DI --> REPOS : "Provides"
+DI --> DATASOURCES : "Provides"
+DI --> NETWORK : "Provides"
+ERROR --> NETWORK : "Handles"
+ERROR --> USECASES : "Handles"
+
+note right of NETWORK
+  Uses Dio with retry mechanism
+  for network requests
+end note
+
+note left of DI
+  Configured with get_it
+  for dependency injection
+end note
+
+note bottom of USECASES
+  Implements business logic
+  following Clean Architecture
+end note
+
+@enduml
+```

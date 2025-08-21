@@ -1,0 +1,37 @@
+@startuml oovk_dataengg-covid19-aws
+
+actor "Data Engineer" as DE
+
+participant "AWS Open Data Registry" as OpenData
+participant "S3 Data Lake" as S3
+participant "AWS Athena" as Athena
+participant "Jupyter Notebook" as Jupyter
+participant "Pandas" as Pandas
+participant "Amazon Redshift" as Redshift
+
+DE -> Jupyter : Run ETL process
+activate Jupyter
+
+Jupyter -> OpenData : Extract COVID-19 datasets
+OpenData --> S3 : Store raw data
+S3 --> Athena : Query raw data
+Athena --> Jupyter : Return query results
+
+Jupyter -> Pandas : Transform data
+activate Pandas
+Pandas -> Pandas : Merge datasets
+Pandas -> Pandas : Convert data types
+Pandas -> Pandas : Engineer features
+Pandas --> Jupyter : Return transformed data
+deactivate Pandas
+
+Jupyter -> Jupyter : Create dimensional model
+Jupyter -> S3 : Save transformed data as CSV
+
+Jupyter -> Redshift : Generate CREATE TABLE statements
+Jupyter -> Redshift : Load data into tables
+
+Jupyter --> DE : ETL process complete
+deactivate Jupyter
+
+@enduml

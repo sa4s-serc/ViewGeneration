@@ -1,0 +1,40 @@
+```plantuml
+@startuml xydo1990_mlops_zoomcamp_homework
+
+actor User
+participant "Batch Prediction Service" as BatchService
+participant "Stream Prediction Service" as StreamService
+participant "Prefect Orchestrator" as Prefect
+participant "MLflow Model Registry" as MLflow
+participant "Evidently Monitoring" as Evidently
+database "MongoDB" as MongoDB
+
+User -> BatchService: Submit batch prediction request
+BatchService -> MLflow: Fetch production model
+MLflow --> BatchService: Return model
+BatchService -> MongoDB: Load input data
+MongoDB --> BatchService: Return data
+BatchService -> BatchService: Perform predictions
+BatchService -> Evidently: Log predictions for monitoring
+Evidently --> BatchService: Acknowledge
+BatchService --> User: Return predictions
+
+User -> StreamService: Submit streaming prediction request
+StreamService -> MLflow: Fetch production model
+MLflow --> StreamService: Return model
+StreamService -> StreamService: Process stream
+StreamService -> Evidently: Continuously monitor predictions
+Evidently --> StreamService: Acknowledge
+StreamService --> User: Stream predictions
+
+Prefect -> BatchService: Trigger scheduled batch prediction
+BatchService -> MLflow: Fetch production model
+MLflow --> BatchService: Return model
+BatchService -> MongoDB: Load input data
+MongoDB --> BatchService: Return data
+BatchService -> BatchService: Perform predictions
+BatchService -> Evidently: Log predictions for monitoring
+Evidently --> BatchService: Acknowledge
+
+@enduml
+```

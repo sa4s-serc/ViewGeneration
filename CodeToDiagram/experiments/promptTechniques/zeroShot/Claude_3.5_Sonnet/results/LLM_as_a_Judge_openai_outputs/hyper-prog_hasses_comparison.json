@@ -1,0 +1,199 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Client A",
+        "description": "Wants to subscribe to 'tree' and 'all' typed sse events",
+        "boundaries": "Blue box",
+        "position": "Left"
+      },
+      {
+        "name": "Client B",
+        "description": "Wants to subscribe to 'plate' and 'all' typed sse events",
+        "boundaries": "Blue box",
+        "position": "Bottom left"
+      },
+      {
+        "name": "Server machine",
+        "description": "URL: yourserver.com",
+        "boundaries": "Gray box",
+        "position": "Right"
+      },
+      {
+        "name": "Webserver",
+        "description": "Listen on 80 port, Serve the: /index.php",
+        "boundaries": "Orange box",
+        "position": "Inside Server machine"
+      },
+      {
+        "name": "HASSES",
+        "description": "SSE daemon, Listen on 8080 port",
+        "boundaries": "Orange box",
+        "position": "Inside Server machine"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Client A",
+        "target": "Webserver",
+        "label": "http://yourserver.com/index.php",
+        "type": "HTTP request"
+      },
+      {
+        "source": "Client B",
+        "target": "Webserver",
+        "label": "http://yourserver.com/index.php",
+        "type": "HTTP request"
+      },
+      {
+        "source": "Client A",
+        "target": "HASSES",
+        "label": "http://yourserver.com:8080/sse-event?subscribe=tree-all",
+        "type": "SSE request"
+      },
+      {
+        "source": "Client B",
+        "target": "HASSES",
+        "label": "http://yourserver.com:8080/sse-event?subscribe=plate-all",
+        "type": "SSE request"
+      }
+    ],
+    "annotations": [
+      "The connection between the webserver php codes and hasses: Write to network or fifo file",
+      "Control channel (Tcp port 8085 or FIFO) message example strings"
+    ],
+    "groups": [
+      {
+        "name": "Server Components",
+        "components": [
+          "Webserver",
+          "HASSES"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Server-Sent Events Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Web Client",
+        "description": "Represents the client making HTTP requests",
+        "boundaries": "Actor symbol",
+        "position": "Left"
+      },
+      {
+        "name": "Web Server",
+        "description": "Apache/Nginx handling HTTP requests",
+        "boundaries": "Box",
+        "position": "Center"
+      },
+      {
+        "name": "hasses Server",
+        "description": "Handles SSE connections",
+        "boundaries": "Box",
+        "position": "Center right"
+      },
+      {
+        "name": "Client Data Store",
+        "description": "Stores client connections",
+        "boundaries": "Cylinder",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Web Client",
+        "target": "Web Server",
+        "label": "HTTP Request",
+        "type": "Arrow"
+      },
+      {
+        "source": "Web Server",
+        "target": "hasses Server",
+        "label": "Forward SSE Request",
+        "type": "Arrow"
+      },
+      {
+        "source": "hasses Server",
+        "target": "Client Data Store",
+        "label": "Store Client Connection",
+        "type": "Arrow"
+      },
+      {
+        "source": "hasses Server",
+        "target": "Web Client",
+        "label": "SSE Handshake Response",
+        "type": "Dashed Arrow"
+      }
+    ],
+    "annotations": [
+      "Event Loop: Send Message via FIFO/TCP",
+      "For each subscribed client: Send SSE Message"
+    ],
+    "groups": [
+      {
+        "name": "Event Handling",
+        "components": [
+          "Web Server",
+          "hasses Server"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedDiagram.png",
+      "title": "SSE Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Web Server",
+      "hasses Server"
+    ],
+    "unique_to_GroundTruth": [
+      "Client A",
+      "Client B",
+      "Server machine",
+      "Webserver"
+    ],
+    "unique_to_GeneratedImage": [
+      "Web Client",
+      "Client Data Store"
+    ],
+    "common_connectors": [
+      {
+        "source": "Web Client",
+        "target": "Web Server",
+        "label": "HTTP Request"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Client A",
+        "target": "HASSES",
+        "label": "http://yourserver.com:8080/sse-event?subscribe=tree-all"
+      },
+      {
+        "source": "Client B",
+        "target": "HASSES",
+        "label": "http://yourserver.com:8080/sse-event?subscribe=plate-all"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Web Server",
+        "target": "hasses Server",
+        "label": "Forward SSE Request"
+      },
+      {
+        "source": "hasses Server",
+        "target": "Client Data Store",
+        "label": "Store Client Connection"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on specific client subscriptions and the interaction between clients and the server components, including detailed paths and control channels. The GeneratedImage diagram abstracts the architecture into a more general flow, emphasizing the roles of web servers and SSE handling without specific client details. Both diagrams share common components like the Web Server and hasses Server, but differ in their depiction of client interactions and data storage. The GroundTruth diagram provides a more detailed view of client-specific paths, while the GeneratedImage diagram offers a broader architectural perspective. Rating: 7/10. The GeneratedImage captures the overall architecture but lacks specific client interactions and details present in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

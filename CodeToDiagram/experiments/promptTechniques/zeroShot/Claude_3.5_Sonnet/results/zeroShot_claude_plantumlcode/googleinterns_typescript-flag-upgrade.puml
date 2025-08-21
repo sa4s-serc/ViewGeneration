@@ -1,0 +1,58 @@
+@startuml googleinterns_typescript-flag-upgrade
+
+[CLI Entry Point] as CLI
+[Runner] as Runner
+[Parser] as Parser
+[ErrorDetector] as ErrorDetector
+[Manipulator] as Manipulator
+[Emitter] as Emitter
+[Logger] as Logger
+[Utility Functions] as Util
+
+CLI --> Runner : initiates
+Runner --> Parser : uses
+Runner --> ErrorDetector : uses
+Runner --> Manipulator : uses
+Runner --> Emitter : uses
+Runner --> Logger : uses
+
+Parser --> Util : uses
+ErrorDetector --> Util : uses
+Manipulator --> Util : uses
+Emitter --> Util : uses
+
+package "Manipulators" {
+    [NoImplicitReturnsManipulator]
+    [StrictNullChecksManipulator]
+    [StrictPropertyInitializationManipulator]
+    [NoImplicitAnyManipulator]
+}
+
+Manipulator <|-- NoImplicitReturnsManipulator
+Manipulator <|-- StrictNullChecksManipulator
+Manipulator <|-- StrictPropertyInitializationManipulator
+Manipulator <|-- NoImplicitAnyManipulator
+
+package "ErrorDetectors" {
+    [ProdErrorDetector]
+}
+
+ErrorDetector <|-- ProdErrorDetector
+
+package "Emitters" {
+    [InPlaceEmitter]
+    [OutOfPlaceEmitter]
+}
+
+Emitter <|-- InPlaceEmitter
+Emitter <|-- OutOfPlaceEmitter
+
+package "Loggers" {
+    [ConsoleLogger]
+    [StubLogger]
+}
+
+Logger <|-- ConsoleLogger
+Logger <|-- StubLogger
+
+@enduml

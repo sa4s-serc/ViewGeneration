@@ -1,0 +1,286 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "External Users",
+        "description": "Users accessing the system",
+        "boundaries": "Outside House Region",
+        "position": "Left"
+      },
+      {
+        "name": "Media Stream Data",
+        "description": "Source of media data",
+        "boundaries": "Outside House Region",
+        "position": "Bottom Left"
+      },
+      {
+        "name": "Internet Router",
+        "description": "Connects external users and media data to the internal network",
+        "boundaries": "House Region",
+        "position": "Center"
+      },
+      {
+        "name": "Download Queue API Server",
+        "description": "Handles download requests",
+        "boundaries": "NAS subnet",
+        "position": "Right"
+      },
+      {
+        "name": "NAS Storage Volume",
+        "description": "Storage for downloaded data",
+        "boundaries": "NAS subnet",
+        "position": "Far Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "External Users",
+        "target": "Internet Router",
+        "label": "2",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Media Stream Data",
+        "target": "Internet Router",
+        "label": "1",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Internet Router",
+        "target": "Download Queue API Server",
+        "label": "3",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Internet Router",
+        "target": "Download Queue API Server",
+        "label": "4",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Download Queue API Server",
+        "target": "NAS Storage Volume",
+        "label": "5",
+        "type": "Data Flow"
+      }
+    ],
+    "annotations": [
+      "House Region",
+      "Generic Firewall",
+      "NAS subnet",
+      "NAS Server",
+      "Container pool"
+    ],
+    "groups": [
+      "House Region",
+      "NAS subnet"
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Network Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Initiates actions",
+        "boundaries": "Outside System",
+        "position": "Left"
+      },
+      {
+        "name": "WebBrowser",
+        "description": "Interface for user interaction",
+        "boundaries": "Client Side",
+        "position": "Left Center"
+      },
+      {
+        "name": "Web Server (Bottle)",
+        "description": "Handles web requests",
+        "boundaries": "Server Side",
+        "position": "Center"
+      },
+      {
+        "name": "Auth Service",
+        "description": "Manages authentication",
+        "boundaries": "Server Side",
+        "position": "Center Right"
+      },
+      {
+        "name": "Queue Manager",
+        "description": "Manages download queue",
+        "boundaries": "Server Side",
+        "position": "Right"
+      },
+      {
+        "name": "Download Worker",
+        "description": "Processes download jobs",
+        "boundaries": "Server Side",
+        "position": "Far Right"
+      },
+      {
+        "name": "yt-dlp",
+        "description": "Tool for downloading media",
+        "boundaries": "Server Side",
+        "position": "Far Right"
+      },
+      {
+        "name": "WebSocket",
+        "description": "Real-time communication",
+        "boundaries": "Server Side",
+        "position": "Bottom Right"
+      },
+      {
+        "name": "Auth.json",
+        "description": "Authentication data storage",
+        "boundaries": "Server Side",
+        "position": "Bottom Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "WebBrowser",
+        "label": "Accesses Web Interface",
+        "type": "Interaction"
+      },
+      {
+        "source": "WebBrowser",
+        "target": "Web Server (Bottle)",
+        "label": "GET /login",
+        "type": "Request"
+      },
+      {
+        "source": "Web Server (Bottle)",
+        "target": "Auth Service",
+        "label": "Validate credentials",
+        "type": "Request"
+      },
+      {
+        "source": "Auth Service",
+        "target": "Auth.json",
+        "label": "Query credentials",
+        "type": "Data Query"
+      },
+      {
+        "source": "Queue Manager",
+        "target": "Download Worker",
+        "label": "Notify new job",
+        "type": "Notification"
+      },
+      {
+        "source": "Download Worker",
+        "target": "yt-dlp",
+        "label": "Execute download",
+        "type": "Command"
+      }
+    ],
+    "annotations": [
+      "Authentication Success",
+      "Authentication Failed",
+      "While jobs in queue"
+    ],
+    "groups": [
+      "Client Side",
+      "Server Side"
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Sequence Diagram"
+    }
+  },
+  "comparison": {
+    "common_components": [],
+    "unique_to_GroundTruth": [
+      "External Users",
+      "Media Stream Data",
+      "Internet Router",
+      "Download Queue API Server",
+      "NAS Storage Volume"
+    ],
+    "unique_to_GeneratedImage": [
+      "User",
+      "WebBrowser",
+      "Web Server (Bottle)",
+      "Auth Service",
+      "Queue Manager",
+      "Download Worker",
+      "yt-dlp",
+      "WebSocket",
+      "Auth.json"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "External Users",
+        "target": "Internet Router",
+        "label": "2",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Media Stream Data",
+        "target": "Internet Router",
+        "label": "1",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Internet Router",
+        "target": "Download Queue API Server",
+        "label": "3",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Internet Router",
+        "target": "Download Queue API Server",
+        "label": "4",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Download Queue API Server",
+        "target": "NAS Storage Volume",
+        "label": "5",
+        "type": "Data Flow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "WebBrowser",
+        "label": "Accesses Web Interface",
+        "type": "Interaction"
+      },
+      {
+        "source": "WebBrowser",
+        "target": "Web Server (Bottle)",
+        "label": "GET /login",
+        "type": "Request"
+      },
+      {
+        "source": "Web Server (Bottle)",
+        "target": "Auth Service",
+        "label": "Validate credentials",
+        "type": "Request"
+      },
+      {
+        "source": "Auth Service",
+        "target": "Auth.json",
+        "label": "Query credentials",
+        "type": "Data Query"
+      },
+      {
+        "source": "Queue Manager",
+        "target": "Download Worker",
+        "label": "Notify new job",
+        "type": "Notification"
+      },
+      {
+        "source": "Download Worker",
+        "target": "yt-dlp",
+        "label": "Execute download",
+        "type": "Command"
+      }
+    ],
+    "explanation": "The GroundTruth diagram represents a network architecture focusing on data flow between external users, media sources, and internal servers, emphasizing the physical network layout. The GeneratedImage diagram is a sequence diagram illustrating the logical flow of operations within a system, focusing on user interactions, authentication, and job processing. Both diagrams serve different purposes: one is a network architecture, and the other is a sequence of operations. There are no common components or connectors as they represent different aspects of a system. The GroundTruth diagram is more about physical network connections, while the GeneratedImage diagram details the logical sequence of operations. The GeneratedImage diagram is rated 7 out of 10 for its accuracy and completeness in representing a sequence of operations, but it does not directly correlate with the GroundTruth diagram's network representation.",
+    "Rating": 7
+  }
+}

@@ -1,0 +1,81 @@
+```plantuml
+@startuml mateuseap_apache-airflow
+skinparam componentStyle rectangle
+skinparam linetype ortho
+
+package "Docker Setup" {
+    [Docker Compose] as DockerCompose
+    [Airflow Image] as AirflowImage
+    [Postgres] as Postgres
+    [Redis] as Redis
+    [ELK Stack] as ELK
+    [TIG Stack] as TIG
+
+    DockerCompose --> AirflowImage
+    DockerCompose --> Postgres
+    DockerCompose --> Redis
+    DockerCompose --> ELK
+    DockerCompose --> TIG
+}
+
+package "Airflow Components" {
+    [Web Server] as WebServer
+    [Scheduler] as Scheduler
+    [Worker] as Worker
+    [Broker (Redis)] as Broker
+
+    WebServer --> Scheduler
+    Scheduler --> Worker
+    Worker --> Broker
+}
+
+package "Hadoop Integration" {
+    [HDFS] as HDFS
+    [Hive] as Hive
+    [Spark] as Spark
+    [Livy] as Livy
+
+    HDFS --> Hive
+    Hive --> Spark
+    Spark --> Livy
+}
+
+package "Data Pipeline" {
+    [Forex Data Pipeline] as ForexPipeline
+    [HttpSensor] as HttpSensor
+    [FileSensor] as FileSensor
+    [PythonOperator] as PythonOperator
+    [BashOperator] as BashOperator
+    [HiveOperator] as HiveOperator
+    [SparkSubmitOperator] as SparkSubmitOperator
+    [EmailOperator] as EmailOperator
+    [SlackWebhookOperator] as SlackWebhookOperator
+
+    ForexPipeline --> HttpSensor
+    ForexPipeline --> FileSensor
+    ForexPipeline --> PythonOperator
+    ForexPipeline --> BashOperator
+    ForexPipeline --> HiveOperator
+    ForexPipeline --> SparkSubmitOperator
+    ForexPipeline --> EmailOperator
+    ForexPipeline --> SlackWebhookOperator
+}
+
+package "Deployment" {
+    [Kubernetes] as Kubernetes
+    [Dockerfiles] as Dockerfiles
+    [Configuration Files] as ConfigFiles
+
+    Kubernetes --> AirflowImage
+    Dockerfiles --> AirflowImage
+    ConfigFiles --> AirflowImage
+}
+
+WebServer --> ForexPipeline
+Scheduler --> ForexPipeline
+Worker --> ForexPipeline
+ForexPipeline --> HDFS
+ForexPipeline --> Hive
+ForexPipeline --> Spark
+@enduml
+```

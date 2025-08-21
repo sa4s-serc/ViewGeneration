@@ -1,0 +1,71 @@
+@startuml SocialGouv_archifiltre-docs
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Electron Main Process" as Main {
+  rectangle "File System Loader" as FSLoader
+  rectangle "Async Workers" as Workers
+  rectangle "Update Handler" as Updater
+  rectangle "Notarization" as Notarize
+}
+
+rectangle "Electron Renderer Process" as Renderer {
+  rectangle "UI (React)" as UI
+  rectangle "State (Redux/Zustand)" as State
+  rectangle "Exporters" as Exporters
+  rectangle "Metadata Manager" as Metadata
+}
+
+rectangle "External Services" as External {
+  rectangle "Sentry" as Sentry
+  rectangle "Matomo/Posthog" as Analytics
+  rectangle "Redis" as Redis
+}
+
+rectangle "File System" as FS
+
+rectangle "CI/CD" as CI {
+  rectangle "GitHub Actions" as GitHub
+  rectangle "Docker" as Docker
+}
+
+' ========== Connections ==========
+User --> UI
+
+' Main process interactions
+Main --> FS : Load/analyze files
+Main --> Workers : Spawn child processes
+Workers --> Main : Return processed data
+Main --> Updater : Check for updates
+Main --> Notarize : macOS notarization
+
+' Renderer process interactions
+UI --> State : Dispatch actions
+State --> UI : Update UI
+UI --> Exporters : Trigger exports
+Exporters --> UI : Export results
+UI --> Metadata : Manage metadata
+Metadata --> UI : Display metadata
+
+' External services
+Renderer --> Sentry : Error logging
+Renderer --> Analytics : Usage tracking
+Main --> Redis : Message queue
+
+' CI/CD interactions
+GitHub --> Docker : Build image
+GitHub --> Main : Run tests
+GitHub --> Renderer : Run tests
+
+' Data flow
+FS --> FSLoader : Read files
+FSLoader --> State : Store file data
+State --> Exporters : Provide data for export
+Exporters --> FS : Save export files
+@enduml

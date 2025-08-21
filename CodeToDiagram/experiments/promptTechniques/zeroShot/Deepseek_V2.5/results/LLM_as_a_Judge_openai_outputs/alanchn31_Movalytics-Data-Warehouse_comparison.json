@@ -1,0 +1,253 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Kaggle API",
+        "description": "Data source for extraction",
+        "boundary": "Data Extraction",
+        "position": "left"
+      },
+      {
+        "name": "FRED",
+        "description": "Data source for extraction",
+        "boundary": "Data Extraction",
+        "position": "left"
+      },
+      {
+        "name": "Amazon EC2",
+        "description": "Data ingestion and processing",
+        "boundary": "Data Ingestion",
+        "position": "center"
+      },
+      {
+        "name": "Amazon S3",
+        "description": "Staging area for data storage",
+        "boundary": "Data Storage",
+        "position": "right"
+      },
+      {
+        "name": "Amazon Redshift",
+        "description": "Data warehouse",
+        "boundary": "Data Warehouse",
+        "position": "bottom"
+      },
+      {
+        "name": "Apache Airflow",
+        "description": "Workflow management",
+        "boundary": "Data Ingestion",
+        "position": "center-right"
+      },
+      {
+        "name": "Apache Spark",
+        "description": "Data processing",
+        "boundary": "Data Ingestion",
+        "position": "center-right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Kaggle API",
+        "target": "Amazon EC2",
+        "label": "Download",
+        "type": "arrow"
+      },
+      {
+        "source": "FRED",
+        "target": "Amazon EC2",
+        "label": "Download",
+        "type": "arrow"
+      },
+      {
+        "source": "Amazon EC2",
+        "target": "Amazon S3",
+        "label": "Staging",
+        "type": "arrow"
+      },
+      {
+        "source": "Amazon EC2",
+        "target": "Amazon Redshift",
+        "label": "Extract, Transform, Load",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [
+      "Data Extraction",
+      "Data Ingestion",
+      "Data Storage",
+      "Data Warehouse"
+    ],
+    "groups": [
+      "Data Extraction",
+      "Data Ingestion",
+      "Data Storage",
+      "Data Warehouse"
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Data Pipeline Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Airflow Scheduler",
+        "description": "Triggers DAG execution",
+        "boundary": "Workflow Management",
+        "position": "left"
+      },
+      {
+        "name": "BashOperator",
+        "description": "Executes shell commands",
+        "boundary": "Data Processing",
+        "position": "center-left"
+      },
+      {
+        "name": "Spark Job",
+        "description": "Processes data with Spark",
+        "boundary": "Data Processing",
+        "position": "center"
+      },
+      {
+        "name": "Redshift",
+        "description": "Data warehouse",
+        "boundary": "Data Storage",
+        "position": "center-right"
+      },
+      {
+        "name": "DataQualityOperator",
+        "description": "Performs data quality checks",
+        "boundary": "Data Quality",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Airflow Scheduler",
+        "label": "Triggers DAG execution",
+        "type": "arrow"
+      },
+      {
+        "source": "Airflow Scheduler",
+        "target": "BashOperator",
+        "label": "Execute data extraction (Kaggle/FRED)",
+        "type": "arrow"
+      },
+      {
+        "source": "BashOperator",
+        "target": "Spark Job",
+        "label": "Invoke Spark job",
+        "type": "arrow"
+      },
+      {
+        "source": "Spark Job",
+        "target": "Redshift",
+        "label": "Load raw data to staging tables",
+        "type": "arrow"
+      },
+      {
+        "source": "Redshift",
+        "target": "DataQualityOperator",
+        "label": "Execute validation queries",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [
+      "Triggers DAG execution",
+      "Execute data extraction",
+      "Invoke Spark job",
+      "Load raw data",
+      "Execute validation queries"
+    ],
+    "groups": [
+      "Workflow Management",
+      "Data Processing",
+      "Data Storage",
+      "Data Quality"
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Data Processing Workflow"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Redshift"
+    ],
+    "unique_to_GroundTruth": [
+      "Kaggle API",
+      "FRED",
+      "Amazon EC2",
+      "Amazon S3",
+      "Apache Airflow",
+      "Apache Spark"
+    ],
+    "unique_to_GeneratedImage": [
+      "Airflow Scheduler",
+      "BashOperator",
+      "Spark Job",
+      "DataQualityOperator"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Kaggle API",
+        "target": "Amazon EC2",
+        "label": "Download",
+        "type": "arrow"
+      },
+      {
+        "source": "FRED",
+        "target": "Amazon EC2",
+        "label": "Download",
+        "type": "arrow"
+      },
+      {
+        "source": "Amazon EC2",
+        "target": "Amazon S3",
+        "label": "Staging",
+        "type": "arrow"
+      },
+      {
+        "source": "Amazon EC2",
+        "target": "Amazon Redshift",
+        "label": "Extract, Transform, Load",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "Airflow Scheduler",
+        "label": "Triggers DAG execution",
+        "type": "arrow"
+      },
+      {
+        "source": "Airflow Scheduler",
+        "target": "BashOperator",
+        "label": "Execute data extraction (Kaggle/FRED)",
+        "type": "arrow"
+      },
+      {
+        "source": "BashOperator",
+        "target": "Spark Job",
+        "label": "Invoke Spark job",
+        "type": "arrow"
+      },
+      {
+        "source": "Spark Job",
+        "target": "Redshift",
+        "label": "Load raw data to staging tables",
+        "type": "arrow"
+      },
+      {
+        "source": "Redshift",
+        "target": "DataQualityOperator",
+        "label": "Execute validation queries",
+        "type": "arrow"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on a high-level data pipeline architecture, highlighting components like Amazon EC2, S3, and Redshift, with a clear flow from data extraction to storage. The GeneratedImage diagram details a workflow process using Airflow, BashOperator, and Spark, emphasizing task execution and data quality checks. Both diagrams share Redshift as a common component, but differ in their focus: GroundTruth on infrastructure and GeneratedImage on process flow. The GeneratedImage diagram effectively complements the GroundTruth by detailing the orchestration and quality aspects, but lacks the infrastructure detail. Rating: 7/10. The GeneratedImage provides a good process view but misses some infrastructure components present in the GroundTruth.",
+    "Rating": 7
+  }
+}

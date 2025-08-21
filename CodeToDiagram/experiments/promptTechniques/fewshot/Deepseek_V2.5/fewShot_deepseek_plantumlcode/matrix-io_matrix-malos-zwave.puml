@@ -1,0 +1,56 @@
+### Actual Output:
+@startuml matrix-io_matrix-malos-zwave
+skinparam rectangle {
+  BackgroundColor<<service>> #d9e7fd
+  BackgroundColor<<driver>> #d8f5d3
+  BackgroundColor<<protocol>> #fff1c9
+  BackgroundColor<<hardware>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+left to right direction
+
+package "MATRIX Platform" {
+  rectangle "MALOS Core" <<service>> as MALOS
+  rectangle "Z-Wave Driver" <<driver>> as ZWaveDriver
+  rectangle "0MQ" <<protocol>> as ZMQ
+  rectangle "Protocol Buffers" <<protocol>> as Protobuf
+}
+
+package "Z-Wave Network" {
+  rectangle "Z/IP Gateway" <<service>> as ZIPGateway
+  rectangle "Z-Wave Module" <<hardware>> as ZWaveModule
+  rectangle "Z-Wave Devices" <<hardware>> as ZWaveDevices
+}
+
+package "Control Tools" {
+  rectangle "JavaScript Utilities" as JSUtils
+  rectangle "Systemd Service" as Systemd
+}
+
+MALOS --> ZWaveDriver : manages
+ZWaveDriver --> ZIPGateway : communicates via
+ZIPGateway --> ZWaveModule : controls
+ZWaveModule --> ZWaveDevices : RF communication
+
+ZWaveDriver --> ZMQ : uses
+ZWaveDriver --> Protobuf : uses
+JSUtils --> ZMQ : subscribes/publishes
+Systemd --> ZWaveDriver : manages service
+
+note right of ZWaveDriver
+  Implements:
+  - Device management
+  - Schedule control
+  - Sensor/Switch control
+  - Security features
+end note
+
+note right of JSUtils
+  Includes:
+  - addnode.js
+  - list.js
+  - removenode.js
+  - test scripts
+end note
+@enduml

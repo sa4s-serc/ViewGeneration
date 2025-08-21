@@ -1,0 +1,82 @@
+@startuml AhmedAbdelGawadFarag_Shams-Personal-Assistant
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<client>> #d9e7fd
+  BackgroundColor<<server>> #d8f5d3
+  BackgroundColor<<cloud>> #fff1c9
+  BackgroundColor<<ai>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Android Client" <<client>> {
+  rectangle "MainActivity" as MainActivity
+  rectangle "BotManager" as BotManager
+  rectangle "DialogManager" as DialogManager
+  rectangle "RecordingManager" as RecordingManager
+  
+  rectangle "Provider Classes" as Providers {
+    rectangle "CalendarManager"
+    rectangle "ContactManager"
+    rectangle "EmailManager"
+    rectangle "WebSearchManager"
+    rectangle "OpenAppManager"
+    rectangle "NotificationProvider"
+    rectangle "ArabicTranslationManager"
+  }
+  
+  MainActivity --> BotManager
+  BotManager --> DialogManager
+  BotManager --> RecordingManager
+  BotManager --> Providers
+}
+
+package "Main Server" <<server>> {
+  rectangle "Flask App" as FlaskMain
+  rectangle "Intent Classifier" as IntentClassifier
+  rectangle "Intent Handler" as IntentHandler
+  rectangle "Translation" as Translation
+  
+  FlaskMain --> IntentClassifier
+  FlaskMain --> IntentHandler
+  FlaskMain --> Translation
+}
+
+package "NER Server" <<server>> {
+  rectangle "Flask NER" as FlaskNER
+  rectangle "NER Model" as NERModel
+  
+  FlaskNER --> NERModel
+}
+
+package "Cloud Services" <<cloud>> {
+  rectangle "Google STT" as GoogleSTT
+  rectangle "Google TTS" as GoogleTTS
+  
+  FlaskMain --> GoogleSTT
+  FlaskMain --> GoogleTTS
+}
+
+package "AI Models" <<ai>> {
+  rectangle "Arabic BERT" as ArabicBERT
+  rectangle "Arabic NER" as ArabicNER
+  
+  IntentClassifier --> ArabicBERT
+  NERModel --> ArabicNER
+}
+
+BotManager --> FlaskMain : HTTP (Retrofit)
+FlaskMain --> FlaskNER : HTTP
+FlaskMain --> Providers : HTTP (for actions)
+
+note right of Providers
+  Includes:
+  CalendarManager
+  ContactManager
+  EmailManager
+  WebSearchManager
+  OpenAppManager
+  NotificationProvider
+  ArabicTranslationManager
+end note
+@enduml

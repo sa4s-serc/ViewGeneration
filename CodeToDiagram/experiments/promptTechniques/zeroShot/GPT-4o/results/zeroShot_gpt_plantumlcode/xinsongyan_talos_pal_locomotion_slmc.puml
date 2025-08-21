@@ -1,0 +1,31 @@
+```plantuml
+@startuml xinsongyan_talos_pal_locomotion_slmc
+
+actor Operator
+
+participant "ROS" as ROS
+participant "WBC Framework" as WBC
+participant "DCM Controller" as DCM
+participant "State Estimator" as Estimator
+participant "Safety Layer" as Safety
+participant "Simulator" as Simulator
+
+Operator -> ROS: Start Locomotion Controller
+ROS -> WBC: Load WBC Plugin
+WBC -> DCM: Request Walking Pattern
+
+DCM -> WBC: Provide Reference Trajectory
+activate WBC
+WBC -> Estimator: Get Pose and Velocity
+Estimator -> WBC: Provide Estimated State
+
+WBC -> Safety: Check Safety Conditions
+Safety -> WBC: Confirm Safe Operation
+WBC -> Simulator: Send Control Commands
+Simulator -> WBC: Provide Simulation Feedback
+
+WBC -> ROS: Report Status
+ROS -> Operator: Display Status
+
+@enduml
+```

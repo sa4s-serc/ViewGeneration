@@ -1,0 +1,30 @@
+```plantuml
+@startuml onprem_foundry
+
+[Furnace] as furnace
+[Package Management] as pkgmgmt
+[Metrics and Health Checks] as metrics
+[Object Storage] as storage
+[Builder Interface] as builder
+[gRPC Server] as grpc
+[Configuration] as config
+[CLI] as cli
+
+furnace --> pkgmgmt : manages packages
+furnace --> metrics : exposes
+furnace --> storage : uploads packages
+furnace --> builder : uses
+furnace --> grpc : exposes API
+
+cli --> config : reads
+config --> furnace : configures
+
+grpc <-- [Client] : requests builds
+
+builder <|-- [MakepkgBuilder]
+builder <|-- [NoOpBuilder]
+
+[BuilderWithMetrics] .> builder : decorates
+
+@enduml
+```

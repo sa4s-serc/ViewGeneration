@@ -1,0 +1,47 @@
+@startuml calmato_gran-book
+
+!define RECTANGLE class
+
+' Components
+RECTANGLE "Web Admin Panel" as WebAdmin
+RECTANGLE "Native App" as NativeApp
+RECTANGLE "API Gateway" as APIGateway
+RECTANGLE "Auth Service" as AuthService
+RECTANGLE "User Service" as UserService
+RECTANGLE "Book Service" as BookService
+RECTANGLE "Chat Service" as ChatService
+RECTANGLE "Image Service" as ImageService
+RECTANGLE "Firebase" as Firebase
+RECTANGLE "Database" as Database
+
+' Connections
+WebAdmin --> APIGateway : HTTP/REST
+NativeApp --> APIGateway : HTTP/REST
+APIGateway --> AuthService : gRPC
+APIGateway --> UserService : gRPC
+APIGateway --> BookService : gRPC
+APIGateway --> ChatService : gRPC
+APIGateway --> ImageService : gRPC
+AuthService --> Firebase : Authenticate
+UserService --> Database : CRUD
+BookService --> Database : CRUD
+ChatService --> Database : CRUD
+ImageService --> Database : Store/Retrieve
+
+' Notes
+note right of APIGateway
+  Handles routing, authentication,
+  and request/response transformation
+end note
+
+note right of Firebase
+  User authentication
+  and authorization
+end note
+
+note right of Database
+  Stores user data, books,
+  reviews, and chat messages
+end note
+
+@enduml

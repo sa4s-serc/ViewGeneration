@@ -1,0 +1,39 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam arrow {
+  Color #0000FF
+  Thickness 2
+}
+
+actor "User" as user
+cloud "Cloud.gov (Cloud Foundry)" {
+  rectangle "FEC eRegs Application" {
+    rectangle "Django Web Server" as django
+    rectangle "regulations-site" as reg_site
+    rectangle "regulations-core" as reg_core
+    rectangle "regulations-parser" as reg_parser
+    rectangle "eregs_extensions" as extensions
+  }
+  
+  database "PostgreSQL" as postgres
+  rectangle "ElasticSearch" as elastic
+}
+
+rectangle "External CMS" as cms
+rectangle "External API" as api
+
+user --> django : HTTP Request
+django --> reg_site : Render UI
+reg_site --> reg_core : Fetch Data
+reg_core --> postgres : Query
+reg_core --> elastic : Search
+reg_parser --> postgres : Parse & Store
+extensions --> reg_parser : Extend
+django --> cms : Fetch Content
+django --> api : API Requests
+
+@enduml

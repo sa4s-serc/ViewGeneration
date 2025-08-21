@@ -1,0 +1,63 @@
+```plantuml
+@startuml JessNah_BeeGreen
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Chrome Extension" as Extension {
+  component "background.ts" as Background
+  component "contentScript.tsx" as ContentScript
+  component "popup.tsx" as Popup
+  component "storesCommon.js" as StoresCommon
+}
+
+rectangle "Client Website" as Client {
+  component "App.js" as App
+  component "BeeGreen.js" as BeeGreen
+  component "HomePage.js" as HomePage
+  component "DashBoard.js" as DashBoard
+  component "Contribute.js" as Contribute
+}
+
+rectangle "LoopBack 4 Server" as Server {
+  component "application.ts" as Application
+  component "index.ts" as Index
+  component "beegreendb.datasource.ts" as DataSource
+  component "controllers" as Controllers
+  component "dataprocessing.ts" as DataProcessing
+}
+
+rectangle "IBM Cloudant" as Cloudant #aliceblue
+
+' ========== Chrome Extension Interactions ==========
+User -> Extension : Interact with e-commerce site
+Extension -> Background : Listen for tab updates
+Background -> ContentScript : Inject content script
+ContentScript -> StoresCommon : Extract shopping cart data
+ContentScript -> Popup : Display Bee Green side tab
+
+' ========== Client Website Interactions ==========
+User -> Client : Access website
+Client -> App : Handle routing
+App -> BeeGreen : Route based on login status
+BeeGreen -> HomePage : Render welcome/dashboard
+HomePage -> DashBoard : Display user dashboard
+HomePage -> Contribute : Access contribute platform
+
+' ========== Server Interactions ==========
+Extension -> Server : Request product info / submit reviews
+Client -> Server : Request user data / contribute data
+Server -> DataSource : Access Cloudant DB
+Server -> DataProcessing : Perform scoring calculations
+Server -> Controllers : Handle REST API requests
+
+' ========== Cloudant Interactions ==========
+Server -> Cloudant : Store and retrieve data
+
+@enduml
+```

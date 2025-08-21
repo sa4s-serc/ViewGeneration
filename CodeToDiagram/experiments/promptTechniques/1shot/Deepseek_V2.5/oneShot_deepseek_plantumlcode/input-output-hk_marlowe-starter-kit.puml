@@ -1,0 +1,52 @@
+@startuml input-output-hk_marlowe-starter-kit
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Browser (dApp)" as Browser {
+  rectangle "UI (HTML/CSS/JS)" as UI
+  rectangle "Controller.js" as Controller
+}
+
+rectangle "Wallet (CIP30/CIP45)" as Wallet
+
+rectangle "Marlowe Runtime" as Runtime {
+  rectangle "Web Server" as WebServer
+  rectangle "Contract Service" as ContractService
+  rectangle "Tx Service" as TxService
+}
+
+rectangle "Cardano Blockchain" as Cardano
+
+' ========== Connections ==========
+User -> UI : Interacts with dApp
+UI <-> Controller : Handles events\nManages state
+
+Controller -> Wallet : connect()\ngetAddress()\nsignTx()
+Wallet --> Controller : connection status\naddress\ntx signature
+
+Controller -> WebServer : POST /contracts\nGET /contracts/{id}\nPOST /transactions
+WebServer --> Controller : contract ID\ncontract state\ntx ID
+
+WebServer -> ContractService : process contract\nvalidate
+ContractService -> TxService : build tx
+TxService -> Cardano : submit tx
+Cardano --> TxService : tx confirmation
+TxService --> ContractService : tx result
+ContractService --> WebServer : contract update
+
+Controller -> Cardano : (via Wallet) submit signed tx
+Cardano --> Controller : tx confirmation
+
+' Background services
+note right of Runtime
+  Chain Indexer, Sync, and Proxy services
+  continuously monitor and index Cardano
+  for Marlowe contract events
+end note
+@enduml

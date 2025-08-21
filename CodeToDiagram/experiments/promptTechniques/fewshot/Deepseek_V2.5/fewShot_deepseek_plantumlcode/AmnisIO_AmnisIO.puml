@@ -1,0 +1,39 @@
+@startuml AmnisIO_AmnisIO
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<transpiler>> #d8f5d3
+  BackgroundColor<<backend>> #fddddd
+  BackgroundColor<<hardware>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Developer" <<frontend>> {
+  rectangle "TypeScript Code" as TS
+  rectangle "AmnisIO CLI" as CLI
+  rectangle "Configuration Files" as Config
+}
+
+package "Transpilation" <<transpiler>> {
+  rectangle "typewriter" as Transpiler
+  rectangle "rivulet Stream Lib" as Rivulet
+}
+
+package "Build System" <<backend>> {
+  rectangle "PlatformIO" as PIO
+  rectangle "gyrus Board Abstraction" as Gyrus
+}
+
+package "Hardware" <<hardware>> {
+  rectangle "Arduino UNO" as Arduino
+}
+
+TS --> CLI : Commands
+Config --> CLI
+CLI --> Transpiler : Transpile
+Transpiler --> Rivulet : Generates C code
+Transpiler --> Gyrus : Uses board config
+Gyrus --> PIO : Build & Deploy
+PIO --> Arduino : Flashes firmware
+@enduml

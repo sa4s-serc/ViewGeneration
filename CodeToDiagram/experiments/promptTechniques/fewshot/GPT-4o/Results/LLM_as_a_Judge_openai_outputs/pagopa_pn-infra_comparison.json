@@ -1,0 +1,433 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "User",
+        "description": "End user interacting with the system",
+        "boundaries": "Outside",
+        "position": "Left"
+      },
+      {
+        "name": "Cognito Account",
+        "description": "Handles user authentication",
+        "boundaries": "Box",
+        "position": "Center Left"
+      },
+      {
+        "name": "Cognito User Pool",
+        "description": "Stores user data",
+        "boundaries": "Inside Cognito Account",
+        "position": "Top"
+      },
+      {
+        "name": "Cognito Hosted UI",
+        "description": "User interface for authentication",
+        "boundaries": "Inside Cognito Account",
+        "position": "Bottom"
+      },
+      {
+        "name": "API Gateway Account",
+        "description": "Handles API requests",
+        "boundaries": "Box",
+        "position": "Center Right"
+      },
+      {
+        "name": "API Gateway",
+        "description": "Routes requests to Lambda functions",
+        "boundaries": "Inside API Gateway Account",
+        "position": "Center"
+      },
+      {
+        "name": "auth-function",
+        "description": "Handles authentication logic",
+        "boundaries": "Lambda",
+        "position": "Top Right"
+      },
+      {
+        "name": "hello-function",
+        "description": "Returns greeting if authorized",
+        "boundaries": "Lambda",
+        "position": "Bottom Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Cognito Hosted UI",
+        "label": "connect",
+        "type": "Arrow"
+      },
+      {
+        "source": "Cognito Hosted UI",
+        "target": "Cognito User Pool",
+        "label": "get-authorization-code",
+        "type": "Arrow"
+      },
+      {
+        "source": "Cognito Hosted UI",
+        "target": "API Gateway",
+        "label": "passes code (query strings) redirects to /auth",
+        "type": "Arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "auth-function",
+        "label": "/auth/GET",
+        "type": "Arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "hello-function",
+        "label": "/hello/GET",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "Based on the authorization code, gets an id_token, call hello/GET while passing the id_token in the headers",
+        "position": "Top Right"
+      },
+      {
+        "text": "Returns \"hello\" + name-of-the-user if authorized",
+        "position": "Bottom Right"
+      }
+    ],
+    "groups": [
+      {
+        "name": "Cognito Account",
+        "components": [
+          "Cognito User Pool",
+          "Cognito Hosted UI"
+        ]
+      },
+      {
+        "name": "API Gateway Account",
+        "components": [
+          "API Gateway",
+          "auth-function",
+          "hello-function"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": null
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "End user interacting with the system",
+        "boundaries": "Outside",
+        "position": "Right"
+      },
+      {
+        "name": "Cognito",
+        "description": "Handles authentication",
+        "boundaries": "Box",
+        "position": "Top Center"
+      },
+      {
+        "name": "API Gateway",
+        "description": "Routes requests to Lambda functions",
+        "boundaries": "Box",
+        "position": "Top Center"
+      },
+      {
+        "name": "Lambda Functions",
+        "description": "Executes backend logic",
+        "boundaries": "Box",
+        "position": "Center"
+      },
+      {
+        "name": "SQS",
+        "description": "Queue service",
+        "boundaries": "Box",
+        "position": "Top Left"
+      },
+      {
+        "name": "DynamoDB",
+        "description": "NoSQL database",
+        "boundaries": "Box",
+        "position": "Bottom Left"
+      },
+      {
+        "name": "S3 Buckets",
+        "description": "Storage service",
+        "boundaries": "Box",
+        "position": "Bottom Center"
+      },
+      {
+        "name": "Kinesis Streams",
+        "description": "Data streaming service",
+        "boundaries": "Box",
+        "position": "Bottom Center"
+      },
+      {
+        "name": "ECS Cluster (Fargate)",
+        "description": "Container orchestration",
+        "boundaries": "Box",
+        "position": "Bottom Center"
+      },
+      {
+        "name": "SNS",
+        "description": "Notification service",
+        "boundaries": "Box",
+        "position": "Top Right"
+      },
+      {
+        "name": "IAM Roles",
+        "description": "Access management",
+        "boundaries": "Box",
+        "position": "Top Right"
+      },
+      {
+        "name": "CloudWatch",
+        "description": "Monitoring service",
+        "boundaries": "Box",
+        "position": "Top Right"
+      },
+      {
+        "name": "EventBridge",
+        "description": "Event bus service",
+        "boundaries": "Box",
+        "position": "Bottom Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Cognito",
+        "label": "authenticate",
+        "type": "Arrow"
+      },
+      {
+        "source": "Cognito",
+        "target": "API Gateway",
+        "label": "invoke",
+        "type": "Arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda Functions",
+        "label": "invoke",
+        "type": "Arrow"
+      },
+      {
+        "source": "Lambda Functions",
+        "target": "DynamoDB",
+        "label": "read/write",
+        "type": "Arrow"
+      },
+      {
+        "source": "Lambda Functions",
+        "target": "S3 Buckets",
+        "label": "log data",
+        "type": "Arrow"
+      },
+      {
+        "source": "Lambda Functions",
+        "target": "Kinesis Streams",
+        "label": "stream logs",
+        "type": "Arrow"
+      },
+      {
+        "source": "Kinesis Streams",
+        "target": "ECS Cluster (Fargate)",
+        "label": "data flow",
+        "type": "Arrow"
+      },
+      {
+        "source": "SQS",
+        "target": "Lambda Functions",
+        "label": "trigger",
+        "type": "Arrow"
+      },
+      {
+        "source": "SNS",
+        "target": "Lambda Functions",
+        "label": "notify",
+        "type": "Arrow"
+      },
+      {
+        "source": "IAM Roles",
+        "target": "Lambda Functions",
+        "label": "authorization",
+        "type": "Arrow"
+      },
+      {
+        "source": "CloudWatch",
+        "target": "SNS",
+        "label": "alarm notification",
+        "type": "Arrow"
+      },
+      {
+        "source": "Lambda Functions",
+        "target": "EventBridge",
+        "label": "trigger events",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "AWS Cloud Infrastructure",
+        "components": [
+          "Cognito",
+          "API Gateway",
+          "Lambda Functions",
+          "SQS",
+          "DynamoDB",
+          "S3 Buckets",
+          "Kinesis Streams",
+          "ECS Cluster (Fargate)",
+          "SNS",
+          "IAM Roles",
+          "CloudWatch",
+          "EventBridge"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "AWS Cloud Infrastructure"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "User",
+      "Cognito",
+      "API Gateway",
+      "Lambda Functions"
+    ],
+    "unique_to_GroundTruth": [
+      "Cognito Account",
+      "Cognito User Pool",
+      "Cognito Hosted UI",
+      "API Gateway Account",
+      "auth-function",
+      "hello-function"
+    ],
+    "unique_to_GeneratedImage": [
+      "SQS",
+      "DynamoDB",
+      "S3 Buckets",
+      "Kinesis Streams",
+      "ECS Cluster (Fargate)",
+      "SNS",
+      "IAM Roles",
+      "CloudWatch",
+      "EventBridge"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "User",
+        "target": "Cognito Hosted UI",
+        "label": "connect",
+        "type": "Arrow"
+      },
+      {
+        "source": "Cognito Hosted UI",
+        "target": "Cognito User Pool",
+        "label": "get-authorization-code",
+        "type": "Arrow"
+      },
+      {
+        "source": "Cognito Hosted UI",
+        "target": "API Gateway",
+        "label": "passes code (query strings) redirects to /auth",
+        "type": "Arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "auth-function",
+        "label": "/auth/GET",
+        "type": "Arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "hello-function",
+        "label": "/hello/GET",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "Cognito",
+        "label": "authenticate",
+        "type": "Arrow"
+      },
+      {
+        "source": "Cognito",
+        "target": "API Gateway",
+        "label": "invoke",
+        "type": "Arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda Functions",
+        "label": "invoke",
+        "type": "Arrow"
+      },
+      {
+        "source": "Lambda Functions",
+        "target": "DynamoDB",
+        "label": "read/write",
+        "type": "Arrow"
+      },
+      {
+        "source": "Lambda Functions",
+        "target": "S3 Buckets",
+        "label": "log data",
+        "type": "Arrow"
+      },
+      {
+        "source": "Lambda Functions",
+        "target": "Kinesis Streams",
+        "label": "stream logs",
+        "type": "Arrow"
+      },
+      {
+        "source": "Kinesis Streams",
+        "target": "ECS Cluster (Fargate)",
+        "label": "data flow",
+        "type": "Arrow"
+      },
+      {
+        "source": "SQS",
+        "target": "Lambda Functions",
+        "label": "trigger",
+        "type": "Arrow"
+      },
+      {
+        "source": "SNS",
+        "target": "Lambda Functions",
+        "label": "notify",
+        "type": "Arrow"
+      },
+      {
+        "source": "IAM Roles",
+        "target": "Lambda Functions",
+        "label": "authorization",
+        "type": "Arrow"
+      },
+      {
+        "source": "CloudWatch",
+        "target": "SNS",
+        "label": "alarm notification",
+        "type": "Arrow"
+      },
+      {
+        "source": "Lambda Functions",
+        "target": "EventBridge",
+        "label": "trigger events",
+        "type": "Arrow"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of AWS-based architectures. The GroundTruth diagram focuses on a specific authentication flow using AWS Cognito and API Gateway, with Lambda functions handling specific tasks. It is more detailed in terms of the authentication process, showing user interaction with the Cognito Hosted UI and subsequent API calls. The GeneratedImage diagram, on the other hand, provides a broader view of an AWS cloud infrastructure, including additional services like SQS, DynamoDB, S3, Kinesis, ECS, SNS, IAM Roles, CloudWatch, and EventBridge. It shows a more complex architecture with various AWS services interacting. Common components include User, Cognito, API Gateway, and Lambda Functions, but their roles and interactions differ. The GroundTruth diagram is more focused and detailed in a specific use case, while the GeneratedImage diagram offers a comprehensive overview of a cloud infrastructure. Based on its accuracy and completeness, the GeneratedImage is rated 7 out of 10. It captures a broader range of AWS services but lacks the specific detail and flow of the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

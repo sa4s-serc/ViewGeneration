@@ -1,0 +1,419 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Client",
+        "description": "Client component",
+        "boundaries": "Gateway",
+        "position": "left"
+      },
+      {
+        "name": "Netty Producer Server",
+        "description": "Handles HTTP requests",
+        "boundaries": "Gateway",
+        "position": "center"
+      },
+      {
+        "name": "Subscription Watcher",
+        "description": "Watches subscriptions",
+        "boundaries": "Gateway",
+        "position": "center"
+      },
+      {
+        "name": "ZK/Nacos/Etcd",
+        "description": "Configuration management",
+        "boundaries": "Gateway",
+        "position": "center"
+      },
+      {
+        "name": "Consumer Processor",
+        "description": "Processes consumer requests",
+        "boundaries": "Gateway",
+        "position": "center"
+      },
+      {
+        "name": "RocketMQ",
+        "description": "Message queue",
+        "boundaries": "outside",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Client",
+        "target": "Netty Producer Server",
+        "label": "HTTP",
+        "type": "solid"
+      },
+      {
+        "source": "Netty Producer Server",
+        "target": "RocketMQ",
+        "label": "TCP",
+        "type": "solid"
+      },
+      {
+        "source": "ZK/Nacos/Etcd",
+        "target": "Subscription Watcher",
+        "label": "Listen",
+        "type": "solid"
+      },
+      {
+        "source": "Subscription Watcher",
+        "target": "Consumer Processor",
+        "label": "dotted",
+        "type": "dotted"
+      },
+      {
+        "source": "Consumer Processor",
+        "target": "Client",
+        "label": "HTTP PUSH",
+        "type": "solid"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "[{\"app\":\"gateway_demo\",\"callback\":\"http://www.xxx.com/index.do\",\"tag\":\"\",\"topic\":\"test\"}]"
+      }
+    ],
+    "groups": [
+      {
+        "name": "Gateway",
+        "description": "Logical group for gateway components"
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Gateway Architecture with RocketMQ"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "HTTP Client",
+        "description": "Client component",
+        "boundaries": "RocketMQ HTTP Gateway",
+        "position": "top left"
+      },
+      {
+        "name": "Netty Server",
+        "description": "Handles HTTP requests",
+        "boundaries": "RocketMQ HTTP Gateway",
+        "position": "center"
+      },
+      {
+        "name": "Request Decoder",
+        "description": "Decodes requests",
+        "boundaries": "RocketMQ HTTP Gateway",
+        "position": "center"
+      },
+      {
+        "name": "Request Validator",
+        "description": "Validates requests",
+        "boundaries": "RocketMQ HTTP Gateway",
+        "position": "center"
+      },
+      {
+        "name": "ProduceMessageProcessor",
+        "description": "Processes messages",
+        "boundaries": "RocketMQ HTTP Gateway",
+        "position": "center"
+      },
+      {
+        "name": "SubscriptionChangeWatcher",
+        "description": "Watches subscription changes",
+        "boundaries": "RocketMQ HTTP Gateway",
+        "position": "center"
+      },
+      {
+        "name": "ProducerManager",
+        "description": "Manages producers",
+        "boundaries": "RocketMQ HTTP Gateway",
+        "position": "center"
+      },
+      {
+        "name": "ConsumerManager",
+        "description": "Manages consumers",
+        "boundaries": "RocketMQ HTTP Gateway",
+        "position": "center"
+      },
+      {
+        "name": "Response Encoder",
+        "description": "Encodes responses",
+        "boundaries": "RocketMQ HTTP Gateway",
+        "position": "center"
+      },
+      {
+        "name": "HttpMessageListener",
+        "description": "Listens to HTTP messages",
+        "boundaries": "RocketMQ HTTP Gateway",
+        "position": "center"
+      },
+      {
+        "name": "HttpExecutor",
+        "description": "Executes HTTP requests",
+        "boundaries": "RocketMQ HTTP Gateway",
+        "position": "center"
+      },
+      {
+        "name": "Callback Service",
+        "description": "Handles callbacks",
+        "boundaries": "RocketMQ HTTP Gateway",
+        "position": "center"
+      },
+      {
+        "name": "Callback Endpoint",
+        "description": "Endpoint for callbacks",
+        "boundaries": "Callback Service",
+        "position": "center"
+      },
+      {
+        "name": "RocketMQ Producer",
+        "description": "Produces messages",
+        "boundaries": "RocketMQ",
+        "position": "bottom"
+      },
+      {
+        "name": "RocketMQ Consumer",
+        "description": "Consumes messages",
+        "boundaries": "RocketMQ",
+        "position": "bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "HTTP Client",
+        "target": "Netty Server",
+        "label": "HTTP Requests",
+        "type": "solid"
+      },
+      {
+        "source": "Netty Server",
+        "target": "Request Decoder",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "Request Decoder",
+        "target": "Request Validator",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "Request Validator",
+        "target": "ProduceMessageProcessor",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "ProduceMessageProcessor",
+        "target": "Response Encoder",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "Response Encoder",
+        "target": "Netty Server",
+        "label": "HTTP Responses",
+        "type": "solid"
+      },
+      {
+        "source": "HttpMessageListener",
+        "target": "HttpExecutor",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "HttpExecutor",
+        "target": "Callback Service",
+        "label": "HTTP Callbacks",
+        "type": "solid"
+      },
+      {
+        "source": "Callback Service",
+        "target": "Callback Endpoint",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "SubscriptionChangeWatcher",
+        "target": "ProduceMessageProcessor",
+        "label": "Updates Subscriptions",
+        "type": "solid"
+      },
+      {
+        "source": "SubscriptionChangeWatcher",
+        "target": "ConsumerManager",
+        "label": "Updates Subscriptions",
+        "type": "solid"
+      },
+      {
+        "source": "ProducerManager",
+        "target": "RocketMQ Producer",
+        "label": "Produces Messages",
+        "type": "solid"
+      },
+      {
+        "source": "ConsumerManager",
+        "target": "RocketMQ Consumer",
+        "label": "Consumes Messages",
+        "type": "solid"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "RocketMQ HTTP Gateway",
+        "description": "Logical group for gateway components"
+      },
+      {
+        "name": "Callback Service",
+        "description": "Logical group for callback handling"
+      },
+      {
+        "name": "RocketMQ",
+        "description": "Logical group for RocketMQ components"
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "RocketMQ HTTP Gateway Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Client",
+      "Netty Server",
+      "Subscription Watcher",
+      "RocketMQ"
+    ],
+    "unique_to_GroundTruth": [
+      "ZK/Nacos/Etcd",
+      "Consumer Processor"
+    ],
+    "unique_to_GeneratedImage": [
+      "Request Decoder",
+      "Request Validator",
+      "ProduceMessageProcessor",
+      "SubscriptionChangeWatcher",
+      "ProducerManager",
+      "ConsumerManager",
+      "Response Encoder",
+      "HttpMessageListener",
+      "HttpExecutor",
+      "Callback Service",
+      "Callback Endpoint",
+      "RocketMQ Producer",
+      "RocketMQ Consumer"
+    ],
+    "common_connectors": [
+      {
+        "source": "Client",
+        "target": "Netty Server",
+        "label": "HTTP",
+        "type": "solid"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Netty Producer Server",
+        "target": "RocketMQ",
+        "label": "TCP",
+        "type": "solid"
+      },
+      {
+        "source": "ZK/Nacos/Etcd",
+        "target": "Subscription Watcher",
+        "label": "Listen",
+        "type": "solid"
+      },
+      {
+        "source": "Subscription Watcher",
+        "target": "Consumer Processor",
+        "label": "dotted",
+        "type": "dotted"
+      },
+      {
+        "source": "Consumer Processor",
+        "target": "Client",
+        "label": "HTTP PUSH",
+        "type": "solid"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Netty Server",
+        "target": "Request Decoder",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "Request Decoder",
+        "target": "Request Validator",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "Request Validator",
+        "target": "ProduceMessageProcessor",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "ProduceMessageProcessor",
+        "target": "Response Encoder",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "Response Encoder",
+        "target": "Netty Server",
+        "label": "HTTP Responses",
+        "type": "solid"
+      },
+      {
+        "source": "HttpMessageListener",
+        "target": "HttpExecutor",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "HttpExecutor",
+        "target": "Callback Service",
+        "label": "HTTP Callbacks",
+        "type": "solid"
+      },
+      {
+        "source": "Callback Service",
+        "target": "Callback Endpoint",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "SubscriptionChangeWatcher",
+        "target": "ProduceMessageProcessor",
+        "label": "Updates Subscriptions",
+        "type": "solid"
+      },
+      {
+        "source": "SubscriptionChangeWatcher",
+        "target": "ConsumerManager",
+        "label": "Updates Subscriptions",
+        "type": "solid"
+      },
+      {
+        "source": "ProducerManager",
+        "target": "RocketMQ Producer",
+        "label": "Produces Messages",
+        "type": "solid"
+      },
+      {
+        "source": "ConsumerManager",
+        "target": "RocketMQ Consumer",
+        "label": "Consumes Messages",
+        "type": "solid"
+      }
+    ],
+    "explanation": "The two diagrams represent similar architectural structures involving a gateway and RocketMQ, but with different levels of detail and component granularity. The GroundTruth diagram is simpler, focusing on high-level components like 'Netty Producer Server', 'Subscription Watcher', and 'Consumer Processor'. It includes a configuration management component 'ZK/Nacos/Etcd'. The GeneratedImage diagram provides a more detailed breakdown of components within the gateway, such as 'Request Decoder', 'Request Validator', and 'ProduceMessageProcessor', and introduces a callback handling service. Both diagrams have a 'Client' and 'RocketMQ' component, but the GeneratedImage diagram includes separate producer and consumer components for RocketMQ. The connectors in the GroundTruth diagram are fewer and simpler, while the GeneratedImage diagram has a more complex network of connections, reflecting its detailed component breakdown. Overall, the GeneratedImage diagram rates a 7 out of 10 for accuracy and completeness. It provides a more comprehensive view of the architecture but introduces additional complexity that may not be necessary for all use cases.",
+    "Rating": 7
+  }
+}

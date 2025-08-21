@@ -1,0 +1,62 @@
+@startuml OpenPSD_modelbank
+
+!define RECTANGLE class
+
+package "Presentation Layer" {
+    RECTANGLE "ModelBankController" as Controller
+    RECTANGLE "gRPC Server" as GRPCServer
+}
+
+package "Application Layer" {
+    RECTANGLE "ModelBankUsecase" as Usecase
+}
+
+package "Domain Layer" {
+    RECTANGLE "Entities" as Entities {
+        RECTANGLE "FinancialInstitution"
+        RECTANGLE "AccountHolder"
+        RECTANGLE "Account"
+        RECTANGLE "Consent"
+        RECTANGLE "PaymentInstruction"
+        RECTANGLE "LedgerEntry"
+    }
+}
+
+package "Infrastructure Layer" {
+    RECTANGLE "DbProvider" as DbProvider
+}
+
+Controller -down-> Usecase : uses
+GRPCServer -down-> Controller : uses
+Usecase -down-> Entities : manipulates
+Usecase -down-> DbProvider : uses
+DbProvider -up-> Entities : persists
+
+interface "ModelBankControllerInputPort" as ControllerInput
+interface "ModelBankControllerOutputPort" as ControllerOutput
+interface "ModelBankUsecaseInputPort" as UsecaseInput
+interface "ModelBankUsecaseOutputPort" as UsecaseOutput
+interface "ModelBankEntityGateway" as EntityGateway
+
+Controller -left-> ControllerInput : implements
+Controller -right-> ControllerOutput : uses
+Usecase -left-> UsecaseInput : implements
+Usecase -right-> UsecaseOutput : uses
+DbProvider -up-> EntityGateway : implements
+
+note right of GRPCServer
+  Exposes functionalities
+  for distributed deployment
+end note
+
+note right of Entities
+  Core domain objects
+  representing business concepts
+end note
+
+note right of DbProvider
+  Manages database operations
+  using go-pg
+end note
+
+@enduml

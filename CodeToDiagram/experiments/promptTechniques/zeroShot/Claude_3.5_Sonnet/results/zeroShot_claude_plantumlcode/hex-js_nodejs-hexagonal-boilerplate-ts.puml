@@ -1,0 +1,50 @@
+@startuml hex-js_nodejs-hexagonal-boilerplate-ts
+
+!define RECTANGLE class
+
+package "Core Business Logic" {
+    RECTANGLE Business
+}
+
+package "Adapters" {
+    RECTANGLE TodoAdapter
+}
+
+package "Ports" {
+    RECTANGLE AwsDynamoPort
+    RECTANGLE AwsSqsPort
+    RECTANGLE AwsLambdaPort
+    RECTANGLE HttpPort
+    RECTANGLE LoggerPort
+}
+
+package "External Systems" {
+    RECTANGLE DynamoDB
+    RECTANGLE SQS
+    RECTANGLE Lambda
+    RECTANGLE RESTfulAPI
+    RECTANGLE Logging
+}
+
+Business --> TodoAdapter
+TodoAdapter --> AwsDynamoPort
+TodoAdapter --> AwsSqsPort
+TodoAdapter --> AwsLambdaPort
+TodoAdapter --> HttpPort
+TodoAdapter --> LoggerPort
+
+AwsDynamoPort --> DynamoDB
+AwsSqsPort --> SQS
+AwsLambdaPort --> Lambda
+HttpPort --> RESTfulAPI
+LoggerPort --> Logging
+
+note right of Business : Core todo management logic
+note right of TodoAdapter : Translates between business and ports
+note right of AwsDynamoPort : Repository pattern for data access
+note right of AwsSqsPort : Async communication
+note right of AwsLambdaPort : Serverless execution
+note right of HttpPort : RESTful API controllers
+note right of LoggerPort : Application logging
+
+@enduml

@@ -1,0 +1,42 @@
+Here's a PlantUML component diagram for the qaware_cloud-native-weather-javaee repository:
+
+@startuml qaware_cloud-native-weather-javaee
+
+skinparam component {
+  BackgroundColor LightSkyBlue
+  BorderColor Black
+}
+
+[OpenWeatherMap API] as OWMAPI
+
+package "qaware_cloud-native-weather-javaee" {
+  [PayaraMicroWeatherResource] as Resource
+  [PayaraMicroWeatherService] as Service
+  [PayaraMicroWeatherRepository] as Repository
+  [OpenWeatherMapConnector] as Connector
+  [PayaraMicroWeatherLivenessCheck] as LiveCheck
+  [PayaraMicroWeatherReadinessCheck] as ReadyCheck
+  
+  database "PostgreSQL" as DB
+}
+
+cloud "Kubernetes" {
+  [ConfigMap/Secrets] as Config
+  [Deployment] as Deploy
+  [Service] as K8sService
+}
+
+Resource --> Service
+Service --> Repository
+Service --> Connector
+Repository --> DB
+Connector --> OWMAPI
+
+LiveCheck --> Service
+ReadyCheck --> Service
+
+Config --> Deploy
+Deploy --> Resource
+K8sService --> Resource
+
+@enduml

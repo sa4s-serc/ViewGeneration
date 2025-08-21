@@ -1,0 +1,47 @@
+@startuml kerollesroshdi_Cima-
+skinparam rectangle {
+  BackgroundColor<<ui>> #d9e7fd
+  BackgroundColor<<domain>> #d8f5d3
+  BackgroundColor<<data>> #fddddd
+  BackgroundColor<<network>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "UI Layer" <<ui>> {
+  rectangle "ViewControllers\n(NowPlayingVC, TopRatedVC, etc.)" as VCs
+  rectangle "ViewModels\n(BrowseVM, SearchVM, etc.)" as VMs
+  rectangle "Coordinator\n(AppCoordinator)" as Coordinator
+  rectangle "Custom UI Components" as UIComponents
+  VCs --> VMs
+  VMs --> Coordinator
+  VCs --> UIComponents
+}
+
+package "Domain Layer" <<domain>> {
+  rectangle "Entities\n(Movie, Genre, etc.)" as Entities
+  rectangle "Use Cases\n(BrowseUseCase, SearchUseCase)" as UseCases
+  rectangle "Repository Interfaces" as RepoInterfaces
+  UseCases --> Entities
+  UseCases --> RepoInterfaces
+}
+
+package "Data Layer" <<data>> {
+  rectangle "Repository Implementations" as RepoImpl
+  rectangle "Remote Data Sources" as RemoteDS
+  RepoImpl --> RemoteDS
+}
+
+package "Network Layer" <<network>> {
+  rectangle "Moya API Client" as Moya
+  rectangle "RxSwift Extensions" as RxExt
+  RemoteDS --> Moya
+  Moya --> RxExt
+}
+
+database "TMDB API" as TMDB
+Moya --> TMDB
+
+RepoInterfaces --> RepoImpl
+VMs --> UseCases
+@enduml

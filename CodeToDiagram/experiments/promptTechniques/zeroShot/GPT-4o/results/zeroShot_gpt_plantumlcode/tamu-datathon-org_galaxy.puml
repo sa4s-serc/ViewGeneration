@@ -1,0 +1,37 @@
+```plantuml
+@startuml tamu-datathon-org_galaxy
+
+package "TAMU Datathon" {
+    [Galaxy] as Galaxy
+
+    package "Services" {
+        [Router] as Router
+        [Gatekeeper] as Gatekeeper
+        [Obos] as Obos
+        [Gigabowser] as Gigabowser
+    }
+
+    package "Deployment" {
+        [Heroku] as Heroku
+        [Docker Compose] as DockerCompose
+    }
+
+    package "CI/CD" {
+        [GitHub Actions] as GitHubActions
+        [Dependabot] as Dependabot
+    }
+}
+
+Galaxy --> Router : Routes Requests
+Galaxy --> Gatekeeper : Integrates Authentication
+Router --> Gatekeeper : Routes Auth Requests
+Router --> Obos : Routes Event Management Requests
+Router --> Gigabowser : Routes Static Site Requests
+
+GitHubActions --> Heroku : Deploys Services
+GitHubActions --> Galaxy : Manages Deployment Workflows
+Dependabot --> Galaxy : Manages Dependencies
+DockerCompose --> Galaxy : Local Development Setup
+
+@enduml
+```

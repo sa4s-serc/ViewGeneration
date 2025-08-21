@@ -1,0 +1,46 @@
+```plantuml
+@startuml rubenbupe_proyectos-data
+
+package "Kubernetes Cluster" {
+  [Frontend Service] <<Service>>
+  [API Service] <<Service>>
+  [Metrics API Service] <<Service>>
+  [RabbitMQ] <<Service>>
+  [MongoDB] <<StatefulSet>>
+
+  [Nginx-Ingress] <<Ingress>>
+  [Cert-manager] <<Service>>
+}
+
+package "Google Cloud Platform" {
+  [GKE] <<Platform>>
+  [Let's Encrypt] <<ExternalService>>
+}
+
+[Frontend Service] --> [Nginx-Ingress]
+[Nginx-Ingress] --> [API Service]
+[Nginx-Ingress] --> [Metrics API Service]
+
+[API Service] --> [RabbitMQ]
+[Metrics API Service] --> [RabbitMQ]
+
+[RabbitMQ] --> [Metrics API Service]
+
+[API Service] --> [MongoDB]
+[Metrics API Service] --> [MongoDB]
+
+[Cert-manager] .> [Let's Encrypt] : "ACME Protocol"
+
+[Cert-manager] ..> [Nginx-Ingress] : "TLS Certificates"
+
+[Frontend Service] --> [API Service] : "REST API / WebSockets"
+[Frontend Service] --> [Frontend Service] : "TensorFlow.js"
+
+[GKE] --> [Frontend Service]
+[GKE] --> [API Service]
+[GKE] --> [Metrics API Service]
+[GKE] --> [RabbitMQ]
+[GKE] --> [MongoDB]
+
+@enduml
+```

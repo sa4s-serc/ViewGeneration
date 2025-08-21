@@ -1,0 +1,75 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #EEEBDC
+  BorderColor #333333
+  Style roundrect
+}
+skinparam ArrowColor #333333
+skinparam defaultTextAlignment center
+
+actor "User" as user
+actor "Developer" as dev
+
+rectangle "Frontend" {
+  [React Components] as react
+  [Redux Store] as redux
+  [React Native] as reactnative
+  [Electron] as electron
+}
+
+rectangle "Backend" {
+  [Spring Boot API] as springboot
+  [gRPC Services] as grpc
+  [Message Queue (ZeroMQ)] as zeromq
+}
+
+rectangle "CI/CD Pipeline" {
+  [Azure DevOps] as azuredevops
+  [CircleCI] as circleci
+  [AWS CodeDeploy] as codedeploy
+  [AWS CodeBuild] as codebuild
+}
+
+rectangle "Testing" {
+  [UI Tests] as uitests
+  [Integration Tests] as inttests
+  [Performance Tests] as perftests
+}
+
+rectangle "Monitoring & Logging" {
+  [New Relic] as newrelic
+  [Elastic Stack] as elastic
+}
+
+database "Database" as db
+
+cloud "AWS Services" as aws
+
+user --> react
+user --> reactnative
+user --> electron
+dev --> azuredevops
+dev --> circleci
+
+react <--> springboot : REST API
+reactnative <--> springboot : REST API
+electron <--> springboot : REST API
+redux --> react
+
+springboot <--> grpc : Push Notifications
+springboot <--> zeromq : Async Tasks
+springboot <--> db : Data Access
+
+azuredevops --> aws : Deploy
+circleci --> aws : Deploy
+codedeploy --> aws : Deploy
+codebuild --> aws : Build
+
+springboot --> newrelic : Performance Metrics
+springboot --> elastic : Logs
+
+uitests --> react : Test
+inttests --> springboot : Test
+perftests --> aws : Test
+
+@enduml

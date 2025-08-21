@@ -1,0 +1,64 @@
+@startuml Melacon_WirelessTransportEmulator
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Management Plane" {
+  rectangle "SDN Controller" as SDNController #lightblue
+  rectangle "NETCONF Client" as NETCONFClient #lightblue
+}
+
+package "Emulation Plane" {
+  rectangle "OpenYuma\nNETCONF Server" as NETCONFServer #lightgreen
+  rectangle "YANG Models" as YANGModels #lightgreen
+  rectangle "SIL Callbacks" as SILCallbacks #lightgreen
+  rectangle "Configuration\n(topology.json, config.json)" as Config #lightgreen
+}
+
+package "Data Plane" {
+  rectangle "Docker Containers\n(Network Elements)" as DockerNE #pink
+  rectangle "veth Pairs\n(Network Links)" as VethLinks #pink
+}
+
+package "Supporting Services" {
+  rectangle "SNMP Agent" as SNMPAgent #lightyellow
+  rectangle "Notification\nHandler" as NotificationHandler #lightyellow
+  rectangle "CLI Interface\n(yangcli)" as CLI #lightyellow
+}
+
+SDNController --> NETCONFServer : NETCONF
+NETCONFClient --> NETCONFServer : NETCONF
+
+NETCONFServer --> YANGModels : Uses
+NETCONFServer --> SILCallbacks : Triggers
+NETCONFServer --> Config : Reads
+NETCONFServer --> DockerNE : Manages
+NETCONFServer --> VethLinks : Configures
+
+DockerNE -- VethLinks : Connected via
+
+NETCONFServer --> SNMPAgent : SNMP
+NETCONFServer --> NotificationHandler : Events
+NETCONFServer --> CLI : Commands
+
+note right of YANGModels
+  IETF/OpenROADM models
+  XPath validation
+  Data conversion (YIN,SQL,C,XSD,HTML)
+end note
+
+note right of SILCallbacks
+  Factory pattern
+  Singleton pattern
+  Callback mechanism
+end note
+
+note right of DockerNE
+  Microservices architecture
+  Independent network elements
+end note
+@enduml

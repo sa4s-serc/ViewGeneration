@@ -1,0 +1,35 @@
+@startuml codahale_sneaker
+skinparam defaultTextAlignment center
+skinparam linetype ortho
+
+rectangle "User" as User
+rectangle "CLI" as CLI
+rectangle "Manager" as Manager
+rectangle "Envelope" as Envelope
+rectangle "S3" as S3
+rectangle "KMS" as KMS
+
+User -> CLI : Executes commands
+CLI -> Manager : Calls methods\n(upload, download, list, etc.)
+Manager -> Envelope : Encrypts/decrypts secrets
+Envelope -> KMS : Requests data keys
+Manager -> S3 : Uploads/downloads secrets
+KMS -> Envelope : Returns encrypted data keys
+
+note right of Envelope
+  Uses AES-256-GCM encryption
+  with KMS data keys
+end note
+
+note right of Manager
+  Implements ObjectStorage\nand KeyManagement interfaces
+end note
+
+note right of KMS
+  Provides encryption context\nfor added security
+end note
+
+note right of S3
+  Stores encrypted secrets\nand tarballs
+end note
+@enduml

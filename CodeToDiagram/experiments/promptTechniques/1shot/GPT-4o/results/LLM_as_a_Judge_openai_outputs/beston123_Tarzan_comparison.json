@@ -1,0 +1,423 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Registry",
+        "description": "Manages server registration and allocation of unique IDs",
+        "boundaries": "Solid rectangle",
+        "position": "Top center"
+      },
+      {
+        "name": "Tarzan Admin",
+        "description": "Admin interface for managing servers",
+        "boundaries": "Solid rectangle",
+        "position": "Top right"
+      },
+      {
+        "name": "Tarzan Server",
+        "description": "Central server handling transactions",
+        "boundaries": "Dashed rectangle",
+        "position": "Center"
+      },
+      {
+        "name": "Tarzan Store",
+        "description": "Data storage using MySQL",
+        "boundaries": "Solid rectangle",
+        "position": "Bottom center"
+      },
+      {
+        "name": "Application1 (Tarzan Client)",
+        "description": "Client application for transaction processing",
+        "boundaries": "Dashed rectangle",
+        "position": "Bottom left"
+      },
+      {
+        "name": "Application2 (Tarzan Client)",
+        "description": "Client application for transaction processing",
+        "boundaries": "Dashed rectangle",
+        "position": "Bottom left"
+      },
+      {
+        "name": "RocketMQ",
+        "description": "Message queue group",
+        "boundaries": "Dashed rectangle",
+        "position": "Right center"
+      },
+      {
+        "name": "Other MQ",
+        "description": "Message queue group",
+        "boundaries": "Dashed rectangle",
+        "position": "Right center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Registry",
+        "target": "Tarzan Server",
+        "label": "allocate unique id",
+        "type": "Solid line"
+      },
+      {
+        "source": "Registry",
+        "target": "Tarzan Server",
+        "label": "register/unregister",
+        "type": "Solid line"
+      },
+      {
+        "source": "Tarzan Admin",
+        "target": "Registry",
+        "label": "manage servers",
+        "type": "Dashed line"
+      },
+      {
+        "source": "Tarzan Admin",
+        "target": "Tarzan Server",
+        "label": "query message",
+        "type": "Dashed line"
+      },
+      {
+        "source": "Application1 (Tarzan Client)",
+        "target": "Tarzan Server",
+        "label": "1. Prepare",
+        "type": "Solid line"
+      },
+      {
+        "source": "Application1 (Tarzan Client)",
+        "target": "Tarzan Server",
+        "label": "2. Commit/Rollback",
+        "type": "Solid line"
+      },
+      {
+        "source": "Application2 (Tarzan Client)",
+        "target": "Tarzan Server",
+        "label": "Check Transaction State",
+        "type": "Solid line"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "RocketMQ",
+        "label": "Send",
+        "type": "Solid line"
+      },
+      {
+        "source": "RocketMQ",
+        "target": "Tarzan Server",
+        "label": "Return Result",
+        "type": "Solid line"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "Other MQ",
+        "label": "Send",
+        "type": "Solid line"
+      },
+      {
+        "source": "Other MQ",
+        "target": "Tarzan Server",
+        "label": "Return Result",
+        "type": "Solid line"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "Tarzan Store",
+        "label": "put",
+        "type": "Solid line"
+      },
+      {
+        "source": "Tarzan Store",
+        "target": "Tarzan Server",
+        "label": "get",
+        "type": "Solid line"
+      }
+    ],
+    "annotations": [
+      "Producer Group",
+      "MQ Group",
+      "Cluster/LB"
+    ],
+    "groups": [
+      "Producer Group",
+      "MQ Group"
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Tarzan System Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Client",
+        "description": "Client side components",
+        "boundaries": "Solid rectangle",
+        "position": "Left"
+      },
+      {
+        "name": "MQClient",
+        "description": "Handles messaging",
+        "boundaries": "Contained within Client",
+        "position": "Left"
+      },
+      {
+        "name": "TransactionLifecycleManager",
+        "description": "Manages transaction lifecycle",
+        "boundaries": "Contained within Client",
+        "position": "Left"
+      },
+      {
+        "name": "Server",
+        "description": "Server side components",
+        "boundaries": "Solid rectangle",
+        "position": "Center"
+      },
+      {
+        "name": "ServerController",
+        "description": "Controls server operations",
+        "boundaries": "Contained within Server",
+        "position": "Center"
+      },
+      {
+        "name": "ScheduleServiceManager",
+        "description": "Manages scheduling services",
+        "boundaries": "Contained within Server",
+        "position": "Center"
+      },
+      {
+        "name": "MessageReservidService",
+        "description": "Handles message reserving",
+        "boundaries": "Contained within Server",
+        "position": "Center"
+      },
+      {
+        "name": "ConfigManager",
+        "description": "Manages configurations",
+        "boundaries": "Contained within Server",
+        "position": "Center"
+      },
+      {
+        "name": "Message Broker",
+        "description": "Handles message brokering",
+        "boundaries": "Solid rectangle",
+        "position": "Right"
+      },
+      {
+        "name": "RocketMQ",
+        "description": "Message queue",
+        "boundaries": "Contained within Message Broker",
+        "position": "Right"
+      },
+      {
+        "name": "Store",
+        "description": "Handles data storage",
+        "boundaries": "Solid rectangle",
+        "position": "Right"
+      },
+      {
+        "name": "RocketMQStoreService",
+        "description": "Stores RocketMQ data",
+        "boundaries": "Contained within Store",
+        "position": "Right"
+      },
+      {
+        "name": "ToSendMessage",
+        "description": "Handles message sending",
+        "boundaries": "Contained within Store",
+        "position": "Right"
+      },
+      {
+        "name": "MessageConsume",
+        "description": "Handles message consumption",
+        "boundaries": "Contained within Store",
+        "position": "Right"
+      },
+      {
+        "name": "Registry",
+        "description": "Handles service registry",
+        "boundaries": "Solid rectangle",
+        "position": "Far right"
+      },
+      {
+        "name": "ServerRegistry",
+        "description": "Manages server registry",
+        "boundaries": "Contained within Registry",
+        "position": "Far right"
+      },
+      {
+        "name": "Discovery",
+        "description": "Handles service discovery",
+        "boundaries": "Contained within Registry",
+        "position": "Far right"
+      },
+      {
+        "name": "RPC",
+        "description": "Handles remote procedure calls",
+        "boundaries": "Solid rectangle",
+        "position": "Far right"
+      },
+      {
+        "name": "RpcClient",
+        "description": "Client side RPC",
+        "boundaries": "Contained within RPC",
+        "position": "Far right"
+      },
+      {
+        "name": "RpcServer",
+        "description": "Server side RPC",
+        "boundaries": "Contained within RPC",
+        "position": "Far right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "MQClient",
+        "target": "ServerController",
+        "label": "Send Message",
+        "type": "Solid line"
+      },
+      {
+        "source": "TransactionLifecycleManager",
+        "target": "ServerController",
+        "label": "Forward Message",
+        "type": "Solid line"
+      },
+      {
+        "source": "ServerController",
+        "target": "MessageReservidService",
+        "label": "Check and Resend Messages",
+        "type": "Solid line"
+      },
+      {
+        "source": "ScheduleServiceManager",
+        "target": "MessageReservidService",
+        "label": "Schedule Resend Task",
+        "type": "Solid line"
+      },
+      {
+        "source": "MessageReservidService",
+        "target": "ConfigManager",
+        "label": "Update Configurations",
+        "type": "Solid line"
+      },
+      {
+        "source": "ConfigManager",
+        "target": "ServerController",
+        "label": "Update Service Info",
+        "type": "Solid line"
+      },
+      {
+        "source": "RocketMQ",
+        "target": "RocketMQStoreService",
+        "label": "Persist Message",
+        "type": "Solid line"
+      },
+      {
+        "source": "RocketMQStoreService",
+        "target": "ToSendMessage",
+        "label": "Save message data",
+        "type": "Solid line"
+      },
+      {
+        "source": "ToSendMessage",
+        "target": "MessageConsume",
+        "label": "Publish Message",
+        "type": "Solid line"
+      },
+      {
+        "source": "ServerRegistry",
+        "target": "Discovery",
+        "label": "Notify Service Update",
+        "type": "Solid line"
+      },
+      {
+        "source": "RpcClient",
+        "target": "RpcServer",
+        "label": "Remote Procedure Call",
+        "type": "Solid line"
+      }
+    ],
+    "annotations": [
+      "Client",
+      "Server",
+      "Message Broker",
+      "Store",
+      "Registry",
+      "RPC"
+    ],
+    "groups": [
+      "Client",
+      "Server",
+      "Message Broker",
+      "Store",
+      "Registry",
+      "RPC"
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Generated System Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "RocketMQ"
+    ],
+    "unique_to_GroundTruth": [
+      "Registry",
+      "Tarzan Admin",
+      "Tarzan Server",
+      "Tarzan Store",
+      "Application1 (Tarzan Client)",
+      "Application2 (Tarzan Client)",
+      "Other MQ"
+    ],
+    "unique_to_GeneratedImage": [
+      "Client",
+      "MQClient",
+      "TransactionLifecycleManager",
+      "Server",
+      "ServerController",
+      "ScheduleServiceManager",
+      "MessageReservidService",
+      "ConfigManager",
+      "Message Broker",
+      "Store",
+      "RocketMQStoreService",
+      "ToSendMessage",
+      "MessageConsume",
+      "Registry",
+      "ServerRegistry",
+      "Discovery",
+      "RPC",
+      "RpcClient",
+      "RpcServer"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      "allocate unique id",
+      "register/unregister",
+      "manage servers",
+      "query message",
+      "1. Prepare",
+      "2. Commit/Rollback",
+      "Check Transaction State",
+      "Send",
+      "Return Result",
+      "put",
+      "get"
+    ],
+    "unique_connectors_GeneratedImage": [
+      "Send Message",
+      "Forward Message",
+      "Check and Resend Messages",
+      "Schedule Resend Task",
+      "Update Configurations",
+      "Update Service Info",
+      "Persist Message",
+      "Save message data",
+      "Publish Message",
+      "Notify Service Update",
+      "Remote Procedure Call"
+    ],
+    "explanation": "The GroundTruth diagram represents a system architecture focused on the Tarzan system, with components like Tarzan Server, Tarzan Store, and various applications interacting with a central server. It emphasizes transaction processing and server management. The GeneratedImage diagram, on the other hand, presents a more generic architecture with components like Client, Server, and Message Broker, focusing on messaging and service management. Both diagrams include RocketMQ, indicating a shared use of message queuing. However, the GeneratedImage diagram includes additional components like RPC and Registry, which are not present in the GroundTruth diagram. The GroundTruth diagram is more specific to a particular system, while the GeneratedImage diagram is broader and more abstract. Based on accuracy and completeness, the GeneratedImage diagram is rated 6 out of 10. It captures some elements like RocketMQ but lacks the specific context and components of the GroundTruth diagram.",
+    "Rating": 6
+  }
+}

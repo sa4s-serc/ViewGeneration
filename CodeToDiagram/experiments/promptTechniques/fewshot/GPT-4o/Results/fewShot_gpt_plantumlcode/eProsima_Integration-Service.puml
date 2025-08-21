@@ -1,0 +1,59 @@
+```plantuml
+@startuml eProsima_Integration-Service
+left to right direction
+skinparam rectangle {
+  BackgroundColor #f0f8ff
+  BorderColor #000000
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+actor User
+
+rectangle "Integration Service" {
+  rectangle "JSON Library" as JSON {
+    rectangle "basic_json" as BasicJson
+    rectangle "input_adapter" as InputAdapter
+    rectangle "output_adapter" as OutputAdapter
+    rectangle "parser" as Parser
+    rectangle "lexer" as Lexer
+    rectangle "binary_reader" as BinaryReader
+    rectangle "binary_writer" as BinaryWriter
+  }
+
+  rectangle "System Handles" {
+    rectangle "Fast DDS" as FastDDS
+    rectangle "ROS 1/2" as ROS
+    rectangle "WebSocket" as WebSocket
+    rectangle "FIWARE" as FIWARE
+  }
+
+  rectangle "Configuration Parser" as ConfigParser
+}
+
+rectangle "Middleware Systems" {
+  rectangle "DDS" as DDS
+  rectangle "ROS" as ROSMiddleware
+  rectangle "WebSocket Server" as WebSocketServer
+}
+
+User --> ConfigParser : Load YAML Config
+ConfigParser --> FastDDS : Parse System Handle
+ConfigParser --> ROS : Parse System Handle
+ConfigParser --> WebSocket : Parse System Handle
+ConfigParser --> FIWARE : Parse System Handle
+
+User --> BasicJson : Interact with JSON
+BasicJson --> InputAdapter : Use for Input
+BasicJson --> OutputAdapter : Use for Output
+BasicJson --> Parser : Parse JSON Strings
+Parser --> Lexer : Tokenize Input
+BasicJson --> BinaryReader : Read Binary Formats
+BasicJson --> BinaryWriter : Write Binary Formats
+
+FastDDS --> DDS : Communicate
+ROS --> ROSMiddleware : Communicate
+WebSocket --> WebSocketServer : Communicate
+
+@enduml
+```

@@ -1,0 +1,66 @@
+```plantuml
+@startuml vectranetworks_AWS-Traffic-Mirroring-Session-Manager
+
+actor User
+participant "tap.py" as Tap
+participant "SpileTapper" as SpileTapper
+participant "Spile" as Spile
+participant "ec2_api_client.py" as EC2Client
+participant "config_vpc.py" as ConfigVPC
+participant "nlb_factory.py" as NLBFactory
+participant "nlb_target_factory.py" as NLBTargetFactory
+
+User -> Tap: Execute main()
+activate Tap
+
+Tap -> ConfigVPC: Get VPC configurations
+activate ConfigVPC
+ConfigVPC --> Tap: List<VPC_Config>
+deactivate ConfigVPC
+
+loop for each VPC
+    Tap -> SpileTapper: Process VPC(vpc_config)
+    activate SpileTapper
+    
+    SpileTapper -> EC2Client: List eligible EC2 instances()
+    activate EC2Client
+    EC2Client --> SpileTapper: List<EC2_Instance>
+    deactivate EC2Client
+    
+    loop for each EC2 instance
+        SpileTapper -> Spile: Create/Manage session(instance)
+        activate Spile
+        
+        Spile -> EC2Client: Get ENI details(instance)
+        activate EC2Client
+        EC2Client --> Spile: ENI_Details
+        deactivate EC2Client
+        
+        Spile -> NLBFactory: Get/create NLB(vpc_config)
+        activate NLBFactory
+        NLBFactory --> Spile: NLB_ARN
+        deactivate NLBFactory
+        
+        Spile -> NLBTargetFactory: Create mirror target(NLB_ARN)
+        activate NLBTargetFactory
+        NLBTargetFactory --> Spile: Target_ID
+        deactivate NLBTargetFactory
+        
+        Spile -> EC2Client: Create traffic mirror session(ENI, Target_ID)
+        activate EC2Client
+        EC2Client --> Spile: Session_ID
+        deactivate EC2Client
+        
+        Spile --> SpileTapper: Session status
+        deactivate Spile
+    end
+    
+    SpileTapper --> Tap: Processing complete
+    deactivate SpileTapper
+end
+
+Tap --> User: Execution completed
+deactivate Tap
+
+@enduml
+```

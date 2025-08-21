@@ -1,0 +1,236 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Reference Implementation",
+        "description": "Contains TimedService and API Endpoints",
+        "boundaries": "Box",
+        "position": "Left"
+      },
+      {
+        "name": "TimedService",
+        "description": "Handles timing and messaging",
+        "boundaries": "Box within Reference Implementation",
+        "position": "Inside Reference Implementation"
+      },
+      {
+        "name": "NVSS API Server",
+        "description": "Handles API requests",
+        "boundaries": "Box",
+        "position": "Right"
+      },
+      {
+        "name": "VRDR Reporter",
+        "description": "Interacts with Jurisdiction System",
+        "boundaries": "Circle",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "TimedService",
+        "target": "NVSS API Server",
+        "label": "POST Auth Token",
+        "type": "Arrow"
+      },
+      {
+        "source": "TimedService",
+        "target": "NVSS API Server",
+        "label": "POST FHIR Messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "NVSS API Server",
+        "target": "TimedService",
+        "label": "GET FHIR responses",
+        "type": "Arrow"
+      },
+      {
+        "source": "TimedService",
+        "target": "NVSS API Server",
+        "label": "POST Resubmit Messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "API Endpoints",
+        "target": "VRDR Reporter",
+        "label": "POST /record/submission",
+        "type": "Arrow"
+      },
+      {
+        "source": "VRDR Reporter",
+        "target": "API Endpoints",
+        "label": "GET /record/status/{deathYear}/{jurisdictionId}/{certNo}",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      "SQS API Queue",
+      "Jurisdiction System"
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Reference Implementation Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Initiates actions",
+        "boundaries": "Actor",
+        "position": "Left"
+      },
+      {
+        "name": "React UI",
+        "description": "User Interface",
+        "boundaries": "Box",
+        "position": "Next to User"
+      },
+      {
+        "name": "RecordController",
+        "description": "Handles record operations",
+        "boundaries": "Box",
+        "position": "Center"
+      },
+      {
+        "name": "TimedHostedService",
+        "description": "Handles timing and messaging",
+        "boundaries": "Box",
+        "position": "Center"
+      },
+      {
+        "name": "VRDR.Client",
+        "description": "Client for VRDR operations",
+        "boundaries": "Box",
+        "position": "Center"
+      },
+      {
+        "name": "NVSS API Server",
+        "description": "Handles API requests",
+        "boundaries": "Box",
+        "position": "Center"
+      },
+      {
+        "name": "PostgreSQL",
+        "description": "Database",
+        "boundaries": "Box",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "React UI",
+        "label": "Uploads VRDR Record",
+        "type": "Arrow"
+      },
+      {
+        "source": "React UI",
+        "target": "RecordController",
+        "label": "POST /api/record (JSON)",
+        "type": "Arrow"
+      },
+      {
+        "source": "RecordController",
+        "target": "React UI",
+        "label": "200 OK",
+        "type": "Arrow"
+      },
+      {
+        "source": "RecordController",
+        "target": "TimedHostedService",
+        "label": "Store MessageItem",
+        "type": "Arrow"
+      },
+      {
+        "source": "TimedHostedService",
+        "target": "VRDR.Client",
+        "label": "Background Processing",
+        "type": "Arrow"
+      },
+      {
+        "source": "VRDR.Client",
+        "target": "NVSS API Server",
+        "label": "Submit message (HTTPS/TLS)",
+        "type": "Arrow"
+      },
+      {
+        "source": "NVSS API Server",
+        "target": "VRDR.Client",
+        "label": "Return Acknowledgement (Signed)",
+        "type": "Arrow"
+      },
+      {
+        "source": "User",
+        "target": "React UI",
+        "label": "Check message status",
+        "type": "Arrow"
+      },
+      {
+        "source": "React UI",
+        "target": "RecordController",
+        "label": "GET /api/record/status",
+        "type": "Arrow"
+      },
+      {
+        "source": "RecordController",
+        "target": "React UI",
+        "label": "Return status JSON",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      "Security Context"
+    ],
+    "groups": [
+      "Background Processing"
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Sequence Diagram for VRDR"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "NVSS API Server"
+    ],
+    "unique_to_GroundTruth": [
+      "Reference Implementation",
+      "TimedService",
+      "VRDR Reporter"
+    ],
+    "unique_to_GeneratedImage": [
+      "User",
+      "React UI",
+      "RecordController",
+      "TimedHostedService",
+      "VRDR.Client",
+      "PostgreSQL"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      "POST Auth Token",
+      "POST FHIR Messages",
+      "GET FHIR responses",
+      "POST Resubmit Messages",
+      "POST /record/submission",
+      "GET /record/status/{deathYear}/{jurisdictionId}/{certNo}"
+    ],
+    "unique_connectors_GeneratedImage": [
+      "Uploads VRDR Record",
+      "POST /api/record (JSON)",
+      "200 OK",
+      "Store MessageItem",
+      "Background Processing",
+      "Submit message (HTTPS/TLS)",
+      "Return Acknowledgement (Signed)",
+      "Check message status",
+      "GET /api/record/status",
+      "Return status JSON"
+    ],
+    "explanation": "The GroundTruth diagram represents a high-level architectural overview focusing on the interaction between components like the Reference Implementation, TimedService, and NVSS API Server. It emphasizes the flow of messages and API interactions. In contrast, the GeneratedImage diagram is a sequence diagram detailing the step-by-step process of user interactions with the system, including UI elements and backend services. Both diagrams share the NVSS API Server component, but the GroundTruth diagram includes specific components like VRDR Reporter, which are absent in the GeneratedImage. The GeneratedImage includes additional components like User, React UI, and PostgreSQL, which are not present in the GroundTruth. The connectors in each diagram are unique, reflecting their different focuses: architectural flow versus process sequence. Overall, the GeneratedImage diagram provides a more detailed view of the operational sequence, while the GroundTruth offers a broader architectural perspective. I would rate the GeneratedImage an 8 out of 10 for its accuracy and completeness in detailing the process flow, although it lacks some architectural components present in the GroundTruth.",
+    "Rating": 8
+  }
+}

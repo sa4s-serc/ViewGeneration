@@ -1,0 +1,82 @@
+```plantuml
+@startuml zmyzheng_TweetMap
+left to right direction
+
+skinparam rectangle {
+  BackgroundColor #f0f0f0
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Twitter Data Application" {
+  
+  rectangle "Tweet Collector" as Collector #a2d5f2 {
+    rectangle "Twitter Streaming API" as TwitterAPI #8cc0de
+  }
+  
+  package "Messaging" {
+    cloud "Kafka Message Queue" as KafkaQueue #f7d6d0
+  }
+  
+  package "Processing" {
+    rectangle "Flink Processor" as FlinkProcessor #a2d5f2
+  }
+  
+  package "Data Store" {
+    database "Elasticsearch" as Elasticsearch #f7d6d0
+  }
+  
+  package "REST API Server" {
+    rectangle "Spring Boot" as SpringBoot #f5b5fc {
+      rectangle "Controllers" as Controllers
+      rectangle "Services" as Services
+      rectangle "Repositories" as Repositories
+    }
+  }
+  
+  package "Frontend Visualization" {
+    rectangle "Angular App" as Angular #f5b5fc 
+    rectangle "Kibana" as Kibana #f7d6d0
+  }
+}
+
+Collector --> KafkaQueue : Send Tweets
+KafkaQueue --> FlinkProcessor : Stream Tweets
+FlinkProcessor --> Elasticsearch : Store Processed Tweets
+SpringBoot --> Elasticsearch : Query Tweets
+Angular --> SpringBoot : Access REST API
+Kibana --> Elasticsearch : Visualize Data
+
+note top of Collector
+  Collects real-time tweets
+  and sends to Kafka
+end note
+
+note top of FlinkProcessor
+  Processes tweets from Kafka
+  and stores in Elasticsearch
+end note
+
+note top of Angular
+  Visualizes tweets
+  and trends
+end note
+
+note top of Kibana
+  Provides geographical
+  tweet heatmap
+end note
+
+note right of TwitterAPI
+  Source of real-time
+  Twitter data
+end note
+
+note right of SpringBoot
+  Provides REST API
+  for tweet data
+end note
+
+@enduml
+```

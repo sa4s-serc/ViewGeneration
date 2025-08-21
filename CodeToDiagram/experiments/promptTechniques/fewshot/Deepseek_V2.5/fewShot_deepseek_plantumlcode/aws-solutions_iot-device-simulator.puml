@@ -1,0 +1,59 @@
+@startuml aws-solutions_iot-device-simulator
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "User" as user
+
+rectangle "Web UI" as webui {
+  rectangle "Device Type Management"
+  rectangle "Simulation Management"
+  rectangle "Dashboard"
+}
+
+rectangle "API Gateway" as apigw
+
+rectangle "Microservices" as microservices {
+  rectangle "DeviceTypeManager"
+  rectangle "SimulationManager"
+  rectangle "ResponseManager"
+}
+
+rectangle "AWS Services" {
+  rectangle "Step Functions" as step
+  rectangle "Lambda (Simulator)" as simlambda
+  rectangle "IoT Core" as iot
+  rectangle "DynamoDB" as dynamo
+  rectangle "CloudWatch" as cw
+}
+
+rectangle "Simulated Devices" as devices {
+  rectangle "Random Generator"
+  rectangle "Vehicle Generator"
+  rectangle "Custom Generator"
+}
+
+user --> webui
+webui --> apigw
+apigw --> microservices
+microservices --> dynamo : Store/retrieve configs
+microservices --> step : Trigger simulations
+step --> simlambda : Invoke
+simlambda --> iot : Publish messages
+simlambda --> devices : Generate data
+iot --> cw : Logs/metrics
+devices --> simlambda : Return generated data
+
+note right of iot
+  MQTT/HTTP/WebSocket
+  connections
+end note
+
+note right of step
+  State machine orchestrates
+  simulation lifecycle
+end note
+@enduml

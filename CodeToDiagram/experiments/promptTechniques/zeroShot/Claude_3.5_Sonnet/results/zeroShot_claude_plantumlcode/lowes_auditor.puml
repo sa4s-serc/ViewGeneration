@@ -1,0 +1,57 @@
+```plantuml
+@startuml lowes_auditor
+
+!define RECTANGLE class
+
+cloud "Client Applications" {
+    [Spring Boot App] as SBA
+    [Standalone App] as SA
+}
+
+package "Auditor Framework" {
+    [Client Library] as CL
+    [Spring Boot Starter] as SBS
+    
+    package "Application Server" {
+        [Consumer Service] as CS
+        [Audit Event Repository Service] as AERS
+        [Application] as APP
+    }
+    
+    package "Core" {
+        [Mappers] as M
+        [JSON Utils] as JU
+    }
+    
+    [OpenAPI Specs] as OAS
+}
+
+cloud "Infrastructure" {
+    [Kafka] as K
+    [Elasticsearch] as ES
+}
+
+SBA --> SBS : uses
+SA --> CL : uses
+SBS --> CL : extends
+
+CL --> K : produces events
+CS --> K : consumes events
+CS --> AERS : passes events
+AERS --> ES : stores events
+APP --> CS : manages
+APP --> AERS : manages
+
+M --> CL : supports
+M --> CS : supports
+M --> AERS : supports
+JU --> CL : supports
+JU --> CS : supports
+JU --> AERS : supports
+
+OAS --> CL : defines
+OAS --> CS : defines
+OAS --> AERS : defines
+
+@enduml
+```

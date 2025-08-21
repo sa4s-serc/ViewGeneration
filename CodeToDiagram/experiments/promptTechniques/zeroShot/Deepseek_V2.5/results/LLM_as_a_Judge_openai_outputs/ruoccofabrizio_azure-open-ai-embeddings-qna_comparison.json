@@ -1,0 +1,363 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Knowledge Base",
+        "description": "Azure Storage for unstructured documents (pdf, docx, txt, etc.)",
+        "boundaries": "Dashed box",
+        "position": "Left"
+      },
+      {
+        "name": "Azure Form Recognizer",
+        "description": "Extracts paragraphs from raw documents",
+        "boundaries": "Icon",
+        "position": "Center left"
+      },
+      {
+        "name": "Azure Translator",
+        "description": "Optional translation of extracted dialogs",
+        "boundaries": "Icon",
+        "position": "Center"
+      },
+      {
+        "name": "Search Layer",
+        "description": "Embeds paragraphs using Azure OpenAI and stores in Vector Database",
+        "boundaries": "Dashed box",
+        "position": "Center right"
+      },
+      {
+        "name": "Azure OpenAI Service Embeddings",
+        "description": "Generates embeddings for paragraphs",
+        "boundaries": "Icon",
+        "position": "Center right"
+      },
+      {
+        "name": "Vector Database",
+        "description": "Stores vectors for search",
+        "boundaries": "Icon",
+        "position": "Right"
+      },
+      {
+        "name": "Users",
+        "description": "Interacts with the system to ask questions and receive answers",
+        "boundaries": "Icon",
+        "position": "Top right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Knowledge Base",
+        "target": "Azure Form Recognizer",
+        "label": "Raw documents",
+        "type": "Arrow"
+      },
+      {
+        "source": "Azure Form Recognizer",
+        "target": "Azure Translator",
+        "label": "Extracted paragraphs",
+        "type": "Arrow"
+      },
+      {
+        "source": "Azure Translator",
+        "target": "Search Layer",
+        "label": "Translate (optional)",
+        "type": "Arrow"
+      },
+      {
+        "source": "Search Layer",
+        "target": "Vector Database",
+        "label": "Vectors",
+        "type": "Arrow"
+      },
+      {
+        "source": "Users",
+        "target": "Azure OpenAI Embeddings",
+        "label": "Questions",
+        "type": "Arrow"
+      },
+      {
+        "source": "Azure OpenAI Embeddings",
+        "target": "Users",
+        "label": "Answers",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      "There is a red blinking light on C4 button in my SP-300a machine, which part do I need to replace?",
+      "You need to replace parts a & b. Here's the link to order them."
+    ],
+    "groups": [
+      {
+        "name": "Search Layer",
+        "description": "Contains Azure OpenAI Service Embeddings and Vector Database",
+        "boundaries": "Dashed box"
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Q&A with Semantic Answering with Azure OpenAI Service"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Interacts with the system to submit questions and receive answers",
+        "boundaries": "Actor",
+        "position": "Left"
+      },
+      {
+        "name": "Streamlit Web App",
+        "description": "Interface for user interaction",
+        "boundaries": "Box",
+        "position": "Center left"
+      },
+      {
+        "name": "Azure OpenAI",
+        "description": "Generates embeddings and answers",
+        "boundaries": "Box",
+        "position": "Center"
+      },
+      {
+        "name": "Vector Store",
+        "description": "Stores document embeddings",
+        "boundaries": "Box",
+        "position": "Center right"
+      },
+      {
+        "name": "Azure Functions",
+        "description": "Handles batch processing",
+        "boundaries": "Box",
+        "position": "Right"
+      },
+      {
+        "name": "Azure Queue",
+        "description": "Queues processing messages",
+        "boundaries": "Box",
+        "position": "Right"
+      },
+      {
+        "name": "Azure Blob Storage",
+        "description": "Stores documents",
+        "boundaries": "Box",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Streamlit Web App",
+        "label": "Submit Question",
+        "type": "Arrow"
+      },
+      {
+        "source": "Streamlit Web App",
+        "target": "Azure OpenAI",
+        "label": "Generate Embedding (Question)",
+        "type": "Arrow"
+      },
+      {
+        "source": "Azure OpenAI",
+        "target": "Streamlit Web App",
+        "label": "Return Question Embedding",
+        "type": "Arrow"
+      },
+      {
+        "source": "Streamlit Web App",
+        "target": "Azure OpenAI",
+        "label": "Search Similar Documents",
+        "type": "Arrow"
+      },
+      {
+        "source": "Azure OpenAI",
+        "target": "Streamlit Web App",
+        "label": "Return Relevant Chunks",
+        "type": "Arrow"
+      },
+      {
+        "source": "Streamlit Web App",
+        "target": "Azure OpenAI",
+        "label": "Generate Answer (Question + Chunks)",
+        "type": "Arrow"
+      },
+      {
+        "source": "Azure OpenAI",
+        "target": "Streamlit Web App",
+        "label": "Return Generated Answer",
+        "type": "Arrow"
+      },
+      {
+        "source": "Streamlit Web App",
+        "target": "User",
+        "label": "Display Answer",
+        "type": "Arrow"
+      },
+      {
+        "source": "Azure Functions",
+        "target": "Azure Queue",
+        "label": "Add Processing Message",
+        "type": "Arrow"
+      },
+      {
+        "source": "Azure Queue",
+        "target": "Azure Functions",
+        "label": "Trigger Processing Function",
+        "type": "Arrow"
+      },
+      {
+        "source": "Azure Functions",
+        "target": "Azure Blob Storage",
+        "label": "Retrieve Documents",
+        "type": "Arrow"
+      },
+      {
+        "source": "Azure OpenAI",
+        "target": "Vector Store",
+        "label": "Store Document Embeddings",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Sequence Diagram for Q&A System"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Azure OpenAI",
+      "User"
+    ],
+    "unique_to_GroundTruth": [
+      "Knowledge Base",
+      "Azure Form Recognizer",
+      "Azure Translator",
+      "Search Layer",
+      "Azure OpenAI Service Embeddings",
+      "Vector Database"
+    ],
+    "unique_to_GeneratedImage": [
+      "Streamlit Web App",
+      "Vector Store",
+      "Azure Functions",
+      "Azure Queue",
+      "Azure Blob Storage"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Knowledge Base",
+        "target": "Azure Form Recognizer",
+        "label": "Raw documents",
+        "type": "Arrow"
+      },
+      {
+        "source": "Azure Form Recognizer",
+        "target": "Azure Translator",
+        "label": "Extracted paragraphs",
+        "type": "Arrow"
+      },
+      {
+        "source": "Azure Translator",
+        "target": "Search Layer",
+        "label": "Translate (optional)",
+        "type": "Arrow"
+      },
+      {
+        "source": "Search Layer",
+        "target": "Vector Database",
+        "label": "Vectors",
+        "type": "Arrow"
+      },
+      {
+        "source": "Users",
+        "target": "Azure OpenAI Embeddings",
+        "label": "Questions",
+        "type": "Arrow"
+      },
+      {
+        "source": "Azure OpenAI Embeddings",
+        "target": "Users",
+        "label": "Answers",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "Streamlit Web App",
+        "label": "Submit Question",
+        "type": "Arrow"
+      },
+      {
+        "source": "Streamlit Web App",
+        "target": "Azure OpenAI",
+        "label": "Generate Embedding (Question)",
+        "type": "Arrow"
+      },
+      {
+        "source": "Azure OpenAI",
+        "target": "Streamlit Web App",
+        "label": "Return Question Embedding",
+        "type": "Arrow"
+      },
+      {
+        "source": "Streamlit Web App",
+        "target": "Azure OpenAI",
+        "label": "Search Similar Documents",
+        "type": "Arrow"
+      },
+      {
+        "source": "Azure OpenAI",
+        "target": "Streamlit Web App",
+        "label": "Return Relevant Chunks",
+        "type": "Arrow"
+      },
+      {
+        "source": "Streamlit Web App",
+        "target": "Azure OpenAI",
+        "label": "Generate Answer (Question + Chunks)",
+        "type": "Arrow"
+      },
+      {
+        "source": "Azure OpenAI",
+        "target": "Streamlit Web App",
+        "label": "Return Generated Answer",
+        "type": "Arrow"
+      },
+      {
+        "source": "Streamlit Web App",
+        "target": "User",
+        "label": "Display Answer",
+        "type": "Arrow"
+      },
+      {
+        "source": "Azure Functions",
+        "target": "Azure Queue",
+        "label": "Add Processing Message",
+        "type": "Arrow"
+      },
+      {
+        "source": "Azure Queue",
+        "target": "Azure Functions",
+        "label": "Trigger Processing Function",
+        "type": "Arrow"
+      },
+      {
+        "source": "Azure Functions",
+        "target": "Azure Blob Storage",
+        "label": "Retrieve Documents",
+        "type": "Arrow"
+      },
+      {
+        "source": "Azure OpenAI",
+        "target": "Vector Store",
+        "label": "Store Document Embeddings",
+        "type": "Arrow"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on a high-level overview of a Q&A system using Azure services, highlighting components like the Knowledge Base, Azure Form Recognizer, and Azure Translator, with a focus on document processing and embedding. The GeneratedImage diagram, on the other hand, is a sequence diagram detailing user interaction with a Q&A system, emphasizing the flow of data and processes across components like Streamlit Web App, Azure OpenAI, and Azure Functions. Common components include Azure OpenAI and User, but the diagrams differ significantly in their focus and detail level. The GroundTruth diagram is more about architectural components, while the GeneratedImage diagram details the interaction flow. The GeneratedImage diagram is rated 7 out of 10 for accuracy and completeness. It captures the interaction flow well but lacks some architectural components present in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

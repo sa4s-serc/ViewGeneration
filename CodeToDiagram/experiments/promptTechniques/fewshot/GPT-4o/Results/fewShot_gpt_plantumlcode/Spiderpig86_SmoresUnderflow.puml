@@ -1,0 +1,75 @@
+```plantuml
+@startuml Spiderpig86_SmoresUnderflow
+
+skinparam rectangle {
+  BackgroundColor #f5f5f5
+  BorderColor #000000
+  Style roundrect
+}
+left to right direction
+
+actor "User" as user
+
+package "Frontend (React)" {
+  rectangle "React UI" as reactUI
+  rectangle "Redux Store" as reduxStore
+}
+
+package "Nginx Load Balancer" as nginx {
+  rectangle "Nginx" as nginxMain
+}
+
+package "Microservices" {
+  rectangle "su-users\n(User Management)" as userMS
+  rectangle "su-accounts\n(Account Management)" as accountMS
+  rectangle "su-questions\n(Questions Service)" as questionMS
+  rectangle "su-answers\n(Answers Service)" as answerMS
+  rectangle "su-search\n(Search Service)" as searchMS
+  rectangle "su-media\n(Media Service)" as mediaMS
+}
+
+package "Messaging Queue (RabbitMQ)" as rabbitMQ {
+  rectangle "qu-questions\n(Questions Queue)" as questionsQueue
+  rectangle "qu-answers\n(Answers Queue)" as answersQueue
+  rectangle "qu-delete-questions\n(Delete Questions Queue)" as deleteQuestionsQueue
+}
+
+package "Database and Caching" {
+  database "MongoDB" as mongoDB
+  rectangle "Redis Cache" as redisCache
+}
+
+package "Search Indexing" {
+  rectangle "ElasticSearch" as elasticSearch
+}
+
+user --> reactUI
+reactUI --> reduxStore
+reactUI --> nginxMain
+nginxMain --> userMS
+nginxMain --> accountMS
+nginxMain --> questionMS
+nginxMain --> answerMS
+nginxMain --> searchMS
+nginxMain --> mediaMS
+
+userMS --> mongoDB
+accountMS --> mongoDB
+questionMS --> mongoDB
+answerMS --> mongoDB
+searchMS --> elasticSearch
+questionMS --> elasticSearch
+answerMS --> elasticSearch
+
+questionMS --> questionsQueue
+answerMS --> answersQueue
+questionsQueue --> mongoDB
+answersQueue --> mongoDB
+deleteQuestionsQueue --> mongoDB
+
+questionMS --> redisCache
+answerMS --> redisCache
+userMS --> redisCache
+
+@enduml
+```

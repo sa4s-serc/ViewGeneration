@@ -1,0 +1,48 @@
+@startuml
+actor "ML Developer" as developer
+actor "Infrastructure Manager" as manager
+
+rectangle "MLOps Framework" {
+    rectangle "MLflow Tracking Server" as mlflow_server {
+        interface "REST API" as mlflow_api
+    }
+    rectangle "MySQL Database" as mysql_db
+    rectangle "AWS S3" as aws_s3
+    rectangle "Nginx Reverse Proxy" as nginx_proxy
+}
+
+developer --> mlflow_api : "Track Experiments"
+manager --> nginx_proxy : "Configure & Monitor"
+nginx_proxy --> mlflow_api : "Route Requests"
+mlflow_api --> mysql_db : "Store Metadata"
+mlflow_api --> aws_s3 : "Store Artifacts"
+
+cloud "Docker" {
+    rectangle "Docker Compose" as docker_compose
+    docker_compose -[#green]-> mlflow_server : "Orchestration"
+    docker_compose -[#green]-> mysql_db : "Orchestration"
+    docker_compose -[#green]-> aws_s3 : "Orchestration"
+    docker_compose -[#green]-> nginx_proxy : "Orchestration"
+}
+
+note right of mlflow_api
+    Tracks experiments, 
+    manages model registry
+end note
+
+note right of mysql_db
+    Stores metadata
+    including parameters and metrics
+end note
+
+note right of aws_s3
+    Houses model files
+    and data snapshots
+end note
+
+note right of nginx_proxy
+    Acts as a reverse proxy,
+    providing SSL termination
+end note
+
+@enduml

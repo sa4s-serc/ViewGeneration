@@ -1,0 +1,51 @@
+@startuml geovanegodoi_MicroServicesPOC
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Catalog Service" as Catalog #lightblue {
+  database "MongoDB" as CatalogDB #aliceblue
+}
+
+rectangle "Customer Service" as Customer #lightgreen {
+  database "MongoDB" as CustomerDB #aliceblue
+}
+
+rectangle "Order Service" as Order #lightpink {
+  database "MongoDB" as OrderDB #aliceblue
+}
+
+rectangle "RabbitMQ" as RabbitMQ #wheat
+
+rectangle "Docker" as Docker #mistyrose
+
+' ========== Connections ==========
+User --> Catalog : HTTP (CRUD)
+User --> Customer : HTTP (CRUD)
+User --> Order : HTTP (CRUD)
+
+Catalog --> RabbitMQ : Publishes CatalogItemCreated\nCatalogItemUpdated\nCatalogItemRemoved
+Customer --> RabbitMQ : Publishes CustomerCreated\nCustomerUpdated\nCustomerRemoved
+Order --> RabbitMQ : Publishes OrderCreated\nOrderUpdated\nOrderRemoved
+
+RabbitMQ --> Customer : Consumes Order events
+RabbitMQ --> Order : Consumes Catalog/Customer events
+RabbitMQ --> Catalog : Consumes Order events
+
+Catalog -[hidden]-> CatalogDB
+Customer -[hidden]-> CustomerDB
+Order -[hidden]-> OrderDB
+
+Docker --> Catalog : Hosts
+Docker --> Customer : Hosts
+Docker --> Order : Hosts
+Docker --> RabbitMQ : Hosts
+Docker --> CatalogDB : Hosts
+Docker --> CustomerDB : Hosts
+Docker --> OrderDB : Hosts
+@enduml

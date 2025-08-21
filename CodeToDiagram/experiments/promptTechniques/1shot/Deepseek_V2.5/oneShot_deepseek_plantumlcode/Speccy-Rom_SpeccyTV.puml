@@ -1,0 +1,61 @@
+@startuml Speccy-Rom_SpeccyTV
+skinparam rectangle {
+  BackgroundColor<<streaming>> #d9e7fd
+  BackgroundColor<<auth>> #d8f5d3
+  BackgroundColor<<billing>> #fddddd
+  BackgroundColor<<async>> #fff1c9
+  BackgroundColor<<storage>> #e7d9fd
+  BackgroundColor<<ugc>> #fde7d9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+actor "User" as User
+
+package "Streaming Services" <<streaming>> {
+  rectangle "Streaming Converter\n(FFmpeg)" as Converter
+  rectangle "ETL Pipeline\n(Airflow)" as ETL
+  rectangle "Streaming Admin\n(Django)" as StreamingAdmin
+  Converter --> ETL : "Triggers\nconversion"
+}
+
+package "Authentication" <<auth>> {
+  rectangle "Auth Service\n(JWT/OAuth)" as Auth
+}
+
+package "Billing" <<billing>> {
+  rectangle "Billing Service\n(Stripe)" as Billing
+}
+
+package "Async API" <<async>> {
+  rectangle "Async API\n(FastAPI)" as AsyncAPI
+  rectangle "Elasticsearch" as ES
+  rectangle "Redis Cache" as Redis
+  AsyncAPI --> ES : "Search queries"
+  AsyncAPI --> Redis : "Cache\noperations"
+}
+
+package "User Content" <<ugc>> {
+  rectangle "UGC Service\n(Kafka)" as UGC
+  rectangle "ClickHouse" as ClickHouse
+  UGC --> ClickHouse : "Stores\nanalytics"
+}
+
+package "Storage" <<storage>> {
+  rectangle "PostgreSQL" as PG
+  rectangle "MinIO" as MinIO
+}
+
+User --> Auth : "Login"
+User --> Converter : "Upload\nvideo"
+User --> AsyncAPI : "Browse\ncontent"
+User --> Billing : "Subscribe"
+User --> UGC : "Interact\nwith content"
+
+Auth --> PG : "Stores\nuser data"
+Billing --> PG : "Stores\npayment data"
+StreamingAdmin --> PG : "Manages\nmetadata"
+AsyncAPI --> PG : "Queries\nrelational data"
+Converter --> MinIO : "Stores\nmedia files"
+ETL --> MinIO : "Processes\nmedia files"
+@enduml

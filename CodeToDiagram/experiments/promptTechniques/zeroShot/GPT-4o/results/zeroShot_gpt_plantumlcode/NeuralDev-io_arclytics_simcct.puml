@@ -1,0 +1,56 @@
+```plantuml
+@startuml NeuralDev-io_arclytics_simcct
+
+package "Arclytics SimCCT Deployment" {
+
+  node "Kubernetes Cluster" {
+    component "SimCCT Service" {
+      [Flask App] --> [MongoDB]
+      [Flask App] --> [Redis]
+      [Flask App] --> [JWT Auth]
+      [Flask App] --> [Celery Worker]
+      [Flask App] --> [Fluentd]
+    }
+
+    component "User Management Service" {
+      [User Registration] --> [SimCCT Service]
+      [Login] --> [SimCCT Service]
+      [Profile Management] --> [SimCCT Service]
+      [Admin Functions] --> [SimCCT Service]
+    }
+
+    component "Arclytics Service" {
+      [Performance Monitoring] --> [Elastic APM]
+    }
+
+    database "MongoDB"
+    database "Redis"
+    component "Elastic APM"
+    component "Fluentd"
+    component "Celery Worker"
+
+    [Fluentd] --> [Elasticsearch]
+    [Elasticsearch] --> [Kibana]
+    
+    [Client (Frontend)] --> [SimCCT Service]
+    
+    component "Client (Frontend)" {
+      [React Interface]
+      [Redux State Management]
+    }
+  }
+
+  node "CI/CD" {
+    component "Bitbucket Pipelines"
+    component "Google Cloud Build"
+  }
+
+  package "Infrastructure as Code" {
+    [Docker Compose]
+    [Kubernetes YAML]
+    [Skaffold]
+  }
+}
+
+@enduml
+```

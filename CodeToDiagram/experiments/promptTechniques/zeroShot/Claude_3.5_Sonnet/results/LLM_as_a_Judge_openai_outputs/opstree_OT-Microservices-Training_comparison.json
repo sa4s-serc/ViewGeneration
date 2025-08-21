@@ -1,0 +1,410 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Webserver",
+        "description": "Handles incoming requests and redirects to frontend",
+        "boundaries": "Nginx",
+        "position": "Left"
+      },
+      {
+        "name": "Frontend",
+        "description": "User interface",
+        "boundaries": "React",
+        "position": "Top Center"
+      },
+      {
+        "name": "Gateway",
+        "description": "API Gateway",
+        "boundaries": "Java",
+        "position": "Center"
+      },
+      {
+        "name": "Attendance",
+        "description": "Handles attendance data",
+        "boundaries": "Go",
+        "position": "Right Center"
+      },
+      {
+        "name": "Salary",
+        "description": "Handles salary data",
+        "boundaries": "Go",
+        "position": "Right Center"
+      },
+      {
+        "name": "Employee",
+        "description": "Handles employee data",
+        "boundaries": "Go",
+        "position": "Right Center"
+      },
+      {
+        "name": "MySQL",
+        "description": "Database for attendance data",
+        "boundaries": "Database",
+        "position": "Right"
+      },
+      {
+        "name": "Elasticsearch",
+        "description": "Database for employee data",
+        "boundaries": "Database",
+        "position": "Right"
+      },
+      {
+        "name": "Notification",
+        "description": "Handles notifications",
+        "boundaries": "Python",
+        "position": "Top Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Webserver",
+        "target": "Frontend",
+        "label": "Sends request to frontend",
+        "type": "HTTP"
+      },
+      {
+        "source": "Frontend",
+        "target": "Webserver",
+        "label": "Redirects request to webserver with proxy",
+        "type": "HTTP"
+      },
+      {
+        "source": "Webserver",
+        "target": "Gateway",
+        "label": "Request routing",
+        "type": "HTTP"
+      },
+      {
+        "source": "Gateway",
+        "target": "Attendance",
+        "label": "/attendance",
+        "type": "HTTP"
+      },
+      {
+        "source": "Gateway",
+        "target": "Salary",
+        "label": "/salary",
+        "type": "HTTP"
+      },
+      {
+        "source": "Gateway",
+        "target": "Employee",
+        "label": "/employee",
+        "type": "HTTP"
+      },
+      {
+        "source": "Attendance",
+        "target": "MySQL",
+        "label": "Store and fetch attendance data",
+        "type": "Database"
+      },
+      {
+        "source": "Salary",
+        "target": "MySQL",
+        "label": "Store and fetch salary data",
+        "type": "Database"
+      },
+      {
+        "source": "Employee",
+        "target": "Elasticsearch",
+        "label": "Store and fetch employee data",
+        "type": "Database"
+      },
+      {
+        "source": "Notification",
+        "target": "Elasticsearch",
+        "label": "Fetch information from ES and sends mail",
+        "type": "Database"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Web Layer",
+        "components": [
+          "Webserver",
+          "Frontend"
+        ]
+      },
+      {
+        "name": "Service Layer",
+        "components": [
+          "Gateway",
+          "Attendance",
+          "Salary",
+          "Employee"
+        ]
+      },
+      {
+        "name": "Data Layer",
+        "components": [
+          "MySQL",
+          "Elasticsearch"
+        ]
+      },
+      {
+        "name": "Notification Layer",
+        "components": [
+          "Notification"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "architecture_diagram_1.png",
+      "title": "System Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Frontend",
+        "description": "User interface",
+        "boundaries": "UI",
+        "position": "Left"
+      },
+      {
+        "name": "API Gateway",
+        "description": "Handles API requests",
+        "boundaries": "Gateway",
+        "position": "Center Left"
+      },
+      {
+        "name": "Employee Service",
+        "description": "Handles employee data",
+        "boundaries": "Service",
+        "position": "Center"
+      },
+      {
+        "name": "Attendance Service",
+        "description": "Handles attendance data",
+        "boundaries": "Service",
+        "position": "Center"
+      },
+      {
+        "name": "Salary Service",
+        "description": "Handles salary data",
+        "boundaries": "Service",
+        "position": "Center"
+      },
+      {
+        "name": "Notification Service",
+        "description": "Handles notifications",
+        "boundaries": "Service",
+        "position": "Center Right"
+      },
+      {
+        "name": "MySQL",
+        "description": "Database",
+        "boundaries": "Database",
+        "position": "Right"
+      },
+      {
+        "name": "Elasticsearch",
+        "description": "Database",
+        "boundaries": "Database",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Frontend",
+        "target": "API Gateway",
+        "label": "Request employee data",
+        "type": "HTTP"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Employee Service",
+        "label": "Forward request",
+        "type": "HTTP"
+      },
+      {
+        "source": "Employee Service",
+        "target": "MySQL",
+        "label": "Query employee data",
+        "type": "Database"
+      },
+      {
+        "source": "Attendance Service",
+        "target": "MySQL",
+        "label": "Store attendance record",
+        "type": "Database"
+      },
+      {
+        "source": "Salary Service",
+        "target": "MySQL",
+        "label": "Query salary data",
+        "type": "Database"
+      },
+      {
+        "source": "Notification Service",
+        "target": "Elasticsearch",
+        "label": "Retrieve employee data",
+        "type": "Database"
+      },
+      {
+        "source": "Notification Service",
+        "target": "Frontend",
+        "label": "Send email notification",
+        "type": "HTTP"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Web Layer",
+        "components": [
+          "Frontend"
+        ]
+      },
+      {
+        "name": "Service Layer",
+        "components": [
+          "API Gateway",
+          "Employee Service",
+          "Attendance Service",
+          "Salary Service",
+          "Notification Service"
+        ]
+      },
+      {
+        "name": "Data Layer",
+        "components": [
+          "MySQL",
+          "Elasticsearch"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "architecture_diagram_2.png",
+      "title": "Sequence Diagram"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Frontend",
+      "MySQL",
+      "Elasticsearch",
+      "Notification"
+    ],
+    "unique_to_GroundTruth": [
+      "Webserver",
+      "Gateway",
+      "Attendance",
+      "Salary",
+      "Employee"
+    ],
+    "unique_to_GeneratedImage": [
+      "API Gateway",
+      "Employee Service",
+      "Attendance Service",
+      "Salary Service",
+      "Notification Service"
+    ],
+    "common_connectors": [
+      {
+        "source": "Notification",
+        "target": "Elasticsearch",
+        "label": "Fetch information from ES and sends mail",
+        "type": "Database"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Webserver",
+        "target": "Frontend",
+        "label": "Sends request to frontend",
+        "type": "HTTP"
+      },
+      {
+        "source": "Frontend",
+        "target": "Webserver",
+        "label": "Redirects request to webserver with proxy",
+        "type": "HTTP"
+      },
+      {
+        "source": "Webserver",
+        "target": "Gateway",
+        "label": "Request routing",
+        "type": "HTTP"
+      },
+      {
+        "source": "Gateway",
+        "target": "Attendance",
+        "label": "/attendance",
+        "type": "HTTP"
+      },
+      {
+        "source": "Gateway",
+        "target": "Salary",
+        "label": "/salary",
+        "type": "HTTP"
+      },
+      {
+        "source": "Gateway",
+        "target": "Employee",
+        "label": "/employee",
+        "type": "HTTP"
+      },
+      {
+        "source": "Attendance",
+        "target": "MySQL",
+        "label": "Store and fetch attendance data",
+        "type": "Database"
+      },
+      {
+        "source": "Salary",
+        "target": "MySQL",
+        "label": "Store and fetch salary data",
+        "type": "Database"
+      },
+      {
+        "source": "Employee",
+        "target": "Elasticsearch",
+        "label": "Store and fetch employee data",
+        "type": "Database"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Frontend",
+        "target": "API Gateway",
+        "label": "Request employee data",
+        "type": "HTTP"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Employee Service",
+        "label": "Forward request",
+        "type": "HTTP"
+      },
+      {
+        "source": "Employee Service",
+        "target": "MySQL",
+        "label": "Query employee data",
+        "type": "Database"
+      },
+      {
+        "source": "Attendance Service",
+        "target": "MySQL",
+        "label": "Store attendance record",
+        "type": "Database"
+      },
+      {
+        "source": "Salary Service",
+        "target": "MySQL",
+        "label": "Query salary data",
+        "type": "Database"
+      },
+      {
+        "source": "Notification Service",
+        "target": "Frontend",
+        "label": "Send email notification",
+        "type": "HTTP"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of the system architecture. The GroundTruth diagram is a component diagram that shows the system's structure, including components like Webserver, Frontend, and various services with their interactions and data flows. The GeneratedImage is a sequence diagram that illustrates the interaction between components over time, focusing on the flow of requests and data. Both diagrams share common components such as Frontend, MySQL, Elasticsearch, and Notification. However, the GroundTruth diagram includes components like Webserver and Gateway, which are not present in the GeneratedImage. Conversely, the GeneratedImage includes specific services like API Gateway and Employee Service, which are not explicitly shown in the GroundTruth. The connectors in each diagram reflect their focus: the GroundTruth emphasizes data flow and routing, while the GeneratedImage emphasizes request handling and service interaction. The GeneratedImage is rated 7 out of 10 for its accuracy and completeness, as it captures the interaction flow well but lacks some structural details present in the GroundTruth.",
+    "Rating": 7
+  }
+}

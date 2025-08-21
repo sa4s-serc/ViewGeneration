@@ -1,0 +1,66 @@
+@startuml zeropaper_visual-fiha
+skinparam rectangle {
+  BackgroundColor<<extension>> #d9e7fd
+  BackgroundColor<<webviews>> #d8f5d3
+  BackgroundColor<<workers>> #fddddd
+  BackgroundColor<<utils>> #fff1c9
+  BackgroundColor<<layers>> #e8d9fd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "VS Code Extension" <<extension>> {
+  rectangle "VFExtension" as VFExtension
+  rectangle "WebServer" as WebServer
+  rectangle "Redux Store" as ReduxStore
+  rectangle "Commands" as Commands
+  VFExtension --> WebServer
+  VFExtension --> ReduxStore
+  VFExtension --> Commands
+}
+
+package "WebViews" <<webviews>> {
+  rectangle "AudioView" as AudioView
+  rectangle "ControlView" as ControlView
+  rectangle "DisplaysView" as DisplaysView
+  rectangle "TimelineView" as TimelineView
+  WebServer --> AudioView
+  WebServer --> ControlView
+  WebServer --> DisplaysView
+  WebServer --> TimelineView
+}
+
+package "Display Workers" <<workers>> {
+  rectangle "DisplayWorker" as DisplayWorker
+  rectangle "ScriptRunner" as ScriptRunner
+  DisplayWorker --> ScriptRunner
+}
+
+package "Layers" <<layers>> {
+  rectangle "Canvas2DLayer" as Canvas2DLayer
+  rectangle "ThreeJSLayer" as ThreeJSLayer
+  DisplayWorker --> Canvas2DLayer
+  DisplayWorker --> ThreeJSLayer
+}
+
+package "Utils" <<utils>> {
+  rectangle "Com (Messaging)" as Com
+  rectangle "Scriptable" as Scriptable
+  rectangle "MathTools" as MathTools
+  rectangle "MiscTools" as MiscTools
+  ScriptRunner --> Scriptable
+  Scriptable --> MathTools
+  Scriptable --> MiscTools
+  VFExtension --> Com
+  WebServer --> Com
+  DisplayWorker --> Com
+}
+
+package "Capture" {
+  rectangle "AudioCapture" as AudioCapture
+  rectangle "MIDICapture" as MIDICapture
+  WebServer --> AudioCapture
+  WebServer --> MIDICapture
+}
+
+@enduml

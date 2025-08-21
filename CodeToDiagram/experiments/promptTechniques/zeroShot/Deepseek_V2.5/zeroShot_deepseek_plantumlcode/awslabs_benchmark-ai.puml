@@ -1,0 +1,43 @@
+Here's the PlantUML sequence diagram for the `awslabs_benchmark-ai` system's control flow:
+
+```plantuml
+@startuml awslabs_benchmark-ai
+
+actor User
+participant "bai-bff" as BFF
+participant "Executor" as Executor
+participant "Kubernetes" as K8s
+participant "Watcher" as Watcher
+participant "Kafka" as Kafka
+participant "Fetcher" as Fetcher
+participant "Metrics-Pusher" as MetricsPusher
+participant "CloudWatch" as CloudWatch
+
+User -> BFF: Submit Benchmark Job (TOML)
+BFF -> Executor: Validate & Forward Job
+Executor -> K8s: Create Resources (Jobs/Services)
+K8s --> Executor: Resource Creation Status
+Executor -> Kafka: Job Started Event
+
+loop Monitoring
+    Watcher -> K8s: Poll Job Status
+    K8s --> Watcher: Current Status
+    Watcher -> Kafka: Status Update Event
+end
+
+par Data Fetching
+    Executor -> Fetcher: Fetch Dataset/Model
+    Fetcher -> K8s: Create Fetcher Job
+    K8s --> Fetcher: Fetch Completion
+    Fetcher -> Kafka: Data Ready Event
+end
+
+par Metrics Collection
+    MetricsPusher -> Kafka: Push Metrics
+    Kafka -> CloudWatch: Export Metrics
+end
+
+BFF -> User: Job Completion Status
+
+@enduml
+```

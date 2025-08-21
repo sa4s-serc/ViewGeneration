@@ -1,0 +1,214 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "INTERNET SERVICES",
+        "description": "",
+        "boundaries": "circle",
+        "position": "left"
+      },
+      {
+        "name": "OBJECT STORAGE",
+        "description": "",
+        "boundaries": "circle",
+        "position": "center-left"
+      },
+      {
+        "name": "NODE.JS",
+        "description": "",
+        "boundaries": "circle",
+        "position": "center-right"
+      },
+      {
+        "name": "LogDNA",
+        "description": "",
+        "boundaries": "circle",
+        "position": "right"
+      },
+      {
+        "name": "IBM CLOUD",
+        "description": "",
+        "boundaries": "circle",
+        "position": "top-center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "INTERNET SERVICES",
+        "target": "OBJECT STORAGE",
+        "label": "1",
+        "type": "arrow"
+      },
+      {
+        "source": "OBJECT STORAGE",
+        "target": "NODE.JS",
+        "label": "2",
+        "type": "arrow"
+      },
+      {
+        "source": "NODE.JS",
+        "target": "LogDNA",
+        "label": "3",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "IBM Cloud Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "IBM CIS",
+        "description": "",
+        "boundaries": "rectangle",
+        "position": "left"
+      },
+      {
+        "name": "IBM COS (Source Bucket)",
+        "description": "",
+        "boundaries": "rectangle",
+        "position": "center-left"
+      },
+      {
+        "name": "Serverless Function",
+        "description": "",
+        "boundaries": "rectangle",
+        "position": "center"
+      },
+      {
+        "name": "IBM LogDNA",
+        "description": "",
+        "boundaries": "rectangle",
+        "position": "top-right"
+      },
+      {
+        "name": "IBM COS (Archive Bucket)",
+        "description": "",
+        "boundaries": "rectangle",
+        "position": "bottom-right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "IBM CIS",
+        "target": "IBM COS (Source Bucket)",
+        "label": "Logpush (Zipped JSON Logs)",
+        "type": "arrow"
+      },
+      {
+        "source": "IBM COS (Source Bucket)",
+        "target": "Serverless Function",
+        "label": "Object Created Event Trigger",
+        "type": "arrow"
+      },
+      {
+        "source": "Serverless Function",
+        "target": "IBM LogDNA",
+        "label": "Send Logs in Batches (5000 logs per batch)",
+        "type": "arrow"
+      },
+      {
+        "source": "Serverless Function",
+        "target": "IBM COS (Archive Bucket)",
+        "label": "Archive Processed Logs",
+        "type": "arrow"
+      },
+      {
+        "source": "IBM COS (Source Bucket)",
+        "target": "Serverless Function",
+        "label": "Download Log File",
+        "type": "arrow"
+      },
+      {
+        "source": "Serverless Function",
+        "target": "IBM COS (Source Bucket)",
+        "label": "Delete Original Log File",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [
+      "Retry Mechanism for LogDNA API Failures"
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Log Processing Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      {
+        "name": "LogDNA",
+        "purpose": "Log management"
+      }
+    ],
+    "unique_to_GroundTruth": [
+      "INTERNET SERVICES",
+      "OBJECT STORAGE",
+      "NODE.JS",
+      "IBM CLOUD"
+    ],
+    "unique_to_GeneratedImage": [
+      "IBM CIS",
+      "IBM COS (Source Bucket)",
+      "Serverless Function",
+      "IBM COS (Archive Bucket)"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "INTERNET SERVICES",
+        "target": "OBJECT STORAGE",
+        "label": "1"
+      },
+      {
+        "source": "OBJECT STORAGE",
+        "target": "NODE.JS",
+        "label": "2"
+      },
+      {
+        "source": "NODE.JS",
+        "target": "LogDNA",
+        "label": "3"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "IBM CIS",
+        "target": "IBM COS (Source Bucket)",
+        "label": "Logpush (Zipped JSON Logs)"
+      },
+      {
+        "source": "IBM COS (Source Bucket)",
+        "target": "Serverless Function",
+        "label": "Object Created Event Trigger"
+      },
+      {
+        "source": "Serverless Function",
+        "target": "IBM LogDNA",
+        "label": "Send Logs in Batches (5000 logs per batch)"
+      },
+      {
+        "source": "Serverless Function",
+        "target": "IBM COS (Archive Bucket)",
+        "label": "Archive Processed Logs"
+      },
+      {
+        "source": "IBM COS (Source Bucket)",
+        "target": "Serverless Function",
+        "label": "Download Log File"
+      },
+      {
+        "source": "Serverless Function",
+        "target": "IBM COS (Source Bucket)",
+        "label": "Delete Original Log File"
+      }
+    ],
+    "explanation": "The two diagrams represent different architectures. The GroundTruth diagram focuses on a simple flow from Internet Services to LogDNA via Object Storage and Node.js, highlighting a linear process. The GeneratedImage diagram is more complex, involving multiple components like IBM CIS, COS, and a Serverless Function, indicating a detailed log processing architecture with specific actions like downloading, archiving, and batching logs. Both diagrams share the LogDNA component, but the GeneratedImage diagram includes additional annotations and connectors, providing a more comprehensive view of log handling. The GroundTruth diagram is simpler and more abstract, while the GeneratedImage diagram is detailed and specific. Based on accuracy and completeness, the GeneratedImage diagram is rated 8 out of 10. It provides a detailed and structured view of log processing, but lacks the simplicity and directness of the GroundTruth diagram.",
+    "Rating": 8
+  }
+}

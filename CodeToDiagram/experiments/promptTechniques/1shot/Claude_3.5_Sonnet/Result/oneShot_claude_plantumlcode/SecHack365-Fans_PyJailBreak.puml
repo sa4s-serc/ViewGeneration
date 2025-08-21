@@ -1,0 +1,43 @@
+@startuml SecHack365-Fans_PyJailBreak
+
+actor User
+participant "Next.js Server" as NextJS
+participant "React Components" as React
+participant "Redux Store" as Redux
+participant "API Client" as APIClient
+participant "Backend API" as Backend
+
+User -> NextJS : Access website
+activate NextJS
+NextJS -> React : Render components
+activate React
+
+User -> React : Configure scan
+React -> Redux : Update configuration
+activate Redux
+
+User -> React : Manage payloads
+React -> Redux : Update payloads
+
+User -> React : Execute scan
+React -> Redux : Get configuration and payloads
+Redux --> React : Configuration and payloads
+React -> APIClient : Execute scan request
+activate APIClient
+APIClient -> Backend : Send scan request
+activate Backend
+Backend --> APIClient : Return scan results
+deactivate Backend
+APIClient --> React : Return results
+deactivate APIClient
+React -> Redux : Update scan results
+Redux --> React : Updated state
+React --> User : Display results
+deactivate Redux
+deactivate React
+
+User -> NextJS : Access API documentation
+NextJS -> React : Render Swagger UI
+React --> User : Display API docs
+
+@enduml

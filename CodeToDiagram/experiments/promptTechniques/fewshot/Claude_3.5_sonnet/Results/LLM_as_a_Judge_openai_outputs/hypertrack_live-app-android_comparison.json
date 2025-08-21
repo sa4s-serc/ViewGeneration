@@ -1,0 +1,265 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "HyperTrack Live App",
+        "description": "iOS/Android/ReactNative app with HyperTrack SDK",
+        "boundaries": "Mobile device",
+        "position": "Bottom right"
+      },
+      {
+        "name": "Live App Backend",
+        "description": "Backend server for processing requests",
+        "boundaries": "Server",
+        "position": "Center"
+      },
+      {
+        "name": "Short URL Recipient",
+        "description": "Receives short URL to track user",
+        "boundaries": "Mobile device",
+        "position": "Bottom left"
+      },
+      {
+        "name": "HyperTrack",
+        "description": "Service for trip management",
+        "boundaries": "Service",
+        "position": "Top center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Live App Backend",
+        "label": "User makes a request to go to destination at location X",
+        "type": "Request"
+      },
+      {
+        "source": "Live App Backend",
+        "target": "HyperTrack",
+        "label": "Create trip to destination at location X via Trips API",
+        "type": "API Call"
+      },
+      {
+        "source": "HyperTrack",
+        "target": "Live App Backend",
+        "label": "Complete trip to destination at location X via Trips API",
+        "type": "API Call"
+      },
+      {
+        "source": "Live App Backend",
+        "target": "HyperTrack Live App",
+        "label": "Show trip route with ETA with live updates to the user",
+        "type": "Data Transfer"
+      },
+      {
+        "source": "HyperTrack Live App",
+        "target": "Short URL Recipient",
+        "label": "User shares public short URL for the trip to location X with live ETA",
+        "type": "Data Transfer"
+      },
+      {
+        "source": "Short URL Recipient",
+        "target": "User",
+        "label": "Short URL recipient tracks user with live ETA to destination at location X",
+        "type": "Tracking"
+      },
+      {
+        "source": "User",
+        "target": "Live App Backend",
+        "label": "User ends live location sharing",
+        "type": "Request"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "HyperTrack Live App Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Android App",
+        "description": "Main application component",
+        "boundaries": "Mobile device",
+        "position": "Left"
+      },
+      {
+        "name": "MainActivity",
+        "description": "Handles main app activities",
+        "boundaries": "Component",
+        "position": "Center"
+      },
+      {
+        "name": "BackendClientFactory",
+        "description": "Creates API clients",
+        "boundaries": "Component",
+        "position": "Center left"
+      },
+      {
+        "name": "AccessTokenRepository",
+        "description": "Stores access tokens",
+        "boundaries": "Component",
+        "position": "Bottom left"
+      },
+      {
+        "name": "CognitoClient",
+        "description": "Handles authentication",
+        "boundaries": "Component",
+        "position": "Center"
+      },
+      {
+        "name": "GeofenceApiAdapter",
+        "description": "Manages geofences",
+        "boundaries": "Component",
+        "position": "Center"
+      },
+      {
+        "name": "HyperTrack SDK",
+        "description": "Location tracking",
+        "boundaries": "SDK",
+        "position": "Right"
+      },
+      {
+        "name": "Branch.io",
+        "description": "Deep linking service",
+        "boundaries": "Service",
+        "position": "Right"
+      },
+      {
+        "name": "AWS Cognito",
+        "description": "Authentication service",
+        "boundaries": "Service",
+        "position": "Bottom right"
+      },
+      {
+        "name": "Google Maps",
+        "description": "Map display service",
+        "boundaries": "Service",
+        "position": "Bottom right"
+      },
+      {
+        "name": "HyperTrack API",
+        "description": "Trips API",
+        "boundaries": "Service",
+        "position": "Bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "MainActivity",
+        "label": "Create API client",
+        "type": "Action"
+      },
+      {
+        "source": "MainActivity",
+        "target": "BackendClientFactory",
+        "label": "Authenticate",
+        "type": "Process"
+      },
+      {
+        "source": "BackendClientFactory",
+        "target": "AccessTokenRepository",
+        "label": "Use tokens",
+        "type": "Data Transfer"
+      },
+      {
+        "source": "MainActivity",
+        "target": "CognitoClient",
+        "label": "Authenticate user",
+        "type": "Process"
+      },
+      {
+        "source": "MainActivity",
+        "target": "GeofenceApiAdapter",
+        "label": "Manage geofences",
+        "type": "Process"
+      },
+      {
+        "source": "MainActivity",
+        "target": "HyperTrack SDK",
+        "label": "Start/stop tracking",
+        "type": "Action"
+      },
+      {
+        "source": "HyperTrack SDK",
+        "target": "Branch.io",
+        "label": "Handle deep links",
+        "type": "Data Transfer"
+      },
+      {
+        "source": "HyperTrack SDK",
+        "target": "HyperTrack API",
+        "label": "Send location data",
+        "type": "API Call"
+      },
+      {
+        "source": "AWS Cognito",
+        "target": "CognitoClient",
+        "label": "Authenticate user",
+        "type": "Service Call"
+      },
+      {
+        "source": "Google Maps",
+        "target": "GeofenceApiAdapter",
+        "label": "Map Display",
+        "type": "Service Call"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Android App Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "HyperTrack SDK"
+    ],
+    "unique_to_GroundTruth": [
+      "HyperTrack Live App",
+      "Live App Backend",
+      "Short URL Recipient",
+      "HyperTrack"
+    ],
+    "unique_to_GeneratedImage": [
+      "Android App",
+      "MainActivity",
+      "BackendClientFactory",
+      "AccessTokenRepository",
+      "CognitoClient",
+      "GeofenceApiAdapter",
+      "Branch.io",
+      "AWS Cognito",
+      "Google Maps",
+      "HyperTrack API"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      "User makes a request to go to destination at location X",
+      "Create trip to destination at location X via Trips API",
+      "Complete trip to destination at location X via Trips API",
+      "Show trip route with ETA with live updates to the user",
+      "User shares public short URL for the trip to location X with live ETA",
+      "Short URL recipient tracks user with live ETA to destination at location X",
+      "User ends live location sharing"
+    ],
+    "unique_connectors_GeneratedImage": [
+      "Create API client",
+      "Authenticate",
+      "Use tokens",
+      "Authenticate user",
+      "Manage geofences",
+      "Start/stop tracking",
+      "Handle deep links",
+      "Send location data",
+      "Authenticate user",
+      "Map Display"
+    ],
+    "explanation": "The GroundTruth diagram focuses on the flow of user requests and trip management using the HyperTrack service, highlighting components like the Live App Backend and Short URL Recipient. The GeneratedImage diagram presents a more detailed view of an Android app architecture, including components like MainActivity and services such as AWS Cognito and Google Maps. Both diagrams include the HyperTrack SDK, but they differ significantly in their focus and level of detail. The GroundTruth diagram is more user-centric, while the GeneratedImage diagram is more technical and component-focused. Based on accuracy, completeness, and similarity, the GeneratedImage diagram is rated 6 out of 10. It provides a detailed breakdown of components but lacks the user flow and simplicity found in the GroundTruth diagram.",
+    "Rating": 6
+  }
+}

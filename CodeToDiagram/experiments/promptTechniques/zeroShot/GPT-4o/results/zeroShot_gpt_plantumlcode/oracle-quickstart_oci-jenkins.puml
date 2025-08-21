@@ -1,0 +1,73 @@
+```plantuml
+@startuml oracle-quickstart_oci-jenkins
+
+package "OCI Infrastructure" {
+    component "VCN" {
+        component "Subnets" {
+            [Controller Subnet]
+            [Agent Subnet]
+            [Load Balancer Subnet]
+            [Bastion Subnet]
+        }
+        component "Security" {
+            [Security Lists]
+            [Firewall Rules]
+        }
+        [Internet Gateway]
+        [NAT Gateway]
+    }
+    
+    component "Load Balancer" << High Availability >> {
+        [Traffic Distributor]
+    }
+}
+
+package "Jenkins Deployment" {
+    component "Jenkins Controller" << Jenkins >> {
+        [Controller Instance]
+        [Setup Script]
+    }
+    
+    component "Jenkins Agents" << Jenkins >> {
+        [Agent Instances]
+        [Config Script]
+    }
+}
+
+package "Security Management" {
+    [SSH Key Management]
+    component "Bastion Host" << Security >> {
+        [SSH Access]
+    }
+    component "OCI Bastion Service" << Security >> {
+        [Secure Access]
+    }
+}
+
+package "Terraform Modules" {
+    [main.tf]
+    [modules/jenkins-controller/]
+    [modules/jenkins-agent/]
+    [variables.tf]
+    [outputs.tf]
+}
+
+[main.tf] --> [modules/jenkins-controller/]
+[main.tf] --> [modules/jenkins-agent/]
+[modules/jenkins-controller/] --> [Jenkins Controller]
+[modules/jenkins-agent/] --> [Jenkins Agents]
+
+[SSH Key Management] ..> [Security]
+[Security Lists] ..> [Security]
+
+[Bastion Host] .> [Bastion Subnet]
+[OCI Bastion Service] .> [Bastion Subnet]
+
+[Traffic Distributor] --> [Controller Instance]
+[Controller Instance] --> [Agent Instances]
+
+[Internet Gateway] --> [VCN]
+[NAT Gateway] --> [VCN]
+
+@enduml
+```

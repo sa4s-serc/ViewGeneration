@@ -1,0 +1,99 @@
+@startuml codahale_sneaker
+
+actor User
+participant "CLI" as CLI
+participant "Manager" as Manager
+participant "Envelope" as Envelope
+participant "S3" as S3
+participant "KMS" as KMS
+
+User -> CLI: Execute command
+activate CLI
+
+alt Upload Secret
+    CLI -> Manager: Upload(key, value)
+    activate Manager
+    Manager -> KMS: Generate Data Key
+    activate KMS
+    KMS --> Manager: Data Key
+    deactivate KMS
+    Manager -> Envelope: Encrypt(value, dataKey)
+    activate Envelope
+    Envelope --> Manager: Encrypted Data
+    deactivate Envelope
+    Manager -> S3: PutObject(key, encryptedData)
+    activate S3
+    S3 --> Manager: Confirmation
+    deactivate S3
+    Manager --> CLI: Success
+    deactivate Manager
+
+else Download Secret
+    CLI -> Manager: Download(key)
+    activate Manager
+    Manager -> S3: GetObject(key)
+    activate S3
+    S3 --> Manager: Encrypted Data
+    deactivate S3
+    Manager -> KMS: Decrypt Data Key
+    activate KMS
+    KMS --> Manager: Decrypted Data Key
+    deactivate KMS
+    Manager -> Envelope: Decrypt(encryptedData, dataKey)
+    activate Envelope
+    Envelope --> Manager: Decrypted Value
+    deactivate Envelope
+    Manager --> CLI: Decrypted Value
+    deactivate Manager
+
+else List Secrets
+    CLI -> Manager: List(pattern)
+    activate Manager
+    Manager -> S3: ListObjects(pattern)
+    activate S3
+    S3 --> Manager: Object List
+    deactivate S3
+    Manager --> CLI: Secret List
+    deactivate Manager
+
+else Delete Secret
+    CLI -> Manager: Rm(key)
+    activate Manager
+    Manager -> S3: DeleteObject(key)
+    activate S3
+    S3 --> Manager: Confirmation
+    deactivate S3
+    Manager --> CLI: Success
+    deactivate Manager
+
+else Rotate Keys
+    CLI -> Manager: Rotate()
+    activate Manager
+    loop For each secret
+        Manager -> S3: GetObject(key)
+        activate S3
+        S3 --> Manager: Encrypted Data
+        deactivate S3
+        Manager -> KMS: Generate New Data Key
+        activate KMS
+        KMS --> Manager: New Data Key
+        deactivate KMS
+        Manager -> Envelope: Decrypt(encryptedData, oldDataKey)
+        activate Envelope
+        Envelope --> Manager: Decrypted Value
+        Manager -> Envelope: Encrypt(value, newDataKey)
+        Envelope --> Manager: New Encrypted Data
+        deactivate Envelope
+        Manager -> S3: PutObject(key, newEncryptedData)
+        activate S3
+        S3 --> Manager: Confirmation
+        deactivate S3
+    end
+    Manager --> CLI: Success
+    deactivate Manager
+end
+
+CLI --> User: Command Result
+deactivate CLI
+
+@enduml

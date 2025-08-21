@@ -1,0 +1,62 @@
+```plantuml
+@startuml Melacon_WirelessTransportEmulator
+skinparam rectangle {
+  BackgroundColor<<core>> #e6f5ff
+  BackgroundColor<<netconf>> #f0e6ff
+  BackgroundColor<<data>> #e6ffe6
+  BackgroundColor<<testing>> #fff5e6
+  BackgroundColor<<management>> #ffe6e6
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Functionalities" <<core>> {
+  rectangle "Topology Emulation" as Topology
+  rectangle "Configuration Management" as ConfigMgmt
+  rectangle "Data Conversion & Export" as DataConversion
+  rectangle "SNMP Management" as SNMP
+  Topology --> ConfigMgmt
+  ConfigMgmt --> DataConversion
+  ConfigMgmt --> SNMP
+}
+
+package "NETCONF Server" <<netconf>> {
+  rectangle "OpenYuma NETCONF Server" as NETCONF
+  rectangle "YANG Processing" as YANG
+  rectangle "Notification Handling" as Notification
+  rectangle "Scripting Engine" as Scripting
+  NETCONF --> YANG
+  NETCONF --> Notification
+  NETCONF --> Scripting
+}
+
+package "Data Modeling" <<data>> {
+  rectangle "YANG Models" as YANGModels
+  rectangle "Data Validation" as DataValidation
+  rectangle "Code Generation" as CodeGen
+  YANGModels --> DataValidation
+  YANGModels --> CodeGen
+}
+
+package "Testing Infrastructure" <<testing>> {
+  rectangle "Test Harnesses" as Tests
+  rectangle "Boost-based Test Cases" as BoostTests
+  rectangle "Stub Implementations" as Stubs
+  Tests --> BoostTests
+  Tests --> Stubs
+}
+
+package "Management & Connectivity" <<management>> {
+  rectangle "CLI Interface (yangcli)" as CLI
+  rectangle "Docker Containers" as Docker
+  rectangle "veth Pairs" as Veth
+  CLI --> Docker
+  Docker --> Veth
+}
+
+Topology --> NETCONF
+YANG --> YANGModels
+DataValidation --> DataConversion
+Notification --> CLI
+@enduml
+```

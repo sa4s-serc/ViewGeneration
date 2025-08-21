@@ -1,0 +1,28 @@
+@startuml
+participant "GitHub" as GH
+participant "API Service" as API
+participant "EventBridge" as EB
+participant "Orchestrator Service" as OS
+participant "DynamoDB" as DDB
+participant "Analyse Service" as AS
+participant "S3" as S3
+participant "BigQuery" as BQ
+participant "Publish Service" as PS
+
+GH -> API: Webhook event
+API -> API: Validate webhook
+API -> EB: Enqueue event
+EB -> OS: Trigger event processing
+OS -> DDB: Fetch project configuration
+OS -> DDB: Update event store
+OS -> EB: Trigger analysis event
+EB -> AS: Process analysis event
+AS -> S3: Fetch raw coverage data
+AS -> BQ: Query historical data
+AS -> AS: Analyze coverage
+AS -> DDB: Store analysis results
+AS -> EB: Trigger publish event
+EB -> PS: Process publish event
+PS -> GH: Update PR with coverage report
+PS -> DDB: Update event store
+@enduml

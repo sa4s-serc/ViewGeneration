@@ -1,0 +1,45 @@
+@startuml AndreasM009_AadApiGatekeeper
+
+!define RECTANGLE class
+
+skinparam component {
+  BackgroundColor<<Sidecar>> LightBlue
+  BackgroundColor<<Backend>> LightGreen
+  BorderColor Black
+  ArrowColor Black
+}
+
+cloud "Kubernetes / Service Fabric Mesh" {
+  component "API Gatekeeper" <<Sidecar>> as Gatekeeper {
+    RECTANGLE "Reverse Proxy"
+    RECTANGLE "Token Validator"
+    RECTANGLE "Token Cache"
+    RECTANGLE "On-Behalf-Of Flow"
+  }
+  
+  component "Backend API" <<Backend>> as Backend
+  
+  Gatekeeper -right-> Backend : Forwards authenticated requests
+}
+
+cloud "Azure Active Directory" as AAD
+
+actor "Client" as Client
+
+Client -down-> Gatekeeper : Requests
+Gatekeeper <-down-> AAD : Authenticate & Authorize
+Backend <-up-> AAD : Access other resources
+
+note right of Gatekeeper
+  Configured via:
+  - Environment variables
+  - Kubernetes ConfigMaps
+  - Service Fabric Mesh configs
+end note
+
+note bottom of Backend
+  Sample API included
+  for demonstration
+end note
+
+@enduml

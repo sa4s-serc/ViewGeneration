@@ -1,0 +1,65 @@
+```plantuml
+@startuml gpsnmeajp_VirtualMotionTracker
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<memory>> #d8f5d3
+  BackgroundColor<<simd>> #fddddd
+  BackgroundColor<<module>> #fff1c9
+  BackgroundColor<<integration>> #e0f7fa
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Eigen Core Components" <<core>> {
+  rectangle "Matrix" as Matrix
+  rectangle "Array" as Array
+  rectangle "SparseMatrix" as SparseMatrix
+  rectangle "DiagonalMatrix" as DiagonalMatrix
+  rectangle "PermutationMatrix" as PermutationMatrix
+  rectangle "EigenSolver" as EigenSolver
+  rectangle "LU, QR, SVD" as Decompositions
+  rectangle "Iterative Solvers\n(CG, BiCGSTAB, GMRES)" as IterativeSolvers
+  rectangle "Geometry Primitives\n(Transformations, Quaternions)" as Geometry
+  Matrix --> Array
+  SparseMatrix --> Array
+  Array --> DiagonalMatrix
+  DiagonalMatrix --> PermutationMatrix
+  Matrix --> EigenSolver
+  Matrix --> Decompositions
+  SparseMatrix --> IterativeSolvers
+  Geometry --> Matrix
+}
+
+package "Memory Management" <<memory>> {
+  rectangle "Aligned Memory\nAllocation" as AlignedMemory
+  rectangle "Custom Allocators" as CustomAllocators
+  AlignedMemory --> CustomAllocators
+  CustomAllocators --> Matrix
+}
+
+package "SIMD Vectorization" <<simd>> {
+  rectangle "SIMD Intrinsics\n(SSE, AVX, NEON)" as SIMDIntrinsics
+  rectangle "PacketMath" as PacketMath
+  SIMDIntrinsics --> PacketMath
+  PacketMath --> Matrix
+}
+
+package "Modular Design" <<module>> {
+  rectangle "Core" as Core
+  rectangle "Sparse" as Sparse
+  rectangle "Geometry" as GeometryModule
+  rectangle "Eigenvalues" as Eigenvalues
+  Core --> Sparse
+  Sparse --> GeometryModule
+  GeometryModule --> Eigenvalues
+}
+
+package "BLAS/LAPACK Integration" <<integration>> {
+  rectangle "BLAS/LAPACK Libraries\n(MKL, OpenBLAS)" as BLAS_LAPACK
+  rectangle "LAPACKE" as LAPACKE
+  BLAS_LAPACK --> LAPACKE
+  LAPACKE --> Decompositions
+}
+
+@enduml
+```

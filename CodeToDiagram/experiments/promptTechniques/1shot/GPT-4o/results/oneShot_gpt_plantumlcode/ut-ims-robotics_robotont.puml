@@ -1,0 +1,68 @@
+```plantuml
+@startuml ut-ims-robotics_robotont
+skinparam rectangle {
+  BackgroundColor<<driver>> #d9e7fd
+  BackgroundColor<<teleop>> #d8f5d3
+  BackgroundColor<<training>> #fddddd
+  BackgroundColor<<description>> #fff1c9
+  BackgroundColor<<sensors>> #e3f2fd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Robotont ROS Package" {
+  package "robotont_driver" <<driver>> {
+    rectangle "ROS Driver" as Driver
+    rectangle "Serial Communication" as Serial
+    rectangle "Odometry Calculation" as Odometry
+    Driver --> Serial
+    Driver --> Odometry
+  }
+
+  package "robotont_teleop" <<teleop>> {
+    rectangle "Teleop Nodes" as Teleop
+    rectangle "Joystick Control" as JoyControl
+    rectangle "Safety Mechanism" as Safety
+    Teleop --> JoyControl
+    Teleop --> Safety
+  }
+
+  package "robotont_training" <<training>> {
+    rectangle "Training Scripts" as TrainingScripts
+    rectangle "AR Tag Tracking" as ARTracking
+    TrainingScripts --> ARTracking
+  }
+
+  package "robotont_description" <<description>> {
+    rectangle "URDF Models" as URDF
+    rectangle "Meshes & Materials" as Meshes
+    URDF --> Meshes
+  }
+
+  package "robotont_sensors" <<sensors>> {
+    rectangle "LaserScan Processing" as LaserScan
+    rectangle "Custom Message\nLaserScanSplit" as CustomMsg
+    LaserScan --> CustomMsg
+  }
+
+  note right of Driver
+    Hardware Abstraction Layer
+  end note
+
+  note bottom of LaserScan
+    Data is processed and published
+    using custom message type
+  end note
+
+  rectangle "Navigation Stack" {
+    rectangle "Path Planning" as PathPlanning
+    rectangle "Costmaps & Planner" as Costmaps
+    PathPlanning --> Costmaps
+  }
+
+  Driver --> PathPlanning
+  Teleop --> PathPlanning
+}
+
+@enduml
+```

@@ -1,0 +1,214 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Initiates the coffee making process.",
+        "boundaries": "Actor",
+        "position": "Left"
+      },
+      {
+        "name": "Home Assistant",
+        "description": "Handles user commands and updates.",
+        "boundaries": "Component",
+        "position": "Second from left"
+      },
+      {
+        "name": "Coffee Client",
+        "description": "Interacts with the coffee machine and payment system.",
+        "boundaries": "Component",
+        "position": "Middle"
+      },
+      {
+        "name": "Flash Server (Coffee Machine)",
+        "description": "Processes payment and coffee making.",
+        "boundaries": "Component",
+        "position": "Second from right"
+      },
+      {
+        "name": "Flash Server (Provider)",
+        "description": "Handles payment verification.",
+        "boundaries": "Component",
+        "position": "Second from right"
+      },
+      {
+        "name": "IOTA Tangle",
+        "description": "Confirms transactions.",
+        "boundaries": "Component",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Home Assistant",
+        "label": "Triggers 'Make Coffee'",
+        "type": "Action"
+      },
+      {
+        "source": "Home Assistant",
+        "target": "Coffee Client",
+        "label": "MQTT Publish (make_coffee)",
+        "type": "Message"
+      },
+      {
+        "source": "Coffee Client",
+        "target": "Flash Server (Coffee Machine)",
+        "label": "HTTP Request (create payment)",
+        "type": "Request"
+      },
+      {
+        "source": "Flash Server (Coffee Machine)",
+        "target": "Flash Server (Provider)",
+        "label": "HTTP Request (initiate channel)",
+        "type": "Request"
+      },
+      {
+        "source": "Flash Server (Provider)",
+        "target": "IOTA Tangle",
+        "label": "Submit transaction",
+        "type": "Action"
+      },
+      {
+        "source": "IOTA Tangle",
+        "target": "Flash Server (Provider)",
+        "label": "Transaction confirmed",
+        "type": "Response"
+      },
+      {
+        "source": "Flash Server (Provider)",
+        "target": "Flash Server (Coffee Machine)",
+        "label": "HTTP Response (channel details)",
+        "type": "Response"
+      },
+      {
+        "source": "Flash Server (Coffee Machine)",
+        "target": "Coffee Client",
+        "label": "HTTP Response (payment request)",
+        "type": "Response"
+      },
+      {
+        "source": "Coffee Client",
+        "target": "Flash Server (Coffee Machine)",
+        "label": "HTTP Request (signed payment)",
+        "type": "Request"
+      },
+      {
+        "source": "Flash Server (Coffee Machine)",
+        "target": "Coffee Client",
+        "label": "HTTP Response (confirmation)",
+        "type": "Response"
+      },
+      {
+        "source": "Coffee Client",
+        "target": "Home Assistant",
+        "label": "MQTT Publish (status update)",
+        "type": "Message"
+      },
+      {
+        "source": "Home Assistant",
+        "target": "User",
+        "label": "UI Update (coffee ready)",
+        "type": "Action"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "sequence_diagram.png",
+      "title": "Coffee Making Process"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Home Assistant",
+        "description": "Central control unit.",
+        "boundaries": "Component",
+        "position": "Top"
+      },
+      {
+        "name": "Coffee Machine",
+        "description": "Brews coffee.",
+        "boundaries": "Component",
+        "position": "Middle"
+      },
+      {
+        "name": "Power Source 1",
+        "description": "Provides electricity.",
+        "boundaries": "Component",
+        "position": "Bottom left"
+      },
+      {
+        "name": "Power Source 2",
+        "description": "Provides electricity.",
+        "boundaries": "Component",
+        "position": "Bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Home Assistant",
+        "target": "Coffee Machine",
+        "label": "Control Signal",
+        "type": "Control"
+      },
+      {
+        "source": "Power Source 1",
+        "target": "Coffee Machine",
+        "label": "Electricity",
+        "type": "Supply"
+      },
+      {
+        "source": "Power Source 2",
+        "target": "Coffee Machine",
+        "label": "Electricity",
+        "type": "Supply"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "block_diagram.png",
+      "title": "Coffee Machine System"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Home Assistant"
+    ],
+    "unique_to_GroundTruth": [
+      "User",
+      "Coffee Client",
+      "Flash Server (Coffee Machine)",
+      "Flash Server (Provider)",
+      "IOTA Tangle"
+    ],
+    "unique_to_GeneratedImage": [
+      "Coffee Machine",
+      "Power Source 1",
+      "Power Source 2"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      "Triggers 'Make Coffee'",
+      "MQTT Publish (make_coffee)",
+      "HTTP Request (create payment)",
+      "HTTP Request (initiate channel)",
+      "Submit transaction",
+      "Transaction confirmed",
+      "HTTP Response (channel details)",
+      "HTTP Response (payment request)",
+      "HTTP Request (signed payment)",
+      "HTTP Response (confirmation)",
+      "MQTT Publish (status update)",
+      "UI Update (coffee ready)"
+    ],
+    "unique_connectors_GeneratedImage": [
+      "Control Signal",
+      "Electricity"
+    ],
+    "explanation": "The GroundTruth diagram represents a detailed sequence of interactions in a coffee making process, involving multiple components such as a user, coffee client, and servers, with a focus on communication and transaction verification. The GeneratedImage diagram is a block diagram illustrating the physical connections between a home assistant, coffee machine, and power sources, emphasizing control and power supply. The common element is the 'Home Assistant', but the diagrams differ significantly in purpose and detail. The GroundTruth diagram is more complex and process-oriented, while the GeneratedImage is simpler and hardware-focused. The GeneratedImage is rated 6 out of 10 for accuracy and completeness, as it captures the basic control and power supply elements but lacks the detailed process flow and additional components present in the GroundTruth.",
+    "Rating": 6
+  }
+}

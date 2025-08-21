@@ -1,0 +1,24 @@
+```plantuml
+@startuml gapfish_deployer
+
+actor User
+participant "depctl CLI" as depctl
+participant "Deployer Service" as deployer
+participant "Kubernetes API" as k8s
+participant "Git Repository" as git
+participant "Docker Registry" as docker
+
+User -> depctl: deploy <app> <version>
+depctl -> deployer: POST /deploy (app, version)
+deployer -> git: Fetch deployment config
+git --> deployer: config.yml
+deployer -> docker: Verify image exists
+docker --> deployer: Image metadata
+deployer -> deployer: Generate k8s manifests
+deployer -> k8s: Apply manifests
+k8s --> deployer: Deployment status
+deployer -> depctl: Deployment result
+depctl --> User: Deployment status
+
+@enduml
+```

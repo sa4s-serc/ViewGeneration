@@ -1,0 +1,73 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #EEEBDC
+  BorderColor #333333
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+cloud "AWS" {
+  rectangle "CloudFormation" as CF {
+    rectangle "mlcluster.template" as MLCluster
+    rectangle "mlcluster-vpc.template" as MLClusterVPC
+    rectangle "ml-managedeni.template" as ManagedENI
+    rectangle "ml-nodemanager.template" as NodeManager
+  }
+
+  rectangle "Lambda Functions" as Lambda {
+    rectangle "managedeni.py" as ManagedENILambda
+    rectangle "nodemanager.py" as NodeManagerLambda
+    rectangle "utils.py" as UtilsLambda
+  }
+
+  rectangle "EC2" as EC2 {
+    rectangle "MarkLogic Instances" as MLInstances
+    rectangle "Auto Scaling Group" as ASG
+  }
+
+  rectangle "Networking" as Net {
+    rectangle "VPC" as VPC
+    rectangle "Subnets" as Subnets
+    rectangle "Security Groups" as SG
+    rectangle "Elastic Network Interfaces" as ENI
+    rectangle "Application Load Balancer" as ALB
+  }
+
+  database "DynamoDB" as DDB {
+    rectangle "MarkLogicDDBTable" as MLTable
+  }
+
+  rectangle "IAM Roles" as IAM
+  rectangle "EBS Volumes" as EBS
+  rectangle "SNS (Optional)" as SNS
+}
+
+MLCluster --> EC2
+MLCluster --> Net
+MLCluster --> DDB
+MLCluster --> IAM
+MLCluster --> EBS
+MLCluster --> SNS
+
+MLClusterVPC --> VPC
+MLClusterVPC --> Subnets
+
+ManagedENI --> ManagedENILambda
+NodeManager --> NodeManagerLambda
+
+ManagedENILambda --> ENI
+NodeManagerLambda --> ASG
+NodeManagerLambda --> ENI
+
+ASG --> MLInstances
+MLInstances --> EBS
+MLInstances --> ENI
+
+ALB --> MLInstances
+
+MLInstances --> MLTable : Read/Write State
+
+UtilsLambda <-- ManagedENILambda
+UtilsLambda <-- NodeManagerLambda
+
+@enduml

@@ -1,0 +1,465 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "IBM Spectrum Protect Plus server",
+        "description": "Located in Primary Site",
+        "boundaries": "SPP System (Linux VM)",
+        "position": "Left"
+      },
+      {
+        "name": "VADP proxy and vSnap Server",
+        "description": "Located in Primary Site",
+        "boundaries": "SPP System (Linux VM)",
+        "position": "Left"
+      },
+      {
+        "name": "SPPmon.py",
+        "description": "Main monitoring script",
+        "boundaries": "Monitoring System (Linux VM)",
+        "position": "Right"
+      },
+      {
+        "name": "Influx DB",
+        "description": "Database for storing data",
+        "boundaries": "Monitoring System (Linux VM)",
+        "position": "Right"
+      },
+      {
+        "name": "Grafana",
+        "description": "Visualization tool",
+        "boundaries": "Monitoring System (Linux VM)",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "IBM Spectrum Protect Plus server",
+        "target": "SPPmon.py",
+        "label": "REST API",
+        "type": "Data flow"
+      },
+      {
+        "source": "IBM Spectrum Protect Plus server",
+        "target": "SPPmon.py",
+        "label": "CLI",
+        "type": "Data flow"
+      },
+      {
+        "source": "VADP proxy and vSnap Server",
+        "target": "SPPmon.py",
+        "label": "CLI",
+        "type": "Data flow"
+      },
+      {
+        "source": "SPPmon.py",
+        "target": "Influx DB",
+        "label": "",
+        "type": "Data flow"
+      },
+      {
+        "source": "SPPmon.py",
+        "target": "Grafana",
+        "label": "",
+        "type": "Data flow"
+      },
+      {
+        "source": "SPPmon.py",
+        "target": "E-mail alerts",
+        "label": "",
+        "type": "Notification"
+      },
+      {
+        "source": "Schedule",
+        "target": "SPPmon.py",
+        "label": "",
+        "type": "Control"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "SPP System (Linux VM)",
+        "components": [
+          "IBM Spectrum Protect Plus server",
+          "VADP proxy and vSnap Server"
+        ]
+      },
+      {
+        "name": "Monitoring System (Linux VM)",
+        "components": [
+          "SPPmon.py",
+          "Influx DB",
+          "Grafana"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "SPP and Monitoring System Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "sppmon.py",
+        "description": "Main monitoring script",
+        "boundaries": "SPPMon Core",
+        "position": "Top"
+      },
+      {
+        "name": "sppmonMethods/*",
+        "description": "Methods used by sppmon",
+        "boundaries": "SPPMon Core",
+        "position": "Top"
+      },
+      {
+        "name": "api_queries.py",
+        "description": "Handles API queries",
+        "boundaries": "SPP Connection",
+        "position": "Left"
+      },
+      {
+        "name": "ssh_client.py",
+        "description": "Handles SSH connections",
+        "boundaries": "SPP Connection",
+        "position": "Left"
+      },
+      {
+        "name": "rest_client.py",
+        "description": "Handles REST connections",
+        "boundaries": "SPP Connection",
+        "position": "Left"
+      },
+      {
+        "name": "influx_client.py",
+        "description": "Handles InfluxDB connections",
+        "boundaries": "Data Storage",
+        "position": "Bottom"
+      },
+      {
+        "name": "sppcheck.py",
+        "description": "Main checking script",
+        "boundaries": "SPPCheck",
+        "position": "Right"
+      },
+      {
+        "name": "sppCheck/predictor",
+        "description": "Predictor module",
+        "boundaries": "SPPCheck",
+        "position": "Right"
+      },
+      {
+        "name": "sppCheck/generator",
+        "description": "Generator module",
+        "boundaries": "SPPCheck",
+        "position": "Right"
+      },
+      {
+        "name": "sppCheck/excel",
+        "description": "Excel report module",
+        "boundaries": "SPPCheck",
+        "position": "Right"
+      },
+      {
+        "name": "sppCheck/report",
+        "description": "Report module",
+        "boundaries": "SPPCheck",
+        "position": "Right"
+      },
+      {
+        "name": "installer.sh",
+        "description": "Installation script",
+        "boundaries": "Installation & Configuration",
+        "position": "Top Right"
+      },
+      {
+        "name": "addConfig.py",
+        "description": "Configuration addition script",
+        "boundaries": "Installation & Configuration",
+        "position": "Top Right"
+      },
+      {
+        "name": "addConfigFile.py",
+        "description": "Configuration file addition script",
+        "boundaries": "Installation & Configuration",
+        "position": "Top Right"
+      },
+      {
+        "name": "generifyDashboard.py",
+        "description": "Dashboard generation script",
+        "boundaries": "Data Visualization",
+        "position": "Far Right"
+      },
+      {
+        "name": "grafana",
+        "description": "Visualization tool",
+        "boundaries": "Data Visualization",
+        "position": "Far Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "sppmon.py",
+        "target": "sppmonMethods/*",
+        "label": "control_flow",
+        "type": "Control"
+      },
+      {
+        "source": "sppmon.py",
+        "target": "influx_client.py",
+        "label": "connectivity",
+        "type": "Data flow"
+      },
+      {
+        "source": "api_queries.py",
+        "target": "rest_client.py",
+        "label": "control_flow",
+        "type": "Control"
+      },
+      {
+        "source": "ssh_client.py",
+        "target": "rest_client.py",
+        "label": "control_flow",
+        "type": "Control"
+      },
+      {
+        "source": "sppcheck.py",
+        "target": "sppCheck/predictor",
+        "label": "control_flow",
+        "type": "Control"
+      },
+      {
+        "source": "sppcheck.py",
+        "target": "sppCheck/generator",
+        "label": "control_flow",
+        "type": "Control"
+      },
+      {
+        "source": "sppcheck.py",
+        "target": "sppCheck/excel",
+        "label": "control_flow",
+        "type": "Control"
+      },
+      {
+        "source": "sppcheck.py",
+        "target": "sppCheck/report",
+        "label": "control_flow",
+        "type": "Control"
+      },
+      {
+        "source": "installer.sh",
+        "target": "addConfig.py",
+        "label": "control_flow",
+        "type": "Control"
+      },
+      {
+        "source": "installer.sh",
+        "target": "addConfigFile.py",
+        "label": "control_flow",
+        "type": "Control"
+      },
+      {
+        "source": "generifyDashboard.py",
+        "target": "grafana",
+        "label": "control_flow",
+        "type": "Control"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "SPPMon Core",
+        "components": [
+          "sppmon.py",
+          "sppmonMethods/*"
+        ]
+      },
+      {
+        "name": "SPP Connection",
+        "components": [
+          "api_queries.py",
+          "ssh_client.py",
+          "rest_client.py"
+        ]
+      },
+      {
+        "name": "Data Storage",
+        "components": [
+          "influx_client.py"
+        ]
+      },
+      {
+        "name": "SPPCheck",
+        "components": [
+          "sppcheck.py",
+          "sppCheck/predictor",
+          "sppCheck/generator",
+          "sppCheck/excel",
+          "sppCheck/report"
+        ]
+      },
+      {
+        "name": "Installation & Configuration",
+        "components": [
+          "installer.sh",
+          "addConfig.py",
+          "addConfigFile.py"
+        ]
+      },
+      {
+        "name": "Data Visualization",
+        "components": [
+          "generifyDashboard.py",
+          "grafana"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "SPPMon Detailed Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "sppmon.py",
+      "grafana"
+    ],
+    "unique_to_GroundTruth": [
+      "IBM Spectrum Protect Plus server",
+      "VADP proxy and vSnap Server",
+      "Influx DB"
+    ],
+    "unique_to_GeneratedImage": [
+      "sppmonMethods/*",
+      "api_queries.py",
+      "ssh_client.py",
+      "rest_client.py",
+      "influx_client.py",
+      "sppcheck.py",
+      "sppCheck/predictor",
+      "sppCheck/generator",
+      "sppCheck/excel",
+      "sppCheck/report",
+      "installer.sh",
+      "addConfig.py",
+      "addConfigFile.py",
+      "generifyDashboard.py"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "IBM Spectrum Protect Plus server",
+        "target": "SPPmon.py",
+        "label": "REST API",
+        "type": "Data flow"
+      },
+      {
+        "source": "IBM Spectrum Protect Plus server",
+        "target": "SPPmon.py",
+        "label": "CLI",
+        "type": "Data flow"
+      },
+      {
+        "source": "VADP proxy and vSnap Server",
+        "target": "SPPmon.py",
+        "label": "CLI",
+        "type": "Data flow"
+      },
+      {
+        "source": "SPPmon.py",
+        "target": "Influx DB",
+        "label": "",
+        "type": "Data flow"
+      },
+      {
+        "source": "SPPmon.py",
+        "target": "Grafana",
+        "label": "",
+        "type": "Data flow"
+      },
+      {
+        "source": "SPPmon.py",
+        "target": "E-mail alerts",
+        "label": "",
+        "type": "Notification"
+      },
+      {
+        "source": "Schedule",
+        "target": "SPPmon.py",
+        "label": "",
+        "type": "Control"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "sppmon.py",
+        "target": "sppmonMethods/*",
+        "label": "control_flow",
+        "type": "Control"
+      },
+      {
+        "source": "sppmon.py",
+        "target": "influx_client.py",
+        "label": "connectivity",
+        "type": "Data flow"
+      },
+      {
+        "source": "api_queries.py",
+        "target": "rest_client.py",
+        "label": "control_flow",
+        "type": "Control"
+      },
+      {
+        "source": "ssh_client.py",
+        "target": "rest_client.py",
+        "label": "control_flow",
+        "type": "Control"
+      },
+      {
+        "source": "sppcheck.py",
+        "target": "sppCheck/predictor",
+        "label": "control_flow",
+        "type": "Control"
+      },
+      {
+        "source": "sppcheck.py",
+        "target": "sppCheck/generator",
+        "label": "control_flow",
+        "type": "Control"
+      },
+      {
+        "source": "sppcheck.py",
+        "target": "sppCheck/excel",
+        "label": "control_flow",
+        "type": "Control"
+      },
+      {
+        "source": "sppcheck.py",
+        "target": "sppCheck/report",
+        "label": "control_flow",
+        "type": "Control"
+      },
+      {
+        "source": "installer.sh",
+        "target": "addConfig.py",
+        "label": "control_flow",
+        "type": "Control"
+      },
+      {
+        "source": "installer.sh",
+        "target": "addConfigFile.py",
+        "label": "control_flow",
+        "type": "Control"
+      },
+      {
+        "source": "generifyDashboard.py",
+        "target": "grafana",
+        "label": "control_flow",
+        "type": "Control"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on a high-level overview of the SPP System and Monitoring System, showing the interaction between IBM Spectrum Protect Plus server, VADP proxy, and the monitoring components like SPPmon.py, Influx DB, and Grafana. The GeneratedImage diagram provides a more detailed breakdown of the SPPMon architecture, including specific scripts and modules like sppmonMethods, api_queries, and influx_client. Both diagrams include SPPmon.py and Grafana, but the GroundTruth diagram emphasizes data flow and system interactions, while the GeneratedImage diagram highlights internal control flow and connectivity within the monitoring system. The GroundTruth diagram is rated 8 out of 10 for its clarity in depicting system interactions, while the GeneratedImage diagram is rated 7 out of 10 for its detailed internal architecture but lacking in showing external system interactions.",
+    "Rating": 7
+  }
+}

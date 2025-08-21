@@ -1,0 +1,55 @@
+@startuml intel_edge-insights-vision
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<script>> #d9e7fd
+  BackgroundColor<<docker>> #d8f5d3
+  BackgroundColor<<hardware>> #fff1c9
+  BackgroundColor<<openvino>> #fddddd
+  Style roundrect
+}
+
+package "Installation Scripts" <<script>> {
+  rectangle "eiv_install.sh" as install_script
+  rectangle "eiv_setup.py" as setup_script
+  rectangle "eiv_callbacks.sh" as callbacks
+  rectangle "launch_notebooks.sh" as notebooks
+  rectangle "adl_*.sh" as adl_scripts
+}
+
+package "Docker Environment" <<docker>> {
+  rectangle "Docker Images" as docker_images
+  rectangle "Containers" as containers
+}
+
+package "Intel Hardware" <<hardware>> {
+  rectangle "CPU" as cpu
+  rectangle "iGPU" as igpu
+  rectangle "dGPU" as dgpu
+  rectangle "MIPI Camera" as mipi_camera
+}
+
+package "OpenVINO Toolkit" <<openvino>> {
+  rectangle "OpenVINO Core" as openvino_core
+  rectangle "Jupyter Notebooks" as jupyter
+  rectangle "IPU Libraries" as ipu_libs
+}
+
+install_script --> setup_script
+install_script --> callbacks
+setup_script --> callbacks
+callbacks --> docker_images
+callbacks --> openvino_core
+notebooks --> jupyter
+notebooks --> containers
+adl_scripts --> mipi_camera
+adl_scripts --> ipu_libs
+
+docker_images --> containers
+containers --> openvino_core
+containers --> jupyter
+
+openvino_core --> cpu
+openvino_core --> igpu
+openvino_core --> dgpu
+ipu_libs --> mipi_camera
+@enduml

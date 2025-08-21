@@ -1,0 +1,31 @@
+@startuml liyangbing_rocketmq-http-gateway
+
+skinparam component {
+  BackgroundColor<<external>> LightGray
+  BackgroundColor<<gateway>> LightBlue
+}
+
+[HTTP Clients] as clients <<external>>
+[RocketMQ] as rocketmq <<external>>
+
+package "RocketMQ HTTP Gateway" <<gateway>> {
+  [Netty Server] as netty
+  [Request Processor] as processor
+  [Producer Manager] as producerMgr
+  [Consumer Manager] as consumerMgr
+  [Subscription Change Watcher] as subWatcher
+  [HTTP Executor] as httpExecutor
+}
+
+clients -down-> netty : HTTP Requests
+netty -down-> processor
+processor -down-> producerMgr
+processor -down-> consumerMgr
+subWatcher -up-> producerMgr
+subWatcher -up-> consumerMgr
+producerMgr -down-> rocketmq : Produce Messages
+consumerMgr -up-> rocketmq : Consume Messages
+consumerMgr -down-> httpExecutor
+httpExecutor -up-> clients : HTTP Callbacks
+
+@enduml

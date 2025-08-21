@@ -1,0 +1,34 @@
+```plantuml
+@startuml Simon-0711_ta_lyrics_sentiment_classification
+
+actor User
+participant "React Frontend" as Frontend
+participant "FastAPI Backend" as Backend
+participant "LyricsGenius API" as GeniusAPI
+participant "Elasticsearch" as ES
+participant "CNN Model" as CNN
+
+User -> Frontend: Input song and artist
+Frontend -> Backend: Send song and artist info
+
+alt Lyrics not in Elasticsearch
+    Backend -> GeniusAPI: Request lyrics
+    GeniusAPI -> Backend: Return lyrics
+    Backend -> ES: Store lyrics
+else Lyrics in Elasticsearch
+    Backend -> ES: Retrieve lyrics
+end
+
+Backend -> Backend: Preprocess lyrics
+Backend -> CNN: Classify sentiment
+CNN -> Backend: Return sentiment
+
+Backend -> ES: Query similar songs
+Backend -> ES: Calculate cosine similarity
+ES -> Backend: Return similar songs
+
+Backend -> Frontend: Send sentiment and recommendations
+Frontend -> User: Display sentiment and recommendations
+
+@enduml
+```

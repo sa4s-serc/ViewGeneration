@@ -1,0 +1,59 @@
+### Actual Output:
+@startuml ra1028_VueFlux
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<state>> #d9e7fd
+  BackgroundColor<<action>> #d8f5d3
+  BackgroundColor<<reactive>> #fddddd
+  BackgroundColor<<ui>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "VueFlux Core" {
+  rectangle "Store" as Store <<state>> {
+    rectangle "State" as State
+    rectangle "Mutations" as Mutations
+    rectangle "Computed" as Computed
+  }
+
+  rectangle "Actions" as Actions <<action>>
+}
+
+package "VueFluxReactive" <<reactive>> {
+  rectangle "Variable" as Variable
+  rectangle "Constant" as Constant
+  rectangle "Signal" as Signal
+  rectangle "Sink" as Sink
+  rectangle "Binder" as Binder
+}
+
+package "UI Layer" <<ui>> {
+  rectangle "ViewController" as VC
+  rectangle "UI Components" as UI
+}
+
+Actions --> Mutations : "dispatch"
+Mutations --> State : "modify"
+State --> Computed : "derive"
+Computed --> Signal : "observe"
+Signal --> Binder : "bind"
+Binder --> UI : "update"
+
+Variable --> Signal : "emit"
+Constant --> Signal : "read"
+Sink --> Signal : "produce"
+
+VC --> Actions : "trigger"
+VC --> Binder : "setup binding"
+
+note right of Store
+  Thread-safe state management
+  using AtomicReference
+end note
+
+note right of Signal
+  Observer pattern implementation
+  for reactive updates
+end note
+@enduml

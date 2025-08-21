@@ -1,0 +1,66 @@
+@startuml codahale_sneaker
+
+skinparam componentStyle rectangle
+skinparam defaultTextAlignment center
+
+actor User
+
+rectangle "CLI" as CLI {
+  [cmd/sneaker/main.go]
+}
+
+rectangle "Core Components" {
+  [Manager] as Manager
+  [Envelope] as Envelope
+  interface "ObjectStorage" as ObjectStorage
+  interface "KeyManagement" as KeyManagement
+}
+
+rectangle "Operations" {
+  [Upload]
+  [Download]
+  [List]
+  [Rm]
+  [Pack]
+  [Unpack]
+  [Rotate]
+}
+
+cloud "AWS" {
+  [S3]
+  [KMS]
+}
+
+User --> CLI
+CLI --> Manager
+
+Manager --> ObjectStorage
+Manager --> KeyManagement
+Manager --> Envelope
+
+ObjectStorage <|.. S3
+KeyManagement <|.. KMS
+
+Manager --> Upload
+Manager --> Download
+Manager --> List
+Manager --> Rm
+Manager --> Pack
+Manager --> Unpack
+Manager --> Rotate
+
+Upload --> S3
+Download --> S3
+List --> S3
+Rm --> S3
+Pack --> S3
+Unpack --> S3
+Rotate --> S3
+
+Upload --> KMS
+Download --> KMS
+Pack --> KMS
+Unpack --> KMS
+Rotate --> KMS
+
+@enduml

@@ -1,0 +1,36 @@
+```plantuml
+@startuml YW-Ma_Algorithms-Visualizer
+
+actor User
+participant "Frontend (React)" as Frontend
+participant "Backend (Node.js)" as Backend
+participant "BMap API" as BMap
+participant "C++ Executable" as CppExec
+participant "Database (MySQL)" as DB
+
+User -> Frontend: Selects algorithm (e.g., Dijkstra)
+Frontend -> BMap: Request map data (nodes/edges)
+BMap --> Frontend: Return map data
+Frontend -> Frontend: Render graph (GraphSVG/GraphTable)
+
+User -> Frontend: Triggers visualization
+Frontend -> Backend: POST /execute (algorithm, graph data)
+Backend -> CppExec: Execute algorithm (via IPC/file)
+CppExec --> Backend: Return algorithm steps
+Backend -> DB: Save execution state
+DB --> Backend: Confirm save
+Backend --> Frontend: Return animation steps
+
+Frontend -> Frontend: Animate steps (GraphSVG)
+Frontend -> Frontend: Update table (GraphTable)
+Frontend -> Frontend: Display code snippets
+
+User -> Frontend: Requests report
+Frontend -> Backend: GET /reports
+Backend -> DB: Query execution history
+DB --> Backend: Return history
+Backend --> Frontend: Return report data
+Frontend -> Frontend: Render report (Reports.js)
+
+@enduml
+```

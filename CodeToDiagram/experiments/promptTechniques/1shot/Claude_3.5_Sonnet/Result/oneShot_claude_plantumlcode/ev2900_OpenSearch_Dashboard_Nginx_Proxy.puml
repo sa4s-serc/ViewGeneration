@@ -1,0 +1,36 @@
+@startuml ev2900_OpenSearch_Dashboard_Nginx_Proxy
+
+!define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v15.0/dist
+!include AWSPuml/AWSCommon.puml
+!include AWSPuml/InternetOfThings/IoTGeneric.puml
+!include AWSPuml/NetworkingContentDelivery/VPC.puml
+!include AWSPuml/NetworkingContentDelivery/ElasticLoadBalancing.puml
+!include AWSPuml/Compute/EC2.puml
+!include AWSPuml/Analytics/OpenSearchService.puml
+!include AWSPuml/SecurityIdentityCompliance/IAM.puml
+!include AWSPuml/Storage/SimpleStorageService.puml
+
+skinparam componentStyle uml2
+
+actor "User" as user
+cloud "Internet" as internet
+
+VPC(vpc, "VPC", "Virtual Private Cloud") {
+    rectangle "Public Subnet" {
+        EC2(nginx, "Nginx Proxy", "EC2 Instance")
+    }
+    rectangle "Private Subnet" {
+        OpenSearchService(opensearch, "OpenSearch Domain", "OpenSearch Dashboard")
+    }
+}
+
+IAM(iam, "IAM Role", "Instance Profile")
+SimpleStorageService(s3, "S3 Bucket", "CloudFormation Template")
+
+user --> internet : HTTPS
+internet --> nginx : HTTPS
+nginx --> opensearch : Forward requests
+nginx ..> iam : Assumes
+s3 ..> vpc : Deploys
+
+@enduml

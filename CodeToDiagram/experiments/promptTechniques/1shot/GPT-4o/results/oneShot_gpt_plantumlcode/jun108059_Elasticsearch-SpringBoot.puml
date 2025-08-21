@@ -1,0 +1,43 @@
+```plantuml
+@startuml jun108059_Elasticsearch-SpringBoot
+skinparam rectangle {
+  BackgroundColor<<controller>> #d9e7fd
+  BackgroundColor<<service>> #d8f5d3
+  BackgroundColor<<repository>> #fddddd
+  BackgroundColor<<client>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Controller Layer" <<controller>> {
+  rectangle "APIController" as APIController
+  rectangle "ServiceManagementController" as ServiceManagementController
+  rectangle "HomeController" as HomeController
+}
+
+package "Service Layer" <<service>> {
+  rectangle "IndexService" as IndexService
+}
+
+package "Repository Layer" <<repository>> {
+  rectangle "ServiceRepository" as ServiceRepository
+  rectangle "BulkRepository" as BulkRepository
+  rectangle "JdbcTemplateServiceRepository" as JdbcTemplateServiceRepository
+  rectangle "JdbcTemplateBulkRepository" as JdbcTemplateBulkRepository
+  ServiceRepository <|-- JdbcTemplateServiceRepository
+  BulkRepository <|-- JdbcTemplateBulkRepository
+}
+
+package "Elasticsearch Client Layer" <<client>> {
+  rectangle "ElasticsearchClient" as ElasticsearchClient
+}
+
+APIController --> IndexService
+ServiceManagementController --> IndexService
+HomeController --> IndexService
+IndexService --> ServiceRepository
+IndexService --> BulkRepository
+IndexService --> ElasticsearchClient
+
+@enduml
+```

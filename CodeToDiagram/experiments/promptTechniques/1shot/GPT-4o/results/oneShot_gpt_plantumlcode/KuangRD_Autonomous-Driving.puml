@@ -1,0 +1,39 @@
+```plantuml
+@startuml KuangRD_Autonomous-Driving
+
+actor User
+
+box "ROS-Based Autonomous Driving System" #LightBlue
+    participant "Waypoint Loader\n(Node)" as WaypointLoader
+    participant "Waypoint Updater\n(Node)" as WaypointUpdater
+    participant "DBW Controller\n(Node)" as DBWController
+    participant "Traffic Light Detector\n(Node)" as TrafficLightDetector
+    participant "Simulator/Car" as Simulator
+end box
+
+User -> Simulator: Start Simulation
+Simulator -> WaypointLoader: Load Waypoints
+WaypointLoader -> WaypointUpdater: Send Loaded Waypoints
+WaypointUpdater -> DBWController: Update Waypoints
+DBWController -> Simulator: Control Commands (Drive-by-Wire)
+
+Simulator -> TrafficLightDetector: Send Camera Image
+TrafficLightDetector -> TrafficLightDetector: Process Image (TensorFlow/Keras)
+TrafficLightDetector -> WaypointUpdater: Update Waypoints based on Traffic Light
+TrafficLightDetector -> Simulator: Detection Results
+
+note right of TrafficLightDetector
+  Traffic Light Classification:
+  - CNN Model
+  - CUDA Acceleration
+end note
+
+User -> DBWController: Adjust PID Parameters
+DBWController -> DBWController: Execute PID Control
+
+note over WaypointLoader, TrafficLightDetector
+  Communication via JSON Messages
+end note
+
+@enduml
+```

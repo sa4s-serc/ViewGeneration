@@ -1,0 +1,182 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Jenkins",
+        "description": "Compiles code and packages images",
+        "position": "center"
+      },
+      {
+        "name": "Frontend Code",
+        "description": "Integrates webpack plugin, automatically generates source maps, and packages into zip",
+        "position": "left"
+      },
+      {
+        "name": "Static Resource Server",
+        "description": "Handles static resource requests from the server and returns corresponding resources",
+        "position": "top right"
+      },
+      {
+        "name": "Offline Package Platform",
+        "description": "Downloads offline packages and uploads to the platform",
+        "position": "bottom left"
+      },
+      {
+        "name": "Client",
+        "description": "Pre-installed with initial offline package version, installs full package",
+        "position": "bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Frontend Code",
+        "target": "Jenkins",
+        "label": "push"
+      },
+      {
+        "source": "Jenkins",
+        "target": "Static Resource Server",
+        "label": "Compile and package"
+      },
+      {
+        "source": "Static Resource Server",
+        "target": "Client",
+        "label": "Static resource request"
+      },
+      {
+        "source": "Offline Package Platform",
+        "target": "Client",
+        "label": "Download and install"
+      }
+    ],
+    "annotations": [
+      "If the uploaded version is not the initial version, calculate the difference from the previous version."
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "offline_execution_mechanism.png",
+      "title": "离线包运行机制"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Webpack",
+        "description": "Handles the compilation process"
+      },
+      {
+        "name": "OfflinePackagePlugin",
+        "description": "Plugin for offline package handling"
+      },
+      {
+        "name": "JSZip",
+        "description": "Library for creating zip files"
+      },
+      {
+        "name": "MimeTypes",
+        "description": "Handles MIME type lookup"
+      },
+      {
+        "name": "FileSystem",
+        "description": "Handles file operations"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Webpack",
+        "target": "OfflinePackagePlugin",
+        "label": "apply(compiler)"
+      },
+      {
+        "source": "OfflinePackagePlugin",
+        "target": "JSZip",
+        "label": "new JSZip()"
+      },
+      {
+        "source": "OfflinePackagePlugin",
+        "target": "MimeTypes",
+        "label": "lookup(assetPath)"
+      },
+      {
+        "source": "OfflinePackagePlugin",
+        "target": "FileSystem",
+        "label": "writeFileSync"
+      }
+    ],
+    "annotations": [
+      "Loop for each asset",
+      "Alternative path if asset passes filter"
+    ],
+    "groups": [
+      "loop",
+      "alt"
+    ],
+    "metadata": {
+      "filename": "webpack_sequence_diagram.png"
+    }
+  },
+  "comparison": {
+    "common_components": [],
+    "unique_to_GroundTruth": [
+      "Jenkins",
+      "Frontend Code",
+      "Static Resource Server",
+      "Offline Package Platform",
+      "Client"
+    ],
+    "unique_to_GeneratedImage": [
+      "Webpack",
+      "OfflinePackagePlugin",
+      "JSZip",
+      "MimeTypes",
+      "FileSystem"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Frontend Code",
+        "target": "Jenkins",
+        "label": "push"
+      },
+      {
+        "source": "Jenkins",
+        "target": "Static Resource Server",
+        "label": "Compile and package"
+      },
+      {
+        "source": "Static Resource Server",
+        "target": "Client",
+        "label": "Static resource request"
+      },
+      {
+        "source": "Offline Package Platform",
+        "target": "Client",
+        "label": "Download and install"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Webpack",
+        "target": "OfflinePackagePlugin",
+        "label": "apply(compiler)"
+      },
+      {
+        "source": "OfflinePackagePlugin",
+        "target": "JSZip",
+        "label": "new JSZip()"
+      },
+      {
+        "source": "OfflinePackagePlugin",
+        "target": "MimeTypes",
+        "label": "lookup(assetPath)"
+      },
+      {
+        "source": "OfflinePackagePlugin",
+        "target": "FileSystem",
+        "label": "writeFileSync"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on the offline package execution mechanism, involving components like Jenkins, frontend code, and a static resource server. It describes a process of compiling and packaging code, handling static resources, and client installation. The GeneratedImage diagram is a sequence diagram for a Webpack plugin, detailing interactions between components like Webpack, JSZip, and FileSystem. It focuses on the compilation and packaging process using a plugin. The two diagrams do not share components or connectors, as they describe different systems and processes. The GroundTruth diagram is more about deployment and resource management, while the GeneratedImage diagram details a specific plugin operation. Rating: 5. The GeneratedImage is accurate in its domain but lacks overlap with the GroundTruth, focusing on a different aspect of software architecture.",
+    "Rating": 5
+  }
+}

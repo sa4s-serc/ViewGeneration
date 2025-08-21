@@ -1,0 +1,47 @@
+@startuml
+!define AZURE_COLOR #0072C6
+!define SIMPHERA_COLOR #FF6600
+
+actor "DevOps Engineer" as DevOps
+participant "Terraform" as Terraform
+participant "Azure CLI" as AzureCLI
+box "Azure Resources" #LightBlue
+    participant "Azure Resource Manager" as ARM
+    participant "AKS" as AKS
+    participant "PostgreSQL Flexible Servers" as PostgreSQL
+    participant "Storage Accounts (MinIO)" as MinIO
+    participant "Key Vault" as KeyVault
+    participant "Virtual Network" as VNet
+    participant "Private Link" as PrivateLink
+    participant "Log Analytics" as LogAnalytics
+end box
+
+DevOps -> Terraform: Initialize Terraform
+Terraform -> AzureCLI: Authenticate
+AzureCLI -> ARM: Deploy Resources
+
+ARM -> VNet: Create Virtual Network
+ARM -> AKS: Deploy Kubernetes Cluster
+ARM -> PostgreSQL: Create PostgreSQL Servers
+ARM -> MinIO: Create Storage Accounts
+ARM -> KeyVault: Set up Key Vault
+ARM -> PrivateLink: Configure Private Link
+ARM -> LogAnalytics: Set up Log Analytics (Optional)
+
+AKS -> VNet: Connect to VNet
+PostgreSQL -> VNet: Connect to VNet
+MinIO -> VNet: Connect to VNet
+KeyVault -> VNet: Connect to VNet
+
+PrivateLink -> PostgreSQL: Establish Private Connection
+PrivateLink -> MinIO: Establish Private Connection
+
+AKS -> LogAnalytics: Send Logs (Optional)
+PostgreSQL -> LogAnalytics: Send Logs (Optional)
+MinIO -> LogAnalytics: Send Logs (Optional)
+KeyVault -> LogAnalytics: Send Logs (Optional)
+
+ARM -> Terraform: Return Deployment Status
+Terraform -> DevOps: Display Outputs
+
+@enduml

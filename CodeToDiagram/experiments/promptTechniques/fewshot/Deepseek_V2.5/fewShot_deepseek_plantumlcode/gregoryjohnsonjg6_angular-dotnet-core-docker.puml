@@ -1,0 +1,52 @@
+@startuml gregoryjohnsonjg6_angular-dotnet-core-docker
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<db>> #fff1c9
+  BackgroundColor<<infra>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+left to right direction
+
+actor User
+
+rectangle "NGINX\n(API Gateway)" as nginx <<infra>> {
+}
+
+package "Frontend" <<frontend>> {
+  rectangle "Angular App\n(SSR)" as angular
+  rectangle "Auth Service" as authFront
+  rectangle "Contact Service" as contactFront
+  angular --> authFront
+  angular --> contactFront
+}
+
+package "Backend" <<backend>> {
+  rectangle "ASP.NET Core API" as api
+  rectangle "Application Layer\n(CQRS/MediatR)" as app
+  rectangle "Domain Layer" as domain
+  rectangle "Persistence\n(EF Core)" as persistence
+  rectangle "Identity Service" as identity
+  api --> app
+  app --> domain
+  app --> persistence
+  api --> identity
+}
+
+database "PostgreSQL" as db <<db>>
+
+User --> nginx
+nginx --> angular : "/"
+nginx --> api : "/api"
+
+authFront --> api : "/api/auth"
+contactFront --> api : "/api/contacts"
+
+persistence --> db
+identity --> db
+
+rectangle "Docker" <<infra>> {
+  note right: Containerized services\n- Frontend\n- Backend\n- PostgreSQL\n- NGINX
+}
+@enduml

@@ -1,0 +1,92 @@
+Here's a PlantUML sequence diagram representing the control flow of the MLOps system based on the repository summary:
+
+```plantuml
+@startuml gdsc-ys_mlops
+
+actor "ML Developer" as dev
+participant "MLflow Client" as client
+participant "Nginx Reverse Proxy" as nginx
+participant "MLflow Tracking Server" as mlflow
+database "MySQL Database" as mysql
+database "AWS S3" as s3
+
+dev -> client : Run ML experiment
+activate client
+
+client -> nginx : Send experiment data
+activate nginx
+
+nginx -> mlflow : Forward request
+activate mlflow
+
+mlflow -> mysql : Store metadata
+activate mysql
+mysql --> mlflow : Confirm storage
+deactivate mysql
+
+mlflow -> s3 : Store artifacts
+activate s3
+s3 --> mlflow : Confirm storage
+deactivate s3
+
+mlflow --> nginx : Send response
+deactivate mlflow
+
+nginx --> client : Forward response
+deactivate nginx
+
+client --> dev : Display experiment results
+deactivate client
+
+dev -> client : Package model
+activate client
+
+client -> nginx : Send packaging request
+activate nginx
+
+nginx -> mlflow : Forward request
+activate mlflow
+
+mlflow -> s3 : Retrieve model artifacts
+activate s3
+s3 --> mlflow : Return artifacts
+deactivate s3
+
+mlflow -> mlflow : Build Docker image
+
+mlflow --> nginx : Send packaging response
+deactivate mlflow
+
+nginx --> client : Forward response
+deactivate nginx
+
+client --> dev : Confirm model packaging
+deactivate client
+
+dev -> client : Deploy model
+activate client
+
+client -> nginx : Send deployment request
+activate nginx
+
+nginx -> mlflow : Forward request
+activate mlflow
+
+mlflow -> mlflow : Deploy Docker image
+
+mlflow -> mysql : Update model status
+activate mysql
+mysql --> mlflow : Confirm update
+deactivate mysql
+
+mlflow --> nginx : Send deployment response
+deactivate mlflow
+
+nginx --> client : Forward response
+deactivate nginx
+
+client --> dev : Confirm model deployment
+deactivate client
+
+@enduml
+```

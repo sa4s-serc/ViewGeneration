@@ -1,0 +1,51 @@
+@startuml SafeBreach-Labs_hAFL2
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<hypervisor>> #d8f5d3
+  BackgroundColor<<drivers>> #fddddd
+  BackgroundColor<<instrumentation>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Fuzzer (kAFL)" <<core>> {
+  rectangle "kafl_fuzz.py" as Fuzz
+  rectangle "master.py" as Master
+  rectangle "slave.py" as Slave
+  rectangle "kafl_gui.py" as GUI
+  rectangle "kafl_cov.py" as Cov
+  Fuzz --> Master
+  Master --> Slave
+  Fuzz --> GUI
+  Fuzz --> Cov
+}
+
+package "Hypervisor Layer" <<hypervisor>> {
+  rectangle "Modified KVM" as KVM
+  rectangle "QEMU" as QEMU
+  rectangle "Nested VMs" as NestedVMs
+  KVM --> QEMU
+  QEMU --> NestedVMs
+}
+
+package "Windows Drivers" <<drivers>> {
+  rectangle "CPHarness.sys" as CPHarness
+  rectangle "CrashMonitoringDriver.sys" as CrashMonitor
+  CPHarness --> CrashMonitor
+}
+
+package "Instrumentation" <<instrumentation>> {
+  rectangle "Intel PT" as IntelPT
+  rectangle "Redqueen" as Redqueen
+  rectangle "Hypercalls" as Hypercalls
+  IntelPT --> Redqueen
+  Redqueen --> Hypercalls
+}
+
+Fuzz --> KVM
+Slave --> QEMU
+NestedVMs --> CPHarness
+NestedVMs --> CrashMonitor
+CrashMonitor --> Hypercalls
+KVM --> IntelPT
+@enduml

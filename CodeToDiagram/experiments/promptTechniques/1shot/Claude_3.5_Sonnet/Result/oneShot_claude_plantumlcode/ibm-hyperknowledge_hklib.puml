@@ -1,0 +1,57 @@
+@startuml ibm-hyperknowledge_hklib
+
+skinparam component {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<data>> #d8f5d3
+  BackgroundColor<<util>> #fddddd
+}
+
+package "Core Entities" <<core>> {
+  [HKEntity]
+  [Node]
+  [Context]
+  [Link]
+  [Connector]
+  [Reference]
+  [Trail]
+  [VirtualNode]
+  [VirtualContext]
+  [VirtualLink]
+}
+
+package "Data Access" <<data>> {
+  [HKDatasource]
+  [HKGraph]
+}
+
+package "Utilities" <<util>> {
+  [Deserializer]
+  [Hyperify]
+  [FI]
+  [HKObserverFactory]
+  [ObserverClient]
+}
+
+HKEntity <|-- Node
+HKEntity <|-- Context
+HKEntity <|-- Link
+HKEntity <|-- Connector
+HKEntity <|-- Reference
+HKEntity <|-- Trail
+
+Node <|-- VirtualNode
+Context <|-- VirtualContext
+Link <|-- VirtualLink
+
+HKDatasource --> HKEntity : manages
+HKGraph --> HKEntity : contains
+
+Deserializer --> HKEntity : creates
+Hyperify --> HKGraph : generates
+
+HKObserverFactory ..> ObserverClient : creates
+
+HKDatasource --> ObserverClient : uses
+HKDatasource --> FI : uses
+
+@enduml

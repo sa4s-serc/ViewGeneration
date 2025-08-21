@@ -1,0 +1,55 @@
+@startuml hamzatugrul_surl
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<db>> #fff1c9
+  BackgroundColor<<cache>> #fddddd
+  BackgroundColor<<lb>> #e6e6fa
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+actor "User" as User
+
+rectangle "Nginx\nLoad Balancer" <<lb>> as Nginx {
+}
+
+package "Application Instances" <<backend>> {
+  rectangle "App Instance 1" as App1
+  rectangle "App Instance 2" as App2
+}
+
+package "Services" <<backend>> {
+  rectangle "ShortURLController" as Controller
+  rectangle "UrlShortenerService" as Service
+  rectangle "ShortUrlRepository" as Repository
+}
+
+database "Redis\nCache" <<cache>> as Redis
+database "MongoDB" <<db>> as MongoDB
+
+User --> Nginx
+Nginx --> App1
+Nginx --> App2
+
+App1 --> Controller
+App2 --> Controller
+
+Controller --> Service
+Service --> Repository
+Repository --> MongoDB
+Repository --> Redis : @Cacheable\n@CachePut
+
+note right of Redis
+  Cached entities:
+  - ShortUrlEntity
+end note
+
+note right of MongoDB
+  Stored data:
+  - Short/long URL mapping
+  - Visit statistics
+end note
+
+@enduml

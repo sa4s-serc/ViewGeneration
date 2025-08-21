@@ -1,0 +1,38 @@
+@startuml minism_hotel
+
+!define RECTANGLE component
+
+skinparam component {
+  BackgroundColor<<Service>> LightBlue
+  BackgroundColor<<Library>> LightGreen
+  BackgroundColor<<Database>> LightYellow
+}
+
+cloud "Docker" {
+  RECTANGLE "Master Server" <<Service>> as MasterServer {
+    [REST API]
+    [RPC Server]
+    [Session Management]
+    [Reaper]
+  }
+
+  RECTANGLE "Spawner" <<Service>> as Spawner {
+    [RPC Server]
+    [Game Server Management]
+  }
+
+  database "SQLite" <<Database>> as DB
+
+  RECTANGLE "Shared Libraries" <<Library>> as SharedLib {
+    [Configuration]
+    [Logging]
+    [Crypto]
+  }
+}
+
+MasterServer --> DB : uses
+MasterServer --> SharedLib : uses
+Spawner --> SharedLib : uses
+MasterServer <--> Spawner : gRPC
+
+@enduml

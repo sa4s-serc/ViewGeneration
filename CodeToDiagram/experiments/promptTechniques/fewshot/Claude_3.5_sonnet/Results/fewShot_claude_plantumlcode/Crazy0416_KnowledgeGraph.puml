@@ -1,0 +1,68 @@
+@startuml
+skinparam defaultTextAlignment center
+skinparam linetype ortho
+
+actor User
+
+rectangle "Knowledge Graph Visualization" {
+  [Search Engine] as SE
+  [Graph Visualization] as GV
+  [Graph Manipulation] as GM
+  [Pathfinding (A*)] as PF
+  [Layout Management] as LM
+}
+
+rectangle "Data Storage" {
+  [Elasticsearch] as ES
+  [CayleyGraph] as CG
+}
+
+rectangle "Rendering" {
+  [WebGL Renderer] as WR
+  [Canvas Renderer] as CR
+}
+
+rectangle "Materialize CSS" {
+  [UI Components] as UC
+  [DOM Utilities] as DU
+  [Animation (Anime.js)] as AN
+}
+
+rectangle "Sigma.js" {
+  [Core Rendering] as SigmaCore
+  [Plugins] as SigmaPlugins
+}
+
+rectangle "Redux" {
+  [Store] as ReduxStore
+  [Reducers] as ReduxReducers
+  [Actions] as ReduxActions
+}
+
+rectangle "Flatpickr" {
+  [Date/Time Picker] as FP
+}
+
+User --> SE : inputs search
+SE --> ES : queries
+SE --> CG : queries
+ES --> GV : returns data
+CG --> GV : returns data
+GV --> SigmaCore : uses
+SigmaCore --> WR : renders with
+SigmaCore --> CR : renders with
+GM --> SigmaPlugins : uses
+PF --> GV : updates
+LM --> GV : updates
+
+UC --> DU : uses
+UC --> AN : uses for effects
+SigmaPlugins --> SigmaCore : extends
+
+ReduxStore --> ReduxReducers : updates state
+ReduxActions --> ReduxStore : dispatches
+
+User --> UC : interacts with
+User --> FP : selects date/time
+
+@enduml

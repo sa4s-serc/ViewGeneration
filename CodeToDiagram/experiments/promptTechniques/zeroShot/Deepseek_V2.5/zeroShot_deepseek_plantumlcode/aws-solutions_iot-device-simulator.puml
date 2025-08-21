@@ -1,0 +1,30 @@
+```plantuml
+@startuml aws-solutions_iot-device-simulator
+
+actor User
+participant "Web UI" as WebUI
+participant "API Gateway" as APIGW
+participant "Microservices Lambda" as MicroLambda
+participant "Simulator Lambda" as SimLambda
+participant "AWS IoT Core" as IoTCore
+participant "Step Functions" as StepFunc
+participant "DynamoDB" as DDB
+participant "CloudWatch" as CW
+
+User -> WebUI: Access Device Simulator
+WebUI -> APIGW: HTTP Request (Create/Start Simulation)
+APIGW -> MicroLambda: Invoke (API Request)
+MicroLambda -> DDB: CRUD Operations (Device Types/Simulations)
+MicroLambda --> APIGW: API Response
+APIGW --> WebUI: Display Status
+
+MicroLambda -> StepFunc: Start Execution (Simulation Workflow)
+StepFunc -> SimLambda: Invoke (Device Simulation)
+SimLambda -> IoTCore: Connect/Publish MQTT Messages
+IoTCore --> SimLambda: ACK
+SimLambda -> CW: Log Metrics
+SimLambda --> StepFunc: Execution Status
+StepFunc --> MicroLambda: Workflow Completion
+
+@enduml
+```

@@ -1,0 +1,60 @@
+@startuml xydo1990_mlops_zoomcamp_homework
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor DataScientist
+actor EndUser
+
+rectangle "Training Pipeline" as Training {
+  rectangle "Data Ingestion" as DataIngestion
+  rectangle "Model Training" as ModelTraining
+  rectangle "MLflow Tracking" as MLflow
+}
+
+rectangle "Prediction Services" as Prediction {
+  rectangle "Batch Service" as BatchService
+  rectangle "Stream Service" as StreamService
+}
+
+rectangle "Monitoring" as Monitoring {
+  rectangle "Evidently" as Evidently
+  rectangle "Prometheus" as Prometheus
+  rectangle "Grafana" as Grafana
+}
+
+rectangle "Orchestration" as Orchestration {
+  rectangle "Prefect" as Prefect
+}
+
+rectangle "Storage" as Storage {
+  rectangle "MLflow Registry" as MLflowRegistry
+  rectangle "MongoDB" as MongoDB
+  rectangle "AWS S3" as S3
+}
+
+' ========== Connections ==========
+DataScientist --> DataIngestion : Uploads/Triggers\nData Pipeline
+DataIngestion --> ModelTraining : Processes Data
+ModelTraining --> MLflow : Logs Experiments
+MLflow --> MLflowRegistry : Stores Models
+MLflowRegistry --> BatchService : Fetches Model
+MLflowRegistry --> StreamService : Fetches Model
+
+EndUser --> BatchService : Submits Batch Requests
+EndUser --> StreamService : Submits Stream Requests
+
+BatchService --> Evidently : Sends Metrics
+StreamService --> Evidently : Sends Metrics
+Evidently --> Prometheus : Exports Metrics
+Prometheus --> Grafana : Visualizes Metrics
+
+Prefect --> BatchService : Triggers Scheduled\nBatch Predictions
+Prefect --> DataIngestion : Triggers Data Pipeline
+
+BatchService --> S3 : Stores Predictions
+StreamService --> MongoDB : Stores Predictions
+@enduml

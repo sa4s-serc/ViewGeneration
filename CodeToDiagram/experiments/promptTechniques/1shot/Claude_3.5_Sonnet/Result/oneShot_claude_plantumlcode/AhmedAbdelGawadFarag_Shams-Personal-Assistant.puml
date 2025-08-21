@@ -1,0 +1,31 @@
+@startuml AhmedAbdelGawadFarag_Shams-Personal-Assistant
+
+actor User
+participant "Android App" as App
+participant "Main Server" as MainServer
+participant "NER Server" as NERServer
+participant "Google Cloud\nSpeech-to-Text" as STT
+participant "Google Cloud\nText-to-Speech" as TTS
+database "Intent Classification\nModel" as IntentModel
+
+User -> App : Speak command
+App -> App : Record audio
+App -> MainServer : Send audio file
+MainServer -> STT : Convert speech to text
+STT --> MainServer : Return transcribed text
+MainServer -> IntentModel : Classify intent
+IntentModel --> MainServer : Return classified intent
+MainServer -> NERServer : Extract entities
+NERServer --> MainServer : Return extracted entities
+MainServer -> MainServer : Process intent and entities
+alt Text response
+    MainServer -> TTS : Convert text to speech
+    TTS --> MainServer : Return audio file
+    MainServer --> App : Send audio response
+else Action response
+    MainServer -> MainServer : Execute action\n(e.g., set alarm, create calendar event)
+    MainServer --> App : Send action result
+end
+App -> User : Present response\n(audio or visual)
+
+@enduml

@@ -1,0 +1,324 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Azure Storage",
+        "description": "Unstructured documents (pdf, docx, txt, etc.)",
+        "boundaries": "Knowledge Base",
+        "position": "left"
+      },
+      {
+        "name": "Azure Form Recognizer",
+        "description": "Extracted paragraphs",
+        "boundaries": null,
+        "position": "center-left"
+      },
+      {
+        "name": "Azure Translator",
+        "description": "Translate (optional)",
+        "boundaries": null,
+        "position": "center"
+      },
+      {
+        "name": "Azure OpenAI Service Embeddings",
+        "description": "Embedding of paragraphs using OpenAI",
+        "boundaries": "Search Layer",
+        "position": "center-right"
+      },
+      {
+        "name": "Vector Database",
+        "description": "Vectors",
+        "boundaries": "Search Layer",
+        "position": "center-right"
+      },
+      {
+        "name": "Azure OpenAI Answering Prompt",
+        "description": "Top k paragraphs",
+        "boundaries": "Search Layer",
+        "position": "center-right"
+      },
+      {
+        "name": "Users",
+        "description": "Questions and Answers",
+        "boundaries": null,
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Azure Storage",
+        "target": "Azure Form Recognizer",
+        "label": "Raw documents",
+        "type": "arrow"
+      },
+      {
+        "source": "Azure Form Recognizer",
+        "target": "Azure Translator",
+        "label": "Extracted dialogs",
+        "type": "arrow"
+      },
+      {
+        "source": "Azure Translator",
+        "target": "Azure OpenAI Service Embeddings",
+        "label": "Translate (optional)",
+        "type": "arrow"
+      },
+      {
+        "source": "Azure OpenAI Service Embeddings",
+        "target": "Vector Database",
+        "label": "Vectors",
+        "type": "arrow"
+      },
+      {
+        "source": "Vector Database",
+        "target": "Azure OpenAI Answering Prompt",
+        "label": "Top k paragraphs",
+        "type": "arrow"
+      },
+      {
+        "source": "Azure OpenAI Answering Prompt",
+        "target": "Users",
+        "label": "Answers",
+        "type": "arrow"
+      },
+      {
+        "source": "Users",
+        "target": "Azure OpenAI Service Embeddings",
+        "label": "Questions",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "There is a red blinking light on C4 button in my SP-300a machine, which part do I need to replace?",
+        "position": "top-right"
+      },
+      {
+        "text": "You need to replace parts a & b. Here’s the link to order them.",
+        "position": "bottom-right"
+      }
+    ],
+    "groups": [
+      {
+        "name": "Knowledge Base",
+        "components": [
+          "Azure Storage"
+        ]
+      },
+      {
+        "name": "Search Layer",
+        "components": [
+          "Azure OpenAI Service Embeddings",
+          "Vector Database",
+          "Azure OpenAI Answering Prompt"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "Q&A with Semantic Answering with Azure OpenAI Service"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": null,
+        "boundaries": null,
+        "position": "left"
+      },
+      {
+        "name": "Web Application",
+        "description": "Streamlit App (OpenAI_Queries.py)",
+        "boundaries": null,
+        "position": "center"
+      },
+      {
+        "name": "Azure Functions",
+        "description": "Batch Start Processing (init.py), Batch Push Results (init.py)",
+        "boundaries": null,
+        "position": "bottom-center"
+      },
+      {
+        "name": "Azure Services",
+        "description": "PGVector, Azure OpenAI Service, Azure Cognitive Search, Redis",
+        "boundaries": null,
+        "position": "right"
+      },
+      {
+        "name": "Azure Blob Storage",
+        "description": "read documents",
+        "boundaries": null,
+        "position": "bottom-right"
+      },
+      {
+        "name": "Azure Queue",
+        "description": "trigger processing",
+        "boundaries": null,
+        "position": "bottom-left"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Web Application",
+        "label": "ask question",
+        "type": "arrow"
+      },
+      {
+        "source": "User",
+        "target": "Azure Functions",
+        "label": "trigger batch processing (HTTP request)",
+        "type": "arrow"
+      },
+      {
+        "source": "Azure Functions",
+        "target": "Azure Queue",
+        "label": "add batch processing messages",
+        "type": "arrow"
+      },
+      {
+        "source": "Azure Queue",
+        "target": "Azure Functions",
+        "label": "trigger processing",
+        "type": "arrow"
+      },
+      {
+        "source": "Web Application",
+        "target": "Azure Services",
+        "label": "convert query to embeddings",
+        "type": "arrow"
+      },
+      {
+        "source": "Azure Services",
+        "target": "Web Application",
+        "label": "return generated answer",
+        "type": "arrow"
+      },
+      {
+        "source": "Azure Blob Storage",
+        "target": "Azure Services",
+        "label": "read documents",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": null
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Azure OpenAI Service",
+      "User"
+    ],
+    "unique_to_GroundTruth": [
+      "Azure Storage",
+      "Azure Form Recognizer",
+      "Azure Translator",
+      "Vector Database",
+      "Azure OpenAI Answering Prompt"
+    ],
+    "unique_to_GeneratedImage": [
+      "Web Application",
+      "Azure Functions",
+      "Azure Services",
+      "Azure Blob Storage",
+      "Azure Queue"
+    ],
+    "common_connectors": [
+      {
+        "source": "User",
+        "target": "Azure OpenAI Service",
+        "label": "ask question",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Azure Storage",
+        "target": "Azure Form Recognizer",
+        "label": "Raw documents",
+        "type": "arrow"
+      },
+      {
+        "source": "Azure Form Recognizer",
+        "target": "Azure Translator",
+        "label": "Extracted dialogs",
+        "type": "arrow"
+      },
+      {
+        "source": "Azure Translator",
+        "target": "Azure OpenAI Service Embeddings",
+        "label": "Translate (optional)",
+        "type": "arrow"
+      },
+      {
+        "source": "Azure OpenAI Service Embeddings",
+        "target": "Vector Database",
+        "label": "Vectors",
+        "type": "arrow"
+      },
+      {
+        "source": "Vector Database",
+        "target": "Azure OpenAI Answering Prompt",
+        "label": "Top k paragraphs",
+        "type": "arrow"
+      },
+      {
+        "source": "Azure OpenAI Answering Prompt",
+        "target": "Users",
+        "label": "Answers",
+        "type": "arrow"
+      },
+      {
+        "source": "Users",
+        "target": "Azure OpenAI Service Embeddings",
+        "label": "Questions",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "Azure Functions",
+        "label": "trigger batch processing (HTTP request)",
+        "type": "arrow"
+      },
+      {
+        "source": "Azure Functions",
+        "target": "Azure Queue",
+        "label": "add batch processing messages",
+        "type": "arrow"
+      },
+      {
+        "source": "Azure Queue",
+        "target": "Azure Functions",
+        "label": "trigger processing",
+        "type": "arrow"
+      },
+      {
+        "source": "Web Application",
+        "target": "Azure Services",
+        "label": "convert query to embeddings",
+        "type": "arrow"
+      },
+      {
+        "source": "Azure Services",
+        "target": "Web Application",
+        "label": "return generated answer",
+        "type": "arrow"
+      },
+      {
+        "source": "Azure Blob Storage",
+        "target": "Azure Services",
+        "label": "read documents",
+        "type": "arrow"
+      }
+    ],
+    "explanation": "The two diagrams represent different architectural approaches to handling user queries with Azure services. The GroundTruth diagram focuses on a semantic answering system using Azure OpenAI Service, with a clear flow from document storage to user interaction. It highlights components like Azure Storage, Azure Form Recognizer, and Azure Translator, which are not present in the GeneratedImage. The GeneratedImage diagram, on the other hand, emphasizes a more complex interaction involving web applications, Azure Functions, and various Azure Services like PGVector and Redis. Both diagrams share components like Azure OpenAI Service and User interaction, but the connectors and specific processes differ significantly. The GroundTruth diagram is more linear and focused on document processing, while the GeneratedImage diagram includes batch processing and a broader range of services. Rating: 6. The GeneratedImage captures some similar elements but lacks the specific document processing flow and components seen in the GroundTruth. It introduces additional complexity with batch processing and different Azure services, which may or may not align with the intended architecture.",
+    "Rating": 6
+  }
+}

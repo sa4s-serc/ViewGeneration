@@ -1,0 +1,100 @@
+@startuml kerollesroshdi_Cima-
+
+skinparam component {
+  BackgroundColor LightSkyBlue
+  BorderColor Black
+}
+
+package "App Layer" {
+  [AppDelegate]
+  [AppCoordinator]
+  
+  package "Scenes" {
+    [NowPlayingVC]
+    [TopRatedVC]
+    [SearchVC]
+    [MovieDetailsVC]
+    [BrowseVM]
+    [SearchVM]
+    [MovieDetailsVM]
+  }
+  
+  package "Core" {
+    [BaseViewController]
+    [ViewModel]
+    [TextyTabBar]
+    [StateView]
+  }
+}
+
+package "Data Layer" {
+  [RemoteMoviesDataSource]
+  [MoviesService]
+  [MoviesRepositoryImpl]
+}
+
+package "Domain Layer" {
+  [MoviesRepository]
+  package "UseCases" {
+    [BrowseUseCase]
+    [SearchUseCase]
+    [MovieDetailsUseCase]
+  }
+  package "Entities" {
+    [Movie]
+    [MovieDetails]
+    [Genre]
+    [AppError]
+    [Page]
+  }
+}
+
+[AppDelegate] --> [AppCoordinator]
+[AppCoordinator] --> [NowPlayingVC]
+[AppCoordinator] --> [TopRatedVC]
+[AppCoordinator] --> [SearchVC]
+[AppCoordinator] --> [MovieDetailsVC]
+
+[NowPlayingVC] --> [BrowseVM]
+[TopRatedVC] --> [BrowseVM]
+[SearchVC] --> [SearchVM]
+[MovieDetailsVC] --> [MovieDetailsVM]
+
+[BaseViewController] <|-- [NowPlayingVC]
+[BaseViewController] <|-- [TopRatedVC]
+[BaseViewController] <|-- [SearchVC]
+[BaseViewController] <|-- [MovieDetailsVC]
+
+[ViewModel] <|.. [BrowseVM]
+[ViewModel] <|.. [SearchVM]
+[ViewModel] <|.. [MovieDetailsVM]
+
+[BrowseVM] --> [BrowseUseCase]
+[SearchVM] --> [SearchUseCase]
+[MovieDetailsVM] --> [MovieDetailsUseCase]
+
+[BrowseUseCase] --> [MoviesRepository]
+[SearchUseCase] --> [MoviesRepository]
+[MovieDetailsUseCase] --> [MoviesRepository]
+
+[MoviesRepository] <|.. [MoviesRepositoryImpl]
+[MoviesRepositoryImpl] --> [RemoteMoviesDataSource]
+[RemoteMoviesDataSource] --> [MoviesService]
+
+[MoviesRepository] ..> [Movie]
+[MoviesRepository] ..> [MovieDetails]
+[MoviesRepository] ..> [Genre]
+[MoviesRepository] ..> [Page]
+
+note right of [AppCoordinator]
+  Manages navigation
+  and app flow
+end note
+
+note bottom of [RemoteMoviesDataSource]
+  Communicates with
+  TMDB API using
+  Moya and RxSwift
+end note
+
+@enduml

@@ -1,0 +1,48 @@
+@startuml yoshixmk_remarks
+
+actor User
+participant "Chrome Extension" as CE
+participant "Deno Web Server" as DWS
+participant "FaunaDB" as FDB
+participant "GitPress Blog" as GPB
+participant "Deno Deploy" as DD
+
+User -> CE : Record remark
+activate CE
+CE -> DWS : POST /remarks
+activate DWS
+DWS -> FDB : Create remark
+activate FDB
+FDB --> DWS : Confirmation
+deactivate FDB
+DWS --> CE : Response
+deactivate DWS
+CE --> User : Confirmation
+deactivate CE
+
+User -> DWS : GET /
+activate DWS
+DWS -> FDB : Query remarks
+activate FDB
+FDB --> DWS : Remarks data
+deactivate FDB
+DWS -> DWS : Render homepage
+DWS --> User : Display remarks count and list
+deactivate DWS
+
+User -> DWS : GET /trip
+activate DWS
+DWS -> GPB : Fetch RSS feed
+activate GPB
+GPB --> DWS : Blog content
+deactivate GPB
+DWS -> DWS : Render travelogue
+DWS --> User : Display travelogue
+deactivate DWS
+
+note right of DD
+  Deno Deploy hosts
+  the web server
+end note
+
+@enduml

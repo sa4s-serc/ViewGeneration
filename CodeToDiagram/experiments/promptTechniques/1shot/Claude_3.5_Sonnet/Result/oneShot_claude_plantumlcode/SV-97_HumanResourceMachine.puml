@@ -1,0 +1,52 @@
+@startuml SV-97_HumanResourceMachine
+
+skinparam component {
+  BackgroundColor<<Python>> LightBlue
+  BackgroundColor<<Rust>> LightGreen
+}
+
+package "Human Resource Machine VM" {
+  [Tokenizer] as TokenizerR <<Rust>>
+  [Translator/Assembler] as TranslatorR <<Rust>>
+  [Bytecode Disassembler] as DisassemblerR <<Rust>>
+  [Virtual Machine] as VMR <<Rust>>
+  [Logger] <<Rust>>
+
+  [Tokenizer] as TokenizerP <<Python>>
+  [Translator/Assembler] as TranslatorP <<Python>>
+  [Bytecode Disassembler] as DisassemblerP <<Python>>
+  [Virtual Machine] as VMP <<Python>>
+
+  [HRM Assembly Code] --> TokenizerR
+  TokenizerR --> TranslatorR
+  TranslatorR --> DisassemblerR
+  DisassemblerR --> VMR
+  VMR --> Logger
+
+  [HRM Assembly Code] --> TokenizerP
+  TokenizerP --> TranslatorP
+  TranslatorP --> DisassemblerP
+  DisassemblerP --> VMP
+
+  note right of TokenizerR
+    State machine approach
+    for text processing
+  end note
+
+  note right of VMR
+    Uses command pattern
+    with function pointers
+  end note
+
+  note bottom of TranslatorP
+    Generates intermediate
+    human-readable format
+  end note
+
+  note bottom of TranslatorR
+    Directly compiles
+    to bytecode
+  end note
+}
+
+@enduml

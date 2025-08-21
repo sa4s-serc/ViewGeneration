@@ -1,0 +1,61 @@
+```plantuml
+@startuml intel_edge-insights-vision
+
+package "Edge Insights for Vision (EIV)" {
+    component "Installation Core" {
+        [eiv_install.sh] as install_script
+        [eiv_setup.py] as setup_script
+        [eiv_callbacks.sh] as callbacks
+    }
+
+    component "Notebooks" {
+        [launch_notebooks.sh]
+        [Jupyter Notebooks]
+    }
+
+    component "Alder Lake Support" {
+        [adl_scripts]
+        [MIPI Camera Config]
+    }
+
+    component "Docker Environment" {
+        [Docker Engine]
+        [OpenVINO Images]
+    }
+
+    component "OpenVINO Toolkit" {
+        [Core Libraries]
+        [Model Optimizer]
+    }
+
+    component "System Dependencies" {
+        [Intel Graphics Drivers]
+        [Kernel Modules]
+    }
+
+    component "Documentation" {
+        [README.md]
+        [docs/]
+    }
+
+    install_script --> callbacks : invokes
+    install_script --> setup_script : executes
+    setup_script --> callbacks : uses
+    callbacks --> Docker Engine : manages
+    callbacks --> Intel Graphics Drivers : installs
+    callbacks --> OpenVINO Images : pulls/builds
+    launch_notebooks.sh --> Jupyter Notebooks : launches
+    adl_scripts --> MIPI Camera Config : configures
+    OpenVINO Images --> Core Libraries : contains
+    OpenVINO Images --> Model Optimizer : contains
+    callbacks --> Kernel Modules : configures
+    setup_script --> Documentation : references
+}
+
+[User] --> install_script : runs
+[User] --> launch_notebooks.sh : executes
+[User] --> adl_scripts : runs (if needed)
+[User] --> Documentation : reads
+
+@enduml
+```

@@ -1,0 +1,61 @@
+@startuml mxaviersmp_spotify-tracker
+skinparam rectangle {
+  BackgroundColor<<api>> #d9e7fd
+  BackgroundColor<<etl>> #d8f5d3
+  BackgroundColor<<db>> #fff1c9
+  BackgroundColor<<ui>> #fddddd
+  BackgroundColor<<deploy>> #e6d9fd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "API (FastAPI)" <<api>> {
+  rectangle "Authentication\n(OAuth2)" as Auth
+  rectangle "Endpoints" as Endpoints
+  rectangle "CRUD Operations" as CRUD
+  rectangle "Spotify Client" as SpotifyClient
+  Auth --> Endpoints
+  Endpoints --> CRUD
+  CRUD --> SpotifyClient
+}
+
+package "ETL (Apache Airflow)" <<etl>> {
+  rectangle "DAG Scheduler" as Scheduler
+  rectangle "Spotify Data Extraction" as Extraction
+  rectangle "Data Transformation" as Transformation
+  rectangle "Data Loading" as Loading
+  Scheduler --> Extraction
+  Extraction --> Transformation
+  Transformation --> Loading
+}
+
+package "Database (PostgreSQL)" <<db>> {
+  rectangle "User Data" as UserData
+  rectangle "Track Info" as TrackInfo
+  rectangle "Artist Details" as ArtistDetails
+  rectangle "Play History" as PlayHistory
+}
+
+package "UI (Streamlit)" <<ui>> {
+  rectangle "Data Visualization" as Visualization
+  rectangle "User Interaction" as Interaction
+  Visualization --> Interaction
+}
+
+package "Deployment" <<deploy>> {
+  rectangle "AWS Lambda" as Lambda
+  rectangle "API Gateway" as APIGateway
+  rectangle "GitHub Actions" as CICD
+  Lambda --> APIGateway
+  CICD --> Lambda
+}
+
+Endpoints --> UserData
+CRUD --> UserData
+Loading --> UserData
+Loading --> TrackInfo
+Loading --> ArtistDetails
+Loading --> PlayHistory
+SpotifyClient --> Extraction
+Interaction --> Endpoints
+@enduml

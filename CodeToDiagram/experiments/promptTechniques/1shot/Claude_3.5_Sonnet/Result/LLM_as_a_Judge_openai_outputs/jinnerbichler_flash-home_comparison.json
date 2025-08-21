@@ -1,0 +1,245 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Initiates and receives updates",
+        "boundaries": "Actor",
+        "position": "Left"
+      },
+      {
+        "name": "Home Assistant",
+        "description": "Handles user commands",
+        "boundaries": "Component",
+        "position": "Second from left"
+      },
+      {
+        "name": "Coffee Machine Client",
+        "description": "Interacts with the coffee machine",
+        "boundaries": "Component",
+        "position": "Middle"
+      },
+      {
+        "name": "Coffee Machine Flash Server",
+        "description": "Manages flash channel",
+        "boundaries": "Component",
+        "position": "Third from right"
+      },
+      {
+        "name": "Provider Flash Server",
+        "description": "Stores channel state",
+        "boundaries": "Component",
+        "position": "Second from right"
+      },
+      {
+        "name": "IOTA Testnet",
+        "description": "Network for transactions",
+        "boundaries": "Component",
+        "position": "Right"
+      },
+      {
+        "name": "MongoDB",
+        "description": "Database for storing channel states",
+        "boundaries": "Database",
+        "position": "Far right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Home Assistant",
+        "label": "Trigger coffee brewing",
+        "type": "Arrow"
+      },
+      {
+        "source": "Home Assistant",
+        "target": "Coffee Machine Client",
+        "label": "Send MQTT message",
+        "type": "Arrow"
+      },
+      {
+        "source": "Coffee Machine Client",
+        "target": "Coffee Machine Flash Server",
+        "label": "Initialize/update flash channel",
+        "type": "Arrow"
+      },
+      {
+        "source": "Coffee Machine Flash Server",
+        "target": "Provider Flash Server",
+        "label": "Negotiate channel state",
+        "type": "Arrow"
+      },
+      {
+        "source": "Provider Flash Server",
+        "target": "MongoDB",
+        "label": "Store channel state",
+        "type": "Arrow"
+      },
+      {
+        "source": "Provider Flash Server",
+        "target": "IOTA Testnet",
+        "label": "Store channel state",
+        "type": "Arrow"
+      },
+      {
+        "source": "Coffee Machine Flash Server",
+        "target": "Coffee Machine Client",
+        "label": "Channel ready",
+        "type": "Arrow"
+      },
+      {
+        "source": "Coffee Machine Client",
+        "target": "Coffee Machine Flash Server",
+        "label": "Sign transaction",
+        "type": "Arrow"
+      },
+      {
+        "source": "Coffee Machine Flash Server",
+        "target": "Provider Flash Server",
+        "label": "Exchange signatures",
+        "type": "Arrow"
+      },
+      {
+        "source": "Provider Flash Server",
+        "target": "Coffee Machine Flash Server",
+        "label": "Update channel state",
+        "type": "Arrow"
+      },
+      {
+        "source": "Coffee Machine Flash Server",
+        "target": "Coffee Machine Client",
+        "label": "Transaction complete",
+        "type": "Arrow"
+      },
+      {
+        "source": "Coffee Machine Client",
+        "target": "Home Assistant",
+        "label": "Update coffee status",
+        "type": "Arrow"
+      },
+      {
+        "source": "Home Assistant",
+        "target": "User",
+        "label": "Display updated status",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "Flash channels settle on the IOTA network periodically or on closure",
+        "position": "Bottom right"
+      }
+    ],
+    "groups": [
+      {
+        "name": "Logical Flow",
+        "components": [
+          "User",
+          "Home Assistant",
+          "Coffee Machine Client",
+          "Coffee Machine Flash Server",
+          "Provider Flash Server",
+          "IOTA Testnet",
+          "MongoDB"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "sequence_diagram.png",
+      "title": "Coffee Machine Interaction Sequence"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Home Assistant",
+        "description": "Central control unit",
+        "boundaries": "Component",
+        "position": "Top"
+      },
+      {
+        "name": "Coffee Machine",
+        "description": "Brews coffee",
+        "boundaries": "Component",
+        "position": "Middle"
+      },
+      {
+        "name": "Power Source 1",
+        "description": "Provides electricity",
+        "boundaries": "Component",
+        "position": "Bottom left"
+      },
+      {
+        "name": "Power Source 2",
+        "description": "Provides electricity",
+        "boundaries": "Component",
+        "position": "Bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Home Assistant",
+        "target": "Coffee Machine",
+        "label": "Control signal",
+        "type": "Arrow"
+      },
+      {
+        "source": "Power Source 1",
+        "target": "Coffee Machine",
+        "label": "Electricity",
+        "type": "Arrow"
+      },
+      {
+        "source": "Power Source 2",
+        "target": "Coffee Machine",
+        "label": "Electricity",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "architecture_diagram.png",
+      "title": "Coffee Machine System Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Home Assistant"
+    ],
+    "unique_to_GroundTruth": [
+      "User",
+      "Coffee Machine Client",
+      "Coffee Machine Flash Server",
+      "Provider Flash Server",
+      "IOTA Testnet",
+      "MongoDB"
+    ],
+    "unique_to_GeneratedImage": [
+      "Coffee Machine",
+      "Power Source 1",
+      "Power Source 2"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      "Trigger coffee brewing",
+      "Send MQTT message",
+      "Initialize/update flash channel",
+      "Negotiate channel state",
+      "Store channel state",
+      "Channel ready",
+      "Sign transaction",
+      "Exchange signatures",
+      "Update channel state",
+      "Transaction complete",
+      "Update coffee status",
+      "Display updated status"
+    ],
+    "unique_connectors_GeneratedImage": [
+      "Control signal",
+      "Electricity"
+    ],
+    "explanation": "The GroundTruth diagram is a sequence diagram illustrating the interaction between various components involved in a coffee brewing process using IOTA flash channels. It includes detailed interactions and data flow between components like the Coffee Machine Client, Flash Servers, and databases. The GeneratedImage diagram, on the other hand, is a simpler architecture diagram showing the physical setup of a coffee machine system with power sources and a control unit. The main similarity is the presence of a 'Home Assistant' component, but the diagrams serve different purposes: one is for sequence flow and the other for physical architecture. The GroundTruth diagram is more complex and detailed, while the GeneratedImage is straightforward and focuses on hardware connections. Based on the accuracy and completeness, the GeneratedImage is rated 5 out of 10. It captures the basic idea of a coffee machine system but lacks the detailed interactions and components present in the GroundTruth.",
+    "Rating": 5
+  }
+}

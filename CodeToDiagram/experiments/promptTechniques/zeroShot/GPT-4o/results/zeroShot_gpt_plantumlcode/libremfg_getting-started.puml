@@ -1,0 +1,51 @@
+```plantuml
+@startuml libremfg_getting-started
+
+package "Dockerized Deployment" {
+    component "Docker Compose" {
+        [Dgraph] --> [InfluxDB]
+        [EMQX] --> [Grafana]
+        [PackML Simulator] --> [Libre Platform Microservices]
+    }
+}
+
+package "Libre Platform Microservices" {
+    component "Libre Core"
+    component "Libre Administration UI"
+    component "GraphQL API" {
+        [GraphQL Federation] --> [Dgraph]
+    }
+    component "Workflow Engine"
+    component "Data Provider Interface"
+}
+
+package "Presentation Layer" {
+    component "Grafana Dashboards" {
+        [Pareto Chart Panel] --> [Grafana]
+        [MultiStat Panel] --> [Grafana]
+    }
+    component "Libre Admin UI"
+}
+
+package "Communication" {
+    component "MQTT Broker (EMQX)" --> [Event-Driven Communication]
+}
+
+package "Database Layer" {
+    component "Dgraph"
+    component "InfluxDB"
+}
+
+package "GraphQL Federation" {
+    [supergraph.graphql] --> [GraphQL API]
+    [supergraph.yaml] --> [GraphQL API]
+}
+
+[Libre Core] --> [Docker Compose]
+[Libre Administration UI] --> [Libre Core]
+[GraphQL API] --> [Libre Administration UI]
+[Workflow Engine] --> [Data Provider Interface]
+[Data Provider Interface] --> [MQTT Broker (EMQX)]
+
+@enduml
+```

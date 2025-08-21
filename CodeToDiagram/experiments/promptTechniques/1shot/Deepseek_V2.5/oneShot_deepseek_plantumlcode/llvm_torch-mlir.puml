@@ -1,0 +1,63 @@
+@startuml llvm_torch-mlir
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<dialect>> #d8f5d3
+  BackgroundColor<<backend>> #fddddd
+  BackgroundColor<<testing>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend" <<frontend>> {
+  rectangle "PyTorch Models" as PyTorch
+  rectangle "TorchScript/FX Graph" as TorchScript
+  rectangle "Tracing (LTC)" as LTC
+  PyTorch --> TorchScript
+  PyTorch --> LTC
+}
+
+package "Dialects" <<dialect>> {
+  rectangle "Torch Dialect" as Torch
+  rectangle "TMTensor Dialect" as TMTensor
+  rectangle "TorchConversion Dialect" as TorchConversion
+  TorchScript --> Torch
+  LTC --> Torch
+  Torch --> TMTensor
+  Torch --> TorchConversion
+}
+
+package "Transformations" <<dialect>> {
+  rectangle "Shape/Dtype Reification" as ShapeReify
+  rectangle "Globalize Object Graph" as Globalize
+  rectangle "Lower To Backend Contract" as Lower
+  Torch --> ShapeReify
+  ShapeReify --> Globalize
+  Globalize --> Lower
+}
+
+package "Backends" <<backend>> {
+  rectangle "Linalg-on-Tensors" as Linalg
+  rectangle "TOSA" as TOSA
+  rectangle "StableHLO" as StableHLO
+  rectangle "ONNX" as ONNX
+  Lower --> Linalg
+  Lower --> TOSA
+  Lower --> StableHLO
+  Lower --> ONNX
+}
+
+package "Testing" <<testing>> {
+  rectangle "E2E Tests" as E2E
+  rectangle "LIT Tests" as LIT
+  rectangle "Unit Tests" as Unit
+  Linalg --> E2E
+  TOSA --> E2E
+  StableHLO --> E2E
+  ONNX --> E2E
+  Torch --> LIT
+  ShapeReify --> Unit
+  Globalize --> Unit
+  Lower --> Unit
+}
+
+@enduml

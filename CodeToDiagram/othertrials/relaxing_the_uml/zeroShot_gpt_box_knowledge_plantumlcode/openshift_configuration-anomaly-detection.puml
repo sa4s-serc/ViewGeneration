@@ -1,0 +1,60 @@
+@startuml
+package "OpenShift Configuration Anomaly Detection System" {
+    component "PagerDuty" as PD
+    component "Tekton Interceptor" as TI
+    component "cadctl CLI" as CLI
+    component "Tekton PipelineRuns" as TPR
+    component "OCM" as OCM
+    component "AWS" as AWS
+    component "Kubernetes" as K8S
+    component "Investigation Framework" as IF
+    component "Network Verifier" as NV
+
+    PD --> TI : Webhook Alerts
+    TI --> CLI : Validate & Trigger
+    CLI --> TPR : Execute Investigation
+    TPR --> CLI : Run cadctl
+    CLI --> IF : Plugin-based Investigations
+    IF --> OCM : Retrieve Cluster Info
+    IF --> AWS : AWS Operations
+    IF --> K8S : Kubernetes Interactions
+    IF --> NV : Network Verification
+}
+
+package "Key Functional Components" {
+    TI : Signature Verification
+    TI : Alert Filtering
+    CLI : Alert Remediation
+    CLI : Pre-Investigations
+    TPR : Pipeline Execution
+    IF : Investigation Interface
+    IF : Dependency Injection
+    IF : Strategy Pattern
+}
+
+package "Integration & External Interactions" {
+    PD : Incident Updates
+    OCM : Support Reasons
+    AWS : Instance Info
+    AWS : CloudTrail
+    K8S : Cluster Resources
+    NV : Network Configurations
+}
+
+note "Security & Control Flow" as note_SCF
+note_SCF : Integrates with\nexternal services securely\nand controls investigation\nflow through Tekton Pipelines.
+
+note "Error Handling & Logging" as note_EHL
+note_EHL : Uses zap logging\nand error wrapping\nfor observability.
+
+note "Architecture Style" as note_AS
+note_AS : Service-Oriented Architecture\nwith Plugin-like Structure
+
+note "Quality Attributes" as note_QAS
+note_QAS : Focus on\nFunctional Suitability\nand Security
+
+PD -down-> note_SCF
+IF -up-> note_EHL
+TI -left-> note_AS
+CLI -right-> note_QAS
+@enduml

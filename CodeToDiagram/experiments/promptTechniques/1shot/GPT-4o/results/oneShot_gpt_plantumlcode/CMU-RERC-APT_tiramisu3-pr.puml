@@ -1,0 +1,56 @@
+```plantuml
+@startuml CMU-RERC-APT_tiramisu3-pr
+
+actor User
+
+participant "Mobile App\n(Ionic & Angular)" as MobileApp
+participant "Java Frontend" as JavaFrontend
+participant "Backend Data\nProcessor" as BackendProcessor
+participant "AWS SQS" as AWSSQS
+participant "DynamoDB" as DynamoDB
+participant "PostgresDB" as PostgresDB
+participant "Python Predictor" as PythonPredictor
+
+User -> MobileApp: Open App
+
+note over MobileApp
+  App Initialization:
+  - Register Push Notifications
+  - Initialize Alarms
+  - Monitor Network
+end note
+
+MobileApp -> JavaFrontend: Request Real-time Data
+JavaFrontend -> DynamoDB: Query Transit Data
+DynamoDB --> JavaFrontend: Return Transit Data
+JavaFrontend -> MobileApp: Send Real-time Data
+
+User -> MobileApp: Set Favorite Route
+MobileApp -> JavaFrontend: Write Favorite Route
+JavaFrontend -> PostgresDB: Log Favorite Route
+PostgresDB --> JavaFrontend: Acknowledge Logging
+
+User -> MobileApp: Set Alarm
+MobileApp -> JavaFrontend: Configure Alarm
+JavaFrontend -> PostgresDB: Log Alarm Configuration
+PostgresDB --> JavaFrontend: Acknowledge Logging
+
+MobileApp -> AWSSQS: Send Alarm Configuration
+AWSSQS -> BackendProcessor: Deliver Configuration
+
+BackendProcessor -> DynamoDB: Read Current Transit Data
+BackendProcessor -> PythonPredictor: Predict Route
+PythonPredictor --> BackendProcessor: Return Prediction
+
+BackendProcessor -> AWSSQS: Notify Predictions
+AWSSQS -> MobileApp: Trigger Alarm Notification
+MobileApp -> User: Display Notification
+
+User -> MobileApp: Interact with Map
+MobileApp -> JavaFrontend: Fetch Route Details
+JavaFrontend -> DynamoDB: Retrieve Route Information
+DynamoDB --> JavaFrontend: Return Route Information
+JavaFrontend -> MobileApp: Send Route Details
+
+@enduml
+```

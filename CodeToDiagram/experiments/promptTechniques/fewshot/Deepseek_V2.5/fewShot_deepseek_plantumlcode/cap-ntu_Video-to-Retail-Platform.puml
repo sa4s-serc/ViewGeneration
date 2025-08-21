@@ -1,0 +1,77 @@
+### Output:
+@startuml cap-ntu_Video-to-Retail-Platform
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<ml>> #fddddd
+  BackgroundColor<<storage>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend (React)" <<frontend>> {
+  rectangle "Dashboard UI" as UI
+  rectangle "Redux State" as Redux
+  rectangle "Material-UI" as MUI
+  UI --> Redux
+  UI --> MUI
+}
+
+package "Backend (Django)" <<backend>> {
+  rectangle "REST API" as REST
+  rectangle "gRPC Service" as gRPC
+  rectangle "Video Decoder" as Decoder
+  rectangle "System Monitor" as Monitor
+  REST --> gRPC
+  Decoder --> gRPC
+  Monitor --> REST
+}
+
+package "Machine Learning" <<ml>> {
+  rectangle "Object Detection" as ObjDetect
+  rectangle "Face Recognition" as FaceRecog
+  rectangle "Scene Recognition" as SceneRecog
+  rectangle "Sentence Embedding" as TextEmbed
+  ObjDetect --> FaceRecog
+  SceneRecog --> TextEmbed
+}
+
+package "Data Processing" {
+  rectangle "Video/Audio/Subtitle" as Media
+  rectangle "Preprocessing" as Preprocess
+  rectangle "TFRecord" as TFRecord
+  Media --> Preprocess
+  Preprocess --> TFRecord
+}
+
+package "Storage" <<storage>> {
+  database "SQLite" as SQLite
+  rectangle "Pickle Files" as Pickle
+  rectangle "Model Registry" as Models
+}
+
+UI --> REST
+gRPC --> ObjDetect
+gRPC --> FaceRecog
+gRPC --> SceneRecog
+gRPC --> TextEmbed
+
+Decoder --> Media
+Monitor --> REST
+
+ObjDetect --> Models
+FaceRecog --> Models
+SceneRecog --> Models
+TextEmbed --> Models
+
+TFRecord --> SQLite
+Models --> Pickle
+
+cloud "Docker" as Docker {
+  rectangle "Clipper" as Clipper
+}
+REST --> Docker
+gRPC --> Docker
+ObjDetect --> Clipper
+@enduml

@@ -1,0 +1,42 @@
+@startuml Bytom-Community_Bytom-Server
+
+actor User
+participant "CLI (bytomd/bytomcli)" as CLI
+participant "gRPC API" as API
+participant "Transaction Builder" as TxBuilder
+participant "Transaction Pool" as TxPool
+participant "Blockchain Core" as Core
+participant "Bytom VM" as VM
+participant "P2P Network" as P2P
+participant "Block Sync" as Sync
+participant "Mining" as Mining
+database "LevelDB" as DB
+
+User -> CLI : Execute command
+CLI -> API : Send request
+
+group Transaction Processing
+    API -> TxBuilder : Build transaction
+    TxBuilder -> TxPool : Submit transaction
+    TxPool -> Core : Validate transaction
+    Core -> VM : Execute smart contract
+    Core -> DB : Update state
+end
+
+group Block Processing
+    P2P -> Sync : Receive new block
+    Sync -> Core : Validate block
+    Core -> DB : Update blockchain
+end
+
+group Mining
+    Mining -> Core : Get block template
+    Mining -> Core : Submit mined block
+    Core -> P2P : Broadcast new block
+end
+
+group Peer Communication
+    P2P <-> P2P : Exchange blockchain data
+end
+
+@enduml

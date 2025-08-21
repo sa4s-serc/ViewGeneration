@@ -1,0 +1,57 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor<<mobile>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<db>> #fff1c9
+  BackgroundColor<<external>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+left to right direction
+
+package "Mobile Apps" <<mobile>> {
+  [Flutter App] as Flutter
+  [Android App] as Android
+}
+
+package "Backend Services" <<backend>> {
+  [FastAPI] as API
+  [JWT Auth] as Auth
+  [CRUD Operations] as CRUD
+}
+
+package "External Services" <<external>> {
+  [Google Maps] as Maps
+  [GPS Service] as GPS
+}
+
+database "MariaDB" <<db>> as DB
+
+Flutter --> API : REST API (HTTPS)
+Android --> API : REST API (HTTPS)
+API --> Auth : Token Validation
+API --> CRUD : Data Operations
+CRUD --> DB : SQL
+Flutter --> Maps : Map Display
+Android --> Maps : Map Display
+Flutter --> GPS : Location Tracking
+Android --> GPS : Location Tracking
+
+note right of API
+  Containerized with Docker
+end note
+
+note right of DB
+  ORM: SQLAlchemy
+end note
+
+note right of Flutter
+  State: BLoC/Provider
+  Local Storage: Secure Storage
+end note
+
+note right of Android
+  UI: Material Components
+  Data Binding
+end note
+@enduml

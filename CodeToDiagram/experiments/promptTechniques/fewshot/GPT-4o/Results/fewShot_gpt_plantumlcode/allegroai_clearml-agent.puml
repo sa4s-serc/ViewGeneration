@@ -1,0 +1,70 @@
+```plantuml
+@startuml allegroai_clearml-agent
+skinparam componentStyle rectangle
+skinparam backgroundColor #f5f5f5
+
+package "ClearML Platform" {
+    [ClearML Server] <<Server>>
+    [ClearML UI] <<UI>>
+}
+
+package "ClearML Agent" {
+    component "Task Execution" {
+        [Task Puller]
+        [Environment Setup]
+        [Task Runner]
+        [Result Reporter]
+    }
+
+    component "Resource Management" {
+        [Resource Monitor]
+        [Requirements Manager]
+        [Docker Integration]
+    }
+
+    component "Integration" {
+        [K8s Integration]
+        [SLURM Integration]
+    }
+
+    component "Configuration" {
+        [HOCON Config]
+    }
+}
+
+package "Encoding & Parsing" {
+    component "Character Encoding" {
+        [chardet]
+    }
+    component "Text Parsing" {
+        [pyparsing]
+    }
+    component "YAML Processing" {
+        [ruamel.yaml]
+    }
+}
+
+[ClearML Server] --> [Task Puller] : Manages tasks/queues
+[Task Puller] --> [Environment Setup]
+[Environment Setup] --> [Task Runner]
+[Task Runner] --> [Result Reporter]
+[Result Reporter] --> [ClearML Server] : Reports task status
+
+[Resource Monitor] --> [ClearML Server] : Reports resource usage
+[Requirements Manager] --> [Environment Setup]
+[Docker Integration] --> [Environment Setup]
+
+[Task Runner] --> [K8s Integration] : Optionally
+[Task Runner] --> [SLURM Integration] : Optionally
+
+[HOCON Config] --> [Environment Setup]
+[HOCON Config] --> [Task Runner]
+
+[chardet] --> [Text Parsing]
+[pyparsing] --> [Text Parsing]
+[ruamel.yaml] --> [YAML Processing]
+
+[ClearML UI] --> [ClearML Server] : User Interaction
+
+@enduml
+```

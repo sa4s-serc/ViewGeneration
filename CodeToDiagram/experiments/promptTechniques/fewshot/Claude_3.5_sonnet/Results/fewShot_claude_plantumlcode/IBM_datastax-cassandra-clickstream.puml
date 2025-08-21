@@ -1,0 +1,66 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Frontend (Next.js/React)" {
+  rectangle "Pages" {
+    [Home Page]
+    [Products Page]
+    [Category Page]
+    [Cart Page]
+    [History Page]
+  }
+  rectangle "Components" {
+    [AppHeader]
+    [Category]
+    [ProductCard]
+  }
+  [Redux Store]
+}
+
+rectangle "Backend (Next.js API Routes)" {
+  [Auth API]
+  [Products API]
+  [History API]
+  [Cart API]
+}
+
+rectangle "Database Service" {
+  [clicks.service.js]
+}
+
+database "DataStax Enterprise/Cassandra" {
+  [Clickstream Data]
+}
+
+User --> [Home Page] : visits
+User --> [Products Page] : browses
+User --> [Category Page] : views category
+User --> [Cart Page] : views cart
+User --> [History Page] : views history
+
+[Home Page] --> [Products API] : fetches products
+[Products Page] --> [Products API] : fetches products
+[Category Page] --> [Products API] : fetches category products
+[Cart Page] --> [Cart API] : manages cart
+[History Page] --> [History API] : fetches history
+
+[Products API] --> [clicks.service.js] : tracks page browsing
+[Cart API] --> [clicks.service.js] : tracks add to cart
+[History API] --> [clicks.service.js] : retrieves activity
+
+[clicks.service.js] --> [Clickstream Data] : reads/writes data
+
+[Redux Store] <--> [Cart API] : syncs cart state
+
+[AppHeader] --> [Auth API] : handles authentication
+[Category] --> [Products API] : fetches category data
+[ProductCard] --> [Cart API] : adds to cart
+
+@enduml

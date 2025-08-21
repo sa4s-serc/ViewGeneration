@@ -1,0 +1,67 @@
+```plantuml
+@startuml SafeBreach-Labs_hAFL2
+
+!define RECTANGLE class
+
+package "Host System" {
+    RECTANGLE "Linux Host" as LinuxHost
+    RECTANGLE "Modified KVM" as KVM
+    RECTANGLE "QEMU" as QEMU
+    RECTANGLE "hAFL2 Fuzzer" as Fuzzer {
+        RECTANGLE "Master Process" as Master
+        RECTANGLE "Slave Processes" as Slaves
+        RECTANGLE "GUI" as GUI
+    }
+}
+
+package "L1 (Root Partition)" {
+    RECTANGLE "Windows VM" as WindowsL1
+    RECTANGLE "CrashMonitoringDriver.sys" as CrashDriver
+}
+
+package "L2 (Child Partition)" {
+    RECTANGLE "Windows VM" as WindowsL2
+    RECTANGLE "CPHarness.sys" as HarnessDriver
+    RECTANGLE "Target VSP" as VSP
+}
+
+LinuxHost --> KVM : hosts
+LinuxHost --> QEMU : runs
+LinuxHost --> Fuzzer : executes
+
+KVM --> WindowsL1 : virtualizes
+WindowsL1 --> WindowsL2 : hosts
+
+Fuzzer --> QEMU : controls
+Master --> Slaves : manages
+
+Slaves --> QEMU : interacts with
+
+GUI --> Master : monitors
+
+HarnessDriver --> VSP : sends payloads
+CrashDriver --> Fuzzer : reports crashes
+
+WindowsL1 <--> KVM : hypercalls
+WindowsL2 <--> WindowsL1 : RNDIS packets
+
+note right of KVM
+  Enables nested virtualization
+  Handles Intel PT for coverage
+end note
+
+note right of Fuzzer
+  Utilizes Intel PT for coverage
+  Implements Redqueen instrumentation
+end note
+
+note bottom of WindowsL1
+  Root partition of Hyper-V
+end note
+
+note bottom of WindowsL2
+  Child partition running harness
+end note
+
+@enduml
+```

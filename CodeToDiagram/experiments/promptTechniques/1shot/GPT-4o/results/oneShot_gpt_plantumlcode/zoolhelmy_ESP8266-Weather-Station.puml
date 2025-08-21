@@ -1,0 +1,41 @@
+```plantuml
+@startuml zoolhelmy_ESP8266-Weather-Station
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "User"
+
+rectangle "ESP8266 NodeMCU" as ESP8266 #lightblue {
+}
+
+rectangle "Cloud Platform" as Cloud #mistyrose {
+  rectangle "ThingSpeak" as ThingSpeak #palegreen
+}
+
+rectangle "OpenWRT Router" as OpenWRT #lightsteelblue {
+  rectangle "MQTT Subscriber" as MQTTSubscriber #aliceblue
+  rectangle "Collectd" as Collectd #lightyellow
+  rectangle "RRDTool" as RRDTool #powderblue
+}
+
+rectangle "GitHub Repository" as GitHubRepo #lightcoral
+
+' ========== Connections ==========
+User --> ESP8266 : access local HTTP server
+
+' ESP8266 interactions
+ESP8266 --> ThingSpeak : publish sensor data via MQTT
+ESP8266 --> OpenWRT : publish sensor data via MQTT
+
+' OpenWRT Router interactions
+MQTTSubscriber --> Collectd : save data to temporary files
+Collectd --> RRDTool : update RRDTool database\nwith sensor data
+Collectd --> RRDTool : generate graphs
+RRDTool --> GitHubRepo : commit and push graphs\nto GitHub via cron job
+
+@enduml
+```

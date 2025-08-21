@@ -1,0 +1,48 @@
+@startuml
+
+actor User
+participant "Nginx\nReverse Proxy" as Nginx
+participant "Backend\nServer" as Backend
+participant "Socket.IO\nServer" as SocketIO
+database "MySQL" as MySQL
+database "InfluxDB" as InfluxDB
+database "Redis" as Redis
+participant "Docker\nSandbox" as Sandbox
+cloud "AWS EC2" as EC2
+cloud "AWS S3" as S3
+cloud "AWS CloudFront" as CDN
+cloud "AWS CloudWatch" as CW
+
+User -> Nginx: HTTP Request
+Nginx -> Backend: Route request
+
+Backend -> MySQL: Query data
+Backend -> InfluxDB: Store time-series data
+Backend -> Redis: Cache data
+
+Backend -> SocketIO: Emit real-time events
+SocketIO -> User: Send real-time updates
+
+Backend -> Sandbox: Execute code
+Sandbox --> Backend: Return execution results
+
+Backend -> S3: Store files
+S3 -> CDN: Serve content
+
+Backend -> CW: Log events
+
+Backend --> Nginx: Send response
+Nginx --> User: Deliver response
+
+note right of EC2
+  EC2 instance hosts:
+  - Nginx
+  - Backend Server
+  - Socket.IO Server
+  - MySQL
+  - InfluxDB
+  - Redis
+  - Docker Sandbox
+end note
+
+@enduml

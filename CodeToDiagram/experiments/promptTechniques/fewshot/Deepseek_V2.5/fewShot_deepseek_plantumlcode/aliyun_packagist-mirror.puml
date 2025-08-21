@@ -1,0 +1,59 @@
+### Output:
+@startuml aliyun_packagist-mirror
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "External Services" {
+  rectangle "Packagist.org" as Packagist #lightblue
+  rectangle "GitHub API" as GitHub #lightblue
+  rectangle "Alibaba Cloud OSS" as OSS #orange
+  rectangle "Redis" as Redis #red
+  rectangle "Alibaba Cloud CDN" as CDN #yellow
+}
+
+package "Core Components" {
+  rectangle "Main Controller" as Main #palegreen
+  rectangle "Sync Providers" as SyncProviders #palegreen
+  rectangle "Sync Packages (V1/V2)" as SyncPackages #palegreen
+  rectangle "Sync Distributions" as SyncDists #palegreen
+  rectangle "Sync Composer.phar" as SyncComposer #palegreen
+  rectangle "Status Monitor" as Status #palegreen
+  rectangle "CDN Warm-up" as CDNWarmup #palegreen
+}
+
+package "Configuration" {
+  rectangle "packagist.yml" as Config #lightgrey
+}
+
+Main --> Config
+Main --> SyncProviders
+Main --> SyncPackages
+Main --> SyncDists
+Main --> SyncComposer
+Main --> Status
+Main --> CDNWarmup
+
+SyncProviders --> Packagist
+SyncPackages --> Packagist
+SyncDists --> GitHub
+SyncComposer --> Packagist
+
+SyncProviders --> Redis
+SyncPackages --> Redis
+SyncDists --> Redis
+Status --> Redis
+
+SyncProviders --> OSS
+SyncPackages --> OSS
+SyncDists --> OSS
+SyncComposer --> OSS
+Status --> OSS
+
+CDNWarmup --> CDN
+CDNWarmup --> OSS
+@enduml

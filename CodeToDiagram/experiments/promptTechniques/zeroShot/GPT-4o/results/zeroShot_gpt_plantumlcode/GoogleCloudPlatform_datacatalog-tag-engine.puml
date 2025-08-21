@@ -1,0 +1,45 @@
+```plantuml
+@startuml GoogleCloudPlatform_datacatalog-tag-engine
+
+package "Google Cloud" {
+    [GCS] <<cloud service>>
+    [BigQuery] <<cloud service>>
+    [Firestore] <<cloud service>>
+    [Data Catalog] <<cloud service>>
+    [Dataplex] <<cloud service>>
+    [Cloud Tasks] <<cloud service>>
+    [IAM] <<cloud service>>
+}
+
+package "Tag Engine v3" {
+    [API Service] <<Cloud Run>>
+    [UI Service] <<Cloud Run>>
+
+    [JobManager]
+    [TaskManager]
+    [DataCatalogController]
+    [DataplexController]
+    [TagEngineStoreHandler]
+    [BigQueryUtils]
+    [access.py]
+}
+
+[API Service] --> [Firestore] : Configuration Management
+[API Service] --> [Data Catalog] : Tag Management
+[API Service] --> [Dataplex] : Tag Management
+[API Service] --> [Cloud Tasks] : Job Management
+[API Service] --> [GCS] : Import/Export
+
+[UI Service] --> [Firestore] : Configuration Management
+[UI Service] --> [API Service] : API Calls
+
+[JobManager] --> [TaskManager] : Manage Jobs
+[TaskManager] --> [Cloud Tasks] : Create Tasks
+
+[DataCatalogController] --> [Data Catalog] : Interact
+[DataplexController] --> [Dataplex] : Interact
+[BigQueryUtils] --> [BigQuery] : Query Data
+[access.py] --> [IAM] : Authentication & Authorization
+
+@enduml
+```

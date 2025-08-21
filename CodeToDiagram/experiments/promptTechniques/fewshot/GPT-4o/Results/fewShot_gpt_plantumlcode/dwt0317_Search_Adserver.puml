@@ -1,0 +1,77 @@
+```plantuml
+@startuml dwt0317_Search_Adserver
+skinparam rectangle {
+  BackgroundColor #f8f8f8
+  BorderColor #333333
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+skinparam linetype ortho
+
+actor "User" as user
+
+package "Search Ad Server" {
+  rectangle "Frontend" as frontend {
+    rectangle "HTML" as html
+    rectangle "JavaScript" as js
+    rectangle "CSS" as css
+  }
+
+  rectangle "Servlets" as servlets {
+    rectangle "ESServlet" as esServlet
+    rectangle "BingServlet" as bingServlet
+  }
+
+  rectangle "Business Logic" as business {
+    rectangle "Ad Retrieval" as adRetrieval
+    rectangle "Query Rewriting" as queryRewriting
+  }
+
+  rectangle "Data Access" as dataAccess {
+    rectangle "DBPool" as dbPool
+    rectangle "ESHandler" as esHandler
+  }
+}
+
+package "External Services" {
+  rectangle "Thrift Services" as thrift {
+    rectangle "Query Rewriting Service" as queryService
+    rectangle "Ad Ranking Service" as rankingService
+  }
+  rectangle "Bing Search API" as bingAPI
+}
+
+package "Database" {
+  rectangle "MariaDB" as mariaDB
+}
+
+package "Logging" {
+  rectangle "Log4j" as log4j
+  rectangle "Flume" as flume
+}
+
+user --> html
+user --> js
+user --> css
+
+html --> servlets
+js --> servlets
+css --> servlets
+
+servlets --> business
+business --> dataAccess
+
+esServlet --> esHandler
+bingServlet --> bingAPI
+
+adRetrieval --> queryRewriting
+queryRewriting --> queryService
+adRetrieval --> rankingService
+
+dbPool --> mariaDB
+esHandler --> "Elasticsearch" 
+
+log4j --> flume
+
+@enduml
+```

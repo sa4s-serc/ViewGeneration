@@ -1,0 +1,85 @@
+@startuml nightingaleproject_Reference-Client
+
+actor "Jurisdiction User" as User
+participant "React UI" as UI
+participant "RecordController" as API
+participant "TimedHostedService" as Service
+database "PostgreSQL" as DB
+participant "NVSS API Server" as NVSS
+
+User -> UI : Upload VRDR record
+activate UI
+
+UI -> API : POST /api/record
+activate API
+
+API -> DB : Store message
+activate DB
+DB --> API : Confirmation
+deactivate DB
+
+API --> UI : Success response
+deactivate API
+
+UI --> User : Upload confirmation
+deactivate UI
+
+loop Every polling interval
+    Service -> DB : Query for new messages
+    activate DB
+    DB --> Service : New messages
+    deactivate DB
+    
+    alt New messages found
+        Service -> NVSS : Submit VRDR message
+        activate NVSS
+        NVSS --> Service : Acknowledgement
+        deactivate NVSS
+        
+        Service -> DB : Update message status
+        activate DB
+        DB --> Service : Confirmation
+        deactivate DB
+    end
+    
+    Service -> NVSS : Poll for responses
+    activate NVSS
+    NVSS --> Service : New responses
+    deactivate NVSS
+    
+    alt New responses received
+        Service -> DB : Store responses
+        activate DB
+        DB --> Service : Confirmation
+        deactivate DB
+    end
+end
+
+User -> UI : Check message status
+activate UI
+
+UI -> API : GET /api/record/{id}
+activate API
+
+API -> DB : Query message status
+activate DB
+DB --> API : Message status
+deactivate DB
+
+API --> UI : Message status
+deactivate API
+
+UI --> User : Display status
+deactivate UI
+
+note right of NVSS
+  All communications with NVSS API
+  use HTTPS and authentication
+end note
+
+note right of DB
+  Database access is restricted
+  and data is encrypted at rest
+end note
+
+@enduml

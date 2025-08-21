@@ -1,0 +1,524 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "EBS Volumes",
+        "description": "",
+        "boundaries": "Slave accounts",
+        "position": ""
+      },
+      {
+        "name": "CloudTrails",
+        "description": "",
+        "boundaries": "Slave accounts",
+        "position": ""
+      },
+      {
+        "name": "RDS Snapshots",
+        "description": "",
+        "boundaries": "Slave accounts",
+        "position": ""
+      },
+      {
+        "name": "S3 Buckets",
+        "description": "",
+        "boundaries": "Slave accounts",
+        "position": ""
+      },
+      {
+        "name": "IAM User Access Keys",
+        "description": "",
+        "boundaries": "Slave accounts",
+        "position": ""
+      },
+      {
+        "name": "EBS Snapshots",
+        "description": "",
+        "boundaries": "Slave accounts",
+        "position": ""
+      },
+      {
+        "name": "EC2 SecurityGroups",
+        "description": "",
+        "boundaries": "Slave accounts",
+        "position": ""
+      },
+      {
+        "name": "CloudWatch Events",
+        "description": "",
+        "boundaries": "Master account",
+        "position": ""
+      },
+      {
+        "name": "Lambda",
+        "description": "Identification",
+        "boundaries": "",
+        "position": ""
+      },
+      {
+        "name": "API",
+        "description": "",
+        "boundaries": "",
+        "position": ""
+      },
+      {
+        "name": "DynamoDB",
+        "description": "",
+        "boundaries": "",
+        "position": ""
+      },
+      {
+        "name": "Reporting and remediation",
+        "description": "",
+        "boundaries": "",
+        "position": ""
+      },
+      {
+        "name": "Admin",
+        "description": "",
+        "boundaries": "",
+        "position": ""
+      },
+      {
+        "name": "JIRA",
+        "description": "",
+        "boundaries": "",
+        "position": ""
+      },
+      {
+        "name": "Slack",
+        "description": "",
+        "boundaries": "",
+        "position": ""
+      }
+    ],
+    "connectors": [
+      {
+        "source": "CloudWatch Events",
+        "target": "Lambda",
+        "label": "Step 1",
+        "type": ""
+      },
+      {
+        "source": "Lambda",
+        "target": "API",
+        "label": "Identification",
+        "type": ""
+      },
+      {
+        "source": "Lambda",
+        "target": "DynamoDB",
+        "label": "Step 3",
+        "type": ""
+      },
+      {
+        "source": "DynamoDB",
+        "target": "Reporting and remediation",
+        "label": "",
+        "type": ""
+      },
+      {
+        "source": "Reporting and remediation",
+        "target": "JIRA",
+        "label": "Step 4",
+        "type": ""
+      },
+      {
+        "source": "Reporting and remediation",
+        "target": "Slack",
+        "label": "Step 4",
+        "type": ""
+      },
+      {
+        "source": "Reporting and remediation",
+        "target": "Slave accounts",
+        "label": "Step 5",
+        "type": ""
+      },
+      {
+        "source": "Admin",
+        "target": "API",
+        "label": "",
+        "type": ""
+      }
+    ],
+    "annotations": [
+      "Encryption status",
+      "Logging Status, issues",
+      "Shared public status",
+      "ACL, Policy",
+      "Create Date, Last Used Date",
+      "Publicly accessible ports"
+    ],
+    "groups": [
+      {
+        "name": "Slave accounts",
+        "description": "Identification, reporting, Remediation"
+      },
+      {
+        "name": "Master account",
+        "description": ""
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Dow Jones Hammer Lifecycle"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "AWS Admin",
+        "description": "",
+        "boundaries": "",
+        "position": ""
+      },
+      {
+        "name": "REST API",
+        "description": "",
+        "boundaries": "",
+        "position": ""
+      },
+      {
+        "name": "Slack Bot",
+        "description": "",
+        "boundaries": "",
+        "position": ""
+      },
+      {
+        "name": "Initiation Lambda",
+        "description": "",
+        "boundaries": "",
+        "position": ""
+      },
+      {
+        "name": "SNS",
+        "description": "",
+        "boundaries": "",
+        "position": ""
+      },
+      {
+        "name": "Identification Lambda",
+        "description": "",
+        "boundaries": "",
+        "position": ""
+      },
+      {
+        "name": "EC2 Instance",
+        "description": "",
+        "boundaries": "",
+        "position": ""
+      },
+      {
+        "name": "DynamoDB",
+        "description": "",
+        "boundaries": "",
+        "position": ""
+      },
+      {
+        "name": "AWS Resources",
+        "description": "",
+        "boundaries": "",
+        "position": ""
+      },
+      {
+        "name": "JIRA",
+        "description": "",
+        "boundaries": "",
+        "position": ""
+      },
+      {
+        "name": "Slack",
+        "description": "",
+        "boundaries": "",
+        "position": ""
+      }
+    ],
+    "connectors": [
+      {
+        "source": "AWS Admin",
+        "target": "REST API",
+        "label": "Trigger scan",
+        "type": ""
+      },
+      {
+        "source": "REST API",
+        "target": "Slack Bot",
+        "label": "Invoke",
+        "type": ""
+      },
+      {
+        "source": "Slack Bot",
+        "target": "Initiation Lambda",
+        "label": "Invoke",
+        "type": ""
+      },
+      {
+        "source": "Initiation Lambda",
+        "target": "SNS",
+        "label": "Publish event",
+        "type": ""
+      },
+      {
+        "source": "SNS",
+        "target": "Identification Lambda",
+        "label": "Trigger identification",
+        "type": ""
+      },
+      {
+        "source": "Identification Lambda",
+        "target": "EC2 Instance",
+        "label": "Check security configuration",
+        "type": ""
+      },
+      {
+        "source": "Identification Lambda",
+        "target": "DynamoDB",
+        "label": "Store identified issues",
+        "type": ""
+      },
+      {
+        "source": "SNS",
+        "target": "Identification Lambda",
+        "label": "Publish completion event",
+        "type": ""
+      },
+      {
+        "source": "Identification Lambda",
+        "target": "AWS Resources",
+        "label": "Trigger reporting/remediation",
+        "type": ""
+      },
+      {
+        "source": "AWS Resources",
+        "target": "DynamoDB",
+        "label": "Fetch issues",
+        "type": ""
+      },
+      {
+        "source": "AWS Resources",
+        "target": "JIRA",
+        "label": "Create/update tickets",
+        "type": ""
+      },
+      {
+        "source": "AWS Resources",
+        "target": "Slack",
+        "label": "Send notifications",
+        "type": ""
+      },
+      {
+        "source": "AWS Resources",
+        "target": "AWS Resources",
+        "label": "Apply automatic remediations",
+        "type": ""
+      },
+      {
+        "source": "AWS Resources",
+        "target": "AWS Resources",
+        "label": "Update issue status",
+        "type": ""
+      },
+      {
+        "source": "AWS Admin",
+        "target": "REST API",
+        "label": "Request status",
+        "type": ""
+      },
+      {
+        "source": "REST API",
+        "target": "AWS Admin",
+        "label": "Return status",
+        "type": ""
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": ""
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "DynamoDB",
+      "JIRA",
+      "Slack"
+    ],
+    "unique_to_GroundTruth": [
+      "EBS Volumes",
+      "CloudTrails",
+      "RDS Snapshots",
+      "S3 Buckets",
+      "IAM User Access Keys",
+      "EBS Snapshots",
+      "EC2 SecurityGroups",
+      "CloudWatch Events",
+      "Lambda",
+      "API",
+      "Reporting and remediation",
+      "Admin"
+    ],
+    "unique_to_GeneratedImage": [
+      "AWS Admin",
+      "REST API",
+      "Slack Bot",
+      "Initiation Lambda",
+      "SNS",
+      "Identification Lambda",
+      "EC2 Instance",
+      "AWS Resources"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "CloudWatch Events",
+        "target": "Lambda",
+        "label": "Step 1",
+        "type": ""
+      },
+      {
+        "source": "Lambda",
+        "target": "API",
+        "label": "Identification",
+        "type": ""
+      },
+      {
+        "source": "Lambda",
+        "target": "DynamoDB",
+        "label": "Step 3",
+        "type": ""
+      },
+      {
+        "source": "DynamoDB",
+        "target": "Reporting and remediation",
+        "label": "",
+        "type": ""
+      },
+      {
+        "source": "Reporting and remediation",
+        "target": "JIRA",
+        "label": "Step 4",
+        "type": ""
+      },
+      {
+        "source": "Reporting and remediation",
+        "target": "Slack",
+        "label": "Step 4",
+        "type": ""
+      },
+      {
+        "source": "Reporting and remediation",
+        "target": "Slave accounts",
+        "label": "Step 5",
+        "type": ""
+      },
+      {
+        "source": "Admin",
+        "target": "API",
+        "label": "",
+        "type": ""
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "AWS Admin",
+        "target": "REST API",
+        "label": "Trigger scan",
+        "type": ""
+      },
+      {
+        "source": "REST API",
+        "target": "Slack Bot",
+        "label": "Invoke",
+        "type": ""
+      },
+      {
+        "source": "Slack Bot",
+        "target": "Initiation Lambda",
+        "label": "Invoke",
+        "type": ""
+      },
+      {
+        "source": "Initiation Lambda",
+        "target": "SNS",
+        "label": "Publish event",
+        "type": ""
+      },
+      {
+        "source": "SNS",
+        "target": "Identification Lambda",
+        "label": "Trigger identification",
+        "type": ""
+      },
+      {
+        "source": "Identification Lambda",
+        "target": "EC2 Instance",
+        "label": "Check security configuration",
+        "type": ""
+      },
+      {
+        "source": "Identification Lambda",
+        "target": "DynamoDB",
+        "label": "Store identified issues",
+        "type": ""
+      },
+      {
+        "source": "SNS",
+        "target": "Identification Lambda",
+        "label": "Publish completion event",
+        "type": ""
+      },
+      {
+        "source": "Identification Lambda",
+        "target": "AWS Resources",
+        "label": "Trigger reporting/remediation",
+        "type": ""
+      },
+      {
+        "source": "AWS Resources",
+        "target": "DynamoDB",
+        "label": "Fetch issues",
+        "type": ""
+      },
+      {
+        "source": "AWS Resources",
+        "target": "JIRA",
+        "label": "Create/update tickets",
+        "type": ""
+      },
+      {
+        "source": "AWS Resources",
+        "target": "Slack",
+        "label": "Send notifications",
+        "type": ""
+      },
+      {
+        "source": "AWS Resources",
+        "target": "AWS Resources",
+        "label": "Apply automatic remediations",
+        "type": ""
+      },
+      {
+        "source": "AWS Resources",
+        "target": "AWS Resources",
+        "label": "Update issue status",
+        "type": ""
+      },
+      {
+        "source": "AWS Admin",
+        "target": "REST API",
+        "label": "Request status",
+        "type": ""
+      },
+      {
+        "source": "REST API",
+        "target": "AWS Admin",
+        "label": "Return status",
+        "type": ""
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of a system architecture. The GroundTruth diagram focuses on the lifecycle of AWS resources, detailing components like EBS Volumes, CloudTrails, and IAM User Access Keys within slave accounts, and their interaction with a master account through CloudWatch Events and Lambda functions. It emphasizes the identification and remediation processes with a clear flow from identification to reporting. The GeneratedImage diagram, on the other hand, is a sequence diagram illustrating the interaction between various AWS services and components like REST API, Slack Bot, and SNS. It highlights the process of triggering scans, publishing events, and handling security configurations. Common elements between the diagrams include DynamoDB, JIRA, and Slack, indicating shared functionalities in data storage and issue tracking. However, the GeneratedImage diagram lacks the detailed AWS resource components present in the GroundTruth diagram, focusing instead on the communication flow. The GroundTruth diagram provides a more comprehensive view of the system's architecture, while the GeneratedImage diagram offers a detailed look at the interaction process. Rating: 6. The GeneratedImage diagram captures some key interactions but lacks the detailed architectural components and annotations present in the GroundTruth diagram, making it less comprehensive.",
+    "Rating": 6
+  }
+}

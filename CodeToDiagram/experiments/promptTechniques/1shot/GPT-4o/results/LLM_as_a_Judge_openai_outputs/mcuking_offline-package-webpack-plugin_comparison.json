@@ -1,0 +1,246 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Jenkins",
+        "description": "Compiles code and packages images",
+        "boundaries": "Rectangle",
+        "position": "Top center"
+      },
+      {
+        "name": "前端代码",
+        "description": "Integrates webpack plugin to generate source map and package into zip",
+        "boundaries": "Rectangle",
+        "position": "Bottom left"
+      },
+      {
+        "name": "离线包平台",
+        "description": "Downloads offline package and uploads to offline package management platform",
+        "boundaries": "Rectangle",
+        "position": "Bottom center"
+      },
+      {
+        "name": "静态资源服务器",
+        "description": "Handles static resource requests from the server",
+        "boundaries": "Rectangle",
+        "position": "Top right"
+      },
+      {
+        "name": "客户端",
+        "description": "Preloads initial version of offline full package to installation package",
+        "boundaries": "Rectangle",
+        "position": "Bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "前端代码",
+        "target": "Jenkins",
+        "label": "push",
+        "type": "Arrow"
+      },
+      {
+        "source": "Jenkins",
+        "target": "静态资源服务器",
+        "label": "Compile and package",
+        "type": "Arrow"
+      },
+      {
+        "source": "静态资源服务器",
+        "target": "客户端",
+        "label": "Return resource",
+        "type": "Arrow"
+      },
+      {
+        "source": "客户端",
+        "target": "离线包平台",
+        "label": "Download and upload",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      "若上传的非初始版本，需计算与上一个版本的差分包；可添加离线包文件对应的md5值字段，用于客户端进行校验下载的包的完整性"
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "离线包运行机制.png",
+      "title": "离线包运行机制"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Developer",
+        "description": "Initiates the process",
+        "boundaries": "Actor",
+        "position": "Left"
+      },
+      {
+        "name": "Webpack Build Process",
+        "description": "Handles the build process",
+        "boundaries": "Rectangle",
+        "position": "Center"
+      },
+      {
+        "name": "Emit Phase",
+        "description": "Phase during which actions are triggered",
+        "boundaries": "Rectangle",
+        "position": "Center"
+      },
+      {
+        "name": "OfflinePackagePlugin",
+        "description": "Detects MIME types, creates zip archive, reads files for zipping",
+        "boundaries": "Rectangle",
+        "position": "Right"
+      },
+      {
+        "name": "mime-types",
+        "description": "Detects MIME types",
+        "boundaries": "Rectangle",
+        "position": "Right"
+      },
+      {
+        "name": "jszip",
+        "description": "Creates zip archive",
+        "boundaries": "Rectangle",
+        "position": "Right"
+      },
+      {
+        "name": "File System",
+        "description": "Writes index.json and zip file",
+        "boundaries": "Rectangle",
+        "position": "Bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Developer",
+        "target": "Webpack Build Process",
+        "label": "Initialize with configuration",
+        "type": "Arrow"
+      },
+      {
+        "source": "Webpack Build Process",
+        "target": "Emit Phase",
+        "label": "Trigger during emit phase",
+        "type": "Arrow"
+      },
+      {
+        "source": "Emit Phase",
+        "target": "OfflinePackagePlugin",
+        "label": "Trigger during emit phase",
+        "type": "Arrow"
+      },
+      {
+        "source": "OfflinePackagePlugin",
+        "target": "mime-types",
+        "label": "Detect MIME types",
+        "type": "Arrow"
+      },
+      {
+        "source": "OfflinePackagePlugin",
+        "target": "jszip",
+        "label": "Create zip archive",
+        "type": "Arrow"
+      },
+      {
+        "source": "OfflinePackagePlugin",
+        "target": "File System",
+        "label": "Write index.json and zip file",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "Webpack_OfflinePackagePlugin.png",
+      "title": "Webpack Offline Package Plugin"
+    }
+  },
+  "comparison": {
+    "common_components": [],
+    "unique_to_GroundTruth": [
+      "Jenkins",
+      "前端代码",
+      "离线包平台",
+      "静态资源服务器",
+      "客户端"
+    ],
+    "unique_to_GeneratedImage": [
+      "Developer",
+      "Webpack Build Process",
+      "Emit Phase",
+      "OfflinePackagePlugin",
+      "mime-types",
+      "jszip",
+      "File System"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "前端代码",
+        "target": "Jenkins",
+        "label": "push",
+        "type": "Arrow"
+      },
+      {
+        "source": "Jenkins",
+        "target": "静态资源服务器",
+        "label": "Compile and package",
+        "type": "Arrow"
+      },
+      {
+        "source": "静态资源服务器",
+        "target": "客户端",
+        "label": "Return resource",
+        "type": "Arrow"
+      },
+      {
+        "source": "客户端",
+        "target": "离线包平台",
+        "label": "Download and upload",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Developer",
+        "target": "Webpack Build Process",
+        "label": "Initialize with configuration",
+        "type": "Arrow"
+      },
+      {
+        "source": "Webpack Build Process",
+        "target": "Emit Phase",
+        "label": "Trigger during emit phase",
+        "type": "Arrow"
+      },
+      {
+        "source": "Emit Phase",
+        "target": "OfflinePackagePlugin",
+        "label": "Trigger during emit phase",
+        "type": "Arrow"
+      },
+      {
+        "source": "OfflinePackagePlugin",
+        "target": "mime-types",
+        "label": "Detect MIME types",
+        "type": "Arrow"
+      },
+      {
+        "source": "OfflinePackagePlugin",
+        "target": "jszip",
+        "label": "Create zip archive",
+        "type": "Arrow"
+      },
+      {
+        "source": "OfflinePackagePlugin",
+        "target": "File System",
+        "label": "Write index.json and zip file",
+        "type": "Arrow"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on a broader offline package operation mechanism involving Jenkins, static resource servers, and client interactions. It describes a process of compiling, packaging, and managing offline packages. In contrast, the GeneratedImage diagram is more specific to the Webpack build process, detailing the role of the OfflinePackagePlugin in creating zip archives and interacting with the file system. There are no common components or connectors between the two diagrams, indicating they describe different aspects of software architecture. The GroundTruth diagram is more comprehensive in terms of end-to-end workflow, while the GeneratedImage diagram provides a detailed view of a specific plugin's functionality. Based on accuracy and completeness, the GeneratedImage is rated 7 out of 10. It accurately describes a specific process but lacks the broader context present in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

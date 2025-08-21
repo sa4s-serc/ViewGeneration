@@ -1,0 +1,47 @@
+@startuml awslabs_benchmark-ai
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "bai-bff" as BFF #palegreen {
+}
+
+rectangle "Kafka" as Kafka #lightsteelblue
+
+rectangle "Executor" as Executor #lightyellow
+rectangle "Watcher" as Watcher #aliceblue
+rectangle "SM-Executor" as SMExecutor #mistyrose
+rectangle "Fetcher-Dispatcher" as FetcherDispatcher #peachpuff
+rectangle "Metrics-Pusher" as MetricsPusher #lavender
+
+rectangle "Kubernetes" as K8s #wheat {
+  rectangle "Benchmark Job" as Job #lightgrey
+}
+
+rectangle "SageMaker" as SageMaker #thistle
+
+' ========== Connections ==========
+User -> BFF : Submit benchmark job\n(TOML descriptor)
+BFF -> Kafka : Publish job submission event
+Kafka -> Executor : Consume job event
+Executor -> K8s : Create resources\n(Jobs, ConfigMaps, etc.)
+K8s -> Job : Execute benchmark
+Job -> MetricsPusher : Emit metrics
+MetricsPusher -> Kafka : Push metrics
+Kafka -> Watcher : Consume job events
+Watcher -> K8s : Monitor job status
+Watcher -> Kafka : Publish status updates
+
+Kafka -> SMExecutor : Consume SageMaker job event
+SMExecutor -> SageMaker : Create training job
+SageMaker -> Kafka : Emit metrics/status
+
+Kafka -> FetcherDispatcher : Consume data fetch request
+FetcherDispatcher -> K8s : Create fetcher jobs
+K8s -> Kafka : Notify fetch completion
+@enduml

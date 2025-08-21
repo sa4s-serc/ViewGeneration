@@ -1,0 +1,47 @@
+```plantuml
+@startuml lowes_auditor
+skinparam rectangle {
+  BackgroundColor<<client>> #d9e7fd
+  BackgroundColor<<server>> #d8f5d3
+  BackgroundColor<<core>> #fddddd
+  BackgroundColor<<specs>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Client Library" <<client>> {
+  rectangle "API" as API
+  rectangle "Spring Boot Starter" as SpringBoot
+  API --> SpringBoot
+}
+
+package "Application Server" <<server>> {
+  rectangle "Application.kt\n(Main Entry Point)" as Application
+  rectangle "ConsumerService.kt" as ConsumerService
+  rectangle "AuditEventRepositoryService.kt" as AuditEventRepositoryService
+  Application --> ConsumerService
+  ConsumerService --> AuditEventRepositoryService
+}
+
+package "/core" <<core>> {
+  rectangle "AuditEventDTOMapper.kt" as AuditEventDTOMapper
+  rectangle "AuditEventMapper.kt" as AuditEventMapper
+  rectangle "JsonObject.kt" as JsonObject
+  AuditEventDTOMapper --> AuditEventMapper
+  JsonObject --> AuditEventMapper
+}
+
+package "/specs" <<specs>> {
+  rectangle "OpenAPI Specifications" as OpenAPI
+  OpenAPI --> AuditEventDTOMapper
+  OpenAPI --> AuditEventMapper
+}
+
+database "Kafka" as Kafka
+database "Elasticsearch" as Elasticsearch
+
+ConsumerService --> Kafka
+AuditEventRepositoryService --> Elasticsearch
+
+@enduml
+```

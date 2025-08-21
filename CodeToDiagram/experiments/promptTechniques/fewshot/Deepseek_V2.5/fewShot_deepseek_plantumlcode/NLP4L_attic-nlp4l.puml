@@ -1,0 +1,80 @@
+### Output:
+@startuml NLP4L_attic-nlp4l
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<analysis>> #d8f5d3
+  BackgroundColor<<nlp>> #fff1c9
+  BackgroundColor<<utils>> #fddddd
+  BackgroundColor<<repl>> #d4f0f0
+  Style roundrect
+}
+
+package "Core Indexing" <<core>> {
+  [IWriter]
+  [IReader]
+  [RawReader]
+  [ISearcher]
+  [Schema]
+  [Field]
+  [Document]
+}
+
+package "Text Analysis" <<analysis>> {
+  [Analyzer]
+  [AnalyzerBuilder]
+  [Token]
+  [Japanese Analysis]
+  [BrownCorpusAnalyzer]
+}
+
+package "NLP Algorithms" <<nlp>> {
+  [HMM Model]
+  [HMM Tagger]
+  [Collocational Analysis]
+  [Synonym Management]
+  [Transliteration]
+}
+
+package "Utilities" <<utils>> {
+  [Corpora]
+  [Feature Selection]
+  [Terms Extraction]
+  [Stats]
+}
+
+package "REPL" <<repl>> {
+  [NLP4LILoop]
+  [ZeppelinVisualizer]
+}
+
+[Lucene Index] as Lucene
+
+IWriter --> Lucene
+IReader --> Lucene
+RawReader --> Lucene
+ISearcher --> Lucene
+
+Schema --> IWriter
+Schema --> IReader
+Document --> IWriter
+
+Analyzer --> Schema
+AnalyzerBuilder --> Analyzer
+Japanese Analysis --> Analyzer
+BrownCorpusAnalyzer --> Analyzer
+
+HMM Model --> Analyzer
+Collocational Analysis --> Lucene
+Synonym Management --> Lucene
+Transliteration --> Lucene
+
+Corpora --> HMM Model
+Feature Selection --> Lucene
+Terms Extraction --> Lucene
+Stats --> Lucene
+
+NLP4LILoop --> IReader
+NLP4LILoop --> ISearcher
+ZeppelinVisualizer --> NLP4LILoop
+@enduml

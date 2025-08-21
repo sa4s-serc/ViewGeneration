@@ -1,0 +1,47 @@
+@startuml aurelien-m_raspberrypi-rustpy
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Web Browser" as Browser {
+}
+
+rectangle "Rust Web Server" as WebServer #mistyrose {
+  rectangle "Rocket Framework" as Rocket
+  rectangle "WebSocket Handler" as WSHandler
+  rectangle "Authentication" as Auth
+}
+
+rectangle "Python Controller" as PythonController #lightsteelblue {
+  rectangle "rpipy.py" as RpiPy
+  rectangle "demo_controller_app.py" as ControllerApp
+}
+
+rectangle "Rust Hardware Library" as RustLib #palegreen {
+  rectangle "rppal GPIO" as GPIO
+}
+
+rectangle "Raspberry Pi" as RPi #aliceblue {
+  rectangle "LEDs" as LEDs
+}
+
+' ========== Connections ==========
+User --> Browser : Interacts with\nWeb Interface
+Browser --> WebServer : HTTP Requests\n(Login, Control Commands)
+Browser <--> WSHandler : WebSocket\n(Real-time Updates)
+
+WebServer --> Auth : Validate Credentials
+WebServer --> PythonController : Send Commands\nvia ZMQ/Serial
+WebServer <--> WSHandler : Push Updates
+
+PythonController --> RustLib : Call Hardware Functions
+RustLib --> RPi : GPIO Control
+RPi --> LEDs : Set LED States
+
+PythonController --> WebServer : Send Status Updates\nvia ZMQ/Serial
+@enduml

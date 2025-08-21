@@ -1,0 +1,38 @@
+@startuml
+title Sakura MK I Credit Card BIN Data Service - Control Flow
+
+package "AWS Cloud" {
+    package "Storage" {
+        [S3] : CSV Files
+    }
+    
+    package "Compute" {
+        [AWS Lambda Ingest] : Ingest CSV
+        [AWS Lambda Transform] : Transform Data
+        [AWS Lambda Store] : Store Data
+    }
+
+    package "Messaging" {
+        [Kinesis] : Event Stream
+        [SQS] : Message Queue
+    }
+
+    package "Database" {
+        [DynamoDB] : BIN Data Storage
+    }
+
+    package "API Management" {
+        [API Gateway] : External Access
+    }
+}
+
+[S3] --> [AWS Lambda Ingest] : Trigger
+[AWS Lambda Ingest] --> [Kinesis] : Stream Events
+[Kinesis] --> [AWS Lambda Transform] : Trigger
+[AWS Lambda Transform] --> [SQS] : Send Messages
+[SQS] --> [AWS Lambda Store] : Trigger
+[AWS Lambda Store] --> [DynamoDB] : Store Data
+
+[API Gateway] --> [AWS Lambda Store] : API Call
+
+@enduml

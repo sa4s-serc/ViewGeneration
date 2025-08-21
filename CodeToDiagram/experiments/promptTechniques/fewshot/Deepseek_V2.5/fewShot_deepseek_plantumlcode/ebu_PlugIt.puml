@@ -1,0 +1,24 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+rectangle "GitHub Repository" as GitHub
+rectangle "Analysis Service" as Analysis
+rectangle "Gemini API" as Gemini
+rectangle "Error Handler" as ErrorHandler
+rectangle "Retry Logic" as Retry
+rectangle "Quota Monitor" as QuotaMonitor
+
+GitHub --> Analysis : Process content
+Analysis --> Gemini : API Request
+Gemini --> Analysis : 429 Error (Rate Limit Exceeded)
+Analysis --> ErrorHandler : Handle error
+ErrorHandler --> Retry : Trigger retry with backoff
+Retry --> Gemini : Retry request
+ErrorHandler --> QuotaMonitor : Track usage
+QuotaMonitor --> Analysis : Adjust chunk size
+@enduml

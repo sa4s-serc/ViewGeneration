@@ -1,0 +1,29 @@
+@startuml jlhood_retweet-leaderboard
+
+actor User
+participant "API Gateway" as API
+participant "GetLeaderboardHandler" as GLH
+participant "TweetProcessorHandler" as TPH
+participant "TweetProcessor" as TP
+participant "Leaderboard" as LB
+database "DynamoDB" as DB
+participant "aws-serverless-twitter-event-source" as TwitterSource
+
+TwitterSource -> TPH: Send tweet JSON
+TPH -> TP: Process tweet
+TP -> Tweet: Parse JSON
+Tweet --> TP: Return tweet data
+TP -> TP: Filter and extract data
+TP -> LB: Update leaderboard
+LB -> DB: Store/update record
+
+User -> API: GET /leaderboard
+API -> GLH: Invoke
+GLH -> LB: Get leaderboard data
+LB -> DB: Retrieve records
+DB --> LB: Return records
+LB --> GLH: Return leaderboard data
+GLH --> API: Return JSON response
+API --> User: Display leaderboard
+
+@enduml

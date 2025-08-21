@@ -1,0 +1,58 @@
+@startuml thangchung_practical-dapr
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<identity>> #fddddd
+  BackgroundColor<<infra>> #fff1c9
+  BackgroundColor<<dapr>> #d4f0f0
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend" <<frontend>> {
+  rectangle "Blazor WebUI" as WebUI
+}
+
+package "Backend Services" <<backend>> {
+  rectangle "ProductCatalogApi\n(REST/gRPC/GraphQL)" as ProductApi
+  rectangle "InventoryApi\n(REST/gRPC/GraphQL)" as InventoryApi
+}
+
+package "Identity" <<identity>> {
+  rectangle "IdentityServer4" as Identity
+}
+
+package "Infrastructure" <<infra>> {
+  rectangle "N8T.Domain" as N8TDomain
+  rectangle "N8T.Infrastructure" as N8TInfra
+  rectangle "Redis" as Redis
+  rectangle "PostgreSQL" as Postgres
+}
+
+package "Dapr Components" <<dapr>> {
+  rectangle "Service Invocation" as DaprInvoke
+  rectangle "Pub/Sub" as DaprPubSub
+  rectangle "State Store" as DaprState
+}
+
+WebUI --> Identity : AuthN/Z
+WebUI --> ProductApi : GraphQL
+ProductApi --> InventoryApi : gRPC
+
+Identity --> N8TDomain
+ProductApi --> N8TDomain
+InventoryApi --> N8TDomain
+
+ProductApi --> N8TInfra
+InventoryApi --> N8TInfra
+
+N8TInfra --> Postgres
+N8TInfra --> Redis
+
+ProductApi --> DaprInvoke
+InventoryApi --> DaprInvoke
+ProductApi --> DaprPubSub
+InventoryApi --> DaprPubSub
+DaprState --> Redis
+@enduml

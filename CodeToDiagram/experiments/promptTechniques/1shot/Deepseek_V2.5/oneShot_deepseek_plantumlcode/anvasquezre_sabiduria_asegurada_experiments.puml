@@ -1,0 +1,51 @@
+@startuml anvasquezre_sabiduria_asegurada_experiments
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Chainlit Frontend" as Frontend {
+}
+
+rectangle "Chatbot Application" as ChatbotApp #lightblue {
+  rectangle "Langchain Agent" as Agent
+  rectangle "Qdrant Client" as QdrantClient
+  rectangle "Google Search Tool" as GoogleSearch
+}
+
+rectangle "Qdrant Database" as QdrantDB #palegreen
+
+rectangle "Data Preloader" as DataPreloader #lightyellow {
+  rectangle "S3 Client" as S3Client
+  rectangle "Document Processor" as DocProcessor
+}
+
+rectangle "External Services" as ExtServices #aliceblue {
+  rectangle "OpenAI API" as OpenAI
+  rectangle "Google Search API" as GoogleAPI
+  rectangle "S3 Storage" as S3
+}
+
+' ========== Connections ==========
+User --> Frontend : Asks questions\nProvides feedback
+Frontend --> ChatbotApp : Sends query\nReceives response
+ChatbotApp --> Frontend : Returns answer\nRequests feedback
+
+' Chatbot internal flows
+Agent --> QdrantClient : Semantic search\nfor policy info
+Agent --> GoogleSearch : Web search\nfor news
+GoogleSearch --> GoogleAPI : Executes search
+QdrantClient --> QdrantDB : Query embeddings
+
+' Data loading flows
+DataPreloader --> S3 : Downloads\npolicy PDFs
+S3Client --> S3 : Gets documents
+DocProcessor --> QdrantDB : Stores processed\nembeddings
+
+' External integrations
+Agent --> OpenAI : Generates\nresponses
+@enduml

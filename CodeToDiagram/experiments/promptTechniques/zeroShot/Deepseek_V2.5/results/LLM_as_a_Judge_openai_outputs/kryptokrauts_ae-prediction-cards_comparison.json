@@ -1,0 +1,270 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "process-prediction-service",
+        "description": "Poll for predictions with state 'CLOSED', call function 'ask_for_winning_option', call function 'process_oracle_response' if oracle has responded",
+        "boundaries": "rectangle",
+        "position": "top left"
+      },
+      {
+        "name": "oracle-service",
+        "description": "Poll for oracle queries, get price from coingecko API, determine outcome, respond to query with outcome (higher/lower)",
+        "boundaries": "rectangle",
+        "position": "top right"
+      },
+      {
+        "name": "aeternity blockchain",
+        "description": "PredictionCards Smart Contract",
+        "boundaries": "rectangle",
+        "position": "center"
+      },
+      {
+        "name": "Frontend",
+        "description": "Create prediction, deposit/rent NFT, withdraw/claim rewards, get data via dry-runs",
+        "boundaries": "rectangle",
+        "position": "bottom left"
+      },
+      {
+        "name": "IPFS",
+        "description": "Load GIFs of NFTs",
+        "boundaries": "rectangle",
+        "position": "bottom right"
+      },
+      {
+        "name": "User",
+        "description": "Interacts with the system",
+        "boundaries": "actor",
+        "position": "bottom left"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "process-prediction-service",
+        "target": "aeternity blockchain",
+        "label": "poll for predictions, call functions",
+        "type": "arrow"
+      },
+      {
+        "source": "oracle-service",
+        "target": "aeternity blockchain",
+        "label": "poll for oracle queries, respond with outcome",
+        "type": "arrow"
+      },
+      {
+        "source": "Frontend",
+        "target": "aeternity blockchain",
+        "label": "create prediction, deposit/rent NFT, withdraw/claim rewards",
+        "type": "arrow"
+      },
+      {
+        "source": "Frontend",
+        "target": "IPFS",
+        "label": "load GIFs of NFTs",
+        "type": "arrow"
+      },
+      {
+        "source": "User",
+        "target": "Frontend",
+        "label": "interacts with",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Prediction System Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Frontend",
+        "description": "User interface for creating predictions, renting NFTs, and claiming rewards",
+        "boundaries": "rectangle",
+        "position": "left"
+      },
+      {
+        "name": "WalletClient",
+        "description": "Handles transaction signing",
+        "boundaries": "rectangle",
+        "position": "left"
+      },
+      {
+        "name": "PredictionCardsApi",
+        "description": "API for interacting with PredictionCards",
+        "boundaries": "rectangle",
+        "position": "center"
+      },
+      {
+        "name": "SmartContract",
+        "description": "Handles prediction data and NFT rental state",
+        "boundaries": "rectangle",
+        "position": "center"
+      },
+      {
+        "name": "OracleService",
+        "description": "Handles oracle queries and responses",
+        "boundaries": "rectangle",
+        "position": "center"
+      },
+      {
+        "name": "ProcessPredictionService",
+        "description": "Monitors for CLOSED predictions and processes results",
+        "boundaries": "rectangle",
+        "position": "center"
+      },
+      {
+        "name": "Blockchain",
+        "description": "Stores prediction data",
+        "boundaries": "cylinder",
+        "position": "right"
+      },
+      {
+        "name": "ExternalAPI",
+        "description": "Provides asset prices",
+        "boundaries": "cylinder",
+        "position": "right"
+      },
+      {
+        "name": "User",
+        "description": "Interacts with the system",
+        "boundaries": "actor",
+        "position": "left"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Frontend",
+        "label": "Create Prediction, Rent NFT, Claim rewards",
+        "type": "arrow"
+      },
+      {
+        "source": "Frontend",
+        "target": "WalletClient",
+        "label": "Sign transaction",
+        "type": "arrow"
+      },
+      {
+        "source": "WalletClient",
+        "target": "PredictionCardsApi",
+        "label": "create_prediction(), rent_nft(), claim()",
+        "type": "arrow"
+      },
+      {
+        "source": "PredictionCardsApi",
+        "target": "SmartContract",
+        "label": "Store prediction data, Update NFT rental state",
+        "type": "arrow"
+      },
+      {
+        "source": "SmartContract",
+        "target": "Blockchain",
+        "label": "Store data",
+        "type": "arrow"
+      },
+      {
+        "source": "OracleService",
+        "target": "ExternalAPI",
+        "label": "Get asset price",
+        "type": "arrow"
+      },
+      {
+        "source": "ProcessPredictionService",
+        "target": "SmartContract",
+        "label": "ask_for_winning_option(), process_oracle_response(price)",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Prediction System Sequence"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Frontend",
+      "User",
+      "OracleService",
+      "ProcessPredictionService"
+    ],
+    "unique_to_GroundTruth": [
+      "IPFS",
+      "aeternity blockchain"
+    ],
+    "unique_to_GeneratedImage": [
+      "WalletClient",
+      "PredictionCardsApi",
+      "SmartContract",
+      "Blockchain",
+      "ExternalAPI"
+    ],
+    "common_connectors": [
+      {
+        "source": "User",
+        "target": "Frontend",
+        "label": "interacts with / Create Prediction, Rent NFT, Claim rewards"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "process-prediction-service",
+        "target": "aeternity blockchain",
+        "label": "poll for predictions, call functions"
+      },
+      {
+        "source": "oracle-service",
+        "target": "aeternity blockchain",
+        "label": "poll for oracle queries, respond with outcome"
+      },
+      {
+        "source": "Frontend",
+        "target": "aeternity blockchain",
+        "label": "create prediction, deposit/rent NFT, withdraw/claim rewards"
+      },
+      {
+        "source": "Frontend",
+        "target": "IPFS",
+        "label": "load GIFs of NFTs"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Frontend",
+        "target": "WalletClient",
+        "label": "Sign transaction"
+      },
+      {
+        "source": "WalletClient",
+        "target": "PredictionCardsApi",
+        "label": "create_prediction(), rent_nft(), claim()"
+      },
+      {
+        "source": "PredictionCardsApi",
+        "target": "SmartContract",
+        "label": "Store prediction data, Update NFT rental state"
+      },
+      {
+        "source": "SmartContract",
+        "target": "Blockchain",
+        "label": "Store data"
+      },
+      {
+        "source": "OracleService",
+        "target": "ExternalAPI",
+        "label": "Get asset price"
+      },
+      {
+        "source": "ProcessPredictionService",
+        "target": "SmartContract",
+        "label": "ask_for_winning_option(), process_oracle_response(price)"
+      }
+    ],
+    "explanation": "The two diagrams represent different views of a prediction system architecture. The GroundTruth diagram focuses on a high-level architecture with components like the 'aeternity blockchain' and 'IPFS', emphasizing interactions and data flow. The GeneratedImage diagram provides a sequence view, detailing interactions between components like 'WalletClient', 'PredictionCardsApi', and 'SmartContract'. While both diagrams include common components such as 'Frontend', 'User', 'OracleService', and 'ProcessPredictionService', they differ in their representation of data storage and transaction handling. The GroundTruth diagram includes 'IPFS' and 'aeternity blockchain', whereas the GeneratedImage diagram includes 'WalletClient', 'PredictionCardsApi', 'SmartContract', 'Blockchain', and 'ExternalAPI'. The GeneratedImage diagram is rated 7 out of 10 for its detailed sequence of operations and inclusion of additional components, but it lacks some high-level architectural elements present in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

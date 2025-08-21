@@ -1,0 +1,54 @@
+```plantuml
+@startuml llvm_torch-mlir
+left to right direction
+skinparam rectangle {
+  BackgroundColor #F5F5F5
+  BorderColor black
+  Style roundrect
+}
+
+package "Frontend" {
+  rectangle "PyTorch" as PyTorch #FFDDDD
+  rectangle "TorchScript\n& FX Graph" as TorchScriptFX #FFDDDD
+  rectangle "Tracing-based (LTC)" as LTC #FFDDDD
+}
+
+package "Torch-MLIR Core" {
+  rectangle "Torch Dialect" as TorchDialect #DDDDFF
+  rectangle "TorchConversion Dialect" as TorchConversionDialect #DDDDFF
+  rectangle "TMTensor Dialect" as TMTensorDialect #DDDDFF
+}
+
+package "Backend Conversion" {
+  rectangle "Linalg-on-Tensors" as Linalg #DDFFDD
+  rectangle "TOSA" as TOSA #DDFFDD
+  rectangle "StableHLO" as StableHLO #DDFFDD
+  rectangle "ONNX" as ONNX #DDFFDD
+  rectangle "Lazy Tensor Core (LTC)" as LazyTensorCore #DDFFDD
+}
+
+package "Testing & Validation" {
+  rectangle "End-to-End Tests" as E2ETests #FFFFDD
+  rectangle "LIT" as LIT #FFFFDD
+  rectangle "Unit Tests" as UnitTests #FFFFDD
+}
+
+PyTorch --> TorchScriptFX
+TorchScriptFX --> TorchDialect
+LTC --> TorchDialect
+
+TorchDialect --> TorchConversionDialect
+TorchDialect --> TMTensorDialect
+
+TorchConversionDialect --> Linalg
+TorchConversionDialect --> TOSA
+TorchConversionDialect --> StableHLO
+TorchConversionDialect --> ONNX
+TorchConversionDialect --> LazyTensorCore
+
+E2ETests --> Linalg
+LIT --> TorchDialect
+UnitTests --> TorchDialect
+
+@enduml
+```

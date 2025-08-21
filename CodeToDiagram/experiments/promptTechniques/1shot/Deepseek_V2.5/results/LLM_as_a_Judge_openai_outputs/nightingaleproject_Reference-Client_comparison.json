@@ -1,0 +1,193 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Reference Implementation",
+        "description": "Contains TimedService and API Endpoints",
+        "boundaries": "Box",
+        "position": "Left"
+      },
+      {
+        "name": "TimedService",
+        "description": "Handles timed operations",
+        "boundaries": "Within Reference Implementation",
+        "position": "Left"
+      },
+      {
+        "name": "NVSS API Server",
+        "description": "Handles API requests",
+        "boundaries": "Box",
+        "position": "Right"
+      },
+      {
+        "name": "VRDR Reporter",
+        "description": "Interacts with Jurisdiction System",
+        "boundaries": "Icon",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "TimedService",
+        "target": "NVSS API Server",
+        "label": "POST Auth Token",
+        "type": "Arrow"
+      },
+      {
+        "source": "TimedService",
+        "target": "NVSS API Server",
+        "label": "POST FHIR Messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "NVSS API Server",
+        "target": "TimedService",
+        "label": "GET FHIR responses",
+        "type": "Arrow"
+      },
+      {
+        "source": "TimedService",
+        "target": "NVSS API Server",
+        "label": "POST Resubmit Messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "API Endpoints",
+        "target": "VRDR Reporter",
+        "label": "POST /record/submission",
+        "type": "Arrow"
+      },
+      {
+        "source": "VRDR Reporter",
+        "target": "API Endpoints",
+        "label": "GET /record/status/{deathYear}/{jurisdictionId}/{certNo}",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      "SQS API Queue",
+      "Jurisdiction System"
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Ground Truth Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Reference Client API",
+        "description": "Contains AppDbContext, TimedHostedService, RecordController",
+        "boundaries": "Box",
+        "position": "Center"
+      },
+      {
+        "name": "NVSS API Server",
+        "description": "Handles API requests",
+        "boundaries": "Box",
+        "position": "Top"
+      },
+      {
+        "name": "PostgreSQL",
+        "description": "Database",
+        "boundaries": "Icon",
+        "position": "Top"
+      },
+      {
+        "name": "Jurisdiction User",
+        "description": "Interacts with React UI",
+        "boundaries": "Icon",
+        "position": "Bottom"
+      },
+      {
+        "name": "React UI",
+        "description": "User interface",
+        "boundaries": "Box",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "NVSS API Server",
+        "target": "Reference Client API",
+        "label": "Authenticated API calls",
+        "type": "Arrow"
+      },
+      {
+        "source": "Reference Client API",
+        "target": "NVSS API Server",
+        "label": "Validates token",
+        "type": "Arrow"
+      },
+      {
+        "source": "NVSS API Server",
+        "target": "Reference Client API",
+        "label": "Returns secured responses",
+        "type": "Arrow"
+      },
+      {
+        "source": "Reference Client API",
+        "target": "NVSS API Server",
+        "label": "API requests with auth token",
+        "type": "Arrow"
+      },
+      {
+        "source": "Reference Client API",
+        "target": "PostgreSQL",
+        "label": "Secure DB access",
+        "type": "Arrow"
+      },
+      {
+        "source": "Jurisdiction User",
+        "target": "React UI",
+        "label": "Authenticates (JWT/OAuth)",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Generated Image Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "NVSS API Server"
+    ],
+    "unique_to_GroundTruth": [
+      "Reference Implementation",
+      "TimedService",
+      "VRDR Reporter"
+    ],
+    "unique_to_GeneratedImage": [
+      "Reference Client API",
+      "AppDbContext",
+      "TimedHostedService",
+      "RecordController",
+      "PostgreSQL",
+      "Jurisdiction User",
+      "React UI"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      "POST Auth Token",
+      "POST FHIR Messages",
+      "GET FHIR responses",
+      "POST Resubmit Messages",
+      "POST /record/submission",
+      "GET /record/status/{deathYear}/{jurisdictionId}/{certNo}"
+    ],
+    "unique_connectors_GeneratedImage": [
+      "Authenticated API calls",
+      "Validates token",
+      "Returns secured responses",
+      "API requests with auth token",
+      "Secure DB access",
+      "Authenticates (JWT/OAuth)"
+    ],
+    "explanation": "The two diagrams represent different architectural views of a system interacting with an NVSS API Server. The Ground Truth diagram focuses on a 'Reference Implementation' with components like 'TimedService' and 'VRDR Reporter', emphasizing message exchanges and API endpoints. The Generated Image diagram presents a 'Reference Client API' with detailed internal components such as 'AppDbContext' and 'TimedHostedService', highlighting secure interactions with a PostgreSQL database and a React UI for user interaction. The NVSS API Server is common to both, but the diagrams differ significantly in their internal structures and focus areas. The Ground Truth diagram is more focused on message flows, while the Generated Image diagram emphasizes security and data storage. Rating: 7/10. The Generated Image captures a different aspect of the architecture with additional components and security considerations, but it lacks some of the message flow details present in the Ground Truth diagram.",
+    "Rating": 7
+  }
+}

@@ -1,0 +1,50 @@
+```plantuml
+@startuml nightingaleproject_Reference-Client
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "React UI" as ReactUI {
+  rectangle "SubmitRecordsDashboard" as Dashboard
+  rectangle "UploadRecords" as Upload
+}
+
+rectangle "NVSSClient" as NVSSClient #lightgray {
+  rectangle "Controllers" as Controllers {
+    rectangle "RecordController" as RecordController
+  }
+  rectangle "Services" as Services {
+    rectangle "TimedHostedService" as TimedService
+  }
+  rectangle "Models" as Models {
+    rectangle "MessageItem" as MessageItem
+    rectangle "ResponseItem" as ResponseItem
+  }
+  rectangle "Database" as Database #aliceblue
+}
+
+rectangle "NVSS API Server" as APIServer #lightyellow
+
+' ========== Connections ==========
+User --> ReactUI
+
+' React UI interactions
+ReactUI --> RecordController : submit VRDR records\nquery message status
+RecordController --> Models : translate JSON to VRDR message objects
+Models --> Database : store/retrieve messages and responses
+
+' TimedHostedService interactions
+TimedService --> Database : poll for new messages
+TimedService --> APIServer : submit messages\nretrieve responses
+APIServer --> TimedService : send response
+
+' Reliable delivery
+TimedService -> TimedService : handle acknowledgements\nmanage retries
+
+@enduml
+```

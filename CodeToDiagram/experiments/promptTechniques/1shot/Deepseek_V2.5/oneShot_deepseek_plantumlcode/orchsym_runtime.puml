@@ -1,0 +1,75 @@
+@startuml orchsym_runtime
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<storage>> #d8f5d3
+  BackgroundColor<<security>> #fddddd
+  BackgroundColor<<integration>> #fff1c9
+  BackgroundColor<<cluster>> #e6d9ff
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Framework" <<core>> {
+  rectangle "FlowController" as FlowController
+  rectangle "ProcessScheduler" as ProcessScheduler
+  rectangle "ProcessSession" as ProcessSession
+  rectangle "FlowFile" as FlowFile
+  rectangle "Connection" as Connection
+  rectangle "StateManagerProvider" as StateManager
+  FlowController --> ProcessScheduler
+  ProcessScheduler --> ProcessSession
+  ProcessSession --> FlowFile
+  FlowFile --> Connection
+  FlowController --> StateManager
+}
+
+package "Repositories" <<storage>> {
+  rectangle "FlowFile Repository" as FlowFileRepo
+  rectangle "Content Repository" as ContentRepo
+  rectangle "Provenance Repository" as ProvenanceRepo
+  ProcessSession --> FlowFileRepo
+  ProcessSession --> ContentRepo
+  ProcessSession --> ProvenanceRepo
+}
+
+package "Security" <<security>> {
+  rectangle "Login Identity Providers" as AuthProviders
+  rectangle "Authorizer" as Authorizer
+  rectangle "SSLContextService" as SSLService
+  rectangle "Sensitive Property Encryption" as PropertyEncryption
+  FlowController --> AuthProviders
+  FlowController --> Authorizer
+  FlowController --> SSLService
+  FlowController --> PropertyEncryption
+}
+
+package "Integration" <<integration>> {
+  rectangle "REST API" as REST
+  rectangle "NAR Bundles" as NAR
+  rectangle "Scripting Processors" as Scripting
+  rectangle "External Systems" as External
+  FlowController --> REST
+  FlowController --> NAR
+  NAR --> Scripting
+  NAR --> External
+}
+
+package "Cluster Management" <<cluster>> {
+  rectangle "ClusterCoordinator" as ClusterCoordinator
+  rectangle "Zookeeper" as Zookeeper
+  rectangle "Heartbeat Mechanism" as Heartbeat
+  FlowController --> ClusterCoordinator
+  ClusterCoordinator --> Zookeeper
+  ClusterCoordinator --> Heartbeat
+}
+
+package "Orchsym Extensions" {
+  rectangle "Branding Extension" as Branding
+  rectangle "Custom Auth Providers" as CustomAuth
+  rectangle "Usage Data Collection" as UDC
+  FlowController --> Branding
+  AuthProviders --> CustomAuth
+  FlowController --> UDC
+}
+
+@enduml

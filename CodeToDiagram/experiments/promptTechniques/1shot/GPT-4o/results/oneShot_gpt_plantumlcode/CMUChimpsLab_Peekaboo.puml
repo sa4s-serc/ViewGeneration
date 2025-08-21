@@ -1,0 +1,50 @@
+```plantuml
+@startuml CMUChimpsLab_Peekaboo
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Node-RED Environment" as NodeRed {
+  rectangle "Provider Nodes\n(Pull/Push)" as Provider #lightblue
+  rectangle "Inference Nodes\n(Classify/Detect/Extract)" as Inference #lightgreen
+  rectangle "Filter Nodes\n(Select/Noisify/Spoof)" as Filter #lightyellow
+  rectangle "Network Nodes\n(Post)" as Network #lightcoral
+  rectangle "Utility Nodes\n(Aggregate/pkbInject/pkbJoin)" as Utility #lightgray
+}
+
+rectangle "External Services" as ExternalServices #mistyrose {
+  rectangle "Inference Services" as InferenceServices
+  rectangle "Cloud Services" as CloudServices
+}
+
+rectangle "Sensor Devices" as Sensors #aliceblue
+
+' ========== Connections ==========
+User --> NodeRed
+
+' Provider node interactions
+Provider --> Sensors : Ingest data\nfrom sensors
+Provider --> ExternalServices : Pull data from\nexternal sources
+
+' Inference node interactions
+Inference --> Provider : Receive raw data
+Inference --> ExternalServices : Interact with\nInference Services
+
+' Filter node interactions
+Filter --> Inference : Apply filtering\non inferred data
+Filter --> Utility : Pass filtered data
+
+' Network node interactions
+Network --> Filter : Receive processed data
+Network --> CloudServices : Transmit data\nto cloud
+
+' Utility node interactions
+Utility --> Network : Aggregate and\ninject data
+
+@enduml
+```

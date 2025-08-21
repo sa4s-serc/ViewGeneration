@@ -1,0 +1,42 @@
+@startuml liyangbing_rocketmq-http-gateway
+
+!define RECTANGLE package
+
+component "HTTP Client" as client
+component "RocketMQ Cluster" as rocketmq
+
+package "RocketMQ HTTP Gateway" {
+    RECTANGLE "Transport Layer" {
+        [Netty Server]
+        [RequestDecoder]
+        [RequestValidator]
+        [ResponseEncoder]
+    }
+    
+    RECTANGLE "Processor Layer" {
+        [ProducerManager]
+        [ConsumerManager]
+        [ProduceMessageProcessor]
+        [HttpMessageListenerConcurrently]
+        [SubscriptionChangeWatcher]
+    }
+    
+    RECTANGLE "Common Layer" {
+        [Utilities]
+        [Data Structures]
+    }
+    
+    [Configuration]
+}
+
+client --> "Transport Layer" : HTTP Requests
+"Transport Layer" --> "Processor Layer" : Decoded Requests
+"Processor Layer" --> rocketmq : Produce Messages
+rocketmq --> "Processor Layer" : Consume Messages
+"Processor Layer" --> client : HTTP Callbacks
+
+"Transport Layer" ..> "Common Layer" : use
+"Processor Layer" ..> "Common Layer" : use
+"Processor Layer" ..> Configuration : read
+
+@enduml

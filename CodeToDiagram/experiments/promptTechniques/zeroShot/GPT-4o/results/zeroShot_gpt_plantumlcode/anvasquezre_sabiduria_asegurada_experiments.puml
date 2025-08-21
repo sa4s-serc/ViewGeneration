@@ -1,0 +1,28 @@
+```plantuml
+@startuml anvasquezre_sabiduria_asegurada_experiments
+
+actor User
+participant "Chainlit Front-end" as Frontend
+participant "Langchain Agent" as Agent
+participant "Qdrant Vector DB" as Qdrant
+participant "Web Search API" as WebSearch
+participant "Data Preloader" as Preloader
+participant "S3 Bucket" as S3
+
+User -> Frontend: Ask a question
+Frontend -> Agent: Process question
+Agent -> Qdrant: Search for policy info
+Qdrant -> Agent: Return policy data
+Agent -> WebSearch: Fetch related news
+WebSearch -> Agent: Return news data
+Agent -> Frontend: Provide answer
+Frontend -> User: Display answer
+
+== Data Pre-loading ==
+Preloader -> S3: Download PDFs
+S3 -> Preloader: Return PDFs
+Preloader -> Preloader: Process PDFs
+Preloader -> Qdrant: Store embeddings
+
+@enduml
+```

@@ -1,0 +1,41 @@
+```plantuml
+@startuml YashwantChauhan_SDL
+
+actor User
+participant "Web Browser" as Browser
+participant "Django Views" as Views
+participant "Django Models" as Models
+participant "ML Classifier" as ML
+participant "Database" as DB
+
+User -> Browser: Accesses Web Interface
+Browser -> Views: GET / (Home Page)
+Views -> Browser: Render Home Template
+
+User -> Browser: Submits Login Form
+Browser -> Views: POST /login (Credentials)
+Views -> Models: authenticate_user()
+Models -> DB: Query User Table
+DB --> Models: User Data
+Models --> Views: Authentication Result
+Views -> Browser: Redirect to Dashboard (Success) or Error (Failure)
+
+User -> Browser: Uploads Traffic File
+Browser -> Views: POST /upload (File Data)
+Views -> ML: preprocess_and_classify()
+ML --> Views: Attack Classification Results
+Views -> Models: save_detection_history()
+Models -> DB: Insert History Record
+DB --> Models: Confirmation
+Views -> Browser: Render Results Page with Recommendations
+
+User -> Browser: Views History
+Browser -> Views: GET /history
+Views -> Models: get_user_history()
+Models -> DB: Query History Table
+DB --> Models: History Records
+Models --> Views: Formatted History
+Views -> Browser: Render History Page
+
+@enduml
+```

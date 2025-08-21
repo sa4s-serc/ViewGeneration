@@ -1,0 +1,67 @@
+@startuml sup2is_e-commerce-project
+
+skinparam rectangle {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  ArrowColor #000000
+}
+
+!define RECTANGLE(x) rectangle x #FFFFFF
+
+cloud "External Clients" as clients
+
+RECTANGLE("API Gateway (Zuul)") as gateway {
+  [JWT Authentication Filter]
+}
+
+RECTANGLE("Eureka Server") as eureka
+
+RECTANGLE("Config Server") as config
+
+RECTANGLE("Authentication Service") as auth {
+  [JWT Token Generation]
+}
+
+RECTANGLE("Member Service") as member {
+  [Redis Cache]
+}
+
+RECTANGLE("Order Service") as order
+
+RECTANGLE("Product Service") as product {
+  [Redis Cache]
+  [Kafka Producer]
+}
+
+database "MySQL" as mysql
+database "Redis" as redis
+queue "Kafka" as kafka
+
+clients --> gateway
+gateway --> auth
+gateway --> member
+gateway --> order
+gateway --> product
+
+auth --> eureka
+member --> eureka
+order --> eureka
+product --> eureka
+
+auth --> config
+member --> config
+order --> config
+product --> config
+
+order --> product : Feign Client
+
+member --> mysql
+order --> mysql
+product --> mysql
+
+member --> redis
+product --> redis
+
+product --> kafka
+
+@enduml

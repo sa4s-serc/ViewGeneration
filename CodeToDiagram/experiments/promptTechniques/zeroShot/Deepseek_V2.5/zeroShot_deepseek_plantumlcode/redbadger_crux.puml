@@ -1,0 +1,68 @@
+```plantuml
+@startuml redbadger_crux
+
+package "Platform Shells" {
+    [iOS Shell] as ios_shell
+    [Android Shell] as android_shell
+    [Web Shell] as web_shell
+}
+
+package "Crux Core" {
+    [Core] as core
+    [App Trait] as app_trait
+    [Bridge] as bridge
+    [Effect Trait] as effect_trait
+    [Command] as command
+}
+
+package "Capabilities" {
+    [Http Capability] as http_capability
+    [Time Capability] as time_capability
+    [KeyValue Capability] as kv_capability
+}
+
+package "Utilities" {
+    [crux_http] as http_util
+    [crux_time] as time_util
+}
+
+package "Shared Types" {
+    [Type Generator] as type_gen
+}
+
+ios_shell --> bridge : FFI\ncommunication
+android_shell --> bridge : FFI\ncommunication
+web_shell --> bridge : FFI\ncommunication
+
+bridge --> core : serialized\nmessages
+core --> app_trait : implements
+core --> effect_trait : produces
+core --> command : creates
+
+command --> http_capability : uses
+command --> time_capability : uses
+command --> kv_capability : uses
+
+http_capability --> http_util : depends on
+time_capability --> time_util : depends on
+
+core --> type_gen : generates\ntypes
+type_gen --> ios_shell : platform\ntypes
+type_gen --> android_shell : platform\ntypes
+type_gen --> web_shell : platform\ntypes
+
+note right of core
+    Manages application state,
+    capabilities, and effects
+    through message-based
+    communication with Shells
+end note
+
+note left of command
+    Encapsulates side effect
+    requests as objects
+    using Capability APIs
+end note
+
+@enduml
+```

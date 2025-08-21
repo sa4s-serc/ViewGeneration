@@ -1,0 +1,39 @@
+@startuml avarghesein_ActiveX.NET
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "Client Application" as Client
+
+rectangle "ActiveX.NET.Server (EXE)" as Server {
+  rectangle "ActiveXServerContext" as Context
+  rectangle "ActiveXServers (MEF)" as MEF
+  rectangle "DefaultActiveXFactory" as Factory
+}
+
+rectangle "ActiveX.NET.Plugin (DLL)" as Plugin {
+  rectangle "CoClass" as CoClass
+}
+
+rectangle "Registry" as Registry
+
+' ========== Connections ==========
+Client -> Server : COM calls (CreateInstance)
+Server -> Registry : Query COM registration
+Registry --> Server : Registration info
+
+Context -> MEF : Discover plugins
+MEF --> Plugin : Load DLL\n(discover IActiveXServer)
+MEF -> Factory : Create factory\nfor COM object
+Factory -> CoClass : Instantiate\nCOM object
+CoClass --> Factory : Return instance
+Factory --> Client : Return COM object
+
+Client -> CoClass : Method calls
+CoClass --> Client : Results
+
+Server -> Registry : Register/Unregister\nCOM objects
+@enduml

@@ -1,0 +1,26 @@
+@startuml spagnuolocarmine_serverless-computing-for-iot
+
+actor "IoT Device" as device
+participant "RabbitMQ\n(AMQP/MQTT Broker)" as broker
+participant "Nuclio Function\n(Producer)" as producer
+participant "Nuclio Function\n(Consumer)" as consumer
+database "Data Storage" as storage
+
+device -> broker: Send temperature data
+activate broker
+
+broker -> producer: Trigger event
+activate producer
+producer -> broker: Generate temperature event
+deactivate producer
+
+broker -> consumer: Consume temperature data
+activate consumer
+consumer -> storage: Store processed data
+consumer --> broker: Acknowledge message
+deactivate consumer
+
+broker --> device: Confirm data received
+deactivate broker
+
+@enduml

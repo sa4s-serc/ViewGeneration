@@ -1,0 +1,59 @@
+```plantuml
+@startuml usds_justice40-tool
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Frontend" as FE {
+  rectangle "React App" as ReactApp
+  rectangle "Maplibre GL" as MaplibreGL
+}
+
+rectangle "Data Pipeline" as DataPipeline #lightsteelblue {
+  rectangle "ETL Process" as ETLProcess
+  rectangle "Scoring" as Scoring
+  rectangle "Map Tile Generation" as MapTileGen
+}
+
+rectangle "Data Sources" as DataSources #mistyrose {
+  rectangle "Census Data" as CensusData
+  rectangle "FEMA Data" as FEMAData
+  rectangle "EPA Data" as EPAData
+  rectangle "First Street Foundation Data" as FSFData
+}
+
+rectangle "Backend Services" as BackendServices #lightyellow {
+  rectangle "Data Validation" as DataValidation
+  rectangle "Comparison Tool" as ComparisonTool
+}
+
+rectangle "S3 Data Lake" as S3DataLake #aliceblue
+
+' ========== Connections ==========
+User --> FE
+
+' Frontend interactions
+FE <--> DataPipeline : request data\nreceive map tiles and scores
+FE <--> BackendServices : request data validation\nuse comparison tool
+
+' Data Pipeline interactions
+DataPipeline <--> DataSources : extract data
+DataPipeline --> S3DataLake : load processed data
+DataPipeline --> BackendServices : validate data
+
+' Data Sources
+CensusData --> DataPipeline
+FEMAData --> DataPipeline
+EPAData --> DataPipeline
+FSFData --> DataPipeline
+
+' Backend Services
+BackendServices --> DataPipeline : compare data
+
+@enduml
+```

@@ -1,0 +1,72 @@
+```plantuml
+@startuml NeuralDev-io_arclytics_simcct
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<service>> #fddddd
+  BackgroundColor<<db>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend (React)" <<frontend>> {
+  rectangle "App.jsx" as App
+  rectangle "Redux Store" as Redux
+  rectangle "Routers" as Routers
+  rectangle "Chart Components" as Charts
+  rectangle "UI Elements" as UIElements
+  App --> Redux
+  App --> Routers
+  App --> Charts
+  App --> UIElements
+}
+
+package "Backend (Flask)" <<backend>> {
+  rectangle "SimCCT Service" as SimCCT
+  rectangle "User Management" as UserMgmt
+  rectangle "API Routes" as Routes
+  rectangle "Middleware" as Middleware
+  rectangle "Data Models" as Models
+  rectangle "Logging" as Logging
+  SimCCT --> UserMgmt
+  SimCCT --> Routes
+  SimCCT --> Middleware
+  SimCCT --> Models
+  SimCCT --> Logging
+}
+
+package "Services" <<service>> {
+  rectangle "Celery" as Celery
+  rectangle "Fluentd" as Fluentd
+  rectangle "Elastic APM" as ElasticAPM
+  rectangle "Swagger" as Swagger
+  rectangle "Jupyter Service" as Jupyter
+  SimCCT --> Celery
+  SimCCT --> Fluentd
+  SimCCT --> ElasticAPM
+  SimCCT --> Swagger
+  SimCCT --> Jupyter
+}
+
+database "MongoDB" <<db>> as MongoDB
+database "Redis" <<db>> as Redis
+SimCCT --> MongoDB
+SimCCT --> Redis
+
+package "Infrastructure" <<service>> {
+  rectangle "Docker" as Docker
+  rectangle "Kubernetes" as Kubernetes
+  rectangle "Bitbucket Pipelines" as Pipelines
+  rectangle "Google Cloud Build" as GCloudBuild
+  rectangle "Kibana" as Kibana
+  rectangle "Elasticsearch" as Elasticsearch
+  Docker --> Kubernetes
+  Pipelines --> Kubernetes
+  Pipelines --> Docker
+  Fluentd --> Elasticsearch
+  Elasticsearch --> Kibana
+  Pipelines --> GCloudBuild
+}
+
+@enduml
+```

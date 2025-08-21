@@ -1,0 +1,48 @@
+@startuml yuwen123441_NVMeAutomation
+skinparam rectangle {
+  BackgroundColor<<driver>> #d9e7fd
+  BackgroundColor<<logic>> #d8f5d3
+  BackgroundColor<<test>> #fddddd
+  BackgroundColor<<lib>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Driver Layer" <<driver>> {
+  rectangle "Dynamic Library\n(nvme-ioctl.c)" as DynLib
+  rectangle "Python Wrapper\n(nvme.py)" as PyWrapper
+  rectangle "Data Structures" as DataStructs
+  rectangle "Buffer Management" as BufferMgmt
+  DynLib --> PyWrapper
+  PyWrapper --> DataStructs
+  PyWrapper --> BufferMgmt
+}
+
+package "Logic Layer" <<logic>> {
+  rectangle "Admin Commands" as Admin
+  rectangle "IO Commands" as IO
+  rectangle "Common Library" as CommonLib
+  CommonLib --> Admin
+  CommonLib --> IO
+}
+
+package "Test Layer" <<test>> {
+  rectangle "Test Cases" as TestCases
+  rectangle "Test Suites" as TestSuites
+  TestCases --> TestSuites
+}
+
+package "External" <<lib>> {
+  rectangle "Linux Kernel\nNVMe Driver" as Kernel
+  rectangle "ctypes FFI" as CTypes
+}
+
+Kernel --> DynLib
+CTypes --> PyWrapper
+PyWrapper --> CommonLib
+CommonLib --> TestCases
+
+note right of DynLib: Compiled to .so/.dll
+note right of PyWrapper: Uses ctypes to call C functions
+note right of CommonLib: High-level abstractions\nfor test development
+@enduml

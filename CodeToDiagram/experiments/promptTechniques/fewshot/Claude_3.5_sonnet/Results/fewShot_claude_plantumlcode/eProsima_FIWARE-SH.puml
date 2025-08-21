@@ -1,0 +1,37 @@
+@startuml eProsima_FIWARE-SH
+
+skinparam componentStyle rectangle
+skinparam defaultTextAlignment center
+
+actor "Integration Service" as IS
+actor "FIWARE Context Broker" as FCB
+
+rectangle "FIWARE System Handle" {
+  [SystemHandle] as SH
+  [NGSIV2Connector] as NGC
+  [Listener] as L
+  [Publisher] as P
+  [Subscriber] as S
+  [Conversion] as C
+}
+
+IS <--> SH : xtypes data model
+SH <--> NGC
+NGC <--> FCB : NGSIv2 protocol
+NGC --> L : notifications
+L --> NGC : async listening
+P --> NGC : publish data
+S <-- NGC : subscribe data
+NGC <--> C : data translation
+
+note right of C
+  Converts between
+  xtypes and JSON
+end note
+
+note bottom of L
+  Uses asio for
+  async communication
+end note
+
+@enduml

@@ -1,0 +1,54 @@
+```plantuml
+@startuml yoshixmk_remarks
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "End User" as User
+
+package "Chrome Extension" {
+  rectangle "popup.html\n(UI)" as PopupUI
+  rectangle "record.js\n(Script)" as RecordScript
+}
+
+package "Deno Web Server" {
+  rectangle "server.ts" as Server
+  rectangle "handlers/\nremarks.ts" as RemarksHandler
+  rectangle "handlers/\nquotes.ts" as QuotesHandler
+  rectangle "handlers/\nhomePage.jsx" as HomePageHandler
+  rectangle "handlers/\ntripPage.jsx" as TripPageHandler
+  rectangle "queries/\nqueryFauna.ts" as QueryFauna
+}
+
+database "FaunaDB" as FaunaDB
+
+package "GitPress Blog" {
+  rectangle "source/*.md\n(Markdown Files)" as BlogSource
+}
+
+User --> PopupUI
+PopupUI --> RecordScript
+RecordScript --> Server : Send remarks
+
+Server --> RemarksHandler
+RemarksHandler --> QueryFauna : Create/Retrieve Remarks
+QueryFauna --> FaunaDB
+
+User --> Server : Access Homepage
+Server --> HomePageHandler 
+HomePageHandler --> QueryFauna : Fetch Remark Count
+QueryFauna --> FaunaDB
+
+User --> Server : Access Travelogue
+Server --> TripPageHandler
+TripPageHandler --> BlogSource : Fetch RSS Feed
+
+Server --> QuotesHandler : CRUD Quotes
+QuotesHandler --> QueryFauna
+QueryFauna --> FaunaDB
+
+@enduml
+```

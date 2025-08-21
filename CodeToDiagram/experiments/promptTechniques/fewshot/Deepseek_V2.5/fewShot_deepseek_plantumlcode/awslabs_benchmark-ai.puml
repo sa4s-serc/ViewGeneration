@@ -1,0 +1,64 @@
+### Actual Output:
+@startuml awslabs_benchmark-ai
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+actor "User" as User
+rectangle "bai-bff (Clojure)" as BFF
+rectangle "Kafka" as Kafka
+rectangle "Executor" as Executor
+rectangle "Watcher" as Watcher
+rectangle "sm-executor" as SMExecutor
+rectangle "Fetcher Dispatcher" as FetcherDispatcher
+rectangle "Fetcher" as Fetcher
+rectangle "Metrics Pusher" as MetricsPusher
+rectangle "Metrics Extractor" as MetricsExtractor
+rectangle "CloudWatch Exporter" as CloudWatchExporter
+
+database "S3" as S3
+database "DynamoDB" as DynamoDB
+rectangle "Kubernetes Cluster" as K8s {
+    rectangle "Benchmark Job" as BenchmarkJob
+    rectangle "MPIJob" as MPIJob
+    rectangle "ConfigMap" as ConfigMap
+}
+rectangle "SageMaker" as SageMaker
+
+User --> BFF : Submit Benchmark Job (TOML)
+BFF --> Kafka : Job Submission Event
+Kafka --> Executor : Job Execution Request
+Executor --> K8s : Create Resources (Job/MPIJob/ConfigMap)
+K8s --> BenchmarkJob : Run Benchmark
+BenchmarkJob --> MetricsPusher : Collect Metrics
+MetricsPusher --> Kafka : Push Metrics
+Kafka --> MetricsExtractor : Process Metrics
+MetricsExtractor --> CloudWatchExporter : Export Metrics
+CloudWatchExporter --> DynamoDB : Store Results
+
+Kafka --> Watcher : Job Status Updates
+Watcher --> K8s : Monitor Jobs
+Watcher --> SageMaker : Monitor Jobs
+Watcher --> Kafka : Publish Status
+
+Kafka --> SMExecutor : SageMaker Job Request
+SMExecutor --> SageMaker : Create Training Job
+
+BFF --> FetcherDispatcher : Data Fetch Request
+FetcherDispatcher --> K8s : Create Fetcher Job
+K8s --> Fetcher : Run Data Fetch
+Fetcher --> S3 : Download Data
+Fetcher --> Kafka : Notify Completion
+
+rectangle "baictl (CLI)" as BAICTL {
+    rectangle "Terraform" as Terraform
+    rectangle "kubectl" as Kubectl
+    rectangle "helm" as Helm
+}
+BAICTL --> K8s : Manage Cluster
+BAICTL --> Terraform : Provision AWS Resources
+@enduml

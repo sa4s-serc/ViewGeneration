@@ -1,0 +1,44 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #EEEBDC
+  BorderColor #333333
+  FontColor #000000
+}
+
+actor "Cron Job" as cron
+rectangle "Spectrum Scale Cluster" as cluster #LightBlue
+rectangle "Monitoring Server" as server #LightGreen
+database "Elasticsearch" as es #Orange
+rectangle "Kibana" as kibana #Yellow
+
+cron --> server : Triggers
+
+server --> cluster : SSH Connection
+server <-- cluster : Security Data
+
+rectangle "fetch_security_posture_and_upload_to_ES.sh" as fetch #Pink {
+  [security_posture.py] as collect
+  [split_json_for_kibana.py] as split
+}
+
+server --> fetch : Executes
+fetch --> collect : Runs
+collect --> split : Feeds data
+split --> es : Uploads JSON
+
+es <--> kibana : Data Visualization
+
+note right of fetch
+  Reads from:
+  - security-posture.conf
+  - scale-clusters.conf
+end note
+
+note bottom of es
+  Stores:
+  - Cluster data
+  - File system data
+  - Export data
+end note
+
+@enduml

@@ -1,0 +1,30 @@
+@startuml staples-sparx_Wonko
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "SparX Service" as SparX
+
+rectangle "Wonko" as Wonko {
+  rectangle "Kafka Consumer" as Consumer
+  rectangle "Alert Processor" as Alert
+  rectangle "Prometheus Exporter" as PromExporter
+  rectangle "Web Server" as WebServer
+}
+
+rectangle "Kafka" as Kafka #mistyrose
+rectangle "Prometheus" as Prometheus #palegreen
+rectangle "PagerDuty" as PagerDuty #lightsteelblue
+
+' ========== Connections ==========
+SparX --> Kafka : Publish events
+Kafka --> Consumer : Consume events
+Consumer --> Alert : Process events
+Alert --> PagerDuty : Send alerts
+Alert --> PromExporter : Generate metrics
+PromExporter --> WebServer : Expose metrics
+WebServer --> Prometheus : Scrape metrics
+@enduml

@@ -1,0 +1,49 @@
+@startuml DJMcK_aws-lake-training
+
+actor User
+
+participant "CloudFormation" as CF
+participant "S3 Buckets" as S3
+participant "EMR (Spark)" as EMR
+participant "AWS Glue" as Glue
+participant "AWS Athena" as Athena
+participant "Step Functions" as SF
+participant "Lambda" as Lambda
+participant "Comprehend Medical" as CM
+
+User -> CF : Deploy infrastructure
+CF -> S3 : Create raw, landing, curated buckets
+
+User -> EMR : Run fda.01.land.py
+EMR -> S3 : Ingest FDA data from public bucket
+EMR -> S3 : Store transformed data in landing zone
+
+User -> EMR : Run fda.02.curate.py
+EMR -> S3 : Read data from landing zone
+EMR -> S3 : Store curated data in curated zone
+
+User -> Glue : Crawl curated data
+Glue -> S3 : Read curated data
+Glue -> Glue : Create metadata catalog
+
+User -> SF : Trigger Comprehend Medical workflow
+SF -> Lambda : Configure count
+Lambda -> Athena : Query drug indications
+Athena -> S3 : Read curated data
+Athena --> Lambda : Return query results
+Lambda -> CM : Extract medical entities
+CM --> Lambda : Return extracted entities
+Lambda -> S3 : Store extracted indications
+SF -> Lambda : Check for more iterations
+Lambda --> SF : Continue or complete
+
+User -> EMR : Run fda.indications.py
+EMR -> S3 : Read FDA product data
+EMR -> S3 : Read extracted indications
+EMR -> S3 : Store combined data in curated zone
+
+User -> Athena : Query final data
+Athena -> S3 : Read curated data
+Athena --> User : Return query results
+
+@enduml

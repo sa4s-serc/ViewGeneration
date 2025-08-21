@@ -1,0 +1,42 @@
+@startuml nrephi_jupyter-spark-hadoop-docker
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<spark>> #d8f5d3
+  BackgroundColor<<hadoop>> #fddddd
+  BackgroundColor<<storage>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Services" <<core>> {
+  rectangle "JupyterLab" as Jupyter
+  rectangle "MySQL (Hue)" as MySQL
+}
+
+package "Spark Cluster" <<spark>> {
+  rectangle "Spark Master" as SparkMaster
+  rectangle "Spark Worker" as SparkWorker
+  SparkMaster --> SparkWorker
+}
+
+package "Hadoop Ecosystem" <<hadoop>> {
+  rectangle "Hadoop NameNode" as NameNode
+  rectangle "Hadoop DataNode" as DataNode
+  rectangle "Hive Server" as HiveServer
+  rectangle "Hive Metastore" as HiveMetastore
+  rectangle "Hue" as Hue
+  
+  NameNode --> DataNode
+  HiveServer --> HiveMetastore
+  HiveServer --> NameNode
+  Hue --> MySQL
+  Hue --> NameNode
+}
+
+database "PostgreSQL (Hive)" <<storage>> as Postgres
+HiveMetastore --> Postgres
+
+Jupyter --> SparkMaster
+Jupyter --> NameNode
+SparkWorker --> NameNode
+@enduml

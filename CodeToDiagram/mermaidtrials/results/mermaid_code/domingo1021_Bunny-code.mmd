@@ -1,0 +1,27 @@
+sequenceDiagram
+    participant User as User (Browser)
+    participant Nginx as Nginx (Reverse Proxy)
+    participant Express as Express (API Server)
+    participant SocketIO as Socket.IO (Real-time)
+    participant MySQL as MySQL (Database)
+    participant Redis as Redis (Cache)
+    participant InfluxDB as InfluxDB (Analytics)
+    participant S3 as S3 (Storage)
+    participant Docker as Docker (Sandbox)
+
+    User->>Nginx: HTTPS Request (API/Static)
+    Nginx->>Express: Proxy Request
+    Express->>MySQL: Query Persistent Data
+    Express->>Redis: Check Cache/State
+    Express->>InfluxDB: Log Activity Metrics
+    Express->>S3: Upload/Download Files
+    Express-->>Nginx: Response
+    Nginx-->>User: Deliver Content
+
+    User->>SocketIO: WebSocket Connection
+    SocketIO->>Redis: Get Real-time State
+    SocketIO->>Express: Verify JWT
+    Express-->>SocketIO: Auth Status
+    SocketIO->>Docker: Execute Code (Sandbox)
+    Docker-->>SocketIO: Execution Results
+    SocketIO->>User: Real-time Updates

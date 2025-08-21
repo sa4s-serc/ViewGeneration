@@ -1,0 +1,47 @@
+@startuml ZID-Automat_Controller-ZIDAutomat
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<hardware>> #d8f5d3
+  BackgroundColor<<api>> #fddddd
+  BackgroundColor<<ui>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Controller" <<core>> {
+  rectangle "Main123" as Main
+  rectangle "BorrowM" as Borrow
+  rectangle "DataCollect" as DataCollect
+  Main --> Borrow
+  Borrow --> DataCollect
+}
+
+package "Hardware Interaction" <<hardware>> {
+  rectangle "QRCodeReader" as QRReader
+  rectangle "Eject" as Eject
+  rectangle "NeoPixel LED" as LED
+  Borrow --> QRReader
+  Borrow --> Eject
+  Main --> LED
+}
+
+package "Backend API" <<api>> {
+  rectangle "Requests" as API
+  rectangle "JWT Management" as JWT
+  API --> JWT
+  Borrow --> API
+  DataCollect --> API
+}
+
+package "User Interface" <<ui>> {
+  rectangle "LCD Screen" as LCD
+  rectangle "ScreenOutput" as Screen
+  Screen --> LCD
+  Borrow --> Screen
+}
+
+database "Configuration" as Config
+Main --> Config
+API --> Config
+
+@enduml

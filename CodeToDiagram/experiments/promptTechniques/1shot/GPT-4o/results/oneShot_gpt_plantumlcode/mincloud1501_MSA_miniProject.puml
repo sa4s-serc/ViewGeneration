@@ -1,0 +1,51 @@
+```plantuml
+@startuml mincloud1501_MSA_miniProject
+skinparam rectangle {
+  BackgroundColor<<deployment>> #f0e3ff
+  BackgroundColor<<docker>> #fddbad
+  BackgroundColor<<kubernetes>> #c3fdb8
+  BackgroundColor<<istio>> #d9e7fd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Docker Integration" <<docker>> {
+  rectangle "Dockerfile" as Dockerfile
+  rectangle "build.sh" as BuildScript
+  rectangle "push.sh" as PushScript
+  rectangle "index.html" as IndexHTML
+  Dockerfile --> IndexHTML
+  BuildScript --> Dockerfile
+  PushScript --> Dockerfile
+}
+
+package "Kubernetes Management" <<kubernetes>> {
+  rectangle "kubProvisioning.sh" as ProvisionScript
+  rectangle "YAML Manifests" as YAML
+  ProvisionScript --> YAML
+}
+
+package "Deployment" <<deployment>> {
+  rectangle "Nginx Docker Image" as NginxImage
+  rectangle "Kubernetes Cluster" as K8sCluster
+  NginxImage --> K8sCluster
+  YAML --> K8sCluster
+}
+
+package "Istio Traffic Management" <<istio>> {
+  rectangle "Envoy Sidecars" as Envoy
+  rectangle "Istio Configurations" as IstioConfig
+  IstioConfig --> Envoy
+  Envoy --> K8sCluster
+}
+
+package "Documentation" {
+  rectangle "README.md" as Readme
+  rectangle "LICENSE" as License
+  Readme --> Dockerfile
+  Readme --> YAML
+  Readme --> IstioConfig
+}
+
+@enduml
+```

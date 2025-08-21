@@ -1,0 +1,46 @@
+@startuml badr42_oke_A1
+
+skinparam rectangle {
+  BackgroundColor #EEEBDC
+  BorderColor #333333
+  RoundCorner 20
+}
+
+rectangle "Oracle Cloud Infrastructure" {
+  rectangle "Virtual Cloud Network (VCN)" {
+    rectangle "Public Subnet" {
+      [Load Balancer] as LB
+      [Kubernetes API Endpoint] as API
+    }
+    rectangle "Private Subnet" {
+      [Worker Nodes (Ampere A1)] as WN
+    }
+    [Internet Gateway] as IGW
+    [NAT Gateway] as NGW
+    [Service Gateway] as SGW
+  }
+  
+  rectangle "OKE Control Plane" as CP
+  
+  database "Object Storage" as OS
+  
+  rectangle "IAM" as IAM
+}
+
+cloud "Internet" as INT
+
+rectangle "User / CI/CD" as USER
+
+INT -- IGW
+IGW -- LB
+IGW -- API
+NGW -- WN
+SGW -- OS
+
+USER -- API : kubectl
+USER -- LB : HTTP/HTTPS
+
+CP -- WN : manages
+CP -- IAM : authenticates
+
+@enduml

@@ -1,0 +1,415 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Stream Sources",
+        "description": "Sources of streaming data",
+        "boundaries": "dashed",
+        "position": "left"
+      },
+      {
+        "name": "Batch Sources",
+        "description": "Sources of batch data",
+        "boundaries": "dashed",
+        "position": "left"
+      },
+      {
+        "name": "Online Store",
+        "description": "Redis (Single Redis instance)",
+        "boundaries": "solid",
+        "position": "center"
+      },
+      {
+        "name": "Offline Store",
+        "description": "Local (Parquet files)",
+        "boundaries": "solid",
+        "position": "center"
+      },
+      {
+        "name": "Feature Server",
+        "description": "Handles feature requests",
+        "boundaries": "solid",
+        "position": "center"
+      },
+      {
+        "name": "Realtime Model Serving",
+        "description": "Serves models in real-time",
+        "boundaries": "solid",
+        "position": "right"
+      },
+      {
+        "name": "Model Training/Evaluation + Batch Scoring",
+        "description": "Handles model training and batch scoring",
+        "boundaries": "solid",
+        "position": "right"
+      },
+      {
+        "name": "Feature Repo",
+        "description": "Local (yaml file)",
+        "boundaries": "solid",
+        "position": "bottom"
+      },
+      {
+        "name": "Registry (Object Store)",
+        "description": "Local (db file)",
+        "boundaries": "solid",
+        "position": "bottom"
+      },
+      {
+        "name": "Feast SDK",
+        "description": "Software Development Kit for Feast",
+        "boundaries": "solid",
+        "position": "center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Stream Sources",
+        "target": "Online Store",
+        "label": "store.push()",
+        "type": "arrow"
+      },
+      {
+        "source": "Batch Sources",
+        "target": "Offline Store",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Online Store",
+        "target": "Feature Server",
+        "label": "push",
+        "type": "arrow"
+      },
+      {
+        "source": "Feature Server",
+        "target": "Realtime Model Serving",
+        "label": "get_online_features",
+        "type": "arrow"
+      },
+      {
+        "source": "Offline Store",
+        "target": "Feast SDK",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Feast SDK",
+        "target": "Model Training/Evaluation + Batch Scoring",
+        "label": "get_historical_features",
+        "type": "arrow"
+      },
+      {
+        "source": "Feature Repo",
+        "target": "Feast SDK",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Feast SDK",
+        "target": "Registry (Object Store)",
+        "label": "Feast Apply",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [
+      "Kafka, Kinesis",
+      "Snowflake, BigQuery, Redshift, Synapse, S3, GCS"
+    ],
+    "groups": [
+      {
+        "name": "Sources",
+        "components": [
+          "Stream Sources",
+          "Batch Sources"
+        ]
+      },
+      {
+        "name": "Stores",
+        "components": [
+          "Online Store",
+          "Offline Store"
+        ]
+      },
+      {
+        "name": "Model",
+        "components": [
+          "Realtime Model Serving",
+          "Model Training/Evaluation + Batch Scoring"
+        ]
+      },
+      {
+        "name": "Configuration",
+        "components": [
+          "Feature Repo",
+          "Registry (Object Store)"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "feast_architecture.png",
+      "title": "Feast Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User Application",
+        "description": "Application used by the user",
+        "boundaries": "solid",
+        "position": "left"
+      },
+      {
+        "name": "Feature Store",
+        "description": "Stores features",
+        "boundaries": "solid",
+        "position": "center"
+      },
+      {
+        "name": "Feast",
+        "description": "Feature store for machine learning",
+        "boundaries": "solid",
+        "position": "center"
+      },
+      {
+        "name": "Redis",
+        "description": "In-memory data structure store",
+        "boundaries": "solid",
+        "position": "center"
+      },
+      {
+        "name": "Parquet",
+        "description": "Columnar storage file format",
+        "boundaries": "solid",
+        "position": "center"
+      },
+      {
+        "name": "ETL Pipeline",
+        "description": "Extract, Transform, Load pipeline",
+        "boundaries": "solid",
+        "position": "center"
+      },
+      {
+        "name": "Docker Compose",
+        "description": "Tool for defining and running multi-container Docker applications",
+        "boundaries": "solid",
+        "position": "center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User Application",
+        "target": "Feature Store",
+        "label": "Request Features",
+        "type": "arrow"
+      },
+      {
+        "source": "Feature Store",
+        "target": "Feast",
+        "label": "Query Features",
+        "type": "arrow"
+      },
+      {
+        "source": "Feast",
+        "target": "Redis",
+        "label": "Fetch Online Features",
+        "type": "arrow"
+      },
+      {
+        "source": "Feast",
+        "target": "Parquet",
+        "label": "Fetch Offline Features",
+        "type": "arrow"
+      },
+      {
+        "source": "Feature Store",
+        "target": "User Application",
+        "label": "Return Features",
+        "type": "arrow"
+      },
+      {
+        "source": "User Application",
+        "target": "Feature Store",
+        "label": "Trigger Data Pipeline",
+        "type": "arrow"
+      },
+      {
+        "source": "Feature Store",
+        "target": "Feast",
+        "label": "Ingest Data",
+        "type": "arrow"
+      },
+      {
+        "source": "Feast",
+        "target": "ETL Pipeline",
+        "label": "Update Feature Views",
+        "type": "arrow"
+      },
+      {
+        "source": "ETL Pipeline",
+        "target": "Docker Compose",
+        "label": "Start Services",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Data Flow",
+        "components": [
+          "User Application",
+          "Feature Store",
+          "Feast",
+          "Redis",
+          "Parquet"
+        ]
+      },
+      {
+        "name": "Pipeline",
+        "components": [
+          "ETL Pipeline",
+          "Docker Compose"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "feast_sequence.png",
+      "title": "Feast Sequence Diagram"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Feast",
+      "Redis",
+      "Feature Store"
+    ],
+    "unique_to_GroundTruth": [
+      "Stream Sources",
+      "Batch Sources",
+      "Online Store",
+      "Offline Store",
+      "Feature Server",
+      "Realtime Model Serving",
+      "Model Training/Evaluation + Batch Scoring",
+      "Feature Repo",
+      "Registry (Object Store)",
+      "Feast SDK"
+    ],
+    "unique_to_GeneratedImage": [
+      "User Application",
+      "Parquet",
+      "ETL Pipeline",
+      "Docker Compose"
+    ],
+    "common_connectors": [
+      {
+        "source": "Feast",
+        "target": "Redis",
+        "label": "Fetch Online Features",
+        "type": "arrow"
+      },
+      {
+        "source": "Feast",
+        "target": "Parquet",
+        "label": "Fetch Offline Features",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Stream Sources",
+        "target": "Online Store",
+        "label": "store.push()",
+        "type": "arrow"
+      },
+      {
+        "source": "Batch Sources",
+        "target": "Offline Store",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Online Store",
+        "target": "Feature Server",
+        "label": "push",
+        "type": "arrow"
+      },
+      {
+        "source": "Feature Server",
+        "target": "Realtime Model Serving",
+        "label": "get_online_features",
+        "type": "arrow"
+      },
+      {
+        "source": "Offline Store",
+        "target": "Feast SDK",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Feast SDK",
+        "target": "Model Training/Evaluation + Batch Scoring",
+        "label": "get_historical_features",
+        "type": "arrow"
+      },
+      {
+        "source": "Feature Repo",
+        "target": "Feast SDK",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Feast SDK",
+        "target": "Registry (Object Store)",
+        "label": "Feast Apply",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User Application",
+        "target": "Feature Store",
+        "label": "Request Features",
+        "type": "arrow"
+      },
+      {
+        "source": "Feature Store",
+        "target": "Feast",
+        "label": "Query Features",
+        "type": "arrow"
+      },
+      {
+        "source": "Feature Store",
+        "target": "User Application",
+        "label": "Return Features",
+        "type": "arrow"
+      },
+      {
+        "source": "User Application",
+        "target": "Feature Store",
+        "label": "Trigger Data Pipeline",
+        "type": "arrow"
+      },
+      {
+        "source": "Feature Store",
+        "target": "Feast",
+        "label": "Ingest Data",
+        "type": "arrow"
+      },
+      {
+        "source": "Feast",
+        "target": "ETL Pipeline",
+        "label": "Update Feature Views",
+        "type": "arrow"
+      },
+      {
+        "source": "ETL Pipeline",
+        "target": "Docker Compose",
+        "label": "Start Services",
+        "type": "arrow"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of a system using Feast. The Ground Truth diagram focuses on the architectural components and data flow within a feature store, highlighting components like Stream Sources, Batch Sources, and various stores (Online and Offline). It emphasizes data ingestion, storage, and serving for real-time and batch processing. The Generated Image, on the other hand, is a sequence diagram showing interactions between a user application, the feature store, and other components like Redis and Parquet. It highlights the process of requesting, querying, and returning features. Common elements include the use of Feast and Redis, but the diagrams differ significantly in focus and detail. The Ground Truth diagram is more comprehensive in terms of architectural components, while the Generated Image provides a detailed view of the interaction flow. Rating: 7/10. The Generated Image captures the interaction flow well but lacks the architectural depth and detail of the Ground Truth diagram.",
+    "Rating": 7
+  }
+}

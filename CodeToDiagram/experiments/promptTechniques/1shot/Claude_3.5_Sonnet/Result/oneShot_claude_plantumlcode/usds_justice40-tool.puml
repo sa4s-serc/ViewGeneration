@@ -1,0 +1,28 @@
+@startuml usds_justice40-tool
+
+actor User
+participant "Client Application" as Client
+participant "Data Pipeline" as Pipeline
+database "S3 Data Lake" as S3
+participant "ETL Processes" as ETL
+participant "Scoring Module" as Scoring
+participant "Map Tile Generator" as TileGen
+participant "External Data Sources" as DataSources
+
+User -> Client: Interacts with map/UI
+Client -> S3: Fetch map tiles and data
+
+Pipeline -> DataSources: Extract raw data
+DataSources --> Pipeline: Raw data
+Pipeline -> ETL: Process data
+ETL -> S3: Store processed data
+Pipeline -> Scoring: Calculate Justice40 scores
+Scoring -> S3: Store scores
+Pipeline -> TileGen: Generate map tiles
+TileGen -> S3: Store map tiles
+
+Client -> S3: Request updated data
+S3 --> Client: Provide updated data
+Client -> User: Display updated information
+
+@enduml

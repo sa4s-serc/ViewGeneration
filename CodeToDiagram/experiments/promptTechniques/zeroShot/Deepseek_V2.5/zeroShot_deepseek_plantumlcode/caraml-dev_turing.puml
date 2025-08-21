@@ -1,0 +1,42 @@
+```plantuml
+@startuml caraml-dev_turing
+
+actor User
+participant "Python SDK" as SDK
+participant "API Server" as API
+participant "Router Engine" as Router
+participant "Experiment Engine" as Experiment
+participant "Batch Ensembler" as Batch
+participant "Kubernetes" as K8s
+
+User -> SDK: Create/Update Router
+SDK -> API: POST/PUT /routers
+API -> Router: Deploy Router
+Router -> Experiment: Register Experiment
+Experiment --> Router: Confirmation
+Router -> K8s: Deploy Resources
+K8s --> Router: Deployment Status
+Router --> API: Router Status
+API --> SDK: Response
+SDK --> User: Router Created/Updated
+
+User -> SDK: Submit Batch Job
+SDK -> API: POST /batch-jobs
+API -> Batch: Process Job Request
+Batch -> K8s: Submit Spark Job
+K8s --> Batch: Job Status
+Batch --> API: Job Status
+API --> SDK: Response
+SDK --> User: Job Submitted
+
+User -> SDK: Get Experiment Results
+SDK -> API: GET /experiments/{id}/results
+API -> Experiment: Retrieve Results
+Experiment -> "Logging Backend": Query Results
+"Logging Backend" --> Experiment: Results Data
+Experiment --> API: Results Response
+API --> SDK: Formatted Results
+SDK --> User: Display Results
+
+@enduml
+```

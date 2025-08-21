@@ -1,0 +1,37 @@
+```plantuml
+@startuml zmyzheng_TweetMap
+
+skinparam monochrome true
+skinparam shadowing false
+skinparam nodesep 20
+skinparam ranksep 20
+
+rectangle "Twitter API" as twitter #lightblue
+
+rectangle "Kubernetes Cluster" {
+    component "Tweet Collector" as collector #spring
+    component "Kafka" as kafka #kafka
+    component "Flink Processor" as flink #flink
+    component "Elasticsearch" as es #elasticsearch
+    component "REST API Server" as api #spring
+    component "Frontend (Angular)" as frontend #angular
+    
+    collector --> kafka : "Pushes raw tweets"
+    kafka --> flink : "Consumes tweets"
+    flink --> es : "Stores processed data"
+    es --> api : "Queries data"
+    api --> frontend : "Serves API responses"
+    frontend --> api : "Makes API requests"
+}
+
+twitter --> collector : "Streams tweets"
+
+cloud "User Browser" as browser {
+    component "User" as user
+}
+
+frontend --> browser : "Serves UI"
+browser --> frontend : "Interacts with UI"
+
+@enduml
+```

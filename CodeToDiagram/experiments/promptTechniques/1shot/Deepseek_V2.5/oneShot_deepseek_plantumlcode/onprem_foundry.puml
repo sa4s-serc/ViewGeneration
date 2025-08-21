@@ -1,0 +1,59 @@
+@startuml onprem_foundry
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<furnace>> #d8f5d3
+  BackgroundColor<<build>> #fddddd
+  BackgroundColor<<storage>> #fff1c9
+  BackgroundColor<<grpc>> #e6d9fd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Application" <<core>> {
+  rectangle "Main (Cobra CLI)" as Main
+  rectangle "Configuration" as Config
+  rectangle "Internal HTTP Server" as HTTPServer
+  Main --> Config
+  Main --> HTTPServer
+}
+
+package "Furnace" <<furnace>> {
+  rectangle "Furnace Core" as FurnaceCore
+  rectangle "Package State (pkgMap)" as PkgMap
+  rectangle "Build Queue" as BuildQueue
+  rectangle "Scheduler" as Scheduler
+  FurnaceCore --> PkgMap
+  FurnaceCore --> BuildQueue
+  FurnaceCore --> Scheduler
+}
+
+package "Build System" <<build>> {
+  rectangle "Builder Interface" as BuilderInterface
+  rectangle "Makepkg Builder" as MakepkgBuilder
+  rectangle "Metrics Decorator" as MetricsDecorator
+  BuilderInterface <|-- MakepkgBuilder
+  BuilderInterface <|-- MetricsDecorator
+  Scheduler --> BuilderInterface
+}
+
+package "Object Storage" <<storage>> as Storage {
+  rectangle "S3/MinIO" as ObjectStorage
+  MakepkgBuilder --> ObjectStorage
+}
+
+package "gRPC Interface" <<grpc>> {
+  rectangle "gRPC Server" as GRPCServer
+  rectangle "Protobuf Definitions" as Protobuf
+  FurnaceCore --> GRPCServer
+  GRPCServer --> Protobuf
+}
+
+package "Monitoring" <<core>> {
+  rectangle "Prometheus Metrics" as Prometheus
+  rectangle "Health Checks" as HealthChecks
+  HTTPServer --> Prometheus
+  HTTPServer --> HealthChecks
+  MetricsDecorator --> Prometheus
+}
+
+@enduml

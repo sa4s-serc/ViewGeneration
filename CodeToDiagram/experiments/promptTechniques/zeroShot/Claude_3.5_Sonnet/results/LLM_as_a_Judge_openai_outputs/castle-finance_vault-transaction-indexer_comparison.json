@@ -1,0 +1,304 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "EventBridge",
+        "description": "Triggers scheduled events",
+        "boundaries": null,
+        "position": null
+      },
+      {
+        "name": "index-transaction-ids Lambda",
+        "description": "Fetches transaction IDs and publishes hashes",
+        "boundaries": null,
+        "position": null
+      },
+      {
+        "name": "SNS Topic",
+        "description": "Publishes transaction hashes",
+        "boundaries": null,
+        "position": null
+      },
+      {
+        "name": "SQS Queue",
+        "description": "Consumes transaction hashes",
+        "boundaries": null,
+        "position": null
+      },
+      {
+        "name": "download-raw-transaction Lambda",
+        "description": "Fetches and stores raw transactions",
+        "boundaries": null,
+        "position": null
+      },
+      {
+        "name": "Raw Transactions DynamoDB",
+        "description": "Stores raw transactions",
+        "boundaries": null,
+        "position": null
+      },
+      {
+        "name": "DynamoDB Stream",
+        "description": "Triggers stream events",
+        "boundaries": null,
+        "position": null
+      },
+      {
+        "name": "normalize-raw-transaction Lambda",
+        "description": "Normalizes transaction data",
+        "boundaries": null,
+        "position": null
+      },
+      {
+        "name": "Normalized Transactions DynamoDB",
+        "description": "Stores normalized transactions",
+        "boundaries": null,
+        "position": null
+      }
+    ],
+    "connectors": [
+      {
+        "source": "EventBridge",
+        "target": "index-transaction-ids Lambda",
+        "label": "Trigger (Scheduled)",
+        "type": "arrow"
+      },
+      {
+        "source": "index-transaction-ids Lambda",
+        "target": "SNS Topic",
+        "label": "Publish transaction hashes",
+        "type": "arrow"
+      },
+      {
+        "source": "SNS Topic",
+        "target": "SQS Queue",
+        "label": "Fan-out transaction hashes",
+        "type": "arrow"
+      },
+      {
+        "source": "SQS Queue",
+        "target": "download-raw-transaction Lambda",
+        "label": "Consume transaction hash",
+        "type": "arrow"
+      },
+      {
+        "source": "download-raw-transaction Lambda",
+        "target": "Raw Transactions DynamoDB",
+        "label": "Store raw transaction",
+        "type": "arrow"
+      },
+      {
+        "source": "Raw Transactions DynamoDB",
+        "target": "DynamoDB Stream",
+        "label": "Trigger stream event",
+        "type": "arrow"
+      },
+      {
+        "source": "DynamoDB Stream",
+        "target": "normalize-raw-transaction Lambda",
+        "label": "Invoke",
+        "type": "arrow"
+      },
+      {
+        "source": "normalize-raw-transaction Lambda",
+        "target": "Normalized Transactions DynamoDB",
+        "label": "Store normalized transaction",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruth",
+      "title": null
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "EventBridge",
+        "description": "Triggers events every 3 minutes",
+        "boundaries": null,
+        "position": null
+      },
+      {
+        "name": "Lambda",
+        "description": "Processes transactions",
+        "boundaries": null,
+        "position": null
+      },
+      {
+        "name": "DynamoDB",
+        "description": "Stores raw and normalized transactions",
+        "boundaries": null,
+        "position": null
+      },
+      {
+        "name": "SQS Queue",
+        "description": "Handles transaction queues",
+        "boundaries": null,
+        "position": null
+      },
+      {
+        "name": "SNS Topic",
+        "description": "Publishes transaction data",
+        "boundaries": null,
+        "position": null
+      }
+    ],
+    "connectors": [
+      {
+        "source": "EventBridge",
+        "target": "Lambda",
+        "label": "Every 3 minutes",
+        "type": "arrow"
+      },
+      {
+        "source": "Lambda",
+        "target": "DynamoDB",
+        "label": "Sync + backfill transactions",
+        "type": "arrow"
+      },
+      {
+        "source": "DynamoDB",
+        "target": "Lambda",
+        "label": "Add event triggers normalize lambda",
+        "type": "arrow"
+      },
+      {
+        "source": "Lambda",
+        "target": "SNS Topic",
+        "label": "Publish txHash to SNS topic",
+        "type": "arrow"
+      },
+      {
+        "source": "SNS Topic",
+        "target": "SQS Queue",
+        "label": "intake@SQS queue",
+        "type": "arrow"
+      },
+      {
+        "source": "SQS Queue",
+        "target": "Lambda",
+        "label": "Download raw transaction to DynamoDB",
+        "type": "arrow"
+      },
+      {
+        "source": "Lambda",
+        "target": "SQS Queue",
+        "label": "Download failures added to dead-letter SQS queue",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImage",
+      "title": null
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "EventBridge",
+      "Lambda",
+      "DynamoDB",
+      "SQS Queue",
+      "SNS Topic"
+    ],
+    "unique_to_GroundTruth": [
+      "index-transaction-ids Lambda",
+      "download-raw-transaction Lambda",
+      "Raw Transactions DynamoDB",
+      "DynamoDB Stream",
+      "normalize-raw-transaction Lambda",
+      "Normalized Transactions DynamoDB"
+    ],
+    "unique_to_GeneratedImage": [],
+    "common_connectors": [
+      {
+        "source": "EventBridge",
+        "target": "Lambda",
+        "label": "Every 3 minutes",
+        "type": "arrow"
+      },
+      {
+        "source": "Lambda",
+        "target": "SNS Topic",
+        "label": "Publish txHash to SNS topic",
+        "type": "arrow"
+      },
+      {
+        "source": "SNS Topic",
+        "target": "SQS Queue",
+        "label": "intake@SQS queue",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "index-transaction-ids Lambda",
+        "target": "SNS Topic",
+        "label": "Publish transaction hashes",
+        "type": "arrow"
+      },
+      {
+        "source": "SQS Queue",
+        "target": "download-raw-transaction Lambda",
+        "label": "Consume transaction hash",
+        "type": "arrow"
+      },
+      {
+        "source": "download-raw-transaction Lambda",
+        "target": "Raw Transactions DynamoDB",
+        "label": "Store raw transaction",
+        "type": "arrow"
+      },
+      {
+        "source": "Raw Transactions DynamoDB",
+        "target": "DynamoDB Stream",
+        "label": "Trigger stream event",
+        "type": "arrow"
+      },
+      {
+        "source": "DynamoDB Stream",
+        "target": "normalize-raw-transaction Lambda",
+        "label": "Invoke",
+        "type": "arrow"
+      },
+      {
+        "source": "normalize-raw-transaction Lambda",
+        "target": "Normalized Transactions DynamoDB",
+        "label": "Store normalized transaction",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Lambda",
+        "target": "DynamoDB",
+        "label": "Sync + backfill transactions",
+        "type": "arrow"
+      },
+      {
+        "source": "DynamoDB",
+        "target": "Lambda",
+        "label": "Add event triggers normalize lambda",
+        "type": "arrow"
+      },
+      {
+        "source": "SQS Queue",
+        "target": "Lambda",
+        "label": "Download raw transaction to DynamoDB",
+        "type": "arrow"
+      },
+      {
+        "source": "Lambda",
+        "target": "SQS Queue",
+        "label": "Download failures added to dead-letter SQS queue",
+        "type": "arrow"
+      }
+    ],
+    "explanation": "Both diagrams share common components such as EventBridge, Lambda, DynamoDB, SQS Queue, and SNS Topic, indicating a similar architectural setup involving AWS services. However, the GroundTruth diagram provides more detailed components and processes, such as specific Lambdas for indexing and downloading transactions, and separate DynamoDB tables for raw and normalized transactions. The GeneratedImage diagram is more abstract, with fewer specific components and a focus on high-level processes like syncing and backfilling transactions. The connectors in the GroundTruth diagram are more detailed, showing specific interactions between components, while the GeneratedImage diagram uses more general terms. Overall, the GroundTruth diagram is more comprehensive and detailed, while the GeneratedImage diagram provides a simplified overview. Rating: 6/10. The GeneratedImage captures the general flow and components but lacks the detailed specificity and additional components present in the GroundTruth diagram.",
+    "Rating": 6
+  }
+}

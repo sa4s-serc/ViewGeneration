@@ -1,0 +1,29 @@
+@startuml tamu-datathon-org_galaxy
+
+actor User
+participant "Nginx Router" as Router
+participant Gatekeeper
+participant OBOS
+participant "Static Website\n(Gigabowser)" as Static
+database "User Data" as UserDB
+
+User -> Router : HTTP Request
+Router -> Router : Parse URL Path
+
+alt /auth/*
+    Router -> Gatekeeper : Forward Request
+    Gatekeeper -> UserDB : Authenticate/Retrieve Data
+    UserDB --> Gatekeeper : User Data
+    Gatekeeper --> Router : Auth Response
+    Router --> User : Auth Result
+else /obos/*
+    Router -> OBOS : Forward Request
+    OBOS --> Router : OBOS Response
+    Router --> User : OBOS Result
+else /
+    Router -> Static : Serve Static Content
+    Static --> Router : Static Content
+    Router --> User : Webpage
+end
+
+@enduml

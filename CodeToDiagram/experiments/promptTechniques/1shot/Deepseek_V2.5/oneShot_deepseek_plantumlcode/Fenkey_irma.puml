@@ -1,0 +1,66 @@
+@startuml Fenkey_irma
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<framework>> #d8f5d3
+  BackgroundColor<<integration>> #fddddd
+  BackgroundColor<<utility>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "irmacall Core Engine (C)" <<core>> {
+  rectangle "Request Handling\n(HTTP, FastCGI)" as RequestHandler
+  rectangle "HTTP Client\n(Fetcher)" as HttpClient
+  rectangle "Key-Value Store\n(kvstore_t)" as KVStore
+  rectangle "Logging System" as Logging
+  rectangle "SMTP Support" as SMTP
+  rectangle "Cryptography\n(OpenSSL)" as Crypto
+  rectangle "Fuse\n(Circuit Breaker)" as Fuse
+  rectangle "Buffer Management" as Buffer
+  rectangle "Async DNS\n(c-ares)" as DNS
+  RequestHandler --> HttpClient
+  RequestHandler --> KVStore
+  RequestHandler --> Logging
+  RequestHandler --> SMTP
+  RequestHandler --> Crypto
+  RequestHandler --> Fuse
+  RequestHandler --> Buffer
+  RequestHandler --> DNS
+}
+
+package "irmakit Framework (C#)" <<framework>> {
+  rectangle "Configuration System" as Config
+  rectangle "Session Management" as Session
+  rectangle "Request/Response\n(IRequest/IResponse)" as ReqRes
+  rectangle "Attribute Routing" as Routing
+  rectangle "Template Engine\n(NVelocity)" as Templates
+  rectangle "Utilities\n(Encryption, QR, etc)" as Utils
+  rectangle "Code Generator" as CodeGen
+  Config --> Session
+  Config --> ReqRes
+  ReqRes --> Routing
+  Routing --> Templates
+  Routing --> Utils
+  Utils --> CodeGen
+}
+
+package "Integrations" <<integration>> {
+  rectangle "Memcached" as Memcached
+  rectangle "Redis" as Redis
+  rectangle "FastCGI" as FastCGI
+  rectangle "Mono Runtime" as Mono
+  KVStore --> Memcached
+  KVStore --> Redis
+  RequestHandler --> FastCGI
+  ReqRes --> Mono
+}
+
+package "Utilities" <<utility>> {
+  rectangle "cURL" as curl
+  rectangle "OpenSSL" as openssl
+  rectangle "c-ares" as cares
+  HttpClient --> curl
+  Crypto --> openssl
+  DNS --> cares
+}
+@enduml

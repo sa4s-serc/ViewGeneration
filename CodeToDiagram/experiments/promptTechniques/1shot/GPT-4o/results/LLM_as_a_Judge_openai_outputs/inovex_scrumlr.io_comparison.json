@@ -1,0 +1,276 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Web-Client",
+        "description": "User interface for interacting with the board",
+        "boundaries": "Actor",
+        "position": "Left"
+      },
+      {
+        "name": "Board on scrumlr.io",
+        "description": "Board interface",
+        "boundaries": "Oval",
+        "position": "Bottom left"
+      },
+      {
+        "name": "scrumlr.io server",
+        "description": "Main server handling requests",
+        "boundaries": "Rectangle",
+        "position": "Center"
+      },
+      {
+        "name": "nats.io",
+        "description": "Message broker for publishing changes",
+        "boundaries": "Cylinder",
+        "position": "Bottom center"
+      },
+      {
+        "name": "SQL database",
+        "description": "Database for storing data",
+        "boundaries": "Cylinder",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Web-Client",
+        "target": "Board on scrumlr.io",
+        "label": "participates on",
+        "type": "Arrow"
+      },
+      {
+        "source": "Web-Client",
+        "target": "scrumlr.io server",
+        "label": "API request changes",
+        "type": "Arrow"
+      },
+      {
+        "source": "scrumlr.io server",
+        "target": "Web-Client",
+        "label": "listen to websocket",
+        "type": "Arrow"
+      },
+      {
+        "source": "scrumlr.io server",
+        "target": "SQL database",
+        "label": "write changes",
+        "type": "Arrow"
+      },
+      {
+        "source": "scrumlr.io server",
+        "target": "nats.io",
+        "label": "publish changes",
+        "type": "Arrow"
+      },
+      {
+        "source": "nats.io",
+        "target": "scrumlr.io server",
+        "label": "notifies changes",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Scrumlr.io Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "End user interacting with the system",
+        "boundaries": "Actor",
+        "position": "Bottom"
+      },
+      {
+        "name": "Frontend (React)",
+        "description": "User interface components",
+        "boundaries": "Rectangle",
+        "position": "Bottom"
+      },
+      {
+        "name": "API",
+        "description": "Handles API requests and WebSocket connections",
+        "boundaries": "Rectangle",
+        "position": "Center"
+      },
+      {
+        "name": "Backend (Go)",
+        "description": "Core backend logic and services",
+        "boundaries": "Rectangle",
+        "position": "Center"
+      },
+      {
+        "name": "Infrastructure",
+        "description": "Infrastructure components like NATS/Redis and Database",
+        "boundaries": "Rectangle",
+        "position": "Top"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Frontend (React)",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Frontend (React)",
+        "target": "API",
+        "label": "HTTP API calls",
+        "type": "Arrow"
+      },
+      {
+        "source": "API",
+        "target": "Backend (Go)",
+        "label": "Route API requests",
+        "type": "Arrow"
+      },
+      {
+        "source": "Backend (Go)",
+        "target": "Infrastructure",
+        "label": "Data storage/retrieval",
+        "type": "Arrow"
+      },
+      {
+        "source": "Infrastructure",
+        "target": "Backend (Go)",
+        "label": "Real-time communication",
+        "type": "Arrow"
+      },
+      {
+        "source": "Backend (Go)",
+        "target": "API",
+        "label": "Execute business logic",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Services",
+        "components": [
+          "CoreLogic"
+        ]
+      },
+      {
+        "name": "Database",
+        "components": [
+          "DTO",
+          "database.go"
+        ]
+      },
+      {
+        "name": "Realtime",
+        "components": [
+          "redis.go",
+          "nats.go"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "System Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "nats.io",
+      "SQL database"
+    ],
+    "unique_to_GroundTruth": [
+      "Web-Client",
+      "Board on scrumlr.io",
+      "scrumlr.io server"
+    ],
+    "unique_to_GeneratedImage": [
+      "User",
+      "Frontend (React)",
+      "API",
+      "Backend (Go)",
+      "Infrastructure"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Web-Client",
+        "target": "Board on scrumlr.io",
+        "label": "participates on",
+        "type": "Arrow"
+      },
+      {
+        "source": "Web-Client",
+        "target": "scrumlr.io server",
+        "label": "API request changes",
+        "type": "Arrow"
+      },
+      {
+        "source": "scrumlr.io server",
+        "target": "Web-Client",
+        "label": "listen to websocket",
+        "type": "Arrow"
+      },
+      {
+        "source": "scrumlr.io server",
+        "target": "SQL database",
+        "label": "write changes",
+        "type": "Arrow"
+      },
+      {
+        "source": "scrumlr.io server",
+        "target": "nats.io",
+        "label": "publish changes",
+        "type": "Arrow"
+      },
+      {
+        "source": "nats.io",
+        "target": "scrumlr.io server",
+        "label": "notifies changes",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "Frontend (React)",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Frontend (React)",
+        "target": "API",
+        "label": "HTTP API calls",
+        "type": "Arrow"
+      },
+      {
+        "source": "API",
+        "target": "Backend (Go)",
+        "label": "Route API requests",
+        "type": "Arrow"
+      },
+      {
+        "source": "Backend (Go)",
+        "target": "Infrastructure",
+        "label": "Data storage/retrieval",
+        "type": "Arrow"
+      },
+      {
+        "source": "Infrastructure",
+        "target": "Backend (Go)",
+        "label": "Real-time communication",
+        "type": "Arrow"
+      },
+      {
+        "source": "Backend (Go)",
+        "target": "API",
+        "label": "Execute business logic",
+        "type": "Arrow"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of a system architecture. The GroundTruth diagram focuses on a specific application, scrumlr.io, showing interactions between a web client, server, and database. It includes components like the Web-Client and Board on scrumlr.io, which are not present in the GeneratedImage. The GeneratedImage diagram provides a more general architectural view, including components like Frontend (React), API, and Backend (Go), which are absent in the GroundTruth. Both diagrams include a message broker component (nats.io) and a database, indicating a shared focus on real-time communication and data storage. The GroundTruth diagram emphasizes direct interactions between components, while the GeneratedImage diagram highlights a layered approach with distinct frontend, backend, and infrastructure layers. The GeneratedImage is rated 7 out of 10 for its accuracy and completeness. It captures the essence of a system architecture but lacks specific application context and direct component interactions found in the GroundTruth.",
+    "Rating": 7
+  }
+}

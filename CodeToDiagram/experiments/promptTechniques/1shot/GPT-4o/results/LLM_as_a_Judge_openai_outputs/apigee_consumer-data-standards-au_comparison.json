@@ -1,0 +1,320 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "CDR Register",
+        "description": "Source of metrics data",
+        "boundaries": "External",
+        "position": "Left"
+      },
+      {
+        "name": "Apigee API Platform",
+        "description": "Handles API requests",
+        "boundaries": "Apigee",
+        "position": "Center"
+      },
+      {
+        "name": "API Analytics",
+        "description": "Analyzes API data",
+        "boundaries": "Apigee",
+        "position": "Center"
+      },
+      {
+        "name": "App Engine",
+        "description": "Processes metrics",
+        "boundaries": "Metrics Service",
+        "position": "Right"
+      },
+      {
+        "name": "Cloud Datastore",
+        "description": "Stores processed data",
+        "boundaries": "Metrics Service",
+        "position": "Right"
+      },
+      {
+        "name": "AppEngine Scheduler",
+        "description": "Schedules tasks",
+        "boundaries": "Metrics Service",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "CDR Register",
+        "target": "Apigee API Platform",
+        "label": "GET /admin/metrics",
+        "type": "HTTP"
+      },
+      {
+        "source": "Apigee API Platform",
+        "target": "App Engine",
+        "label": "GET /metrics",
+        "type": "HTTP"
+      },
+      {
+        "source": "Apigee API Platform",
+        "target": "API Analytics",
+        "label": "Healthcheck (GET /discovery/status)",
+        "type": "HTTP"
+      },
+      {
+        "source": "API Analytics",
+        "target": "App Engine",
+        "label": "Apigee API (Get /stats)",
+        "type": "HTTP"
+      },
+      {
+        "source": "App Engine",
+        "target": "Cloud Datastore",
+        "label": "",
+        "type": "Data Storage"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Google Cloud Platform",
+        "components": [
+          "Apigee API Platform",
+          "API Analytics",
+          "App Engine",
+          "Cloud Datastore",
+          "AppEngine Scheduler"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "CDS_Metrics_Solution.png",
+      "title": "CDS Metrics Solution"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "CDS Banking API Proxies",
+        "description": "Handles banking API requests",
+        "boundaries": "API Proxy",
+        "position": "Left"
+      },
+      {
+        "name": "Mock OIDC Provider",
+        "description": "Provides OIDC services",
+        "boundaries": "Services",
+        "position": "Left"
+      },
+      {
+        "name": "Authentication and Authorization",
+        "description": "Handles authentication",
+        "boundaries": "API Proxy",
+        "position": "Left"
+      },
+      {
+        "name": "Consent Management",
+        "description": "Manages consent",
+        "boundaries": "API Proxy",
+        "position": "Center"
+      },
+      {
+        "name": "Dynamic Client Registration",
+        "description": "Registers clients",
+        "boundaries": "API Proxy",
+        "position": "Center"
+      },
+      {
+        "name": "Reusable Artefacts",
+        "description": "Reusable components",
+        "boundaries": "Shared Flows",
+        "position": "Center"
+      },
+      {
+        "name": "Admin APIs",
+        "description": "Administrative APIs",
+        "boundaries": "API Proxy",
+        "position": "Right"
+      },
+      {
+        "name": "Metrics Service",
+        "description": "Handles metrics",
+        "boundaries": "Services",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "CDS Banking API Proxies",
+        "target": "Discovery API",
+        "label": "",
+        "type": "Flow"
+      },
+      {
+        "source": "Mock OIDC Provider",
+        "target": "Authentication and Authorization",
+        "label": "",
+        "type": "Flow"
+      },
+      {
+        "source": "Consent Management",
+        "target": "Key Value Maps",
+        "label": "",
+        "type": "Flow"
+      },
+      {
+        "source": "Dynamic Client Registration",
+        "target": "Mock CDR Register",
+        "label": "",
+        "type": "Flow"
+      },
+      {
+        "source": "Reusable Artefacts",
+        "target": "Request Parameter Validation",
+        "label": "",
+        "type": "Flow"
+      },
+      {
+        "source": "Admin APIs",
+        "target": "Get Metrics",
+        "label": "",
+        "type": "Flow"
+      },
+      {
+        "source": "Metrics Service",
+        "target": "Request Parsers",
+        "label": "",
+        "type": "Flow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "API Proxies",
+        "components": [
+          "CDS Banking API Proxies",
+          "Consent Management",
+          "Dynamic Client Registration",
+          "Admin APIs"
+        ]
+      },
+      {
+        "name": "Services",
+        "components": [
+          "Mock OIDC Provider",
+          "Metrics Service"
+        ]
+      },
+      {
+        "name": "Shared Flows",
+        "components": [
+          "Reusable Artefacts"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "API_Architecture.png",
+      "title": "API Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      {
+        "name": "Metrics Service",
+        "purpose": "Handles metrics"
+      }
+    ],
+    "unique_to_GroundTruth": [
+      "CDR Register",
+      "Apigee API Platform",
+      "API Analytics",
+      "App Engine",
+      "Cloud Datastore",
+      "AppEngine Scheduler"
+    ],
+    "unique_to_GeneratedImage": [
+      "CDS Banking API Proxies",
+      "Mock OIDC Provider",
+      "Authentication and Authorization",
+      "Consent Management",
+      "Dynamic Client Registration",
+      "Reusable Artefacts",
+      "Admin APIs"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "CDR Register",
+        "target": "Apigee API Platform",
+        "label": "GET /admin/metrics",
+        "type": "HTTP"
+      },
+      {
+        "source": "Apigee API Platform",
+        "target": "App Engine",
+        "label": "GET /metrics",
+        "type": "HTTP"
+      },
+      {
+        "source": "Apigee API Platform",
+        "target": "API Analytics",
+        "label": "Healthcheck (GET /discovery/status)",
+        "type": "HTTP"
+      },
+      {
+        "source": "API Analytics",
+        "target": "App Engine",
+        "label": "Apigee API (Get /stats)",
+        "type": "HTTP"
+      },
+      {
+        "source": "App Engine",
+        "target": "Cloud Datastore",
+        "label": "",
+        "type": "Data Storage"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "CDS Banking API Proxies",
+        "target": "Discovery API",
+        "label": "",
+        "type": "Flow"
+      },
+      {
+        "source": "Mock OIDC Provider",
+        "target": "Authentication and Authorization",
+        "label": "",
+        "type": "Flow"
+      },
+      {
+        "source": "Consent Management",
+        "target": "Key Value Maps",
+        "label": "",
+        "type": "Flow"
+      },
+      {
+        "source": "Dynamic Client Registration",
+        "target": "Mock CDR Register",
+        "label": "",
+        "type": "Flow"
+      },
+      {
+        "source": "Reusable Artefacts",
+        "target": "Request Parameter Validation",
+        "label": "",
+        "type": "Flow"
+      },
+      {
+        "source": "Admin APIs",
+        "target": "Get Metrics",
+        "label": "",
+        "type": "Flow"
+      },
+      {
+        "source": "Metrics Service",
+        "target": "Request Parsers",
+        "label": "",
+        "type": "Flow"
+      }
+    ],
+    "explanation": "The two diagrams represent different architectural solutions. The GroundTruth diagram focuses on a metrics solution using Google Cloud Platform components like Apigee, App Engine, and Cloud Datastore. It highlights HTTP-based interactions for metrics collection and processing. In contrast, the GeneratedImage diagram represents a broader API architecture with components for authentication, consent management, and client registration, utilizing services and shared flows. The only common component is the 'Metrics Service', but its context and connections differ between diagrams. The GroundTruth diagram is more focused on a specific solution, while the GeneratedImage diagram provides a more comprehensive view of an API system. The rating for the generated image is 6, as it captures a complex API architecture but lacks the specific focus and detailed connections of the GroundTruth metrics solution.",
+    "Rating": 6
+  }
+}

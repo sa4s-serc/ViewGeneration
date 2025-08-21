@@ -1,0 +1,43 @@
+```plantuml
+@startuml sfujiwara_terraform-google-ai-platform-notification
+
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "AI Platform Logs" as AILogs
+
+rectangle "Google Cloud Platform" {
+
+  rectangle "Google Cloud Logging" as Logging {
+    rectangle "Log Sink" as LogSink
+  }
+
+  rectangle "Google Cloud Pub/Sub" as PubSub {
+    rectangle "Topic: ai_platform_log" as LogTopic
+    rectangle "Topic: notification" as NotificationTopic
+  }
+
+  rectangle "Google Cloud Functions" as CloudFunction {
+    rectangle "Job State Detector" as JobDetector
+  }
+
+  rectangle "Google Cloud Storage" as Storage {
+    rectangle "Bucket" as Bucket
+  }
+}
+
+AILogs --> Logging : Generate Logs
+Logging --> LogSink : Capture Logs
+LogSink --> LogTopic : Forward Logs
+
+LogTopic --> JobDetector : Trigger Function
+JobDetector --> NotificationTopic : Publish Notification
+
+JobDetector --> Storage : Access Source Code
+
+@enduml
+```

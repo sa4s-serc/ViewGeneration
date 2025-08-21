@@ -1,0 +1,55 @@
+Here's a PlantUML component diagram capturing the static architecture of the HRM Virtual Machine project, focusing on the general architectural concern:
+
+```plantuml
+@startuml SV-97_HumanResourceMachine
+
+skinparam component {
+  BackgroundColor<<Python>> LightBlue
+  BackgroundColor<<Rust>> LightGreen
+}
+
+[HRM Assembly Code] as AssemblyCode
+
+package "HRM Virtual Machine" {
+  [Tokenizer] as Tokenizer
+  [Translator/Assembler] as Translator
+  [Bytecode Disassembler] as Disassembler
+  [Virtual Machine] as VM
+  [Logger] as Logger
+
+  component "Python Implementation" <<Python>> {
+    [Python Tokenizer] as PyTokenizer
+    [Python Translator] as PyTranslator
+    [Python Disassembler] as PyDisassembler
+    [Python VM] as PyVM
+  }
+
+  component "Rust Implementation" <<Rust>> {
+    [Rust Tokenizer] as RustTokenizer
+    [Rust Translator] as RustTranslator
+    [Rust Disassembler] as RustDisassembler
+    [Rust VM] as RustVM
+  }
+}
+
+AssemblyCode --> Tokenizer
+Tokenizer --> Translator
+Translator --> VM
+VM --> Disassembler
+
+Tokenizer ..> PyTokenizer
+Tokenizer ..> RustTokenizer
+Translator ..> PyTranslator
+Translator ..> RustTranslator
+Disassembler ..> PyDisassembler
+Disassembler ..> RustDisassembler
+VM ..> PyVM
+VM ..> RustVM
+
+RustTokenizer --> Logger
+RustTranslator --> Logger
+RustDisassembler --> Logger
+RustVM --> Logger
+
+@enduml
+```

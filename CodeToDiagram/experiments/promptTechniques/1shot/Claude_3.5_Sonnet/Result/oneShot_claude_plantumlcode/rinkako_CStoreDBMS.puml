@@ -1,0 +1,49 @@
+@startuml rinkako_CStoreDBMS
+
+skinparam component {
+  BackgroundColor<<Interface>> LightSkyBlue
+  BackgroundColor<<Compiler>> LightGreen
+  BackgroundColor<<Engine>> LightCoral
+}
+
+package "DBInterface" <<Interface>> {
+  [DBController]
+  [DBConnectionPool]
+}
+
+package "DBCompiler" <<Compiler>> {
+  [LexicalAnalyzer]
+  [SyntaxParser]
+  [Pile]
+  [CSDatabase]
+  [DBBridge]
+}
+
+package "DBEngine" <<Engine>> {
+  [FileManager]
+  [TableManager]
+  [DBAllocator]
+  [DBLock]
+  [DBTransaction]
+}
+
+[DBController] --> [DBConnectionPool]
+[DBConnectionPool] --> [DBBridge]
+[DBBridge] --> [CSDatabase]
+[DBBridge] --> [LexicalAnalyzer]
+[DBBridge] --> [SyntaxParser]
+[DBBridge] --> [Pile]
+
+[CSDatabase] --> [FileManager]
+[CSDatabase] --> [TableManager]
+[CSDatabase] --> [DBAllocator]
+[CSDatabase] --> [DBLock]
+[CSDatabase] --> [DBTransaction]
+
+[LexicalAnalyzer] --> [SyntaxParser]
+[SyntaxParser] --> [Pile]
+
+[FileManager] --> [DBAllocator]
+[TableManager] --> [DBAllocator]
+
+@enduml

@@ -1,0 +1,42 @@
+@startuml pacmacro_pm-server-spring
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "Game Client" as Client
+
+rectangle "Spring Boot Application" as App {
+  rectangle "Controllers" as Controllers #palegreen
+  rectangle "Managers" as Managers #lightsteelblue
+  rectangle "Registries" as Registries #lightyellow
+  rectangle "Repositories" as Repositories #aliceblue
+}
+
+' ========== Connections ==========
+Client -> Controllers : HTTP Requests (REST API)
+Controllers -> Managers : delegate business logic
+Managers -> Registries : manage game state
+Managers -> Repositories : access data
+Registries -> Repositories : persist/retrieve data
+
+' Example sequence for player movement
+Client -> Controllers : POST /player/location (LocationRequest)
+Controllers -> Managers : updatePlayerLocation()
+Managers -> Registries : updatePlayerPosition()
+Registries -> Repositories : savePlayerData()
+Repositories --> Registries : player data
+Registries --> Managers : updated player
+Managers --> Controllers : success response
+Controllers --> Client : 200 OK
+
+' Example sequence for game state check
+Client -> Controllers : GET /game/state
+Controllers -> Managers : getGameState()
+Managers -> Registries : getCurrentState()
+Registries --> Managers : game state
+Managers --> Controllers : GameStateResponse
+Controllers --> Client : JSON response
+@enduml

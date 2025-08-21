@@ -1,0 +1,38 @@
+@startuml IBM_IBM-Spectrum-Scale-Security-Posture
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+rectangle "Cron Scheduler" as Cron
+
+rectangle "fetch_security_posture_and_upload_to_ES.sh" as Orchestrator #lightblue
+
+rectangle "Spectrum Scale Cluster" as Cluster #mistyrose {
+  rectangle "security_posture.py" as Collector #palegreen
+}
+
+rectangle "split_json_for_kibana.py" as Splitter #lightyellow
+
+rectangle "Elasticsearch" as ES #aliceblue
+
+rectangle "Kibana" as Kibana #lavender
+
+' ========== Connections ==========
+Cron --> Orchestrator : triggers execution
+
+Orchestrator --> Cluster : ssh\nruns collector script
+Cluster --> Orchestrator : returns JSON data
+
+Orchestrator --> Splitter : passes JSON data
+Splitter --> Orchestrator : returns split JSON files
+
+Orchestrator --> ES : curl upload\n(cluster, filesystems, exports)
+ES --> Kibana : provides data for visualization
+
+' Security interactions
+Orchestrator --> Orchestrator : reads credentials\nfrom security-posture.conf
+Orchestrator --> Orchestrator : reads cluster config\nfrom scale-clusters.conf
+@enduml

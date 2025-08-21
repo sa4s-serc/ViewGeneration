@@ -1,0 +1,71 @@
+### Output:
+@startuml qnib_qframe
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<collector>> #d9e7fd
+  BackgroundColor<<filter>> #d8f5d3
+  BackgroundColor<<handler>> #fff1c9
+  BackgroundColor<<core>> #fddddd
+  BackgroundColor<<external>> #d4f0f0
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Collectors" <<collector>> {
+  rectangle "File Collector"
+  rectangle "TCP Collector"
+  rectangle "Docker Events"
+}
+
+package "Filters" <<filter>> {
+  rectangle "Grok Parser"
+  rectangle "Metadata Enricher"
+  rectangle "Data Transformer"
+}
+
+package "Handlers" <<handler>> {
+  rectangle "Log Writer"
+  rectangle "InfluxDB Handler"
+  rectangle "Elasticsearch Handler"
+}
+
+package "Core Components" <<core>> {
+  rectangle "QChan\n(Broadcast Channel)"
+  rectangle "Configuration\n(YAML/JSON/ENV)"
+  rectangle "Plugin Manager"
+}
+
+package "External Systems" <<external>> {
+  rectangle "Docker Engine"
+  database "InfluxDB"
+  database "Elasticsearch"
+}
+
+"File Collector" --> "QChan"
+"TCP Collector" --> "QChan"
+"Docker Events" --> "QChan" : "Docker API"
+"QChan" --> "Grok Parser"
+"QChan" --> "Metadata Enricher"
+"QChan" --> "Data Transformer"
+"Grok Parser" --> "QChan"
+"Metadata Enricher" --> "QChan"
+"Data Transformer" --> "QChan"
+"QChan" --> "Log Writer"
+"QChan" --> "InfluxDB Handler"
+"QChan" --> "Elasticsearch Handler"
+
+"Configuration" --> "Plugin Manager"
+"Plugin Manager" --> "File Collector"
+"Plugin Manager" --> "TCP Collector"
+"Plugin Manager" --> "Docker Events"
+"Plugin Manager" --> "Grok Parser"
+"Plugin Manager" --> "Metadata Enricher"
+"Plugin Manager" --> "Data Transformer"
+"Plugin Manager" --> "Log Writer"
+"Plugin Manager" --> "InfluxDB Handler"
+"Plugin Manager" --> "Elasticsearch Handler"
+
+"Docker Engine" --> "Docker Events"
+"InfluxDB Handler" --> "InfluxDB"
+"Elasticsearch Handler" --> "Elasticsearch"
+@enduml

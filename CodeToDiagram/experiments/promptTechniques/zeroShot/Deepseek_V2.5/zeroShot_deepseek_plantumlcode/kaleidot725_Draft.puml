@@ -1,0 +1,47 @@
+```plantuml
+@startuml kaleidot725_Draft
+
+package "Emomemo App" {
+    [ComposeMainActivity] as MainActivity
+    [EmomemoApp] as AppClass
+
+    package "Presentation Layer" {
+        [ViewModels] as VMs
+        [Compose UI] as UI
+        [Navigation] as Nav
+    }
+
+    package "Domain Layer" {
+        [Use Cases] as UseCases
+        [Entities] as Entities
+    }
+
+    package "Data Layer" {
+        [Repositories] as Repos
+        [Room Database] as RoomDB
+    }
+
+    package "External Libraries" {
+        [Orbit MVI] as MVI
+        [Koin DI] as Koin
+        [Coroutines] as Coroutines
+    }
+}
+
+MainActivity --> UI : Hosts
+AppClass --> Koin : Initializes
+AppClass --> MVI : Uses
+
+UI --> VMs : Observes state
+VMs --> UseCases : Executes
+UseCases --> Repos : Uses
+Repos --> RoomDB : Accesses
+RoomDB --> Entities : Stores
+
+VMs --> MVI : Implements pattern
+VMs --> Coroutines : Uses for async
+UI --> Nav : Uses for navigation
+Nav --> UI : Updates screens
+
+@enduml
+```

@@ -1,0 +1,286 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Registry",
+        "description": "Manages server registration and unique ID allocation",
+        "boundaries": "Solid",
+        "position": "Top center"
+      },
+      {
+        "name": "Tarzan Admin",
+        "description": "Admin interface for managing servers",
+        "boundaries": "Solid",
+        "position": "Top right"
+      },
+      {
+        "name": "Application1 (Tarzan Client)",
+        "description": "Client application part of Producer Group",
+        "boundaries": "Dashed",
+        "position": "Left center"
+      },
+      {
+        "name": "Application2 (Tarzan Client)",
+        "description": "Client application part of Producer Group",
+        "boundaries": "Dashed",
+        "position": "Left bottom"
+      },
+      {
+        "name": "Tarzan Server",
+        "description": "Central server for processing transactions",
+        "boundaries": "Dashed",
+        "position": "Center"
+      },
+      {
+        "name": "Tarzan Store",
+        "description": "Storage component using MySQL",
+        "boundaries": "Solid",
+        "position": "Bottom center"
+      },
+      {
+        "name": "RocketMQ",
+        "description": "Message queue system",
+        "boundaries": "Dashed",
+        "position": "Right center"
+      },
+      {
+        "name": "Other MQ",
+        "description": "Another message queue system",
+        "boundaries": "Dashed",
+        "position": "Right bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Registry",
+        "target": "Tarzan Server",
+        "label": "allocate unique id",
+        "type": "Solid"
+      },
+      {
+        "source": "Tarzan Admin",
+        "target": "Registry",
+        "label": "manage servers",
+        "type": "Dashed"
+      },
+      {
+        "source": "Application1 (Tarzan Client)",
+        "target": "Tarzan Server",
+        "label": "1.Prepare 2.Commit/Rollback",
+        "type": "Solid"
+      },
+      {
+        "source": "Application2 (Tarzan Client)",
+        "target": "Tarzan Server",
+        "label": "Check Transaction State",
+        "type": "Solid"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "Tarzan Store",
+        "label": "put/get",
+        "type": "Solid"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "RocketMQ",
+        "label": "Send/Return Result",
+        "type": "Solid"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "Other MQ",
+        "label": "Send/Return Result",
+        "type": "Solid"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Producer Group",
+        "components": [
+          "Application1 (Tarzan Client)",
+          "Application2 (Tarzan Client)"
+        ]
+      },
+      {
+        "name": "MQ Group",
+        "components": [
+          "RocketMQ",
+          "Other MQ"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Tarzan System Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Client",
+        "description": "Client component for sending messages",
+        "boundaries": "Solid",
+        "position": "Top left"
+      },
+      {
+        "name": "RPC Layer (Netty)",
+        "description": "Layer for remote procedure calls",
+        "boundaries": "Solid",
+        "position": "Top center"
+      },
+      {
+        "name": "Server",
+        "description": "Central server for managing tasks",
+        "boundaries": "Solid",
+        "position": "Center"
+      },
+      {
+        "name": "Registry (Zookeeper)",
+        "description": "Service discovery and registry",
+        "boundaries": "Solid",
+        "position": "Top right"
+      },
+      {
+        "name": "Scheduled Tasks",
+        "description": "Tasks for transaction status check and message resend",
+        "boundaries": "Solid",
+        "position": "Center left"
+      },
+      {
+        "name": "Message Broker (RocketMQ)",
+        "description": "Message broker for proxying messages",
+        "boundaries": "Solid",
+        "position": "Bottom left"
+      },
+      {
+        "name": "Redis",
+        "description": "In-memory data structure store",
+        "boundaries": "Solid",
+        "position": "Bottom center"
+      },
+      {
+        "name": "Database (MySQL)",
+        "description": "Database for storing message info",
+        "boundaries": "Solid",
+        "position": "Bottom right"
+      },
+      {
+        "name": "Data Access Layer",
+        "description": "Layer for CRUD operations",
+        "boundaries": "Solid",
+        "position": "Right center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Client",
+        "target": "Server",
+        "label": "Send message",
+        "type": "Solid"
+      },
+      {
+        "source": "RPC Layer (Netty)",
+        "target": "Server",
+        "label": "Communication",
+        "type": "Solid"
+      },
+      {
+        "source": "Server",
+        "target": "Registry (Zookeeper)",
+        "label": "Service discovery",
+        "type": "Solid"
+      },
+      {
+        "source": "Server",
+        "target": "Scheduled Tasks",
+        "label": "Manage",
+        "type": "Solid"
+      },
+      {
+        "source": "Scheduled Tasks",
+        "target": "Message Broker (RocketMQ)",
+        "label": "Proxy message",
+        "type": "Solid"
+      },
+      {
+        "source": "Scheduled Tasks",
+        "target": "Redis",
+        "label": "Acquire lock",
+        "type": "Solid"
+      },
+      {
+        "source": "Redis",
+        "target": "Database (MySQL)",
+        "label": "Update status",
+        "type": "Solid"
+      },
+      {
+        "source": "Server",
+        "target": "Data Access Layer",
+        "label": "Access data",
+        "type": "Solid"
+      },
+      {
+        "source": "Data Access Layer",
+        "target": "Database (MySQL)",
+        "label": "CRUD operations",
+        "type": "Solid"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "System Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "RocketMQ",
+      "MySQL"
+    ],
+    "unique_to_GroundTruth": [
+      "Registry",
+      "Tarzan Admin",
+      "Application1 (Tarzan Client)",
+      "Application2 (Tarzan Client)",
+      "Tarzan Server",
+      "Tarzan Store",
+      "Other MQ"
+    ],
+    "unique_to_GeneratedImage": [
+      "Client",
+      "RPC Layer (Netty)",
+      "Server",
+      "Registry (Zookeeper)",
+      "Scheduled Tasks",
+      "Redis",
+      "Data Access Layer"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      "Registry to Tarzan Server",
+      "Tarzan Admin to Registry",
+      "Application1 to Tarzan Server",
+      "Application2 to Tarzan Server",
+      "Tarzan Server to Tarzan Store",
+      "Tarzan Server to RocketMQ",
+      "Tarzan Server to Other MQ"
+    ],
+    "unique_connectors_GeneratedImage": [
+      "Client to Server",
+      "RPC Layer to Server",
+      "Server to Registry",
+      "Server to Scheduled Tasks",
+      "Scheduled Tasks to Message Broker",
+      "Scheduled Tasks to Redis",
+      "Redis to Database",
+      "Server to Data Access Layer",
+      "Data Access Layer to Database"
+    ],
+    "explanation": "The GroundTruth diagram focuses on a system architecture involving a Tarzan Server, client applications, and message queues, with a central registry for managing server registration. The GeneratedImage diagram presents a more generalized architecture with a focus on server management, scheduled tasks, and data access layers. Both diagrams include a message broker (RocketMQ) and a database (MySQL), but the GroundTruth diagram includes specific components like Tarzan Admin and Tarzan Store, while the GeneratedImage diagram includes components like Redis and an RPC Layer. The architectural structures differ, with the GroundTruth diagram emphasizing transaction processing and server management, while the GeneratedImage diagram highlights service discovery and task scheduling. Overall, the GeneratedImage diagram receives a rating of 6 out of 10 for accuracy and completeness, as it captures some similar elements but diverges significantly in structure and component details.",
+    "Rating": 6
+  }
+}

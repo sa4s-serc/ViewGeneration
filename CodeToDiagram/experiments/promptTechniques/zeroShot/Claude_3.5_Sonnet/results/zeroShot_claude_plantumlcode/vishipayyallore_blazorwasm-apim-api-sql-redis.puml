@@ -1,0 +1,48 @@
+Here's a PlantUML sequence diagram representing the control flow for the Books Store application based on the provided information:
+
+```plantuml
+@startuml vishipayyallore_blazorwasm-apim-api-sql-redis
+
+actor User
+participant "Blazor WebAssembly\nUI" as UI
+participant "API Management" as APIM
+participant "ASP.NET Core API" as API
+participant "Business Logic Layer" as BLL
+participant "Cache Repository" as Cache
+participant "SQL Repository" as SQL
+
+User -> UI: Requests book data
+UI -> APIM: HTTP GET /api/books
+APIM -> API: Forwards request
+API -> BLL: GetBooks()
+BLL -> Cache: TryGetBooks()
+
+alt Books in cache
+    Cache --> BLL: Return cached books
+else Books not in cache
+    BLL -> SQL: GetBooks()
+    SQL --> BLL: Return books from database
+    BLL -> Cache: StoreBooks()
+end
+
+BLL --> API: Return books
+API --> APIM: HTTP 200 OK with books
+APIM --> UI: Returns books data
+UI --> User: Displays books
+
+User -> UI: Add/Edit/Delete book
+UI -> APIM: HTTP POST/PUT/DELETE /api/books
+APIM -> API: Forwards request
+API -> BLL: ProcessBookOperation()
+BLL -> SQL: ExecuteDatabaseOperation()
+SQL --> BLL: Confirm operation
+BLL -> Cache: InvalidateCache()
+BLL --> API: Operation result
+API --> APIM: HTTP 200 OK
+APIM --> UI: Confirms operation
+UI --> User: Updates display
+
+@enduml
+```
+
+This sequence diagram illustrates the control flow for both reading book data and performing write operations (add/edit/delete) in the Books Store application. It shows the interaction between the user, Blazor WebAssembly UI, API Management, ASP.NET Core API, Business Logic Layer, Cache Repository, and SQL Repository.

@@ -1,0 +1,41 @@
+@startuml IBM_torc_py
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Main Process (Rank 0)" as Main {
+  rectangle "Task Queue" as MainQueue #palegreen
+  rectangle "Server Thread" as MainServer #lightsteelblue
+  rectangle "Worker Threads" as MainWorkers #lightyellow
+}
+
+rectangle "Worker Process (Rank N)" as Worker {
+  rectangle "Task Queue" as WorkerQueue #palegreen
+  rectangle "Server Thread" as WorkerServer #lightsteelblue
+  rectangle "Worker Threads" as WorkerWorkers #lightyellow
+}
+
+' ========== Connections ==========
+User -> Main : submit()/map()/spmd()
+
+' Main process internal
+MainQueue <- MainServer : push/pull tasks
+MainServer <-> MainWorkers : assign tasks\ncollect results
+
+' Inter-process communication
+MainServer <-> WorkerServer : MPI communication\n(task distribution,\nresult collection,\ntask stealing)
+
+' Worker process internal
+WorkerQueue <- WorkerServer : push/pull tasks
+WorkerServer <-> WorkerWorkers : assign tasks\ncollect results
+
+' Task completion flow
+MainWorkers --> MainServer : task completed
+WorkerWorkers --> WorkerServer : task completed
+MainServer --> User : results/callbacks
+@enduml

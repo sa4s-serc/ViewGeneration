@@ -1,0 +1,28 @@
+@startuml zmyzheng_TweetMap
+
+!define RECTANGLE class
+
+skinparam component {
+  BackgroundColor<<external>> LightGray
+  BorderColor<<external>> Gray
+}
+
+rectangle "Twitter API" <<external>> as TwitterAPI
+rectangle "Kubernetes Cluster" {
+    component "Tweet Collector" as TweetCollector
+    component "Kafka" as Kafka
+    component "Flink Processor" as FlinkProcessor
+    component "Elasticsearch" as Elasticsearch
+    component "REST API Server" as RESTAPIServer
+    component "Frontend Visualization" as Frontend
+}
+
+TwitterAPI --> TweetCollector : Streams tweets
+TweetCollector --> Kafka : Pushes tweets
+Kafka --> FlinkProcessor : Streams tweets
+FlinkProcessor --> Elasticsearch : Stores processed tweets
+Elasticsearch <-- RESTAPIServer : Queries data
+RESTAPIServer <-- Frontend : Fetches data
+Frontend --> [User's Browser] : Displays visualization
+
+@enduml

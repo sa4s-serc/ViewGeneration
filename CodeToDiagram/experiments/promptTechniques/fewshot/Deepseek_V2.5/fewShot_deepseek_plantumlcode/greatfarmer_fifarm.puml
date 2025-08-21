@@ -1,0 +1,55 @@
+@startuml greatfarmer_fifarm
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<database>> #fff1c9
+  BackgroundColor<<external>> #fddddd
+  Style roundrect
+}
+
+package "Frontend" <<frontend>> {
+  [Thymeleaf Templates] as UI
+  [Static Assets\n(CSS/JS/Images)] as Assets
+}
+
+package "Backend" <<backend>> {
+  [IndexController] as IndexCtrl
+  [PathController] as PathCtrl
+  [JsonController] as JsonCtrl
+  [HttpRequestService] as HttpService
+  [MongoService] as MongoService
+  [Scheduler] as Scheduler
+  [LogService] as LogService
+}
+
+package "Database" <<database>> {
+  [MongoDB] as MongoDB
+}
+
+package "External Services" <<external>> {
+  [EA Sports FUT API] as FUTAPI
+}
+
+UI --> IndexCtrl
+UI --> PathCtrl
+Assets --> UI
+
+IndexCtrl --> MongoService
+PathCtrl --> MongoService
+JsonCtrl --> MongoService
+
+MongoService --> MongoDB
+HttpService --> FUTAPI
+Scheduler --> HttpService
+Scheduler --> MongoService
+
+LogService --> MongoDB
+
+JsonCtrl --> HttpService
+JsonCtrl --> MongoService
+
+note right of FUTAPI
+  Scheduled data refresh
+end note
+@enduml

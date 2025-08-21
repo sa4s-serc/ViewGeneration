@@ -1,0 +1,70 @@
+```plantuml
+@startuml heli-os_member-invitation-java-springboot
+
+!define ENTITY(x) component x << (E,#FFAAAA) >>
+!define CONTROLLER(x) component x << (C,#ADD8E6) >>
+!define SERVICE(x) component x << (S,#90EE90) >>
+!define PERSISTENCE(x) component x << (P,#FFD700) >>
+!define UTIL(x) component x << (U,#D3D3D3) >>
+!define CONFIG(x) component x << (C,#C0C0C0) >>
+
+package "Member Invitation Interface" {
+    CONTROLLER(MemberInvitationRestController)
+    CONTROLLER(InvitationRestController)
+    CONTROLLER(MemberRestController)
+    ENTITY(MemberDto)
+    ENTITY(InvitationDto)
+    UTIL(Mapper)
+    CONFIG(GlobalConfiguration)
+}
+
+package "Member Invitation Domain" {
+    ENTITY(Member)
+    ENTITY(Invitation)
+    ENTITY(MemberStatus)
+    SERVICE(MemberService)
+    SERVICE(InvitationService)
+    ENTITY(UseCase)
+}
+
+package "Member Invitation Infrastructure" {
+    PERSISTENCE(JpaMemberRepository)
+    PERSISTENCE(JpaInvitationRepository)
+    PERSISTENCE(RedisInvitationRepository)
+}
+
+package "Commons" {
+    ENTITY(CommonModel)
+    UTIL(CommonUtil)
+}
+
+MemberInvitationRestController --> MemberService
+InvitationRestController --> InvitationService
+MemberRestController --> MemberService
+
+MemberService --> JpaMemberRepository
+MemberService --> Member
+
+InvitationService --> JpaInvitationRepository
+InvitationService --> RedisInvitationRepository
+InvitationService --> Invitation
+
+Mapper --> MemberDto
+Mapper --> InvitationDto
+Mapper --> Member
+Mapper --> Invitation
+
+GlobalConfiguration --> MemberInvitationRestController
+GlobalConfiguration --> InvitationRestController
+GlobalConfiguration --> MemberRestController
+
+CommonModel --> Member
+CommonModel --> Invitation
+CommonModel --> MemberStatus
+
+CommonUtil --> MemberInvitationRestController
+CommonUtil --> InvitationRestController
+CommonUtil --> MemberRestController
+
+@enduml
+```

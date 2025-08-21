@@ -1,0 +1,38 @@
+@startuml jkahn117_aws-news
+
+actor User
+
+cloud "AWS Cloud" {
+  component "Amplify Console" as AmplifyConsole
+  component "CloudFront" as CloudFront
+  component "AppSync" as AppSync
+  component "ElastiCache (Redis)" as ElastiCache
+  component "DynamoDB" as DynamoDB
+  component "S3" as S3
+  component "EventBridge" as EventBridge
+  component "Lambda" as Lambda
+  component "Step Functions" as StepFunctions
+  component "Kinesis Firehose" as KinesisFirehose
+  component "Pinpoint" as Pinpoint
+}
+
+User -> AmplifyConsole : Access Next.js frontend
+AmplifyConsole -> CloudFront : Serve static content
+CloudFront -> AppSync : GraphQL API requests
+AppSync -> ElastiCache : Cache check
+AppSync -> DynamoDB : Fetch data if not in cache
+AppSync -> S3 : Fetch article content
+
+EventBridge -> Lambda : Trigger ingestion
+Lambda -> S3 : Store article content
+Lambda -> DynamoDB : Store article metadata
+EventBridge -> Lambda : Trigger image processing
+Lambda -> S3 : Store processed images
+
+StepFunctions -> Lambda : Orchestrate ingestion process
+
+User -> Pinpoint : User interactions
+Pinpoint -> KinesisFirehose : Stream analytics data
+KinesisFirehose -> S3 : Store analytics data
+
+@enduml

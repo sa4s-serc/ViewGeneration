@@ -1,0 +1,22 @@
+@startuml
+participant "CI/CD Pipeline" as CI
+participant "Frontend (React)" as FE
+participant "Backend (Spring Boot)" as BE
+participant "Database" as DB
+participant "Authentication Service" as Auth
+participant "Monitoring (New Relic)" as Monitor
+participant "Logging (Elastic Stack)" as Log
+
+CI -> FE : Trigger build
+CI -> BE : Trigger build
+FE -> BE : API request
+BE -> Auth : Authenticate user
+Auth --> BE : Authentication result
+BE -> DB : Query data
+DB --> BE : Return data
+BE --> FE : API response
+FE -> BE : gRPC stream request
+BE --> FE : Push notifications
+BE -> Monitor : Send performance metrics
+BE -> Log : Send log data
+@enduml

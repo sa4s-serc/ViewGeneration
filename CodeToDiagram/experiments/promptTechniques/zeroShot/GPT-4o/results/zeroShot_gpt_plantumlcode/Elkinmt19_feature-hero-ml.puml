@@ -1,0 +1,37 @@
+```plantuml
+@startuml Elkinmt19_feature-hero-ml
+
+actor User
+
+participant "User Application" as UserApp
+participant "Feature Store" as FeatureStore
+participant "Feast" as Feast
+participant "Redis" as Redis
+participant "Parquet" as Parquet
+participant "ETL Pipeline" as ETL
+participant "Docker Compose" as DockerCompose
+
+User -> UserApp: Request Features
+UserApp -> FeatureStore: Query Features
+FeatureStore -> Feast: Retrieve Feature Definition
+Feast -> Redis: Fetch Online Features
+Redis --> Feast: Return Features
+Feast -> Parquet: Fetch Offline Features
+Parquet --> Feast: Return Features
+Feast --> FeatureStore: Aggregated Features
+FeatureStore --> UserApp: Return Features
+UserApp --> User: Display Features
+
+UserApp -> ETL: Trigger Data Pipeline
+ETL -> FeatureStore: Ingest Data
+ETL -> Feast: Update Feature Views
+Feast -> Parquet: Store Batch Data
+Parquet --> Feast: Confirm Storage
+
+DockerCompose -> DockerCompose: Start Services
+DockerCompose -> Redis: Initialize
+DockerCompose -> Parquet: Initialize
+DockerCompose -> FeatureStore: Initialize
+
+@enduml
+```

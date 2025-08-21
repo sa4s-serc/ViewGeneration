@@ -1,0 +1,72 @@
+```plantuml
+@startuml swir-rs_swir
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<handlers>> #d8f5d3
+  BackgroundColor<<utils>> #fddddd
+  BackgroundColor<<service_discovery>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "SWIR Core" <<core>> {
+  rectangle "main.rs\n(Entry Point)" as Main
+  rectangle "Cargo.toml\n(Project Config)" as Cargo
+  Main --> Cargo
+}
+
+package "Frontend Handlers" <<handlers>> {
+  rectangle "HTTP Handler" as HTTP
+  rectangle "gRPC Handler" as GRPC
+  Main --> HTTP
+  Main --> GRPC
+}
+
+package "Backend Handlers" <<handlers>> {
+  rectangle "Service Invocation\nHandler" as SI
+  rectangle "Messaging Handlers" as Messaging
+  rectangle "Persistence Handlers" as Persistence
+  HTTP --> SI
+  GRPC --> SI
+  HTTP --> Messaging
+  GRPC --> Messaging
+  HTTP --> Persistence
+  GRPC --> Persistence
+}
+
+package "Messaging Handlers" <<handlers>> {
+  rectangle "AWS Kinesis Handler" as Kinesis
+  rectangle "Kafka Handler" as Kafka
+  rectangle "NATS Handler" as NATS
+  Messaging --> Kinesis
+  Messaging --> Kafka
+  Messaging --> NATS
+}
+
+package "Persistence Handlers" <<handlers>> {
+  rectangle "DynamoDB Store" as DynamoDB
+  rectangle "Redis Store" as Redis
+  Persistence --> DynamoDB
+  Persistence --> Redis
+}
+
+package "Utilities" <<utils>> {
+  rectangle "Config Utils" as Config
+  rectangle "Metric Utils" as Metrics
+  rectangle "Structs" as Structs
+  rectangle "Tracing Utils" as Tracing
+  Main --> Config
+  Main --> Metrics
+  Main --> Structs
+  Main --> Tracing
+}
+
+package "Service Discovery" <<service_discovery>> {
+  rectangle "mDNS Discovery" as mDNS
+  rectangle "DynamoDB Discovery" as DynamoDiscovery
+  SI --> mDNS
+  SI --> DynamoDiscovery
+}
+
+@enduml
+```

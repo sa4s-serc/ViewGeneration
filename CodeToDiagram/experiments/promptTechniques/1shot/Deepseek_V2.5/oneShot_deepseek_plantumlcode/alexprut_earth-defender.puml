@@ -1,0 +1,47 @@
+@startuml alexprut_earth-defender
+skinparam rectangle {
+  BackgroundColor<<client>> #d9e7fd
+  BackgroundColor<<server>> #d8f5d3
+  BackgroundColor<<communication>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Client (Three.js)" <<client>> {
+  rectangle "Game" as Game
+  rectangle "GameClient" as GameClient
+  rectangle "GameDOMHandler" as GameDOMHandler
+  rectangle "GameElements" as GameElements
+  rectangle "TextureLoader" as TextureLoader
+  rectangle "Light" as Light
+  Game --> GameClient
+  Game --> GameDOMHandler
+  Game --> GameElements
+  GameElements --> TextureLoader
+  GameElements --> Light
+}
+
+package "Server (Erlang/OTP)" <<server>> {
+  rectangle "websocket_handler" as WsHandler
+  rectangle "player" as Player
+  rectangle "room" as Room
+  rectangle "local_rooms_state" as RoomsState
+  rectangle "earth_defender_sup" as Supervisor
+  rectangle "monitor_mesh" as Monitor
+  rectangle "utils" as Utils
+  WsHandler --> Player
+  WsHandler --> Room
+  Room --> RoomsState
+  Supervisor --> Monitor
+  Supervisor --> WsHandler
+  Utils --> WsHandler
+  Utils --> Room
+}
+
+package "Communication" <<communication>> {
+  rectangle "WebSocket" as WebSocket
+  GameClient --> WebSocket
+  WebSocket --> WsHandler
+}
+
+@enduml

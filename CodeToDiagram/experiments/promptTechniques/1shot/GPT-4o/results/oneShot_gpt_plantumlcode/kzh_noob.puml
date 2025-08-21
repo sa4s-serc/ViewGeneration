@@ -1,0 +1,48 @@
+```plantuml
+@startuml kzh_noob
+skinparam rectangle {
+  BackgroundColor<<frontend>> #f0f8ff
+  BackgroundColor<<backend>> #e6ffe6
+  BackgroundColor<<service>> #fff4e6
+  BackgroundColor<<db>> #ffe6e6
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend" <<frontend>> {
+  rectangle "HTML Templates\n(Gin + Go Templates)" as HTML
+  rectangle "Static Assets\n(CSS, JavaScript)" as Assets
+  HTML --> Assets
+}
+
+package "Backend Services" <<backend>> {
+  rectangle "Auth Service" as Auth
+  rectangle "Problems Service" as Problems
+  rectangle "Submissions Service" as Submissions
+  rectangle "Executor Service\n(Docker-in-Docker)" as Executor
+  rectangle "API Gateway\n(Nginx Ingress)" as APIGateway
+  APIGateway --> Auth
+  APIGateway --> Problems
+  APIGateway --> Submissions
+  Submissions --> Executor
+}
+
+package "Infrastructure" <<service>> {
+  rectangle "RabbitMQ" as RabbitMQ
+  rectangle "Redis\n(Session Storage)" as Redis
+  rectangle "Jaeger\n(Tracing)" as Jaeger
+  Submissions --> RabbitMQ
+  Executor --> RabbitMQ
+  Auth --> Redis
+  Auth --> Jaeger
+  Problems --> Jaeger
+  Submissions --> Jaeger
+  Executor --> Jaeger
+}
+
+database "MongoDB" <<db>> as MongoDB
+Auth --> MongoDB
+Problems --> MongoDB
+Submissions --> MongoDB
+@enduml
+```

@@ -1,0 +1,38 @@
+@startuml IBM_kubernetes-storage
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "Workshop Participant" as User
+
+rectangle "Kubernetes Cluster" as K8s {
+  rectangle "Guestbook App" as App #palegreen
+  rectangle "PersistentVolume" as PV #lightsteelblue
+  rectangle "PersistentVolumeClaim" as PVC #lightyellow
+  rectangle "StorageClass" as SC #aliceblue
+}
+
+rectangle "IBM Cloud" as IBM {
+  rectangle "Block Storage" as Block #mistyrose
+  rectangle "Object Storage" as Object #peachpuff
+}
+
+rectangle "Helm" as Helm #lavender
+
+' ========== Connections ==========
+User -> K8s : Deploys Guestbook App\nvia kubectl/Helm
+
+App -> PVC : Requests storage
+PVC -> PV : Binds to available volume
+PV -> Block : Uses IBM Block Storage\n(dynamic provisioning)
+PV -> Object : Uses IBM Object Storage\n(via s3fs/FUSE)
+
+Helm -> K8s : Deploys MongoDB\nwith storage configuration
+
+SC -> PV : Defines storage provisioning\nparameters
+
+K8s -> IBM : Provisions storage\nresources on demand
+@enduml

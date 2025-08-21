@@ -1,0 +1,52 @@
+@startuml fecgov_fec-eregs
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "User" as User
+
+rectangle "Frontend" as Frontend {
+}
+
+rectangle "Django Application" as Django {
+  rectangle "regulations-site" as RegSite
+  rectangle "regulations-core" as RegCore
+  rectangle "regulations-parser" as RegParser
+}
+
+rectangle "Database" as DB {
+  rectangle "PostgreSQL" as Postgres
+  rectangle "ElasticSearch" as ES
+}
+
+rectangle "Cloud Foundry" as CF {
+  rectangle "cloud.gov" as CloudGov
+}
+
+rectangle "External Services" as External {
+  rectangle "CMS" as CMS
+  rectangle "FEC API" as FECAPI
+}
+
+' ========== Connections ==========
+User --> Frontend : Browse regulations\nSearch regulations
+
+Frontend --> Django : HTTP requests
+Frontend --> CMS : Fetch content
+Frontend --> FECAPI : Fetch data via JS
+
+Django --> DB : Store/retrieve data
+RegSite --> RegCore : Data models
+RegParser --> RegCore : Process regulations
+
+Django --> CF : Deploy application
+CF --> CloudGov : Host application
+
+DB --> Postgres : Store hierarchical data\n(SQL queries)
+DB --> ES : Full-text search\n(Indexing/querying)
+
+RegParser --> External : Fetch regulation updates
+@enduml

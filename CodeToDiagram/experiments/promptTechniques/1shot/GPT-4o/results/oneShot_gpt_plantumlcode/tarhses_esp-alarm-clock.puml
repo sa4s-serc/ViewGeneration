@@ -1,0 +1,54 @@
+```plantuml
+@startuml tarhses_esp-alarm-clock
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "ESP32" as ESP32 {
+  rectangle "main.c" as Main #lightgrey
+  rectangle "alarm.c" as Alarm #lightblue
+  rectangle "network.c" as Network #lightgreen
+  rectangle "display.c" as Display #lightyellow
+  rectangle "sound.c" as Sound #lightcoral
+  rectangle "pot.c" as Potentiometer #lightpink
+  rectangle "storage.c" as Storage #lightcyan
+}
+
+' ========== Connections ==========
+User --> ESP32 : interacts via buttons and switches
+
+' Main initialization
+Main --> Storage : initialize storage and NVS
+Main --> Network : initialize WiFi and SNTP
+Main --> Potentiometer : initialize potentiometers
+Main --> Display : initialize display
+Main --> Alarm : initialize alarm
+Main --> Sound : initialize sound
+
+' Alarm management
+User --> Alarm : set time via potentiometers
+User -> Alarm : activate/deactivate alarm via switch
+User -> Alarm : stop/snooze alarm via button
+Alarm --> Sound : play sound on alarm trigger
+Alarm <--> Potentiometer : read potentiometer for time setting
+
+' Display updates
+Network --> Display : update time from SNTP
+Alarm --> Display : update alarm status
+Display --> Display : render time and status
+
+' Sound playback
+Sound --> Storage : retrieve audio file from SD card
+Sound --> ESP32 : play audio via I2S
+
+' Network operations
+Network --> Storage : read WiFi and NTP config from SD card
+Network --> Storage : store network settings in NVS
+
+@enduml
+```

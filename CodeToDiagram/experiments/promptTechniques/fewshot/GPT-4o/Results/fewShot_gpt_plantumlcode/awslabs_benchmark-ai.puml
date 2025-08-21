@@ -1,0 +1,75 @@
+```plantuml
+@startuml awslabs_benchmark-ai
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+package "Frontend" {
+  rectangle "bai-bff\n(Backend For Frontend)" as BFF #d9e7fd
+}
+
+package "Execution" {
+  rectangle "executor" as Executor #e7fdd9
+  rectangle "sm-executor" as SMExecutor #e7fdd9
+  rectangle "watcher" as Watcher #e7fdd9
+  rectangle "fetcher" as Fetcher #e7fdd9
+  rectangle "fetcher-dispatcher" as FetcherDispatcher #e7fdd9
+}
+
+package "Metrics" {
+  rectangle "metrics-pusher" as MetricsPusher #fdd9e7
+  rectangle "metrics-extractor" as MetricsExtractor #fdd9e7
+  rectangle "cloudwatch-exporter" as CloudwatchExporter #fdd9e7
+  rectangle "client-lib" as ClientLib #fdd9e7
+}
+
+package "Infrastructure" {
+  rectangle "baictl" as Baictl #d9f7fd
+  rectangle "Terraform" as Terraform #d9f7fd
+  rectangle "Kubernetes" as Kubernetes #d9f7fd
+  rectangle "Kafka" as Kafka #d9f7fd
+  rectangle "AWS Services\n(S3, DynamoDB, MSK)" as AWSServices #d9f7fd
+  rectangle "ZooKeeper" as ZooKeeper #d9f7fd
+}
+
+User --> BFF : Submit Job
+BFF --> Executor : Validate & Submit
+Executor --> Kubernetes : Deploy Resources
+Executor --> SMExecutor : Trigger SageMaker Jobs
+SMExecutor --> AWSServices : Manage Lifecycle
+FetcherDispatcher --> Fetcher : Coordinate Fetching
+Fetcher --> AWSServices : Fetch Data
+Watcher --> Kafka : Publish Status
+Kafka --> Watcher : Receive Events
+MetricsPusher --> Kafka : Push Metrics
+MetricsExtractor --> Kubernetes : Extract Logs
+CloudwatchExporter --> AWSServices : Export Metrics
+ClientLib --> MetricsPusher : Emit Metrics
+Baictl --> Terraform : Manage Infrastructure
+Baictl --> Kubernetes : Configure Cluster
+Baictl --> AWSServices : Synchronize Data
+ZooKeeper --> FetcherDispatcher : Service Coordination
+
+note right of BFF
+  HTTP API
+end note
+
+note right of Executor
+  Translates to Kubernetes Jobs
+end note
+
+note right of MetricsPusher
+  Sidecar Pattern
+end note
+
+note right of Baictl
+  Command Pattern
+end note
+
+@enduml
+```

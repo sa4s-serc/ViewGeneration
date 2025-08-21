@@ -1,0 +1,54 @@
+@startuml dich1_bookshelf-web
+
+node "User's Device" {
+    [Web Browser]
+}
+
+cloud "Internet" {
+    [Facebook Auth]
+    [Google Books API]
+}
+
+node "Application Server" {
+    [Ruby on Rails App] as RailsApp
+    [REST API]
+    [Puma Web Server]
+}
+
+node "Web Server" {
+    [Nginx]
+}
+
+node "Database Server" {
+    database "MySQL" {
+        [Book Data]
+        [User Data]
+        [Lending Data]
+    }
+}
+
+node "CI/CD" {
+    [CircleCI]
+}
+
+node "Container Orchestration" {
+    [Docker]
+    [Docker Compose]
+}
+
+[Web Browser] --> [Nginx] : HTTPS
+[Nginx] --> [Puma Web Server] : Reverse Proxy
+[Puma Web Server] --> [RailsApp]
+[RailsApp] --> [REST API]
+[RailsApp] --> [MySQL]
+[RailsApp] ..> [Facebook Auth] : OAuth
+[RailsApp] ..> [Google Books API] : Book Info
+
+[CircleCI] --> [Docker] : Build & Deploy
+[Docker] --> [Nginx]
+[Docker] --> [RailsApp]
+[Docker] --> [MySQL]
+
+[Docker Compose] ..> [Docker] : Orchestrate
+
+@enduml

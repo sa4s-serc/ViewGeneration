@@ -1,0 +1,351 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Represents the end user",
+        "boundaries": "Outside AWS",
+        "position": "Left"
+      },
+      {
+        "name": "Cognito Hosted UI",
+        "description": "User interface for authentication",
+        "boundaries": "Cognito Account",
+        "position": "Center"
+      },
+      {
+        "name": "Cognito User Pool",
+        "description": "Manages user identities",
+        "boundaries": "Cognito Account",
+        "position": "Center"
+      },
+      {
+        "name": "API Gateway",
+        "description": "Handles API requests",
+        "boundaries": "API Gateway Account",
+        "position": "Right"
+      },
+      {
+        "name": "auth-function",
+        "description": "Handles authentication logic",
+        "boundaries": "API Gateway Account",
+        "position": "Right"
+      },
+      {
+        "name": "hello-function",
+        "description": "Returns greeting message",
+        "boundaries": "API Gateway Account",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Cognito Hosted UI",
+        "label": "connect",
+        "type": "direct"
+      },
+      {
+        "source": "Cognito Hosted UI",
+        "target": "Cognito User Pool",
+        "label": "get-authorization-code",
+        "type": "direct"
+      },
+      {
+        "source": "Cognito Hosted UI",
+        "target": "API Gateway",
+        "label": "passes code (query strings) redirects to /auth",
+        "type": "direct"
+      },
+      {
+        "source": "API Gateway",
+        "target": "auth-function",
+        "label": "/auth/GET",
+        "type": "direct"
+      },
+      {
+        "source": "API Gateway",
+        "target": "hello-function",
+        "label": "/hello/GET",
+        "type": "direct"
+      }
+    ],
+    "annotations": [
+      "Based on the authorization code, gets an id_token, call hello/GET while passing the id_token in the headers",
+      "Returns \"hello\" + name-of-the-user if authorized"
+    ],
+    "groups": [
+      {
+        "name": "Cognito Account",
+        "components": [
+          "Cognito Hosted UI",
+          "Cognito User Pool"
+        ]
+      },
+      {
+        "name": "API Gateway Account",
+        "components": [
+          "API Gateway",
+          "auth-function",
+          "hello-function"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "AWS Cognito and API Gateway Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "API Gateway",
+        "description": "Routes requests",
+        "boundaries": "AWS",
+        "position": "Left"
+      },
+      {
+        "name": "Lambda Reverse Proxy",
+        "description": "Forwards requests",
+        "boundaries": "AWS",
+        "position": "Center"
+      },
+      {
+        "name": "EventBridge",
+        "description": "Routes events",
+        "boundaries": "AWS",
+        "position": "Center"
+      },
+      {
+        "name": "Lambda Functions",
+        "description": "Processes data",
+        "boundaries": "AWS",
+        "position": "Center"
+      },
+      {
+        "name": "ECS Microservices",
+        "description": "Handles microservice actions",
+        "boundaries": "AWS",
+        "position": "Center"
+      },
+      {
+        "name": "SQS Queues",
+        "description": "Handles message queues",
+        "boundaries": "AWS",
+        "position": "Center"
+      },
+      {
+        "name": "SNS Topics",
+        "description": "Publishes events",
+        "boundaries": "AWS",
+        "position": "Center"
+      },
+      {
+        "name": "DynamoDB",
+        "description": "Stores data",
+        "boundaries": "AWS",
+        "position": "Center"
+      },
+      {
+        "name": "S3",
+        "description": "Stores files",
+        "boundaries": "AWS",
+        "position": "Center"
+      },
+      {
+        "name": "CloudWatch",
+        "description": "Monitors logs and metrics",
+        "boundaries": "AWS",
+        "position": "Center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "API Gateway",
+        "target": "Lambda Reverse Proxy",
+        "label": "Route request",
+        "type": "direct"
+      },
+      {
+        "source": "Lambda Reverse Proxy",
+        "target": "ECS Microservices",
+        "label": "Forward to appropriate microservice",
+        "type": "direct"
+      },
+      {
+        "source": "ECS Microservices",
+        "target": "DynamoDB",
+        "label": "Read/Write data",
+        "type": "direct"
+      },
+      {
+        "source": "ECS Microservices",
+        "target": "S3",
+        "label": "Store/Retrieve files",
+        "type": "direct"
+      },
+      {
+        "source": "ECS Microservices",
+        "target": "SQS Queues",
+        "label": "Send/Receive messages",
+        "type": "direct"
+      },
+      {
+        "source": "ECS Microservices",
+        "target": "SNS Topics",
+        "label": "Publish events",
+        "type": "direct"
+      },
+      {
+        "source": "EventBridge",
+        "target": "Lambda Functions",
+        "label": "Trigger Lambda function",
+        "type": "direct"
+      },
+      {
+        "source": "Lambda Functions",
+        "target": "ECS Microservices",
+        "label": "Trigger microservice action",
+        "type": "direct"
+      },
+      {
+        "source": "ECS Microservices",
+        "target": "CloudWatch",
+        "label": "Send logs and metrics",
+        "type": "direct"
+      },
+      {
+        "source": "CloudWatch",
+        "target": "ECS Microservices",
+        "label": "Trigger alarms",
+        "type": "direct"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": "AWS Microservices Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "API Gateway"
+    ],
+    "unique_to_GroundTruth": [
+      "User",
+      "Cognito Hosted UI",
+      "Cognito User Pool",
+      "auth-function",
+      "hello-function"
+    ],
+    "unique_to_GeneratedImage": [
+      "Lambda Reverse Proxy",
+      "EventBridge",
+      "Lambda Functions",
+      "ECS Microservices",
+      "SQS Queues",
+      "SNS Topics",
+      "DynamoDB",
+      "S3",
+      "CloudWatch"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "User",
+        "target": "Cognito Hosted UI",
+        "label": "connect",
+        "type": "direct"
+      },
+      {
+        "source": "Cognito Hosted UI",
+        "target": "Cognito User Pool",
+        "label": "get-authorization-code",
+        "type": "direct"
+      },
+      {
+        "source": "Cognito Hosted UI",
+        "target": "API Gateway",
+        "label": "passes code (query strings) redirects to /auth",
+        "type": "direct"
+      },
+      {
+        "source": "API Gateway",
+        "target": "auth-function",
+        "label": "/auth/GET",
+        "type": "direct"
+      },
+      {
+        "source": "API Gateway",
+        "target": "hello-function",
+        "label": "/hello/GET",
+        "type": "direct"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "API Gateway",
+        "target": "Lambda Reverse Proxy",
+        "label": "Route request",
+        "type": "direct"
+      },
+      {
+        "source": "Lambda Reverse Proxy",
+        "target": "ECS Microservices",
+        "label": "Forward to appropriate microservice",
+        "type": "direct"
+      },
+      {
+        "source": "ECS Microservices",
+        "target": "DynamoDB",
+        "label": "Read/Write data",
+        "type": "direct"
+      },
+      {
+        "source": "ECS Microservices",
+        "target": "S3",
+        "label": "Store/Retrieve files",
+        "type": "direct"
+      },
+      {
+        "source": "ECS Microservices",
+        "target": "SQS Queues",
+        "label": "Send/Receive messages",
+        "type": "direct"
+      },
+      {
+        "source": "ECS Microservices",
+        "target": "SNS Topics",
+        "label": "Publish events",
+        "type": "direct"
+      },
+      {
+        "source": "EventBridge",
+        "target": "Lambda Functions",
+        "label": "Trigger Lambda function",
+        "type": "direct"
+      },
+      {
+        "source": "Lambda Functions",
+        "target": "ECS Microservices",
+        "label": "Trigger microservice action",
+        "type": "direct"
+      },
+      {
+        "source": "ECS Microservices",
+        "target": "CloudWatch",
+        "label": "Send logs and metrics",
+        "type": "direct"
+      },
+      {
+        "source": "CloudWatch",
+        "target": "ECS Microservices",
+        "label": "Trigger alarms",
+        "type": "direct"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of AWS architecture. The GroundTruth diagram focuses on user authentication and API interactions using AWS Cognito and API Gateway, while the GeneratedImage diagram illustrates a broader microservices architecture involving various AWS services like Lambda, ECS, and CloudWatch. Both diagrams include an API Gateway, but the GroundTruth diagram is more focused on the authentication flow, whereas the GeneratedImage diagram shows a complex event-driven architecture with multiple services interacting. The GroundTruth diagram includes specific functions related to authentication, while the GeneratedImage diagram includes components for data processing and event handling. Overall, the GeneratedImage diagram provides a more comprehensive view of a microservices architecture, but lacks the specific authentication details present in the GroundTruth diagram. Based on the accuracy and completeness, the GeneratedImage is rated 7 out of 10. It accurately represents a microservices architecture but does not align closely with the specific authentication flow depicted in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

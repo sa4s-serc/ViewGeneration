@@ -1,0 +1,50 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+cloud "Internet" as internet
+
+rectangle "AWS VPC" {
+  rectangle "Public Subnet" {
+    rectangle "EC2 Instance" {
+      rectangle "Nginx Proxy" as nginx
+    }
+  }
+  
+  rectangle "Private Subnet" {
+    rectangle "OpenSearch Domain" as opensearch {
+      rectangle "OpenSearch Dashboard" as dashboard
+    }
+  }
+}
+
+rectangle "CloudFormation" as cf
+rectangle "S3 Bucket" as s3
+
+internet --> nginx : HTTPS
+nginx --> dashboard : Forward requests
+cf --> "AWS VPC" : Deploys
+s3 --> cf : Stores template
+
+note right of nginx
+  SSL/TLS with
+  self-signed cert
+end note
+
+note bottom of cf
+  Automates deployment of:
+  - VPC & Subnets
+  - Internet Gateway
+  - Security Groups
+  - OpenSearch Domain
+  - EC2 Instance
+  - IAM Role
+  - Elastic IP
+  - Route Table
+end note
+
+@enduml

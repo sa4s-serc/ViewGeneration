@@ -1,0 +1,30 @@
+```plantuml
+@startuml gdsc-ys_mlops
+
+actor "ML Developer" as Developer
+
+rectangle "MLOps Framework" {
+    node "Nginx Reverse Proxy" as Nginx {
+        [Ingress Point]
+    }
+    
+    [MLflow Tracking Server] as MLflow
+    [MySQL Database] as MySQL
+    [AWS S3 Artifact Store] as S3
+    
+    Developer --> Nginx : Send Experiment Data
+    Nginx -> MLflow : Forward Request
+    MLflow -> MySQL : Store Metadata
+    MLflow -> S3 : Save Artifacts
+    
+    Nginx <- Developer : Retrieve Experiment Data
+    MLflow <- Nginx : Forward Response
+    S3 <- MLflow : Fetch Artifacts
+    MySQL <- MLflow : Retrieve Metadata
+}
+
+component "Client-Side Tools" as ClientTools
+Developer --> ClientTools : Use Tools for Tracking
+
+@enduml
+```

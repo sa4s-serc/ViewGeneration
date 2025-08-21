@@ -1,0 +1,70 @@
+### Output:
+@startuml nasa_cFS
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<osal>> #d8f5d3
+  BackgroundColor<<apps>> #fff1c9
+  BackgroundColor<<tools>> #fddddd
+  BackgroundColor<<ci>> #d4f0f0
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Flight Executive (cFE)" <<core>> {
+  rectangle "Executive Services (ES)" as ES
+  rectangle "Software Bus (SB)" as SB
+  rectangle "Table Services (TBL)" as TBL
+  rectangle "Time Services (TIME)" as TIME
+}
+
+package "OS Abstraction Layer (OSAL)" <<osal>> {
+  rectangle "OS Interface" as OSI
+  rectangle "Portable Layer" as PL
+}
+
+package "Applications" <<apps>> {
+  rectangle "Lab Apps" as LAB
+  rectangle "Custom Apps" as CUSTOM
+}
+
+package "Tools" <<tools>> {
+  rectangle "Build Tools" as BUILD
+  rectangle "Test Tools" as TEST
+  rectangle "Telemetry Tools" as TM
+}
+
+package "CI/CD" <<ci>> {
+  rectangle "GitHub Actions" as GA
+  rectangle "Static Analysis" as SA
+  rectangle "Unit Tests" as UT
+  rectangle "Functional Tests" as FT
+}
+
+ES --> SB
+ES --> TBL
+ES --> TIME
+OSI --> PL
+PL --> cFE
+SB --> LAB
+SB --> CUSTOM
+BUILD --> cFE
+TEST --> cFE
+TM --> SB
+GA --> SA
+GA --> UT
+GA --> FT
+SA --> cFE
+UT --> cFE
+FT --> cFE
+
+note right of OSI
+  Abstracts OS-specific details
+  for portability
+end note
+
+note left of ES
+  Event-driven architecture
+  with microkernel design
+end note
+@enduml

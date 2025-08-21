@@ -1,0 +1,54 @@
+```plantuml
+@startuml medlab_320-online-prototype
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<integration>> #fddddd
+  BackgroundColor<<external>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+actor User
+
+package "Frontend (React)" <<frontend>> {
+  rectangle "React Components\n(Ant Design, Redux)" as ReactComponents
+  rectangle "Routing\n(react-router-dom)" as Routing
+  rectangle "State Management\n(Redux, mockjs)" as StateManagement
+  ReactComponents --> Routing
+  ReactComponents --> StateManagement
+}
+
+package "Backend (.NET Core)" <<backend>> {
+  rectangle "Controllers\n(REST API)" as Controllers
+  rectangle "Authentication & Authorization\n(JWT, OAuth/OIDC)" as Auth
+  rectangle "Data Access\n(Entity Framework)" as DataAccess
+  rectangle "Logging & Tracing\n(Serilog, OpenTelemetry)" as Logging
+  rectangle "Custom Middleware" as Middleware
+  Controllers --> Auth
+  Controllers --> DataAccess
+  Controllers --> Middleware
+  Controllers --> Logging
+}
+
+package "Microservices" <<integration>> {
+  rectangle "Auth Service\n(Hydra, IdentityServer4)" as AuthService
+  rectangle "EFK Stack\n(Centralized Logging)" as EFKStack
+  rectangle "Distributed Tracing\n(SkyWalking, Zipkin)" as Tracing
+  rectangle "File Storage\n(MinIO, S3)" as FileStorage
+  AuthService --> Auth
+  Logging --> EFKStack
+  Logging --> Tracing
+}
+
+package "Deployment" <<external>> {
+  rectangle "Docker & Kubernetes\n(Deployment, Service)" as Deployment
+  rectangle "MinIO Docker Compose\n(MinIO Cluster)" as MinIODocker
+  Deployment --> MinIODocker
+}
+
+User --> ReactComponents
+ReactComponents --> Controllers
+@enduml
+```

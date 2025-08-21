@@ -1,0 +1,41 @@
+@startuml gabrielfarah_OpenHub
+
+[GitHub API] as GitHub
+[RabbitMQ] as RabbitMQ
+[MongoDB] as MongoDB
+
+package "Crawler" {
+  [Crawler Script]
+  [GitHub Client]
+}
+
+package "Worker Process" {
+  [Worker Manager]
+  
+  package "Analysis Modules" {
+    [Security Analysis]
+    [Testability Analysis]
+    [Reusability Analysis]
+    [Usability Analysis]
+  }
+}
+
+package "Configuration" {
+  [Config Files]
+}
+
+Crawler --> GitHub : Fetches repository data
+Crawler --> RabbitMQ : Publishes analysis tasks
+Crawler --> MongoDB : Stores initial metadata
+
+RabbitMQ --> "Worker Process" : Consumes analysis tasks
+
+"Worker Process" --> GitHub : Downloads repository code
+"Worker Process" --> MongoDB : Updates analysis results
+
+"Worker Process" --> "Analysis Modules" : Uses
+
+Crawler ..> "Configuration" : Reads
+"Worker Process" ..> "Configuration" : Reads
+
+@enduml

@@ -1,0 +1,35 @@
+@startuml
+skinparam componentStyle uml2
+skinparam linetype ortho
+
+actor User
+cloud "Twitter" as Twitter
+
+rectangle "AWS" {
+  component "aws-serverless-twitter-event-source" as TwitterSource
+  
+  component "API Gateway" as APIGateway
+  
+  component "Lambda" {
+    [TweetProcessorHandler] as TPH
+    [GetLeaderboardHandler] as GLH
+  }
+  
+  database "DynamoDB" as DynamoDB {
+    [Leaderboard Table] as LeaderboardTable
+  }
+}
+
+component "UI (leaderboard.html)" as UI
+
+Twitter --> TwitterSource : Tweets
+TwitterSource --> TPH : Tweet JSON
+TPH --> LeaderboardTable : Update counts
+User --> UI : View leaderboard
+UI --> APIGateway : GET /leaderboard
+APIGateway --> GLH : Invoke
+GLH --> LeaderboardTable : Fetch data
+GLH --> APIGateway : Return JSON
+APIGateway --> UI : JSON response
+
+@enduml

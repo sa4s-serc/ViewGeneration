@@ -1,0 +1,40 @@
+```plantuml
+@startuml bluekiri_mlab
+
+package "MLAB System" {
+    [Dashboard]
+    [Worker Service]
+}
+
+package "Dashboard" {
+    [Flask Application] --> [API Endpoints]
+    [Flask Application] --> [Data Access Layer (Repositories)]
+    [Flask Application] --> [Interactors (Use Cases)]
+    [Flask Application] --> [Real-time Monitoring]
+    [Flask Application] --> [Frontend]
+    
+    [Data Access Layer (Repositories)] --> [MongoDB]
+    [Real-time Monitoring] --> [ZooKeeper]
+}
+
+package "Worker Service" {
+    [Model Loader] --> [Model Repository]
+    [ZooKeeper Integration] --> [Worker Repository]
+    [Worker Service] --> [HTTP API]
+    
+    [Model Repository] --> [MongoDB]
+    [ZooKeeper Integration] --> [ZooKeeper]
+}
+
+package "Shared Components" {
+    [ZooKeeper]
+    [MongoDB]
+    [Docker]
+}
+
+[Dashboard] --> [Worker Service] : Inter-component communication
+[Dashboard] --> [Shared Components] : Uses
+[Worker Service] --> [Shared Components] : Uses
+
+@enduml
+```

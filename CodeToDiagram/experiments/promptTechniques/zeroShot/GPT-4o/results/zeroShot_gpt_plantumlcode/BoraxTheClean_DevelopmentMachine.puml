@@ -1,0 +1,31 @@
+```plantuml
+@startuml BoraxTheClean_DevelopmentMachine
+
+actor Developer
+participant "GitHub Actions" as GitHub
+participant "AWS CloudFormation" as CF
+participant "AWS EC2" as EC2
+participant "AWS IAM" as IAM
+participant "AWS CloudWatch" as CW
+
+Developer -> GitHub: Push Code
+GitHub -> GitHub: Trigger Workflow
+GitHub -> CF: Deploy CloudFormation Stack
+
+CF -> IAM: Create IAM Role with Admin Access
+CF -> EC2: Launch EC2 Instance with IAM Profile
+CF -> EC2: Configure Security Group (SSH Access)
+
+note over EC2: EC2 Instance is running
+
+Developer -> EC2: SSH Access
+EC2 -> IAM: Validate IAM Role
+EC2 -> CW: Monitor Inactivity
+
+alt Inactive for 1 hour
+  CW -> EC2: Trigger Shutdown
+  note over EC2: EC2 Instance is stopped
+end
+
+@enduml
+```

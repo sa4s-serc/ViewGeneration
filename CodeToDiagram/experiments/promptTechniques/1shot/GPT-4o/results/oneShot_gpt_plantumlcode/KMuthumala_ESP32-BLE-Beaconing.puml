@@ -1,0 +1,37 @@
+```plantuml
+@startuml KMuthumala_ESP32-BLE-Beaconing
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "ESP32" as ESP32 #lightblue {
+  rectangle "BLE_scan.ino\n(Main Arduino Sketch)" as MainSketch
+}
+
+rectangle "WiFi Network" as WiFi #lightgrey
+rectangle "MQTT Broker" as MQTT #lightyellow
+
+' ========== Connections ==========
+User --> ESP32 : Configure WiFi/MQTT
+
+' ESP32 interactions
+ESP32 -> MainSketch : setup()
+MainSketch -> MainSketch : setup_wifi()\nInitialize WiFi
+WiFi <- MainSketch : Connect to WiFi
+
+MainSketch -> MainSketch : loop()
+MainSketch -> MainSketch : scan_ble()\nScan for BLE devices
+MainSketch -> MainSketch : format data to JSON
+MainSketch -> MQTT : Publish BLE data
+
+' Connection management
+MainSketch -> MainSketch : callback()\nProcess incoming MQTT messages
+MainSketch -> MainSketch : reconnectWifi()\nRe-establish WiFi/MQTT if lost
+
+@enduml
+```

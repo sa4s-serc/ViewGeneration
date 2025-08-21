@@ -1,0 +1,66 @@
+@startuml gdsc-ys_mlops
+
+actor "ML Developer" as Dev
+participant "MLflow Client" as Client
+participant "Nginx Reverse Proxy" as Nginx
+participant "MLflow Tracking Server" as MLflow
+database "MySQL Database" as MySQL
+database "AWS S3" as S3
+
+Dev -> Client: Run experiment
+activate Client
+
+Client -> Nginx: Log metrics/params/artifacts
+activate Nginx
+
+Nginx -> MLflow: Forward request
+activate MLflow
+
+MLflow -> MySQL: Store metadata
+activate MySQL
+MySQL --> MLflow: Confirm storage
+deactivate MySQL
+
+MLflow -> S3: Store artifacts
+activate S3
+S3 --> MLflow: Confirm storage
+deactivate S3
+
+MLflow --> Nginx: Response
+deactivate MLflow
+
+Nginx --> Client: Forward response
+deactivate Nginx
+
+Client --> Dev: Experiment logged
+deactivate Client
+
+Dev -> Client: Query experiments
+activate Client
+
+Client -> Nginx: Request experiment data
+activate Nginx
+
+Nginx -> MLflow: Forward request
+activate MLflow
+
+MLflow -> MySQL: Fetch metadata
+activate MySQL
+MySQL --> MLflow: Return metadata
+deactivate MySQL
+
+MLflow -> S3: Fetch artifacts (if needed)
+activate S3
+S3 --> MLflow: Return artifacts
+deactivate S3
+
+MLflow --> Nginx: Response with data
+deactivate MLflow
+
+Nginx --> Client: Forward response
+deactivate Nginx
+
+Client --> Dev: Display experiment results
+deactivate Client
+
+@enduml

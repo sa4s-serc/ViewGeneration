@@ -1,0 +1,57 @@
+```plantuml
+@startuml chirgjin_track-my-events
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+actor User
+
+package "Frontend (React)" {
+  rectangle "React App" as ReactApp
+}
+
+package "Gateway Service" {
+  rectangle "Express App" as GatewayApp
+  rectangle "Service Controller" as ServiceController
+}
+
+package "User Service" {
+  rectangle "Express App" as UserApp
+  rectangle "Users Controller" as UsersController
+  rectangle "Authentication Controller" as AuthController
+  database "PostgreSQL Users" as UsersDB
+}
+
+package "Tracking Service" {
+  rectangle "Express App" as TrackingApp
+  rectangle "Events Controller" as EventsController
+  rectangle "Redis Subscriber" as RedisSubscriber
+  database "PostgreSQL Events" as EventsDB
+}
+
+package "Message Queue" {
+  rectangle "Redis Pub/Sub" as Redis
+}
+
+User --> ReactApp : Interact
+ReactApp --> GatewayApp : API Requests
+GatewayApp --> ServiceController : Route Requests
+
+ServiceController --> UsersController : Forward User Requests
+UsersController --> UsersDB : Access User Data
+ServiceController --> AuthController : Forward Auth Requests
+AuthController --> UsersDB : Access Auth Data
+
+ServiceController --> EventsController : Forward Event Requests
+EventsController --> EventsDB : Access Event Data
+EventsController --> Redis : Publish Event Messages
+
+RedisSubscriber --> Redis : Subscribe to Events
+RedisSubscriber --> EventsDB : Store Events
+
+@enduml
+```

@@ -1,0 +1,40 @@
+@startuml whtngus_whtngus.github.io
+skinparam rectangle {
+  BackgroundColor<<api>> #d9e7fd
+  BackgroundColor<<quota>> #d8f5d3
+  BackgroundColor<<monitoring>> #fddddd
+  BackgroundColor<<retry>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+rectangle "Gemini API" <<api>> {
+  rectangle "Generate Content" as GenerateContent
+  rectangle "Rate Limit Service" as RateLimit
+  GenerateContent --> RateLimit
+}
+
+rectangle "Quota Management" <<quota>> {
+  rectangle "Free Tier Quota" as FreeTier
+  rectangle "Paid Tier Quota" as PaidTier
+  RateLimit --> FreeTier
+  RateLimit --> PaidTier
+}
+
+rectangle "Monitoring" <<monitoring>> {
+  rectangle "Error Reporting" as ErrorReporting
+  rectangle "Retry Logic" as RetryLogic
+  ErrorReporting --> RetryLogic
+}
+
+rectangle "Retry Mechanism" <<retry>> {
+  rectangle "Exponential Backoff" as Backoff
+  rectangle "Delay Timer" as DelayTimer
+  RetryLogic --> Backoff
+  Backoff --> DelayTimer
+}
+
+FreeTier --> ErrorReporting
+PaidTier --> ErrorReporting
+DelayTimer --> GenerateContent
+@enduml

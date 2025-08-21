@@ -1,0 +1,27 @@
+```plantuml
+@startuml gapfish_deployer
+
+actor User
+
+participant "depctl CLI" as CLI
+participant "Kubernetes Cluster" as K8s
+participant "Deployment Tool" as DeployTool
+participant "Event Stream Logger" as Logger
+
+User -> CLI: Trigger deployment
+CLI -> DeployTool: Send deployment request
+DeployTool -> K8s: Apply YAML configurations
+K8s -> DeployTool: Acknowledge deployment
+DeployTool -> Logger: Log deployment start
+loop For each application component
+    DeployTool -> K8s: Deploy component
+    K8s -> DeployTool: Deployment status
+    DeployTool -> Logger: Log component status
+end
+DeployTool -> K8s: Finalize deployment
+K8s -> DeployTool: Deployment completed
+DeployTool -> Logger: Log deployment completion
+CLI -> User: Deployment status
+
+@enduml
+```

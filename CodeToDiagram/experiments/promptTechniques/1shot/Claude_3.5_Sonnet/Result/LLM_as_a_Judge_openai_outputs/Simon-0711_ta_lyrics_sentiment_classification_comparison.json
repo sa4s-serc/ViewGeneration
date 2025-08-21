@@ -1,0 +1,245 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Interacts with the system",
+        "boundary": "External",
+        "position": "Left"
+      },
+      {
+        "name": "React Frontend",
+        "description": "User interface layer",
+        "boundary": "Internal",
+        "position": "Center Left"
+      },
+      {
+        "name": "FastAPI Backend",
+        "description": "Handles business logic",
+        "boundary": "Internal",
+        "position": "Center"
+      },
+      {
+        "name": "LyricsGenius API",
+        "description": "External lyrics service",
+        "boundary": "External",
+        "position": "Center Right"
+      },
+      {
+        "name": "Elasticsearch",
+        "description": "Data storage and search",
+        "boundary": "Internal",
+        "position": "Right"
+      },
+      {
+        "name": "CNN Model",
+        "description": "Machine learning model",
+        "boundary": "Internal",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "React Frontend",
+        "label": "Input song/artist",
+        "type": "Request"
+      },
+      {
+        "source": "React Frontend",
+        "target": "FastAPI Backend",
+        "label": "POST /search",
+        "type": "HTTP"
+      },
+      {
+        "source": "FastAPI Backend",
+        "target": "LyricsGenius API",
+        "label": "Search for lyrics",
+        "type": "API Call"
+      },
+      {
+        "source": "FastAPI Backend",
+        "target": "Elasticsearch",
+        "label": "Store lyrics",
+        "type": "Data Storage"
+      },
+      {
+        "source": "FastAPI Backend",
+        "target": "CNN Model",
+        "label": "Calculate cosine similarity",
+        "type": "Processing"
+      },
+      {
+        "source": "FastAPI Backend",
+        "target": "React Frontend",
+        "label": "Return results",
+        "type": "Response"
+      }
+    ],
+    "annotations": [
+      "Lyrics not found",
+      "Lyrics found"
+    ],
+    "groups": [
+      "Frontend",
+      "Backend",
+      "External Services",
+      "Data Storage"
+    ],
+    "metadata": {
+      "filename": "sequence_diagram.png",
+      "title": "Sequence Diagram"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Interacts with the system",
+        "boundary": "External",
+        "position": "Left"
+      },
+      {
+        "name": "Frontend",
+        "description": "React application",
+        "boundary": "Internal",
+        "position": "Center Left"
+      },
+      {
+        "name": "Backend",
+        "description": "FastAPI service",
+        "boundary": "Internal",
+        "position": "Center"
+      },
+      {
+        "name": "Elasticsearch",
+        "description": "Analytics and storage",
+        "boundary": "Internal",
+        "position": "Right"
+      },
+      {
+        "name": "Kibana",
+        "description": "Data visualization",
+        "boundary": "Internal",
+        "position": "Right"
+      },
+      {
+        "name": "Developer/Admin",
+        "description": "Interacts with Kibana",
+        "boundary": "External",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Frontend",
+        "label": "searches for/provides a song",
+        "type": "Interaction"
+      },
+      {
+        "source": "Frontend",
+        "target": "Backend",
+        "label": "",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Backend",
+        "target": "Elasticsearch",
+        "label": "Analytics and storage",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Elasticsearch",
+        "target": "Kibana",
+        "label": "",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Kibana",
+        "target": "Developer/Admin",
+        "label": "",
+        "type": "Interaction"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      "Frontend",
+      "Backend",
+      "Data Storage",
+      "Visualization"
+    ],
+    "metadata": {
+      "filename": "architecture_diagram.png",
+      "title": "High Level Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "User",
+      "Frontend",
+      "Backend",
+      "Elasticsearch"
+    ],
+    "unique_to_GroundTruth": [
+      "LyricsGenius API",
+      "CNN Model"
+    ],
+    "unique_to_GeneratedImage": [
+      "Kibana",
+      "Developer/Admin"
+    ],
+    "common_connectors": [
+      {
+        "source": "User",
+        "target": "Frontend",
+        "label": "searches for/provides a song",
+        "type": "Interaction"
+      },
+      {
+        "source": "Frontend",
+        "target": "Backend",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Backend",
+        "target": "Elasticsearch",
+        "type": "Data Flow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "FastAPI Backend",
+        "target": "LyricsGenius API",
+        "label": "Search for lyrics",
+        "type": "API Call"
+      },
+      {
+        "source": "FastAPI Backend",
+        "target": "CNN Model",
+        "label": "Calculate cosine similarity",
+        "type": "Processing"
+      },
+      {
+        "source": "FastAPI Backend",
+        "target": "React Frontend",
+        "label": "Return results",
+        "type": "Response"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Elasticsearch",
+        "target": "Kibana",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Kibana",
+        "target": "Developer/Admin",
+        "type": "Interaction"
+      }
+    ],
+    "explanation": "The two diagrams share common components like User, Frontend, Backend, and Elasticsearch, indicating a similar core architecture. However, the GroundTruth diagram includes additional components like LyricsGenius API and CNN Model, which are not present in the GeneratedImage. Conversely, the GeneratedImage includes Kibana and Developer/Admin, focusing on data visualization and admin interaction. The connectors in both diagrams show similar data flows between common components, but the GroundTruth diagram has more detailed interactions related to lyrics processing and sentiment analysis. The GeneratedImage lacks these details but includes visualization aspects. The GeneratedImage is rated 7 out of 10 for capturing the core architecture but missing specific processing components and interactions present in the GroundTruth.",
+    "Rating": 7
+  }
+}

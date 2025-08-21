@@ -1,0 +1,65 @@
+### Actual Output:
+@startuml hrchlhck_k8s-bigdata
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+package "Kubernetes Cluster" {
+  rectangle "Master Node" as Master {
+    rectangle "NameNode" as NameNode #lightblue
+    rectangle "Spark Master" as SparkMaster #lightblue
+    rectangle "HiBench" as HiBench #lightblue
+  }
+
+  rectangle "Worker Nodes" as Workers {
+    rectangle "DataNode 1" as DataNode1 #lightgreen
+    rectangle "NodeManager 1" as NodeManager1 #lightgreen
+
+    rectangle "DataNode 2" as DataNode2 #lightgreen
+    rectangle "NodeManager 2" as NodeManager2 #lightgreen
+  }
+
+  rectangle "Services" {
+    rectangle "ResourceManager" as ResourceManager #pink
+    rectangle "HistoryServer" as HistoryServer #pink
+  }
+}
+
+package "Configuration" {
+  rectangle "cluster.yml" as ClusterYML #lightyellow
+  rectangle "Dockerfiles" as Dockerfiles #lightyellow
+  rectangle "Environment Variables" as EnvVars #lightyellow
+  rectangle "Python Config Scripts" as PyScripts #lightyellow
+}
+
+NameNode --> DataNode1 : HDFS
+NameNode --> DataNode2 : HDFS
+SparkMaster --> NodeManager1 : Spark
+SparkMaster --> NodeManager2 : Spark
+HiBench --> NameNode : Benchmark
+HiBench --> SparkMaster : Benchmark
+
+ResourceManager --> NodeManager1 : YARN
+ResourceManager --> NodeManager2 : YARN
+HistoryServer --> SparkMaster : Logs
+
+ClusterYML --> Master
+ClusterYML --> Workers
+ClusterYML --> Services
+Dockerfiles --> Master
+Dockerfiles --> Workers
+EnvVars --> Master
+EnvVars --> Workers
+PyScripts --> Master
+PyScripts --> Workers
+
+note right of Master
+  Co-located components:
+  - NameNode
+  - Spark Master
+  - HiBench
+end note
+@enduml

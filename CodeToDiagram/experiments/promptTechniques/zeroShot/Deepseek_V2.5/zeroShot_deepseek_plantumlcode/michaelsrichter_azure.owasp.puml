@@ -1,0 +1,45 @@
+```plantuml
+@startuml michaelsrichter_azure.owasp
+
+actor User
+participant Browser
+participant "Azure AD" as AzureAD
+participant "Insecure Web App" as InsecureApp
+participant "ModSecurity WAF" as WAF
+participant "Secure Web App" as SecureApp
+participant "Azure Resources" as AzureResources
+participant "ARM Templates" as ARMTemplates
+participant "PowerShell Scripts" as PSScripts
+
+User -> Browser: Accesses Web Application
+Browser -> WAF: HTTP Request
+WAF -> InsecureApp: Filtered Request (if allowed)
+InsecureApp -> WAF: HTTP Response
+WAF -> Browser: Filtered Response (if allowed)
+
+alt Authentication Required
+    Browser -> AzureAD: Redirect for Auth
+    AzureAD -> Browser: Authentication Token
+    Browser -> SecureApp: Request with Token
+    SecureApp -> AzureAD: Validate Token
+    AzureAD -> SecureApp: Validation Response
+    SecureApp -> Browser: Secure Content
+end
+
+group Deployment Process
+    User -> PSScripts: Execute Deployment Script
+    PSScripts -> ARMTemplates: Load Template
+    ARMTemplates -> AzureResources: Provision Resources
+    AzureResources --> ARMTemplates: Deployment Status
+    ARMTemplates --> PSScripts: Completion Status
+    PSScripts --> User: Deployment Result
+end
+
+group WAF Performance Monitoring
+    WAF -> AzureResources: Log Security Events
+    AzureResources --> WAF: Performance Metrics
+    WAF -> AzureResources: Adjust Rules (if needed)
+end
+
+@enduml
+```

@@ -1,0 +1,61 @@
+```plantuml
+@startuml doitintl_banias
+skinparam rectangle {
+  BackgroundColor #f0f0f0
+  BorderColor black
+  Style roundrect
+}
+
+left to right direction
+
+package "Frontend (Go)" {
+  rectangle "Event API\n(/track)" as FrontendAPI #a3c1ad
+  rectangle "Event Collector\n(collector.go)" as Collector #a3c1ad
+  rectangle "Event Publisher\n(publisher.go)" as Publisher #a3c1ad
+  rectangle "Prometheus Metrics\n(/metrics)" as Metrics #a3c1ad
+  rectangle "Configuration\n(config.go)" as Config #a3c1ad
+  rectangle "Kubernetes Deployment\n(deploy/*.yaml)" as Deployment #a3c1ad
+
+  FrontendAPI --> Collector
+  Collector --> Publisher
+  Publisher --> "Google Pub/Sub\nEvent Topic" #ffcc99
+  Metrics --> "Prometheus" #ffcc99
+  Config --> FrontendAPI
+  Config --> Deployment
+}
+
+package "Backend (Java Dataflow)" {
+  rectangle "Dataflow Pipeline\n(Java)" as DataflowPipeline #c7d4f0
+  rectangle "Schema Management\n(GCS)" as SchemaManagement #c7d4f0
+  rectangle "BigQuery Tables" as BigQuery #c7d4f0
+  rectangle "Error Table" as ErrorTable #c7d4f0
+
+  "Google Pub/Sub\nEvent Topic" --> DataflowPipeline
+  SchemaManagement --> DataflowPipeline
+  DataflowPipeline --> BigQuery
+  DataflowPipeline --> ErrorTable
+}
+
+note right of FrontendAPI
+  Receives event data
+  in JSON format
+end note
+
+note right of Publisher
+  Uses goroutines for
+  asynchronous publishing
+end note
+
+note right of DataflowPipeline
+  Processes events from
+  Pub/Sub and writes to
+  BigQuery
+end note
+
+note right of SchemaManagement
+  Loads schemas dynamically
+  from GCS
+end note
+
+@enduml
+```

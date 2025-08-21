@@ -1,0 +1,52 @@
+```plantuml
+@startuml NicoJuicy_Airline-Microservices
+
+package "Airline Microservices System" {
+    [API Gateway] as ApiGateway
+    [Identity Service] as IdentityService
+    [Flight Service] as FlightService
+    [Passenger Service] as PassengerService
+    [Reservation Service] as ReservationService
+
+    package "Shared Components" {
+        [Building Blocks] as BuildingBlocks
+        [MassTransit] as MassTransit
+        [RabbitMQ] as RabbitMQ
+    }
+}
+
+ApiGateway --> IdentityService : routes/auth
+ApiGateway --> FlightService : routes/flights
+ApiGateway --> PassengerService : routes/passengers
+ApiGateway --> ReservationService : routes/reservations
+
+IdentityService --> BuildingBlocks : uses
+FlightService --> BuildingBlocks : uses
+PassengerService --> BuildingBlocks : uses
+ReservationService --> BuildingBlocks : uses
+
+IdentityService ..> RabbitMQ : publishes events
+FlightService ..> RabbitMQ : publishes/subscribes
+PassengerService ..> RabbitMQ : publishes/subscribes
+ReservationService ..> RabbitMQ : publishes/subscribes
+
+RabbitMQ ..> MassTransit : message broker
+
+note top of BuildingBlocks
+    Contains:
+    - Common utilities
+    - Exception handling
+    - Logging (Serilog)
+    - Swagger config
+    - Messaging abstractions
+    - Security components
+end note
+
+note right of MassTransit
+    Implements:
+    - Event-driven communication
+    - Integration events
+end note
+
+@enduml
+```

@@ -1,0 +1,60 @@
+@startuml CMUChimpsLab_Peekaboo
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "User" as User
+
+rectangle "Node-RED Editor" as NodeRED {
+  rectangle "Provider Nodes" as ProviderNodes #lightblue
+  rectangle "Inference Nodes" as InferenceNodes #lightgreen
+  rectangle "Filter Nodes" as FilterNodes #lightyellow
+  rectangle "Network Nodes" as NetworkNodes #lightpink
+  rectangle "Utility Nodes" as UtilityNodes #lightsalmon
+}
+
+rectangle "External Services" as ExternalServices {
+  rectangle "ML Models" as MLModels #palegreen
+  rectangle "Cloud Services" as CloudServices #mistyrose
+}
+
+rectangle "Sensors" as Sensors {
+  rectangle "Hardware Sensors" as HardwareSensors #aliceblue
+  rectangle "MQTT" as MQTT #aliceblue
+  rectangle "Web Sockets" as WebSockets #aliceblue
+}
+
+User --> NodeRED
+ProviderNodes --> HardwareSensors
+ProviderNodes --> MQTT
+ProviderNodes --> WebSockets
+
+ProviderNodes --> InferenceNodes
+InferenceNodes --> MLModels
+InferenceNodes --> FilterNodes
+FilterNodes --> NetworkNodes
+NetworkNodes --> CloudServices
+
+UtilityNodes --> ProviderNodes
+UtilityNodes --> InferenceNodes
+UtilityNodes --> FilterNodes
+UtilityNodes --> NetworkNodes
+
+note right of NodeRED
+  Dynamic UI generated from
+  JSON configs using dom-util.js
+end note
+
+note right of InferenceNodes
+  Uses PeekabooService abstraction
+  for inference operations
+end note
+
+note right of FilterNodes
+  Includes noise addition,
+  data selection, spoofing
+end note
+@enduml

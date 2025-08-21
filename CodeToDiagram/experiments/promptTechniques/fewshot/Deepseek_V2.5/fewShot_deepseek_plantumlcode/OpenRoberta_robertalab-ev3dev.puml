@@ -1,0 +1,66 @@
+@startuml OpenRoberta_robertalab-ev3dev
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Open Roberta Lab" {
+  rectangle "Web Interface" as WebUI
+  rectangle "Server" as Server
+}
+
+package "EV3 Brick" {
+  rectangle "Brickman UI" as BrickmanUI
+  rectangle "DBus Interface" as DBus
+
+  package "Service Layer" {
+    rectangle "roberta.lab.Service" as Service
+  }
+
+  package "Network Layer" {
+    rectangle "roberta.lab.Connector" as Connector
+  }
+
+  package "Execution Layer" {
+    rectangle "Python Executor" as Executor
+  }
+
+  package "HAL Layer" {
+    rectangle "roberta.ev3.Hal" as Hal
+  }
+
+  rectangle "Abort Handler" as AbortHandler
+  rectangle "Gfx Mode" as GfxMode
+}
+
+rectangle "ev3dev OS" as ev3dev
+rectangle "EV3 Hardware" as Hardware
+
+WebUI --> Server
+Server --> Connector : HTTP
+Connector --> Executor : Download/Execute
+Executor --> Hal : Hardware Control
+Hal --> ev3dev : Low-level Commands
+ev3dev --> Hardware
+
+BrickmanUI --> DBus
+DBus --> Service
+Service --> Connector : Manage Connection
+Service --> AbortHandler : Signal Abort
+Service --> GfxMode : Control Display
+AbortHandler --> Hardware : Key Press
+GfxMode --> Hardware : Display
+
+note right of Connector
+  Handles network communication
+  with retry mechanisms
+end note
+
+note left of Hal
+  Hardware Abstraction Layer
+  for motors, sensors, etc.
+end note
+@enduml

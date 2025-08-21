@@ -1,0 +1,44 @@
+@startuml mrubash1_trainspotting
+
+skinparam rectangle {
+  BackgroundColor #EEEEEE
+  BorderColor #000000
+  RoundCorner 10
+}
+
+rectangle "Video_Camera" as VC {
+  [Capture Video]
+  [Adjust Camera Settings]
+}
+
+rectangle "Video_Sensor" as VS {
+  [Background Subtraction]
+  [Motion Detection]
+}
+
+rectangle "Video_Detector" as VD {
+  [Object Classification]
+  [Train Detection]
+  [Direction Determination]
+}
+
+rectangle "Data Processing" as DP {
+  [Frame Sampling]
+  [Data Storage]
+  [Data Visualization]
+}
+
+queue "input_deque" as ID
+queue "output_deque" as OD
+
+VC --> ID : Video Frames
+ID --> VS : Consume Frames
+VS --> OD : Motion Data
+OD --> VD : Consume Motion Data
+VD --> DP : Detection Events
+
+VC -[#blue]-> VC : Dynamic Adjustment
+VS -[#blue]-> VS : ROI Analysis
+VD -[#blue]-> VD : TensorFlow Inference
+
+@enduml

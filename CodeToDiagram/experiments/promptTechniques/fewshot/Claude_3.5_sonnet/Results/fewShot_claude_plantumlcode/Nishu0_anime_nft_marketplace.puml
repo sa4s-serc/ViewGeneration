@@ -1,0 +1,47 @@
+@startuml Nishu0_anime_nft_marketplace
+
+skinparam rectangle {
+  BackgroundColor #EEEBDC
+  ArrowColor #666666
+  BorderColor #666666
+}
+
+actor User
+
+rectangle "Frontend (React/Next.js)" {
+  [NFT Creation Page]
+  [Marketplace Page]
+  [My NFTs Page]
+  [NFT Details Page]
+  [NFTContext Provider]
+}
+
+rectangle "Backend" {
+  [Next.js API Routes]
+}
+
+rectangle "Blockchain" {
+  [NFTMarketplace Smart Contract]
+}
+
+database "IPFS" {
+  [NFT Metadata]
+}
+
+User --> [NFT Creation Page] : Creates NFT
+User --> [Marketplace Page] : Browses/Buys NFTs
+User --> [My NFTs Page] : Views owned NFTs
+User --> [NFT Details Page] : Views/Buys/Sells NFT
+
+[NFT Creation Page] --> [NFTContext Provider] : Calls createNFT()
+[Marketplace Page] --> [NFTContext Provider] : Calls fetchMarketItems()
+[My NFTs Page] --> [NFTContext Provider] : Calls fetchMyNFTs()
+[NFT Details Page] --> [NFTContext Provider] : Calls buyNFT()/createSale()
+
+[NFTContext Provider] --> [Next.js API Routes] : Makes API calls
+[Next.js API Routes] --> [NFTMarketplace Smart Contract] : Interacts with contract
+
+[NFTContext Provider] --> [IPFS] : Uploads/Retrieves metadata
+[NFTMarketplace Smart Contract] --> [IPFS] : Stores/Retrieves URI
+
+@enduml

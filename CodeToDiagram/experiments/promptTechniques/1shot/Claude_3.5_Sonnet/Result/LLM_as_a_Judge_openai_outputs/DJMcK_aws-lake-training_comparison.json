@@ -1,0 +1,467 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "CloudWatch Schedule",
+        "description": "time-based trigger",
+        "boundaries": "N/A",
+        "position": "start"
+      },
+      {
+        "name": "AWS Step Function",
+        "description": "orchestrates Lambda functions",
+        "boundaries": "pink box",
+        "position": "middle"
+      },
+      {
+        "name": "Lambda (query-athena)",
+        "description": "queries Athena",
+        "boundaries": "inside AWS Step Function",
+        "position": "middle"
+      },
+      {
+        "name": "Lambda (call-comprehend)",
+        "description": "calls Comprehend Medical",
+        "boundaries": "inside AWS Step Function",
+        "position": "middle"
+      },
+      {
+        "name": "Amazon Comprehend Medical",
+        "description": "extracts entities",
+        "boundaries": "N/A",
+        "position": "middle"
+      },
+      {
+        "name": "Landing",
+        "description": "S3 bucket for landing data",
+        "boundaries": "N/A",
+        "position": "middle"
+      },
+      {
+        "name": "EMR",
+        "description": "processes data",
+        "boundaries": "N/A",
+        "position": "middle"
+      },
+      {
+        "name": "Curated",
+        "description": "S3 bucket for curated data",
+        "boundaries": "N/A",
+        "position": "middle"
+      },
+      {
+        "name": "Crawlers",
+        "description": "crawls data",
+        "boundaries": "N/A",
+        "position": "middle"
+      },
+      {
+        "name": "Glue",
+        "description": "ETL service",
+        "boundaries": "N/A",
+        "position": "middle"
+      },
+      {
+        "name": "Athena",
+        "description": "queries data",
+        "boundaries": "N/A",
+        "position": "middle"
+      },
+      {
+        "name": "Amazon Quick Sight",
+        "description": "visualizes data",
+        "boundaries": "N/A",
+        "position": "end"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "CloudWatch Schedule",
+        "target": "AWS Step Function",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "AWS Step Function",
+        "target": "Lambda (query-athena)",
+        "label": "query-athena",
+        "type": "arrow"
+      },
+      {
+        "source": "AWS Step Function",
+        "target": "Lambda (call-comprehend)",
+        "label": "call-comprehend",
+        "type": "arrow"
+      },
+      {
+        "source": "Lambda (query-athena)",
+        "target": "Athena",
+        "label": "get indications",
+        "type": "arrow"
+      },
+      {
+        "source": "Lambda (call-comprehend)",
+        "target": "Amazon Comprehend Medical",
+        "label": "extract entities",
+        "type": "arrow"
+      },
+      {
+        "source": "AWS Step Function",
+        "target": "Landing",
+        "label": "write-to-landing",
+        "type": "arrow"
+      },
+      {
+        "source": "Landing",
+        "target": "EMR",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "EMR",
+        "target": "Curated",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Curated",
+        "target": "Crawlers",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Crawlers",
+        "target": "Glue",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Glue",
+        "target": "Athena",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Athena",
+        "target": "Amazon Quick Sight",
+        "label": "",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "AWS Step Function",
+        "components": [
+          "Lambda (query-athena)",
+          "Lambda (call-comprehend)"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "AWS Data Processing Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "initiates processes",
+        "boundaries": "N/A",
+        "position": "start"
+      },
+      {
+        "name": "CloudFormation",
+        "description": "deploys infrastructure",
+        "boundaries": "N/A",
+        "position": "middle"
+      },
+      {
+        "name": "S3 Buckets",
+        "description": "stores data",
+        "boundaries": "N/A",
+        "position": "middle"
+      },
+      {
+        "name": "EMR (Spark)",
+        "description": "processes data",
+        "boundaries": "N/A",
+        "position": "middle"
+      },
+      {
+        "name": "AWS Glue",
+        "description": "creates metadata catalog",
+        "boundaries": "N/A",
+        "position": "middle"
+      },
+      {
+        "name": "AWS Athena",
+        "description": "queries data",
+        "boundaries": "N/A",
+        "position": "middle"
+      },
+      {
+        "name": "Step Functions",
+        "description": "orchestrates workflow",
+        "boundaries": "N/A",
+        "position": "middle"
+      },
+      {
+        "name": "Lambda",
+        "description": "executes functions",
+        "boundaries": "N/A",
+        "position": "middle"
+      },
+      {
+        "name": "Comprehend Medical",
+        "description": "extracts medical entities",
+        "boundaries": "N/A",
+        "position": "middle"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "CloudFormation",
+        "label": "Deploy infrastructure",
+        "type": "arrow"
+      },
+      {
+        "source": "CloudFormation",
+        "target": "S3 Buckets",
+        "label": "Create raw, landing, curated buckets",
+        "type": "arrow"
+      },
+      {
+        "source": "S3 Buckets",
+        "target": "EMR (Spark)",
+        "label": "Ingest FDA data",
+        "type": "arrow"
+      },
+      {
+        "source": "EMR (Spark)",
+        "target": "S3 Buckets",
+        "label": "Store transformed data",
+        "type": "arrow"
+      },
+      {
+        "source": "S3 Buckets",
+        "target": "AWS Glue",
+        "label": "Crawl curated data",
+        "type": "arrow"
+      },
+      {
+        "source": "AWS Glue",
+        "target": "AWS Athena",
+        "label": "Create metadata catalog",
+        "type": "arrow"
+      },
+      {
+        "source": "AWS Athena",
+        "target": "Step Functions",
+        "label": "Query drug indications",
+        "type": "arrow"
+      },
+      {
+        "source": "Step Functions",
+        "target": "Lambda",
+        "label": "Configure count",
+        "type": "arrow"
+      },
+      {
+        "source": "Lambda",
+        "target": "Comprehend Medical",
+        "label": "Extract medical entities",
+        "type": "arrow"
+      },
+      {
+        "source": "Comprehend Medical",
+        "target": "Lambda",
+        "label": "Return extracted entities",
+        "type": "arrow"
+      },
+      {
+        "source": "Lambda",
+        "target": "Step Functions",
+        "label": "Check for more iterations",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "AWS Data Processing Sequence"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "AWS Glue",
+      "AWS Athena",
+      "Step Functions",
+      "Lambda",
+      "Comprehend Medical"
+    ],
+    "unique_to_GroundTruth": [
+      "CloudWatch Schedule",
+      "Amazon Quick Sight",
+      "Landing",
+      "Curated",
+      "Crawlers",
+      "EMR"
+    ],
+    "unique_to_GeneratedImage": [
+      "User",
+      "CloudFormation",
+      "S3 Buckets",
+      "EMR (Spark)"
+    ],
+    "common_connectors": [
+      {
+        "source": "AWS Glue",
+        "target": "AWS Athena",
+        "label": "Create metadata catalog",
+        "type": "arrow"
+      },
+      {
+        "source": "AWS Athena",
+        "target": "Step Functions",
+        "label": "Query drug indications",
+        "type": "arrow"
+      },
+      {
+        "source": "Step Functions",
+        "target": "Lambda",
+        "label": "Configure count",
+        "type": "arrow"
+      },
+      {
+        "source": "Lambda",
+        "target": "Comprehend Medical",
+        "label": "Extract medical entities",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "CloudWatch Schedule",
+        "target": "AWS Step Function",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "AWS Step Function",
+        "target": "Lambda (query-athena)",
+        "label": "query-athena",
+        "type": "arrow"
+      },
+      {
+        "source": "AWS Step Function",
+        "target": "Lambda (call-comprehend)",
+        "label": "call-comprehend",
+        "type": "arrow"
+      },
+      {
+        "source": "Lambda (query-athena)",
+        "target": "Athena",
+        "label": "get indications",
+        "type": "arrow"
+      },
+      {
+        "source": "Lambda (call-comprehend)",
+        "target": "Amazon Comprehend Medical",
+        "label": "extract entities",
+        "type": "arrow"
+      },
+      {
+        "source": "AWS Step Function",
+        "target": "Landing",
+        "label": "write-to-landing",
+        "type": "arrow"
+      },
+      {
+        "source": "Landing",
+        "target": "EMR",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "EMR",
+        "target": "Curated",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Curated",
+        "target": "Crawlers",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Crawlers",
+        "target": "Glue",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Glue",
+        "target": "Athena",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Athena",
+        "target": "Amazon Quick Sight",
+        "label": "",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "CloudFormation",
+        "label": "Deploy infrastructure",
+        "type": "arrow"
+      },
+      {
+        "source": "CloudFormation",
+        "target": "S3 Buckets",
+        "label": "Create raw, landing, curated buckets",
+        "type": "arrow"
+      },
+      {
+        "source": "S3 Buckets",
+        "target": "EMR (Spark)",
+        "label": "Ingest FDA data",
+        "type": "arrow"
+      },
+      {
+        "source": "EMR (Spark)",
+        "target": "S3 Buckets",
+        "label": "Store transformed data",
+        "type": "arrow"
+      },
+      {
+        "source": "S3 Buckets",
+        "target": "AWS Glue",
+        "label": "Crawl curated data",
+        "type": "arrow"
+      },
+      {
+        "source": "Comprehend Medical",
+        "target": "Lambda",
+        "label": "Return extracted entities",
+        "type": "arrow"
+      },
+      {
+        "source": "Lambda",
+        "target": "Step Functions",
+        "label": "Check for more iterations",
+        "type": "arrow"
+      }
+    ],
+    "explanation": "The two diagrams represent AWS data processing architectures but differ in their focus and detail. The GroundTruth diagram emphasizes a data pipeline with specific AWS services like CloudWatch, EMR, and Amazon Quick Sight, highlighting the flow of data through various stages. The GeneratedImage diagram presents a sequence of operations initiated by a user, focusing on the orchestration and interaction of AWS services like CloudFormation and S3 Buckets. Common components include AWS Glue, Athena, Step Functions, Lambda, and Comprehend Medical, indicating shared functionalities in querying and processing data. However, the GroundTruth diagram includes additional components for data visualization and storage, while the GeneratedImage diagram incorporates user interaction and infrastructure deployment. The connectors in both diagrams reflect these differences, with the GroundTruth diagram showing a more detailed data flow and the GeneratedImage diagram illustrating a process-oriented sequence. Overall, the GeneratedImage diagram is rated 7 out of 10 for its accuracy and completeness, as it captures key elements of the architecture but lacks some specific components and connections present in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

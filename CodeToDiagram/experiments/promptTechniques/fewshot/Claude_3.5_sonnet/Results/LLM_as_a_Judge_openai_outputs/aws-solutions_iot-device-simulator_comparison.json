@@ -1,0 +1,303 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "User",
+        "description": "End user interacting with the system",
+        "boundaries": "External",
+        "position": "Top"
+      },
+      {
+        "name": "Frontend",
+        "description": "Web Console (React/Angular)",
+        "boundaries": "Internal",
+        "position": "Below User"
+      },
+      {
+        "name": "API Layer",
+        "description": "API Gateway",
+        "boundaries": "Internal",
+        "position": "Below Frontend"
+      },
+      {
+        "name": "Microservices (Lambda)",
+        "description": "Response Manager, Simulation Manager, Device Type Manager",
+        "boundaries": "Internal",
+        "position": "Below API Layer"
+      },
+      {
+        "name": "Orchestration",
+        "description": "Step Functions (State Machine)",
+        "boundaries": "Internal",
+        "position": "Below Microservices"
+      },
+      {
+        "name": "Simulation Engine (Lambda)",
+        "description": "Simulator Function, Device Instances, Data Generators",
+        "boundaries": "Internal",
+        "position": "Below Orchestration"
+      },
+      {
+        "name": "Storage",
+        "description": "S3 (Assets), DynamoDB (Device Types, Simulations)",
+        "boundaries": "Internal",
+        "position": "Right of Simulation Engine"
+      },
+      {
+        "name": "AWS IoT",
+        "description": "IoT Core, IoT Thing Registry, IoT Rules Engine",
+        "boundaries": "Internal",
+        "position": "Right of Storage"
+      },
+      {
+        "name": "Monitoring",
+        "description": "CloudWatch Metrics",
+        "boundaries": "Internal",
+        "position": "Left of Simulation Engine"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Frontend",
+        "label": "Configure simulations",
+        "type": "Arrow"
+      },
+      {
+        "source": "Frontend",
+        "target": "API Layer",
+        "label": "REST API calls",
+        "type": "Arrow"
+      },
+      {
+        "source": "API Layer",
+        "target": "Microservices (Lambda)",
+        "label": "Route requests",
+        "type": "Arrow"
+      },
+      {
+        "source": "Microservices (Lambda)",
+        "target": "Orchestration",
+        "label": "Start/stop simulation",
+        "type": "Arrow"
+      },
+      {
+        "source": "Orchestration",
+        "target": "Simulation Engine (Lambda)",
+        "label": "Execute simulation",
+        "type": "Arrow"
+      },
+      {
+        "source": "Simulation Engine (Lambda)",
+        "target": "Storage",
+        "label": "Read assets",
+        "type": "Arrow"
+      },
+      {
+        "source": "Storage",
+        "target": "Microservices (Lambda)",
+        "label": "Store/retrieve simulations",
+        "type": "Arrow"
+      },
+      {
+        "source": "AWS IoT",
+        "target": "Simulation Engine (Lambda)",
+        "label": "Publish MQTT messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "Simulation Engine (Lambda)",
+        "target": "Monitoring",
+        "label": "Publish metrics",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "Orchestrates simulation lifecycle and timing",
+        "position": "Near Orchestration"
+      },
+      {
+        "text": "MQTT broker for device communication",
+        "position": "Near AWS IoT"
+      },
+      {
+        "text": "Random, Sinusoidal, Decay, Vehicle dynamics",
+        "position": "Near Data Generators"
+      }
+    ],
+    "groups": [
+      "Microservices (Lambda)",
+      "Simulation Engine (Lambda)",
+      "AWS IoT"
+    ],
+    "metadata": {
+      "filename": "ground_truth_diagram.png",
+      "title": "IoT Simulation Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "End user interacting with the system",
+        "boundaries": "External",
+        "position": "Left"
+      },
+      {
+        "name": "API Gateway",
+        "description": "Handles API requests",
+        "boundaries": "Internal",
+        "position": "Right of User"
+      },
+      {
+        "name": "S3",
+        "description": "Storage for assets",
+        "boundaries": "Internal",
+        "position": "Right of API Gateway"
+      },
+      {
+        "name": "Lambda",
+        "description": "Compute service",
+        "boundaries": "Internal",
+        "position": "Below S3"
+      },
+      {
+        "name": "DynamoDB",
+        "description": "Database service",
+        "boundaries": "Internal",
+        "position": "Above Lambda"
+      },
+      {
+        "name": "Step Functions",
+        "description": "Orchestration service",
+        "boundaries": "Internal",
+        "position": "Right of Lambda"
+      },
+      {
+        "name": "IoT Core",
+        "description": "IoT service",
+        "boundaries": "Internal",
+        "position": "Right of Step Functions"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "API Gateway",
+        "label": "Request",
+        "type": "Arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "S3",
+        "label": "Store data",
+        "type": "Arrow"
+      },
+      {
+        "source": "S3",
+        "target": "Lambda",
+        "label": "Trigger function",
+        "type": "Arrow"
+      },
+      {
+        "source": "Lambda",
+        "target": "DynamoDB",
+        "label": "Read/write data",
+        "type": "Arrow"
+      },
+      {
+        "source": "Lambda",
+        "target": "Step Functions",
+        "label": "Invoke",
+        "type": "Arrow"
+      },
+      {
+        "source": "Step Functions",
+        "target": "IoT Core",
+        "label": "Send message",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "generated_diagram.png",
+      "title": "AWS Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "User",
+      "API Gateway",
+      "S3",
+      "Lambda",
+      "DynamoDB",
+      "Step Functions",
+      "IoT Core"
+    ],
+    "unique_to_GroundTruth": [
+      "Frontend",
+      "Microservices (Lambda)",
+      "Simulation Engine (Lambda)",
+      "AWS IoT",
+      "Monitoring"
+    ],
+    "unique_to_GeneratedImage": [],
+    "common_connectors": [
+      {
+        "source": "User",
+        "target": "API Gateway"
+      },
+      {
+        "source": "API Gateway",
+        "target": "S3"
+      },
+      {
+        "source": "S3",
+        "target": "Lambda"
+      },
+      {
+        "source": "Lambda",
+        "target": "DynamoDB"
+      },
+      {
+        "source": "Lambda",
+        "target": "Step Functions"
+      },
+      {
+        "source": "Step Functions",
+        "target": "IoT Core"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Frontend",
+        "target": "API Layer"
+      },
+      {
+        "source": "Microservices (Lambda)",
+        "target": "Orchestration"
+      },
+      {
+        "source": "Orchestration",
+        "target": "Simulation Engine (Lambda)"
+      },
+      {
+        "source": "Storage",
+        "target": "Microservices (Lambda)"
+      },
+      {
+        "source": "AWS IoT",
+        "target": "Simulation Engine (Lambda)"
+      },
+      {
+        "source": "Simulation Engine (Lambda)",
+        "target": "Monitoring"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [],
+    "explanation": "The GroundTruth diagram represents a detailed IoT simulation architecture with specific components such as Frontend, Microservices, Simulation Engine, and Monitoring, which are absent in the GeneratedImage. The GeneratedImage focuses on a general AWS architecture with common services like API Gateway, S3, Lambda, DynamoDB, Step Functions, and IoT Core, which are also present in the GroundTruth. The connectors in both diagrams show similar flows between these common components, but the GroundTruth includes additional flows related to simulation management and monitoring. The GeneratedImage lacks these specific flows and components, making it less detailed in terms of simulation architecture. Based on these observations, the GeneratedImage is rated 6 out of 10 for its accuracy and completeness, as it captures the basic AWS services but misses the specific simulation-related elements present in the GroundTruth.",
+    "Rating": 6
+  }
+}

@@ -1,0 +1,62 @@
+@startuml Simon-0711_ta_lyrics_sentiment_classification
+skinparam backgroundColor #ffffff
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<database>> #fff1c9
+  BackgroundColor<<external>> #fddddd
+  Style roundrect
+}
+left to right direction
+
+actor "User" as user
+
+rectangle "Frontend\n(React)" <<frontend>> as frontend {
+  [UI Components]
+  [API Client]
+}
+
+rectangle "Backend\n(FastAPI)" <<backend>> as backend {
+  [API Endpoints]
+  [Lyrics Processor]
+  [CNN Model]
+  [Similarity Calculator]
+}
+
+rectangle "Elasticsearch" <<database>> as elasticsearch {
+  [Lyrics Index]
+  [Mood Index]
+}
+
+rectangle "External Services" <<external>> {
+  rectangle "LyricsGenius API" as genius
+  rectangle "Kibana" as kibana
+}
+
+user --> frontend
+frontend --> backend : REST API
+backend --> genius : Fetch lyrics
+backend --> elasticsearch : Query/Store
+elasticsearch --> kibana : Visualization
+backend --> backend : Preprocess\nLyrics
+backend --> backend : Classify Mood\n(CNN)
+backend --> backend : Calculate\nSimilarity
+
+note right of backend
+  Data Flow:
+  1. User input → Frontend
+  2. FastAPI checks Elasticsearch
+  3. If not found, fetch from Genius API
+  4. Preprocess → CNN classification
+  5. Store in Elasticsearch
+  6. Find similar songs
+end note
+
+note left of elasticsearch
+  Contains:
+  - Original lyrics
+  - Processed lyrics
+  - Mood classifications
+  - TF-IDF vectors
+end note
+@enduml

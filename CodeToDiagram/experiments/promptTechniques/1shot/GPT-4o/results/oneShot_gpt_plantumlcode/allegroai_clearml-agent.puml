@@ -1,0 +1,48 @@
+```plantuml
+@startuml allegroai_clearml-agent
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<integration>> #fddddd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<config>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Components" <<core>> {
+  rectangle "ClearML Agent" as Agent
+  rectangle "ResourceMonitor" as ResourceMonitor
+  rectangle "RequirementsManager" as RequirementsManager
+  rectangle "Docker Integration" as DockerIntegration
+  rectangle "Configuration System\n(HOCON)" as Configuration
+  Agent --> ResourceMonitor
+  Agent --> RequirementsManager
+  Agent --> DockerIntegration
+  Agent --> Configuration
+}
+
+package "Integrations" <<integration>> {
+  rectangle "K8s/SLURM Integration" as K8sSLURM
+  rectangle "Character Encoding &\nText Parsing\n(chardet, pyparsing)" as TextParsing
+  rectangle "YAML Parsing/Serialization\n(ruamel.yaml)" as YAMLParsing
+  Agent --> K8sSLURM
+  Agent --> TextParsing
+  Agent --> YAMLParsing
+}
+
+package "Backend & API Communication" <<backend>> {
+  rectangle "ClearML Server" as Server
+  rectangle "Session Management" as Session
+  rectangle "Data Modeling & Validation" as DataModeling
+  Server --> Session
+  Server --> DataModeling
+}
+
+package "Configuration" <<config>> {
+  rectangle "HOCON Configuration" as HOCON
+  Configuration --> HOCON
+}
+
+Agent --> Server
+@enduml
+```

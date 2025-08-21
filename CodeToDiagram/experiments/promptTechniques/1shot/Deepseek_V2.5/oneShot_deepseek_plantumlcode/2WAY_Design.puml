@@ -1,0 +1,51 @@
+@startuml 2WAY_Design
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<trust>> #d8f5d3
+  BackgroundColor<<data>> #fddddd
+  BackgroundColor<<auth>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core System" <<core>> {
+  rectangle "Data Exchange Engine" as ExchangeEngine
+  rectangle "Trust Network Manager" as TrustManager
+  rectangle "Private Data Processor" as DataProcessor
+  ExchangeEngine --> TrustManager
+  ExchangeEngine --> DataProcessor
+}
+
+package "Trust Network" <<trust>> {
+  rectangle "Trust Establishment" as TrustEstablishment
+  rectangle "Trust Verification" as TrustVerification
+  rectangle "Trusted Entities Registry" as TrustRegistry
+  TrustManager --> TrustEstablishment
+  TrustManager --> TrustVerification
+  TrustVerification --> TrustRegistry
+}
+
+package "Data Handling" <<data>> {
+  rectangle "Data Encryption" as Encryption
+  rectangle "Data Storage" as Storage
+  rectangle "Data Transmission" as Transmission
+  DataProcessor --> Encryption
+  DataProcessor --> Storage
+  DataProcessor --> Transmission
+}
+
+package "Security" <<auth>> {
+  rectangle "Authentication" as Auth
+  rectangle "Authorization" as Authorization
+  rectangle "Audit Logging" as Audit
+  ExchangeEngine --> Auth
+  ExchangeEngine --> Authorization
+  Authorization --> Audit
+}
+
+database "Trusted Entities" <<trust>> as Entities
+TrustRegistry --> Entities
+
+database "Private Data Store" <<data>> as DataStore
+Storage --> DataStore
+@enduml

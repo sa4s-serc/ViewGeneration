@@ -1,0 +1,58 @@
+@startuml dylanvanh_MunchOut
+
+actor Customer
+actor Restaurant
+participant "Flutter Frontend" as Frontend
+participant "AuthBloc" as AuthBloc
+participant "UserRepository" as UserRepo
+participant "CustomerRepository" as CustomerRepo
+participant "RestaurantRepository" as RestaurantRepo
+participant "Flask API" as API
+database "Database" as DB
+
+== Authentication ==
+Customer -> Frontend: Login/Signup
+Frontend -> AuthBloc: Authenticate
+AuthBloc -> UserRepo: Validate credentials
+UserRepo -> API: POST /auth
+API -> DB: Verify user
+DB --> API: User data
+API --> UserRepo: Authentication response
+UserRepo --> AuthBloc: Auth result
+AuthBloc --> Frontend: Update auth state
+
+== Customer Flow ==
+Customer -> Frontend: Browse events
+Frontend -> CustomerRepo: Get events
+CustomerRepo -> API: GET /events
+API -> DB: Fetch events
+DB --> API: Event data
+API --> CustomerRepo: Event list
+CustomerRepo --> Frontend: Display events
+
+Customer -> Frontend: Book event
+Frontend -> CustomerRepo: Create booking
+CustomerRepo -> API: POST /bookings
+API -> DB: Save booking
+DB --> API: Booking confirmation
+API --> CustomerRepo: Booking result
+CustomerRepo --> Frontend: Confirm booking
+
+== Restaurant Flow ==
+Restaurant -> Frontend: Create event
+Frontend -> RestaurantRepo: Submit event
+RestaurantRepo -> API: POST /events
+API -> DB: Save event
+DB --> API: Event confirmation
+API --> RestaurantRepo: Event creation result
+RestaurantRepo --> Frontend: Confirm event creation
+
+Restaurant -> Frontend: View bookings
+Frontend -> RestaurantRepo: Get bookings
+RestaurantRepo -> API: GET /restaurant/bookings
+API -> DB: Fetch bookings
+DB --> API: Booking data
+API --> RestaurantRepo: Booking list
+RestaurantRepo --> Frontend: Display bookings
+
+@enduml

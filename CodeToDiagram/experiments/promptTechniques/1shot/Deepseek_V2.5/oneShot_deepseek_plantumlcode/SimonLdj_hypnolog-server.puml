@@ -1,0 +1,50 @@
+@startuml SimonLdj_hypnolog-server
+skinparam rectangle {
+  BackgroundColor<<server>> #d8f5d3
+  BackgroundColor<<client>> #d9e7fd
+  BackgroundColor<<visualization>> #fff1c9
+  BackgroundColor<<integration>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Server (Node.js/Express)" <<server>> {
+  rectangle "Express App" as Express
+  rectangle "Logger Route" as LoggerRoute
+  rectangle "Socket.IO" as SocketIO
+  rectangle "Data Processor" as DataProcessor
+  Express --> LoggerRoute
+  LoggerRoute --> DataProcessor
+  DataProcessor --> SocketIO
+}
+
+package "Web UI" <<client>> {
+  rectangle "Client HTML" as ClientHTML
+  rectangle "Client JS" as ClientJS
+  rectangle "SystemJS" as SystemJS
+  rectangle "jQuery" as JQuery
+  ClientHTML --> ClientJS
+  ClientJS --> SystemJS
+  ClientJS --> JQuery
+}
+
+package "Visualization System" <<visualization>> {
+  rectangle "WindowsDispatcher" as WindowsDispatcher
+  rectangle "VisualizerDispatcher" as VisualizerDispatcher
+  rectangle "ConfigFactory" as ConfigFactory
+  rectangle "Visualizers" as Visualizers
+  WindowsDispatcher --> VisualizerDispatcher
+  VisualizerDispatcher --> Visualizers
+  VisualizerDispatcher --> ConfigFactory
+}
+
+package "External" <<integration>> {
+  rectangle "HTTP Clients" as HTTPClients
+  rectangle "Command Line Tools" as CLITools
+}
+
+HTTPClients --> LoggerRoute
+CLITools --> LoggerRoute
+SocketIO --> ClientJS
+ClientJS --> WindowsDispatcher
+@enduml

@@ -1,0 +1,44 @@
+```plantuml
+@startuml jes_autopatzer
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "React UI" as UI {
+}
+
+rectangle "Lichess API" as LichessAPI #lightyellow
+
+rectangle "Teensy Microcontroller" as Teensy #lightblue {
+  rectangle "Motor Control" as MotorControl
+  rectangle "Sensor Interface" as SensorInterface
+}
+
+rectangle "Perl Script" as PerlScript #lightgreen
+
+rectangle "Arduino (Teensy)" as Arduino #lightcoral
+
+rectangle "WebSockets" as WebSockets #aliceblue
+
+' ========== Connections ==========
+User --> UI : Interact with UI
+
+' User Interface interactions
+UI <--> WebSockets : Real-time updates\nfrom Lichess API
+UI <--> LichessAPI : Fetch game data\nvia WebSockets
+
+' Arduino and Teensy interactions
+Arduino <--> Teensy : Control signals\nmotor & sensor data
+Teensy <--> SensorInterface : Read piece positions
+Teensy <--> MotorControl : Move pieces
+
+' Perl Script interactions
+PerlScript --> Arduino : Process sensor data
+
+@enduml
+```

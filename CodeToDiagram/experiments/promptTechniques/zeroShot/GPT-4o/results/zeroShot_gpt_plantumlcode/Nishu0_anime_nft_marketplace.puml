@@ -1,0 +1,39 @@
+```plantuml
+@startuml Nishu0_anime_nft_marketplace
+
+actor User
+participant "NFTContext" as Context
+participant "NFTMarketplace.sol" as Contract
+participant "IPFS"
+participant "Metamask"
+
+User -> Context: Connect Wallet
+Context -> Metamask: Request Account Access
+Metamask -> User: Prompt for Access
+User -> Metamask: Grant Access
+Metamask -> Context: Provide Account Info
+
+User -> Context: Mint New NFT
+Context -> IPFS: Upload Image & Metadata
+IPFS -> Context: Return IPFS URI
+Context -> Contract: Call createToken(IPFS URI)
+Contract -> Contract: Register NFT & URI
+
+User -> Context: List NFT for Sale
+Context -> Contract: Call listNFTForSale(tokenId, price)
+Contract -> Contract: Set Sale Price
+
+User -> Context: Buy NFT
+Context -> Metamask: Sign Transaction
+Metamask -> User: Request Transaction Signature
+User -> Metamask: Sign Transaction
+Metamask -> Context: Transaction Hash
+Context -> Contract: Call buyNFT(tokenId)
+Contract -> Contract: Transfer Ownership
+
+User -> Context: View Owned NFTs
+Context -> Contract: Call fetchOwnedNFTs(userAddress)
+Contract -> Context: Return NFT List
+
+@enduml
+```

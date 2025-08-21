@@ -1,0 +1,43 @@
+@startuml CMUChimpsLab_Peekaboo
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Node-RED" as NR {
+  rectangle "Provider Nodes" as Provider
+  rectangle "Inference Nodes" as Inference
+  rectangle "Filter Nodes" as Filter
+  rectangle "Network Nodes" as Network
+  rectangle "Utility Nodes" as Utility
+}
+
+rectangle "External Services" as Services {
+  rectangle "ML Services" as ML
+  rectangle "Cloud Services" as Cloud
+  rectangle "MQTT Broker" as MQTT
+}
+
+rectangle "Sensors" as Sensors {
+  rectangle "Hardware Sensors" as HW
+  rectangle "Web Sockets" as WS
+}
+
+' ========== Connections ==========
+User --> NR : Configures nodes\nCreates flows
+
+Provider --> Sensors : Pull/Push data
+Provider --> MQTT : Subscribe/Publish
+
+Inference --> ML : Send data for analysis\nReceive results
+Filter --> NR : Process/modify data\n(Select/Noisify/Spoof)
+Network --> Cloud : Post processed data
+
+Utility --> NR : Data manipulation\nMessage injection\nAggregation
+
+NR --> NR : Data flow between nodes\n(Provider → Inference → Filter → Network)
+@enduml

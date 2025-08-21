@@ -1,0 +1,49 @@
+@startuml pau-minoves_jseats
+
+participant "SeatAllocatorLauncher" as Launcher
+participant "SeatAllocatorProcessor" as Processor
+participant "ProcessorConfig" as Config
+participant "SeatAllocatorResolver" as Resolver
+participant "TallyFilter" as Filter
+participant "SeatAllocationMethod" as Method
+participant "ResultDecorator" as Decorator
+participant "TieBreaker" as TieBreaker
+
+Launcher -> Processor : process(config)
+activate Processor
+
+Processor -> Config : getFilters()
+Processor -> Resolver : resolveTallyFilter()
+Resolver --> Processor : TallyFilter instance
+
+loop for each filter
+    Processor -> Filter : filter(tally)
+end
+
+Processor -> Config : getMethod()
+Processor -> Resolver : resolveSeatAllocationMethod()
+Resolver --> Processor : SeatAllocationMethod instance
+
+Processor -> Method : allocate(tally, seats)
+Method --> Processor : Result
+
+alt if tie occurs
+    Processor -> Config : getTieBreaker()
+    Processor -> Resolver : resolveTieBreaker()
+    Resolver --> Processor : TieBreaker instance
+    Processor -> TieBreaker : breakTie(candidates)
+end
+
+Processor -> Config : getDecorators()
+Processor -> Resolver : resolveResultDecorator()
+Resolver --> Processor : ResultDecorator instance
+
+loop for each decorator
+    Processor -> Decorator : decorate(result)
+end
+
+Processor --> Launcher : Final Result
+
+deactivate Processor
+
+@enduml

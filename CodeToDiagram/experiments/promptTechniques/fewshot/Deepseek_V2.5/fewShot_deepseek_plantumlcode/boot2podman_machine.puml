@@ -1,0 +1,75 @@
+@startuml boot2podman_machine
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "User" as user
+
+rectangle "CLI Commands" as cli {
+  [create]
+  [start]
+  [stop]
+  [rm]
+  [env]
+  [ssh]
+}
+
+rectangle "Libmachine" as libmachine {
+  [Client]
+  [Filestore]
+  [Host]
+}
+
+rectangle "Drivers" as drivers {
+  [VirtualBox]
+  [QEMU]
+  [Generic]
+  [SerialDriver]
+}
+
+rectangle "Provisioners" as provisioners {
+  [RedHat]
+  [Fedora]
+  [CentOS]
+  [Boot2Podman]
+}
+
+rectangle "Network" as network {
+  [Netfilter]
+  [NFTables]
+}
+
+database "Configuration Files" as config
+database "VM Storage" as vmstorage
+
+user --> cli
+cli --> libmachine
+libmachine --> drivers
+libmachine --> provisioners
+libmachine --> config
+libmachine --> vmstorage
+
+drivers --> VirtualBox
+drivers --> QEMU
+drivers --> Generic
+drivers --> SerialDriver
+
+provisioners --> network
+network --> drivers
+
+drivers --> vmstorage
+provisioners --> vmstorage
+
+note right of drivers
+  RPC communication
+  with driver plugins
+end note
+
+note left of provisioners
+  Uses SSHCommander
+  for remote execution
+end note
+@enduml

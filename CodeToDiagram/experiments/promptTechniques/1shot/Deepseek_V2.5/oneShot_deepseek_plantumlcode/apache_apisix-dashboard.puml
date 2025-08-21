@@ -1,0 +1,54 @@
+@startuml apache_apisix-dashboard
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<api>> #d8f5d3
+  BackgroundColor<<state>> #fddddd
+  BackgroundColor<<ui>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend (React/TypeScript)" <<frontend>> {
+  rectangle "Main App (main.tsx)" as App
+  rectangle "Routing (TanStack Router)" as Router
+  rectangle "UI Components" as UIComponents
+  rectangle "Forms (react-hook-form)" as Forms
+  rectangle "API Client (Axios)" as APIClient
+}
+
+package "UI Framework" <<ui>> {
+  rectangle "Mantine UI" as Mantine
+  rectangle "Ant Design Pro" as AntDesign
+  rectangle "i18n (react-i18next)" as I18n
+}
+
+package "State Management" <<state>> {
+  rectangle "MobX Stores" as MobX
+  rectangle "TanStack Query" as TanStackQuery
+}
+
+package "API Layer" <<api>> {
+  rectangle "APISIX Admin API" as APISIXAPI
+  rectangle "API Services (src/apis)" as APIServices
+  rectangle "Schema Validation (Zod)" as Schema
+}
+
+App --> Router
+Router --> UIComponents
+UIComponents --> Mantine
+UIComponents --> AntDesign
+UIComponents --> I18n
+UIComponents --> Forms
+Forms --> Schema
+
+App --> APIClient
+APIClient --> APIServices
+APIServices --> APISIXAPI
+
+App --> TanStackQuery
+TanStackQuery --> APIServices
+TanStackQuery --> MobX
+
+Forms --> MobX
+UIComponents --> MobX
+@enduml

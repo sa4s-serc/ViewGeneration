@@ -1,0 +1,66 @@
+```plantuml
+@startuml swir-rs_swir
+
+package "SWIR Sidecar" {
+    [Main Application] as main
+    [HTTP Handler] as http_handler
+    [gRPC Handler] as grpc_handler
+
+    package "Service Invocation" {
+        [SI Handlers] as si_handlers
+        [Service Discovery] as service_discovery
+    }
+
+    package "Messaging" {
+        [Messaging Handlers] as messaging_handlers
+        [Kafka Handler] as kafka
+        [NATS Handler] as nats
+        [AWS Kinesis Handler] as kinesis
+    }
+
+    package "Persistence" {
+        [Persistence Handlers] as persistence_handlers
+        [Redis Store] as redis
+        [DynamoDB Store] as dynamodb
+    }
+
+    package "Utilities" {
+        [Configuration] as config
+        [Metrics] as metrics
+        [Tracing] as tracing
+        [Structs] as structs
+    }
+}
+
+main --> http_handler : "handles\nHTTP requests"
+main --> grpc_handler : "handles\ngRPC requests"
+
+http_handler --> si_handlers : "service\ninvocation"
+http_handler --> messaging_handlers : "pub/sub"
+http_handler --> persistence_handlers : "data\nstorage"
+
+grpc_handler --> si_handlers
+grpc_handler --> messaging_handlers
+grpc_handler --> persistence_handlers
+
+si_handlers --> service_discovery : "discovers\nservices"
+service_discovery --> dynamodb : "DynamoDB\nbackend"
+service_discovery --> "mDNS" : "local\ndiscovery"
+
+messaging_handlers --> kafka : "Kafka\nbroker"
+messaging_handlers --> nats : "NATS\nbroker"
+messaging_handlers --> kinesis : "Kinesis\nstream"
+
+persistence_handlers --> redis : "Redis\nstore"
+persistence_handlers --> dynamodb : "DynamoDB\nstore"
+
+main --> config : "reads\nconfiguration"
+main --> metrics : "collects\nmetrics"
+main --> tracing : "manages\ntracing"
+main --> structs : "uses\ndata structures"
+
+metrics --> "OpenTelemetry" : "exports\nmetrics"
+tracing --> "OpenTelemetry" : "exports\ntraces"
+
+@enduml
+```

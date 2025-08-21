@@ -1,0 +1,56 @@
+### Output:
+@startuml LouisvilleMetro_WazeCCPProcessor
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+rectangle "Waze CCP\nData Feed" as WazeFeed
+
+rectangle "AWS" {
+  rectangle "S3 Bucket\n(Data Lake)" as S3
+
+  rectangle "Lambda" {
+    rectangle "waze-data-download" as DownloadLambda
+    rectangle "waze-data-process" as ProcessLambda
+    rectangle "waze-data-api" as ApiLambda
+    rectangle "waze-db-initialize" as DbInitLambda
+  }
+
+  rectangle "SQS Queue" as SQS
+  rectangle "SNS Topic" as SNS
+
+  database "Aurora PostgreSQL" as AuroraDB
+
+  rectangle "API Gateway" as ApiGateway
+}
+
+actor "API Consumer" as Consumer
+
+WazeFeed --> DownloadLambda : Fetch data
+DownloadLambda --> S3 : Store raw JSON
+S3 --> ProcessLambda : Trigger on new file
+ProcessLambda --> SQS : Enqueue processing tasks
+SQS --> ProcessLambda : Dequeue for processing
+ProcessLambda --> AuroraDB : Store processed data
+ProcessLambda --> SNS : Notify status
+DbInitLambda --> AuroraDB : Initialize schema
+
+ApiGateway --> ApiLambda : Route requests
+ApiLambda --> AuroraDB : Query data
+ApiLambda --> Consumer : Return results
+
+note right of SQS
+  retry mechanism via\nredrive_policy
+end note
+
+note right of S3
+  data lake pattern
+end note
+
+note right of ApiGateway
+  facade pattern
+end note
+@enduml

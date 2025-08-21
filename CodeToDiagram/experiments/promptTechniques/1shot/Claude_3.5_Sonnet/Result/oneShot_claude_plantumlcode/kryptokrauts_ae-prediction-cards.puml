@@ -1,0 +1,38 @@
+@startuml kryptokrauts_ae-prediction-cards
+
+actor User
+participant "Frontend (React)" as Frontend
+participant "PredictionCards Smart Contract" as Contract
+participant "Process Prediction Service" as PPS
+participant "Oracle Service" as Oracle
+database "Aeternity Blockchain" as Blockchain
+
+User -> Frontend : Create prediction
+Frontend -> Contract : create_prediction()
+Contract -> Blockchain : Store prediction data
+
+User -> Frontend : Rent NFT
+Frontend -> Contract : rent_nft()
+Contract -> Blockchain : Update NFT rental state
+
+loop Periodic check
+    PPS -> Blockchain : Check for closed predictions
+    alt Prediction closed
+        PPS -> Contract : ask_for_winning_option()
+        Contract -> Oracle : Query for asset price
+        Oracle -> Contract : Respond with price
+        Contract -> PPS : process_oracle_response()
+        PPS -> Contract : Determine winner and update state
+    end
+end
+
+User -> Frontend : Claim rewards
+Frontend -> Contract : claim()
+Contract -> Blockchain : Transfer rewards
+
+User -> Frontend : View predictions/holdings
+Frontend -> Contract : Dry-run calls
+Contract --> Frontend : Return data
+Frontend --> User : Display information
+
+@enduml

@@ -1,0 +1,54 @@
+```plantuml
+@startuml qunarcorp_m_adr_qapm_open_source
+skinparam linetype ortho
+skinparam defaultTextAlignment center
+
+actor "Developer" as dev
+
+package "QAPM Gradle Plugin" {
+    rectangle "QBuildPlugin" as QBuildPlugin
+    rectangle "AspectJAppTransform" as AspectJAppTransform
+}
+
+package "QAPM Library" {
+    rectangle "QAPM" as QAPM
+    rectangle "FPS Tracer" as FPSTracer
+    rectangle "Memory Tracer" as MemoryTracer
+    rectangle "CPU Tracer" as CPUTracer
+    rectangle "Battery Tracer" as BatteryTracer
+    rectangle "Network Tracer" as NetworkTracer
+    rectangle "WatchMan" as WatchMan
+    rectangle "Storage" as Storage
+    rectangle "QAPMConfig" as QAPMConfig
+    rectangle "QConfigManager" as QConfigManager
+    rectangle "ApplicationLifeObserver" as ApplicationLifeObserver
+}
+
+package "Sample Android App" {
+    rectangle "MainActivity" as MainActivity
+}
+
+dev --> QBuildPlugin : applies
+QBuildPlugin --> AspectJAppTransform : registers
+AspectJAppTransform --> QAPM : injects monitoring logic
+
+MainActivity --> QAPM : initializes
+QAPM --> QAPMConfig : configures
+QAPM --> QConfigManager : manages config
+QAPM --> WatchMan : monitors lifecycle
+
+WatchMan --> ApplicationLifeObserver : observes lifecycle
+ApplicationLifeObserver --> FPSTracer : triggers tracing
+ApplicationLifeObserver --> MemoryTracer : triggers tracing
+ApplicationLifeObserver --> CPUTracer : triggers tracing
+ApplicationLifeObserver --> BatteryTracer : triggers tracing
+ApplicationLifeObserver --> NetworkTracer : triggers tracing
+
+NetworkTracer --> Storage : stores data
+FPSTracer --> Storage : stores data
+MemoryTracer --> Storage : stores data
+CPUTracer --> Storage : stores data
+BatteryTracer --> Storage : stores data
+
+@enduml
+```

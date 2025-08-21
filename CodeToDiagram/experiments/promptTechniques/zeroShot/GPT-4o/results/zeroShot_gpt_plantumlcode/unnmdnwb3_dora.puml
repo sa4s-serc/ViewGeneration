@@ -1,0 +1,26 @@
+```plantuml
+@startuml unnmdnwb3_dora
+
+actor DevOpsUser as user
+participant "GitLab Connector" as gitlab
+participant "Prometheus Connector" as prometheus
+participant "Backend API" as api
+participant "MongoDB Service" as mongodb
+
+user -> api: Request DORA Metrics
+api -> gitlab: Fetch Data (Organizations, Repositories, PRs, Commits, Pipelines)
+gitlab -> api: Return Fetched Data
+api -> mongodb: Store Raw Data
+mongodb -> api: Confirm Data Stored
+
+api -> prometheus: Query Alerts for MTTR
+prometheus -> api: Return Alert Data
+api -> api: Aggregate Data & Calculate Metrics
+
+api -> mongodb: Store Calculated Metrics
+mongodb -> api: Confirm Metrics Stored
+
+api -> user: Return Calculated DORA Metrics
+
+@enduml
+```

@@ -1,0 +1,68 @@
+@startuml microsoft_covid19-BackToWork
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "Employee" as Employee
+actor "Admin" as Admin
+
+rectangle "Azure Functions" as Functions {
+  rectangle "PostUserInfo" as PostUser
+  rectangle "PostSymptomsInfo" as PostSymptoms
+  rectangle "PostLabTestInfo" as PostLab
+  rectangle "PostRequestStatus" as PostStatus
+  rectangle "GetUserInfo" as GetUser
+  rectangle "GetSymptomsInfo" as GetSymptoms
+  rectangle "GetLabTestInfo" as GetLab
+  rectangle "GetRequestStatus" as GetStatus
+  rectangle "TriggerNotification" as Notify
+}
+
+rectangle "Microsoft Healthcare Bot" as Bot {
+  rectangle "Assessment Logic" as Assessment
+}
+
+database "Azure SQL Database" as SQL {
+  rectangle "User Data" as UserData
+  rectangle "Symptoms" as Symptoms
+  rectangle "Lab Results" as Labs
+  rectangle "Request Status" as Status
+}
+
+rectangle "Notification Services" as Notifications {
+  rectangle "SendGrid" as SendGrid
+  rectangle "Teams API" as Teams
+}
+
+Employee --> PostUser
+Employee --> PostSymptoms
+Employee --> PostLab
+Employee --> PostStatus
+Employee --> GetUser
+Employee --> GetSymptoms
+Employee --> GetLab
+Employee --> GetStatus
+
+PostUser --> UserData
+PostSymptoms --> Symptoms
+PostLab --> Labs
+PostStatus --> Status
+GetUser --> UserData
+GetSymptoms --> Symptoms
+GetLab --> Labs
+GetStatus --> Status
+
+Functions --> Assessment
+Assessment --> Functions
+
+Notify --> SendGrid
+Notify --> Teams
+SendGrid --> Employee
+Teams --> Admin
+
+Functions --> SQL
+SQL --> Functions
+@enduml

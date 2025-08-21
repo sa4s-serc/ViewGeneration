@@ -1,0 +1,26 @@
+```plantuml
+@startuml
+!define RECTANGLE class
+
+RECTANGLE "Edge Device" as Edge
+RECTANGLE "Kafka Cluster" as Kafka
+RECTANGLE "Consumer Application" as Consumer
+RECTANGLE "Seldon Core" as Seldon
+RECTANGLE "MinIO" as MinIO
+RECTANGLE "OpenShift Cluster" as OpenShift
+
+Edge -> OpenShift : Deploy components
+OpenShift -> Kafka : Deploy Kafka cluster
+OpenShift -> Consumer : Deploy consumer app
+OpenShift -> Seldon : Deploy ML model
+OpenShift -> MinIO : Deploy object storage
+
+Edge -> Kafka : Stream images
+Kafka -> Consumer : Consume image data
+Consumer -> Seldon : Request inference
+Seldon -> Consumer : Return predictions
+Consumer -> MinIO : Store results
+MinIO -> Consumer : Retrieve results for visualization
+
+@enduml
+```

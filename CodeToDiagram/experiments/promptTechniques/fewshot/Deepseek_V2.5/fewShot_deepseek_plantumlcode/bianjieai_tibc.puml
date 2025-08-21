@@ -1,0 +1,48 @@
+@startuml bianjieai_tibc
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<client>> #d8f5d3
+  BackgroundColor<<relayer>> #fff1c9
+  BackgroundColor<<app>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "TIBC Core Protocol" <<core>> {
+  rectangle "Client Semantics\n(TICS-002)" as ClientSemantics
+  rectangle "Port & Packet Semantics\n(TICS-004)" as PacketSemantics
+  rectangle "Host Environments\n(TICS-024)" as HostEnv
+  rectangle "Packet Routing\n(TICS-026)" as PacketRouting
+}
+
+package "Client Implementations" <<client>> {
+  rectangle "Tendermint Client\n(TICS-007)" as TendermintClient
+  rectangle "BSC Client\n(TICS-008)" as BSCClient
+  rectangle "Ethereum Client\n(TICS-009)" as EthClient
+}
+
+package "Relayer Algorithms" <<relayer>> {
+  rectangle "Packet Relay Logic" as RelayLogic
+  rectangle "Header Updates" as HeaderUpdates
+  rectangle "Error Handling" as ErrorHandling
+}
+
+package "Applications" <<app>> {
+  rectangle "NFT Transfer\n(TICS-030)" as NFTTransfer
+}
+
+ClientSemantics --> PacketSemantics
+PacketSemantics --> HostEnv
+HostEnv --> PacketRouting
+
+TendermintClient -up-> ClientSemantics
+BSCClient -up-> ClientSemantics
+EthClient -up-> ClientSemantics
+
+RelayLogic --> PacketRouting
+HeaderUpdates --> ClientSemantics
+ErrorHandling --> PacketRouting
+
+NFTTransfer --> PacketRouting
+@enduml

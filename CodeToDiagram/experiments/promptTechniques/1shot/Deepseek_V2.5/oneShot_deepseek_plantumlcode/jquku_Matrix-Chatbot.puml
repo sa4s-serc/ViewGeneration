@@ -1,0 +1,53 @@
+@startuml jquku_Matrix-Chatbot
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Matrix Homeserver" as Matrix #mistyrose
+
+rectangle "Chatbot Core" as Core #lightsteelblue {
+  rectangle "Main Module" as Main
+  rectangle "Message Evaluation" as MsgEval
+  rectangle "Response Management" as Response
+}
+
+rectangle "NLP Pipeline" as NLP #palegreen {
+  rectangle "Text Processing" as TextProc
+  rectangle "Intent Recognition" as Intent
+}
+
+rectangle "Knowledge Base" as KB #lightyellow {
+  rectangle "PostgreSQL" as DB
+  rectangle "Knowledge Domains" as Domains
+}
+
+rectangle "Services" as Services #aliceblue {
+  rectangle "Database Service" as DBService
+}
+
+' ========== Connections ==========
+User -> Matrix : Sends message
+Matrix -> Main : Receives message event
+Main -> MsgEval : Processes message
+MsgEval -> NLP : Preprocesses text
+NLP -> TextProc : Lowercase/Tokenize
+TextProc -> Intent : Recognize intent
+Intent -> MsgEval : Returns intent
+MsgEval -> Response : Gets response data
+Response -> DBService : Queries knowledge
+DBService -> DB : Executes query
+DB --> DBService : Returns results
+DBService --> Response : Returns formatted data
+Response --> Main : Generates response
+Main -> Matrix : Sends response
+Matrix --> User : Receives response
+
+' Knowledge loading flows
+Domains --> DBService : Loads initial data
+DBService -> DB : Stores knowledge
+@enduml

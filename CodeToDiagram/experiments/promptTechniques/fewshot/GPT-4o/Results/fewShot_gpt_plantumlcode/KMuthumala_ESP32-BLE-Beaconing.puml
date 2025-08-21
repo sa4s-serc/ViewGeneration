@@ -1,0 +1,41 @@
+```plantuml
+@startuml KMuthumala_ESP32-BLE-Beaconing
+skinparam defaultTextAlignment center
+skinparam linetype ortho
+
+actor "BLE Device" as ble
+actor "WiFi Network" as wifi
+actor "MQTT Broker" as mqtt
+
+rectangle "ESP32" as esp {
+    rectangle "BLE Scanner" as bleScanner
+    rectangle "WiFi Module" as wifiModule
+    rectangle "MQTT Client" as mqttClient
+    rectangle "Main Application" as mainApp
+}
+
+ble --> bleScanner : Scan for BLE devices
+bleScanner --> mainApp : Send MAC & RSSI
+mainApp --> wifiModule : Connect to WiFi
+wifiModule <--> wifi : Establish Connection
+mainApp --> mqttClient : Publish Data
+mqttClient <--> mqtt : Publish/Subscribe
+
+note right of bleScanner
+  Singleton Pattern
+end note
+
+note right of mqttClient
+  Observer Pattern
+end note
+
+mainApp <--> mqttClient : Handle Callback
+wifiModule --> mainApp : Reconnect Logic
+mqttClient --> mainApp : Reconnect Logic
+
+note right of mainApp
+  Finite State Machine
+end note
+
+@enduml
+```

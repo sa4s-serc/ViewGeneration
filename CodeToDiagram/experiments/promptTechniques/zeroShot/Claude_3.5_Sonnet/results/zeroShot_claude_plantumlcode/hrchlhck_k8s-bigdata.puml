@@ -1,0 +1,52 @@
+```plantuml
+@startuml hrchlhck_k8s-bigdata
+
+!define KUBERNETES #CCCCFF
+!define DOCKER #99CCFF
+
+node "Kubernetes Cluster" as k8s KUBERNETES {
+  component "NameNode Pod" as namenode {
+    [NameNode]
+    [Spark Master]
+    [HiBench]
+  }
+  
+  component "ResourceManager Pod" as resourcemanager {
+    [ResourceManager]
+  }
+  
+  component "HistoryServer Pod" as historyserver {
+    [HistoryServer]
+  }
+  
+  component "DataNode Pod" as datanode {
+    [DataNode]
+    [NodeManager]
+  }
+}
+
+cloud "Docker Hub" as dockerhub DOCKER {
+  [vpemfh7 Repository]
+}
+
+actor "User" as user
+
+user --> [kubectl] : deploys
+[kubectl] --> k8s : manages
+
+k8s --> dockerhub : pulls images
+
+namenode --> datanode : manages
+resourcemanager --> datanode : schedules tasks
+historyserver --> resourcemanager : logs jobs
+
+note right of k8s
+  Deployment concern:
+  - Uses Kubernetes for orchestration
+  - Containers pulled from Docker Hub
+  - Specific node affinity for master services
+  - StatefulSets for DataNodes (persistent storage)
+end note
+
+@enduml
+```

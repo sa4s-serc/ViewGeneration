@@ -1,0 +1,42 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #EEEBDC
+  BorderColor #333333
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+rectangle "Browser VM" as BrowserVM {
+  [CTAP Client] as Client
+  [HID Emulation] as HIDEmu
+  [Qrexec Client] as QrexecClient
+}
+
+rectangle "sys-usb VM" as SysUSBVM {
+  [Qrexec Server] as QrexecServer
+  [CTAP Proxy] as CTAPProxy
+  [USB HID Driver] as USBDriver
+}
+
+rectangle "Physical USB Device" as USBDevice
+
+rectangle "Qrexec Policy" as QrexecPolicy
+
+Client --> HIDEmu : CTAP Requests
+HIDEmu --> QrexecClient : Forward Requests
+QrexecClient --> QrexecServer : Inter-VM Communication
+QrexecServer --> CTAPProxy : Forward Requests
+CTAPProxy --> USBDriver : Communicate with Device
+USBDriver --> USBDevice : Physical Communication
+
+QrexecPolicy -[dotted]-> QrexecServer : Enforce Access Control
+
+note right of CTAPProxy
+  Handles CTAP1/U2F and CTAP2 protocols
+end note
+
+note left of QrexecPolicy
+  Defines which VMs can access CTAP token
+end note
+
+@enduml

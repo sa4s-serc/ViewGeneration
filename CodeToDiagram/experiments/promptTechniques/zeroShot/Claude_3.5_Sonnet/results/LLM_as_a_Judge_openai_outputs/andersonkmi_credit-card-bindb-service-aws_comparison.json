@@ -1,0 +1,378 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "S3 CSV Input",
+        "description": "CSV input from S3",
+        "boundaries": "orange box",
+        "position": "top left"
+      },
+      {
+        "name": "CSV Node",
+        "description": "Processes CSV",
+        "boundaries": "orange box",
+        "position": "center left"
+      },
+      {
+        "name": "SQS",
+        "description": "Queue service",
+        "boundaries": "orange box",
+        "position": "bottom left"
+      },
+      {
+        "name": "Kinesis",
+        "description": "Data streaming",
+        "boundaries": "orange box",
+        "position": "center"
+      },
+      {
+        "name": "DynamoDB Consumer",
+        "description": "Consumes and processes data",
+        "boundaries": "orange box",
+        "position": "bottom center"
+      },
+      {
+        "name": "DynamoDB",
+        "description": "Database storage",
+        "boundaries": "brown circle",
+        "position": "bottom right"
+      },
+      {
+        "name": "API Gateway",
+        "description": "API management",
+        "boundaries": "green box",
+        "position": "top right"
+      },
+      {
+        "name": "API Implementation",
+        "description": "Implements API logic",
+        "boundaries": "green box",
+        "position": "center right"
+      },
+      {
+        "name": "Custom Auth",
+        "description": "Custom authentication",
+        "boundaries": "green box",
+        "position": "center right"
+      },
+      {
+        "name": "DynamoDB Auth",
+        "description": "Authentication data storage",
+        "boundaries": "green circle",
+        "position": "bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "S3 CSV Input",
+        "target": "CSV Node",
+        "label": "Ingest",
+        "type": "arrow"
+      },
+      {
+        "source": "CSV Node",
+        "target": "SQS",
+        "label": "Batch",
+        "type": "arrow"
+      },
+      {
+        "source": "CSV Node",
+        "target": "Kinesis",
+        "label": "Stream",
+        "type": "arrow"
+      },
+      {
+        "source": "SQS",
+        "target": "DynamoDB Consumer",
+        "label": "Process",
+        "type": "arrow"
+      },
+      {
+        "source": "Kinesis",
+        "target": "DynamoDB Consumer",
+        "label": "Process",
+        "type": "arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "API Implementation",
+        "label": "Invoke",
+        "type": "arrow"
+      },
+      {
+        "source": "API Implementation",
+        "target": "Custom Auth",
+        "label": "Authorize",
+        "type": "arrow"
+      },
+      {
+        "source": "API Implementation",
+        "target": "DynamoDB",
+        "label": "Query",
+        "type": "arrow"
+      },
+      {
+        "source": "Custom Auth",
+        "target": "DynamoDB Auth",
+        "label": "Auth",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [
+      "Ingest",
+      "Batch",
+      "Stream",
+      "Process",
+      "Invoke",
+      "Authorize",
+      "Query",
+      "Auth"
+    ],
+    "groups": [
+      {
+        "name": "Ingest",
+        "components": [
+          "S3 CSV Input",
+          "CSV Node",
+          "SQS",
+          "Kinesis",
+          "DynamoDB Consumer"
+        ]
+      },
+      {
+        "name": "API",
+        "components": [
+          "API Gateway",
+          "API Implementation",
+          "Custom Auth",
+          "DynamoDB",
+          "DynamoDB Auth"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruth",
+      "title": "SAKURA"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "S3",
+        "description": "Storage service",
+        "boundaries": "vertical line",
+        "position": "left"
+      },
+      {
+        "name": "CSV Ingestion Lambda",
+        "description": "Processes CSV ingestion",
+        "boundaries": "vertical line",
+        "position": "left center"
+      },
+      {
+        "name": "SQS",
+        "description": "Queue service",
+        "boundaries": "vertical line",
+        "position": "center"
+      },
+      {
+        "name": "Data Processing Lambda",
+        "description": "Processes data",
+        "boundaries": "vertical line",
+        "position": "center right"
+      },
+      {
+        "name": "DynamoDB",
+        "description": "Database storage",
+        "boundaries": "vertical line",
+        "position": "right"
+      },
+      {
+        "name": "API Gateway",
+        "description": "API management",
+        "boundaries": "vertical line",
+        "position": "far right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "S3",
+        "target": "CSV Ingestion Lambda",
+        "label": "Trigger (New CSV file)",
+        "type": "arrow"
+      },
+      {
+        "source": "CSV Ingestion Lambda",
+        "target": "SQS",
+        "label": "Send message",
+        "type": "arrow"
+      },
+      {
+        "source": "SQS",
+        "target": "Data Processing Lambda",
+        "label": "Trigger (New message)",
+        "type": "arrow"
+      },
+      {
+        "source": "Data Processing Lambda",
+        "target": "DynamoDB",
+        "label": "Store processed data",
+        "type": "arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "DynamoDB",
+        "label": "Query BIN data",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [
+      "Trigger (New CSV file)",
+      "Send message",
+      "Trigger (New message)",
+      "Store processed data",
+      "Query BIN data"
+    ],
+    "groups": [
+      {
+        "name": "Ingestion",
+        "components": [
+          "S3",
+          "CSV Ingestion Lambda",
+          "SQS"
+        ]
+      },
+      {
+        "name": "Processing",
+        "components": [
+          "Data Processing Lambda",
+          "DynamoDB"
+        ]
+      },
+      {
+        "name": "API",
+        "components": [
+          "API Gateway",
+          "DynamoDB"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImage",
+      "title": "Sequence Diagram"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "SQS",
+      "DynamoDB",
+      "API Gateway"
+    ],
+    "unique_to_GroundTruth": [
+      "S3 CSV Input",
+      "CSV Node",
+      "Kinesis",
+      "DynamoDB Consumer",
+      "API Implementation",
+      "Custom Auth",
+      "DynamoDB Auth"
+    ],
+    "unique_to_GeneratedImage": [
+      "S3",
+      "CSV Ingestion Lambda",
+      "Data Processing Lambda"
+    ],
+    "common_connectors": [
+      {
+        "source": "SQS",
+        "target": "DynamoDB",
+        "label": "Process/Store processed data",
+        "type": "arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "DynamoDB",
+        "label": "Query",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "S3 CSV Input",
+        "target": "CSV Node",
+        "label": "Ingest",
+        "type": "arrow"
+      },
+      {
+        "source": "CSV Node",
+        "target": "SQS",
+        "label": "Batch",
+        "type": "arrow"
+      },
+      {
+        "source": "CSV Node",
+        "target": "Kinesis",
+        "label": "Stream",
+        "type": "arrow"
+      },
+      {
+        "source": "SQS",
+        "target": "DynamoDB Consumer",
+        "label": "Process",
+        "type": "arrow"
+      },
+      {
+        "source": "Kinesis",
+        "target": "DynamoDB Consumer",
+        "label": "Process",
+        "type": "arrow"
+      },
+      {
+        "source": "API Gateway",
+        "target": "API Implementation",
+        "label": "Invoke",
+        "type": "arrow"
+      },
+      {
+        "source": "API Implementation",
+        "target": "Custom Auth",
+        "label": "Authorize",
+        "type": "arrow"
+      },
+      {
+        "source": "Custom Auth",
+        "target": "DynamoDB Auth",
+        "label": "Auth",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "S3",
+        "target": "CSV Ingestion Lambda",
+        "label": "Trigger (New CSV file)",
+        "type": "arrow"
+      },
+      {
+        "source": "CSV Ingestion Lambda",
+        "target": "SQS",
+        "label": "Send message",
+        "type": "arrow"
+      },
+      {
+        "source": "SQS",
+        "target": "Data Processing Lambda",
+        "label": "Trigger (New message)",
+        "type": "arrow"
+      },
+      {
+        "source": "Data Processing Lambda",
+        "target": "DynamoDB",
+        "label": "Store processed data",
+        "type": "arrow"
+      }
+    ],
+    "explanation": "The two diagrams represent similar architectures but with different levels of detail and focus. The GroundTruth diagram is more detailed, showing specific components like 'CSV Node', 'Kinesis', and 'DynamoDB Consumer', which are not present in the GeneratedImage. The GeneratedImage focuses on a sequence of operations, highlighting the process flow from 'S3' to 'CSV Ingestion Lambda' to 'SQS', and then to 'Data Processing Lambda' and 'DynamoDB'. Both diagrams share common elements like 'SQS', 'DynamoDB', and 'API Gateway', but the GroundTruth includes additional components related to API implementation and authentication. The connectors in the GroundTruth are more varied, indicating different types of data flows, while the GeneratedImage emphasizes the sequence of data processing. Overall, the GeneratedImage captures the core process but lacks the detailed components and connectors present in the GroundTruth. Rating: 7/10. The GeneratedImage accurately represents the main process but misses several components and connections that provide a more comprehensive view in the GroundTruth.",
+    "Rating": 7
+  }
+}

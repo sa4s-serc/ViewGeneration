@@ -1,0 +1,56 @@
+```plantuml
+@startuml onprem_foundry
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+package "Foundry System" {
+  rectangle "cmd/foundry" {
+    rectangle "main.go" as MainGo
+    rectangle "config.go" as ConfigGo
+    rectangle "furnace.go" as FurnaceGo
+  }
+
+  package "pkg/furnace" {
+    rectangle "furnace.go" as FurnaceLogic
+    rectangle "map.go" as MapLogic
+    rectangle "schedule.go" as ScheduleLogic
+
+    package "builder" {
+      rectangle "builder.go" as BuilderLogic
+    }
+
+    package "furnacepb" {
+      rectangle "furnace.proto" as FurnaceProto
+    }
+  }
+}
+
+package "Object Storage" {
+  rectangle "Bucket" as ObjectStorage
+}
+
+package "Monitoring" {
+  rectangle "Prometheus" as Prometheus
+}
+
+package "gRPC Clients" {
+  rectangle "Client" as GRPCClient
+}
+
+MainGo --> ConfigGo
+MainGo --> FurnaceGo
+FurnaceGo --> FurnaceLogic
+FurnaceLogic --> MapLogic
+FurnaceLogic --> ScheduleLogic
+FurnaceLogic --> BuilderLogic
+FurnaceLogic --> FurnaceProto
+
+FurnaceLogic --> ObjectStorage : Upload Packages
+BuilderLogic --> Prometheus : Metrics
+GRPCClient --> FurnaceProto : gRPC Interface
+@enduml
+```

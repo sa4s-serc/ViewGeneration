@@ -1,0 +1,45 @@
+@startuml IBM_datastax-cassandra-clickstream
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Next.js Frontend" as Frontend {
+  rectangle "React Components" as Components
+  rectangle "Redux Store" as Redux
+}
+
+rectangle "Next.js API Routes" as API {
+  rectangle "history.js" as HistoryAPI
+  rectangle "products/*" as ProductsAPI
+  rectangle "auth/*" as AuthAPI
+}
+
+rectangle "Services" as Services {
+  rectangle "clicks.service.js" as ClicksService
+}
+
+rectangle "DataStax/Cassandra" as Cassandra #lightblue
+
+' ========== Connections ==========
+User -> Components : Interacts with UI
+Components -> Redux : Dispatches actions
+Redux -> ProductsAPI : Sends cart updates
+Components -> API : Fetches data via API calls
+
+' API Routes interactions
+ProductsAPI -> ClicksService : Handles product/cart actions
+HistoryAPI -> ClicksService : Requests user history
+AuthAPI -> Cassandra : Stores auth data (simplified)
+
+' Database interactions
+ClicksService -> Cassandra : Inserts clickstream data
+ClicksService -> Cassandra : Retrieves activity history
+
+' Background processes
+ClicksService -> ClicksService : Handles DB connection\n(secure bundle/contact points)
+@enduml

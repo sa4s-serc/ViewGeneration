@@ -1,0 +1,63 @@
+```plantuml
+@startuml fdrennan_ndexr-platform
+
+package "Data Ingestion & Storage" {
+    [Reddit API (PRAW)] --> [py_redditor/*]
+    [py_redditor/*] --> [PostgreSQL Database]
+}
+
+package "API and User Interface" {
+    [Plumber API] --> [redditor-api/plumber.R]
+    [Shiny Application] --> [redditor-shiny.Rproj]
+}
+
+package "Workflow Orchestration" {
+    [Airflow] --> [airflow/airflower/dags/*]
+}
+
+package "AWS Infrastructure Management" {
+    [AWS S3] --> [biggr/R/*]
+    [AWS EC2] --> [biggr/R/*]
+    [AWS SNS] --> [biggr/R/*]
+}
+
+package "Search Functionality" {
+    [Elasticsearch]
+}
+
+package "System Monitoring" {
+    [Glances] --> [glances/README.md]
+}
+
+package "Configuration Files" {
+    [.env]
+    [nginx/nginx.conf]
+    [renv/settings.dcf]
+}
+
+package "Docker Infrastructure" {
+    [DockerfileApi]
+    [DockerfileRpy]
+    [DockerfileShiny]
+    [docker-compose.yaml]
+}
+
+package "Infrastructure Setup" {
+    [postgres_installer.sh]
+}
+
+package "Renvironment" {
+    [renv/activate.R]
+}
+
+[Reddit API (PRAW)] --> [PostgreSQL Database] : "Data Ingestion"
+[Plumber API] --> [PostgreSQL Database] : "Data Retrieval"
+[Shiny Application] --> [Plumber API] : "Data Interaction"
+[Airflow] --> [AWS EC2] : "Orchestrates Workflows"
+[AWS EC2] --> [AWS S3] : "Scalable Storage"
+[AWS EC2] --> [AWS SNS] : "Messaging"
+[Elasticsearch] --> [AWS EC2] : "Search Indexing"
+[Glances] --> [AWS EC2] : "Performance Monitoring"
+
+@enduml
+```

@@ -1,0 +1,42 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #EEEBDC
+  BorderColor #333333
+  Style roundrect
+}
+skinparam linetype ortho
+
+rectangle "FastCGI Server\n(Nginx/Apache)" as WebServer
+
+rectangle "fcgi-function Framework" {
+  rectangle "ffunc_main()" as MainFunction
+  rectangle "Function Mapping" as FunctionMap
+  rectangle "Request Handler" as RequestHandler
+  rectangle "Memory Pool" as MemPool
+  rectangle "Thread Management" as ThreadMgmt
+}
+
+rectangle "User-Defined Functions" as UserFunctions
+
+WebServer -right-> MainFunction : FastCGI Requests
+
+MainFunction -down-> FunctionMap : Initialize
+MainFunction -down-> ThreadMgmt : Configure
+
+RequestHandler -up-> FunctionMap : Lookup Handler
+RequestHandler -right-> MemPool : Allocate/Free Memory
+RequestHandler -down-> UserFunctions : Execute Handler
+
+ThreadMgmt -right-> RequestHandler : Manage Concurrent Requests
+
+note right of UserFunctions
+  Defined in user code
+  (e.g., getProfile, postProfile)
+end note
+
+note bottom of MemPool
+  Custom memory management
+  to optimize allocations
+end note
+
+@enduml

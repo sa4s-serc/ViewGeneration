@@ -1,0 +1,86 @@
+```plantuml
+@startuml pau-minoves_jseats
+
+package "Core Components" {
+    class SeatAllocatorProcessor {
+        +process(Tally, ProcessorConfig): Result
+    }
+    class ProcessorConfig {
+        +loadFromXML(file: String): ProcessorConfig
+    }
+    class SeatAllocatorResolver {
+        +resolveMethod(name: String): SeatAllocationMethod
+        +resolveFilter(name: String): TallyFilter
+        +resolveDecorator(name: String): ResultDecorator
+        +resolveTieBreaker(name: String): TieBreaker
+    }
+}
+
+package "Seat Allocation Methods" {
+    interface SeatAllocationMethod {
+        +allocateSeats(Tally, ProcessorConfig): Result
+    }
+    class MajorityBasedMethod implements SeatAllocationMethod
+    class LargestRemainderMethod implements SeatAllocationMethod
+    class HighestAveragesMethod implements SeatAllocationMethod
+    class EqualProportionsMethod implements SeatAllocationMethod
+    class RankedByVotesMethod implements SeatAllocationMethod
+}
+
+package "Tally Processing" {
+    class Tally {
+        +addCandidate(candidate: Candidate): void
+    }
+    class Candidate {
+        +name: String
+        +votes: int
+    }
+    interface TallyFilter {
+        +apply(Tally): Tally
+    }
+}
+
+package "Result Processing" {
+    class Result {
+        +addAllocation(candidate: Candidate, seats: int): void
+    }
+    interface ResultDecorator {
+        +decorate(Result): Result
+    }
+    interface TieBreaker {
+        +breakTie(candidates: List<Candidate>): Candidate
+    }
+}
+
+package "CLI" {
+    class SeatAllocatorLauncher {
+        +main(args: String[]): void
+    }
+}
+
+SeatAllocatorProcessor --> ProcessorConfig
+SeatAllocatorProcessor --> SeatAllocatorResolver
+SeatAllocatorProcessor --> Tally
+SeatAllocatorProcessor --> Result
+SeatAllocatorProcessor --> SeatAllocationMethod
+SeatAllocatorProcessor --> TallyFilter
+SeatAllocatorProcessor --> ResultDecorator
+SeatAllocatorProcessor --> TieBreaker
+
+SeatAllocatorResolver --> SeatAllocationMethod
+SeatAllocatorResolver --> TallyFilter
+SeatAllocatorResolver --> ResultDecorator
+SeatAllocatorResolver --> TieBreaker
+
+Tally --> Candidate
+
+SeatAllocationMethod <|-- MajorityBasedMethod
+SeatAllocationMethod <|-- LargestRemainderMethod
+SeatAllocationMethod <|-- HighestAveragesMethod
+SeatAllocationMethod <|-- EqualProportionsMethod
+SeatAllocationMethod <|-- RankedByVotesMethod
+
+SeatAllocatorLauncher --> SeatAllocatorProcessor
+
+@enduml
+```

@@ -1,0 +1,51 @@
+@startuml microsoft_azure-realtime-fraud-detection
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+rectangle "Event Generator" as EventGen #lightblue
+
+rectangle "Azure Event Hub" as EventHub #orange
+
+rectangle "Azure Stream Analytics" as StreamAnalytics #lightgreen
+
+rectangle "Azure Functions" as Functions #pink {
+  rectangle "Orchestration" as FuncOrch
+  rectangle "Benford's Law" as FuncBenford
+  rectangle "Fraud Ring Detection" as FuncFraudRing
+}
+
+rectangle "Azure Machine Learning" as ML #violet {
+  rectangle "Model Training" as MLTrain
+  rectangle "Model Deployment" as MLDeploy
+}
+
+rectangle "Azure Synapse Analytics" as Synapse #lightgray
+
+rectangle "Azure Cosmos DB" as CosmosDB #skyblue {
+  rectangle "SQL API" as CosmosSQL
+  rectangle "Gremlin API" as CosmosGremlin
+}
+
+' Data flow connections
+EventGen --> EventHub : Transaction Events
+EventHub --> StreamAnalytics : Real-time Stream
+StreamAnalytics --> Functions : Enriched Data
+StreamAnalytics --> Synapse : Persist Data
+StreamAnalytics --> CosmosDB : Persist Data
+
+Functions --> MLDeploy : Fraud Scoring
+MLDeploy --> Functions : Fraud Predictions
+
+FuncOrch --> FuncBenford
+FuncOrch --> FuncFraudRing
+FuncFraudRing --> CosmosGremlin : Graph Queries
+FuncBenford --> CosmosSQL : Transaction Data
+
+' Additional relationships
+MLTrain --> MLDeploy : Deploy Model
+@enduml

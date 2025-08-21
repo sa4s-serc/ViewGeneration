@@ -1,0 +1,59 @@
+@startuml NicoJuicy_Airline-Microservices
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<gateway>> #d9e7fd
+  BackgroundColor<<service>> #d8f5d3
+  BackgroundColor<<shared>> #fff1c9
+  BackgroundColor<<infra>> #fddddd
+  BackgroundColor<<external>> #d4f0f0
+  Style roundrect
+}
+
+package "API Gateway" <<gateway>> {
+  [ApiGateway\n(YARP)] as Gateway
+}
+
+package "Microservices" <<service>> {
+  [Identity Service\n(JWT, IdentityServer)] as Identity
+  [Flight Service\n(Seat Availability)] as Flight
+  [Passenger Service] as Passenger
+  [Reservation Service] as Reservation
+}
+
+package "Shared Components" <<shared>> {
+  [Building Blocks\n(Logging, Exceptions, Swagger)] as Blocks
+}
+
+package "Infrastructure" <<infra>> {
+  [RabbitMQ\n(MassTransit)] as RabbitMQ
+  [PostgreSQL] as Postgres
+  [Docker\n(Kubernetes)] as Docker
+}
+
+package "External" <<external>> {
+  [Client Apps] as Clients
+}
+
+Clients --> Gateway
+Gateway --> Identity
+Gateway --> Flight
+Gateway --> Passenger
+Gateway --> Reservation
+
+Identity --> Blocks
+Flight --> Blocks
+Passenger --> Blocks
+Reservation --> Blocks
+
+Identity --> Postgres
+Flight --> Postgres
+Passenger --> Postgres
+Reservation --> Postgres
+
+Identity --> RabbitMQ
+Flight --> RabbitMQ
+Passenger --> RabbitMQ
+Reservation --> RabbitMQ
+
+Blocks --> Docker
+@enduml

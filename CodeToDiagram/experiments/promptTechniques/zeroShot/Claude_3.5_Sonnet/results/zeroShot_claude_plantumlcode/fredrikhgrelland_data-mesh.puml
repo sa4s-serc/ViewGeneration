@@ -1,0 +1,51 @@
+Here's a PlantUML sequence diagram showing the dynamic interactions for connectivity in the fredrikhgrelland_data-mesh system:
+
+```plantuml
+@startuml fredrikhgrelland_data-mesh
+
+participant "User" as User
+participant "SQLPad" as SQLPad
+participant "Consul" as Consul
+participant "Presto" as Presto
+participant "Hive Metastore" as Hive
+participant "MinIO" as MinIO
+
+User -> SQLPad: Execute SQL query
+activate SQLPad
+
+SQLPad -> Consul: Discover Presto service
+activate Consul
+Consul --> SQLPad: Return Presto service details
+deactivate Consul
+
+SQLPad -> Presto: Submit SQL query
+activate Presto
+
+Presto -> Consul: Discover Hive Metastore service
+activate Consul
+Consul --> Presto: Return Hive Metastore service details
+deactivate Consul
+
+Presto -> Hive: Request metadata
+activate Hive
+Hive --> Presto: Return metadata
+deactivate Hive
+
+Presto -> Consul: Discover MinIO service
+activate Consul
+Consul --> Presto: Return MinIO service details
+deactivate Consul
+
+Presto -> MinIO: Request data
+activate MinIO
+MinIO --> Presto: Return data
+deactivate MinIO
+
+Presto --> SQLPad: Return query results
+deactivate Presto
+
+SQLPad --> User: Display query results
+deactivate SQLPad
+
+@enduml
+```

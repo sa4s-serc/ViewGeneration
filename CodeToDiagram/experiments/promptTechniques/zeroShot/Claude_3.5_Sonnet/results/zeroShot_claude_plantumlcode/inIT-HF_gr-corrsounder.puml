@@ -1,0 +1,53 @@
+Here's a PlantUML component diagram capturing the static architecture of the gr-corrsounder system, focusing on the general architectural concern:
+
+```plantuml
+@startuml inIT-HF_gr-corrsounder
+
+skinparam component {
+  BackgroundColor<<GNU Radio>> LightGreen
+  BackgroundColor<<C++>> LightBlue
+  BackgroundColor<<Python>> Yellow
+}
+
+package "gr-corrsounder" {
+  [GNU Radio Blocks] <<C++>> as GRBlocks
+  [SWIG Bindings] as SWIG
+  [Python Wrappers] <<Python>> as PyWrappers
+  [pycorrsounder] <<Python>> as PyCorrsounder
+  [GRC XML Definitions] as GRC
+  [Unit Tests] as Tests
+  [CMake Build System] as CMake
+  [Documentation] as Docs
+  
+  component "Channel Sounding Blocks" as CSBlocks {
+    [Sequence Generation]
+    [Correlation]
+    [Error Correction]
+    [Moving Average]
+    [Sequence Gate]
+    [Ramdisk File Sink]
+    [IR SNR]
+    [FZC Source]
+    [FZC Correlator]
+  }
+}
+
+[GNU Radio Framework] <<GNU Radio>> as GNURadio
+
+GRBlocks --> CSBlocks : implements
+SWIG --> GRBlocks : wraps
+PyWrappers --> SWIG : uses
+GRC --> GRBlocks : describes
+Tests --> GRBlocks : validates
+Tests --> PyCorrsounder : validates
+CMake --> GRBlocks : builds
+CMake --> SWIG : builds
+CMake --> PyWrappers : builds
+CMake --> PyCorrsounder : builds
+Docs --> GRBlocks : describes
+GNURadio --> GRBlocks : uses
+PyWrappers --> GNURadio : integrates with
+PyCorrsounder --> PyWrappers : supports
+
+@enduml
+```

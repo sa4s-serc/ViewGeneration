@@ -1,0 +1,73 @@
+@startuml kubescape_host-scanner
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<api>> #d9e7fd
+  BackgroundColor<<sensor>> #d8f5d3
+  BackgroundColor<<utils>> #fff1c9
+  BackgroundColor<<deploy>> #fddddd
+  BackgroundColor<<test>> #d4f0f0
+  Style roundrect
+}
+
+package "API Layer" <<api>> {
+  [HTTP Server] as http_server
+  [negroni Middleware] as middleware
+  [HTTP Handlers] as handlers
+}
+
+package "Sensor Layer" <<sensor>> {
+  [OS Sensor] as os_sensor
+  [Network Sensor] as net_sensor
+  [Container Runtime Sensor] as cr_sensor
+  [Kubelet Sensor] as kubelet_sensor
+  [Control Plane Sensor] as cp_sensor
+  [Security Sensor] as sec_sensor
+  [Cloud Provider Sensor] as cloud_sensor
+}
+
+package "Utils" <<utils>> {
+  [Container Runtime Utils] as cr_utils
+  [File System Utils] as fs_utils
+}
+
+package "Deployment" <<deploy>> {
+  [K8s DaemonSet] as daemonset
+  [Docker Image] as docker
+}
+
+package "Testing" <<test>> {
+  [E2E Tests] as e2e
+  [Kind Cluster] as kind
+}
+
+http_server --> middleware
+middleware --> handlers
+handlers --> os_sensor
+handlers --> net_sensor
+handlers --> cr_sensor
+handlers --> kubelet_sensor
+handlers --> cp_sensor
+handlers --> sec_sensor
+handlers --> cloud_sensor
+
+os_sensor --> fs_utils
+net_sensor --> fs_utils
+cr_sensor --> cr_utils
+kubelet_sensor --> fs_utils
+cp_sensor --> fs_utils
+
+daemonset --> docker
+e2e --> kind
+e2e --> http_server
+
+note right of http_server
+  Exposes endpoints:
+  /healthz, /readyz,
+  /osrelease, /kubeletinfo
+end note
+
+note right of daemonset
+  Runs as privileged pod
+  for host access
+end note
+@enduml

@@ -1,0 +1,39 @@
+```plantuml
+@startuml McOrts_taller-iot-sensor_radiactividad
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "ESP8266\n(WEMOS D1 mini Pro)" as ESP8266 #lightyellow {
+  rectangle "MQTT\nClient" as MQTTClient #lightblue
+  rectangle "Geiger Counter\nModule" as GeigerCounter #lightgreen
+}
+
+rectangle "MQTT Broker" as MQTTBroker #mistyrose
+
+rectangle "Node-RED" as NodeRED #aliceblue
+
+rectangle "GMC.MAP" as GMCMap #lightsteelblue
+
+' ========== Connections ==========
+User --> ESP8266 : configure Wi-Fi\n& MQTT settings
+
+' ESP8266 interactions
+GeigerCounter --> ESP8266 : detect radiation\n(pulses)
+ESP8266 --> MQTTClient : calculate CPM\nfrom pulses
+MQTTClient --> MQTTBroker : publish CPM data
+MQTTBroker --> MQTTClient : send LED control\ncommands
+
+' Node-RED interactions
+MQTTBroker --> NodeRED : transmit CPM data
+NodeRED --> GMCMap : process & display\non map
+
+' User interactions
+User --> NodeRED : view radiation data
+@enduml
+```

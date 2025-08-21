@@ -1,0 +1,68 @@
+@startuml CodisLabs_codis
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<redis>> #ffdddd
+  BackgroundColor<<codis>> #ddddff
+  BackgroundColor<<client>> #ddffdd
+  BackgroundColor<<external>> #ffffdd
+  Style roundrect
+}
+
+package "Client Applications" <<client>> {
+  [Clients] as clients
+}
+
+package "Codis Proxy" <<codis>> {
+  [Codis Proxy] as codis_proxy
+  [Slot Mapping] as slot_mapping
+  codis_proxy --> slot_mapping
+}
+
+package "Redis Cluster" <<redis>> {
+  [Redis Node 1] as redis1
+  [Redis Node 2] as redis2
+  [Redis Node 3] as redis3
+}
+
+package "Management" <<external>> {
+  [Codis Dashboard] as dashboard
+  [Codis FE] as fe
+  [Zookeeper] as zookeeper
+}
+
+package "External Services" <<external>> {
+  [Sentinel] as sentinel
+  [StatsD] as statsd
+}
+
+clients --> codis_proxy
+codis_proxy --> redis1
+codis_proxy --> redis2
+codis_proxy --> redis3
+
+dashboard --> zookeeper
+fe --> zookeeper
+codis_proxy --> zookeeper
+
+sentinel --> redis1
+sentinel --> redis2
+sentinel --> redis3
+
+redis1 --> statsd
+redis2 --> statsd
+redis3 --> statsd
+
+note right of codis_proxy
+  Handles:
+  - Command routing
+  - Load balancing
+  - Protocol translation
+end note
+
+note right of dashboard
+  Manages:
+  - Proxy configuration
+  - Slot migration
+  - Cluster state
+end note
+@enduml

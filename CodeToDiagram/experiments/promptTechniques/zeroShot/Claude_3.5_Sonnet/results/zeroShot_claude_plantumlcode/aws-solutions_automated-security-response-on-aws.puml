@@ -1,0 +1,22 @@
+@startuml
+
+participant "Security Hub" as SH
+participant "EventBridge" as EB
+participant "Step Function\nOrchestrator" as SF
+participant "SQS Queue" as SQS
+participant "SSM Automation" as SSM
+participant "Lambda Function" as Lambda
+participant "CloudWatch" as CW
+participant "Member Account" as MA
+
+SH -> EB : Security finding
+EB -> SF : Trigger remediation
+SF -> SQS : Enqueue remediation task
+SQS -> SSM : Dequeue and execute runbook
+SSM -> Lambda : Execute remediation script
+Lambda -> MA : Perform remediation action
+Lambda -> SH : Update finding status
+Lambda -> CW : Log remediation metrics
+CW --> SF : Trigger alarm (if needed)
+
+@enduml

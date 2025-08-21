@@ -1,0 +1,54 @@
+@startuml nforge_devnote
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<lib>> #fddddd
+  BackgroundColor<<storage>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend" <<frontend>> {
+  rectangle "Jade Templates" as Jade
+  rectangle "jQuery/Bootstrap" as JQuery
+  rectangle "CodeMirror Editor" as CodeMirror
+  rectangle "Socket.IO Client" as SocketClient
+  rectangle "Markdown Preview" as Preview
+  Jade --> JQuery
+  JQuery --> CodeMirror
+  CodeMirror --> Preview
+  JQuery --> SocketClient
+}
+
+package "Backend (Node.js/Express)" <<backend>> {
+  rectangle "Express Server" as Express
+  rectangle "Routes" as Routes
+  rectangle "Middleware" as Middleware
+  rectangle "Socket.IO Server" as SocketServer
+  Express --> Routes
+  Express --> Middleware
+  Express --> SocketServer
+}
+
+package "Core Libraries" <<lib>> {
+  rectangle "GitFS" as GitFS
+  rectangle "User Management" as Users
+  rectangle "File Utils" as FileUtils
+  rectangle "Renderer" as Renderer
+  rectangle "I18n" as I18n
+  rectangle "Delta Utils" as Delta
+  Routes --> GitFS
+  Routes --> Users
+  Routes --> FileUtils
+  GitFS --> Renderer
+  Renderer --> I18n
+  FileUtils --> Delta
+}
+
+package "Data Storage" <<storage>> {
+  database "Git Repository" as GitRepo
+  GitFS --> GitRepo
+}
+
+SocketServer --> SocketClient
+@enduml

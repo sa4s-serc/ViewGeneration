@@ -1,0 +1,20 @@
+@startuml
+title Data Flow in Justice40 Tool
+
+participant "ETL Pipeline" as ETL
+participant "S3 Data Lake" as S3
+participant "Scoring Module" as Scoring
+participant "Map Tile Generator" as MapGen
+participant "Client Application" as Client
+
+ETL -> S3: Extract and transform data
+ETL -> S3: Store processed data
+S3 --> Scoring: Retrieve data for scoring
+Scoring -> S3: Store calculated scores
+S3 --> MapGen: Retrieve GeoJSON data
+MapGen -> S3: Store generated map tiles
+Client -> S3: Request map tiles and data
+S3 --> Client: Serve map tiles and data
+Client -> Client: Render map and display information
+
+@enduml

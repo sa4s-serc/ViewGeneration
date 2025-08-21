@@ -1,0 +1,38 @@
+@startuml BoraxTheClean_DevelopmentMachine
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor Developer
+
+rectangle "GitHub Actions" as GH {
+  rectangle "aws.yml workflow" as Workflow #lightblue
+}
+
+rectangle "AWS" as AWS {
+  rectangle "CloudFormation" as CF #palegreen
+  rectangle "EC2 Instance" as EC2 #lightyellow
+  rectangle "IAM Role" as IAM #mistyrose
+  rectangle "CloudWatch Alarm" as CW #aliceblue
+  rectangle "Security Group" as SG #peachpuff
+}
+
+' ========== Connections ==========
+Developer --> Workflow : Triggers workflow\nvia push/PR
+
+Workflow --> CF : Deploy stack\nwith parameters
+CF --> IAM : Create role\nwith Admin access
+CF --> EC2 : Launch instance\nwith IAM role
+CF --> SG : Configure\nsecurity group
+CF --> CW : Create inactivity\nalarm
+
+EC2 --> CW : Send metrics\n(CPU utilization)
+CW --> EC2 : Stop instance\nafter inactivity
+
+' Security concerns
+Developer ..> IAM : ! Security risk:\nAdmin access
+Developer ..> SG : ! Security risk:\nOpen SSH access
+@enduml

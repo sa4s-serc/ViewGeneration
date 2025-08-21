@@ -1,0 +1,69 @@
+@startuml kaleidot725_Draft
+
+skinparam componentStyle uml2
+skinparam linetype ortho
+
+package "Presentation Layer" {
+  [ComposeMainActivity] as CMA
+  [EmomemoApp] as EA
+  [Navigation] as Nav
+  
+  package "View/Pages" {
+    [NotebookPage]
+    [MemoPage]
+    [AddPage]
+    [EditPage]
+    [DeletePage]
+    [DetailPage]
+  }
+  
+  package "ViewModels" {
+    [NotebookViewModel]
+    [MemoViewModel]
+  }
+}
+
+package "Domain Layer" {
+  package "Use Cases" {
+    [CreateMemoUseCase]
+    [GetNotebooksUseCase]
+    [UpdateMemoUseCase]
+    [DeleteMemoUseCase]
+  }
+}
+
+package "Data Layer" {
+  [NotebookRepository]
+  [MemoRepository]
+  database "Room Database" as RoomDB {
+    [AppDatabase]
+  }
+}
+
+CMA --> Nav
+Nav --> NotebookPage
+Nav --> MemoPage
+Nav --> AddPage
+Nav --> EditPage
+Nav --> DeletePage
+Nav --> DetailPage
+
+NotebookPage --> NotebookViewModel
+MemoPage --> MemoViewModel
+
+NotebookViewModel --> GetNotebooksUseCase
+MemoViewModel --> CreateMemoUseCase
+MemoViewModel --> UpdateMemoUseCase
+MemoViewModel --> DeleteMemoUseCase
+
+CreateMemoUseCase --> MemoRepository
+GetNotebooksUseCase --> NotebookRepository
+UpdateMemoUseCase --> MemoRepository
+DeleteMemoUseCase --> MemoRepository
+
+NotebookRepository --> AppDatabase
+MemoRepository --> AppDatabase
+
+EA ..> CMA : initializes
+
+@enduml

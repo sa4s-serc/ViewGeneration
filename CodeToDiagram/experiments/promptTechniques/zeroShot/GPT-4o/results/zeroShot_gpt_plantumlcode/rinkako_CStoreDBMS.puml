@@ -1,0 +1,31 @@
+```plantuml
+@startuml rinkako_CStoreDBMS
+
+package "DBInterface" {
+  [DBController] --> [DBConnectionPool]
+}
+
+package "DBCompiler" {
+  [LexicalAnalyzer] --> [SyntaxParser]
+  [SyntaxParser] --> [Pile]
+  [Pile] --> [CSDatabase]
+  [DBBridge] --> [CSDatabase]
+}
+
+package "DBEngine" {
+  [FileManager] --> [TableManager]
+  [TableManager] --> [DBAllocator]
+  [DBAllocator] --> [DBLock]
+  [DBLock] --> [DBTransaction]
+}
+
+[DBController] --> [DBBridge]
+[DBConnectionPool] --> [DBBridge]
+
+[DBObject] <|-- [FileManager]
+[DBObject] <|-- [TableManager]
+[DBObject] <|-- [DBAllocator]
+[DBObject] <|-- [DBTransaction]
+
+@enduml
+```

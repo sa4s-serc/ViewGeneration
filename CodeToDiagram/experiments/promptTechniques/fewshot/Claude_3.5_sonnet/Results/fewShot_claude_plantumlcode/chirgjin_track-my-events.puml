@@ -1,0 +1,54 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Frontend (React)" as Frontend #lightblue {
+  [Dashboard]
+  [Login/Register]
+  [Profile]
+  [Setup]
+}
+
+rectangle "Gateway Service" as Gateway #lightyellow {
+  [Authentication]
+  [Request Routing]
+}
+
+rectangle "User Service" as UserService #lightgreen {
+  [User Management]
+  [Auth Controller]
+}
+
+rectangle "Tracking Service" as TrackingService #lightpink {
+  [Event Processing]
+  [Data Aggregation]
+}
+
+database "PostgreSQL" as DB #lightgray
+queue "Redis" as Redis #orange
+
+User --> Frontend : Interacts
+Frontend --> Gateway : API Requests
+
+Gateway --> UserService : User/Auth Requests
+Gateway --> TrackingService : Event Requests
+
+UserService --> DB : User Data
+TrackingService --> DB : Event Data
+
+TrackingService <--> Redis : Pub/Sub
+Gateway <--> Redis : Pub/Sub
+
+rectangle "Client Website" as ClientSite #lightcyan {
+  [Tracking SDK]
+}
+
+ClientSite --> TrackingService : Send Events
+
+@enduml

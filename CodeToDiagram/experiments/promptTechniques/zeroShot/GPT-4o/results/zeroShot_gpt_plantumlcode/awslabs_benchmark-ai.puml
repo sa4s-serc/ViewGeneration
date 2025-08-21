@@ -1,0 +1,41 @@
+```plantuml
+@startuml awslabs_benchmark-ai
+
+actor User
+participant "bai-bff" as BFF
+participant "executor" as Executor
+participant "watcher" as Watcher
+participant "sm-executor" as SMExecutor
+participant "fetcher-dispatcher" as FetcherDispatcher
+participant "fetcher" as Fetcher
+participant "metrics-pusher" as MetricsPusher
+participant "metrics-extractor" as MetricsExtractor
+participant "Kafka" as Kafka
+participant "CloudWatch" as CloudWatch
+
+User -> BFF: Submit Job Request
+BFF -> BFF: Validate Descriptor
+alt Valid Descriptor
+    BFF -> Kafka: Publish Job Submission Event
+    Kafka -> Executor: Consume Job Submission Event
+    Executor -> FetcherDispatcher: Create Fetcher Job
+    FetcherDispatcher -> Kafka: Publish Fetcher Job Event
+    Kafka -> Fetcher: Consume Fetcher Job Event
+    Fetcher -> Fetcher: Download Dataset/Model
+    Fetcher -> Kafka: Publish Fetcher Completed Event
+    Kafka -> Executor: Consume Fetcher Completed Event
+    Executor -> Executor: Create Kubernetes Resources
+    Executor -> Watcher: Monitor Job Execution
+    Watcher -> Kafka: Publish Job Status Event
+    Kafka -> BFF: Consume Job Status Event
+    BFF -> User: Return Job Status
+    Executor -> MetricsPusher: Collect Metrics
+    MetricsPusher -> Kafka: Publish Metrics Event
+    Kafka -> MetricsExtractor: Consume Metrics Event
+    MetricsExtractor -> CloudWatch: Push Metrics
+else Invalid Descriptor
+    BFF -> User: Return Validation Error
+end
+
+@enduml
+```

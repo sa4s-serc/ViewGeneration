@@ -1,0 +1,72 @@
+```plantuml
+@startuml arkaneshiro_Sound-Zone
+skinparam packageStyle rectangle
+skinparam backgroundColor #ffffff
+skinparam componentStyle rectangle
+skinparam sequence {
+  LifeLineBorderColor #000000
+  LifeLineBackgroundColor #ffffff
+  ParticipantBorderColor #000000
+  ParticipantBackgroundColor #ffffff
+  ParticipantFontName Courier
+  ParticipantFontSize 10
+  ArrowColor #000000
+  ArrowFontName Courier
+  ArrowFontSize 10
+}
+
+actor User
+
+box "Frontend (React/Redux)" #d9e7fd
+  participant "App.js" as App
+  participant "Home.js" as Home
+  participant "Profile.js" as Profile
+  participant "Dashboard.js" as Dashboard
+  participant "SoundDetail.js" as SoundDetail
+  participant "Sound.js" as Sound
+  participant "SoundBar.js" as SoundBar
+  participant "Upload.js" as Upload
+  participant "LoginForm.js" as LoginForm
+  participant "RegistrationForm.js" as RegistrationForm
+  participant "NavBar.js" as NavBar
+end box
+
+box "Backend (Node.js/Express)" #d8f5d3
+  participant "Auth Controller" as AuthController
+  participant "Sound Controller" as SoundController
+  participant "User Controller" as UserController
+  participant "Cloudinary Service" as CloudinaryService
+end box
+
+box "External Services" #fddddd
+  participant "Cloudinary" as Cloudinary
+end box
+
+== User Authentication ==
+User -> LoginForm: Enter credentials
+LoginForm -> AuthController: POST /api/auth/login
+AuthController -> UserController: Authenticate user
+UserController -> AuthController: Return JWT
+AuthController -> LoginForm: Response with JWT
+LoginForm -> App: Store JWT in local storage
+
+== Sound Upload ==
+User -> Upload: Select sound and image
+Upload -> CloudinaryService: Upload files
+CloudinaryService -> Cloudinary: Store audio and image
+Cloudinary -> CloudinaryService: Return URLs
+CloudinaryService -> SoundController: Create sound entry
+SoundController -> Upload: Confirm upload
+
+== Sound Playback ==
+User -> SoundDetail: Select sound
+SoundDetail -> Sound: Initialize playback
+Sound -> SoundBar: Update playback controls
+
+== Follow User ==
+User -> Profile: Click follow button
+Profile -> UserController: POST /api/users/follow
+UserController -> Profile: Update follow status
+
+@enduml
+```

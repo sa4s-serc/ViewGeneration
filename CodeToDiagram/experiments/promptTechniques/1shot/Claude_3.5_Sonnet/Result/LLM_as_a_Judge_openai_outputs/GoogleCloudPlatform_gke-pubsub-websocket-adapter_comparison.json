@@ -1,0 +1,263 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Browser",
+        "description": "Client component",
+        "boundaries": "External",
+        "position": "Left"
+      },
+      {
+        "name": "websocketd",
+        "description": "Handles WebSocket connections",
+        "boundaries": "Compute Engine",
+        "position": "Center"
+      },
+      {
+        "name": "pulltop",
+        "description": "Pulls data from Pub/Sub",
+        "boundaries": "Compute Engine",
+        "position": "Center"
+      },
+      {
+        "name": "Cloud Pub/Sub topic",
+        "description": "Publishes and subscribes to messages",
+        "boundaries": "pubsub-public-data project",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Browser",
+        "target": "websocketd",
+        "label": "HTTP",
+        "type": "WebSockets"
+      },
+      {
+        "source": "websocketd",
+        "target": "pulltop",
+        "label": "<STDOUT>",
+        "type": "Internal"
+      },
+      {
+        "source": "pulltop",
+        "target": "Cloud Pub/Sub topic",
+        "label": "Pull Subscription",
+        "type": "Pub/Sub"
+      }
+    ],
+    "annotations": [
+      "Your GCP project",
+      "pubsub-public-data project"
+    ],
+    "groups": [
+      {
+        "name": "Your GCP project",
+        "components": [
+          "websocketd",
+          "pulltop"
+        ],
+        "boundaries": "Compute Engine"
+      },
+      {
+        "name": "pubsub-public-data project",
+        "components": [
+          "Cloud Pub/Sub topic"
+        ],
+        "boundaries": "External"
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "Google Cloud Platform Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "WebSocket Client",
+        "description": "Client component",
+        "boundaries": "External",
+        "position": "Left"
+      },
+      {
+        "name": "Ingress",
+        "description": "Handles incoming connections",
+        "boundaries": "WebSocket Service",
+        "position": "Center"
+      },
+      {
+        "name": "WebSocket Service",
+        "description": "Manages WebSocket connections",
+        "boundaries": "GKE Pod",
+        "position": "Center"
+      },
+      {
+        "name": "websocketd",
+        "description": "Handles WebSocket connections",
+        "boundaries": "GKE Pod",
+        "position": "Center"
+      },
+      {
+        "name": "pulltop",
+        "description": "Pulls data from Pub/Sub",
+        "boundaries": "GKE Pod",
+        "position": "Center"
+      },
+      {
+        "name": "Ephemeral Storage",
+        "description": "Temporary storage for messages",
+        "boundaries": "GKE Pod",
+        "position": "Center"
+      },
+      {
+        "name": "Google Cloud Pub/Sub",
+        "description": "Publishes and subscribes to messages",
+        "boundaries": "External",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "WebSocket Client",
+        "target": "Ingress",
+        "label": "Connect via WebSocket",
+        "type": "WebSockets"
+      },
+      {
+        "source": "Ingress",
+        "target": "WebSocket Service",
+        "label": "Route request",
+        "type": "Internal"
+      },
+      {
+        "source": "WebSocket Service",
+        "target": "websocketd",
+        "label": "Establish WebSocket connection",
+        "type": "Internal"
+      },
+      {
+        "source": "websocketd",
+        "target": "pulltop",
+        "label": "Stream messages",
+        "type": "Internal"
+      },
+      {
+        "source": "pulltop",
+        "target": "Ephemeral Storage",
+        "label": "Store messages",
+        "type": "Internal"
+      },
+      {
+        "source": "Ephemeral Storage",
+        "target": "pulltop",
+        "label": "Read messages",
+        "type": "Internal"
+      },
+      {
+        "source": "pulltop",
+        "target": "Google Cloud Pub/Sub",
+        "label": "Pull messages",
+        "type": "Pub/Sub"
+      }
+    ],
+    "annotations": [
+      "Message Streaming",
+      "GKE Pod"
+    ],
+    "groups": [
+      {
+        "name": "GKE Pod",
+        "components": [
+          "websocketd",
+          "pulltop",
+          "Ephemeral Storage"
+        ],
+        "boundaries": "Internal"
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": "WebSocket and Pub/Sub Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "websocketd",
+      "pulltop"
+    ],
+    "unique_to_GroundTruth": [
+      "Browser",
+      "Cloud Pub/Sub topic"
+    ],
+    "unique_to_GeneratedImage": [
+      "WebSocket Client",
+      "Ingress",
+      "WebSocket Service",
+      "Ephemeral Storage",
+      "Google Cloud Pub/Sub"
+    ],
+    "common_connectors": [
+      {
+        "source": "websocketd",
+        "target": "pulltop",
+        "label": "Stream messages",
+        "type": "Internal"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Browser",
+        "target": "websocketd",
+        "label": "HTTP",
+        "type": "WebSockets"
+      },
+      {
+        "source": "pulltop",
+        "target": "Cloud Pub/Sub topic",
+        "label": "Pull Subscription",
+        "type": "Pub/Sub"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "WebSocket Client",
+        "target": "Ingress",
+        "label": "Connect via WebSocket",
+        "type": "WebSockets"
+      },
+      {
+        "source": "Ingress",
+        "target": "WebSocket Service",
+        "label": "Route request",
+        "type": "Internal"
+      },
+      {
+        "source": "WebSocket Service",
+        "target": "websocketd",
+        "label": "Establish WebSocket connection",
+        "type": "Internal"
+      },
+      {
+        "source": "pulltop",
+        "target": "Ephemeral Storage",
+        "label": "Store messages",
+        "type": "Internal"
+      },
+      {
+        "source": "Ephemeral Storage",
+        "target": "pulltop",
+        "label": "Read messages",
+        "type": "Internal"
+      },
+      {
+        "source": "pulltop",
+        "target": "Google Cloud Pub/Sub",
+        "label": "Pull messages",
+        "type": "Pub/Sub"
+      }
+    ],
+    "explanation": "The two diagrams share common components such as 'websocketd' and 'pulltop', which are central to handling WebSocket connections and pulling data from Pub/Sub, respectively. However, the GroundTruth diagram focuses on a simpler architecture with a direct connection from a browser to the Google Cloud Platform, while the GeneratedImage diagram includes additional components like 'Ingress', 'WebSocket Service', and 'Ephemeral Storage', indicating a more complex architecture involving a GKE Pod. The GeneratedImage diagram also includes a loop for message streaming, suggesting a focus on continuous data flow. The GroundTruth diagram is more straightforward, while the GeneratedImage diagram provides a detailed view of the internal processes. Based on accuracy and completeness, the GeneratedImage is rated 7 out of 10. It captures additional architectural details but introduces complexity that may not be necessary for all use cases.",
+    "Rating": 7
+  }
+}

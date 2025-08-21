@@ -1,0 +1,73 @@
+@startuml OpiumProtocol_opium-protocol-v2
+skinparam backgroundColor #eeeeee
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "User" as User
+actor "Governor" as Governor
+
+rectangle "Registry" as Registry {
+  rectangle "Addresses" as Addresses
+  rectangle "Parameters" as Parameters
+  rectangle "Roles" as Roles
+}
+
+rectangle "Core" as Core {
+  rectangle "Position Creation" as PositionCreation
+  rectangle "Margin Holding" as MarginHolding
+  rectangle "Payout Distribution" as PayoutDistribution
+}
+
+rectangle "OpiumProxyFactory" as Factory {
+  rectangle "Token Deployment" as TokenDeployment
+  rectangle "Token Burning" as TokenBurning
+}
+
+rectangle "OracleAggregator" as OracleAggregator {
+  rectangle "Price Feeds" as PriceFeeds
+  rectangle "Data Caching" as OracleCache
+}
+
+rectangle "SyntheticAggregator" as SyntheticAggregator {
+  rectangle "Margin Logic" as MarginLogic
+  rectangle "Payout Logic" as PayoutLogic
+  rectangle "Data Caching" as SyntheticCache
+}
+
+rectangle "TokenSpender" as TokenSpender {
+  rectangle "Allowances" as Allowances
+  rectangle "Transfers" as Transfers
+}
+
+rectangle "Position Tokens" as PositionTokens {
+  rectangle "LONG" as LONG
+  rectangle "SHORT" as SHORT
+}
+
+User --> Core : Create/Trade/Settle
+User --> PositionTokens : Hold/Transfer
+
+Governor --> Registry : Initialize/Update
+
+Registry --> Core : Config/Addresses
+Registry --> Factory : Config/Addresses
+Registry --> OracleAggregator : Config/Addresses
+Registry --> SyntheticAggregator : Config/Addresses
+Registry --> TokenSpender : Config/Addresses
+
+Core --> Factory : Create Tokens
+Core --> SyntheticAggregator : Get Derivative Data
+Core --> OracleAggregator : Get Price Data
+Core --> TokenSpender : Execute Transfers
+
+Factory --> PositionTokens : Deploy/Burn
+
+SyntheticAggregator --> SyntheticCache : Store/Retrieve
+OracleAggregator --> OracleCache : Store/Retrieve
+
+TokenSpender --> PositionTokens : Transfer
+@enduml

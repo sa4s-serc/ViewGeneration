@@ -1,0 +1,83 @@
+```plantuml
+@startuml adityajain10_foot365-live-streaming-chatbot-prediction-app-on-aws
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Frontend" as FE {
+  rectangle "UI Components" as UI
+  rectangle "JavaScript Logic" as JS
+  rectangle "apiGatewayClient.js" as APIGWClient
+}
+
+cloud "AWS" as AWS {
+  rectangle "Lambda Functions" as Lambda {
+    rectangle "standings.py" as Standings
+    rectangle "predictions.py" as Predictions
+    rectangle "LF2.py" as LF2
+    rectangle "getFixtures.py" as GetFixtures
+    rectangle "scrapeMatchData.py" as ScrapeMatchData
+    rectangle "getScore.py" as GetScore
+    rectangle "LF1.py" as LF1
+    rectangle "getLiveScores.py" as GetLiveScores
+  }
+
+  rectangle "API Gateway" as APIGateway #lightgreen
+  rectangle "S3" as S3 #lightblue
+  rectangle "DynamoDB" as DynamoDB #orange
+  rectangle "ElasticSearch" as ElasticSearch #lightyellow
+  rectangle "SQS" as SQS #lightpink
+  rectangle "SNS" as SNS #lightcoral
+  rectangle "SageMaker" as SageMaker #lightgrey
+  rectangle "Lex" as Lex #lightpurple
+  rectangle "CloudWatch" as CloudWatch #lightgrey
+}
+
+rectangle "Kafka Infrastructure" as Kafka {
+  rectangle "producer.js" as Producer
+  rectangle "consumer.js" as Consumer
+  rectangle "avro.js" as Avro
+}
+
+User --> UI : Interacts
+UI --> JS : Executes
+JS --> APIGWClient : API Requests
+APIGWClient --> APIGateway : API Calls
+
+APIGateway --> Standings
+APIGateway --> Predictions
+APIGateway --> LF2
+APIGateway --> GetFixtures
+APIGateway --> ScrapeMatchData
+APIGateway --> GetScore
+APIGateway --> LF1
+APIGateway --> GetLiveScores
+
+Standings --> DynamoDB
+Predictions --> SageMaker
+LF2 --> SQS
+LF2 --> ElasticSearch
+LF2 --> SNS
+GetFixtures --> ElasticSearch
+ScrapeMatchData --> DynamoDB
+GetScore --> ElasticSearch
+GetScore --> DynamoDB
+LF1 --> Lex
+GetLiveScores --> DynamoDB
+
+Producer --> Kafka
+Consumer --> Kafka
+Consumer --> DynamoDB
+Avro --> Producer
+Avro --> Consumer
+
+ScrapeMatchData --> S3 : Triggered by Event
+CloudWatch --> Lambda : Monitoring & Analytics
+
+@enduml
+```

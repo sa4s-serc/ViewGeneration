@@ -1,0 +1,67 @@
+@startuml zeropaper_visual-fiha
+
+skinparam componentStyle rectangle
+skinparam defaultTextAlignment center
+
+package "Visual Studio Code" {
+  [VFExtension] as VFExt
+  [WebServer] as WebServ
+  [Redux Store] as ReduxStore
+  
+  package "Webviews" {
+    [AudioView]
+    [ControlView]
+    [DisplaysView]
+    [TimelineView]
+  }
+  
+  package "Commands" {
+    [VS Code Commands]
+  }
+}
+
+package "Web Workers" {
+  [DisplayWorker]
+}
+
+package "Rendering" {
+  [Canvas2DLayer]
+  [ThreeJSLayer]
+}
+
+package "Utilities" {
+  [ScriptRunner]
+  [Scriptable]
+  [Com]
+}
+
+package "Capture" {
+  [Audio Capture]
+  [MIDI Capture]
+}
+
+database "fiha.json" as Config
+
+VFExt --> WebServ : manages
+VFExt --> ReduxStore : uses
+VFExt --> Webviews : creates
+VFExt --> [VS Code Commands] : registers
+VFExt --> DisplayWorker : spawns
+VFExt --> Config : reads/writes
+
+WebServ --> [Audio Capture]
+WebServ --> [MIDI Capture]
+
+DisplayWorker --> Canvas2DLayer : renders
+DisplayWorker --> ThreeJSLayer : renders
+DisplayWorker --> ScriptRunner : executes scripts
+DisplayWorker --> Scriptable : manages context
+
+Com <--> VFExt
+Com <--> WebServ
+Com <--> DisplayWorker
+Com <--> Webviews
+
+Webviews --> ReduxStore : dispatch/subscribe
+
+@enduml

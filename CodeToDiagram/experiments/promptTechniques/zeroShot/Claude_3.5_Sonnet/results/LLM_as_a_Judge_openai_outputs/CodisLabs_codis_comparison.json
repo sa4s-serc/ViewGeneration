@@ -1,0 +1,439 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "zookeeper",
+        "description": "",
+        "boundaries": "cloud",
+        "position": "left"
+      },
+      {
+        "name": "jodis-client",
+        "description": "",
+        "boundaries": "box",
+        "position": "top"
+      },
+      {
+        "name": "redis-client",
+        "description": "",
+        "boundaries": "box",
+        "position": "top"
+      },
+      {
+        "name": "codis-proxy",
+        "description": "",
+        "boundaries": "box",
+        "position": "center"
+      },
+      {
+        "name": "codis-fe",
+        "description": "",
+        "boundaries": "box",
+        "position": "top"
+      },
+      {
+        "name": "codis-dashboard",
+        "description": "",
+        "boundaries": "box",
+        "position": "center"
+      },
+      {
+        "name": "codis-group",
+        "description": "",
+        "boundaries": "box",
+        "position": "bottom"
+      },
+      {
+        "name": "redis-sentinel",
+        "description": "",
+        "boundaries": "cloud",
+        "position": "right"
+      },
+      {
+        "name": "Storage",
+        "description": "",
+        "boundaries": "cloud",
+        "position": "right"
+      },
+      {
+        "name": "codis-server:0",
+        "description": "master",
+        "boundaries": "box",
+        "position": "bottom-right"
+      },
+      {
+        "name": "codis-server:1",
+        "description": "slave",
+        "boundaries": "box",
+        "position": "bottom-right"
+      },
+      {
+        "name": "codis-server:2",
+        "description": "slave",
+        "boundaries": "box",
+        "position": "bottom-right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "zookeeper",
+        "target": "jodis-client",
+        "label": "jodis",
+        "type": "dashed"
+      },
+      {
+        "source": "jodis-client",
+        "target": "codis-proxy",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "redis-client",
+        "target": "codis-proxy",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "codis-fe",
+        "target": "codis-dashboard",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "codis-dashboard",
+        "target": "codis-proxy",
+        "label": "RESTful API",
+        "type": "solid"
+      },
+      {
+        "source": "codis-dashboard",
+        "target": "Storage",
+        "label": "CRUD/List",
+        "type": "solid"
+      },
+      {
+        "source": "codis-dashboard",
+        "target": "redis-sentinel",
+        "label": "monitor",
+        "type": "solid"
+      },
+      {
+        "source": "redis-sentinel",
+        "target": "codis-proxy",
+        "label": "subscribe",
+        "type": "solid"
+      },
+      {
+        "source": "redis-sentinel",
+        "target": "codis-server:0",
+        "label": "HA: ping",
+        "type": "dotted"
+      },
+      {
+        "source": "codis-proxy",
+        "target": "codis-group",
+        "label": "",
+        "type": "solid"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram",
+      "title": "Codis Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Redis Client Libraries",
+        "description": "",
+        "boundaries": "box",
+        "position": "left"
+      },
+      {
+        "name": "Codis Proxy",
+        "description": "",
+        "boundaries": "box",
+        "position": "center"
+      },
+      {
+        "name": "Connection Pool",
+        "description": "",
+        "boundaries": "box",
+        "position": "center"
+      },
+      {
+        "name": "Codis Admin",
+        "description": "",
+        "boundaries": "box",
+        "position": "top"
+      },
+      {
+        "name": "Codis Dashboard",
+        "description": "",
+        "boundaries": "box",
+        "position": "top"
+      },
+      {
+        "name": "ZooKeeper",
+        "description": "",
+        "boundaries": "box",
+        "position": "top"
+      },
+      {
+        "name": "Redis Server 1",
+        "description": "",
+        "boundaries": "box",
+        "position": "bottom"
+      },
+      {
+        "name": "Redis Server 2",
+        "description": "",
+        "boundaries": "box",
+        "position": "bottom"
+      },
+      {
+        "name": "Redis Server N",
+        "description": "",
+        "boundaries": "box",
+        "position": "bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Redis Client Libraries",
+        "target": "Codis Proxy",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "Codis Admin",
+        "target": "Codis Dashboard",
+        "label": "configures",
+        "type": "solid"
+      },
+      {
+        "source": "Codis Dashboard",
+        "target": "Codis Proxy",
+        "label": "manages",
+        "type": "solid"
+      },
+      {
+        "source": "Codis Dashboard",
+        "target": "ZooKeeper",
+        "label": "stores metadata",
+        "type": "solid"
+      },
+      {
+        "source": "ZooKeeper",
+        "target": "Codis Proxy",
+        "label": "monitors",
+        "type": "solid"
+      },
+      {
+        "source": "Codis Proxy",
+        "target": "Connection Pool",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "Connection Pool",
+        "target": "Redis Server 1",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "Connection Pool",
+        "target": "Redis Server 2",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "Connection Pool",
+        "target": "Redis Server N",
+        "label": "",
+        "type": "solid"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Client Applications",
+        "components": [
+          "Redis Client Libraries"
+        ]
+      },
+      {
+        "name": "Codis Proxy Layer",
+        "components": [
+          "Codis Proxy",
+          "Connection Pool"
+        ]
+      },
+      {
+        "name": "Management & Monitoring",
+        "components": [
+          "Codis Admin",
+          "Codis Dashboard",
+          "ZooKeeper"
+        ]
+      },
+      {
+        "name": "Redis Server Layer",
+        "components": [
+          "Redis Server 1",
+          "Redis Server 2",
+          "Redis Server N"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram",
+      "title": "Codis System Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Codis Proxy",
+      "Codis Dashboard",
+      "ZooKeeper"
+    ],
+    "unique_to_GroundTruth": [
+      "zookeeper",
+      "jodis-client",
+      "redis-client",
+      "codis-fe",
+      "codis-group",
+      "redis-sentinel",
+      "Storage",
+      "codis-server:0",
+      "codis-server:1",
+      "codis-server:2"
+    ],
+    "unique_to_GeneratedImage": [
+      "Redis Client Libraries",
+      "Connection Pool",
+      "Codis Admin",
+      "Redis Server 1",
+      "Redis Server 2",
+      "Redis Server N"
+    ],
+    "common_connectors": [
+      {
+        "source": "Codis Dashboard",
+        "target": "ZooKeeper",
+        "label": "",
+        "type": "solid"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "zookeeper",
+        "target": "jodis-client",
+        "label": "jodis",
+        "type": "dashed"
+      },
+      {
+        "source": "jodis-client",
+        "target": "codis-proxy",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "redis-client",
+        "target": "codis-proxy",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "codis-fe",
+        "target": "codis-dashboard",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "codis-dashboard",
+        "target": "Storage",
+        "label": "CRUD/List",
+        "type": "solid"
+      },
+      {
+        "source": "codis-dashboard",
+        "target": "redis-sentinel",
+        "label": "monitor",
+        "type": "solid"
+      },
+      {
+        "source": "redis-sentinel",
+        "target": "codis-proxy",
+        "label": "subscribe",
+        "type": "solid"
+      },
+      {
+        "source": "redis-sentinel",
+        "target": "codis-server:0",
+        "label": "HA: ping",
+        "type": "dotted"
+      },
+      {
+        "source": "codis-proxy",
+        "target": "codis-group",
+        "label": "",
+        "type": "solid"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Redis Client Libraries",
+        "target": "Codis Proxy",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "Codis Admin",
+        "target": "Codis Dashboard",
+        "label": "configures",
+        "type": "solid"
+      },
+      {
+        "source": "Codis Dashboard",
+        "target": "Codis Proxy",
+        "label": "manages",
+        "type": "solid"
+      },
+      {
+        "source": "ZooKeeper",
+        "target": "Codis Proxy",
+        "label": "monitors",
+        "type": "solid"
+      },
+      {
+        "source": "Codis Proxy",
+        "target": "Connection Pool",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "Connection Pool",
+        "target": "Redis Server 1",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "Connection Pool",
+        "target": "Redis Server 2",
+        "label": "",
+        "type": "solid"
+      },
+      {
+        "source": "Connection Pool",
+        "target": "Redis Server N",
+        "label": "",
+        "type": "solid"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of a Codis-based architecture. The GroundTruth diagram includes components like 'jodis-client', 'redis-client', and 'redis-sentinel', which are not present in the GeneratedImage. The GeneratedImage, however, introduces components like 'Codis Admin', 'Connection Pool', and multiple Redis Servers, which are absent in the GroundTruth. Both diagrams share common components such as 'Codis Proxy', 'Codis Dashboard', and 'ZooKeeper'. The GroundTruth diagram emphasizes external interactions with components like 'Storage' and 'redis-sentinel', while the GeneratedImage focuses more on internal management and monitoring layers. The GeneratedImage is rated 7 out of 10 for its accuracy and completeness. It captures the core components but lacks some external integrations found in the GroundTruth.",
+    "Rating": 7
+  }
+}

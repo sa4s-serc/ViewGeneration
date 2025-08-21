@@ -1,0 +1,68 @@
+@startuml
+package "CMUChimpsLab Peekaboo" {
+    package "Node-RED Node Definitions" {
+        component "Provider Node" as Provider {
+            {method} Pull
+            {method} Push
+        }
+        component "Inference Node" as Inference {
+            {method} Classify
+            {method} Detect
+            {method} Extract
+        }
+        component "Filter Node" as Filter {
+            {method} Select
+            {method} Noisify
+            {method} Spoof
+        }
+        component "Network Node" as Network {
+            {method} Post
+        }
+        component "Utility Node" as Utility {
+            {method} Aggregate
+            {method} pkbInject
+            {method} pkbJoin
+        }
+    }
+
+    package "Dynamic UI Generation" {
+        component "dom-util.js" as domUtil
+    }
+
+    package "Service Abstraction" {
+        component "PeekabooService" as PeekabooService
+        component "AsyncPeekabooService" as AsyncPeekabooService
+    }
+
+    package "Sensor Configuration and Management" {
+        component "WiFiConfig" as WiFiConfig
+    }
+
+    package "State Management" {
+        component "StateIO" as StateIO
+    }
+
+    package "UI Widget Integration" {
+        component "Select2" as Select2
+    }
+}
+
+Provider -[hidden]-> Inference
+Inference -[hidden]-> Filter
+Filter -[hidden]-> Network
+Utility -[hidden]-> Provider
+
+PeekabooService --> Inference : service_call
+AsyncPeekabooService --> Inference : async_service_call
+WiFiConfig --> Provider : setup
+domUtil --> Utility : ui_generation
+StateIO --> Utility : state_management
+Select2 --> Utility : widget_integration
+
+note right of Provider : Ingests data from sensors, MQTT, WebSockets
+note right of Inference : Applies ML models for data analysis
+note right of Filter : Modifies data for privacy
+note right of Network : Sends processed data to cloud services
+note right of Utility : Manages data manipulation within Node-RED
+
+@enduml

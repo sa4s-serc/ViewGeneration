@@ -1,0 +1,81 @@
+@startuml ShiftLeftSecurity_traceleft
+skinparam rectangle {
+  BackgroundColor<<text>> #d9e7fd
+  BackgroundColor<<system>> #d8f5d3
+  BackgroundColor<<cli>> #fff1c9
+  BackgroundColor<<core>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+left to right direction
+
+package "Text Processing" <<text>> {
+  rectangle "Unicode Normalization\n(NFC/NFD/NFKC/NFKD)" as norm
+  rectangle "Collation\n(Language-specific sorting)" as collate
+  rectangle "BiDi Text Handling" as bidi
+  rectangle "IDNA Processing" as idna
+  rectangle "Case Conversion" as caseconv
+  rectangle "Character Encodings" as encoding
+  rectangle "gotext CLI Tool" as gotext
+  rectangle "CLDR Integration" as cldr
+}
+
+package "System Interaction" <<system>> {
+  rectangle "OS Abstraction" as osabs
+  rectangle "System Calls" as syscalls
+  rectangle "Windows API" as winapi
+  rectangle "Linux API" as linuxapi
+}
+
+package "CLI Tools" <<cli>> {
+  rectangle "Cobra Framework" as cobra
+  rectangle "Command Hierarchy" as cmdtree
+  rectangle "Flags & Args" as flags
+  rectangle "Code Generator" as generator
+}
+
+package "Core Libraries" <<core>> {
+  rectangle "eBPF Interaction" as ebpf
+  rectangle "YAML Processing" as yaml
+  rectangle "LRU Cache" as cache
+  rectangle "Filesystem Watcher" as fsnotify
+  rectangle "Rune Names" as runenames
+  rectangle "Line Editor" as liner
+}
+
+norm --> cldr
+collate --> cldr
+bidi --> cldr
+idna --> cldr
+caseconv --> cldr
+encoding --> cldr
+gotext --> norm
+gotext --> collate
+
+osabs --> syscalls
+winapi --> syscalls
+linuxapi --> syscalls
+
+cobra --> cmdtree
+cobra --> flags
+cobra --> generator
+
+ebpf --> syscalls
+fsnotify --> syscalls
+liner --> cobra
+
+note right of cldr
+  Data-driven design using
+  generated code and tables
+end note
+
+note left of syscalls
+  Platform-specific
+  implementations
+end note
+
+note bottom of cobra
+  Builder pattern for
+  command construction
+end note
+@enduml

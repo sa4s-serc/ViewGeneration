@@ -1,0 +1,443 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Client",
+        "description": "Handles business logic",
+        "boundaries": "Left side",
+        "position": "Left"
+      },
+      {
+        "name": "SWIR",
+        "description": "Main processing unit",
+        "boundaries": "Central",
+        "position": "Center"
+      },
+      {
+        "name": "Messaging",
+        "description": "Handles messaging",
+        "boundaries": "Within SWIR",
+        "position": "Top right"
+      },
+      {
+        "name": "Persistence",
+        "description": "Handles data storage",
+        "boundaries": "Within SWIR",
+        "position": "Middle right"
+      },
+      {
+        "name": "Service Invocation And Discovery",
+        "description": "Service invocation and discovery",
+        "boundaries": "Within SWIR",
+        "position": "Bottom right"
+      },
+      {
+        "name": "OpenTelemetry API",
+        "description": "Handles telemetry",
+        "boundaries": "Bottom",
+        "position": "Bottom"
+      },
+      {
+        "name": "Kafka Handler",
+        "description": "Handles Kafka messaging",
+        "boundaries": "Within Messaging",
+        "position": "Top"
+      },
+      {
+        "name": "Nats Handler",
+        "description": "Handles Nats messaging",
+        "boundaries": "Within Messaging",
+        "position": "Middle"
+      },
+      {
+        "name": "AWS Kinesis Handler",
+        "description": "Handles AWS Kinesis messaging",
+        "boundaries": "Within Messaging",
+        "position": "Bottom"
+      },
+      {
+        "name": "Redis",
+        "description": "Handles Redis storage",
+        "boundaries": "Within Persistence",
+        "position": "Top"
+      },
+      {
+        "name": "AWS DynamoDB",
+        "description": "Handles AWS DynamoDB storage",
+        "boundaries": "Within Persistence",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Client",
+        "target": "SWIR",
+        "label": "REST HTTP1.1 HTTP2 (Hyper)",
+        "type": "Invoke"
+      },
+      {
+        "source": "Client",
+        "target": "SWIR",
+        "label": "gRPC (Tonic)",
+        "type": "Invoke"
+      },
+      {
+        "source": "SWIR",
+        "target": "Messaging",
+        "label": "Memory Channels",
+        "type": "Channel"
+      },
+      {
+        "source": "Messaging",
+        "target": "Kafka Broker",
+        "label": "Pub/Sub",
+        "type": "Pub/Sub"
+      },
+      {
+        "source": "Messaging",
+        "target": "Nats Broker",
+        "label": "Pub/Sub",
+        "type": "Pub/Sub"
+      },
+      {
+        "source": "Messaging",
+        "target": "AWS Kinesis",
+        "label": "Pub/Sub",
+        "type": "Pub/Sub"
+      },
+      {
+        "source": "Persistence",
+        "target": "Redis",
+        "label": "Store/Retrieve",
+        "type": "Data"
+      },
+      {
+        "source": "Persistence",
+        "target": "DynamoDB",
+        "label": "Store/Retrieve",
+        "type": "Data"
+      },
+      {
+        "source": "SWIR",
+        "target": "Service Invocation And Discovery",
+        "label": "Invoke",
+        "type": "Invoke"
+      },
+      {
+        "source": "Service Invocation And Discovery",
+        "target": "SWIR",
+        "label": "Invoke",
+        "type": "Invoke"
+      },
+      {
+        "source": "OpenTelemetry API",
+        "target": "Jaeger",
+        "label": "",
+        "type": "Telemetry"
+      },
+      {
+        "source": "OpenTelemetry API",
+        "target": "Prometheus",
+        "label": "",
+        "type": "Telemetry"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Business Logic",
+        "components": [
+          "Client"
+        ]
+      },
+      {
+        "name": "SWIR",
+        "components": [
+          "Messaging",
+          "Persistence",
+          "Service Invocation And Discovery"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "SWIR Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "SWIR Sidecar",
+        "description": "Main processing unit",
+        "boundaries": "Central",
+        "position": "Center"
+      },
+      {
+        "name": "Main Application",
+        "description": "Handles main application logic",
+        "boundaries": "Top",
+        "position": "Top"
+      },
+      {
+        "name": "Utilities",
+        "description": "Utility functions",
+        "boundaries": "Top",
+        "position": "Top"
+      },
+      {
+        "name": "gRPC Handler",
+        "description": "Handles gRPC requests",
+        "boundaries": "Within SWIR Sidecar",
+        "position": "Top left"
+      },
+      {
+        "name": "HTTP Handler",
+        "description": "Handles HTTP requests",
+        "boundaries": "Within SWIR Sidecar",
+        "position": "Top right"
+      },
+      {
+        "name": "Messaging",
+        "description": "Handles messaging",
+        "boundaries": "Within SWIR Sidecar",
+        "position": "Middle right"
+      },
+      {
+        "name": "Persistence",
+        "description": "Handles data storage",
+        "boundaries": "Within SWIR Sidecar",
+        "position": "Middle left"
+      },
+      {
+        "name": "Service Invocation",
+        "description": "Service invocation and discovery",
+        "boundaries": "Within SWIR Sidecar",
+        "position": "Middle"
+      },
+      {
+        "name": "OpenTelemetry",
+        "description": "Handles telemetry",
+        "boundaries": "Bottom",
+        "position": "Bottom"
+      },
+      {
+        "name": "Kafka Handler",
+        "description": "Handles Kafka messaging",
+        "boundaries": "Within Messaging",
+        "position": "Top"
+      },
+      {
+        "name": "NATS Handler",
+        "description": "Handles NATS messaging",
+        "boundaries": "Within Messaging",
+        "position": "Middle"
+      },
+      {
+        "name": "AWS Kinesis Handler",
+        "description": "Handles AWS Kinesis messaging",
+        "boundaries": "Within Messaging",
+        "position": "Bottom"
+      },
+      {
+        "name": "Redis Store",
+        "description": "Handles Redis storage",
+        "boundaries": "Within Persistence",
+        "position": "Top"
+      },
+      {
+        "name": "DynamoDB Store",
+        "description": "Handles DynamoDB storage",
+        "boundaries": "Within Persistence",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Main Application",
+        "target": "gRPC Handler",
+        "label": "handles gRPC requests",
+        "type": "Invoke"
+      },
+      {
+        "source": "Main Application",
+        "target": "HTTP Handler",
+        "label": "handles HTTP requests",
+        "type": "Invoke"
+      },
+      {
+        "source": "Main Application",
+        "target": "Utilities",
+        "label": "manages tracing",
+        "type": "Utility"
+      },
+      {
+        "source": "Utilities",
+        "target": "OpenTelemetry",
+        "label": "exports traces",
+        "type": "Telemetry"
+      },
+      {
+        "source": "Messaging",
+        "target": "Kafka Handler",
+        "label": "Kafka broker",
+        "type": "Pub/Sub"
+      },
+      {
+        "source": "Messaging",
+        "target": "NATS Handler",
+        "label": "NATS broker",
+        "type": "Pub/Sub"
+      },
+      {
+        "source": "Messaging",
+        "target": "AWS Kinesis Handler",
+        "label": "Kinesis stream",
+        "type": "Pub/Sub"
+      },
+      {
+        "source": "Persistence",
+        "target": "Redis Store",
+        "label": "Redis store",
+        "type": "Data"
+      },
+      {
+        "source": "Persistence",
+        "target": "DynamoDB Store",
+        "label": "DynamoDB store",
+        "type": "Data"
+      },
+      {
+        "source": "Service Invocation",
+        "target": "Service Discovery",
+        "label": "discovers services",
+        "type": "Discovery"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "SWIR Sidecar",
+        "components": [
+          "gRPC Handler",
+          "HTTP Handler",
+          "Messaging",
+          "Persistence",
+          "Service Invocation"
+        ]
+      },
+      {
+        "name": "Utilities",
+        "components": [
+          "Tracing",
+          "Structs",
+          "Configuration",
+          "Metrics"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "SWIR Sidecar Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Messaging",
+      "Persistence",
+      "Service Invocation",
+      "Kafka Handler",
+      "NATS Handler",
+      "AWS Kinesis Handler",
+      "Redis Store",
+      "DynamoDB Store",
+      "OpenTelemetry"
+    ],
+    "unique_to_GroundTruth": [
+      "Client",
+      "SWIR",
+      "OpenTelemetry API",
+      "Service Invocation And Discovery"
+    ],
+    "unique_to_GeneratedImage": [
+      "SWIR Sidecar",
+      "Main Application",
+      "Utilities",
+      "gRPC Handler",
+      "HTTP Handler",
+      "Service Discovery"
+    ],
+    "common_connectors": [
+      {
+        "source": "Messaging",
+        "target": "Kafka Handler",
+        "type": "Pub/Sub"
+      },
+      {
+        "source": "Messaging",
+        "target": "NATS Handler",
+        "type": "Pub/Sub"
+      },
+      {
+        "source": "Messaging",
+        "target": "AWS Kinesis Handler",
+        "type": "Pub/Sub"
+      },
+      {
+        "source": "Persistence",
+        "target": "Redis Store",
+        "type": "Data"
+      },
+      {
+        "source": "Persistence",
+        "target": "DynamoDB Store",
+        "type": "Data"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Client",
+        "target": "SWIR",
+        "type": "Invoke"
+      },
+      {
+        "source": "OpenTelemetry API",
+        "target": "Jaeger",
+        "type": "Telemetry"
+      },
+      {
+        "source": "OpenTelemetry API",
+        "target": "Prometheus",
+        "type": "Telemetry"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Main Application",
+        "target": "gRPC Handler",
+        "type": "Invoke"
+      },
+      {
+        "source": "Main Application",
+        "target": "HTTP Handler",
+        "type": "Invoke"
+      },
+      {
+        "source": "Main Application",
+        "target": "Utilities",
+        "type": "Utility"
+      },
+      {
+        "source": "Utilities",
+        "target": "OpenTelemetry",
+        "type": "Telemetry"
+      },
+      {
+        "source": "Service Invocation",
+        "target": "Service Discovery",
+        "type": "Discovery"
+      }
+    ],
+    "explanation": "The two diagrams represent similar architectural concepts but differ in their organization and components. Both diagrams include components for messaging, persistence, and service invocation, with handlers for Kafka, NATS, and AWS Kinesis, as well as storage for Redis and DynamoDB. The GroundTruth diagram includes a 'Client' component and focuses on the 'SWIR' as the central processing unit, while the GeneratedImage diagram introduces a 'SWIR Sidecar' and 'Main Application' with additional 'Utilities'. The connectors in both diagrams show similar data flow for messaging and persistence, but differ in their invocation and telemetry connections. The GroundTruth diagram uses a more straightforward approach with a focus on client interaction, whereas the GeneratedImage diagram provides a more detailed breakdown of internal components and utilities. The GeneratedImage diagram is rated 8 out of 10 for its accuracy and completeness, as it captures the core elements of the architecture but introduces additional complexity not present in the GroundTruth.",
+    "Rating": 8
+  }
+}

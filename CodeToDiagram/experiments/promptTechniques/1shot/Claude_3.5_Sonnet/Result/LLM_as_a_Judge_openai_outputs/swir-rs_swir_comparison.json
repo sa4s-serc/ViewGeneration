@@ -1,0 +1,295 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Client",
+        "description": "Business Logic",
+        "boundaries": "left",
+        "position": "left"
+      },
+      {
+        "name": "SWIR",
+        "description": "Main processing unit",
+        "boundaries": "center",
+        "position": "center"
+      },
+      {
+        "name": "Messaging",
+        "description": "Handles messaging",
+        "boundaries": "right",
+        "position": "right"
+      },
+      {
+        "name": "Persistence",
+        "description": "Handles data storage",
+        "boundaries": "right",
+        "position": "right"
+      },
+      {
+        "name": "Service Invocation And Discovery",
+        "description": "Handles service calls",
+        "boundaries": "right",
+        "position": "right"
+      },
+      {
+        "name": "OpenTelemetry API",
+        "description": "Telemetry",
+        "boundaries": "bottom",
+        "position": "bottom"
+      },
+      {
+        "name": "Jaeger",
+        "description": "Tracing",
+        "boundaries": "bottom",
+        "position": "bottom"
+      },
+      {
+        "name": "Prometheus",
+        "description": "Monitoring",
+        "boundaries": "bottom",
+        "position": "bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Client",
+        "target": "SWIR",
+        "label": "REST HTTP1.1 HTTP2 (Hyper)",
+        "type": "Invoke"
+      },
+      {
+        "source": "Client",
+        "target": "SWIR",
+        "label": "gRPC (Tonic)",
+        "type": "Invoke"
+      },
+      {
+        "source": "SWIR",
+        "target": "Messaging",
+        "label": "Memory Channels",
+        "type": "Pub/Sub"
+      },
+      {
+        "source": "SWIR",
+        "target": "Persistence",
+        "label": "Memory Channels",
+        "type": "Store/Retrieve"
+      },
+      {
+        "source": "SWIR",
+        "target": "Service Invocation And Discovery",
+        "label": "Memory Channels",
+        "type": "Invoke"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Messaging",
+        "components": [
+          "Kafka Handler",
+          "Nats Handler",
+          "AWS Kinesis Handler"
+        ]
+      },
+      {
+        "name": "Persistence",
+        "components": [
+          "Redis",
+          "AWS DynamoDB"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram",
+      "title": "VM/Kubernetes Pod/AWS ECS Task"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "HTTP Server",
+        "description": "Frontend server",
+        "boundaries": "center",
+        "position": "center"
+      },
+      {
+        "name": "gRPC Server",
+        "description": "Frontend server",
+        "boundaries": "center",
+        "position": "center"
+      },
+      {
+        "name": "Metrics & Tracing",
+        "description": "Backend service",
+        "boundaries": "top",
+        "position": "top"
+      },
+      {
+        "name": "Configuration",
+        "description": "Backend service",
+        "boundaries": "top",
+        "position": "top"
+      },
+      {
+        "name": "PubSub Handler",
+        "description": "Backend service",
+        "boundaries": "center",
+        "position": "center"
+      },
+      {
+        "name": "Persistence Handler",
+        "description": "Backend service",
+        "boundaries": "center",
+        "position": "center"
+      },
+      {
+        "name": "Service Invocation Handler",
+        "description": "Backend service",
+        "boundaries": "center",
+        "position": "center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "HTTP Server",
+        "target": "PubSub Handler",
+        "label": "monitors",
+        "type": "Monitor"
+      },
+      {
+        "source": "gRPC Server",
+        "target": "PubSub Handler",
+        "label": "monitors",
+        "type": "Monitor"
+      },
+      {
+        "source": "Metrics & Tracing",
+        "target": "HTTP Server",
+        "label": "monitors",
+        "type": "Monitor"
+      },
+      {
+        "source": "Configuration",
+        "target": "gRPC Server",
+        "label": "configures",
+        "type": "Configure"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Messaging",
+        "components": [
+          "NATS Handler",
+          "AWS Kinesis Handler",
+          "Kafka Handler"
+        ]
+      },
+      {
+        "name": "Persistence",
+        "components": [
+          "DynamoDB Store",
+          "Redis Store"
+        ]
+      },
+      {
+        "name": "Service Discovery",
+        "components": [
+          "mDNS",
+          "DynamoDB Discovery"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram",
+      "title": "Service Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Kafka Handler",
+      "Nats Handler",
+      "AWS Kinesis Handler",
+      "Redis",
+      "AWS DynamoDB"
+    ],
+    "unique_to_GroundTruth": [
+      "Client",
+      "SWIR",
+      "OpenTelemetry API",
+      "Jaeger",
+      "Prometheus"
+    ],
+    "unique_to_GeneratedImage": [
+      "HTTP Server",
+      "gRPC Server",
+      "Metrics & Tracing",
+      "Configuration",
+      "Service Invocation Handler",
+      "mDNS",
+      "DynamoDB Discovery"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Client",
+        "target": "SWIR",
+        "label": "REST HTTP1.1 HTTP2 (Hyper)",
+        "type": "Invoke"
+      },
+      {
+        "source": "Client",
+        "target": "SWIR",
+        "label": "gRPC (Tonic)",
+        "type": "Invoke"
+      },
+      {
+        "source": "SWIR",
+        "target": "Messaging",
+        "label": "Memory Channels",
+        "type": "Pub/Sub"
+      },
+      {
+        "source": "SWIR",
+        "target": "Persistence",
+        "label": "Memory Channels",
+        "type": "Store/Retrieve"
+      },
+      {
+        "source": "SWIR",
+        "target": "Service Invocation And Discovery",
+        "label": "Memory Channels",
+        "type": "Invoke"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "HTTP Server",
+        "target": "PubSub Handler",
+        "label": "monitors",
+        "type": "Monitor"
+      },
+      {
+        "source": "gRPC Server",
+        "target": "PubSub Handler",
+        "label": "monitors",
+        "type": "Monitor"
+      },
+      {
+        "source": "Metrics & Tracing",
+        "target": "HTTP Server",
+        "label": "monitors",
+        "type": "Monitor"
+      },
+      {
+        "source": "Configuration",
+        "target": "gRPC Server",
+        "label": "configures",
+        "type": "Configure"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on a high-level architecture involving clients interacting with a central processing unit (SWIR) using REST and gRPC protocols. It emphasizes telemetry and monitoring with components like OpenTelemetry API, Jaeger, and Prometheus. The GeneratedImage diagram, however, presents a more detailed backend architecture with specific handlers for Pub/Sub, persistence, and service invocation. It includes components for metrics, tracing, and configuration management. Both diagrams share common components in messaging and persistence but differ significantly in structure and focus. The GroundTruth diagram is more client-centric, while the GeneratedImage diagram is backend-centric. The GeneratedImage diagram is rated 7 out of 10 for accuracy and completeness, as it captures key backend components but lacks the client-side and telemetry aspects present in the GroundTruth.",
+    "Rating": 7
+  }
+}

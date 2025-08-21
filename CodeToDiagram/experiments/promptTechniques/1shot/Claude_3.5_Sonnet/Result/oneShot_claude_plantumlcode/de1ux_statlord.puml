@@ -1,0 +1,43 @@
+@startuml de1ux_statlord
+
+actor User
+participant "React Frontend" as Frontend
+participant "Redux Store" as Store
+participant "Django Backend" as Backend
+database "PostgreSQL" as DB
+participant "Display Device" as Device
+
+User -> Frontend : Access dashboard editor
+Frontend -> Store : Initialize state
+Frontend -> Backend : Fetch initial data
+Backend -> DB : Query data
+DB --> Backend : Return data
+Backend --> Frontend : Send data
+Frontend -> Store : Update state
+
+User -> Frontend : Create/Edit dashboard
+Frontend -> Store : Update state
+Frontend -> Backend : Save changes
+Backend -> DB : Store changes
+DB --> Backend : Confirm storage
+Backend --> Frontend : Confirm save
+
+User -> Frontend : Assign layout to display
+Frontend -> Backend : Update display config
+Backend -> DB : Store display config
+DB --> Backend : Confirm storage
+Backend --> Frontend : Confirm update
+
+loop Every X seconds
+    Frontend -> Backend : Poll for data updates
+    Backend -> DB : Fetch updated data
+    DB --> Backend : Return updated data
+    Backend --> Frontend : Send updated data
+    Frontend -> Store : Update state
+    Frontend -> Frontend : Re-render dashboard
+end
+
+Frontend -> Device : Push display data
+Device -> Device : Render dashboard
+
+@enduml

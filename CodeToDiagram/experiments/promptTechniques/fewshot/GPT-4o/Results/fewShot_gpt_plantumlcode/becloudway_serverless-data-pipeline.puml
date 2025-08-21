@@ -1,0 +1,76 @@
+```plantuml
+@startuml becloudway_serverless-data-pipeline
+left to right direction
+skinparam rectangle {
+  BackgroundColor #FFFFFF
+  BorderColor black
+  Style roundrect
+}
+
+actor "Public API" as APISource
+actor "Slack" as Slack
+actor "User" as User
+
+package "Data Ingestion" {
+  rectangle "Lambda\nRetrieveXMLTrafficData" as RetrieveXML
+  rectangle "S3\nRaw XML Bucket" as S3RawXML
+  APISource --> RetrieveXML : Retrieve XML Data
+  RetrieveXML --> S3RawXML : Store XML
+}
+
+package "Data Transformation" {
+  rectangle "Lambda\nTransformTrafficDataToJson" as TransformJSON
+  rectangle "S3\nRaw JSON Bucket" as S3RawJSON
+  S3RawXML --> TransformJSON : XML Created Trigger
+  TransformJSON --> S3RawJSON : Store JSON
+}
+
+package "Data Streaming" {
+  rectangle "Lambda\nPublishTrafficData" as PublishData
+  rectangle "Kinesis Firehose" as Firehose
+  rectangle "Kinesis Stream" as KinesisStream
+  rectangle "SQS DLQ" as SQSDLQ
+  S3RawJSON --> PublishData : JSON Created Trigger
+  PublishData --> Firehose : Publish Events
+  PublishData --> KinesisStream : Publish Events
+  Firehose --> S3RawJSON : Stream Data
+  PublishData --> SQSDLQ : Failed Events
+}
+
+package "Real-time Analytics" {
+  rectangle "Kinesis Data Analytics" as KinesisAnalytics
+  rectangle "Lambda\nStreamProcessor" as StreamProcessor
+  KinesisStream --> KinesisAnalytics : Process Data
+  KinesisAnalytics --> StreamProcessor : Filter Data
+}
+
+package "Data Storage" {
+  rectangle "DynamoDB\nRealTimeAnalyticsPerPointTable" as RealTimeTable
+  rectangle "DynamoDB\nTrafficJamAlertsTable" as AlertsTable
+  rectangle "S3\nProcessed Data" as S3Processed
+  Firehose --> S3Processed : Store Data
+  StreamProcessor --> RealTimeTable : Store Results
+}
+
+package "Alerting" {
+  rectangle "Lambda\nAlertSaver" as AlertSaver
+  rectangle "Lambda\nAlertSender" as AlertSender
+  RealTimeTable --> AlertSaver : DynamoDB Stream
+  AlertSaver --> AlertsTable : Add Alert
+  AlertsTable --> AlertSender : DynamoDB Stream
+  AlertSender --> Slack : Send Alert
+}
+
+package "Data Forwarding" {
+  rectangle "Lambda\nCurrentSituation" as CurrentSituation
+  rectangle "Lambda\nCurrentAlerts" as CurrentAlerts
+  rectangle "Lambda\nPowerBiForwarder" as PowerBiForwarder
+  rectangle "Flask API" as FlaskAPI
+  User --> FlaskAPI : REST Request
+  FlaskAPI --> CurrentSituation : Get Current Traffic
+  FlaskAPI --> CurrentAlerts : Get Current Alerts
+  KinesisStream --> PowerBiForwarder : Forward Data
+}
+
+@enduml
+```

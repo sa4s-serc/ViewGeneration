@@ -1,0 +1,35 @@
+@startuml vishipayyallore_blazorwasm-apim-api-sql-redis
+
+actor User
+participant "Blazor WebAssembly\nFrontend" as Frontend
+participant "Azure API Management" as APIM
+participant "ASP.NET Core Web API" as API
+participant "Business Logic Layer" as BLL
+participant "Cache Repository" as CacheRepo
+participant "SQL Repository" as SQLRepo
+database "Redis Cache" as Redis
+database "SQL Server" as SQLServer
+
+User -> Frontend : Interact with UI
+Frontend -> APIM : Send HTTP request
+APIM -> API : Route request
+API -> BLL : Process request
+BLL -> CacheRepo : Check cache
+CacheRepo -> Redis : Query data
+alt Data in cache
+    Redis --> CacheRepo : Return cached data
+    CacheRepo --> BLL : Return data
+else Data not in cache
+    BLL -> SQLRepo : Query database
+    SQLRepo -> SQLServer : Fetch data
+    SQLServer --> SQLRepo : Return data
+    SQLRepo --> BLL : Return data
+    BLL -> CacheRepo : Store data in cache
+    CacheRepo -> Redis : Save data
+end
+BLL --> API : Return processed data
+API --> APIM : Send response
+APIM --> Frontend : Return data
+Frontend --> User : Update UI
+
+@enduml

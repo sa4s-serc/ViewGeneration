@@ -1,0 +1,49 @@
+```plantuml
+@startuml hypertrack_live-app-android
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Android App" as App {
+  rectangle "UI Components" as UI
+  rectangle "CognitoClient" as Cognito
+  rectangle "BackendClientFactory" as BackendFactory
+  rectangle "GeofenceApiAdapter" as GeofenceAdapter
+  rectangle "Maps Integration" as Maps
+}
+
+rectangle "AWS Cognito" as CognitoService #lightyellow
+
+rectangle "HyperTrack Backend" as HyperTrackBackend #lightblue
+
+rectangle "HyperTrack SDK" as HyperTrackSDK #lightgreen
+
+rectangle "Google Maps" as GoogleMaps #lightpink
+
+rectangle "Branch.io" as BranchIO #aliceblue
+
+' ========== Connections ==========
+User --> UI : Interacts with
+
+' App interactions
+UI --> Cognito : Authenticate user
+Cognito --> CognitoService : Authenticate request
+CognitoService --> Cognito : Return auth token
+
+UI --> BackendFactory : Create trip, complete trip
+BackendFactory --> HyperTrackBackend : API call for trip operations
+UI --> GeofenceAdapter : Manage geofences
+UI --> Maps : Display location and routes
+Maps --> GoogleMaps : Fetch and display map data
+UI --> BranchIO : Handle deep links
+
+' SDK interactions
+App --> HyperTrackSDK : Live location tracking
+
+@enduml
+```

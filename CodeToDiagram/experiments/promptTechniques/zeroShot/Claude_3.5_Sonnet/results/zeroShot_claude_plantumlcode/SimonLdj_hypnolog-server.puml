@@ -1,0 +1,49 @@
+```plantuml
+@startuml SimonLdj_hypnolog-server
+
+!define RECTANGLE class
+
+skinparam component {
+  BackgroundColor<<Server>> LightBlue
+  BackgroundColor<<Client>> LightGreen
+  BackgroundColor<<External>> LightGray
+}
+
+component "HypnoLog Server" <<Server>> {
+  [Express Server]
+  [Socket.IO Server]
+  [Logger Route]
+  [Data Processor]
+}
+
+component "Web UI" <<Client>> {
+  [Socket.IO Client]
+  [WindowsDispatcher]
+  [VisualizerDispatcher]
+  [ConfigFactory]
+  [Visualizers]
+}
+
+cloud "External Applications" <<External>> {
+  [Application 1]
+  [Application 2]
+  [Application n]
+}
+
+[Express Server] --> [Logger Route] : routes
+[Logger Route] --> [Data Processor] : processes data
+[Data Processor] --> [Socket.IO Server] : broadcasts data
+
+[Socket.IO Server] <--> [Socket.IO Client] : real-time communication
+
+[Socket.IO Client] --> [WindowsDispatcher] : distributes data
+[WindowsDispatcher] --> [VisualizerDispatcher] : selects visualizer
+[VisualizerDispatcher] --> [Visualizers] : renders data
+[ConfigFactory] --> [VisualizerDispatcher] : configures
+
+[Application 1] --> [Express Server] : HTTP POST
+[Application 2] --> [Express Server] : HTTP POST
+[Application n] --> [Express Server] : HTTP POST
+
+@enduml
+```

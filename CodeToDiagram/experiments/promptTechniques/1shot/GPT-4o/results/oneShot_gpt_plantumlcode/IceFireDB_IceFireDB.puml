@@ -1,0 +1,89 @@
+```plantuml
+@startuml IceFireDB_IceFireDB
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<proxy>> #d8f5d3
+  BackgroundColor<<protobuf>> #fddddd
+  BackgroundColor<<grpc>> #fff1c9
+  BackgroundColor<<crypto>> #e3d9fd
+  BackgroundColor<<toolchain>> #ffd9f5
+  BackgroundColor<<telemetry>> #d9f5ff
+  BackgroundColor<<http2>> #f5f5d9
+  BackgroundColor<<sys>> #fdd9d9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Database Functionality" <<core>> {
+  rectangle "Redis Protocol Layer" as Redis
+  rectangle "Distributed Consensus\n(Raft via Uhaha)" as Raft
+  rectangle "Storage Backends\n(LevelDB, BoltDB)" as Storage
+  rectangle "Server Commands\n(INFO, FLUSHALL, FLUSHDB)" as ServerCommands
+  Redis --> Raft
+  Redis --> Storage
+  Redis --> ServerCommands
+}
+
+package "Distributed SQL Proxy" <<proxy>> {
+  rectangle "MySQL Proxy" as MySQLProxy
+  rectangle "P2P Network\n(libp2p)" as P2P
+  rectangle "Config Management\n(Viper)" as Config
+  rectangle "Pluggable Storage\n(LevelDB, CRDT, IPFS, OSS, HybridDB)" as StorageEngines
+  rectangle "Metrics Collection\n(Ristretto)" as Metrics
+  MySQLProxy --> P2P
+  MySQLProxy --> Config
+  MySQLProxy --> StorageEngines
+  MySQLProxy --> Metrics
+}
+
+package "Protocol Buffers" <<protobuf>> {
+  rectangle "Message Types\nand Services" as ProtoMessages
+  rectangle "Code Generation" as ProtoCodeGen
+  ProtoMessages --> ProtoCodeGen
+}
+
+package "gRPC Communication" <<grpc>> {
+  rectangle "Server Management" as GRPCServer
+  rectangle "Client Management" as GRPCClient
+  rectangle "RPC Stream Handling" as RPCStream
+  rectangle "Interceptors" as GRPCInterceptors
+  GRPCServer --> GRPCClient
+  GRPCClient --> RPCStream
+  GRPCClient --> GRPCInterceptors
+}
+
+package "Crypto & Security" <<crypto>> {
+  rectangle "Hashing & Encryption" as Hashing
+  rectangle "Key Management" as KeyManagement
+  Hashing --> KeyManagement
+}
+
+package "Go's Extended Toolchain" <<toolchain>> {
+  rectangle "AST Manipulation" as AST
+  rectangle "Code Formatting" as Formatting
+  rectangle "Package Management" as PackageMgmt
+  AST --> Formatting
+  Formatting --> PackageMgmt
+}
+
+package "OpenTelemetry Support" <<telemetry>> {
+  rectangle "Tracing, Metrics, Logs" as Telemetry
+  rectangle "Exporters" as Exporters
+  rectangle "Automatic Instrumentation" as AutoInstrumentation
+  Telemetry --> Exporters
+  Telemetry --> AutoInstrumentation
+}
+
+package "gRPC HTTP/2 Implementation" <<http2>> {
+  rectangle "HTTP/2 Transport" as HTTP2Transport
+  rectangle "Connection Management" as HTTP2Connection
+  HTTP2Transport --> HTTP2Connection
+}
+
+package "Low Level System Calls" <<sys>> {
+  rectangle "Memory Management" as MemoryMgmt
+  rectangle "System Calls" as SystemCalls
+  MemoryMgmt --> SystemCalls
+}
+@enduml
+```

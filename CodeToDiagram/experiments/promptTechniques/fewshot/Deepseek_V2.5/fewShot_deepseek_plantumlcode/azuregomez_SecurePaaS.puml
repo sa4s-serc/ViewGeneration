@@ -1,0 +1,47 @@
+@startuml azuregomez_SecurePaaS
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+rectangle "Internet" as internet
+
+rectangle "Azure WAF" as waf #orange
+rectangle "Azure App Service" as appservice #lightblue
+rectangle "Azure Firewall" as firewall #pink
+rectangle "Azure SQL Database" as sqldb #lightgreen
+
+rectangle "Private Endpoint" as privateendpoint #lightgray
+rectangle "VNet" as vnet {
+  rectangle "App Subnet" as appsubnet #palegreen
+  rectangle "Firewall Subnet" as fwsubnet #mistyrose
+}
+
+internet --> waf
+waf --> appservice
+
+appservice --> firewall : Outbound traffic
+firewall --> privateendpoint
+privateendpoint --> sqldb
+
+appservice -[hidden]-> appsubnet
+firewall -[hidden]-> fwsubnet
+
+note right of firewall
+  UDR routes all outbound traffic
+  from App Service to SQL DB
+  through Azure Firewall
+end note
+
+note left of sqldb
+  No public endpoints
+  Private Link enabled
+end note
+
+note top of waf
+  OWASP Top 10 protection
+end note
+@enduml

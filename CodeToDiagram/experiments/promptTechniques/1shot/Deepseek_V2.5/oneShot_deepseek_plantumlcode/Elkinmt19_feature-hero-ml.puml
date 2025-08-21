@@ -1,0 +1,45 @@
+@startuml Elkinmt19_feature-hero-ml
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "Data Scientist" as DS
+actor "ML Engineer" as MLE
+
+rectangle "Feature Store Client" as Client {
+}
+
+rectangle "Feast Core" as Feast {
+  rectangle "Feature Registry" as Registry
+  rectangle "Feature Server" as FServer
+}
+
+rectangle "Online Store" as Redis {
+}
+
+rectangle "Offline Store" as Parquet {
+}
+
+rectangle "Data Pipeline" as Pipeline {
+  rectangle "Data Fetcher" as Fetcher
+  rectangle "Data Transformer" as Transformer
+}
+
+' ========== Connections ==========
+DS --> Client : Define features\nQuery features
+MLE --> Client : Train models\nGet batch features
+
+Client --> Feast : Register features\nRequest features
+Feast --> Registry : Store metadata
+Feast --> FServer : Serve features
+
+FServer --> Redis : Get online features
+FServer --> Parquet : Get offline features
+
+Pipeline --> Feast : Ingest features
+Fetcher --> Transformer : Raw data
+Transformer --> Parquet : Processed data
+@enduml

@@ -1,0 +1,111 @@
+```plantuml
+@startuml zeromicro_zero-doc
+skinparam componentStyle rectangle
+skinparam backgroundColor #ffffff
+skinparam linetype ortho
+
+package "Go-Zero Framework" {
+    rectangle "goctl" as goctl
+    rectangle "zRPC" as zRPC
+    rectangle "API Gateway" as APIGateway
+    rectangle "Metrics & Monitoring" as Metrics
+    rectangle "Distributed Tracing" as Tracing
+    rectangle "go-queue" as GoQueue
+    rectangle "Concurrency Utilities" as Concurrency
+    rectangle "Middleware" as Middleware
+
+    package "Service Discovery" {
+        rectangle "Direct Connection"
+        rectangle "etcd-based"
+        rectangle "Kubernetes Endpoints"
+    }
+
+    package "Caching" {
+        rectangle "Read-through/Write-back"
+        rectangle "SharedCalls"
+        rectangle "Primary/Unique Indexes"
+    }
+
+    package "Rate Limiting" {
+        rectangle "Period-based"
+        rectangle "Token Bucket"
+    }
+}
+
+package "Configuration" {
+    rectangle ".yaml files"
+    rectangle "config.go" as ConfigGo
+    rectangle "ServiceContext" as ServiceContext
+}
+
+package "Code Structure" {
+    rectangle ".api files"
+    rectangle ".proto files"
+    rectangle "handler.go"
+    rectangle "logic.go"
+    rectangle "model.go"
+    rectangle "transform.proto"
+}
+
+package "CI/CD" {
+    rectangle ".gitlab-ci.yml"
+    rectangle "dockerlogin.sh"
+    rectangle "port.sh"
+}
+
+package "Database" {
+    rectangle "SQL files"
+}
+
+package "Fault & Resilience" {
+    rectangle "Adaptive Load Shedding"
+    rectangle "Circuit Breaker" as CircuitBreaker
+}
+
+package "Design Patterns" {
+    rectangle "Options Pattern"
+    rectangle "Middleware Pattern"
+    rectangle "Singleflight"
+    rectangle "Command Pattern"
+    rectangle "Repository Pattern"
+    rectangle "Facade Pattern"
+    rectangle "Singleton Pattern"
+}
+
+goctl --> APIGateway
+APIGateway --> zRPC
+APIGateway --> Middleware
+zRPC --> "Direct Connection"
+zRPC --> "etcd-based"
+zRPC --> "Kubernetes Endpoints"
+APIGateway --> Tracing
+APIGateway --> Metrics
+APIGateway --> Caching
+APIGateway --> Rate Limiting
+APIGateway --> GoQueue
+APIGateway --> Concurrency
+
+ConfigGo --> ServiceContext
+ServiceContext --> "logic.go"
+ServiceContext --> "model.go"
+
+handler.go --> logic.go
+logic.go --> model.go
+
+.gitlab-ci.yml --> "dockerlogin.sh"
+.gitlab-ci.yml --> "port.sh"
+
+"SQL files" --> model.go
+
+Adaptive Load Shedding --> CircuitBreaker
+
+Options Pattern --> "ServiceContext"
+Middleware Pattern --> Middleware
+Singleflight --> Caching
+Command Pattern --> Concurrency
+Repository Pattern --> model.go
+Facade Pattern --> APIGateway
+Singleton Pattern --> ServiceContext
+
+@enduml
+```

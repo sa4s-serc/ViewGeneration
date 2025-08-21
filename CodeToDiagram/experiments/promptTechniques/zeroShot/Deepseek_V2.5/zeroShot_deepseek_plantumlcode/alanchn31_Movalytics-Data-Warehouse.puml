@@ -1,0 +1,24 @@
+```plantuml
+@startuml alanchn31_Movalytics-Data-Warehouse
+
+actor User
+participant "Airflow Scheduler" as Scheduler
+participant "BashOperator" as BashOp
+participant "Spark Job" as Spark
+participant "Redshift" as Redshift
+participant "DataQualityOperator" as DQOp
+
+User -> Scheduler: Triggers DAG execution
+Scheduler -> BashOp: Execute data extraction (Kaggle/FRED)
+BashOp -> Spark: Invoke Spark job (load_staging_*.py)
+Spark -> Redshift: Load raw data to staging tables
+Scheduler -> BashOp: Execute transformation scripts
+BashOp -> Spark: Process staging data
+Spark -> Redshift: Upsert to dimension tables
+Scheduler -> DQOp: Run data quality checks
+DQOp -> Redshift: Execute validation queries
+Redshift --> DQOp: Return check results
+DQOp --> Scheduler: Report quality status
+
+@enduml
+```

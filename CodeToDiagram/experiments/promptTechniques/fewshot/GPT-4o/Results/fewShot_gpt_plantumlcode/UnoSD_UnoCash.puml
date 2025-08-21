@@ -1,0 +1,75 @@
+```plantuml
+@startuml UnoSD_UnoCash
+
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+
+actor User
+
+package "Frontend (Blazor SPA)" {
+  rectangle "Index (Home)" as Home
+  rectangle "FetchData (Expense List)" as FetchData
+  rectangle "Update (Expense Add/Edit)" as Update
+  rectangle "Shared Components" as SharedComponents
+  rectangle "Blazorstrap\nBootstrap Components" as Blazorstrap
+  rectangle "Azure Blob Storage\nJS Library" as AzureBlobJS
+}
+
+package "Backend (Azure Functions)" {
+  rectangle "GetExpenses" as GetExpenses
+  rectangle "AddExpense" as AddExpense
+  rectangle "UpdateExpense" as UpdateExpense
+  rectangle "DeleteExpense" as DeleteExpense
+  rectangle "GetReceiptData" as GetReceiptData
+  rectangle "GetReceiptUploadSasToken" as GetSasToken
+  rectangle "ReceiptParser" as ReceiptParser
+}
+
+package "Core Components" {
+  rectangle "ExpenseReader" as ExpenseReader
+  rectangle "ExpenseWriter" as ExpenseWriter
+  rectangle "AzureTableStorage" as AzureTableStorage
+  rectangle "ReceiptParser\n(Form Recognizer)" as CoreReceiptParser
+  rectangle "ConfigurationReader" as ConfigReader
+  rectangle "SecretReader" as SecretReader
+}
+
+package "Infrastructure as Code (Pulumi)" {
+  rectangle "Azure Resource Group"
+  rectangle "Storage Account"
+  rectangle "Function App Service Plan"
+  rectangle "API Management"
+  rectangle "Azure AD Application"
+  rectangle "DNS Records"
+}
+
+package "Azure Services" {
+  rectangle "Azure AD" as AzureAD
+  rectangle "Azure AD B2C" as AzureADB2C
+  rectangle "Azure Blob Storage" as BlobStorage
+  rectangle "Azure Form Recognizer" as FormRecognizer
+}
+
+User --> Home
+Home --> FetchData
+Home --> Update
+Update --> AzureBlobJS
+FetchData --> GetExpenses
+Update --> AddExpense
+Update --> UpdateExpense
+Update --> DeleteExpense
+Update --> GetSasToken
+GetSasToken --> BlobStorage
+GetReceiptData --> ReceiptParser
+ReceiptParser --> FormRecognizer
+ReceiptParser --> CoreReceiptParser
+CoreReceiptParser --> AzureTableStorage
+ExpenseReader --> AzureTableStorage
+ExpenseWriter --> AzureTableStorage
+ConfigReader --> SecretReader
+
+@enduml
+```

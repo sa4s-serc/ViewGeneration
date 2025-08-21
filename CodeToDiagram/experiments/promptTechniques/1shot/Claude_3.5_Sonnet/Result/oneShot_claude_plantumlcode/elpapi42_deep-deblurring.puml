@@ -1,0 +1,25 @@
+@startuml elpapi42_deep-deblurring
+
+skinparam component {
+  BackgroundColor<<frontend>> #FFFFD0
+  BackgroundColor<<backend>> #D0FFD0
+  BackgroundColor<<model>> #D0D0FF
+  BackgroundColor<<storage>> #FFD0D0
+}
+
+[Frontend (Vue.js)] <<frontend>> as Frontend
+[Backend (Flask)] <<backend>> as Backend
+[Model Serving (TensorFlow Serving)] <<model>> as ModelServing
+[Model Repository] <<model>> as ModelRepo
+[Cloudinary] <<storage>> as Cloudinary
+[Redis] <<storage>> as Redis
+[PostgreSQL] <<storage>> as PostgreSQL
+
+Frontend --> Backend : HTTP/REST
+Backend --> ModelServing : gRPC
+Backend --> Cloudinary : API
+Backend --> Redis : Cache/Session
+Backend --> PostgreSQL : Data Storage
+ModelServing --> ModelRepo : Load Model
+
+@enduml

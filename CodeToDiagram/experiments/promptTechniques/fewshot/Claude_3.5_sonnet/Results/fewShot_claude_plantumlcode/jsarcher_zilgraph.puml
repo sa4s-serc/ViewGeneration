@@ -1,0 +1,51 @@
+@startuml jsarcher_zilgraph
+
+skinparam rectangle {
+  BackgroundColor #EEEEEE
+  BorderColor #000000
+  RoundCorner 10
+}
+
+rectangle "Zilliqa Blockchain" as blockchain #LightBlue
+
+package "Data Acquisition" {
+  [Zilcrawler] as crawler
+  [pyzil] as pyzil
+}
+
+package "Data Storage" {
+  database "Elasticsearch" as es
+  database "MongoDB" as mongo
+}
+
+package "Data Processing" {
+  [Aggregators] as agg
+  [Zilswap Interaction] as zilswap
+}
+
+package "Frontend" {
+  [Bokeh Server] as bokeh
+  [Kibana] as kibana
+}
+
+cloud "Web Browsers" as users
+
+rectangle "Nginx Reverse Proxy" as nginx
+
+crawler --> blockchain : Fetches data
+crawler --> pyzil : Uses
+crawler --> es : Stores raw data
+
+agg --> es : Queries
+agg --> mongo : Stores aggregated data
+zilswap --> blockchain : Interacts
+
+bokeh --> mongo : Reads data
+kibana --> es : Reads data
+
+nginx --> bokeh : Routes
+nginx --> kibana : Routes
+
+users --> nginx : Accesses
+
+@enduml

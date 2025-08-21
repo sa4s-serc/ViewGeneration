@@ -1,0 +1,69 @@
+@startuml alanchn31_Movalytics-Data-Warehouse
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+rectangle "Data Sources" {
+  database "MovieLens Dataset\n(Kaggle)" as kaggle
+  database "CPI Data\n(St. Louis FRED)" as fred
+}
+
+rectangle "Extraction" {
+  component "Bash Scripts\n(kaggle/wget)" as extract
+}
+
+rectangle "Storage" {
+  database "Amazon S3" as s3
+}
+
+rectangle "Transformation" {
+  component "Apache Spark" as spark
+  component "Python ETL Scripts" as python
+}
+
+rectangle "Orchestration" {
+  component "Airflow DAG" as airflow
+  database "Airflow Metadata\n(PostgreSQL)" as airflow_db
+}
+
+rectangle "Data Warehouse" {
+  database "Amazon Redshift" as redshift
+}
+
+rectangle "Monitoring" {
+  component "DataQualityOperator" as dq
+}
+
+kaggle --> extract
+fred --> extract
+extract --> s3
+s3 --> spark
+spark --> python
+python --> redshift
+airflow --> extract
+airflow --> spark
+airflow --> python
+airflow --> dq
+dq --> redshift
+airflow_db --> airflow
+
+note right of extract
+  Uses kaggle API and wget
+end note
+
+note right of spark
+  Performs cleaning and schema enforcement
+end note
+
+note right of airflow
+  Manages task dependencies and scheduling
+end note
+
+note right of dq
+  Custom Airflow operator
+  for data validation
+end note
+@enduml

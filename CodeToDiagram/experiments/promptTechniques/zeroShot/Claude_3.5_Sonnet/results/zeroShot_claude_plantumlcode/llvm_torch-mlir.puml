@@ -1,0 +1,67 @@
+```plantuml
+@startuml llvm_torch-mlir
+
+[PyTorch Model] as PyTorch
+[TorchScript] as TorchScript
+[FX Graph] as FXGraph
+[ONNX Model] as ONNX
+
+package "Torch-MLIR" {
+  [Tracing Frontend (LTC)] as TracingFrontend
+  [TorchScript Importer] as TSImporter
+  [FX Graph Importer] as FXImporter
+  [ONNX Importer] as ONNXImporter
+  
+  [Torch Dialect] as TorchDialect
+  [TMTensor Dialect] as TMTensorDialect
+  [TorchConversion Dialect] as TorchConvDialect
+  
+  [Transformation Passes] as Passes
+  
+  [Backend Contract] as BackendContract
+  
+  [Linalg-on-Tensors Backend] as LinalgBackend
+  [TOSA Backend] as TOSABackend
+  [StableHLO Backend] as StableHLOBackend
+  [LTC Backend] as LTCBackend
+}
+
+PyTorch --> TracingFrontend
+TorchScript --> TSImporter
+FXGraph --> FXImporter
+ONNX --> ONNXImporter
+
+TracingFrontend --> TorchDialect
+TSImporter --> TorchDialect
+FXImporter --> TorchDialect
+ONNXImporter --> TorchDialect
+
+TorchDialect --> Passes
+TMTensorDialect --> Passes
+TorchConvDialect --> Passes
+
+Passes --> BackendContract
+
+BackendContract --> LinalgBackend
+BackendContract --> TOSABackend
+BackendContract --> StableHLOBackend
+BackendContract --> LTCBackend
+
+note right of BackendContract
+  Defines requirements for backends:
+  - Value semantics
+  - Known shapes/dtypes
+end note
+
+note right of Passes
+  Key passes:
+  - Reify Shape/Dtype Calculations
+  - Adjust Calling Conventions
+  - Globalize Object Graph
+  - Fuse Quantized Ops
+  - Scalarize Shapes
+  - Lower To Backend Contract
+end note
+
+@enduml
+```

@@ -1,0 +1,38 @@
+@startuml Elkinmt19_feature-hero-ml
+
+actor "Data Scientist" as DS
+participant "Data Pipeline" as DP
+participant "Feast Feature Store" as FFS
+database "Redis" as Redis
+database "Parquet Files" as Parquet
+participant "Feature Server" as FS
+actor "ML Model" as ML
+
+DS -> DP : Initiate data ingestion
+activate DP
+DP -> DP : Fetch and transform data
+DP -> Parquet : Store offline features
+DP -> FFS : Register features
+deactivate DP
+
+DS -> FFS : Define feature views
+activate FFS
+FFS -> Parquet : Read offline features
+FFS -> Redis : Materialize online features
+deactivate FFS
+
+ML -> FS : Request features
+activate FS
+FS -> Redis : Fetch online features
+Redis --> FS : Return features
+FS --> ML : Serve features
+deactivate FS
+
+DS -> FFS : Retrieve training data
+activate FFS
+FFS -> Parquet : Read offline features
+Parquet --> FFS : Return features
+FFS --> DS : Provide training dataset
+deactivate FFS
+
+@enduml

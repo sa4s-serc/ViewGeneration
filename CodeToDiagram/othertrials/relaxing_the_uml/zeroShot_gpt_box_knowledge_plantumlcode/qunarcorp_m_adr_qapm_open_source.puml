@@ -1,0 +1,48 @@
+@startuml
+package "QAPM Library" as qapm_lib {
+  [QAPM] --> [QAPMConfig]
+  [QAPM] --> [QConfigManager]
+  [QAPM] --> [WatchMan]
+  [WatchMan] --> [FPS Tracer]
+  [WatchMan] --> [Memory Tracer]
+  [WatchMan] --> [CPU Tracer]
+  [WatchMan] --> [Battery Tracer]
+  [QAPM] --> [TracePlugin]
+  [TracePlugin] --> [FPS Tracer]
+  [TracePlugin] --> [Memory Tracer]
+  [TracePlugin] --> [CPU Tracer]
+  [TracePlugin] --> [Battery Tracer]
+  [QAPM] --> [Storage]
+  [Storage] --> [IStorage]
+  [Network Instrumentation] --> [Network Sender]
+}
+
+package "QAPM Gradle Plugin" as qapm_gradle_plugin {
+  [QBuildPlugin] --> [AspectJAppTransform]
+}
+
+package "Sample Application" as qapm_sample {
+  [Sample App] --> [QAPM]
+}
+
+qapm_lib --> qapm_gradle_plugin : "AOP Injection"
+qapm_gradle_plugin --> qapm_sample : "Apply Plugin"
+qapm_sample --> qapm_lib : "Initialize QAPM"
+
+note right of qapm_lib
+  QAPM Library handles:
+  - Data collection
+  - Storage
+  - Reporting
+end note
+
+note right of qapm_gradle_plugin
+  QAPM Gradle Plugin:
+  - Injects monitoring logic
+end note
+
+note right of qapm_sample
+  Sample App:
+  - Demonstrates QAPM integration
+end note
+@enduml

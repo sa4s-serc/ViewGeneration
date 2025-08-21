@@ -1,0 +1,325 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Browser",
+        "description": "Client interface",
+        "boundaries": "External",
+        "position": "Left"
+      },
+      {
+        "name": "NGINX",
+        "description": "Reverse proxy and routing",
+        "boundaries": "Container",
+        "position": "Center"
+      },
+      {
+        "name": "Angular",
+        "description": "Frontend application",
+        "boundaries": "Container",
+        "position": "Right"
+      },
+      {
+        "name": "dotnet",
+        "description": "Backend application",
+        "boundaries": "Container",
+        "position": "Right"
+      },
+      {
+        "name": "PG Admin",
+        "description": "Database administration",
+        "boundaries": "Container",
+        "position": "Bottom"
+      },
+      {
+        "name": "PostgreSQL",
+        "description": "Database",
+        "boundaries": "Container",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Browser",
+        "target": "NGINX",
+        "label": "1",
+        "type": "Request"
+      },
+      {
+        "source": "NGINX",
+        "target": "Angular",
+        "label": "2",
+        "type": "Request"
+      },
+      {
+        "source": "Browser",
+        "target": "NGINX",
+        "label": "3",
+        "type": "API Request"
+      },
+      {
+        "source": "NGINX",
+        "target": "dotnet",
+        "label": "4",
+        "type": "API Request"
+      },
+      {
+        "source": "dotnet",
+        "target": "PostgreSQL",
+        "label": "5",
+        "type": "Database Connection"
+      },
+      {
+        "source": "PG Admin",
+        "target": "PostgreSQL",
+        "label": "6",
+        "type": "Database Access"
+      }
+    ],
+    "annotations": [
+      "Request made from browser, nginx container will redirect request based on routing to angular (frontend) container (if it is not starting with api)",
+      "Request will hit angular container and will download all required resources to display the first routing.",
+      "As it is SPA, now the API request will be made from browser, and it will go to nginx container.",
+      "Nginx container based on routing (/api) will redirect requests to dotnet (backend) container.",
+      "if any api requests required database connection it will communicate to our database container.",
+      "This connection is just showing that we can access database from the PG Admin which is running on port 5050, So visit http://localhost:5050"
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Docker-based Web Application Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Client interface",
+        "boundaries": "External",
+        "position": "Left"
+      },
+      {
+        "name": "Frontend (Angular)",
+        "description": "Frontend application",
+        "boundaries": "Component",
+        "position": "Left-Center"
+      },
+      {
+        "name": "Load Balancer (NGINX)",
+        "description": "Load balancing and routing",
+        "boundaries": "Component",
+        "position": "Center"
+      },
+      {
+        "name": "WebApi",
+        "description": "API endpoint",
+        "boundaries": "Component",
+        "position": "Right-Center"
+      },
+      {
+        "name": "Application",
+        "description": "Backend application logic",
+        "boundaries": "Component",
+        "position": "Right"
+      },
+      {
+        "name": "Infrastructure.Identity",
+        "description": "User authentication",
+        "boundaries": "Component",
+        "position": "Right"
+      },
+      {
+        "name": "Infrastructure.Persistence",
+        "description": "Data access",
+        "boundaries": "Component",
+        "position": "Right"
+      },
+      {
+        "name": "Domain",
+        "description": "Business logic",
+        "boundaries": "Component",
+        "position": "Right"
+      },
+      {
+        "name": "Database (PostgreSQL)",
+        "description": "Database",
+        "boundaries": "Component",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Frontend (Angular)",
+        "label": "Access UI",
+        "type": "Request"
+      },
+      {
+        "source": "Frontend (Angular)",
+        "target": "Load Balancer (NGINX)",
+        "label": "HTTP Requests",
+        "type": "Request"
+      },
+      {
+        "source": "Load Balancer (NGINX)",
+        "target": "WebApi",
+        "label": "Route Requests",
+        "type": "Request"
+      },
+      {
+        "source": "WebApi",
+        "target": "Application",
+        "label": "Process Request",
+        "type": "Request"
+      },
+      {
+        "source": "Application",
+        "target": "Infrastructure.Identity",
+        "label": "Authenticate User",
+        "type": "Request"
+      },
+      {
+        "source": "Application",
+        "target": "Infrastructure.Persistence",
+        "label": "Data Access",
+        "type": "Request"
+      },
+      {
+        "source": "Application",
+        "target": "Domain",
+        "label": "Validate and Execute",
+        "type": "Request"
+      },
+      {
+        "source": "Infrastructure.Persistence",
+        "target": "Database (PostgreSQL)",
+        "label": "Query/Insert/Update/Delete",
+        "type": "Database Connection"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Backend",
+        "description": "ASP.NET Core Web API",
+        "boundaries": "Logical Group",
+        "position": "Right"
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Web Application Architecture with ASP.NET Core"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Angular",
+      "NGINX",
+      "PostgreSQL"
+    ],
+    "unique_to_GroundTruth": [
+      "Browser",
+      "dotnet",
+      "PG Admin"
+    ],
+    "unique_to_GeneratedImage": [
+      "User",
+      "WebApi",
+      "Application",
+      "Infrastructure.Identity",
+      "Infrastructure.Persistence",
+      "Domain"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Browser",
+        "target": "NGINX",
+        "label": "1",
+        "type": "Request"
+      },
+      {
+        "source": "NGINX",
+        "target": "Angular",
+        "label": "2",
+        "type": "Request"
+      },
+      {
+        "source": "Browser",
+        "target": "NGINX",
+        "label": "3",
+        "type": "API Request"
+      },
+      {
+        "source": "NGINX",
+        "target": "dotnet",
+        "label": "4",
+        "type": "API Request"
+      },
+      {
+        "source": "dotnet",
+        "target": "PostgreSQL",
+        "label": "5",
+        "type": "Database Connection"
+      },
+      {
+        "source": "PG Admin",
+        "target": "PostgreSQL",
+        "label": "6",
+        "type": "Database Access"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "Frontend (Angular)",
+        "label": "Access UI",
+        "type": "Request"
+      },
+      {
+        "source": "Frontend (Angular)",
+        "target": "Load Balancer (NGINX)",
+        "label": "HTTP Requests",
+        "type": "Request"
+      },
+      {
+        "source": "Load Balancer (NGINX)",
+        "target": "WebApi",
+        "label": "Route Requests",
+        "type": "Request"
+      },
+      {
+        "source": "WebApi",
+        "target": "Application",
+        "label": "Process Request",
+        "type": "Request"
+      },
+      {
+        "source": "Application",
+        "target": "Infrastructure.Identity",
+        "label": "Authenticate User",
+        "type": "Request"
+      },
+      {
+        "source": "Application",
+        "target": "Infrastructure.Persistence",
+        "label": "Data Access",
+        "type": "Request"
+      },
+      {
+        "source": "Application",
+        "target": "Domain",
+        "label": "Validate and Execute",
+        "type": "Request"
+      },
+      {
+        "source": "Infrastructure.Persistence",
+        "target": "Database (PostgreSQL)",
+        "label": "Query/Insert/Update/Delete",
+        "type": "Database Connection"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of web application architecture. Both diagrams include Angular, NGINX, and PostgreSQL as common components, indicating a shared focus on frontend, routing, and database layers. The GroundTruth diagram emphasizes a Docker-based deployment with components like dotnet and PG Admin, focusing on containerization and database management. The GeneratedImage diagram presents a more detailed backend architecture with components like WebApi, Application, Infrastructure.Identity, Infrastructure.Persistence, and Domain, suggesting a focus on ASP.NET Core Web API and detailed backend processing. The connectors in the GroundTruth diagram are more focused on routing and database access, while the GeneratedImage diagram provides a detailed flow of requests and data processing. Overall, the GeneratedImage diagram provides a more comprehensive view of the backend architecture, earning it a rating of 8 out of 10 for its accuracy and completeness in depicting a structured backend system.",
+    "Rating": 8
+  }
+}

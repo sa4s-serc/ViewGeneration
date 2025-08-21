@@ -1,0 +1,58 @@
+```plantuml
+@startuml liyangbing_rocketmq-http-gateway
+skinparam rectangle {
+  BackgroundColor<<transport>> #d9e7fd
+  BackgroundColor<<processor>> #d8f5d3
+  BackgroundColor<<common>> #fddddd
+  BackgroundColor<<server>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Transport Layer" <<transport>> {
+  rectangle "Netty" as Netty
+  rectangle "RequestDecoder" as RequestDecoder
+  rectangle "RequestValidator" as RequestValidator
+  rectangle "ResponseEncoder" as ResponseEncoder
+  rectangle "NettyConnectionManageHandler" as ConnectionHandler
+  rectangle "GatewayLoggingHandler" as LoggingHandler
+
+  Netty --> RequestDecoder
+  Netty --> RequestValidator
+  Netty --> ResponseEncoder
+  Netty --> ConnectionHandler
+  Netty --> LoggingHandler
+}
+
+package "Processor Layer" <<processor>> {
+  rectangle "SubscriptionChangeWatcher" as SubscriptionWatcher
+  rectangle "ProducerManager" as ProducerManager
+  rectangle "ProduceMessageProcessor" as ProduceProcessor
+  rectangle "HttpExecutor" as HttpExecutor
+  rectangle "ConsumerManager" as ConsumerManager
+  rectangle "HttpMessageListenerConcurrently" as HttpListener
+
+  ProduceProcessor --> ProducerManager
+  ConsumerManager --> HttpListener
+  SubscriptionWatcher --> ProducerManager
+  SubscriptionWatcher --> ConsumerManager
+}
+
+package "Common Layer" <<common>> {
+  rectangle "Service" as Service
+  rectangle "HttpClients" as HttpClients
+  
+  Service --> HttpClients
+}
+
+package "Server Layer" <<server>> {
+  rectangle "Launcher" as Launcher
+  rectangle "Configuration Files" as ConfigFiles
+
+  Launcher --> ConfigFiles
+  ConfigFiles --> Netty
+  ConfigFiles --> SubscriptionWatcher
+}
+
+@enduml
+```

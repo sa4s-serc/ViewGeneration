@@ -1,0 +1,59 @@
+@startuml minism_hotel
+skinparam rectangle {
+  BackgroundColor<<master>> #d9e7fd
+  BackgroundColor<<spawner>> #d8f5d3
+  BackgroundColor<<shared>> #fddddd
+  BackgroundColor<<infra>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Master Server" <<master>> {
+  rectangle "REST API" as REST
+  rectangle "RPC Server" as RPC
+  rectangle "Session Management" as Session
+  rectangle "Database (SQLite)" as DB
+  rectangle "Reaper Service" as Reaper
+  REST --> Session
+  RPC --> Session
+  Session --> DB
+  Reaper --> DB
+  Reaper --> Session
+}
+
+package "Spawner" <<spawner>> {
+  rectangle "RPC Server" as SpawnerRPC
+  rectangle "Game Server\nManagement" as GameMgmt
+  rectangle "Master Server\nCommunication" as MasterComm
+  SpawnerRPC --> GameMgmt
+  MasterComm --> SpawnerRPC
+}
+
+package "Shared Libraries" <<shared>> {
+  rectangle "Configuration" as Config
+  rectangle "Logging" as Logging
+  rectangle "Crypto" as Crypto
+  rectangle "Utilities" as Utils
+  rectangle "Protobuf Definitions" as Proto
+}
+
+package "Infrastructure" <<infra>> {
+  rectangle "Makefile" as Makefile
+  rectangle "Docker Compose" as DockerCompose
+  rectangle "Integration Tests" as Tests
+}
+
+MasterComm --> RPC
+RPC --> Proto
+SpawnerRPC --> Proto
+Config --> REST
+Config --> SpawnerRPC
+Logging --> REST
+Logging --> SpawnerRPC
+Crypto --> Session
+Makefile --> REST
+Makefile --> SpawnerRPC
+DockerCompose --> REST
+DockerCompose --> SpawnerRPC
+Tests --> REST
+@enduml

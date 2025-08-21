@@ -1,0 +1,259 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "EventBridge (Scheduler)",
+        "description": "Triggers the process",
+        "boundaries": "N/A",
+        "position": "Start"
+      },
+      {
+        "name": "index-transaction-ids Lambda",
+        "description": "Fetches and publishes transaction IDs",
+        "boundaries": "N/A",
+        "position": "After EventBridge"
+      },
+      {
+        "name": "Solscan API",
+        "description": "Provides transaction data",
+        "boundaries": "N/A",
+        "position": "Connected to Lambda"
+      },
+      {
+        "name": "SNS Topic",
+        "description": "Publishes transaction IDs",
+        "boundaries": "N/A",
+        "position": "After Lambda"
+      },
+      {
+        "name": "download-raw-transaction Lambda",
+        "description": "Downloads raw transactions",
+        "boundaries": "N/A",
+        "position": "After SNS Topic"
+      },
+      {
+        "name": "SQS Queue",
+        "description": "Queues transactions",
+        "boundaries": "N/A",
+        "position": "After download Lambda"
+      },
+      {
+        "name": "DynamoDB (Raw Transactions)",
+        "description": "Stores raw transactions",
+        "boundaries": "N/A",
+        "position": "After SQS Queue"
+      },
+      {
+        "name": "DynamoDB (Normalized Transactions)",
+        "description": "Stores normalized transactions",
+        "boundaries": "N/A",
+        "position": "After Raw Transactions"
+      },
+      {
+        "name": "normalize-raw-transaction Lambda",
+        "description": "Normalizes transactions",
+        "boundaries": "N/A",
+        "position": "After Raw Transactions"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "EventBridge (Scheduler)",
+        "target": "index-transaction-ids Lambda",
+        "label": "Scheduled trigger",
+        "type": "Trigger"
+      },
+      {
+        "source": "index-transaction-ids Lambda",
+        "target": "Solscan API",
+        "label": "Fetch transaction IDs",
+        "type": "Request"
+      },
+      {
+        "source": "Solscan API",
+        "target": "index-transaction-ids Lambda",
+        "label": "Return transaction IDs",
+        "type": "Response"
+      },
+      {
+        "source": "index-transaction-ids Lambda",
+        "target": "SNS Topic",
+        "label": "Publish transaction IDs",
+        "type": "Publish"
+      },
+      {
+        "source": "SNS Topic",
+        "target": "download-raw-transaction Lambda",
+        "label": "Notify new transactions",
+        "type": "Notification"
+      },
+      {
+        "source": "download-raw-transaction Lambda",
+        "target": "Solscan API",
+        "label": "Fetch raw transaction data",
+        "type": "Request"
+      },
+      {
+        "source": "Solscan API",
+        "target": "download-raw-transaction Lambda",
+        "label": "Return raw transaction",
+        "type": "Response"
+      },
+      {
+        "source": "download-raw-transaction Lambda",
+        "target": "SQS Queue",
+        "label": "Store raw transaction",
+        "type": "Store"
+      },
+      {
+        "source": "SQS Queue",
+        "target": "DynamoDB (Raw Transactions)",
+        "label": "Poll for messages",
+        "type": "Poll"
+      },
+      {
+        "source": "DynamoDB (Raw Transactions)",
+        "target": "normalize-raw-transaction Lambda",
+        "label": "Stream new records",
+        "type": "Stream"
+      },
+      {
+        "source": "normalize-raw-transaction Lambda",
+        "target": "DynamoDB (Normalized Transactions)",
+        "label": "Store normalized transaction",
+        "type": "Store"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram",
+      "title": "Transaction Processing Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Scheduler",
+        "description": "Triggers every 3 minutes",
+        "boundaries": "N/A",
+        "position": "Start"
+      },
+      {
+        "name": "Lambda (Index)",
+        "description": "Processes transactions",
+        "boundaries": "N/A",
+        "position": "After Scheduler"
+      },
+      {
+        "name": "DynamoDB",
+        "description": "Stores transactions",
+        "boundaries": "N/A",
+        "position": "Connected to Lambda"
+      },
+      {
+        "name": "SQS Queue",
+        "description": "Handles failures",
+        "boundaries": "N/A",
+        "position": "After Lambda"
+      },
+      {
+        "name": "Lambda (Normalize)",
+        "description": "Normalizes transactions",
+        "boundaries": "N/A",
+        "position": "After DynamoDB"
+      },
+      {
+        "name": "SNS Topic",
+        "description": "Publishes transaction data",
+        "boundaries": "N/A",
+        "position": "After Lambda"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Scheduler",
+        "target": "Lambda (Index)",
+        "label": "Every 3 minutes",
+        "type": "Trigger"
+      },
+      {
+        "source": "Lambda (Index)",
+        "target": "DynamoDB",
+        "label": "Sync + backfill transactions",
+        "type": "Sync"
+      },
+      {
+        "source": "DynamoDB",
+        "target": "Lambda (Normalize)",
+        "label": "Add event triggers",
+        "type": "Event"
+      },
+      {
+        "source": "Lambda (Normalize)",
+        "target": "SQS Queue",
+        "label": "Download failures",
+        "type": "Download"
+      },
+      {
+        "source": "SQS Queue",
+        "target": "SNS Topic",
+        "label": "Publish to SNS",
+        "type": "Publish"
+      }
+    ],
+    "annotations": [
+      "Every 3 minutes",
+      "Sync + backfill transactions",
+      "Add event triggers"
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram",
+      "title": "Transaction Processing Flow"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "SNS Topic",
+      "SQS Queue",
+      "DynamoDB",
+      "Lambda (Normalize)"
+    ],
+    "unique_to_GroundTruth": [
+      "EventBridge (Scheduler)",
+      "index-transaction-ids Lambda",
+      "Solscan API",
+      "download-raw-transaction Lambda",
+      "DynamoDB (Raw Transactions)",
+      "DynamoDB (Normalized Transactions)"
+    ],
+    "unique_to_GeneratedImage": [
+      "Scheduler",
+      "Lambda (Index)"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      "Scheduled trigger",
+      "Fetch transaction IDs",
+      "Return transaction IDs",
+      "Publish transaction IDs",
+      "Notify new transactions",
+      "Fetch raw transaction data",
+      "Return raw transaction",
+      "Store raw transaction",
+      "Poll for messages",
+      "Stream new records",
+      "Store normalized transaction"
+    ],
+    "unique_connectors_GeneratedImage": [
+      "Every 3 minutes",
+      "Sync + backfill transactions",
+      "Add event triggers",
+      "Download failures",
+      "Publish to SNS"
+    ],
+    "explanation": "The GroundTruth diagram provides a detailed sequence of operations for transaction processing, including specific components like EventBridge, Solscan API, and distinct DynamoDB tables for raw and normalized transactions. The GeneratedImage diagram is more abstract, focusing on a high-level flow with components like a generic Scheduler and Lambda functions without specifying detailed interactions. Both diagrams share common elements like SNS Topic, SQS Queue, and a Lambda function for normalization, although the GeneratedImage lacks the detailed steps present in the GroundTruth. The GeneratedImage is rated 6 out of 10 for capturing the general flow but missing specific components and interactions detailed in the GroundTruth.",
+    "Rating": 6
+  }
+}

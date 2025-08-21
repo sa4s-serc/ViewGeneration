@@ -1,0 +1,35 @@
+@startuml
+title Control Flow in Peekaboo System
+
+participant "Node-RED Flow" as NodeRED
+participant "Provider Node" as Provider
+participant "Inference Node" as Inference
+participant "Filter Node" as Filter
+participant "Network Node" as Network
+participant "External Service" as ExternalService
+
+NodeRED -> Provider : Trigger data ingestion
+activate Provider
+Provider -> NodeRED : Raw data
+deactivate Provider
+
+NodeRED -> Inference : Send data for analysis
+activate Inference
+Inference -> ExternalService : Request inference
+ExternalService --> Inference : Inference results
+Inference -> NodeRED : Processed data
+deactivate Inference
+
+NodeRED -> Filter : Apply privacy filters
+activate Filter
+Filter -> NodeRED : Filtered data
+deactivate Filter
+
+NodeRED -> Network : Transmit processed data
+activate Network
+Network -> ExternalService : Send data to cloud
+ExternalService --> Network : Confirmation
+Network -> NodeRED : Transmission complete
+deactivate Network
+
+@enduml

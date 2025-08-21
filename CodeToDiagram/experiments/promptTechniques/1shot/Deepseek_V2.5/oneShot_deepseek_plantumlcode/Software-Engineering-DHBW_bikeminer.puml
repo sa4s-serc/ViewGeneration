@@ -1,0 +1,51 @@
+@startuml Software-Engineering-DHBW_bikeminer
+skinparam rectangle {
+  BackgroundColor<<mobile>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<database>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Mobile Apps" <<mobile>> {
+  rectangle "Flutter App" as Flutter {
+    rectangle "UI Pages" as FlutterUI
+    rectangle "API Connector" as FlutterAPI
+    rectangle "Local Storage" as FlutterStorage
+    FlutterUI --> FlutterAPI
+    FlutterAPI --> FlutterStorage
+  }
+
+  rectangle "Android App" as Android {
+    rectangle "MapsActivity" as Maps
+    rectangle "GPS Tracking" as GPS
+    rectangle "Reward System" as Rewards
+    Maps --> GPS
+    GPS --> Rewards
+  }
+}
+
+package "Backend API" <<backend>> {
+  rectangle "FastAPI Server" as FastAPI {
+    rectangle "REST Endpoints" as Endpoints
+    rectangle "Authentication (JWT)" as Auth
+    rectangle "Ride Logic" as Ride
+    rectangle "CRUD Operations" as CRUD
+    Endpoints --> Auth
+    Endpoints --> Ride
+    Endpoints --> CRUD
+  }
+}
+
+database "MariaDB" <<database>> as DB {
+  rectangle "Users" as Users
+  rectangle "Ride History" as History
+  rectangle "Coordinates" as Coords
+}
+
+FlutterAPI --> Endpoints
+Android --> Endpoints
+CRUD --> Users
+CRUD --> History
+CRUD --> Coords
+@enduml

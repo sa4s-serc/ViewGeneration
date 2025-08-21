@@ -1,0 +1,233 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Web-Client",
+        "description": "User interface for interacting with the system",
+        "boundaries": "External",
+        "position": "Left"
+      },
+      {
+        "name": "Board on scrumlr.io",
+        "description": "Board component for collaboration",
+        "boundaries": "Internal",
+        "position": "Bottom Left"
+      },
+      {
+        "name": "scrumlr.io server",
+        "description": "Main server handling requests",
+        "boundaries": "Internal",
+        "position": "Center"
+      },
+      {
+        "name": "nats.io",
+        "description": "Messaging system for notifications",
+        "boundaries": "Internal",
+        "position": "Bottom Center"
+      },
+      {
+        "name": "SQL database",
+        "description": "Database for storing data",
+        "boundaries": "Internal",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Web-Client",
+        "target": "scrumlr.io server",
+        "label": "API request changes",
+        "type": "Arrow"
+      },
+      {
+        "source": "scrumlr.io server",
+        "target": "SQL database",
+        "label": "write changes",
+        "type": "Arrow"
+      },
+      {
+        "source": "scrumlr.io server",
+        "target": "nats.io",
+        "label": "publish changes",
+        "type": "Arrow"
+      },
+      {
+        "source": "nats.io",
+        "target": "scrumlr.io server",
+        "label": "notifies changes",
+        "type": "Arrow"
+      },
+      {
+        "source": "Web-Client",
+        "target": "Board on scrumlr.io",
+        "label": "participates on",
+        "type": "Arrow"
+      },
+      {
+        "source": "scrumlr.io server",
+        "target": "Web-Client",
+        "label": "listen to websocket",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "Scrumlr.io Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "End user interacting with the system",
+        "boundaries": "External",
+        "position": "Left"
+      },
+      {
+        "name": "Frontend",
+        "description": "User interface layer",
+        "boundaries": "Internal",
+        "position": "Left"
+      },
+      {
+        "name": "Backend API",
+        "description": "Server-side logic and data handling",
+        "boundaries": "Internal",
+        "position": "Center"
+      },
+      {
+        "name": "WebSocket Service",
+        "description": "Service for real-time communication",
+        "boundaries": "Internal",
+        "position": "Center Right"
+      },
+      {
+        "name": "Database",
+        "description": "Data storage component",
+        "boundaries": "Internal",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Frontend",
+        "label": "Open Scrumlr.io",
+        "type": "Arrow"
+      },
+      {
+        "source": "Frontend",
+        "target": "Backend API",
+        "label": "Authenticate User",
+        "type": "Arrow"
+      },
+      {
+        "source": "Backend API",
+        "target": "Database",
+        "label": "Query User Data",
+        "type": "Arrow"
+      },
+      {
+        "source": "Frontend",
+        "target": "Backend API",
+        "label": "POST /api/boards",
+        "type": "Arrow"
+      },
+      {
+        "source": "Backend API",
+        "target": "Database",
+        "label": "Insert New Board",
+        "type": "Arrow"
+      },
+      {
+        "source": "Backend API",
+        "target": "WebSocket Service",
+        "label": "Notify Board Created",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Layers",
+        "description": "Logical separation of concerns",
+        "elements": [
+          "Frontend",
+          "Backend API",
+          "WebSocket Service",
+          "Database"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": "Scrumlr.io Sequence Diagram"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "User/Web-Client",
+      "Database/SQL database"
+    ],
+    "unique_to_GroundTruth": [
+      "Board on scrumlr.io",
+      "scrumlr.io server",
+      "nats.io"
+    ],
+    "unique_to_GeneratedImage": [
+      "Frontend",
+      "Backend API",
+      "WebSocket Service"
+    ],
+    "common_connectors": [
+      {
+        "source": "Web-Client/User",
+        "target": "scrumlr.io server/Frontend",
+        "label": "API request changes/Open Scrumlr.io"
+      },
+      {
+        "source": "scrumlr.io server/Backend API",
+        "target": "SQL database/Database",
+        "label": "write changes/Insert New Board"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "scrumlr.io server",
+        "target": "nats.io",
+        "label": "publish changes"
+      },
+      {
+        "source": "nats.io",
+        "target": "scrumlr.io server",
+        "label": "notifies changes"
+      },
+      {
+        "source": "Web-Client",
+        "target": "Board on scrumlr.io",
+        "label": "participates on"
+      },
+      {
+        "source": "scrumlr.io server",
+        "target": "Web-Client",
+        "label": "listen to websocket"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Frontend",
+        "target": "Backend API",
+        "label": "Authenticate User"
+      },
+      {
+        "source": "Backend API",
+        "target": "WebSocket Service",
+        "label": "Notify Board Created"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on the overall architecture of the scrumlr.io system, highlighting components like the Web-Client, scrumlr.io server, nats.io, and SQL database. It emphasizes the flow of data and interactions between these components. The GeneratedImage diagram, on the other hand, is a sequence diagram detailing user interactions with the system, focusing on the processes involved in creating and updating boards. It introduces layers such as Frontend, Backend API, and WebSocket Service. Both diagrams share components like the user interface and database, but differ in their representation of server-side logic and real-time communication. The GroundTruth diagram provides a broader architectural overview, while the GeneratedImage diagram offers a detailed view of user interactions and processes. Rating: 7/10. The GeneratedImage accurately represents user interactions but lacks some architectural components and connections present in the GroundTruth diagram, such as nats.io and its interactions.",
+    "Rating": 7
+  }
+}

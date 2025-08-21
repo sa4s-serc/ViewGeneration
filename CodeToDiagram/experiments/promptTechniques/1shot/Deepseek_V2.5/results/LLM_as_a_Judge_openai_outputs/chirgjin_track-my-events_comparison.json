@@ -1,0 +1,304 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Frontend or SDK Client",
+        "description": "Client interface for API requests",
+        "boundaries": "Rectangular",
+        "position": "Left"
+      },
+      {
+        "name": "Gateway Service",
+        "description": "Handles API requests",
+        "boundaries": "Rectangular",
+        "position": "Center"
+      },
+      {
+        "name": "User Service",
+        "description": "Manages user data",
+        "boundaries": "Rectangular",
+        "position": "Right"
+      },
+      {
+        "name": "Tracking Service",
+        "description": "Handles tracking data",
+        "boundaries": "Rectangular",
+        "position": "Right"
+      },
+      {
+        "name": "PostgreSQL",
+        "description": "Database for user and tracking data",
+        "boundaries": "Cylindrical",
+        "position": "Right"
+      },
+      {
+        "name": "Pub/Sub",
+        "description": "Messaging system",
+        "boundaries": "Cylindrical",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Frontend or SDK Client",
+        "target": "Gateway Service",
+        "label": "API Requests",
+        "type": "Arrow"
+      },
+      {
+        "source": "Gateway Service",
+        "target": "User Service",
+        "label": "Verify User",
+        "type": "Arrow"
+      },
+      {
+        "source": "User Service",
+        "target": "PostgreSQL",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Gateway Service",
+        "target": "Tracking Service",
+        "label": "Request with User data",
+        "type": "Arrow"
+      },
+      {
+        "source": "Tracking Service",
+        "target": "PostgreSQL",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Tracking Service",
+        "target": "Pub/Sub",
+        "label": "",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "TrackMyEvents_Architecture.png",
+      "title": "TrackMyEvents Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "End user interacting with the system",
+        "boundaries": "Actor",
+        "position": "Left"
+      },
+      {
+        "name": "Client Application",
+        "description": "Application using the SDK",
+        "boundaries": "Actor",
+        "position": "Left"
+      },
+      {
+        "name": "Frontend",
+        "description": "Client interface for API requests",
+        "boundaries": "Rectangular",
+        "position": "Center"
+      },
+      {
+        "name": "Gateway Service",
+        "description": "Handles API requests",
+        "boundaries": "Rectangular",
+        "position": "Center"
+      },
+      {
+        "name": "User Service",
+        "description": "Manages user data",
+        "boundaries": "Rectangular",
+        "position": "Right"
+      },
+      {
+        "name": "Tracking Service",
+        "description": "Handles tracking data",
+        "boundaries": "Rectangular",
+        "position": "Right"
+      },
+      {
+        "name": "PostgreSQL",
+        "description": "Database for user and tracking data",
+        "boundaries": "Cylindrical",
+        "position": "Right"
+      },
+      {
+        "name": "Redis",
+        "description": "In-memory data structure store",
+        "boundaries": "Cylindrical",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Frontend",
+        "label": "Login/Register\nView Dashboard",
+        "type": "Arrow"
+      },
+      {
+        "source": "Client Application",
+        "target": "Frontend",
+        "label": "Integrate SDK",
+        "type": "Arrow"
+      },
+      {
+        "source": "Client Application",
+        "target": "Gateway Service",
+        "label": "Send events (via SDK)",
+        "type": "Arrow"
+      },
+      {
+        "source": "Frontend",
+        "target": "Gateway Service",
+        "label": "API Requests\n(with auth tokens)",
+        "type": "Arrow"
+      },
+      {
+        "source": "Gateway Service",
+        "target": "Tracking Service",
+        "label": "Forward event requests",
+        "type": "Arrow"
+      },
+      {
+        "source": "Gateway Service",
+        "target": "User Service",
+        "label": "Forward auth/user requests",
+        "type": "Arrow"
+      },
+      {
+        "source": "User Service",
+        "target": "PostgreSQL",
+        "label": "Store user data",
+        "type": "Arrow"
+      },
+      {
+        "source": "Tracking Service",
+        "target": "PostgreSQL",
+        "label": "Store event data",
+        "type": "Arrow"
+      },
+      {
+        "source": "Tracking Service",
+        "target": "Redis",
+        "label": "Publish events (async)",
+        "type": "Arrow"
+      },
+      {
+        "source": "Redis",
+        "target": "Tracking Service",
+        "label": "Subscribe to events",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "Generated_Architecture.png",
+      "title": ""
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Gateway Service",
+      "User Service",
+      "Tracking Service",
+      "PostgreSQL"
+    ],
+    "unique_to_GroundTruth": [
+      "Frontend or SDK Client",
+      "Pub/Sub"
+    ],
+    "unique_to_GeneratedImage": [
+      "User",
+      "Client Application",
+      "Frontend",
+      "Redis"
+    ],
+    "common_connectors": [
+      {
+        "source": "Gateway Service",
+        "target": "User Service",
+        "label": "Verify User/Forward auth/user requests",
+        "type": "Arrow"
+      },
+      {
+        "source": "Gateway Service",
+        "target": "Tracking Service",
+        "label": "Request with User data/Forward event requests",
+        "type": "Arrow"
+      },
+      {
+        "source": "User Service",
+        "target": "PostgreSQL",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Tracking Service",
+        "target": "PostgreSQL",
+        "label": "",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Frontend or SDK Client",
+        "target": "Gateway Service",
+        "label": "API Requests",
+        "type": "Arrow"
+      },
+      {
+        "source": "Tracking Service",
+        "target": "Pub/Sub",
+        "label": "",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "Frontend",
+        "label": "Login/Register\nView Dashboard",
+        "type": "Arrow"
+      },
+      {
+        "source": "Client Application",
+        "target": "Frontend",
+        "label": "Integrate SDK",
+        "type": "Arrow"
+      },
+      {
+        "source": "Client Application",
+        "target": "Gateway Service",
+        "label": "Send events (via SDK)",
+        "type": "Arrow"
+      },
+      {
+        "source": "Frontend",
+        "target": "Gateway Service",
+        "label": "API Requests\n(with auth tokens)",
+        "type": "Arrow"
+      },
+      {
+        "source": "Tracking Service",
+        "target": "Redis",
+        "label": "Publish events (async)",
+        "type": "Arrow"
+      },
+      {
+        "source": "Redis",
+        "target": "Tracking Service",
+        "label": "Subscribe to events",
+        "type": "Arrow"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on a high-level view of the architecture with components like 'Frontend or SDK Client', 'Gateway Service', 'User Service', 'Tracking Service', 'PostgreSQL', and 'Pub/Sub'. It emphasizes the flow of API requests and user verification. The GeneratedImage diagram provides a more detailed view, introducing components like 'User', 'Client Application', 'Frontend', and 'Redis'. It details interactions such as login, SDK integration, and event publishing. Common components include 'Gateway Service', 'User Service', 'Tracking Service', and 'PostgreSQL'. The GroundTruth diagram includes 'Pub/Sub' for messaging, while the GeneratedImage uses 'Redis'. The GeneratedImage is rated 8 out of 10 for its detailed representation and additional components, although it lacks the 'Pub/Sub' component present in the GroundTruth.",
+    "Rating": 8
+  }
+}

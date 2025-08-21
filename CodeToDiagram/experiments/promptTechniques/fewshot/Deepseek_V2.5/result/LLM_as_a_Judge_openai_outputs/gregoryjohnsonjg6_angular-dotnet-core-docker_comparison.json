@@ -1,0 +1,363 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Browser",
+        "description": "User interface",
+        "boundaries": "External",
+        "position": "Left"
+      },
+      {
+        "name": "NGINX",
+        "description": "Reverse proxy",
+        "boundaries": "Container",
+        "position": "Center"
+      },
+      {
+        "name": "Angular",
+        "description": "Frontend application",
+        "boundaries": "Container",
+        "position": "Top right"
+      },
+      {
+        "name": "dotnet",
+        "description": "Backend application",
+        "boundaries": "Container",
+        "position": "Right"
+      },
+      {
+        "name": "PG Admin",
+        "description": "Database management",
+        "boundaries": "Container",
+        "position": "Bottom left"
+      },
+      {
+        "name": "PostgreSQL",
+        "description": "Database",
+        "boundaries": "Container",
+        "position": "Bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Browser",
+        "target": "NGINX",
+        "label": "1",
+        "type": "HTTP Request"
+      },
+      {
+        "source": "NGINX",
+        "target": "Angular",
+        "label": "2",
+        "type": "HTTP Request"
+      },
+      {
+        "source": "Browser",
+        "target": "NGINX",
+        "label": "3",
+        "type": "HTTP Request"
+      },
+      {
+        "source": "NGINX",
+        "target": "dotnet",
+        "label": "4",
+        "type": "HTTP Request"
+      },
+      {
+        "source": "dotnet",
+        "target": "PostgreSQL",
+        "label": "5",
+        "type": "Database Query"
+      },
+      {
+        "source": "PG Admin",
+        "target": "PostgreSQL",
+        "label": "6",
+        "type": "Database Management"
+      }
+    ],
+    "annotations": [
+      "Request made from browser, nginx container will redirect request based on routing to angular (frontend) container (if it is not starting with api)",
+      "Request will hit angular container and will download all required resources to display the first routing.",
+      "As it is SPA, now the API request will be made from browser, and it will go to nginx container.",
+      "Nginx container based on routing (/api) will redirect requests to dotnet (backend) container.",
+      "If any API requests required database connection it will communicate to our database container.",
+      "This connection is just showing that we can access database from the PG Admin which is running on port 5050, So visit http://localhost:5050"
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Dockerized Application Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "End user",
+        "boundaries": "External",
+        "position": "Left"
+      },
+      {
+        "name": "NGINX",
+        "description": "API Gateway",
+        "boundaries": "Infrastructure",
+        "position": "Center left"
+      },
+      {
+        "name": "Angular App (SSR)",
+        "description": "Frontend application",
+        "boundaries": "Frontend",
+        "position": "Center"
+      },
+      {
+        "name": "Auth Service",
+        "description": "Authentication service",
+        "boundaries": "Frontend",
+        "position": "Center"
+      },
+      {
+        "name": "Contact Service",
+        "description": "Contact management service",
+        "boundaries": "Frontend",
+        "position": "Center"
+      },
+      {
+        "name": "ASP.NET Core API",
+        "description": "Backend API",
+        "boundaries": "Backend",
+        "position": "Center right"
+      },
+      {
+        "name": "Application Layer (CQRS/MediatR)",
+        "description": "Application logic",
+        "boundaries": "Backend",
+        "position": "Right"
+      },
+      {
+        "name": "Persistence (EF Core)",
+        "description": "Data persistence",
+        "boundaries": "Backend",
+        "position": "Right"
+      },
+      {
+        "name": "Identity Service",
+        "description": "Identity management",
+        "boundaries": "Backend",
+        "position": "Right"
+      },
+      {
+        "name": "Domain Layer",
+        "description": "Domain logic",
+        "boundaries": "Backend",
+        "position": "Right"
+      },
+      {
+        "name": "PostgreSQL",
+        "description": "Database",
+        "boundaries": "Database",
+        "position": "Far right"
+      },
+      {
+        "name": "Docker",
+        "description": "Containerized services",
+        "boundaries": "Infrastructure",
+        "position": "Far right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "NGINX",
+        "label": "HTTP Request",
+        "type": "HTTP"
+      },
+      {
+        "source": "NGINX",
+        "target": "Angular App (SSR)",
+        "label": "/api",
+        "type": "HTTP"
+      },
+      {
+        "source": "Angular App (SSR)",
+        "target": "Auth Service",
+        "label": "API Call",
+        "type": "HTTP"
+      },
+      {
+        "source": "Angular App (SSR)",
+        "target": "Contact Service",
+        "label": "API Call",
+        "type": "HTTP"
+      },
+      {
+        "source": "Auth Service",
+        "target": "ASP.NET Core API",
+        "label": "/api/auth",
+        "type": "HTTP"
+      },
+      {
+        "source": "Contact Service",
+        "target": "ASP.NET Core API",
+        "label": "/api/contacts",
+        "type": "HTTP"
+      },
+      {
+        "source": "ASP.NET Core API",
+        "target": "Application Layer (CQRS/MediatR)",
+        "label": "Logic Call",
+        "type": "Internal"
+      },
+      {
+        "source": "Application Layer (CQRS/MediatR)",
+        "target": "Persistence (EF Core)",
+        "label": "Data Access",
+        "type": "Internal"
+      },
+      {
+        "source": "ASP.NET Core API",
+        "target": "Identity Service",
+        "label": "Identity Call",
+        "type": "Internal"
+      },
+      {
+        "source": "Persistence (EF Core)",
+        "target": "PostgreSQL",
+        "label": "Database Query",
+        "type": "Database"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Frontend",
+        "description": "Frontend services",
+        "components": [
+          "Angular App (SSR)",
+          "Auth Service",
+          "Contact Service"
+        ]
+      },
+      {
+        "name": "Backend",
+        "description": "Backend services",
+        "components": [
+          "ASP.NET Core API",
+          "Application Layer (CQRS/MediatR)",
+          "Persistence (EF Core)",
+          "Identity Service",
+          "Domain Layer"
+        ]
+      },
+      {
+        "name": "Infrastructure",
+        "description": "Infrastructure components",
+        "components": [
+          "NGINX",
+          "Docker"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Containerized Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "NGINX",
+      "Angular",
+      "PostgreSQL"
+    ],
+    "unique_to_GroundTruth": [
+      "Browser",
+      "dotnet",
+      "PG Admin"
+    ],
+    "unique_to_GeneratedImage": [
+      "User",
+      "Angular App (SSR)",
+      "Auth Service",
+      "Contact Service",
+      "ASP.NET Core API",
+      "Application Layer (CQRS/MediatR)",
+      "Persistence (EF Core)",
+      "Identity Service",
+      "Domain Layer",
+      "Docker"
+    ],
+    "common_connectors": [
+      {
+        "source": "NGINX",
+        "target": "Angular",
+        "type": "HTTP"
+      },
+      {
+        "source": "NGINX",
+        "target": "PostgreSQL",
+        "type": "Database"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Browser",
+        "target": "NGINX",
+        "type": "HTTP Request"
+      },
+      {
+        "source": "dotnet",
+        "target": "PostgreSQL",
+        "type": "Database Query"
+      },
+      {
+        "source": "PG Admin",
+        "target": "PostgreSQL",
+        "type": "Database Management"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "NGINX",
+        "type": "HTTP"
+      },
+      {
+        "source": "Angular App (SSR)",
+        "target": "Auth Service",
+        "type": "HTTP"
+      },
+      {
+        "source": "Angular App (SSR)",
+        "target": "Contact Service",
+        "type": "HTTP"
+      },
+      {
+        "source": "Auth Service",
+        "target": "ASP.NET Core API",
+        "type": "HTTP"
+      },
+      {
+        "source": "Contact Service",
+        "target": "ASP.NET Core API",
+        "type": "HTTP"
+      },
+      {
+        "source": "ASP.NET Core API",
+        "target": "Application Layer (CQRS/MediatR)",
+        "type": "Internal"
+      },
+      {
+        "source": "Application Layer (CQRS/MediatR)",
+        "target": "Persistence (EF Core)",
+        "type": "Internal"
+      },
+      {
+        "source": "ASP.NET Core API",
+        "target": "Identity Service",
+        "type": "Internal"
+      }
+    ],
+    "explanation": "The GroundTruth diagram represents a simpler architecture with a focus on a containerized environment using Docker. It includes components like Browser, NGINX, Angular, dotnet, PG Admin, and PostgreSQL, with connectors primarily representing HTTP requests and database interactions. The GeneratedImage diagram, on the other hand, presents a more detailed architecture with additional components like User, Angular App (SSR), Auth Service, Contact Service, ASP.NET Core API, and various backend layers. It includes more detailed interactions, such as API calls and internal logic calls, and is organized into logical groups like Frontend, Backend, and Infrastructure. Both diagrams share common components like NGINX, Angular, and PostgreSQL, but differ significantly in the level of detail and organization. The GeneratedImage diagram is rated 8 out of 10 for its accuracy and completeness, as it provides a more comprehensive view of the architecture, although it introduces additional complexity not present in the GroundTruth diagram.",
+    "Rating": 8
+  }
+}

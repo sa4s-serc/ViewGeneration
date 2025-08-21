@@ -1,0 +1,31 @@
+@startuml
+participant "API Server" as API
+participant "Router Engine" as Router
+participant "Experiment Engine" as Experiment
+participant "Ensembler" as Ensembler
+participant "Batch Ensembler Engine" as BatchEnsembler
+participant "Logging Service" as Logging
+participant "Monitoring Service" as Monitoring
+participant "Kubernetes" as K8s
+
+API -> Router: Create/Update Router
+Router -> K8s: Deploy Router
+API -> Experiment: Configure Experiment
+API -> Ensembler: Configure Ensembler
+API -> BatchEnsembler: Submit Batch Job
+BatchEnsembler -> K8s: Deploy Spark Job
+
+Router -> Experiment: Get Experiment Configuration
+Router -> Ensembler: Route Traffic
+Ensembler -> Router: Return Combined Results
+
+Router -> Logging: Log Results
+Router -> Monitoring: Send Metrics
+
+API -> K8s: Retrieve Pod Logs
+K8s --> API: Return Pod Logs
+
+API -> Monitoring: Configure Alerting Rules
+Monitoring -> K8s: Apply Alerting Configuration
+
+@enduml

@@ -1,0 +1,51 @@
+```plantuml
+@startuml dowjones_hammer
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor Admin
+
+rectangle "AWS Environment" as AWS #lightgoldenrodyellow {
+  rectangle "Lambda\nFunctions" as Lambda #lightyellow
+  rectangle "DynamoDB" as DynamoDB #lightcyan
+  rectangle "EC2" as EC2 #lightgreen
+  rectangle "SNS" as SNS #lightpink
+  rectangle "S3" as S3 #aliceblue
+  rectangle "CloudWatch Logs" as CloudWatchLogs #lavender
+}
+
+rectangle "Dow Jones Hammer" as Hammer #lightsteelblue {
+  rectangle "REST API" as API
+  rectangle "Slack Bot" as SlackBot
+  rectangle "JIRA Integration" as JIRA
+  rectangle "Configuration Files" as ConfigFiles
+}
+
+' ========== Connections ==========
+Admin --> Hammer
+
+' API interactions
+Admin --> API : initiate scan / get results
+
+' Lambda function interactions
+API --> SNS : trigger initiation event
+SNS --> Lambda : trigger identification functions
+Lambda --> DynamoDB : store issue details
+Lambda --> EC2 : execute remediation
+Lambda --> S3 : backup configuration
+Lambda --> CloudWatchLogs : log actions
+
+' Reporting interactions
+EC2 --> JIRA : create/update/close issues
+EC2 --> SlackBot : send notifications
+EC2 --> S3 : upload CSV reports
+
+' Configuration
+ConfigFiles <--> Hammer : define behavior and parameters
+
+@enduml
+```

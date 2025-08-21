@@ -1,0 +1,30 @@
+@startuml Melacon_WirelessTransportEmulator
+
+component "SDN Controller" as SDN
+component "Docker Host" as DockerHost {
+  component "Network Element Container 1" as NE1 {
+    component "OpenYuma NETCONF Server" as NETCONF1
+    component "SIL Implementation" as SIL1
+  }
+  component "Network Element Container 2" as NE2 {
+    component "OpenYuma NETCONF Server" as NETCONF2
+    component "SIL Implementation" as SIL2
+  }
+  component "veth pair" as VETH
+}
+component "Configuration Files" as Config {
+  file "topology.json" as Topology
+  file "config.json" as ConfigJSON
+  file "YANG Models" as YANG
+}
+component "CLI Interface (yangcli)" as CLI
+
+SDN -down-> NETCONF1 : NETCONF/SSH
+SDN -down-> NETCONF2 : NETCONF/SSH
+NE1 -right-> VETH : Link Emulation
+NE2 -left-> VETH : Link Emulation
+Config -up-> DockerHost : Configures
+CLI -up-> NETCONF1 : Manages
+CLI -up-> NETCONF2 : Manages
+
+@enduml

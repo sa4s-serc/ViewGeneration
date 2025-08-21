@@ -1,0 +1,254 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Mobile App",
+        "description": "User interface for interaction",
+        "boundaries": "Top left",
+        "position": "Top left"
+      },
+      {
+        "name": "GraphQL Request",
+        "description": "Entry point for requests",
+        "boundaries": "Center top",
+        "position": "Center top"
+      },
+      {
+        "name": "Lambda Functions",
+        "description": "Handles requests and responses",
+        "boundaries": "Center",
+        "position": "Center"
+      },
+      {
+        "name": "SNS",
+        "description": "Notification service",
+        "boundaries": "Right",
+        "position": "Right"
+      },
+      {
+        "name": "DynamoDB",
+        "description": "Database service",
+        "boundaries": "Right",
+        "position": "Right"
+      },
+      {
+        "name": "Translate",
+        "description": "Translation service",
+        "boundaries": "Right",
+        "position": "Right"
+      },
+      {
+        "name": "GraphQL Response",
+        "description": "Response to the client",
+        "boundaries": "Bottom",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Mobile App",
+        "target": "GraphQL Request",
+        "label": "",
+        "type": "direct"
+      },
+      {
+        "source": "GraphQL Request",
+        "target": "Lambda Functions",
+        "label": "request()",
+        "type": "direct"
+      },
+      {
+        "source": "Lambda Functions",
+        "target": "SNS",
+        "label": "response()",
+        "type": "direct"
+      },
+      {
+        "source": "Lambda Functions",
+        "target": "DynamoDB",
+        "label": "response()",
+        "type": "direct"
+      },
+      {
+        "source": "Lambda Functions",
+        "target": "Translate",
+        "label": "response()",
+        "type": "direct"
+      },
+      {
+        "source": "GraphQL Response",
+        "target": "Mobile App",
+        "label": "subscription updates the app",
+        "type": "direct"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Lambda Functions",
+        "description": "Handles multiple request/response cycles",
+        "boundaries": "Dashed box in center"
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "GraphQL Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Initiates interaction",
+        "boundaries": "Left",
+        "position": "Left"
+      },
+      {
+        "name": "Next.js Frontend",
+        "description": "User interface for interaction",
+        "boundaries": "Left center",
+        "position": "Left center"
+      },
+      {
+        "name": "AWS AppSync",
+        "description": "GraphQL API service",
+        "boundaries": "Center",
+        "position": "Center"
+      },
+      {
+        "name": "AWS Lambda Resolvers",
+        "description": "Handles request processing",
+        "boundaries": "Right center",
+        "position": "Right center"
+      },
+      {
+        "name": "AWS Translate",
+        "description": "Translation service",
+        "boundaries": "Right",
+        "position": "Right"
+      },
+      {
+        "name": "AWS DynamoDB",
+        "description": "Database service",
+        "boundaries": "Right",
+        "position": "Right"
+      },
+      {
+        "name": "AWS SNS",
+        "description": "Notification service",
+        "boundaries": "Right",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Next.js Frontend",
+        "label": "vote (BR/CM) and select message",
+        "type": "direct"
+      },
+      {
+        "source": "Next.js Frontend",
+        "target": "AWS AppSync",
+        "label": "execute AddVote mutation",
+        "type": "direct"
+      },
+      {
+        "source": "AWS AppSync",
+        "target": "AWS Lambda Resolvers",
+        "label": "trigger resolver pipeline",
+        "type": "direct"
+      },
+      {
+        "source": "AWS Lambda Resolvers",
+        "target": "AWS Translate",
+        "label": "translate message",
+        "type": "direct"
+      },
+      {
+        "source": "AWS Lambda Resolvers",
+        "target": "AWS DynamoDB",
+        "label": "save vote data",
+        "type": "direct"
+      },
+      {
+        "source": "AWS Lambda Resolvers",
+        "target": "AWS SNS",
+        "label": "publish vote event",
+        "type": "direct"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "AWS Lambda Resolvers",
+        "description": "Handles translation, data storage, and event publishing",
+        "boundaries": "Gray box in right center"
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": "AWS Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "DynamoDB",
+      "SNS",
+      "Translate"
+    ],
+    "unique_to_GroundTruth": [
+      "Mobile App",
+      "GraphQL Request",
+      "GraphQL Response"
+    ],
+    "unique_to_GeneratedImage": [
+      "User",
+      "Next.js Frontend",
+      "AWS AppSync"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Mobile App",
+        "target": "GraphQL Request",
+        "label": "",
+        "type": "direct"
+      },
+      {
+        "source": "GraphQL Request",
+        "target": "Lambda Functions",
+        "label": "request()",
+        "type": "direct"
+      },
+      {
+        "source": "GraphQL Response",
+        "target": "Mobile App",
+        "label": "subscription updates the app",
+        "type": "direct"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "Next.js Frontend",
+        "label": "vote (BR/CM) and select message",
+        "type": "direct"
+      },
+      {
+        "source": "Next.js Frontend",
+        "target": "AWS AppSync",
+        "label": "execute AddVote mutation",
+        "type": "direct"
+      },
+      {
+        "source": "AWS AppSync",
+        "target": "AWS Lambda Resolvers",
+        "label": "trigger resolver pipeline",
+        "type": "direct"
+      }
+    ],
+    "explanation": "Both diagrams represent architectures involving AWS services like DynamoDB, SNS, and Translate. The GroundTruth diagram focuses on a mobile app interacting with a GraphQL API, while the GeneratedImage diagram features a web-based frontend using Next.js and AWS AppSync. The GroundTruth diagram includes a more detailed request/response cycle with GraphQL, whereas the GeneratedImage diagram highlights user interaction and mutation handling. The architectural structure in GroundTruth is more linear, while the GeneratedImage has a more modular approach with distinct frontend and backend components. Rating: 7/10. The GeneratedImage accurately represents AWS services and user interaction but lacks the detailed request/response flow present in the GroundTruth.",
+    "Rating": 7
+  }
+}

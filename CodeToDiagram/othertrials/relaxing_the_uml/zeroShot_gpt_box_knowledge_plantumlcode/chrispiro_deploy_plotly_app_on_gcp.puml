@@ -1,0 +1,50 @@
+@startuml
+package "Google Cloud Platform" {
+    [App Engine]
+    [BigQuery]
+    [Cloud Storage]
+}
+
+package "Dash Application" {
+    [dash_app.py]
+    [load_data.py]
+    [create_charts.py]
+    [assets/style.css]
+}
+
+package "Configuration" {
+    [app.yaml]
+    [requirements.txt]
+    [.gcloudignore]
+}
+
+package "Documentation" {
+    [README.md]
+    [test_plotly_charts.ipynb]
+}
+
+package "Solutions" {
+    [solutions/*]
+}
+
+[README.md] ..> [App Engine] : "Setup Instructions" 
+[requirements.txt] --> [App Engine] : "Install Dependencies"
+[app.yaml] --> [App Engine] : "Deployment Config"
+[dash_app.py] --> [App Engine] : "Deploy Dash App"
+[load_data.py] --> [BigQuery] : "Load Data"
+[load_data.py] --> [Cloud Storage] : "Load Data"
+[create_charts.py] --> [dash_app.py] : "Generate Charts"
+[test_plotly_charts.ipynb] --> [create_charts.py] : "Chart Prototype"
+[solutions/*] ..> [dash_app.py] : "Reference Implementation"
+[assets/style.css] --> [dash_app.py] : "Styling"
+[.gcloudignore] ..> [App Engine] : "Exclude Files"
+
+note right of [App Engine]
+    Automates deployment and scales
+    within GCP VPC
+end note
+
+note right of [dash_app.py]
+    Main entry point of the Dash application
+end note
+@enduml

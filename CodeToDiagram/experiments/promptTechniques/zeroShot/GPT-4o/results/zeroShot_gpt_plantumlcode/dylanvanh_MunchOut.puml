@@ -1,0 +1,60 @@
+```plantuml
+@startuml dylanvanh_MunchOut
+
+actor Customer
+actor Restaurant
+boundary FlutterFrontend
+control AuthBloc
+control LoginBloc
+control SignupBloc
+control RestaurantBloc
+control CustomerBloc
+database FlaskBackend
+
+== User Authentication ==
+Customer -> FlutterFrontend: Open App
+FlutterFrontend -> AuthBloc: Check Authentication Status
+AuthBloc -> FlaskBackend: Verify Session
+FlaskBackend -> AuthBloc: Return Session Status
+AuthBloc -> FlutterFrontend: Update UI
+
+Customer -> FlutterFrontend: Login Request
+FlutterFrontend -> LoginBloc: Process Login
+LoginBloc -> FlaskBackend: Authenticate User
+FlaskBackend -> LoginBloc: Return Auth Token
+LoginBloc -> FlutterFrontend: Update UI with Auth Status
+
+Restaurant -> FlutterFrontend: Signup Request
+FlutterFrontend -> SignupBloc: Process Signup
+SignupBloc -> FlaskBackend: Register Restaurant
+FlaskBackend -> SignupBloc: Return Registration Status
+SignupBloc -> FlutterFrontend: Update UI with Signup Result
+
+== Event Management (Restaurant) ==
+Restaurant -> FlutterFrontend: Create Event
+FlutterFrontend -> RestaurantBloc: Handle Event Creation
+RestaurantBloc -> FlaskBackend: Submit Event Data
+FlaskBackend -> RestaurantBloc: Return Event Confirmation
+RestaurantBloc -> FlutterFrontend: Update UI with Event Status
+
+Restaurant -> FlutterFrontend: View Events
+FlutterFrontend -> RestaurantBloc: Fetch Event List
+RestaurantBloc -> FlaskBackend: Request Event Data
+FlaskBackend -> RestaurantBloc: Return Event Data
+RestaurantBloc -> FlutterFrontend: Display Event List
+
+== Booking Management (Customer) ==
+Customer -> FlutterFrontend: Browse Events
+FlutterFrontend -> CustomerBloc: Fetch Available Events
+CustomerBloc -> FlaskBackend: Request Event Listings
+FlaskBackend -> CustomerBloc: Return Event Listings
+CustomerBloc -> FlutterFrontend: Display Events
+
+Customer -> FlutterFrontend: Book Event
+FlutterFrontend -> CustomerBloc: Handle Booking
+CustomerBloc -> FlaskBackend: Submit Booking Request
+FlaskBackend -> CustomerBloc: Return Booking Confirmation
+CustomerBloc -> FlutterFrontend: Update UI with Booking Status
+
+@enduml
+```

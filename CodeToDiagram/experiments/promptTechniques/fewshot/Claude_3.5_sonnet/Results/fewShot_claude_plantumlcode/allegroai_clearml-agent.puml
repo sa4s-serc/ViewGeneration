@@ -1,0 +1,86 @@
+@startuml
+skinparam backgroundColor #f0f0f0
+skinparam componentStyle rectangle
+skinparam defaultTextAlignment center
+skinparam linetype ortho
+skinparam shadowing false
+
+package "Development Environment" {
+  actor "Data Scientist" as DS
+  component "ClearML SDK" as SDK
+}
+
+package "ClearML Server" {
+  component "Web UI" as UI
+  component "API Server" as API
+  database "MongoDB" as Mongo
+  database "Elasticsearch" as ES
+  database "Redis" as Redis
+  component "Queue Manager" as Queue
+}
+
+package "Compute Infrastructure" {
+  package "Kubernetes Cluster" {
+    component "K8s API" as K8sAPI
+    component "ClearML Agent\n(K8s Glue)" as K8sGlue
+    component "Agent Pods" as Pods
+  }
+  
+  package "SLURM Cluster" {
+    component "SLURM Controller" as SLURM
+    component "ClearML Agent\n(SLURM)" as SLURMAgent
+  }
+  
+  package "Standalone Nodes" {
+    component "ClearML Agent\n(Daemon)" as Daemon
+    component "Docker Engine" as Docker
+  }
+}
+
+package "Storage" {
+  cloud "Object Storage\n(S3/GCS/Azure)" as ObjStore
+  component "NFS/Shared FS" as SharedFS
+}
+
+DS --> SDK : submit experiments
+SDK --> API : tasks/models/artifacts
+API --> Mongo : metadata
+API --> ES : logs/metrics
+API --> Redis : queues
+API --> Queue : task scheduling
+
+UI --> API : monitoring
+
+Queue --> K8sGlue : pull tasks
+Queue --> SLURMAgent : pull tasks  
+Queue --> Daemon : pull tasks
+
+K8sGlue --> K8sAPI : create pods
+K8sAPI --> Pods : schedule
+Pods --> ObjStore : artifacts
+Pods --> API : report status
+
+SLURMAgent --> SLURM : submit jobs
+SLURM --> SharedFS : data access
+SLURMAgent --> API : report status
+
+Daemon --> Docker : run containers
+Docker --> SharedFS : data access
+Daemon --> API : report status
+
+note right of K8sGlue
+  Dynamic scaling
+  GPU allocation
+end note
+
+note right of Daemon
+  Local execution
+  Resource monitoring
+end note
+
+note bottom of ObjStore
+  Model checkpoints
+  Dataset cache
+  Artifacts
+end note
+@enduml

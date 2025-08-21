@@ -1,0 +1,75 @@
+```plantuml
+@startuml boot2podman_machine
+actor User
+
+rectangle "CLI" as CLI {
+  rectangle "Commands" as Commands
+}
+
+rectangle "Drivers" as Drivers {
+  rectangle "VirtualBox" as VB
+  rectangle "QEMU" as QEMU
+  rectangle "Generic" as Generic
+  rectangle "Serialized" as Serialized
+}
+
+rectangle "Libmachine" as Libmachine {
+  rectangle "VM Management" as VMManagement
+  rectangle "State Management" as StateManagement
+}
+
+rectangle "Provisioners" as Provisioners {
+  rectangle "RedHat" as RedHat
+  rectangle "Fedora" as Fedora
+  rectangle "CentOS" as CentOS
+  rectangle "Boot2Podman" as Boot2Podman
+}
+
+rectangle "Host" as Host
+
+rectangle "Network Components" as NetworkComponents {
+  rectangle "Netfilter" as Netfilter
+  rectangle "NFTables" as NFTables
+}
+
+rectangle "Configuration Files" as ConfigFiles
+
+rectangle "SSH" as SSH
+
+rectangle "Certificate Management" as CertManagement
+
+' ========== Interactions ==========
+User --> CLI : execute command
+
+CLI --> Commands : parse command
+
+Commands --> Drivers : execute driver command
+Commands --> Libmachine : manage VM lifecycle
+Commands --> Provisioners : provision Podman inside VM
+
+Drivers --> VB : use VirtualBox driver
+Drivers --> QEMU : use QEMU driver
+Drivers --> Generic : use Generic driver
+Drivers --> Serialized : use Serialized driver
+
+Libmachine --> VMManagement : create/start/stop VM
+Libmachine --> StateManagement : manage VM state
+
+Provisioners --> RedHat : configure Podman
+Provisioners --> Fedora : configure Podman
+Provisioners --> CentOS : configure Podman
+Provisioners --> Boot2Podman : configure Podman
+
+Host --> Drivers : encapsulate driver and options
+
+NetworkComponents --> Netfilter : filter network packets
+NetworkComponents --> NFTables : manipulate network packets
+
+CLI --> ConfigFiles : access configuration and TLS certificates
+
+CLI --> SSH : manage SSH keys and connections
+
+CLI --> CertManagement : renew certificates automatically
+
+@enduml
+```

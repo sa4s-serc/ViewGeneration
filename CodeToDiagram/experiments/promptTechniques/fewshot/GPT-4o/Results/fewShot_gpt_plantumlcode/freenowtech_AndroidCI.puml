@@ -1,0 +1,28 @@
+```plantuml
+@startuml freenowtech_AndroidCI
+skinparam defaultTextAlignment center
+skinparam linetype ortho
+
+actor Developer
+
+rectangle "Jenkins Master" as Jenkins {
+    rectangle "Build Scheduler" as Scheduler
+    rectangle "Plugin Manager" as Plugins
+
+    Scheduler --> Plugins
+}
+
+cloud "Docker Host" as DockerHost {
+    rectangle "Docker" as Docker {
+        rectangle "Android SDK\\nImage" as AndroidSDK
+        rectangle "Jenkins Agent\\nContainer" as JenkinsAgent
+    }
+}
+
+Developer --> Jenkins: Commit Code
+Jenkins --> DockerHost: Trigger Build
+DockerHost --> JenkinsAgent: Start Container
+JenkinsAgent --> AndroidSDK: Build & Test
+JenkinsAgent --> Jenkins: Return Artifacts
+@enduml
+```

@@ -1,0 +1,53 @@
+@startuml Software-Engineering-DHBW_bikeminer
+
+actor User
+
+box "Mobile Apps" #LightBlue
+    participant "Flutter App" as FlutterApp
+    participant "Android App" as AndroidApp
+end box
+
+participant "FastAPI Backend" as Backend
+database "MariaDB" as Database
+
+== User Interaction ==
+User -> FlutterApp : Open app
+User -> AndroidApp : Open app (legacy)
+
+== Authentication ==
+FlutterApp -> Backend : POST /login
+Backend -> Database : Verify credentials
+Database --> Backend : User data
+Backend --> FlutterApp : JWT token
+
+== Location Tracking ==
+FlutterApp -> FlutterApp : Start background location tracking
+AndroidApp -> AndroidApp : Start GPS tracking (MapsActivity)
+
+== Ride Data ==
+FlutterApp -> Backend : POST /rides
+AndroidApp -> Backend : POST /rides
+Backend -> Database : Store ride data
+Database --> Backend : Confirmation
+Backend --> FlutterApp : Ride saved
+Backend --> AndroidApp : Ride saved
+
+== BikeCoin Update ==
+Backend -> Database : Calculate BikeCoin reward
+Database --> Backend : Updated balance
+Backend --> FlutterApp : New BikeCoin balance
+Backend --> AndroidApp : New BikeCoin balance
+
+== Fetch User Data ==
+FlutterApp -> Backend : GET /user
+Backend -> Database : Fetch user data
+Database --> Backend : User information
+Backend --> FlutterApp : User profile and balance
+
+== Ride History ==
+FlutterApp -> Backend : GET /rides
+Backend -> Database : Fetch ride history
+Database --> Backend : Ride data
+Backend --> FlutterApp : Ride history
+
+@enduml

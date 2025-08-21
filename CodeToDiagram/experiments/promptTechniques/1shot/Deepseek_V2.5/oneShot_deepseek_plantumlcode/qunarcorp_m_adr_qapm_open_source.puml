@@ -1,0 +1,43 @@
+@startuml qunarcorp_m_adr_qapm_open_source
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "Android App" as App
+
+rectangle "QAPM Gradle Plugin" as Plugin {
+  rectangle "AspectJAppTransform" as Transform
+}
+
+rectangle "QAPM Library" as Lib {
+  rectangle "QAPM" as Core
+  rectangle "Tracers" as Tracers
+  rectangle "Storage" as Storage
+  rectangle "Network" as Network
+}
+
+rectangle "Backend Server" as Server
+
+' ========== Build-time interactions ==========
+App -> Plugin : Build with QAPM plugin
+Plugin -> Transform : Apply bytecode transformation
+Transform -> Lib : Inject monitoring code
+
+' ========== Runtime interactions ==========
+App -> Core : Initialize QAPM
+Core -> Tracers : Start monitoring (FPS/Memory/CPU/Battery)
+Core -> Network : Instrument network calls
+
+loop Continuous Monitoring
+  Tracers -> Storage : Store performance data
+  Storage -> Network : Batch send data
+  Network -> Server : Report metrics
+end
+
+' ========== Event-based interactions ==========
+App -> Tracers : Activity lifecycle events
+Tracers -> Storage : Log performance metrics
+@enduml

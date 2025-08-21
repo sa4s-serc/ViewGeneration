@@ -1,0 +1,79 @@
+@startuml sup2is_e-commerce-project
+skinparam rectangle {
+  BackgroundColor<<gateway>> #d9e7fd
+  BackgroundColor<<service>> #d8f5d3
+  BackgroundColor<<infra>> #fddddd
+  BackgroundColor<<storage>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+rectangle "API Gateway\n(Netflix Zuul)" <<gateway>> as Gateway {
+  rectangle "JWT Auth Filter" as JWTFilter
+}
+
+package "Core Services" <<service>> {
+  rectangle "Member Service" as MemberService {
+    rectangle "Profile Mgmt" as Profile
+    rectangle "Auth Mgmt" as Auth
+  }
+  
+  rectangle "Order Service" as OrderService {
+    rectangle "Order Processing" as OrderProc
+  }
+  
+  rectangle "Product Service" as ProductService {
+    rectangle "Catalog Mgmt" as Catalog
+    rectangle "Inventory" as Inventory
+  }
+  
+  rectangle "Auth Service" as AuthService {
+    rectangle "JWT Issuer" as JWTIssuer
+  }
+}
+
+package "Infrastructure" <<infra>> {
+  rectangle "Eureka Server" as Eureka
+  rectangle "Config Server" as Config
+  rectangle "Zipkin" as Zipkin
+  rectangle "Kafka" as Kafka
+}
+
+package "Data Stores" <<storage>> {
+  database "MySQL" as MySQL
+  database "Redis" as Redis
+  database "H2 (Dev)" as H2
+}
+
+Gateway --> MemberService : REST
+Gateway --> OrderService : REST
+Gateway --> ProductService : REST
+Gateway --> AuthService : REST
+
+MemberService --> MySQL : JPA
+MemberService --> Redis : Cache
+OrderService --> MySQL : JPA
+ProductService --> MySQL : JPA
+ProductService --> Redis : Cache
+AuthService --> MySQL : JPA
+
+OrderService --> ProductService : Feign Client
+ProductService --> Kafka : Async Events
+
+MemberService --> Eureka
+OrderService --> Eureka
+ProductService --> Eureka
+AuthService --> Eureka
+Gateway --> Eureka
+
+MemberService --> Config
+OrderService --> Config
+ProductService --> Config
+AuthService --> Config
+
+MemberService --> Zipkin
+OrderService --> Zipkin
+ProductService --> Zipkin
+AuthService --> Zipkin
+Gateway --> Zipkin
+@enduml

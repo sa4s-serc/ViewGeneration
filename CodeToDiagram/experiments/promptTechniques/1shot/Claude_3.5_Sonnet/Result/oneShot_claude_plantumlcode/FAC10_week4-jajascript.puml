@@ -1,0 +1,55 @@
+@startuml FAC10_week4-jajascript
+
+actor User
+participant "Browser" as Browser
+participant "main.js" as FrontEnd
+participant "server.js" as Server
+participant "router.js" as Router
+participant "handler.js" as Handler
+participant "algorithm.js" as Algorithm
+database "data.json" as Data
+
+User -> Browser: Enter search query
+activate Browser
+
+Browser -> FrontEnd: Keyup event
+activate FrontEnd
+
+FrontEnd -> FrontEnd: Debounce input
+FrontEnd -> Server: GET /search/:query
+activate Server
+
+Server -> Router: Route request
+activate Router
+
+Router -> Handler: Handle /search route
+activate Handler
+
+Handler -> Algorithm: Call autocomplete()
+activate Algorithm
+
+Algorithm -> Data: Read laureate data
+activate Data
+Data --> Algorithm: Return data
+deactivate Data
+
+Algorithm --> Handler: Return filtered results
+deactivate Algorithm
+
+Handler --> Router: Send response
+deactivate Handler
+
+Router --> Server: Pass response
+deactivate Router
+
+Server --> FrontEnd: Return JSON results
+deactivate Server
+
+FrontEnd -> FrontEnd: Update suggestion list
+FrontEnd --> Browser: Display suggestions
+deactivate FrontEnd
+
+Browser --> User: Show autocomplete suggestions
+deactivate Browser
+
+@enduml

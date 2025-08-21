@@ -1,0 +1,45 @@
+@startuml
+skinparam defaultTextAlignment center
+skinparam componentStyle rectangle
+
+actor "Kintone User" as user
+component "Kintone Environment" {
+  [Karura Master App] as masterApp
+  [Karura Client Plugin] as clientPlugin
+}
+
+cloud "Karura Server" {
+  [Tornado Web Server] as tornado
+  [Model Manager] as modelManager
+  [Model Builder] as modelBuilder
+  [Feature Builder] as featureBuilder
+  [Field Manager] as fieldManager
+  [Dataset Loader] as datasetLoader
+}
+
+database "Kintone API" as kintoneAPI
+folder "Model Store" as modelStore
+
+user -> masterApp : Configure ML task
+user -> clientPlugin : Trigger training/prediction
+
+masterApp --> tornado : REST API calls
+clientPlugin --> tornado : REST API calls
+
+tornado --> modelManager : Handle requests
+
+modelManager --> datasetLoader : Load data
+datasetLoader --> kintoneAPI : Fetch records
+
+modelManager --> fieldManager : Manage fields
+modelManager --> featureBuilder : Build features
+modelManager --> modelBuilder : Train model
+
+modelBuilder --> modelStore : Save model
+modelManager <-- modelStore : Load model
+
+modelManager --> tornado : Return results
+tornado --> masterApp : Training complete
+tornado --> clientPlugin : Prediction results
+
+@enduml

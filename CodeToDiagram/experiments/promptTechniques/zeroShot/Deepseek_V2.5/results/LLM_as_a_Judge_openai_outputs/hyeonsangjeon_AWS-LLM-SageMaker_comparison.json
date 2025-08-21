@@ -1,0 +1,241 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "AWS Cloud",
+        "description": "Cloud environment hosting the application",
+        "boundaries": "Top left",
+        "position": "Top left"
+      },
+      {
+        "name": "Streamlit",
+        "description": "User interface for input and output",
+        "boundaries": "Left center",
+        "position": "Left center"
+      },
+      {
+        "name": "Amazon SageMaker Endpoint, GPU",
+        "description": "LLM for embedding",
+        "boundaries": "Right center",
+        "position": "Right center"
+      },
+      {
+        "name": "Amazon SageMaker Endpoint GPU",
+        "description": "Korean LLM, poly-glot sentence generation",
+        "boundaries": "Bottom right",
+        "position": "Bottom right"
+      },
+      {
+        "name": "Amazon OpenSearch Service",
+        "description": "Search service for embedding data",
+        "boundaries": "Bottom center",
+        "position": "Bottom center"
+      },
+      {
+        "name": "Amazon S3",
+        "description": "Bank FAQ Corpus storage",
+        "boundaries": "Bottom left",
+        "position": "Bottom left"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Streamlit",
+        "target": "Amazon SageMaker Endpoint, GPU",
+        "label": "Query",
+        "type": "Data flow"
+      },
+      {
+        "source": "Amazon SageMaker Endpoint, GPU",
+        "target": "Amazon OpenSearch Service",
+        "label": "Embedding Search",
+        "type": "Data flow"
+      },
+      {
+        "source": "Amazon OpenSearch Service",
+        "target": "Amazon SageMaker Endpoint GPU",
+        "label": "FAQ data embedding",
+        "type": "Data flow"
+      },
+      {
+        "source": "Amazon SageMaker Endpoint GPU",
+        "target": "Streamlit",
+        "label": "Answer",
+        "type": "Data flow"
+      },
+      {
+        "source": "Amazon S3",
+        "target": "Amazon OpenSearch Service",
+        "label": "FAQ 전처리 to csv",
+        "type": "Data flow"
+      }
+    ],
+    "annotations": [
+      "rag 챗봇 로직",
+      "rag 데이터 처리 로직"
+    ],
+    "groups": [
+      "AWS Cloud"
+    ],
+    "metadata": {
+      "filename": "financial_services_faq_chatbot_architecture.png",
+      "title": "금융데이터 FAQ Chatbot demo Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "End user interacting with the system",
+        "boundaries": "Left",
+        "position": "Left"
+      },
+      {
+        "name": "Streamlit UI",
+        "description": "User interface for input and output",
+        "boundaries": "Left center",
+        "position": "Left center"
+      },
+      {
+        "name": "RAG Controller",
+        "description": "Handles the retrieval and generation logic",
+        "boundaries": "Center",
+        "position": "Center"
+      },
+      {
+        "name": "OpenSearch",
+        "description": "Search service for embedding data",
+        "boundaries": "Right center",
+        "position": "Right center"
+      },
+      {
+        "name": "SageMaker Endpoint (LLM)",
+        "description": "LLM for embedding and answer generation",
+        "boundaries": "Right",
+        "position": "Right"
+      },
+      {
+        "name": "Embedding Model",
+        "description": "Model for generating embeddings",
+        "boundaries": "Bottom right",
+        "position": "Bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Streamlit UI",
+        "label": "Submits financial question",
+        "type": "Data flow"
+      },
+      {
+        "source": "Streamlit UI",
+        "target": "RAG Controller",
+        "label": "Forward question",
+        "type": "Data flow"
+      },
+      {
+        "source": "RAG Controller",
+        "target": "SageMaker Endpoint (LLM)",
+        "label": "Generate embedding for question",
+        "type": "Data flow"
+      },
+      {
+        "source": "SageMaker Endpoint (LLM)",
+        "target": "RAG Controller",
+        "label": "Return question vector",
+        "type": "Data flow"
+      },
+      {
+        "source": "RAG Controller",
+        "target": "OpenSearch",
+        "label": "Search with question vector",
+        "type": "Data flow"
+      },
+      {
+        "source": "OpenSearch",
+        "target": "RAG Controller",
+        "label": "Return relevant document chunks",
+        "type": "Data flow"
+      },
+      {
+        "source": "RAG Controller",
+        "target": "SageMaker Endpoint (LLM)",
+        "label": "Generate answer with question + documents",
+        "type": "Data flow"
+      },
+      {
+        "source": "SageMaker Endpoint (LLM)",
+        "target": "RAG Controller",
+        "label": "Return generated answer",
+        "type": "Data flow"
+      },
+      {
+        "source": "RAG Controller",
+        "target": "Streamlit UI",
+        "label": "Display answer",
+        "type": "Data flow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "sequence_diagram.png",
+      "title": "Sequence Diagram"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Streamlit",
+      "OpenSearch",
+      "SageMaker Endpoint"
+    ],
+    "unique_to_GroundTruth": [
+      "AWS Cloud",
+      "Amazon S3"
+    ],
+    "unique_to_GeneratedImage": [
+      "User",
+      "RAG Controller",
+      "Embedding Model"
+    ],
+    "common_connectors": [
+      {
+        "source": "Streamlit",
+        "target": "SageMaker Endpoint",
+        "label": "Query",
+        "type": "Data flow"
+      },
+      {
+        "source": "OpenSearch",
+        "target": "SageMaker Endpoint",
+        "label": "Return relevant document chunks",
+        "type": "Data flow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Amazon S3",
+        "target": "Amazon OpenSearch Service",
+        "label": "FAQ 전처리 to csv",
+        "type": "Data flow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "Streamlit UI",
+        "label": "Submits financial question",
+        "type": "Data flow"
+      },
+      {
+        "source": "RAG Controller",
+        "target": "SageMaker Endpoint (LLM)",
+        "label": "Generate embedding for question",
+        "type": "Data flow"
+      }
+    ],
+    "explanation": "The two diagrams represent similar systems but from different perspectives. The GroundTruth diagram provides a high-level architectural view focusing on AWS components and data flow, while the GeneratedImage diagram is a sequence diagram detailing the interaction flow between components. Common components include Streamlit, OpenSearch, and SageMaker Endpoint, indicating shared functionality. However, the GroundTruth diagram includes AWS-specific components like Amazon S3, while the GeneratedImage diagram introduces a user and a RAG Controller, focusing on process flow. The connectors in both diagrams show data flow, but the GeneratedImage diagram provides a more detailed step-by-step process. Overall, the GeneratedImage diagram rates 8 out of 10 for accurately depicting the process flow but lacks some architectural details present in the GroundTruth diagram.",
+    "Rating": 8
+  }
+}

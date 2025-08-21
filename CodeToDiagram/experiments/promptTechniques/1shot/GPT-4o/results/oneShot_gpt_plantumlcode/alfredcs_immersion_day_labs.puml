@@ -1,0 +1,52 @@
+```plantuml
+@startuml alfredcs_immersion_day_labs
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor MLDeveloper
+
+rectangle "Hugging Face Ecosystem" as HFE #lightyellow {
+  rectangle "Pre-trained Models\n(e.g., BERT, GPT-2)" as Models #palegreen
+  rectangle "datasets Library" as Datasets #aliceblue
+}
+
+rectangle "AWS SageMaker" as SageMaker #lightsteelblue {
+  rectangle "Training Service" as Training #lightgrey
+  rectangle "Inference Service" as Inference #lightgrey
+  rectangle "Autopilot" as Autopilot #lightgrey
+  rectangle "Feature Store" as FeatureStore #lightgrey
+}
+
+rectangle "ONNX Runtime" as ONNX #lightpink
+
+' ========== Connections ==========
+MLDeveloper --> HFE : Select model & dataset
+
+' Training interactions
+HFE --> SageMaker : Upload dataset\nInitiate training
+SageMaker -> Training : Launch training job
+Training --> HFE : Fine-tuned model
+
+' Deployment interactions
+HFE --> SageMaker : Deploy model to endpoint
+SageMaker -> Inference : Setup inference pipeline
+Inference --> MLDeveloper : Real-time/batch predictions
+
+' Optimization interactions
+MLDeveloper --> SageMaker : Use Autopilot for HPO
+SageMaker -> Autopilot : Automate ML tasks
+
+' Feature Store interactions
+MLDeveloper --> SageMaker : Store/retrieve features
+SageMaker -> FeatureStore : Manage feature data
+
+' ONNX Optimization
+MLDeveloper --> ONNX : Optimize model
+ONNX --> SageMaker : Deploy optimized model
+
+@enduml
+```

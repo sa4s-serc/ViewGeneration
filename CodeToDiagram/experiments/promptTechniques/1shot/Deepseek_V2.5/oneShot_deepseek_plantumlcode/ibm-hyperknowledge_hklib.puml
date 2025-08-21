@@ -1,0 +1,60 @@
+@startuml ibm-hyperknowledge_hklib
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<data>> #d8f5d3
+  BackgroundColor<<integration>> #fddddd
+  BackgroundColor<<utility>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Entities" <<core>> {
+  rectangle "HKEntity" as HKEntity
+  rectangle "Node" as Node
+  rectangle "Context" as Context
+  rectangle "Link" as Link
+  rectangle "Connector" as Connector
+  rectangle "Reference" as Reference
+  rectangle "Trail" as Trail
+  rectangle "Virtual Entities" as Virtual
+  HKEntity <|-- Node
+  HKEntity <|-- Context
+  HKEntity <|-- Link
+  HKEntity <|-- Connector
+  HKEntity <|-- Reference
+  HKEntity <|-- Trail
+  HKEntity <|-- Virtual
+}
+
+package "Data Access" <<data>> {
+  rectangle "HKDatasource" as Datasource
+  rectangle "ObserverClient" as Observer
+  rectangle "HKObserverFactory" as Factory
+  rectangle "Stored Queries" as Queries
+  Datasource --> Observer
+  Factory --> Observer
+  Datasource --> Queries
+}
+
+package "Utility" <<utility>> {
+  rectangle "Deserializer" as Deserialize
+  rectangle "Hyperify" as Hyperify
+  rectangle "Graph Builder" as Builder
+  rectangle "FI Handling" as FI
+  Deserialize --> HKEntity
+  Hyperify --> HKEntity
+  Builder --> HKEntity
+}
+
+package "External Integration" <<integration>> {
+  rectangle "Wordnet" as Wordnet
+  rectangle "DBpedia" as DBpedia
+  rectangle "REST/RabbitMQ" as Messaging
+  Virtual --> Wordnet
+  Virtual --> DBpedia
+  Observer --> Messaging
+}
+
+database "HKBase" as HKBase
+Datasource --> HKBase
+@enduml

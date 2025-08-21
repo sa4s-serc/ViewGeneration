@@ -1,0 +1,228 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "AI Platform",
+        "description": "Source of training job logs",
+        "boundaries": "Start",
+        "position": "Top"
+      },
+      {
+        "name": "Cloud Logging",
+        "description": "Collects logs from AI Platform",
+        "boundaries": "Middle",
+        "position": "Below AI Platform"
+      },
+      {
+        "name": "Log Sink",
+        "description": "Filters AI Platform logs",
+        "boundaries": "Middle",
+        "position": "Below Cloud Logging"
+      },
+      {
+        "name": "ai_platform_log Pub/Sub Topic",
+        "description": "Publishes log entries",
+        "boundaries": "Middle",
+        "position": "Below Log Sink"
+      },
+      {
+        "name": "Cloud Function (Python)",
+        "description": "Processes log entries",
+        "boundaries": "Middle",
+        "position": "Below ai_platform_log Pub/Sub Topic"
+      },
+      {
+        "name": "Notification Pub/Sub Topic",
+        "description": "Publishes notifications",
+        "boundaries": "Middle",
+        "position": "Below Cloud Function"
+      },
+      {
+        "name": "Downstream Consumers",
+        "description": "Consumes notifications",
+        "boundaries": "End",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "AI Platform",
+        "target": "Cloud Logging",
+        "label": "Training job logs (state changes)",
+        "type": "Arrow"
+      },
+      {
+        "source": "Cloud Logging",
+        "target": "Log Sink",
+        "label": "Filter AI Platform logs",
+        "type": "Arrow"
+      },
+      {
+        "source": "Log Sink",
+        "target": "ai_platform_log Pub/Sub Topic",
+        "label": "Publish log entries",
+        "type": "Arrow"
+      },
+      {
+        "source": "ai_platform_log Pub/Sub Topic",
+        "target": "Cloud Function (Python)",
+        "label": "Trigger on message",
+        "type": "Arrow"
+      },
+      {
+        "source": "Cloud Function (Python)",
+        "target": "Notification Pub/Sub Topic",
+        "label": "Publish notification (job_id, state, timestamp)",
+        "type": "Arrow"
+      },
+      {
+        "source": "Notification Pub/Sub Topic",
+        "target": "Downstream Consumers",
+        "label": "Consume notifications",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "Filter: resource.type=\"ml_job\"",
+        "position": "Left of Log Sink"
+      },
+      {
+        "text": "Processes: - Extract job state - Format notification - Handle errors",
+        "position": "Right of Cloud Function"
+      }
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "sfujiwara_terraform-google-ai-platform-notification",
+      "title": "AI Platform Notification Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "AI Platform",
+        "description": "Source of logs",
+        "boundaries": "Start",
+        "position": "Left"
+      },
+      {
+        "name": "Log Sink",
+        "description": "Processes logs",
+        "boundaries": "Middle",
+        "position": "Middle"
+      },
+      {
+        "name": "Push",
+        "description": "Pushes data",
+        "boundaries": "Middle",
+        "position": "Middle"
+      },
+      {
+        "name": "Pub/Sub",
+        "description": "Publishes data",
+        "boundaries": "End",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "AI Platform",
+        "target": "Log Sink",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Log Sink",
+        "target": "Push",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Push",
+        "target": "Pub/Sub",
+        "label": "",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "generated_image",
+      "title": "Simplified Log Processing Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "AI Platform",
+      "Log Sink"
+    ],
+    "unique_to_GroundTruth": [
+      "Cloud Logging",
+      "ai_platform_log Pub/Sub Topic",
+      "Cloud Function (Python)",
+      "Notification Pub/Sub Topic",
+      "Downstream Consumers"
+    ],
+    "unique_to_GeneratedImage": [
+      "Push",
+      "Pub/Sub"
+    ],
+    "common_connectors": [
+      {
+        "source": "AI Platform",
+        "target": "Log Sink",
+        "label": "",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Cloud Logging",
+        "target": "Log Sink",
+        "label": "Filter AI Platform logs",
+        "type": "Arrow"
+      },
+      {
+        "source": "Log Sink",
+        "target": "ai_platform_log Pub/Sub Topic",
+        "label": "Publish log entries",
+        "type": "Arrow"
+      },
+      {
+        "source": "ai_platform_log Pub/Sub Topic",
+        "target": "Cloud Function (Python)",
+        "label": "Trigger on message",
+        "type": "Arrow"
+      },
+      {
+        "source": "Cloud Function (Python)",
+        "target": "Notification Pub/Sub Topic",
+        "label": "Publish notification (job_id, state, timestamp)",
+        "type": "Arrow"
+      },
+      {
+        "source": "Notification Pub/Sub Topic",
+        "target": "Downstream Consumers",
+        "label": "Consume notifications",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Log Sink",
+        "target": "Push",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Push",
+        "target": "Pub/Sub",
+        "label": "",
+        "type": "Arrow"
+      }
+    ],
+    "explanation": "The GroundTruth diagram represents a more detailed architecture for handling AI Platform logs, involving multiple components such as Cloud Logging, Cloud Function, and Pub/Sub Topics for notifications. The GeneratedImage diagram is a simplified version, focusing on a direct log processing flow from AI Platform to Pub/Sub, lacking the detailed processing and notification steps present in the GroundTruth. The GroundTruth architecture is more comprehensive, indicating a complete notification system, while the GeneratedImage provides a basic log handling overview. The GeneratedImage is rated 6/10 for capturing the basic flow but missing the detailed processing and notification aspects.",
+    "Rating": 6
+  }
+}

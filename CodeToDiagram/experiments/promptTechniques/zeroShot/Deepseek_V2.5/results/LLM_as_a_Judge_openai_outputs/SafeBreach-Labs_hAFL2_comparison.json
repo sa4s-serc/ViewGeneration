@@ -1,0 +1,335 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "KVM",
+        "description": "L0",
+        "boundaries": "Top level",
+        "position": "Top left"
+      },
+      {
+        "name": "hAFL2",
+        "description": "",
+        "boundaries": "",
+        "position": "Top center"
+      },
+      {
+        "name": "Hyper-V (L1) - Host",
+        "description": "",
+        "boundaries": "Middle level",
+        "position": "Center"
+      },
+      {
+        "name": "Root Partition Host OS",
+        "description": "L2",
+        "boundaries": "Inside Hyper-V",
+        "position": "Bottom left"
+      },
+      {
+        "name": "vmswitch.sys",
+        "description": "",
+        "boundaries": "Inside Root Partition",
+        "position": "Top"
+      },
+      {
+        "name": "CrashMonitoring.sys",
+        "description": "",
+        "boundaries": "Inside Root Partition",
+        "position": "Bottom"
+      },
+      {
+        "name": "Child Partition Guest VM",
+        "description": "L2",
+        "boundaries": "Inside Hyper-V",
+        "position": "Bottom right"
+      },
+      {
+        "name": "harness.sys",
+        "description": "",
+        "boundaries": "Inside Child Partition",
+        "position": "Center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "KVM",
+        "target": "hAFL2",
+        "label": "",
+        "type": "dotted arrow"
+      },
+      {
+        "source": "hAFL2",
+        "target": "Hyper-V (L1) - Host",
+        "label": "",
+        "type": "dotted arrow"
+      },
+      {
+        "source": "Hyper-V (L1) - Host",
+        "target": "vmswitch.sys",
+        "label": "",
+        "type": "dotted arrow"
+      },
+      {
+        "source": "vmswitch.sys",
+        "target": "harness.sys",
+        "label": "",
+        "type": "solid arrow"
+      },
+      {
+        "source": "CrashMonitoring.sys",
+        "target": "KVM",
+        "label": "",
+        "type": "dotted arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Hyper-V (L1) - Host",
+        "components": [
+          "Root Partition Host OS",
+          "Child Partition Guest VM"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": ""
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Host Machine",
+        "description": "Linux",
+        "boundaries": "Top level",
+        "position": "Top left"
+      },
+      {
+        "name": "kAFL Fuzzer",
+        "description": "",
+        "boundaries": "Inside Host Machine",
+        "position": "Top left"
+      },
+      {
+        "name": "QEMU",
+        "description": "",
+        "boundaries": "",
+        "position": "Center"
+      },
+      {
+        "name": "KVM",
+        "description": "",
+        "boundaries": "",
+        "position": "Bottom left"
+      },
+      {
+        "name": "Root Partition",
+        "description": "Windows",
+        "boundaries": "",
+        "position": "Center right"
+      },
+      {
+        "name": "Hyper-V Root",
+        "description": "",
+        "boundaries": "Inside Root Partition",
+        "position": "Center"
+      },
+      {
+        "name": "VMSwitch",
+        "description": "",
+        "boundaries": "Inside Hyper-V Root",
+        "position": "Top"
+      },
+      {
+        "name": "CrashMonitoringDriver",
+        "description": "",
+        "boundaries": "Inside Hyper-V Root",
+        "position": "Bottom"
+      },
+      {
+        "name": "Child Partition",
+        "description": "Windows",
+        "boundaries": "",
+        "position": "Bottom right"
+      },
+      {
+        "name": "Hyper-V Child",
+        "description": "",
+        "boundaries": "Inside Child Partition",
+        "position": "Center"
+      },
+      {
+        "name": "CPHarness",
+        "description": "",
+        "boundaries": "Inside Hyper-V Child",
+        "position": "Top"
+      },
+      {
+        "name": "Fuzzing Harness",
+        "description": "",
+        "boundaries": "Inside Hyper-V Child",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "kAFL Fuzzer",
+        "target": "QEMU",
+        "label": "Execute Target",
+        "type": "solid arrow"
+      },
+      {
+        "source": "QEMU",
+        "target": "KVM",
+        "label": "Mutation Guidance",
+        "type": "dashed arrow"
+      },
+      {
+        "source": "Hyper-V Root",
+        "target": "VMSwitch",
+        "label": "RNDIS Packets",
+        "type": "solid arrow"
+      },
+      {
+        "source": "VMSwitch",
+        "target": "CrashMonitoringDriver",
+        "label": "Crash Reports",
+        "type": "solid arrow"
+      },
+      {
+        "source": "CrashMonitoringDriver",
+        "target": "Child Partition",
+        "label": "Nested Virtualization",
+        "type": "solid arrow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "Custom modifications for hAFL2 fuzzing support",
+        "position": "Near QEMU"
+      },
+      {
+        "text": "Modified for hypercall handling and Intel PT support",
+        "position": "Near KVM"
+      }
+    ],
+    "groups": [
+      {
+        "name": "Host Machine",
+        "components": [
+          "kAFL Fuzzer"
+        ]
+      },
+      {
+        "name": "Root Partition",
+        "components": [
+          "Hyper-V Root"
+        ]
+      },
+      {
+        "name": "Child Partition",
+        "components": [
+          "Hyper-V Child"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": ""
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "KVM",
+      "hAFL2",
+      "Root Partition",
+      "Child Partition",
+      "VMSwitch",
+      "CrashMonitoring"
+    ],
+    "unique_to_GroundTruth": [
+      "Hyper-V (L1) - Host",
+      "vmswitch.sys",
+      "CrashMonitoring.sys",
+      "harness.sys"
+    ],
+    "unique_to_GeneratedImage": [
+      "Host Machine",
+      "kAFL Fuzzer",
+      "QEMU",
+      "Hyper-V Root",
+      "CrashMonitoringDriver",
+      "Hyper-V Child",
+      "CPHarness",
+      "Fuzzing Harness"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "KVM",
+        "target": "hAFL2",
+        "label": "",
+        "type": "dotted arrow"
+      },
+      {
+        "source": "hAFL2",
+        "target": "Hyper-V (L1) - Host",
+        "label": "",
+        "type": "dotted arrow"
+      },
+      {
+        "source": "Hyper-V (L1) - Host",
+        "target": "vmswitch.sys",
+        "label": "",
+        "type": "dotted arrow"
+      },
+      {
+        "source": "vmswitch.sys",
+        "target": "harness.sys",
+        "label": "",
+        "type": "solid arrow"
+      },
+      {
+        "source": "CrashMonitoring.sys",
+        "target": "KVM",
+        "label": "",
+        "type": "dotted arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "kAFL Fuzzer",
+        "target": "QEMU",
+        "label": "Execute Target",
+        "type": "solid arrow"
+      },
+      {
+        "source": "QEMU",
+        "target": "KVM",
+        "label": "Mutation Guidance",
+        "type": "dashed arrow"
+      },
+      {
+        "source": "Hyper-V Root",
+        "target": "VMSwitch",
+        "label": "RNDIS Packets",
+        "type": "solid arrow"
+      },
+      {
+        "source": "VMSwitch",
+        "target": "CrashMonitoringDriver",
+        "label": "Crash Reports",
+        "type": "solid arrow"
+      },
+      {
+        "source": "CrashMonitoringDriver",
+        "target": "Child Partition",
+        "label": "Nested Virtualization",
+        "type": "solid arrow"
+      }
+    ],
+    "explanation": "The two diagrams share several components such as KVM, hAFL2, Root Partition, Child Partition, VMSwitch, and CrashMonitoring, indicating a similar focus on virtualization and fuzzing. However, the GroundTruth diagram is more simplified, focusing on high-level components and their interactions within a nested virtualization environment. In contrast, the GeneratedImage provides a more detailed view, including components like QEMU and kAFL Fuzzer, and annotations that explain modifications for fuzzing support. Connectors in the GroundTruth are mostly dotted, indicating indirect or abstract interactions, while the GeneratedImage uses solid and dashed lines to show specific processes and data flows. The GeneratedImage is rated 8 out of 10 for its detailed depiction and additional context, although it introduces complexity that may not be necessary for all audiences.",
+    "Rating": 8
+  }
+}

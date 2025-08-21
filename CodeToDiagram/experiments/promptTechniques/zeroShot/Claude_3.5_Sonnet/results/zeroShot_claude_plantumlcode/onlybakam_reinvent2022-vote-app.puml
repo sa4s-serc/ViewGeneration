@@ -1,0 +1,36 @@
+@startuml
+
+participant "Next.js Frontend" as Frontend
+participant "AWS AppSync" as AppSync
+participant "DynamoDB" as DynamoDB
+participant "AWS SNS" as SNS
+participant "AWS Translate" as Translate
+
+Frontend -> AppSync: AddVote mutation
+activate AppSync
+
+AppSync -> SNS: publishToSNS
+activate SNS
+SNS --> AppSync: Confirmation
+deactivate SNS
+
+AppSync -> DynamoDB: saveToDynamodb
+activate DynamoDB
+DynamoDB --> AppSync: Confirmation
+deactivate DynamoDB
+
+AppSync -> Translate: translateMessage
+activate Translate
+Translate --> AppSync: Translated message
+deactivate Translate
+
+AppSync --> Frontend: Vote confirmation
+
+AppSync -> Frontend: OnPlusOne subscription update
+activate Frontend
+Frontend -> Frontend: Update vote count and timeline
+deactivate Frontend
+
+deactivate AppSync
+
+@enduml

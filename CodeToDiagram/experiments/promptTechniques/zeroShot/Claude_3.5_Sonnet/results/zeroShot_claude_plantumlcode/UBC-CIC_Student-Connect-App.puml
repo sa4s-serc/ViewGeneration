@@ -1,0 +1,43 @@
+@startuml
+participant "React Frontend" as Frontend
+participant "AWS AppSync" as AppSync
+participant "AWS Cognito" as Cognito
+participant "Lambda Functions" as Lambda
+participant "DynamoDB" as DynamoDB
+participant "Elasticsearch" as ES
+participant "S3 Data Lake" as S3
+
+Frontend -> Cognito: User authentication
+Cognito --> Frontend: Authentication token
+
+Frontend -> AppSync: GraphQL API request
+AppSync -> Lambda: Invoke Lambda function
+Lambda -> DynamoDB: Query/Update data
+DynamoDB --> Lambda: Return data
+Lambda --> AppSync: Return processed data
+AppSync --> Frontend: GraphQL API response
+
+Frontend -> Lambda: Trigger data aggregation
+Lambda -> "External Sources": Fetch data
+"External Sources" --> Lambda: Return raw data
+Lambda -> DynamoDB: Store processed data
+DynamoDB -> Lambda: Trigger DynamoDB Stream
+Lambda -> ES: Update Elasticsearch index
+
+Frontend -> Lambda: Search request
+Lambda -> ES: Query Elasticsearch
+ES --> Lambda: Return search results
+Lambda --> Frontend: Display search results
+
+Lambda -> S3: Archive data for long-term storage
+
+Frontend -> Lambda: Update user preferences
+Lambda -> DynamoDB: Store user preferences
+DynamoDB -> Lambda: Trigger DynamoDB Stream
+Lambda -> ES: Update user profile in Elasticsearch
+
+Frontend -> Lambda: Request personalized recommendations
+Lambda -> ES: Query based on user preferences
+ES --> Lambda: Return personalized content
+Lambda --> Frontend: Display recommendations
+@enduml

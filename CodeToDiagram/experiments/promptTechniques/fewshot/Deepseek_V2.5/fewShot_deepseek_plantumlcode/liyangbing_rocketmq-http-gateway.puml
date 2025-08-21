@@ -1,0 +1,57 @@
+@startuml liyangbing_rocketmq-http-gateway
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<transport>> #d9e7fd
+  BackgroundColor<<processor>> #d8f5d3
+  BackgroundColor<<common>> #fff1c9
+  BackgroundColor<<external>> #fddddd
+  Style roundrect
+}
+
+package "External Systems" <<external>> {
+  [HTTP Client] as HTTPClient
+  [RocketMQ] as RocketMQ
+}
+
+package "Transport Layer" <<transport>> {
+  [Netty Server] as Netty
+  [RequestDecoder] as Decoder
+  [RequestValidator] as Validator
+  [ResponseEncoder] as Encoder
+  [GatewayLoggingHandler] as Logger
+  Netty --> Decoder
+  Decoder --> Validator
+  Validator --> Encoder
+  Encoder --> Logger
+}
+
+package "Processor Layer" <<processor>> {
+  [ProduceMessageProcessor] as ProducerProc
+  [ProducerManager] as ProducerMgr
+  [ConsumerManager] as ConsumerMgr
+  [HttpMessageListenerConcurrently] as Listener
+  [HttpExecutor] as Executor
+  [SubscriptionChangeWatcher] as SubWatcher
+  ProducerProc --> ProducerMgr
+  ConsumerMgr --> Listener
+  Listener --> Executor
+  SubWatcher --> ProducerMgr
+  SubWatcher --> ConsumerMgr
+}
+
+package "Common Layer" <<common>> {
+  [Service] as Service
+  [HttpClients] as HttpClientFactory
+  [Subscription] as Subscription
+}
+
+HTTPClient --> Netty
+Netty --> ProducerProc
+ProducerProc --> RocketMQ
+RocketMQ --> Listener
+Listener --> HTTPClient
+
+ProducerMgr --> Service
+ConsumerMgr --> Service
+Executor --> HttpClientFactory
+@enduml

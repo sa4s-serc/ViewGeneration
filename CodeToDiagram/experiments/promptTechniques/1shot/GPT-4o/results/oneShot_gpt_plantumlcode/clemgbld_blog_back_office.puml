@@ -1,0 +1,53 @@
+```plantuml
+@startuml clemgbld_blog_back_office
+
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<ui>> #d8f5d3
+  BackgroundColor<<infrastructure>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Main Entry" {
+  rectangle "index.tsx" as Index
+  Index --> ReduxStore : "Setup"
+  Index --> "App Component" : "Render"
+}
+
+package "Core Application Logic" <<core>> {
+  rectangle "store.ts\n(Redux Store)" as ReduxStore
+  rectangle "articles\n(auth, emails)" as Articles
+  rectangle "selectors" as Selectors
+  rectangle "use cases" as UseCases
+  ReduxStore --> Articles
+  Articles --> Selectors
+  UseCases --> Articles
+}
+
+package "UI Components" <<ui>> {
+  rectangle "App.tsx" as App
+  rectangle "Reusable Components\n(Title, Input, Button, Modal, etc.)" as UIComponents
+  App --> UIComponents
+  App --> "Routing\n(using React Router)" : "Define Routes"
+}
+
+package "Infrastructure" <<infrastructure>> {
+  rectangle "API Services" as APIServices
+  rectangle "InMemory Services" as InMemory
+  rectangle "choose-app-mode.ts" as AppMode
+  Articles --> APIServices : "Ports"
+  Articles --> InMemory : "Ports"
+  AppMode --> App : "Configure"
+}
+
+package "Authentication & Session" {
+  rectangle "Authentication" as Auth
+  rectangle "Session\n(Local Storage)" as Session
+  Auth --> Session
+  Index --> Session : "Initial Login"
+  App --> Auth : "Protected Routes"
+}
+
+@enduml
+```

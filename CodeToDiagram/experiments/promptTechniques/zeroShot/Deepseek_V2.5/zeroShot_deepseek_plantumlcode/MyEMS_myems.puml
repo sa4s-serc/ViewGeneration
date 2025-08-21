@@ -1,0 +1,79 @@
+```plantuml
+@startuml MyEMS_myems
+
+package "MyEMS Energy Management System" {
+
+    [Web Browser] as Browser
+    [Mobile App] as Mobile
+
+    package "Frontend" {
+        [Admin UI] as AdminUI
+        [User UI] as UserUI
+    }
+
+    package "API Layer" {
+        [Falcon REST API] as API
+    }
+
+    package "Business Logic" {
+        [Data Acquisition] as DataAcquisition
+        [Data Cleaning] as DataCleaning
+        [Normalization] as Normalization
+        [Aggregation] as Aggregation
+        [Reporting] as Reporting
+        [Fault Detection] as FaultDetection
+        [Billing] as Billing
+        [User Management] as UserManagement
+    }
+
+    package "Data Storage" {
+        [System DB] as SystemDB
+        [Energy DB] as EnergyDB
+        [Billing DB] as BillingDB
+        [Historical DB] as HistoricalDB
+        [Carbon DB] as CarbonDB
+    }
+
+    package "External Systems" {
+        [IoT Devices] as IoT
+        [Modbus TCP] as Modbus
+        [Email/SMS] as Notification
+        [WeChat] as WeChat
+    }
+}
+
+Browser --> AdminUI : HTTP/HTTPS
+Browser --> UserUI : HTTP/HTTPS
+Mobile --> UserUI : HTTP/HTTPS
+
+AdminUI --> API : REST/JSON
+UserUI --> API : REST/JSON
+
+API --> DataAcquisition
+API --> DataCleaning
+API --> Normalization
+API --> Aggregation
+API --> Reporting
+API --> FaultDetection
+API --> Billing
+API --> UserManagement
+
+DataAcquisition --> IoT : MQTT
+DataAcquisition --> Modbus : Modbus TCP
+
+DataCleaning --> EnergyDB
+Normalization --> EnergyDB
+Aggregation --> EnergyDB
+Aggregation --> HistoricalDB
+Reporting --> EnergyDB
+Reporting --> HistoricalDB
+Reporting --> CarbonDB
+Billing --> BillingDB
+Billing --> EnergyDB
+UserManagement --> SystemDB
+
+FaultDetection --> Notification
+FaultDetection --> WeChat
+
+@enduml
+```

@@ -1,0 +1,38 @@
+```plantuml
+@startuml ndsev_zswag
+skinparam rectangle {
+  BackgroundColor<<server>> #d9e7fd
+  BackgroundColor<<client>> #d8f5d3
+  BackgroundColor<<http>> #fddddd
+  BackgroundColor<<tool>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Zswag Project" {
+  rectangle "OpenAPI Generation\n(zswag.gen)" <<tool>> as Gen
+  rectangle "Python Server\n(OAServer)" <<server>> as OAServer
+  rectangle "Python Client\n(OAClient)" <<client>> as PyClient
+  rectangle "C++ Client\n(OAClient)" <<client>> as CppClient
+  rectangle "HTTP Client Library\n(httpcl)" <<http>> as HttpCl
+
+  OAServer --> Gen
+  PyClient --> Gen
+  CppClient --> Gen
+  CppClient --> HttpCl
+}
+
+package "C++ Library" {
+  rectangle "zswagcl\n(Python Bindings)" <<client>> as ZswagCl
+  CppClient --> ZswagCl
+}
+
+package "Reflection Utilities" {
+  rectangle "Zserio Reflection\n(Reflect)" <<tool>> as Reflect
+  Gen --> Reflect
+  PyClient --> Reflect
+  CppClient --> Reflect
+}
+
+@enduml
+```

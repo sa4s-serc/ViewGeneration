@@ -1,0 +1,50 @@
+```plantuml
+@startuml ev2900_OpenSearch_Dashboard_Nginx_Proxy
+skinparam packageStyle rectangle
+skinparam componentStyle rectangle
+skinparam defaultTextAlignment center
+
+package "AWS Infrastructure" {
+  package "CloudFormation Template" {
+    component "VPC" as VPC
+    component "Subnets\n(Public & Private)" as Subnets
+    component "Internet Gateway" as IGW
+    component "Security Groups" as SG
+    component "OpenSearch Domain" as OpenSearch
+    component "IAM Role & Instance Profile" as IAMRole
+    component "EC2 Instance\n(Nginx Proxy)" as EC2
+    component "Elastic IP" as ElasticIP
+    component "Route Table" as RouteTable
+  }
+}
+
+package "Nginx Configuration" {
+  component "Nginx Config\n(ngnix_config)" as NginxConfig
+}
+
+package "Deployment & Config" {
+  component "README.md" as Readme
+  component "GitHub Actions\n(upload_s3.yml)" as GitHubActions
+  component "Architecture Diagram\n(ReadMe_Architecture.drawio)" as ArchitectureDiagram
+}
+
+VPC --> Subnets
+Subnets --> EC2
+EC2 --> OpenSearch
+IGW --> VPC
+SG --> EC2
+SG --> OpenSearch
+ElasticIP --> EC2
+RouteTable --> Subnets
+
+NginxConfig --> EC2
+
+GitHubActions --> CloudFormationTemplate
+Readme --> CloudFormationTemplate
+Readme --> NginxConfig
+
+ArchitectureDiagram --> CloudFormationTemplate
+ArchitectureDiagram --> NginxConfig
+
+@enduml
+```

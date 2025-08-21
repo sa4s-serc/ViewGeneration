@@ -1,0 +1,357 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Appian Oracle DB",
+        "description": "Database component in AWS Cloud",
+        "boundaries": "VPC",
+        "position": "Left"
+      },
+      {
+        "name": "AWS Lambda - create/delete topics",
+        "description": "Handles topic creation and deletion",
+        "boundaries": "Private subnet",
+        "position": "Top"
+      },
+      {
+        "name": "AWS Fargate - Kafka Connect Cluster",
+        "description": "Kafka Connect Cluster",
+        "boundaries": "Private subnet",
+        "position": "Middle"
+      },
+      {
+        "name": "CMS BigMAC",
+        "description": "Data storage and processing",
+        "boundaries": "None",
+        "position": "Right"
+      },
+      {
+        "name": "AWS EventBridge",
+        "description": "Event handling",
+        "boundaries": "None",
+        "position": "Bottom"
+      },
+      {
+        "name": "SNS Topic",
+        "description": "Alerts",
+        "boundaries": "None",
+        "position": "Bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Appian Oracle DB",
+        "target": "AWS Lambda - create/delete topics",
+        "label": "VPC peering connection",
+        "type": "Connection"
+      },
+      {
+        "source": "AWS Lambda - create/delete topics",
+        "target": "CMS BigMAC",
+        "label": "Data flow",
+        "type": "Data"
+      },
+      {
+        "source": "AWS EventBridge",
+        "target": "SNS Topic",
+        "label": "ECS Failure Events",
+        "type": "Event"
+      }
+    ],
+    "annotations": [
+      "Appian data is captured in real time by a JDBC connector.",
+      "Appian data topics are created using KafkaJS. Development branch topics are automatically deleted when no longer needed.",
+      "Appian data is sent to BigMAC and stored in the topics created by the topics service (above).",
+      "ECS Failure Events are matched by an EventBridge rule and sent to SNS for rotation fan out."
+    ],
+    "groups": [
+      {
+        "name": "AWS Cloud",
+        "description": "Cloud environment",
+        "components": [
+          "Appian Oracle DB",
+          "AWS Lambda - create/delete topics",
+          "AWS Fargate - Kafka Connect Cluster",
+          "CMS BigMAC",
+          "AWS EventBridge",
+          "SNS Topic"
+        ]
+      },
+      {
+        "name": "VPC",
+        "description": "Virtual Private Cloud",
+        "components": [
+          "Appian Oracle DB",
+          "AWS Lambda - create/delete topics",
+          "AWS Fargate - Kafka Connect Cluster"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "AWS Cloud Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Appian",
+        "description": "User or system initiating process",
+        "boundaries": "None",
+        "position": "Left"
+      },
+      {
+        "name": "Serverless Framework",
+        "description": "CI/CD tool",
+        "boundaries": "CI/CD",
+        "position": "Left"
+      },
+      {
+        "name": "GitHub Actions",
+        "description": "CI/CD tool",
+        "boundaries": "CI/CD",
+        "position": "Left"
+      },
+      {
+        "name": "Kafka Connector",
+        "description": "Handles data extraction, transformation, and streaming",
+        "boundaries": "None",
+        "position": "Center"
+      },
+      {
+        "name": "BigMAC",
+        "description": "Data storage and processing",
+        "boundaries": "None",
+        "position": "Right"
+      },
+      {
+        "name": "AWS Infrastructure",
+        "description": "AWS services",
+        "boundaries": "AWS Infrastructure",
+        "position": "Right"
+      },
+      {
+        "name": "Secrets Manager",
+        "description": "Manages secrets",
+        "boundaries": "AWS Infrastructure",
+        "position": "Right"
+      },
+      {
+        "name": "SSM Parameter Store",
+        "description": "Parameter storage",
+        "boundaries": "AWS Infrastructure",
+        "position": "Right"
+      },
+      {
+        "name": "IAM",
+        "description": "Identity and Access Management",
+        "boundaries": "AWS Infrastructure",
+        "position": "Right"
+      },
+      {
+        "name": "CloudWatch",
+        "description": "Monitoring service",
+        "boundaries": "AWS Infrastructure",
+        "position": "Right"
+      },
+      {
+        "name": "ECS",
+        "description": "Elastic Container Service",
+        "boundaries": "AWS Infrastructure",
+        "position": "Right"
+      },
+      {
+        "name": "SNS",
+        "description": "Simple Notification Service",
+        "boundaries": "AWS Infrastructure",
+        "position": "Right"
+      },
+      {
+        "name": "Security Hub",
+        "description": "Security monitoring",
+        "boundaries": "Monitoring",
+        "position": "Right"
+      },
+      {
+        "name": "DORA Metrics",
+        "description": "Performance metrics",
+        "boundaries": "Monitoring",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Appian",
+        "target": "Kafka Connector",
+        "label": "Data flow",
+        "type": "Data"
+      },
+      {
+        "source": "Serverless Framework",
+        "target": "AWS Infrastructure",
+        "label": "Deployment",
+        "type": "Process"
+      },
+      {
+        "source": "GitHub Actions",
+        "target": "AWS Infrastructure",
+        "label": "Deployment",
+        "type": "Process"
+      },
+      {
+        "source": "Kafka Connector",
+        "target": "BigMAC",
+        "label": "Data flow",
+        "type": "Data"
+      },
+      {
+        "source": "AWS Infrastructure",
+        "target": "SNS",
+        "label": "Notification",
+        "type": "Event"
+      },
+      {
+        "source": "SNS",
+        "target": "Security Hub",
+        "label": "Alert",
+        "type": "Event"
+      },
+      {
+        "source": "Security Hub",
+        "target": "DORA Metrics",
+        "label": "Metrics",
+        "type": "Data"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "CI/CD",
+        "description": "Continuous Integration and Deployment",
+        "components": [
+          "Serverless Framework",
+          "GitHub Actions"
+        ]
+      },
+      {
+        "name": "AWS Infrastructure",
+        "description": "AWS services",
+        "components": [
+          "Secrets Manager",
+          "SSM Parameter Store",
+          "IAM",
+          "CloudWatch",
+          "ECS",
+          "SNS"
+        ]
+      },
+      {
+        "name": "Monitoring",
+        "description": "Monitoring services",
+        "components": [
+          "Security Hub",
+          "DORA Metrics"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "AWS Architecture with CI/CD and Monitoring"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "BigMAC",
+      "SNS"
+    ],
+    "unique_to_GroundTruth": [
+      "Appian Oracle DB",
+      "AWS Lambda - create/delete topics",
+      "AWS Fargate - Kafka Connect Cluster",
+      "CMS BigMAC",
+      "AWS EventBridge"
+    ],
+    "unique_to_GeneratedImage": [
+      "Appian",
+      "Serverless Framework",
+      "GitHub Actions",
+      "Kafka Connector",
+      "AWS Infrastructure",
+      "Secrets Manager",
+      "SSM Parameter Store",
+      "IAM",
+      "CloudWatch",
+      "ECS",
+      "Security Hub",
+      "DORA Metrics"
+    ],
+    "common_connectors": [
+      {
+        "source": "SNS",
+        "target": "Security Hub",
+        "label": "Alert",
+        "type": "Event"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Appian Oracle DB",
+        "target": "AWS Lambda - create/delete topics",
+        "label": "VPC peering connection",
+        "type": "Connection"
+      },
+      {
+        "source": "AWS Lambda - create/delete topics",
+        "target": "CMS BigMAC",
+        "label": "Data flow",
+        "type": "Data"
+      },
+      {
+        "source": "AWS EventBridge",
+        "target": "SNS Topic",
+        "label": "ECS Failure Events",
+        "type": "Event"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Appian",
+        "target": "Kafka Connector",
+        "label": "Data flow",
+        "type": "Data"
+      },
+      {
+        "source": "Serverless Framework",
+        "target": "AWS Infrastructure",
+        "label": "Deployment",
+        "type": "Process"
+      },
+      {
+        "source": "GitHub Actions",
+        "target": "AWS Infrastructure",
+        "label": "Deployment",
+        "type": "Process"
+      },
+      {
+        "source": "Kafka Connector",
+        "target": "BigMAC",
+        "label": "Data flow",
+        "type": "Data"
+      },
+      {
+        "source": "AWS Infrastructure",
+        "target": "SNS",
+        "label": "Notification",
+        "type": "Event"
+      },
+      {
+        "source": "Security Hub",
+        "target": "DORA Metrics",
+        "label": "Metrics",
+        "type": "Data"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of AWS-based architectures. The GroundTruth diagram focuses on the flow of data from an Appian Oracle DB through AWS services like Lambda and Fargate to CMS BigMAC, with EventBridge handling ECS failure events. The GeneratedImage diagram emphasizes a CI/CD pipeline with Serverless Framework and GitHub Actions, and a broader AWS infrastructure including Secrets Manager, SSM Parameter Store, IAM, CloudWatch, and ECS. Both diagrams include BigMAC and SNS, but the GeneratedImage diagram extends to include monitoring with Security Hub and DORA Metrics. The GroundTruth diagram is more focused on specific AWS services and data flow, while the GeneratedImage diagram provides a more comprehensive view of infrastructure and monitoring. Rating: 7/10. The GeneratedImage diagram is well-structured and complete in its context, but it lacks some specific AWS services and data flow details present in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

@@ -1,0 +1,66 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "User"
+
+rectangle "ESP32" {
+  rectangle "Main Task" as Main
+  rectangle "WiFi/NTP Task" as Network
+  rectangle "Alarm Task" as Alarm
+  rectangle "Display Task" as Display
+  rectangle "Sound Task" as Sound
+  rectangle "Potentiometer Task" as Pot
+  rectangle "Button/Switch ISR" as ButtonISR
+}
+
+rectangle "External Components" {
+  rectangle "E-Paper Display" as EPD
+  rectangle "SD Card" as SD
+  rectangle "Speaker" as Speaker
+  rectangle "Potentiometers" as Pots
+  rectangle "Buttons/Switches" as Buttons
+}
+
+' Connections
+User --> Buttons
+Buttons --> ButtonISR
+
+Main --> Network : Initialize
+Main --> Alarm : Initialize
+Main --> Display : Initialize
+Main --> Sound : Initialize
+Main --> Pot : Initialize
+
+Network --> SD : Read config.json
+Network <--> "Internet" : WiFi/NTP
+
+Alarm --> Sound : Trigger sound
+Alarm --> Display : Update status
+Alarm --> ButtonISR : Get input
+
+Display --> EPD : Render
+Display <--> SD : Load assets
+
+Sound --> Speaker : Play audio
+Sound --> SD : Read audio files
+
+Pot --> Pots : Read values
+Pot --> SD : Save calibration
+Pot --> Alarm : Set time
+
+ButtonISR --> Alarm : Trigger events
+ButtonISR --> Display : Trigger events
+
+note right of Main
+  FreeRTOS Task
+end note
+
+note right of ButtonISR
+  Interrupt Service Routine
+end note
+@enduml

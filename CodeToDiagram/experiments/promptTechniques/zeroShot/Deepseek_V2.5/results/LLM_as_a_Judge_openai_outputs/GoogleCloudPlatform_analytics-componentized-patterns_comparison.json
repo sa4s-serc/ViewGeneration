@@ -1,0 +1,396 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Input",
+        "description": "Google merchandise sample dataSet",
+        "boundaries": "BigQuery",
+        "position": "left"
+      },
+      {
+        "name": "Feature eng.",
+        "description": "Feature selection bounces, timeOnSite, etc.",
+        "boundaries": "BigQuery",
+        "position": "center-left"
+      },
+      {
+        "name": "Model dev",
+        "description": "Create/Train a classifier",
+        "boundaries": "BigQuery",
+        "position": "center"
+      },
+      {
+        "name": "Model eval",
+        "description": "Desired accuracy",
+        "boundaries": "BigQuery",
+        "position": "center-right"
+      },
+      {
+        "name": "Model inference",
+        "description": "Batch prediction",
+        "boundaries": "BigQuery",
+        "position": "right"
+      },
+      {
+        "name": "Export model",
+        "description": "bq extract",
+        "boundaries": "BigQuery, Cloud Storage",
+        "position": "bottom-right"
+      },
+      {
+        "name": "Deploy model",
+        "description": "gcloud ai-platform versions create",
+        "boundaries": "Cloud AI Platform",
+        "position": "bottom-right"
+      },
+      {
+        "name": "Model inference",
+        "description": "Online prediction",
+        "boundaries": "Cloud AI Platform",
+        "position": "bottom-right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Input",
+        "target": "Feature eng.",
+        "label": "",
+        "type": "data flow"
+      },
+      {
+        "source": "Feature eng.",
+        "target": "Model dev",
+        "label": "",
+        "type": "data flow"
+      },
+      {
+        "source": "Model dev",
+        "target": "Model eval",
+        "label": "",
+        "type": "data flow"
+      },
+      {
+        "source": "Model eval",
+        "target": "Model inference",
+        "label": "",
+        "type": "data flow"
+      },
+      {
+        "source": "Export model",
+        "target": "Deploy model",
+        "label": "",
+        "type": "data flow"
+      },
+      {
+        "source": "Deploy model",
+        "target": "Model inference",
+        "label": "",
+        "type": "data flow"
+      }
+    ],
+    "annotations": [
+      "The solution does the following in a notebook: Develops a Kubeflow Pipelines (KFP) pipeline, Deploys the KFP to Cloud AI Platform Pipelines (hosted KFP), Conducts unit test each KFP component, Conducts integration test the pipeline in Cloud AI Platform Pipelines, Uses SDLC best practices (opinionated)"
+    ],
+    "groups": [
+      "Collect",
+      "Transform",
+      "Analyze"
+    ],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "Which customer is going to buy? (propensity to purchase)"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Kubeflow Pipelines (KFP)",
+        "description": "",
+        "boundaries": "",
+        "position": "left"
+      },
+      {
+        "name": "BigQuery ML",
+        "description": "",
+        "boundaries": "",
+        "position": "center-left"
+      },
+      {
+        "name": "Cloud Storage",
+        "description": "",
+        "boundaries": "",
+        "position": "center"
+      },
+      {
+        "name": "Vertex AI",
+        "description": "",
+        "boundaries": "",
+        "position": "center-right"
+      },
+      {
+        "name": "Custom ScaNN Service",
+        "description": "",
+        "boundaries": "",
+        "position": "right"
+      },
+      {
+        "name": "Data Studio",
+        "description": "",
+        "boundaries": "",
+        "position": "far-right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Kubeflow Pipelines (KFP)",
+        "label": "Triggers ML pipeline",
+        "type": "interaction"
+      },
+      {
+        "source": "Kubeflow Pipelines (KFP)",
+        "target": "BigQuery ML",
+        "label": "Execute data preparation SQL",
+        "type": "data flow"
+      },
+      {
+        "source": "BigQuery ML",
+        "target": "Kubeflow Pipelines (KFP)",
+        "label": "Prepared dataset",
+        "type": "data flow"
+      },
+      {
+        "source": "Kubeflow Pipelines (KFP)",
+        "target": "BigQuery ML",
+        "label": "Train model (MF/PMI)",
+        "type": "data flow"
+      },
+      {
+        "source": "BigQuery ML",
+        "target": "Kubeflow Pipelines (KFP)",
+        "label": "Trained model",
+        "type": "data flow"
+      },
+      {
+        "source": "Kubeflow Pipelines (KFP)",
+        "target": "Cloud Storage",
+        "label": "Export embeddings",
+        "type": "data flow"
+      },
+      {
+        "source": "Cloud Storage",
+        "target": "Vertex AI",
+        "label": "Store embeddings",
+        "type": "data flow"
+      },
+      {
+        "source": "Vertex AI",
+        "target": "Custom ScaNN Service",
+        "label": "Build index from embeddings",
+        "type": "data flow"
+      },
+      {
+        "source": "Custom ScaNN Service",
+        "target": "Vertex AI",
+        "label": "Index built",
+        "type": "data flow"
+      },
+      {
+        "source": "Vertex AI",
+        "target": "Kubeflow Pipelines (KFP)",
+        "label": "Deploy model",
+        "type": "data flow"
+      },
+      {
+        "source": "Kubeflow Pipelines (KFP)",
+        "target": "Vertex AI",
+        "label": "Model deployed",
+        "type": "data flow"
+      },
+      {
+        "source": "User",
+        "target": "Kubeflow Pipelines (KFP)",
+        "label": "Real-time recommendation request",
+        "type": "interaction"
+      },
+      {
+        "source": "Kubeflow Pipelines (KFP)",
+        "target": "Custom ScaNN Service",
+        "label": "Embedding lookup",
+        "type": "data flow"
+      },
+      {
+        "source": "Custom ScaNN Service",
+        "target": "Kubeflow Pipelines (KFP)",
+        "label": "Embedding results",
+        "type": "data flow"
+      },
+      {
+        "source": "User",
+        "target": "Data Studio",
+        "label": "View analytics",
+        "type": "interaction"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": ""
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Kubeflow Pipelines (KFP)",
+      "BigQuery ML",
+      "Cloud Storage"
+    ],
+    "unique_to_GroundTruth": [
+      "Input",
+      "Feature eng.",
+      "Model dev",
+      "Model eval",
+      "Model inference",
+      "Export model",
+      "Deploy model"
+    ],
+    "unique_to_GeneratedImage": [
+      "Vertex AI",
+      "Custom ScaNN Service",
+      "Data Studio"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Input",
+        "target": "Feature eng.",
+        "label": "",
+        "type": "data flow"
+      },
+      {
+        "source": "Feature eng.",
+        "target": "Model dev",
+        "label": "",
+        "type": "data flow"
+      },
+      {
+        "source": "Model dev",
+        "target": "Model eval",
+        "label": "",
+        "type": "data flow"
+      },
+      {
+        "source": "Model eval",
+        "target": "Model inference",
+        "label": "",
+        "type": "data flow"
+      },
+      {
+        "source": "Export model",
+        "target": "Deploy model",
+        "label": "",
+        "type": "data flow"
+      },
+      {
+        "source": "Deploy model",
+        "target": "Model inference",
+        "label": "",
+        "type": "data flow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "Kubeflow Pipelines (KFP)",
+        "label": "Triggers ML pipeline",
+        "type": "interaction"
+      },
+      {
+        "source": "Kubeflow Pipelines (KFP)",
+        "target": "BigQuery ML",
+        "label": "Execute data preparation SQL",
+        "type": "data flow"
+      },
+      {
+        "source": "BigQuery ML",
+        "target": "Kubeflow Pipelines (KFP)",
+        "label": "Prepared dataset",
+        "type": "data flow"
+      },
+      {
+        "source": "Kubeflow Pipelines (KFP)",
+        "target": "BigQuery ML",
+        "label": "Train model (MF/PMI)",
+        "type": "data flow"
+      },
+      {
+        "source": "BigQuery ML",
+        "target": "Kubeflow Pipelines (KFP)",
+        "label": "Trained model",
+        "type": "data flow"
+      },
+      {
+        "source": "Kubeflow Pipelines (KFP)",
+        "target": "Cloud Storage",
+        "label": "Export embeddings",
+        "type": "data flow"
+      },
+      {
+        "source": "Cloud Storage",
+        "target": "Vertex AI",
+        "label": "Store embeddings",
+        "type": "data flow"
+      },
+      {
+        "source": "Vertex AI",
+        "target": "Custom ScaNN Service",
+        "label": "Build index from embeddings",
+        "type": "data flow"
+      },
+      {
+        "source": "Custom ScaNN Service",
+        "target": "Vertex AI",
+        "label": "Index built",
+        "type": "data flow"
+      },
+      {
+        "source": "Vertex AI",
+        "target": "Kubeflow Pipelines (KFP)",
+        "label": "Deploy model",
+        "type": "data flow"
+      },
+      {
+        "source": "Kubeflow Pipelines (KFP)",
+        "target": "Vertex AI",
+        "label": "Model deployed",
+        "type": "data flow"
+      },
+      {
+        "source": "User",
+        "target": "Kubeflow Pipelines (KFP)",
+        "label": "Real-time recommendation request",
+        "type": "interaction"
+      },
+      {
+        "source": "Kubeflow Pipelines (KFP)",
+        "target": "Custom ScaNN Service",
+        "label": "Embedding lookup",
+        "type": "data flow"
+      },
+      {
+        "source": "Custom ScaNN Service",
+        "target": "Kubeflow Pipelines (KFP)",
+        "label": "Embedding results",
+        "type": "data flow"
+      },
+      {
+        "source": "User",
+        "target": "Data Studio",
+        "label": "View analytics",
+        "type": "interaction"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on a pipeline for predicting customer purchase propensity using Google Cloud services like BigQuery and Cloud AI Platform. It emphasizes stages like feature engineering, model development, evaluation, and deployment. The GeneratedImage diagram illustrates a more complex ML pipeline involving Kubeflow, BigQuery ML, and additional services like Vertex AI and a custom ScaNN service. It includes user interactions and a recommendation system. Common elements include the use of Kubeflow and BigQuery, but the GeneratedImage diagram introduces new components and interactions, reflecting a broader scope. The GroundTruth diagram is more linear and focused, while the GeneratedImage diagram is more detailed and layered. Rating: 7/10. The GeneratedImage diagram is accurate in depicting a complex ML pipeline but diverges in scope and detail from the GroundTruth, which is more focused on a specific use case.",
+    "Rating": 7
+  }
+}

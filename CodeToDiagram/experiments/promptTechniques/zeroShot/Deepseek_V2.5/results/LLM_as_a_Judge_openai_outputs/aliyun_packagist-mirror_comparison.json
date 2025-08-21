@@ -1,0 +1,352 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Supervisor",
+        "description": "Manages coroutines",
+        "boundary": "box",
+        "position": "top"
+      },
+      {
+        "name": "Heart Beat Detection",
+        "description": "Monitors system health",
+        "boundary": "box",
+        "position": "below Supervisor"
+      },
+      {
+        "name": "Providers Queue",
+        "description": "Handles provider tasks",
+        "boundary": "box",
+        "position": "below Heart Beat Detection"
+      },
+      {
+        "name": "Packages Queue",
+        "description": "Handles package tasks",
+        "boundary": "box",
+        "position": "below Providers Queue"
+      },
+      {
+        "name": "Dists Queue",
+        "description": "Handles distribution tasks",
+        "boundary": "box",
+        "position": "below Packages Queue"
+      },
+      {
+        "name": "OSS",
+        "description": "Object Storage Service",
+        "boundary": "icon",
+        "position": "right"
+      },
+      {
+        "name": "CDN",
+        "description": "Content Delivery Network",
+        "boundary": "icon",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Dists Queue",
+        "target": "OSS",
+        "label": "Data Transfer",
+        "type": "arrow"
+      },
+      {
+        "source": "OSS",
+        "target": "CDN",
+        "label": "Data Delivery",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Architecture",
+        "components": [
+          "Supervisor",
+          "Heart Beat Detection",
+          "Providers Queue",
+          "Packages Queue",
+          "Dists Queue"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "architecture_diagram_1.png",
+      "title": "Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "aliyun_packagist-mirror",
+        "description": "Main system component",
+        "boundary": "box",
+        "position": "top"
+      },
+      {
+        "name": "Synchronization Workers",
+        "description": "Handles synchronization tasks",
+        "boundary": "box",
+        "position": "inside aliyun_packagist-mirror"
+      },
+      {
+        "name": "Provider Sync",
+        "description": "Syncs provider data",
+        "boundary": "box",
+        "position": "inside Synchronization Workers"
+      },
+      {
+        "name": "Package V1 Sync",
+        "description": "Syncs V1 packages",
+        "boundary": "box",
+        "position": "inside Synchronization Workers"
+      },
+      {
+        "name": "Package V2 Sync",
+        "description": "Syncs V2 packages",
+        "boundary": "box",
+        "position": "inside Synchronization Workers"
+      },
+      {
+        "name": "Distribution Sync",
+        "description": "Syncs distributions",
+        "boundary": "box",
+        "position": "inside Synchronization Workers"
+      },
+      {
+        "name": "Composer.phar Sync",
+        "description": "Syncs Composer.phar",
+        "boundary": "box",
+        "position": "inside Synchronization Workers"
+      },
+      {
+        "name": "Main Application",
+        "description": "Central application logic",
+        "boundary": "box",
+        "position": "below Synchronization Workers"
+      },
+      {
+        "name": "Packagist API Client",
+        "description": "Interacts with Packagist",
+        "boundary": "box",
+        "position": "left"
+      },
+      {
+        "name": "Redis Cache",
+        "description": "Caches data",
+        "boundary": "box",
+        "position": "below Packagist API Client"
+      },
+      {
+        "name": "Alibaba Cloud OSS",
+        "description": "Object Storage Service",
+        "boundary": "box",
+        "position": "below Main Application"
+      },
+      {
+        "name": "Alibaba Cloud CDN",
+        "description": "Content Delivery Network",
+        "boundary": "box",
+        "position": "below Alibaba Cloud OSS"
+      },
+      {
+        "name": "GitHub API Client",
+        "description": "Interacts with GitHub",
+        "boundary": "box",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Packagist.org",
+        "target": "Packagist API Client",
+        "label": "Provides metadata",
+        "type": "arrow"
+      },
+      {
+        "source": "Synchronization Workers",
+        "target": "Packagist API Client",
+        "label": "Uses queues",
+        "type": "arrow"
+      },
+      {
+        "source": "Synchronization Workers",
+        "target": "Redis Cache",
+        "label": "Caches status/queues",
+        "type": "arrow"
+      },
+      {
+        "source": "Main Application",
+        "target": "Alibaba Cloud OSS",
+        "label": "Stores packages/metadata",
+        "type": "arrow"
+      },
+      {
+        "source": "Alibaba Cloud OSS",
+        "target": "Alibaba Cloud CDN",
+        "label": "Serves cached content",
+        "type": "arrow"
+      },
+      {
+        "source": "GitHub",
+        "target": "GitHub API Client",
+        "label": "Provides packages",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Synchronization Workers",
+        "components": [
+          "Provider Sync",
+          "Package V1 Sync",
+          "Package V2 Sync",
+          "Distribution Sync",
+          "Composer.phar Sync"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "architecture_diagram_2.png",
+      "title": "aliyun_packagist-mirror"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      {
+        "name": "OSS",
+        "description": "Object Storage Service"
+      },
+      {
+        "name": "CDN",
+        "description": "Content Delivery Network"
+      }
+    ],
+    "unique_to_GroundTruth": [
+      {
+        "name": "Supervisor",
+        "description": "Manages coroutines"
+      },
+      {
+        "name": "Heart Beat Detection",
+        "description": "Monitors system health"
+      },
+      {
+        "name": "Providers Queue",
+        "description": "Handles provider tasks"
+      },
+      {
+        "name": "Packages Queue",
+        "description": "Handles package tasks"
+      },
+      {
+        "name": "Dists Queue",
+        "description": "Handles distribution tasks"
+      }
+    ],
+    "unique_to_GeneratedImage": [
+      {
+        "name": "aliyun_packagist-mirror",
+        "description": "Main system component"
+      },
+      {
+        "name": "Synchronization Workers",
+        "description": "Handles synchronization tasks"
+      },
+      {
+        "name": "Provider Sync",
+        "description": "Syncs provider data"
+      },
+      {
+        "name": "Package V1 Sync",
+        "description": "Syncs V1 packages"
+      },
+      {
+        "name": "Package V2 Sync",
+        "description": "Syncs V2 packages"
+      },
+      {
+        "name": "Distribution Sync",
+        "description": "Syncs distributions"
+      },
+      {
+        "name": "Composer.phar Sync",
+        "description": "Syncs Composer.phar"
+      },
+      {
+        "name": "Main Application",
+        "description": "Central application logic"
+      },
+      {
+        "name": "Packagist API Client",
+        "description": "Interacts with Packagist"
+      },
+      {
+        "name": "Redis Cache",
+        "description": "Caches data"
+      },
+      {
+        "name": "GitHub API Client",
+        "description": "Interacts with GitHub"
+      }
+    ],
+    "common_connectors": [
+      {
+        "source": "OSS",
+        "target": "CDN",
+        "label": "Data Delivery",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Dists Queue",
+        "target": "OSS",
+        "label": "Data Transfer",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Packagist.org",
+        "target": "Packagist API Client",
+        "label": "Provides metadata",
+        "type": "arrow"
+      },
+      {
+        "source": "Synchronization Workers",
+        "target": "Packagist API Client",
+        "label": "Uses queues",
+        "type": "arrow"
+      },
+      {
+        "source": "Synchronization Workers",
+        "target": "Redis Cache",
+        "label": "Caches status/queues",
+        "type": "arrow"
+      },
+      {
+        "source": "Main Application",
+        "target": "Alibaba Cloud OSS",
+        "label": "Stores packages/metadata",
+        "type": "arrow"
+      },
+      {
+        "source": "Alibaba Cloud OSS",
+        "target": "Alibaba Cloud CDN",
+        "label": "Serves cached content",
+        "type": "arrow"
+      },
+      {
+        "source": "GitHub",
+        "target": "GitHub API Client",
+        "label": "Provides packages",
+        "type": "arrow"
+      }
+    ],
+    "explanation": "The two diagrams represent different architectural designs. The GroundTruth diagram focuses on a queue-based architecture with components like Supervisor and various queues (Providers, Packages, Dists) that manage tasks. It highlights a simple flow from Dists Queue to OSS and then to CDN. In contrast, the GeneratedImage diagram represents a more complex system with synchronization workers and API clients interacting with external services like Packagist and GitHub. Both diagrams include OSS and CDN components, indicating a shared use of storage and delivery services. However, the GeneratedImage diagram provides a more detailed view of interactions and data flows, including the use of Redis Cache and various synchronization tasks. The GroundTruth diagram is simpler and more focused on task management within queues. Overall, the GeneratedImage diagram is more comprehensive, reflecting a broader scope of system interactions. Rating: 8/10. The GeneratedImage diagram is detailed and well-structured, capturing a complex system with various interactions, but it lacks some of the simplicity and directness of the GroundTruth diagram.",
+    "Rating": 8
+  }
+}

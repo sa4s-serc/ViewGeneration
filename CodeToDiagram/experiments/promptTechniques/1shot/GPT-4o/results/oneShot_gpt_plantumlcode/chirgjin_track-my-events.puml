@@ -1,0 +1,41 @@
+```plantuml
+@startuml chirgjin_track-my-events
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Frontend (React)" as FE {
+}
+
+rectangle "Gateway Service" as Gateway #lightyellow
+
+rectangle "User Service" as UserService #lightsteelblue
+
+rectangle "Tracking Service" as TrackingService #palegreen {
+  rectangle "Redis Pub/Sub" as Redis #aliceblue
+  rectangle "PostgreSQL" as PostgreSQL #mistyrose
+}
+
+' ========== Connections ==========
+User --> FE
+
+' Frontend interactions
+FE --> Gateway : User actions\n(register, login, dashboard)
+Gateway --> UserService : User management\nAPI requests
+Gateway --> TrackingService : Event data\nAPI requests
+
+' Gateway to User Service interactions
+UserService --> Gateway : Authentication response
+
+' Gateway to Tracking Service interactions
+TrackingService --> Redis : Publish events
+Redis --> TrackingService : Subscribe to events
+TrackingService --> PostgreSQL : Store processed event data
+
+@enduml
+```

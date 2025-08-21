@@ -1,0 +1,330 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "UI",
+        "description": "User Interface",
+        "boundaries": "N/A",
+        "position": "Left"
+      },
+      {
+        "name": "LeaderboardApi",
+        "description": "API Gateway",
+        "boundaries": "N/A",
+        "position": "Center"
+      },
+      {
+        "name": "GetLeaderboard",
+        "description": "Lambda Function",
+        "boundaries": "N/A",
+        "position": "Right"
+      },
+      {
+        "name": "TweetProcessor",
+        "description": "Lambda Function",
+        "boundaries": "N/A",
+        "position": "Right"
+      },
+      {
+        "name": "Leaderboard",
+        "description": "DynamoDB",
+        "boundaries": "Dashed Box",
+        "position": "Right"
+      },
+      {
+        "name": "aws-serverless-twitter-event-source",
+        "description": "Event Source",
+        "boundaries": "N/A",
+        "position": "Left"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "UI",
+        "target": "LeaderboardApi",
+        "label": "GET /leaderboard",
+        "type": "HTTP"
+      },
+      {
+        "source": "LeaderboardApi",
+        "target": "GetLeaderboard",
+        "label": "invokes",
+        "type": "Lambda Invocation"
+      },
+      {
+        "source": "GetLeaderboard",
+        "target": "Leaderboard",
+        "label": "reads from",
+        "type": "Database Read"
+      },
+      {
+        "source": "TweetProcessor",
+        "target": "Leaderboard",
+        "label": "writes to",
+        "type": "Database Write"
+      },
+      {
+        "source": "aws-serverless-twitter-event-source",
+        "target": "TweetProcessor",
+        "label": "invokes",
+        "type": "Lambda Invocation"
+      }
+    ],
+    "annotations": [
+      "retweet-leaderboard"
+    ],
+    "groups": [
+      {
+        "name": "Leaderboard System",
+        "components": [
+          "GetLeaderboard",
+          "Leaderboard",
+          "TweetProcessor"
+        ],
+        "boundaries": "Dashed Box"
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "AWS Serverless Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Twitter Event Source",
+        "description": "Event Source",
+        "boundaries": "N/A",
+        "position": "Left"
+      },
+      {
+        "name": "TweetProcessorHandler",
+        "description": "Handler for Tweet Processing",
+        "boundaries": "N/A",
+        "position": "Center"
+      },
+      {
+        "name": "TweetProcessor",
+        "description": "Processes Tweets",
+        "boundaries": "N/A",
+        "position": "Center"
+      },
+      {
+        "name": "Tweet",
+        "description": "Tweet Object",
+        "boundaries": "N/A",
+        "position": "Center"
+      },
+      {
+        "name": "Leaderboard",
+        "description": "Stores Leaderboard Data",
+        "boundaries": "N/A",
+        "position": "Center"
+      },
+      {
+        "name": "DynamoDB",
+        "description": "Database",
+        "boundaries": "N/A",
+        "position": "Right"
+      },
+      {
+        "name": "API Gateway",
+        "description": "API Gateway",
+        "boundaries": "N/A",
+        "position": "Right"
+      },
+      {
+        "name": "GetLeaderboardHandler",
+        "description": "Handles Leaderboard Retrieval",
+        "boundaries": "N/A",
+        "position": "Right"
+      },
+      {
+        "name": "Client",
+        "description": "Client Interface",
+        "boundaries": "N/A",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Twitter Event Source",
+        "target": "TweetProcessorHandler",
+        "label": "Invoke with tweet JSON",
+        "type": "Invocation"
+      },
+      {
+        "source": "TweetProcessorHandler",
+        "target": "TweetProcessor",
+        "label": "processTweet(tweetJson)",
+        "type": "Function Call"
+      },
+      {
+        "source": "TweetProcessor",
+        "target": "Tweet",
+        "label": "parse(tweetJson)",
+        "type": "Function Call"
+      },
+      {
+        "source": "TweetProcessor",
+        "target": "Leaderboard",
+        "label": "updateLeaderboard(retweetCount)",
+        "type": "Function Call"
+      },
+      {
+        "source": "Leaderboard",
+        "target": "DynamoDB",
+        "label": "getItem(username)",
+        "type": "Database Read"
+      },
+      {
+        "source": "Leaderboard",
+        "target": "DynamoDB",
+        "label": "putItem(updatedRecord)",
+        "type": "Database Write"
+      },
+      {
+        "source": "Client",
+        "target": "API Gateway",
+        "label": "GET /leaderboard",
+        "type": "HTTP"
+      },
+      {
+        "source": "API Gateway",
+        "target": "GetLeaderboardHandler",
+        "label": "Invoke",
+        "type": "Invocation"
+      }
+    ],
+    "annotations": [
+      "Lambda execution complete",
+      "Processing complete",
+      "Update confirmation",
+      "JSON response"
+    ],
+    "groups": [
+      {
+        "name": "Tweet Processing",
+        "components": [
+          "TweetProcessorHandler",
+          "TweetProcessor",
+          "Tweet"
+        ],
+        "boundaries": "N/A"
+      },
+      {
+        "name": "Leaderboard Management",
+        "components": [
+          "Leaderboard",
+          "DynamoDB"
+        ],
+        "boundaries": "N/A"
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": "Tweet Processing Sequence"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "TweetProcessor",
+      "Leaderboard",
+      "API Gateway",
+      "DynamoDB"
+    ],
+    "unique_to_GroundTruth": [
+      "UI",
+      "LeaderboardApi",
+      "GetLeaderboard",
+      "aws-serverless-twitter-event-source"
+    ],
+    "unique_to_GeneratedImage": [
+      "Twitter Event Source",
+      "TweetProcessorHandler",
+      "Tweet",
+      "GetLeaderboardHandler",
+      "Client"
+    ],
+    "common_connectors": [
+      {
+        "source": "Client",
+        "target": "API Gateway",
+        "label": "GET /leaderboard",
+        "type": "HTTP"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "LeaderboardApi",
+        "target": "GetLeaderboard",
+        "label": "invokes",
+        "type": "Lambda Invocation"
+      },
+      {
+        "source": "GetLeaderboard",
+        "target": "Leaderboard",
+        "label": "reads from",
+        "type": "Database Read"
+      },
+      {
+        "source": "TweetProcessor",
+        "target": "Leaderboard",
+        "label": "writes to",
+        "type": "Database Write"
+      },
+      {
+        "source": "aws-serverless-twitter-event-source",
+        "target": "TweetProcessor",
+        "label": "invokes",
+        "type": "Lambda Invocation"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Twitter Event Source",
+        "target": "TweetProcessorHandler",
+        "label": "Invoke with tweet JSON",
+        "type": "Invocation"
+      },
+      {
+        "source": "TweetProcessorHandler",
+        "target": "TweetProcessor",
+        "label": "processTweet(tweetJson)",
+        "type": "Function Call"
+      },
+      {
+        "source": "TweetProcessor",
+        "target": "Tweet",
+        "label": "parse(tweetJson)",
+        "type": "Function Call"
+      },
+      {
+        "source": "TweetProcessor",
+        "target": "Leaderboard",
+        "label": "updateLeaderboard(retweetCount)",
+        "type": "Function Call"
+      },
+      {
+        "source": "Leaderboard",
+        "target": "DynamoDB",
+        "label": "getItem(username)",
+        "type": "Database Read"
+      },
+      {
+        "source": "Leaderboard",
+        "target": "DynamoDB",
+        "label": "putItem(updatedRecord)",
+        "type": "Database Write"
+      },
+      {
+        "source": "API Gateway",
+        "target": "GetLeaderboardHandler",
+        "label": "Invoke",
+        "type": "Invocation"
+      }
+    ],
+    "explanation": "The GroundTruth diagram represents a high-level architecture of a serverless application using AWS services, focusing on components like API Gateway, Lambda functions, and DynamoDB. The GeneratedImage diagram is a sequence diagram detailing the flow of data and function calls in a tweet processing system. Both diagrams share components like TweetProcessor, Leaderboard, API Gateway, and DynamoDB, indicating a similar underlying system. However, the GroundTruth diagram includes components like UI and aws-serverless-twitter-event-source, which are not present in the GeneratedImage. Conversely, the GeneratedImage includes detailed components like TweetProcessorHandler and Tweet, which are not in the GroundTruth. The connectors in the GroundTruth focus on service interactions, while the GeneratedImage details function calls and data processing steps. The GeneratedImage provides a more detailed view of the tweet processing logic but lacks some high-level architectural elements present in the GroundTruth. Rating: 7. The GeneratedImage is accurate in detailing the process flow but misses some architectural components and interactions present in the GroundTruth.",
+    "Rating": 7
+  }
+}

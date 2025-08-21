@@ -1,0 +1,54 @@
+@startuml takoko55_LectureLens
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<db>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend (React)" <<frontend>> {
+  rectangle "App.jsx" as App
+  rectangle "SyllabusSearch.jsx" as Search
+  rectangle "GlassCard.jsx" as Card
+  rectangle "LecturePage.jsx" as Lecture
+  rectangle "ReviewItem.jsx" as ReviewItem
+  rectangle "ReviewPost.jsx" as ReviewPost
+  rectangle "Auth.jsx" as Auth
+  rectangle "React Query Hooks" as QueryHooks
+  rectangle "Zustand Store" as Zustand
+
+  App --> Search
+  App --> Lecture
+  App --> Auth
+  Search --> Card
+  Lecture --> ReviewItem
+  Lecture --> ReviewPost
+  ReviewPost --> QueryHooks
+  QueryHooks --> Zustand
+}
+
+package "Backend (Go)" <<backend>> {
+  rectangle "main.go" as Main
+  rectangle "router.go" as Router
+  rectangle "Controllers" as Controllers
+  rectangle "Usecases" as Usecases
+  rectangle "Repositories" as Repos
+  rectangle "Models" as Models
+  rectangle "db.go" as DBConn
+  rectangle "migrate.go" as Migrate
+
+  Main --> Router
+  Router --> Controllers
+  Controllers --> Usecases
+  Usecases --> Repos
+  Repos --> Models
+  DBConn --> Models
+  Migrate --> DBConn
+}
+
+database "PostgreSQL" <<db>> as DB
+Repos --> DB
+
+Frontend --> Backend : REST API
+@enduml

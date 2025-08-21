@@ -1,0 +1,37 @@
+```plantuml
+@startuml eProsima_Integration-Service
+
+actor Client
+participant "JSON Library" as JSON
+participant "Integration Service" as IS
+participant "System Handle" as SH
+
+Client -> IS: Send Request
+activate IS
+
+IS -> JSON: Parse JSON (from Client)
+activate JSON
+JSON -> JSON: Lexical Analysis
+JSON -> JSON: Syntax Analysis
+JSON -> IS: Return Parsed Data
+deactivate JSON
+
+IS -> SH: Route Message
+activate SH
+
+SH -> SH: Convert Data
+SH -> SH: Communicate with Middleware
+SH -> IS: Return Response
+deactivate SH
+
+IS -> JSON: Serialize Response
+activate JSON
+JSON -> JSON: Serialization
+JSON -> IS: Return Serialized JSON
+deactivate JSON
+
+IS -> Client: Send Response
+deactivate IS
+
+@enduml
+```

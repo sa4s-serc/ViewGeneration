@@ -1,0 +1,39 @@
+```plantuml
+@startuml onlybakam_reinvent2022-vote-app
+
+actor User
+participant "Next.js Frontend" as Frontend
+participant "AWS AppSync (GraphQL)" as AppSync
+participant "DynamoDB" as DynamoDB
+participant "SNS" as SNS
+participant "AWS Translate" as Translate
+
+User -> Frontend: Selects team (BR/CM) and message
+Frontend -> AppSync: AddVote mutation
+activate AppSync
+
+AppSync -> DynamoDB: Save vote data
+activate DynamoDB
+DynamoDB --> AppSync: Vote saved
+deactivate DynamoDB
+
+AppSync -> SNS: Publish vote event
+activate SNS
+SNS --> AppSync: Event published
+deactivate SNS
+
+AppSync -> Translate: Translate message
+activate Translate
+Translate --> AppSync: Translated message
+deactivate Translate
+
+AppSync --> Frontend: Vote confirmation
+deactivate AppSync
+
+Frontend -> AppSync: Subscribe to OnPlusOne
+activate AppSync
+AppSync -> Frontend: Real-time vote updates
+deactivate AppSync
+
+@enduml
+```

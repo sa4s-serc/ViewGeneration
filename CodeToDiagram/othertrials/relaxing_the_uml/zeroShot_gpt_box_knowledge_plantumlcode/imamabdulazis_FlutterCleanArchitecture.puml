@@ -1,0 +1,66 @@
+@startuml
+package "FlutterCleanArchitecture" {
+  
+  package "Core Layer" {
+    component "Networking" {
+      [HTTP Client]
+      [HTTP Retrier]
+    }
+    component "Device-Specific"
+    component "Error Handling" {
+      [Failure]
+      [Exception]
+      [Sentry Exceptions]
+    }
+  }
+
+  package "Data Layer" {
+    component "Data Sources" {
+      [Remote API]
+      [Local Cache]
+    }
+    component "Models"
+    component "Repositories" {
+      [User Repository]
+      [App Repository]
+    }
+  }
+
+  package "Domain Layer" {
+    component "Entities"
+    component "Use Cases" {
+      [CheckBindStatusUseCase]
+      [LoginUseCase]
+      [GetPreferredLanguageUseCase]
+      [UpdateLanguageUseCase]
+    }
+    component "Repository Interfaces"
+  }
+
+  package "Presentation Layer" {
+    component "UI Components"
+    component "Screens"
+    component "BLoCs"
+  }
+
+  [Main.dart] --> "Initializes" [MyApp]
+  [MyApp] --> "Uses" [GetMaterialApp]
+  [GetMaterialApp] --> "Manages" [Routes]
+
+  [Data Sources] --> "Fetches Data" [Repositories]
+  [Repositories] --> "Implements" [Repository Interfaces]
+  [Use Cases] --> "Interact with" [Repositories]
+
+  [BLoCs] --> "Manage State" [UI Components]
+  [UI Components] --> "Rendered on" [Screens]
+
+  [Error Handling] --> "Reports" [Sentry]
+  [Networking] --> "Handles" [Retry Mechanism]
+
+  [Device-Specific] --> "Handles" [Push Notifications]
+
+  [Localization] --> "Supports" [Multi-language]
+  [Shared Preferences] --> "Stores" [User Data]
+  [Dependency Injection] --> "Facilitates" [Loose Coupling]
+}
+@enduml

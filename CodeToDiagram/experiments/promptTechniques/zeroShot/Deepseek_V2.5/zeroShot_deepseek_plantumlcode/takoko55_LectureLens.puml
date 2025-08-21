@@ -1,0 +1,59 @@
+Here's the PlantUML component diagram for LectureLens focusing on the general architectural view:
+
+```plantuml
+@startuml takoko55_LectureLens
+
+package "Frontend (React)" {
+  [App.jsx] as App
+  [SyllabusSearch.jsx] as Search
+  [GlassCard.jsx] as Card
+  [LecturePage.jsx] as Lecture
+  [ReviewItem.jsx] as ReviewItem
+  [Auth.jsx] as Auth
+  [ReviewPost.jsx] as ReviewPost
+  [useQueryReviews.jsx] as QueryHooks
+  [useMutateReview.jsx] as MutationHooks
+  [Zustand Store] as Store
+}
+
+package "Backend (Go)" {
+  [main.go] as Main
+  [router.go] as Router
+  [controller] as Controller
+  [usecase] as Usecase
+  [repository] as Repository
+  [model] as Model
+  [db.go] as DB
+  [migrate.go] as Migrate
+}
+
+database "PostgreSQL" as Postgres {
+  [Users]
+  [Lectures]
+  [Reviews]
+}
+
+App --> Search
+App --> Lecture
+App --> Auth
+Search --> Card
+Lecture --> ReviewItem
+Lecture --> ReviewPost
+ReviewPost --> QueryHooks
+ReviewPost --> MutationHooks
+QueryHooks --> Store
+MutationHooks --> Store
+
+Router --> Controller
+Controller --> Usecase
+Usecase --> Repository
+Repository --> Model
+Model --> DB
+DB --> Postgres
+Migrate --> Postgres
+
+Frontend -> Backend : REST API
+Backend -> Postgres : SQL
+
+@enduml
+```

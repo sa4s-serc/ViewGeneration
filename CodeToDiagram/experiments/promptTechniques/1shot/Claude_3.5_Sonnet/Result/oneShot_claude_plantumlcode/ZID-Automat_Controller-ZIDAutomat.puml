@@ -1,0 +1,45 @@
+@startuml ZID-Automat_Controller-ZIDAutomat
+
+skinparam component {
+  BackgroundColor<<hardware>> #FFCCCB
+  BackgroundColor<<software>> #E0FFFF
+}
+
+[QR Code Reader] <<hardware>>
+[LCD Screen] <<hardware>>
+[NeoPixel LED Strip] <<hardware>>
+[Ejection Mechanism] <<hardware>>
+
+package "ZID-Automat Controller" <<software>> {
+  [Main123] as Main
+  [BorrowM] as Borrow
+  [QRCodeReader]
+  [ScreenOutput]
+  [Eject]
+  [DataCollect]
+  [Requestsi]
+  [LoadBorrowData]
+}
+
+database "Configuration.json"
+
+cloud "Backend Server" {
+  [API]
+}
+
+Main --> Borrow : uses
+Main --> Configuration.json : reads
+Borrow --> QRCodeReader : uses
+Borrow --> ScreenOutput : uses
+Borrow --> Eject : uses
+Borrow --> DataCollect : uses
+Borrow --> LoadBorrowData : uses
+LoadBorrowData --> Requestsi : uses
+Requestsi --> API : communicates
+
+QRCodeReader --> [QR Code Reader] : reads from
+ScreenOutput --> [LCD Screen] : displays on
+ScreenOutput --> [NeoPixel LED Strip] : controls
+Eject --> [Ejection Mechanism] : controls
+
+@enduml

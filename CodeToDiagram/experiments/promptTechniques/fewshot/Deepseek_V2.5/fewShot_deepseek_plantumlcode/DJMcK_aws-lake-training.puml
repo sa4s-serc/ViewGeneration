@@ -1,0 +1,61 @@
+@startuml DJMcK_aws-lake-training
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+rectangle "FDA S3 Bucket" as FDAS3 #orange
+
+rectangle "AWS S3" {
+  rectangle "Raw Zone" as RawZone #lightblue
+  rectangle "Landing Zone" as LandingZone #lightblue
+  rectangle "Curated Zone" as CuratedZone #lightblue
+}
+
+rectangle "AWS EMR" as EMR #pink {
+  rectangle "Spark\nfda.01.land.py" as SparkLand
+  rectangle "Spark\nfda.02.curate.py" as SparkCurate
+  rectangle "Spark\nfda.indications.py" as SparkIndications
+}
+
+rectangle "AWS Glue" as Glue #lightgreen
+rectangle "AWS Athena" as Athena #yellow
+rectangle "AWS Comprehend Medical" as Comprehend #purple
+
+rectangle "AWS Step Functions" as StepFunctions #brown {
+  rectangle "Iterator Lambda" as Iterator
+  rectangle "Call Comprehend Lambda" as CallComprehend
+  rectangle "Query Athena Lambda" as QueryAthena
+  rectangle "Configure Count Lambda" as ConfigureCount
+}
+
+rectangle "CloudFormation/SAM" as CFN #grey
+
+FDAS3 --> RawZone : Data Ingestion
+RawZone --> SparkLand : Process
+SparkLand --> LandingZone : Store
+LandingZone --> SparkCurate : Process
+SparkCurate --> CuratedZone : Store
+CuratedZone --> Glue : Catalog
+Glue --> Athena : Query
+Athena --> QueryAthena : Get Data
+QueryAthena --> StepFunctions
+ConfigureCount --> StepFunctions
+StepFunctions --> CallComprehend : Extract Entities
+CallComprehend --> Comprehend : NLP Processing
+Comprehend --> CuratedZone : Store Results
+CuratedZone --> SparkIndications : Combine Data
+SparkIndications --> CuratedZone : Final Output
+
+CFN --> FDAS3 : Provision
+CFN --> RawZone : Provision
+CFN --> LandingZone : Provision
+CFN --> CuratedZone : Provision
+CFN --> EMR : Configure
+CFN --> Glue : Configure
+CFN --> Athena : Configure
+CFN --> Comprehend : Configure
+CFN --> StepFunctions : Deploy
+@enduml

@@ -1,0 +1,64 @@
+```plantuml
+@startuml anjuchamantha_EMonitor
+
+skinparam componentStyle uml2
+skinparam monochrome true
+skinparam nodesep 20
+skinparam ranksep 20
+
+title EMonitor - Connectivity Architecture
+
+component "ESP32 Device" as esp32 {
+    component "WiFi Manager" as wifi {
+        [WiFi Connection]
+        [WiFi Reconnection]
+    }
+
+    component "HTTP Client" as http {
+        [HTTP POST Requests]
+    }
+
+    component "SMTP Client" as smtp {
+        [Email Alerts]
+    }
+
+    component "Data Buffer" as buffer {
+        [Queue Storage]
+        [Buffer Management]
+    }
+
+    component "NTP Client" as ntp {
+        [Time Synchronization]
+    }
+}
+
+component "Sensors" as sensors {
+    [DHT11]
+    [BMP180/BMP085]
+    [LDR]
+}
+
+component "OLED Display" as display {
+    [Status Display]
+}
+
+component "External Services" as external {
+    node "WiFi Network" as wifi_net
+    node "NTP Server" as ntp_server
+    node "Backend Server" as backend
+    node "SMTP Server" as smtp_server
+}
+
+sensors --> esp32 : "Sensor Data"
+esp32 --> display : "Status Updates"
+
+wifi --> wifi_net : "Connects to"
+http --> backend : "Posts XML Data"
+smtp --> smtp_server : "Sends Alerts"
+ntp --> ntp_server : "Syncs Time"
+
+buffer -- wifi : "Stores data when\nconnection lost"
+buffer -- http : "Provides buffered\ndata when connected"
+
+@enduml
+```

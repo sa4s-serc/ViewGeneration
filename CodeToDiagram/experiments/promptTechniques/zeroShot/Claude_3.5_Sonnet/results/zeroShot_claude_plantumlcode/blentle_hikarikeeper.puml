@@ -1,0 +1,51 @@
+@startuml blentle_hikarikeeper
+
+!define RECTANGLE class
+
+skinparam component {
+  BackgroundColor<<Server>> LightBlue
+  BackgroundColor<<Client>> LightGreen
+  BackgroundColor<<Core>> LightYellow
+  BackgroundColor<<Discovery>> LightPink
+}
+
+cloud "Distributed Cluster" {
+  [Node 1]
+  [Node 2]
+  [Node 3]
+}
+
+component "HikariKeeper Server" <<Server>> as Server {
+  RECTANGLE BootstrapServer
+  RECTANGLE HikariKeeperServer
+}
+
+component "HikariKeeper Client" <<Client>> as Client {
+  RECTANGLE HikariClientFactory
+  RECTANGLE HikariClient
+}
+
+component "HikariKeeper Core" <<Core>> as Core {
+  RECTANGLE RaftConsensus
+  RECTANGLE MetadataStorage
+}
+
+database "RocksDB" as RocksDB
+
+component "Discovery Service" <<Discovery>> as Discovery {
+  RECTANGLE DiscoveryClient
+}
+
+component "Spring Boot Starter" as SpringBoot
+
+Client --> Server : connects to
+Server --> Core : uses
+Server --> Discovery : uses
+Client --> Discovery : uses
+SpringBoot --> Server : configures
+Core --> RocksDB : stores data
+Server --> [Node 1] : deployed on
+Server --> [Node 2] : deployed on
+Server --> [Node 3] : deployed on
+
+@enduml

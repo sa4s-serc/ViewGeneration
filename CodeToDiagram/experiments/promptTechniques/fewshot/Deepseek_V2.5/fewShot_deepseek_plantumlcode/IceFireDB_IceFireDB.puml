@@ -1,0 +1,64 @@
+@startuml IceFireDB_IceFireDB
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<proxy>> #d8f5d3
+  BackgroundColor<<network>> #fddddd
+  BackgroundColor<<storage>> #fff1c9
+  BackgroundColor<<external>> #d4f0f0
+  Style roundrect
+}
+
+package "Core Database" <<core>> {
+  component "IceFireDB" as IceFireDB
+  component "Uhaha (Raft)" as Uhaha
+  component "Redis Protocol" as RedisProto
+  component "LevelDB" as LevelDB
+  IceFireDB --> Uhaha
+  IceFireDB --> RedisProto
+  IceFireDB --> LevelDB
+}
+
+package "SQL Proxy" <<proxy>> {
+  component "IceFireDB-SQLProxy" as SQLProxy
+  component "MySQL Protocol" as MySQLProto
+  component "Connection Pool" as ConnPool
+  component "Query Cache" as QueryCache
+  SQLProxy --> MySQLProto
+  SQLProxy --> ConnPool
+  SQLProxy --> QueryCache
+}
+
+package "Network Layer" <<network>> {
+  component "gRPC" as GRPC
+  component "libp2p" as LibP2P
+  component "HTTP/2" as HTTP2
+}
+
+package "Storage Engines" <<storage>> {
+  component "LevelDB" as ProxyLevelDB
+  component "CRDT" as CRDT
+  component "IPFS" as IPFS
+  component "HybridDB" as HybridDB
+  SQLProxy --> ProxyLevelDB
+  SQLProxy --> CRDT
+  SQLProxy --> IPFS
+  SQLProxy --> HybridDB
+}
+
+package "External Services" <<external>> {
+  component "MySQL Server" as MySQL
+  component "OpenTelemetry" as OTel
+  component "Protocol Buffers" as Protobuf
+}
+
+IceFireDB --> GRPC
+SQLProxy --> GRPC
+SQLProxy --> LibP2P
+GRPC --> HTTP2
+SQLProxy --> MySQL
+IceFireDB --> OTel
+SQLProxy --> OTel
+IceFireDB --> Protobuf
+SQLProxy --> Protobuf
+@enduml

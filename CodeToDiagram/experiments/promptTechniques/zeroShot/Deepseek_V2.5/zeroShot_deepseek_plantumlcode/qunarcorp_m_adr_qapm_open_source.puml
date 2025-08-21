@@ -1,0 +1,29 @@
+```plantuml
+@startuml qunarcorp_m_adr_qapm_open_source
+
+participant "Android App" as App
+participant "QAPM Library" as QAPM
+participant "QAPMConfig" as Config
+participant "QConfigManager" as ConfigMgr
+participant "TracePlugin" as Plugin
+participant "WatchMan" as WatchMan
+participant "Tracers" as Tracers
+participant "Storage" as Storage
+participant "NetworkSender" as Sender
+
+App -> QAPM: initialize()
+QAPM -> Config: createConfig()
+QAPM -> ConfigMgr: setConfig()
+QAPM -> Plugin: start()
+
+loop Monitoring Loop
+    Plugin -> WatchMan: monitorLifecycle()
+    WatchMan -> Tracers: startTracing()
+    Tracers --> WatchMan: performance data
+    WatchMan -> Storage: store(data)
+    Storage -> Sender: sendData()
+    Sender --> Storage: ack
+end
+
+@enduml
+```

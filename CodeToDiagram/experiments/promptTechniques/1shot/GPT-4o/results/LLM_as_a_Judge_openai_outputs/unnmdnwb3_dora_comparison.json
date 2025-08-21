@@ -1,0 +1,361 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Initiates requests",
+        "boundaries": "External",
+        "position": "Left"
+      },
+      {
+        "name": "Frontend",
+        "description": "Handles initial API requests",
+        "boundaries": "Internal",
+        "position": "Left"
+      },
+      {
+        "name": "Gin-Gonic Router",
+        "description": "Routes API requests",
+        "boundaries": "Backend API",
+        "position": "Center"
+      },
+      {
+        "name": "Metrics Calculation Services",
+        "description": "Calculates DORA metrics",
+        "boundaries": "Backend API",
+        "position": "Center"
+      },
+      {
+        "name": "GitLab Connector",
+        "description": "Fetches data from GitLab",
+        "boundaries": "Backend API",
+        "position": "Right"
+      },
+      {
+        "name": "Prometheus Connector",
+        "description": "Fetches alerts from Prometheus",
+        "boundaries": "Backend API",
+        "position": "Right"
+      },
+      {
+        "name": "MongoDB Service",
+        "description": "Stores and retrieves data",
+        "boundaries": "Backend API",
+        "position": "Right"
+      },
+      {
+        "name": "GitLab API",
+        "description": "External GitLab API",
+        "boundaries": "External",
+        "position": "Far Right"
+      },
+      {
+        "name": "Prometheus API",
+        "description": "External Prometheus API",
+        "boundaries": "External",
+        "position": "Far Right"
+      },
+      {
+        "name": "MongoDB",
+        "description": "Database",
+        "boundaries": "External",
+        "position": "Far Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Frontend",
+        "label": "API Request",
+        "type": "Request"
+      },
+      {
+        "source": "Frontend",
+        "target": "Gin-Gonic Router",
+        "label": "Route API Request",
+        "type": "Request"
+      },
+      {
+        "source": "Gin-Gonic Router",
+        "target": "Metrics Calculation Services",
+        "label": "Calculate DORA Metrics",
+        "type": "Request"
+      },
+      {
+        "source": "Metrics Calculation Services",
+        "target": "GitLab Connector",
+        "label": "Fetch Data from GitLab",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Metrics Calculation Services",
+        "target": "Prometheus Connector",
+        "label": "Fetch Alerts from Prometheus",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Metrics Calculation Services",
+        "target": "MongoDB Service",
+        "label": "Store/Retrieve Data",
+        "type": "Data Flow"
+      },
+      {
+        "source": "GitLab Connector",
+        "target": "GitLab API",
+        "label": "API Calls to GitLab",
+        "type": "API Call"
+      },
+      {
+        "source": "Prometheus Connector",
+        "target": "Prometheus API",
+        "label": "API Calls to Prometheus",
+        "type": "API Call"
+      },
+      {
+        "source": "MongoDB Service",
+        "target": "MongoDB",
+        "label": "CRUD Operations",
+        "type": "Data Operation"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Backend API",
+        "components": [
+          "Gin-Gonic Router",
+          "Metrics Calculation Services",
+          "GitLab Connector",
+          "Prometheus Connector",
+          "MongoDB Service"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "ground_truth_diagram.png",
+      "title": "Backend API Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Initiates requests",
+        "boundaries": "External",
+        "position": "Left"
+      },
+      {
+        "name": "API Handler",
+        "description": "Handles API requests",
+        "boundaries": "Internal",
+        "position": "Center"
+      },
+      {
+        "name": "Ingest Service",
+        "description": "Ingests data",
+        "boundaries": "Internal",
+        "position": "Center"
+      },
+      {
+        "name": "Aggregate Service",
+        "description": "Aggregates data",
+        "boundaries": "Internal",
+        "position": "Center"
+      },
+      {
+        "name": "Metrics Service",
+        "description": "Calculates metrics",
+        "boundaries": "Internal",
+        "position": "Center"
+      },
+      {
+        "name": "MongoDB",
+        "description": "Database",
+        "boundaries": "External",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "API Handler",
+        "label": "api/v1/integrations, api/v1/dataflows",
+        "type": "Request"
+      },
+      {
+        "source": "API Handler",
+        "target": "Ingest Service",
+        "label": "1",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Ingest Service",
+        "target": "Aggregate Service",
+        "label": "2",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Aggregate Service",
+        "target": "MongoDB",
+        "label": "3",
+        "type": "Data Flow"
+      },
+      {
+        "source": "API Handler",
+        "target": "Metrics Service",
+        "label": "api/v1/metrics/...",
+        "type": "Request"
+      },
+      {
+        "source": "Metrics Service",
+        "target": "MongoDB",
+        "label": "4",
+        "type": "Data Flow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "external providers",
+        "position": "Top"
+      },
+      {
+        "text": "Lead-Time for Changes, Deployment Frequency, Change-Failure Rate, Mean-Time to Restore",
+        "position": "Right"
+      }
+    ],
+    "groups": [
+      {
+        "name": "Kubernetes Cluster",
+        "components": [
+          "API Handler",
+          "Ingest Service",
+          "Aggregate Service",
+          "Metrics Service"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "generated_image_diagram.png",
+      "title": "Kubernetes Cluster Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "User",
+      "MongoDB"
+    ],
+    "unique_to_GroundTruth": [
+      "Frontend",
+      "Gin-Gonic Router",
+      "Metrics Calculation Services",
+      "GitLab Connector",
+      "Prometheus Connector",
+      "GitLab API",
+      "Prometheus API",
+      "MongoDB Service"
+    ],
+    "unique_to_GeneratedImage": [
+      "API Handler",
+      "Ingest Service",
+      "Aggregate Service",
+      "Metrics Service"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "User",
+        "target": "Frontend",
+        "label": "API Request",
+        "type": "Request"
+      },
+      {
+        "source": "Frontend",
+        "target": "Gin-Gonic Router",
+        "label": "Route API Request",
+        "type": "Request"
+      },
+      {
+        "source": "Gin-Gonic Router",
+        "target": "Metrics Calculation Services",
+        "label": "Calculate DORA Metrics",
+        "type": "Request"
+      },
+      {
+        "source": "Metrics Calculation Services",
+        "target": "GitLab Connector",
+        "label": "Fetch Data from GitLab",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Metrics Calculation Services",
+        "target": "Prometheus Connector",
+        "label": "Fetch Alerts from Prometheus",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Metrics Calculation Services",
+        "target": "MongoDB Service",
+        "label": "Store/Retrieve Data",
+        "type": "Data Flow"
+      },
+      {
+        "source": "GitLab Connector",
+        "target": "GitLab API",
+        "label": "API Calls to GitLab",
+        "type": "API Call"
+      },
+      {
+        "source": "Prometheus Connector",
+        "target": "Prometheus API",
+        "label": "API Calls to Prometheus",
+        "type": "API Call"
+      },
+      {
+        "source": "MongoDB Service",
+        "target": "MongoDB",
+        "label": "CRUD Operations",
+        "type": "Data Operation"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "API Handler",
+        "label": "api/v1/integrations, api/v1/dataflows",
+        "type": "Request"
+      },
+      {
+        "source": "API Handler",
+        "target": "Ingest Service",
+        "label": "1",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Ingest Service",
+        "target": "Aggregate Service",
+        "label": "2",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Aggregate Service",
+        "target": "MongoDB",
+        "label": "3",
+        "type": "Data Flow"
+      },
+      {
+        "source": "API Handler",
+        "target": "Metrics Service",
+        "label": "api/v1/metrics/...",
+        "type": "Request"
+      },
+      {
+        "source": "Metrics Service",
+        "target": "MongoDB",
+        "label": "4",
+        "type": "Data Flow"
+      }
+    ],
+    "explanation": "The GroundTruth diagram represents a more detailed architecture focusing on backend API interactions with external services like GitLab and Prometheus. It includes specific connectors for these services and a Gin-Gonic Router for routing requests. The GeneratedImage diagram, on the other hand, represents a Kubernetes-based architecture with a focus on data ingestion and aggregation services. It lacks the detailed external service connectors present in the GroundTruth diagram. Both diagrams share common components like 'User' and 'MongoDB', but differ significantly in their internal components and connectors. The GroundTruth diagram is more comprehensive in terms of external service integration, while the GeneratedImage diagram focuses on internal data processing. Rating: 6. The GeneratedImage diagram captures the basic structure and some components of the GroundTruth but lacks the detailed external service interactions and specific routing components, making it less complete and accurate.",
+    "Rating": 6
+  }
+}

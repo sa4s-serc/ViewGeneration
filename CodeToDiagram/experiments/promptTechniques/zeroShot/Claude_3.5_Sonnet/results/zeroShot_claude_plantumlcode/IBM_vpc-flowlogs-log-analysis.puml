@@ -1,0 +1,45 @@
+Here's a PlantUML sequence diagram representing the control flow of the IBM_vpc-flowlogs-log-analysis system:
+
+```plantuml
+@startuml IBM_vpc-flowlogs-log-analysis
+
+participant "COS Trigger" as COS
+participant "Handler Function" as Handler
+participant "COS Receiver Bucket" as ReceiverBucket
+participant "COS Archive Bucket" as ArchiveBucket
+participant "IBM Log Analysis" as LogAnalysis
+
+COS -> Handler: Trigger (new log file)
+activate Handler
+
+Handler -> ReceiverBucket: Retrieve compressed log
+ReceiverBucket --> Handler: Return compressed log
+
+Handler -> Handler: Decompress log
+
+Handler -> Handler: Parse JSON data
+
+Handler -> Handler: Transform data
+
+Handler -> LogAnalysis: Forward processed logs
+activate LogAnalysis
+
+alt Successful forwarding
+    LogAnalysis --> Handler: Confirm receipt
+else Error
+    LogAnalysis --> Handler: Error response
+    Handler -> Handler: Retry (up to 3 times)
+end
+
+deactivate LogAnalysis
+
+Handler -> ArchiveBucket: Copy processed logs
+ArchiveBucket --> Handler: Confirm copy
+
+Handler -> ReceiverBucket: Delete original log
+ReceiverBucket --> Handler: Confirm deletion
+
+deactivate Handler
+
+@enduml
+```

@@ -1,0 +1,48 @@
+@startuml dich1_bookshelf-web
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<database>> #fff1c9
+  BackgroundColor<<deployment>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend" <<frontend>> {
+  rectangle "HTML/CSS" as HTML
+  rectangle "JavaScript/jQuery" as JS
+  rectangle "Vue.js (planned)" as Vue
+  HTML --> JS
+  JS --> Vue
+}
+
+package "Backend (Rails)" <<backend>> {
+  rectangle "Controllers" as Controllers
+  rectangle "Models" as Models
+  rectangle "API" as API
+  rectangle "Google Books API" as GoogleAPI
+  rectangle "Devise/OmniAuth" as Auth
+  Controllers --> Models
+  Controllers --> API
+  API --> GoogleAPI
+  Controllers --> Auth
+}
+
+package "Database" <<database>> {
+  database "MySQL" as DB
+  Models --> DB
+}
+
+package "Deployment" <<deployment>> {
+  rectangle "Docker" as Docker
+  rectangle "Nginx" as Nginx
+  rectangle "CircleCI" as CircleCI
+  rectangle "Capistrano" as Capistrano
+  Docker --> Nginx
+  CircleCI --> Docker
+  CircleCI --> Capistrano
+}
+
+HTML --> Controllers
+JS --> API
+@enduml

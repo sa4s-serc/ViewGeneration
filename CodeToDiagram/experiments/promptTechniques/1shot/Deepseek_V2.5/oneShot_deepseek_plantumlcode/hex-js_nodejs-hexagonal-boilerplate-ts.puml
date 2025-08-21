@@ -1,0 +1,66 @@
+@startuml hex-js_nodejs-hexagonal-boilerplate-ts
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<adapters>> #d8f5d3
+  BackgroundColor<<ports>> #fddddd
+  BackgroundColor<<aws>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Business Logic" <<core>> {
+  rectangle "Todo Business Logic" as Business
+  rectangle "Models" as Models
+  rectangle "Validation (Joi)" as Validation
+  rectangle "Error Handling" as Errors
+  rectangle "Maybe Monad" as Monad
+  Business --> Models
+  Business --> Validation
+  Business --> Errors
+  Business --> Monad
+}
+
+package "Adapters" <<adapters>> {
+  rectangle "Todo Adapter" as TodoAdapter
+  rectangle "Adapter Factory" as Factory
+  Business --> TodoAdapter
+  TodoAdapter --> Factory
+}
+
+package "Ports" <<ports>> {
+  rectangle "HTTP (Express)" as HTTP
+  rectangle "DynamoDB Repository" as Dynamo
+  rectangle "SQS Client" as SQS
+  rectangle "Lambda Handler" as Lambda
+  rectangle "Logger (Pino)" as Logger
+  TodoAdapter --> Dynamo
+  TodoAdapter --> SQS
+  TodoAdapter --> Lambda
+  HTTP --> Business
+  Dynamo --> Logger
+  SQS --> Logger
+  Lambda --> Logger
+}
+
+package "AWS Services" <<aws>> {
+  database "DynamoDB" as DynamoDB
+  queue "SQS" as AWSSQS
+  cloud "Lambda" as AWSLambda
+  Dynamo --> DynamoDB
+  SQS --> AWSSQS
+  Lambda --> AWSLambda
+}
+
+rectangle "Localstack" as Localstack {
+  DynamoDB -[hidden]-> AWSSQS
+  AWSSQS -[hidden]-> AWSLambda
+}
+
+rectangle "Terraform (IaC)" as Terraform {
+  Terraform --> Localstack
+}
+
+rectangle "Serverless Framework" as Serverless {
+  Serverless --> AWSLambda
+}
+@enduml

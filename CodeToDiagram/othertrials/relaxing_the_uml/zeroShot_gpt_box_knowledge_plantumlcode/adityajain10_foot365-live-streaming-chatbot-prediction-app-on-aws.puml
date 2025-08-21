@@ -1,0 +1,72 @@
+@startuml
+actor User
+
+package "Frontend" {
+    [index.html]
+    [predict.html]
+    [live.html]
+    [fixture.html]
+    [chat.html]
+}
+
+package "AWS Cloud Services" {
+    [Cognito]
+    [S3]
+    [API Gateway]
+    [Lambda: standings.py]
+    [Lambda: predictions.py]
+    [Lambda: LF2.py]
+    [Lambda: getFixtures.py]
+    [Lambda: scrapeMatchData.py]
+    [Lambda: getScore.py]
+    [Lambda: LF1.py]
+    [Lambda: getLiveScores.py]
+    [DynamoDB]
+    [SQS]
+    [SNS]
+    [SageMaker]
+    [Kafka]
+    [ElasticSearch]
+    [Lex]
+    [EC2]
+}
+
+User --> [Cognito] : "Authenticate"
+
+User --> [index.html]
+User --> [predict.html]
+User --> [live.html]
+User --> [fixture.html]
+User --> [chat.html]
+
+[index.html] --> [API Gateway]
+[predict.html] --> [API Gateway]
+[live.html] --> [API Gateway]
+[fixture.html] --> [API Gateway]
+[chat.html] --> [API Gateway]
+
+[API Gateway] --> [Lambda: standings.py]
+[API Gateway] --> [Lambda: predictions.py]
+[API Gateway] --> [Lambda: LF2.py]
+[API Gateway] --> [Lambda: getFixtures.py]
+[API Gateway] --> [Lambda: scrapeMatchData.py]
+[API Gateway] --> [Lambda: getScore.py]
+[API Gateway] --> [Lambda: LF1.py]
+[API Gateway] --> [Lambda: getLiveScores.py]
+
+[Lambda: standings.py] --> [DynamoDB] : "Fetch Standings"
+[Lambda: predictions.py] --> [SageMaker] : "Predict Outcomes"
+[Lambda: LF2.py] --> [SQS] : "Queue Requests"
+[Lambda: LF2.py] --> [SNS] : "Send SMS"
+[Lambda: getFixtures.py] --> [ElasticSearch] : "Fetch Fixtures"
+[Lambda: scrapeMatchData.py] --> [S3] : "Triggered by S3 Event"
+[Lambda: scrapeMatchData.py] --> [DynamoDB] : "Store Standings"
+[Lambda: getScore.py] --> [ElasticSearch] : "Query Match Data"
+[Lambda: getScore.py] --> [DynamoDB] : "Query Details"
+[Lambda: LF1.py] --> [Lex] : "Handle Requests"
+[Lambda: getLiveScores.py] --> [DynamoDB] : "Fetch Scores"
+
+[Kafka] --> [DynamoDB] : "Live Score Updates"
+[Kafka] --> [EC2] : "Host Infrastructure"
+
+@enduml

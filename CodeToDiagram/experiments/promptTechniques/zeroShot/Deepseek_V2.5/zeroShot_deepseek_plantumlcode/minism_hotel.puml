@@ -1,0 +1,70 @@
+```plantuml
+@startuml minism_hotel
+
+package "Deployment Environment" {
+    [Docker Host] as docker_host
+    [SQLite Database] as sqlite
+}
+
+node "Master Server" {
+    component "REST API" as master_rest
+    component "gRPC Server" as master_grpc
+    component "Session Manager" as session_mgr
+    component "Database Layer" as db_layer
+    component "Reaper Service" as reaper
+}
+
+node "Spawner Server" {
+    component "gRPC Server" as spawner_grpc
+    component "Game Server Manager" as game_mgr
+    component "Master Connector" as master_conn
+}
+
+package "Shared Components" {
+    component "Configuration" as config
+    component "Logging" as logging
+    component "Crypto" as crypto
+    component "Protobuf Definitions" as proto
+}
+
+master_rest --> db_layer
+master_grpc --> db_layer
+session_mgr --> db_layer
+db_layer --> sqlite
+reaper --> db_layer
+
+spawner_grpc --> game_mgr
+master_conn --> spawner_grpc
+master_conn --> master_grpc
+
+master_rest --> config
+master_grpc --> config
+session_mgr --> config
+db_layer --> config
+reaper --> config
+
+spawner_grpc --> config
+game_mgr --> config
+master_conn --> config
+
+master_rest --> logging
+master_grpc --> logging
+session_mgr --> logging
+db_layer --> logging
+reaper --> logging
+
+spawner_grpc --> logging
+game_mgr --> logging
+master_conn --> logging
+
+master_grpc --> proto
+spawner_grpc --> proto
+master_conn --> proto
+
+session_mgr --> crypto
+
+docker_host --> "Master Server"
+docker_host --> "Spawner Server"
+
+@enduml
+```

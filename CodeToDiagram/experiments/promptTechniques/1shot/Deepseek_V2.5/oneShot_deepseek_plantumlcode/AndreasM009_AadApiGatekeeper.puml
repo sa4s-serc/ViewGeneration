@@ -1,0 +1,52 @@
+@startuml AndreasM009_AadApiGatekeeper
+skinparam rectangle {
+  BackgroundColor<<gatekeeper>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<aad>> #fddddd
+  BackgroundColor<<config>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "API Gatekeeper" <<gatekeeper>> {
+  rectangle "AuthProxyMiddleware" as Middleware
+  rectangle "MeController" as MeController
+  rectangle "LoginController" as LoginController
+  rectangle "InMemoryTokenCache" as TokenCache
+  rectangle "AuthBackChannelHandler" as BackChannel
+  Middleware --> BackChannel
+  MeController --> TokenCache
+  LoginController --> TokenCache
+}
+
+package "Backend API" <<backend>> {
+  rectangle "Protected API" as ProtectedAPI
+  rectangle "EchoController" as EchoController
+  ProtectedAPI --> EchoController
+}
+
+package "Azure AD" <<aad>> {
+  rectangle "Authentication" as AADAuth
+  rectangle "Token Issuance" as AADToken
+  AADAuth --> AADToken
+}
+
+package "Configuration" <<config>> {
+  rectangle "Environment Variables" as EnvVars
+  rectangle "AadAuthenticationOptions" as AadOptions
+  rectangle "AuthProxyOptions" as ProxyOptions
+}
+
+Middleware --> ProtectedAPI
+Middleware --> AADAuth
+BackChannel --> ProtectedAPI
+MeController --> AADToken
+LoginController --> AADAuth
+TokenCache --> AADToken
+
+EnvVars --> AadOptions
+EnvVars --> ProxyOptions
+AadOptions --> Middleware
+AadOptions --> LoginController
+ProxyOptions --> Middleware
+@enduml

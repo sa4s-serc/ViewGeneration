@@ -1,0 +1,50 @@
+```plantuml
+@startuml DevOps-Represent_devopsgirls-bootcamp-cn-2
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "User"
+
+package "Frontend (React SPA)" {
+  rectangle "UI Components" as ReactUI
+  rectangle "Client.js" as ClientJS
+  rectangle "Render.js" as RenderJS
+  rectangle "Config.js" as ConfigJS
+}
+
+package "AWS Infrastructure" {
+  rectangle "S3 Bucket\nStatic Hosting" as S3Bucket #orange
+  rectangle "API Gateway" as APIGateway #lightblue
+  rectangle "Lambda Function" as Lambda #yellow
+  database "DynamoDB\n(NoSQL)" as DynamoDB #lightgreen
+}
+
+User --> ReactUI
+ReactUI --> S3Bucket
+ReactUI --> APIGateway
+
+APIGateway --> Lambda
+Lambda --> DynamoDB
+
+note right of APIGateway
+  Proxy pattern (/{proxy+})
+end note
+
+note right of Lambda
+  Handles CRUD operations
+  Interacts with DynamoDB
+end note
+
+note bottom of DynamoDB
+  Stores todo items
+end note
+
+note top of S3Bucket
+  Hosts React SPA
+end note
+@enduml
+```

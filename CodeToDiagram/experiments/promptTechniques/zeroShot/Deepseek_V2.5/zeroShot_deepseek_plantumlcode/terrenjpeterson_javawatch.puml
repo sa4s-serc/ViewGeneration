@@ -1,0 +1,23 @@
+```plantuml
+@startuml terrenjpeterson_javawatch
+actor User
+participant RaspberryPi
+participant "S3 Bucket" as S3
+participant "Lambda (checkImage.py)" as LambdaCheckImage
+participant "Amazon Rekognition" as Rekognition
+participant "Lambda (labelCheck.js)" as LambdaLabelCheck
+participant "Amazon DRS" as DRS
+participant "Website" as Website
+
+User -> RaspberryPi: Triggers photo capture
+RaspberryPi -> S3: Uploads timestamped image
+S3 -> LambdaCheckImage: Triggers on new image
+LambdaCheckImage -> Rekognition: detect_labels(image)
+Rekognition --> LambdaCheckImage: Returns labels
+LambdaCheckImage -> LambdaLabelCheck: Process labels (check for "Bean")
+LambdaLabelCheck --> LambdaCheckImage: Bean presence confirmed
+LambdaCheckImage -> DRS: Place order (if low bean level)
+DRS --> Website: Order confirmation
+Website --> User: Displays order status
+@enduml
+```

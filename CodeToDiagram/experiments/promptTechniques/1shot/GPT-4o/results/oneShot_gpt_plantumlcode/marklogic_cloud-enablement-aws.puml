@@ -1,0 +1,59 @@
+```plantuml
+@startuml marklogic_cloud-enablement-aws
+
+skinparam rectangle {
+  BackgroundColor<<cloudformation>> #d3f9f7
+  BackgroundColor<<lambda>> #f3d3f9
+  BackgroundColor<<aws>> #d9d3f9
+  BackgroundColor<<infra>> #f9f4d3
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "CloudFormation" <<cloudformation>> {
+  rectangle "mlcluster.template" as MLClusterTemplate
+  rectangle "mlcluster-vpc.template" as MLClusterVPCTemplate
+  rectangle "nested stacks\n(ENI, NodeManager)" as NestedStacks
+  MLClusterTemplate --> NestedStacks
+  MLClusterVPCTemplate --> NestedStacks
+}
+
+package "Lambda Functions" <<lambda>> {
+  rectangle "managedeni.py" as ManagedENI
+  rectangle "nodemanager.py" as NodeManager
+  rectangle "utils.py" as Utils
+  ManagedENI --> Utils
+  NodeManager --> Utils
+}
+
+package "AWS Resources" <<aws>> {
+  rectangle "EC2 Instances" as EC2
+  rectangle "EBS Volumes" as EBS
+  rectangle "VPC, Subnets,\nSecurity Groups" as VPC
+  rectangle "DynamoDB Table" as DynamoDB
+  rectangle "IAM Roles" as IAM
+  rectangle "Auto Scaling Groups" as ASG
+  rectangle "Application Load Balancer" as ALB
+  EC2 --> EBS
+  VPC --> EC2
+  ASG --> EC2
+  ALB --> EC2
+  DynamoDB --> EC2
+}
+
+package "Infrastructure Management" <<infra>> {
+  rectangle "Networking" as Networking
+  rectangle "Instance Management" as InstanceManagement
+  rectangle "Cluster State Management" as ClusterState
+  Networking --> VPC
+  InstanceManagement --> ASG
+  ClusterState --> DynamoDB
+}
+
+MLClusterTemplate --> EC2
+MLClusterVPCTemplate --> VPC
+ManagedENI --> Networking
+NodeManager --> InstanceManagement
+
+@enduml
+```

@@ -1,0 +1,54 @@
+```plantuml
+@startuml victor369basu_Real-time-stock-market-prediction
+
+actor User
+participant "producer.js" as Producer
+participant Kafka
+participant "consumer.js" as Consumer
+participant "ml_consumer.js" as MLConsumer
+participant "tf_model.js" as TFModel
+participant "pre_process.js" as PreProcessor
+participant "InstantiateDB.js" as MongoDB
+participant "tf_train.js" as TFTrain
+participant "tf_validate.js" as TFValidate
+participant "server.js" as Server
+
+User -> Server: Request model training
+Server -> TFTrain: Start training
+TFTrain -> MongoDB: Fetch historical data
+MongoDB --> TFTrain: Return historical data
+TFTrain -> PreProcessor: Preprocess data
+PreProcessor --> TFTrain: Return scaled data
+TFTrain -> TFModel: Train model
+TFModel --> TFTrain: Return trained model
+TFTrain -> MongoDB: Save model weights
+TFTrain -> TFValidate: Validate model
+TFValidate -> TFModel: Load model
+TFModel --> TFValidate: Return model
+TFValidate -> MongoDB: Fetch test data
+MongoDB --> TFValidate: Return test data
+TFValidate -> PreProcessor: Preprocess test data
+PreProcessor --> TFValidate: Return scaled data
+TFValidate -> TFModel: Validate model
+TFModel --> TFValidate: Return metrics
+TFValidate -> MongoDB: Save validation metrics
+TFValidate --> Server: Return validation results
+Server --> User: Display results
+
+User -> Producer: Start data streaming
+Producer -> Kafka: Publish stock data
+Kafka -> Consumer: New stock data
+Consumer -> MongoDB: Store raw data
+Kafka -> MLConsumer: New stock data
+MLConsumer -> PreProcessor: Preprocess data
+PreProcessor --> MLConsumer: Return scaled data
+MLConsumer -> TFModel: Load model
+TFModel --> MLConsumer: Return model
+MLConsumer -> TFModel: Predict
+TFModel --> MLConsumer: Return prediction
+MLConsumer -> MongoDB: Store prediction
+MLConsumer -> Server: Push prediction update
+Server -> User: Display real-time prediction
+
+@enduml
+```

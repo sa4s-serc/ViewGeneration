@@ -1,0 +1,82 @@
+```plantuml
+@startuml little-hands_webdbpress-2019-10-ddd
+
+package "Application Layer" {
+    [ScreeningApplicationServiceV1]
+    [ScreeningApplicationServiceV2]
+    [ScreeningApplicationServiceV3]
+    [ScreeningApplicationServiceV4]
+}
+
+package "Domain Layer" {
+    [ScreeningV1] as SV1
+    [ScreeningV2] as SV2
+    [ScreeningV3] as SV3
+    [ScreeningV4] as SV4
+    
+    [InterviewV1] as IV1
+    [InterviewV2] as IV2
+    [InterviewV3] as IV3
+    [InterviewV4] as IV4
+    
+    [EmailAddress]
+    [ScreeningId]
+    [Interviews]
+    [ScreeningStatusV1] as SSV1
+    [ScreeningStatusV2] as SSV2
+    [ScreeningStatusV3] as SSV3
+    [ScreeningStatusV4] as SSV4
+    [ScreeningStepResult]
+}
+
+package "Infrastructure Layer" {
+    [ScreeningDao]
+    [InterviewDao]
+    [ScreeningRepository]
+    [ScreeningJdbcRepository]
+}
+
+package "Shared" {
+    [ApplicationException]
+    [Const]
+}
+
+[ScreeningApplicationServiceV1] --> SV1
+[ScreeningApplicationServiceV2] --> SV2
+[ScreeningApplicationServiceV3] --> SV3
+[ScreeningApplicationServiceV4] --> SV4
+
+SV1 --> IV1
+SV2 --> IV2
+SV3 --> IV3
+SV4 --> IV4
+
+SV3 --> EmailAddress
+SV3 --> ScreeningId
+SV4 --> EmailAddress
+SV4 --> ScreeningId
+
+SV1 --> SSV1
+SV2 --> SSV2
+SV3 --> SSV3
+SV4 --> SSV4
+
+SV4 --> Interviews
+SV4 --> ScreeningStepResult
+
+[ScreeningRepository] <|-- [ScreeningJdbcRepository]
+[ScreeningRepository] --> [ScreeningDao]
+[ScreeningRepository] --> [InterviewDao]
+
+[ScreeningApplicationServiceV1] --> [ScreeningRepository]
+[ScreeningApplicationServiceV2] --> [ScreeningRepository]
+[ScreeningApplicationServiceV3] --> [ScreeningRepository]
+[ScreeningApplicationServiceV4] --> [ScreeningRepository]
+
+[ApplicationException] <.. [ScreeningApplicationServiceV1]
+[ApplicationException] <.. [ScreeningApplicationServiceV2]
+[ApplicationException] <.. [ScreeningApplicationServiceV3]
+[ApplicationException] <.. [ScreeningApplicationServiceV4]
+
+@enduml
+```

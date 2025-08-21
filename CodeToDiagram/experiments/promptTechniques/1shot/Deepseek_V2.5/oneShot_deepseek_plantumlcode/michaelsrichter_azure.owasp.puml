@@ -1,0 +1,60 @@
+@startuml michaelsrichter_azure.owasp
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "Developer" as Dev
+actor "User" as User
+
+rectangle "Client Browser" as Browser {
+  rectangle "jQuery/Validation" as jQuery
+  rectangle "Bootstrap" as Bootstrap
+  rectangle "Modernizr" as Modernizr
+}
+
+rectangle "Azure Cloud" as Azure {
+  rectangle "ASP.NET MVC App" as MVCApp {
+    rectangle "Controllers" as Controllers
+    rectangle "Models" as Models
+    rectangle "Views" as Views
+  }
+  
+  rectangle "Node.js App" as NodeApp
+  
+  rectangle "WAF (ModSecurity)" as WAF {
+    rectangle "Core Rule Set" as CRS
+  }
+  
+  rectangle "Azure AD" as AAD
+  
+  rectangle "ARM Templates" as ARM
+  rectangle "PowerShell Scripts" as PS
+}
+
+rectangle "Database" as DB
+
+' ========== Connections ==========
+User --> Browser
+Browser --> MVCApp : HTTP Requests
+Browser --> NodeApp : HTTP Requests
+
+MVCApp <--> WAF : Protected Traffic
+NodeApp <--> WAF : Protected Traffic
+
+WAF --> CRS : Rule Evaluation
+
+MVCApp --> AAD : Authentication
+MVCApp --> DB : Data Access
+
+Dev --> ARM : Deploy
+Dev --> PS : Execute
+ARM --> Azure : Provision Resources
+PS --> Azure : Configure Resources
+
+jQuery --> MVCApp : AJAX Calls
+Bootstrap --> MVCApp : Styled Responses
+Modernizr --> MVCApp : Feature Detection
+@enduml

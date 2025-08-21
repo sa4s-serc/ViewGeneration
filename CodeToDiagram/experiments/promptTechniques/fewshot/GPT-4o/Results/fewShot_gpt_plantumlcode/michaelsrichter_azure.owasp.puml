@@ -1,0 +1,67 @@
+```plantuml
+@startuml michaelsrichter_azure.owasp
+left to right direction
+skinparam rectangle {
+  BackgroundColor #f0f0f0
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+skinparam linetype ortho
+
+actor "User"
+
+package "Client-Side" {
+  rectangle "jQuery" as jQuery
+  rectangle "jQuery Validation" as jQueryValidation
+  rectangle "Bootstrap" as Bootstrap
+  rectangle "Respond.js" as Respond
+  rectangle "Modernizr" as Modernizr
+}
+
+package "ASP.NET MVC Apps" {
+  rectangle "Secure App\n(azure.owasp.web.adgroups)" as SecureApp
+  rectangle "Insecure App\n(azure.owasp.web.notsecure)" as InsecureApp
+}
+
+package "Node.js App" {
+  rectangle "Express App\n(azure.owasp.waf.app)" as ExpressApp
+}
+
+package "WAF Integration" {
+  rectangle "ModSecurity\n(azure.owasp.modsecurity)" as ModSecurity
+  rectangle "CRS Rules\n(owasp-modsecurity-crs-2.2.9)" as CRS
+}
+
+package "Azure Deployment" {
+  rectangle "ARM Templates" as ARM
+  rectangle "PowerShell Scripts" as PS
+}
+
+User --> jQuery
+User --> jQueryValidation
+User --> Bootstrap
+User --> Respond
+User --> Modernizr
+
+jQueryValidation --> SecureApp
+jQueryValidation --> InsecureApp
+Bootstrap --> SecureApp
+Bootstrap --> InsecureApp
+Respond --> SecureApp
+Respond --> InsecureApp
+Modernizr --> SecureApp
+Modernizr --> InsecureApp
+
+SecureApp --> ModSecurity
+InsecureApp --> ModSecurity
+ExpressApp --> ModSecurity
+ModSecurity --> CRS
+
+ARM --> SecureApp
+ARM --> InsecureApp
+ARM --> ExpressApp
+PS --> ARM
+
+@enduml
+```

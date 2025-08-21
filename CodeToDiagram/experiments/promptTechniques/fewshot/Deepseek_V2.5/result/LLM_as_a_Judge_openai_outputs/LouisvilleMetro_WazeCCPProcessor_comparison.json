@@ -1,0 +1,376 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Cloudwatch Event",
+        "description": "Triggers Lambda function at scheduled intervals",
+        "position": "top"
+      },
+      {
+        "name": "Lambda Function",
+        "description": "Processes data from Waze and SQS",
+        "position": "center"
+      },
+      {
+        "name": "S3 Bucket",
+        "description": "Inbound and completed storage",
+        "position": "right"
+      },
+      {
+        "name": "SNS Topic",
+        "description": "Notification service",
+        "position": "various"
+      },
+      {
+        "name": "SQS Queue",
+        "description": "Queue for processing tasks",
+        "position": "left"
+      },
+      {
+        "name": "Cloudwatch Alarm",
+        "description": "Monitors queue and triggers SNS",
+        "position": "left"
+      },
+      {
+        "name": "RDS",
+        "description": "Database storage",
+        "position": "bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Cloudwatch Event",
+        "target": "Lambda Function",
+        "label": "1",
+        "type": "trigger"
+      },
+      {
+        "source": "Lambda Function",
+        "target": "S3 Bucket",
+        "label": "3",
+        "type": "save"
+      },
+      {
+        "source": "S3 Bucket",
+        "target": "SNS Topic",
+        "label": "4",
+        "type": "trigger"
+      },
+      {
+        "source": "SNS Topic",
+        "target": "SQS Queue",
+        "label": "5",
+        "type": "add"
+      },
+      {
+        "source": "SQS Queue",
+        "target": "Lambda Function",
+        "label": "6",
+        "type": "process"
+      },
+      {
+        "source": "Lambda Function",
+        "target": "S3 Bucket",
+        "label": "9",
+        "type": "move"
+      },
+      {
+        "source": "Lambda Function",
+        "target": "RDS",
+        "label": "8",
+        "type": "add"
+      },
+      {
+        "source": "Lambda Function",
+        "target": "SNS Topic",
+        "label": "10",
+        "type": "publish"
+      },
+      {
+        "source": "Cloudwatch Alarm",
+        "target": "SNS Topic",
+        "label": "5.1.2",
+        "type": "notify"
+      },
+      {
+        "source": "Cloudwatch Alarm",
+        "target": "SNS Topic",
+        "label": "5.1.3",
+        "type": "notify"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "OPTIONAL",
+        "position": "near Cloudwatch Alarm"
+      },
+      {
+        "text": "OPTIONAL",
+        "position": "near SNS Topic"
+      }
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "AWS Data Processing Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Waze CCP Data Feed",
+        "description": "Source of data",
+        "position": "top left"
+      },
+      {
+        "name": "S3 Bucket",
+        "description": "Data Lake",
+        "position": "left"
+      },
+      {
+        "name": "SQS Queue",
+        "description": "Queue for processing",
+        "position": "bottom left"
+      },
+      {
+        "name": "API Gateway",
+        "description": "Routes requests",
+        "position": "bottom"
+      },
+      {
+        "name": "Lambda",
+        "description": "Data processing functions",
+        "position": "center"
+      },
+      {
+        "name": "SNS Topic",
+        "description": "Notification service",
+        "position": "right"
+      },
+      {
+        "name": "Aurora PostgreSQL",
+        "description": "Database storage",
+        "position": "right"
+      },
+      {
+        "name": "API Consumer",
+        "description": "Consumes API results",
+        "position": "bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Waze CCP Data Feed",
+        "target": "Lambda",
+        "label": "Fetch data",
+        "type": "data flow"
+      },
+      {
+        "source": "Lambda",
+        "target": "S3 Bucket",
+        "label": "Store raw JSON",
+        "type": "store"
+      },
+      {
+        "source": "S3 Bucket",
+        "target": "Lambda",
+        "label": "Trigger on new file",
+        "type": "trigger"
+      },
+      {
+        "source": "SQS Queue",
+        "target": "Lambda",
+        "label": "Dequeue for processing",
+        "type": "process"
+      },
+      {
+        "source": "Lambda",
+        "target": "SNS Topic",
+        "label": "Notify status",
+        "type": "notify"
+      },
+      {
+        "source": "Lambda",
+        "target": "Aurora PostgreSQL",
+        "label": "Store processed data",
+        "type": "store"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda",
+        "label": "Route requests",
+        "type": "route"
+      },
+      {
+        "source": "Lambda",
+        "target": "API Consumer",
+        "label": "Return results",
+        "type": "response"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "data lake pattern",
+        "position": "near S3 Bucket"
+      },
+      {
+        "text": "retry mechanism via\\nredrive_policy",
+        "position": "near SQS Queue"
+      },
+      {
+        "text": "facade pattern",
+        "position": "near API Gateway"
+      }
+    ],
+    "groups": [
+      {
+        "name": "AWS",
+        "components": [
+          "Lambda",
+          "S3 Bucket",
+          "SQS Queue",
+          "SNS Topic",
+          "Aurora PostgreSQL"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "AWS Data Processing System"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "S3 Bucket",
+      "SQS Queue",
+      "Lambda",
+      "SNS Topic"
+    ],
+    "unique_to_GroundTruth": [
+      "Cloudwatch Event",
+      "Cloudwatch Alarm",
+      "RDS"
+    ],
+    "unique_to_GeneratedImage": [
+      "Waze CCP Data Feed",
+      "API Gateway",
+      "Aurora PostgreSQL",
+      "API Consumer"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Cloudwatch Event",
+        "target": "Lambda Function",
+        "label": "1",
+        "type": "trigger"
+      },
+      {
+        "source": "Lambda Function",
+        "target": "S3 Bucket",
+        "label": "3",
+        "type": "save"
+      },
+      {
+        "source": "S3 Bucket",
+        "target": "SNS Topic",
+        "label": "4",
+        "type": "trigger"
+      },
+      {
+        "source": "SNS Topic",
+        "target": "SQS Queue",
+        "label": "5",
+        "type": "add"
+      },
+      {
+        "source": "SQS Queue",
+        "target": "Lambda Function",
+        "label": "6",
+        "type": "process"
+      },
+      {
+        "source": "Lambda Function",
+        "target": "S3 Bucket",
+        "label": "9",
+        "type": "move"
+      },
+      {
+        "source": "Lambda Function",
+        "target": "RDS",
+        "label": "8",
+        "type": "add"
+      },
+      {
+        "source": "Lambda Function",
+        "target": "SNS Topic",
+        "label": "10",
+        "type": "publish"
+      },
+      {
+        "source": "Cloudwatch Alarm",
+        "target": "SNS Topic",
+        "label": "5.1.2",
+        "type": "notify"
+      },
+      {
+        "source": "Cloudwatch Alarm",
+        "target": "SNS Topic",
+        "label": "5.1.3",
+        "type": "notify"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Waze CCP Data Feed",
+        "target": "Lambda",
+        "label": "Fetch data",
+        "type": "data flow"
+      },
+      {
+        "source": "Lambda",
+        "target": "S3 Bucket",
+        "label": "Store raw JSON",
+        "type": "store"
+      },
+      {
+        "source": "S3 Bucket",
+        "target": "Lambda",
+        "label": "Trigger on new file",
+        "type": "trigger"
+      },
+      {
+        "source": "SQS Queue",
+        "target": "Lambda",
+        "label": "Dequeue for processing",
+        "type": "process"
+      },
+      {
+        "source": "Lambda",
+        "target": "SNS Topic",
+        "label": "Notify status",
+        "type": "notify"
+      },
+      {
+        "source": "Lambda",
+        "target": "Aurora PostgreSQL",
+        "label": "Store processed data",
+        "type": "store"
+      },
+      {
+        "source": "API Gateway",
+        "target": "Lambda",
+        "label": "Route requests",
+        "type": "route"
+      },
+      {
+        "source": "Lambda",
+        "target": "API Consumer",
+        "label": "Return results",
+        "type": "response"
+      }
+    ],
+    "explanation": "Both diagrams depict AWS-based data processing architectures with common components such as S3 Bucket, SQS Queue, Lambda, and SNS Topic. However, the GroundTruth diagram includes Cloudwatch Event and Alarm for monitoring and scheduling, while the GeneratedImage diagram incorporates an API Gateway and Aurora PostgreSQL for database storage. The GroundTruth focuses on a more event-driven architecture with Cloudwatch and SNS notifications, whereas the GeneratedImage emphasizes data flow and API interactions. The GeneratedImage is rated 7 out of 10 for accuracy and completeness. It captures the core AWS components but lacks some specific event-driven elements present in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

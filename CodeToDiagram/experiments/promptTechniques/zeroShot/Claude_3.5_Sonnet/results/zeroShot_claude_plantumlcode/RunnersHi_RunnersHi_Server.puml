@@ -1,0 +1,61 @@
+@startuml
+participant "Client" as C
+participant "Express Server" as ES
+participant "Socket.IO" as SIO
+participant "AuthController" as AC
+participant "UserController" as UC
+participant "RankingController" as RC
+participant "RecordController" as REC
+participant "MatchingModel" as MM
+participant "UserModel" as UM
+participant "RankingModel" as RM
+participant "RecordModel" as REM
+database "MySQL Database" as DB
+
+C -> ES: HTTP Request
+ES -> AC: Authenticate (JWT)
+AC -> UM: Verify Token
+UM -> DB: Query User
+DB --> UM: User Data
+UM --> AC: Token Valid
+AC --> ES: User Authenticated
+
+alt User Management
+    ES -> UC: User Request
+    UC -> UM: CRUD Operation
+    UM -> DB: Execute Query
+    DB --> UM: Query Result
+    UM --> UC: Operation Result
+    UC --> ES: Response
+else Ranking
+    ES -> RC: Ranking Request
+    RC -> RM: Get Rankings
+    RM -> DB: Query Rankings
+    DB --> RM: Ranking Data
+    RM --> RC: Rankings
+    RC --> ES: Ranking Response
+else Record Management
+    ES -> REC: Record Request
+    REC -> REM: CRUD Operation
+    REM -> DB: Execute Query
+    DB --> REM: Query Result
+    REM --> REC: Operation Result
+    REC --> ES: Response
+end
+
+C -> SIO: Connect for Matching
+SIO -> MM: Find Match
+MM -> DB: Query Available Users
+DB --> MM: User Data
+MM --> SIO: Match Found
+SIO --> C: Matched with Opponent
+
+C -> SIO: Send Running Data
+SIO -> MM: Update Running Data
+MM -> DB: Store Running Data
+DB --> MM: Confirmation
+MM --> SIO: Data Stored
+SIO --> C: Confirmation
+
+ES --> C: HTTP Response
+@enduml

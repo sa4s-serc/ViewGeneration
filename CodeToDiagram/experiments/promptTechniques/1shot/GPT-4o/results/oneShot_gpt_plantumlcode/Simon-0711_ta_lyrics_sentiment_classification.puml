@@ -1,0 +1,38 @@
+```plantuml
+@startuml Simon-0711_ta_lyrics_sentiment_classification
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Frontend (React)" as Frontend #lightblue {
+}
+
+rectangle "Backend (FastAPI)" as Backend #lightgreen {
+  rectangle "LyricsGenius API" as LyricsAPI #lightyellow
+  rectangle "CNN Model" as CNNModel #lightpink
+  rectangle "Elasticsearch" as Elasticsearch #lightgrey
+}
+
+rectangle "Data Exploration\n(Jupyter Notebooks)" as DataExploration #lavender {
+}
+
+' ========== Connections ==========
+User --> Frontend : Input song and artist info
+
+Frontend <--> Backend : API requests\nReceive search results
+
+Backend --> LyricsAPI : Retrieve lyrics if not in Elasticsearch
+Backend --> Elasticsearch : Query/store song lyrics\nRetrieve similar songs
+Backend --> CNNModel : Preprocess lyrics\nClassify sentiment
+Backend --> Elasticsearch : Query similar songs\nusing TF-IDF\nCalculate cosine similarity
+
+DataExploration --> Backend : Preprocessing steps\nExplore dataset
+Backend --> DataExploration : Analyze data\nusing TensorFlow/Keras
+
+@enduml
+```

@@ -1,0 +1,57 @@
+```plantuml
+@startuml open-risk_Open_Risk_API
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Open Risk API" {
+  rectangle "Model Server" as ModelServer {
+    rectangle "Flask-based Server" as FlaskServer
+    rectangle "RDFlib\nMetadata Management" as RDFlib
+    rectangle "Concentration Metrics\nLibrary" as ConcentrationLib
+    FlaskServer --> RDFlib
+    FlaskServer --> ConcentrationLib
+  }
+
+  rectangle "Data Server" as DataServer {
+    rectangle "Python-Eve Server" as EveServer
+    rectangle "MongoDB Backend" as MongoDB
+    EveServer --> MongoDB
+  }
+
+  rectangle "API Explorer\n(Python Client)" as APIClient
+  APIClient --> ModelServer
+  APIClient --> DataServer
+}
+
+package "OpenCPM" {
+  rectangle "NPL Concentration Metrics" as NPLConcentration {
+    rectangle "Compute.py\n(Calculations)" as Compute
+    rectangle "Gini_Index.rdf" as GiniIndex
+    rectangle "HHI_Index.rdf" as HHIIndex
+    rectangle "Shannon_Index.rdf" as ShannonIndex
+    Compute --> GiniIndex
+    Compute --> HHIIndex
+    Compute --> ShannonIndex
+  }
+  rectangle "LibreOffice Sheet" as LibreOffice
+  rectangle "LibreOffice Macros" as LibreMacros
+  LibreOffice --> LibreMacros
+}
+
+APIClient --> NPLConcentration
+LibreOffice --> NPLConcentration
+
+note right of ModelServer
+  RESTful API
+end note
+note right of DataServer
+  RESTful API
+end note
+
+@enduml
+```

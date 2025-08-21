@@ -1,0 +1,227 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "User",
+        "description": "End user interacting with the system",
+        "boundaries": "Outside the main system",
+        "position": "Left"
+      },
+      {
+        "name": "Frontend",
+        "description": "React application running in Docker",
+        "boundaries": "Within the main system",
+        "position": "Center-left"
+      },
+      {
+        "name": "Backend",
+        "description": "FastAPI application with Genius API running in Docker",
+        "boundaries": "Within the main system",
+        "position": "Center"
+      },
+      {
+        "name": "Elasticsearch",
+        "description": "Analytics and storage component running in Docker",
+        "boundaries": "Within the main system",
+        "position": "Top-right"
+      },
+      {
+        "name": "Kibana",
+        "description": "Visualization tool running in Docker",
+        "boundaries": "Within the main system",
+        "position": "Bottom-right"
+      },
+      {
+        "name": "Developer/Admin",
+        "description": "Admin user interacting with Kibana",
+        "boundaries": "Outside the main system",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Frontend",
+        "label": "searches for/provides a song",
+        "type": "Arrow"
+      },
+      {
+        "source": "Frontend",
+        "target": "Backend",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Backend",
+        "target": "Elasticsearch",
+        "label": "Analytics and storage",
+        "type": "Arrow"
+      },
+      {
+        "source": "Elasticsearch",
+        "target": "Kibana",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Kibana",
+        "target": "Developer/Admin",
+        "label": "",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "High level architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Frontend (React)",
+        "description": "React application",
+        "boundaries": "Within the main system",
+        "position": "Left"
+      },
+      {
+        "name": "Backend (FastAPI)",
+        "description": "FastAPI application",
+        "boundaries": "Within the main system",
+        "position": "Center-left"
+      },
+      {
+        "name": "Elasticsearch",
+        "description": "Storage and analytics component",
+        "boundaries": "Within the main system",
+        "position": "Center"
+      },
+      {
+        "name": "LyricsGenius API",
+        "description": "External API for lyrics",
+        "boundaries": "Within the main system",
+        "position": "Center-right"
+      },
+      {
+        "name": "CNN Model",
+        "description": "Model for cosine similarity",
+        "boundaries": "Within the main system",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Frontend (React)",
+        "target": "Backend (FastAPI)",
+        "label": "User inputs song and artist",
+        "type": "Arrow"
+      },
+      {
+        "source": "Backend (FastAPI)",
+        "target": "Elasticsearch",
+        "label": "Check if lyrics exist",
+        "type": "Arrow"
+      },
+      {
+        "source": "Backend (FastAPI)",
+        "target": "LyricsGenius API",
+        "label": "Request lyrics",
+        "type": "Arrow"
+      },
+      {
+        "source": "Backend (FastAPI)",
+        "target": "CNN Model",
+        "label": "Calculate cosine similarity",
+        "type": "Arrow"
+      },
+      {
+        "source": "Elasticsearch",
+        "target": "Backend (FastAPI)",
+        "label": "Return lyrics and sentiment",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      "Lyrics not found in Elasticsearch",
+      "Lyrics found in Elasticsearch"
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": ""
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Frontend",
+      "Backend",
+      "Elasticsearch"
+    ],
+    "unique_to_GroundTruth": [
+      "User",
+      "Kibana",
+      "Developer/Admin"
+    ],
+    "unique_to_GeneratedImage": [
+      "LyricsGenius API",
+      "CNN Model"
+    ],
+    "common_connectors": [
+      {
+        "source": "Frontend",
+        "target": "Backend",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Backend",
+        "target": "Elasticsearch",
+        "label": "",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "User",
+        "target": "Frontend",
+        "label": "searches for/provides a song",
+        "type": "Arrow"
+      },
+      {
+        "source": "Elasticsearch",
+        "target": "Kibana",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Kibana",
+        "target": "Developer/Admin",
+        "label": "",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Backend (FastAPI)",
+        "target": "LyricsGenius API",
+        "label": "Request lyrics",
+        "type": "Arrow"
+      },
+      {
+        "source": "Backend (FastAPI)",
+        "target": "CNN Model",
+        "label": "Calculate cosine similarity",
+        "type": "Arrow"
+      },
+      {
+        "source": "Elasticsearch",
+        "target": "Backend (FastAPI)",
+        "label": "Return lyrics and sentiment",
+        "type": "Arrow"
+      }
+    ],
+    "explanation": "The GroundTruth diagram provides a high-level overview of the system architecture, focusing on the components and their interactions within Docker containers. It includes user interactions with the frontend and backend, and also visualizes the analytics and storage components with Elasticsearch and Kibana. The GeneratedImage diagram, on the other hand, is a sequence diagram detailing the flow of operations between components. It includes additional components like the LyricsGenius API and CNN Model, which are not present in the GroundTruth diagram. The GeneratedImage diagram emphasizes the process flow, including conditional paths for lyrics retrieval and sentiment analysis. Overall, the GeneratedImage provides a more detailed view of the interactions and processes, while the GroundTruth offers a broader architectural perspective. The GeneratedImage is rated 7 out of 10 for its accuracy and completeness, as it captures detailed interactions but lacks some components and connections present in the GroundTruth.",
+    "Rating": 7
+  }
+}

@@ -1,0 +1,42 @@
+```plantuml
+@startuml pau-minoves_jseats
+
+actor User
+participant "SeatAllocatorLauncher" as Launcher
+participant "SeatAllocatorProcessor" as Processor
+participant "SeatAllocatorResolver" as Resolver
+participant "ProcessorConfig" as Config
+participant "XML File" as XML
+participant "Tally" as Tally
+participant "Candidate" as Candidate
+participant "SeatAllocationMethod" as AllocationMethod
+participant "TallyFilter" as TallyFilter
+participant "ResultDecorator" as ResultDecorator
+participant "TieBreaker" as TieBreaker
+
+User -> Launcher: Execute CLI
+Launcher -> Config: Load Config (XML)
+Config -> XML: Deserialize Config
+Config -> Processor: Provide Config
+
+Processor -> Resolver: Resolve Allocation Method
+Processor -> Resolver: Resolve Tally Filters
+Processor -> Resolver: Resolve Result Decorators
+Processor -> Resolver: Resolve Tie Breakers
+Resolver -> AllocationMethod: Create Instance
+Resolver -> TallyFilter: Create Instances
+Resolver -> ResultDecorator: Create Instances
+Resolver -> TieBreaker: Create Instances
+
+Processor -> XML: Load Tally
+XML -> Tally: Deserialize Tally
+Tally -> Candidate: Aggregate Votes
+Processor -> TallyFilter: Apply Filters
+Processor -> AllocationMethod: Execute Allocation
+AllocationMethod -> Tally: Process Votes
+Processor -> TieBreaker: Resolve Ties
+Processor -> ResultDecorator: Apply Decorators
+Processor -> User: Return Results
+
+@enduml
+```

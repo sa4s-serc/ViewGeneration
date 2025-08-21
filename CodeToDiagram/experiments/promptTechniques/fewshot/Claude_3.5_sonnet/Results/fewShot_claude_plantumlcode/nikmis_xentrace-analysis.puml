@@ -1,0 +1,51 @@
+@startuml nikmis_xentrace-analysis
+
+skinparam componentStyle rectangle
+skinparam linetype ortho
+
+rectangle "Xentrace-analysis" as XA {
+  [Main Program] as Main
+  [Event Reader] as Reader
+  [Event Handler] as Handler
+  [Event Sorter] as Sorter
+}
+
+rectangle "Analysis Modules" as AM {
+  [CPU Utilization] as CPU
+  [Scheduling Latency] as Sched
+  [Hypervisor Time] as Hyper
+  [Disk I/O] as IO
+  [Xen Stats] as Stats
+  [Trap Counter] as Trap
+}
+
+database "Trace Data File" as TraceFile
+
+[xentrace] as Xentrace
+
+Main --> Xentrace : spawns
+Xentrace --> TraceFile : writes
+
+Main --> Reader : initiates
+Reader --> TraceFile : reads
+Reader --> Sorter : passes events
+Sorter --> Handler : sorted events
+
+Handler --> CPU : dispatches events
+Handler --> Sched : dispatches events
+Handler --> Hyper : dispatches events
+Handler --> IO : dispatches events
+Handler --> Stats : dispatches events
+Handler --> Trap : dispatches events
+
+note right of AM
+  Each module registers
+  for specific events
+end note
+
+note bottom of XA
+  Event-driven architecture
+  with modular design
+end note
+
+@enduml

@@ -1,0 +1,52 @@
+```plantuml
+@startuml UoA-eResearch_hub-stack
+
+actor User
+participant "ResearchHub Website (Frontend)" as Frontend
+participant "GraphQL API (cer-graphql)" as GraphQL
+participant "Contentful CMS" as Contentful
+participant "Search Proxy (hub-search-proxy)" as SearchProxy
+participant "ElasticSearch" as ElasticSearch
+participant "AWS Cognito" as Cognito
+participant "Jenkins CI/CD" as Jenkins
+participant "Terraform" as Terraform
+participant "AWS Cloud" as AWS
+
+User -> Frontend: Access website
+Frontend -> Cognito: Authenticate user
+Cognito --> Frontend: Authentication token
+
+Frontend -> GraphQL: Query content (with token)
+GraphQL -> Contentful: Fetch content
+Contentful --> GraphQL: Return content
+GraphQL --> Frontend: Return formatted content
+
+Frontend -> SearchProxy: Search request (with token)
+SearchProxy -> ElasticSearch: Execute search
+ElasticSearch --> SearchProxy: Return results
+SearchProxy --> Frontend: Return formatted results
+
+group Deployment Process
+  Jenkins -> Terraform: Trigger infrastructure deployment
+  Terraform -> AWS: Provision resources (S3, CloudFront, Lambda, etc.)
+  AWS --> Terraform: Confirmation
+  Terraform --> Jenkins: Deployment status
+
+  Jenkins -> Frontend: Build and deploy frontend
+  Frontend -> AWS: Upload to S3/CloudFront
+  AWS --> Frontend: Confirmation
+  Frontend --> Jenkins: Deployment status
+
+  Jenkins -> GraphQL: Build and deploy API
+  GraphQL -> AWS: Deploy to ECS/ECR
+  AWS --> GraphQL: Confirmation
+  GraphQL --> Jenkins: Deployment status
+
+  Jenkins -> SearchProxy: Build and deploy Lambda
+  SearchProxy -> AWS: Deploy Lambda function
+  AWS --> SearchProxy: Confirmation
+  SearchProxy --> Jenkins: Deployment status
+end
+
+@enduml
+```

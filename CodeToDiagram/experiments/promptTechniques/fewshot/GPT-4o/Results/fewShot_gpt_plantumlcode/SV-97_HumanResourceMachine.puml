@@ -1,0 +1,40 @@
+```plantuml
+@startuml SV-97_HumanResourceMachine
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam linetype ortho
+
+package "HRM Project" {
+  rectangle "Python Prototype" {
+    rectangle "Tokenizer\n(fancy_translator.py)" as PyTokenizer
+    rectangle "Translator/Assembler\n(fancy_translator.py)" as PyAssembler
+    rectangle "Disassembler\n(fancy_translator.py)" as PyDisassembler
+    rectangle "Virtual Machine\n(vm.py)" as PyVM
+  }
+
+  rectangle "Rust Implementation" {
+    rectangle "Tokenizer\n(tokenizer.rs)" as RustTokenizer
+    rectangle "Translator/Assembler\n(translator.rs)" as RustAssembler
+    rectangle "Disassembler\n(bytecode.rs)" as RustDisassembler
+    rectangle "Virtual Machine\n(vm.rs)" as RustVM
+  }
+}
+
+PyTokenizer --> PyAssembler
+PyAssembler --> PyDisassembler
+PyAssembler --> PyVM
+
+RustTokenizer --> RustAssembler
+RustAssembler --> RustDisassembler
+RustAssembler --> RustVM
+
+PyTokenizer -left-> RustTokenizer : Conceptual\nTransition
+PyAssembler -left-> RustAssembler : Direct\nCompilation
+PyDisassembler -left-> RustDisassembler : Bytecode\nRepresentation
+PyVM -left-> RustVM : Performance\nEnhancement
+
+@enduml
+```

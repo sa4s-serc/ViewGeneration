@@ -1,0 +1,100 @@
+Here's a PlantUML component diagram for the Cima+ iOS application, focusing on the general architectural concern:
+
+```plantuml
+@startuml kerollesroshdi_Cima-
+
+skinparam component {
+  FontColor black
+  BackgroundColor #FFD700
+  BorderColor #FF8C00
+  ArrowColor #FF4500
+}
+
+package "App Layer" {
+  [AppDelegate]
+  [AppCoordinator]
+  
+  package "Scenes" {
+    [NowPlayingVC]
+    [TopRatedVC]
+    [SearchVC]
+    [MovieDetailsVC]
+    [BrowseVM]
+    [SearchVM]
+    [MovieDetailsVM]
+  }
+  
+  package "Core" {
+    [BaseViewController]
+    [ViewModel]
+    [TextyTabBar]
+    [StateView]
+  }
+}
+
+package "Domain Layer" {
+  [MoviesRepository]
+  
+  package "UseCases" {
+    [BrowseUseCase]
+    [SearchUseCase]
+    [MovieDetailsUseCase]
+  }
+  
+  package "Entities" {
+    [Movie]
+    [MovieDetails]
+    [Genre]
+    [AppError]
+    [Page]
+  }
+}
+
+package "Data Layer" {
+  [MoviesRepositoryImpl]
+  
+  package "RemoteDataSources" {
+    [RemoteMoviesDataSource]
+    [MoviesService]
+  }
+}
+
+cloud "TMDB API" as TMDBAPI
+
+[AppDelegate] --> [AppCoordinator]
+[AppCoordinator] --> [NowPlayingVC]
+[AppCoordinator] --> [TopRatedVC]
+[AppCoordinator] --> [SearchVC]
+[AppCoordinator] --> [MovieDetailsVC]
+
+[NowPlayingVC] --> [BrowseVM]
+[TopRatedVC] --> [BrowseVM]
+[SearchVC] --> [SearchVM]
+[MovieDetailsVC] --> [MovieDetailsVM]
+
+[BrowseVM] --> [BrowseUseCase]
+[SearchVM] --> [SearchUseCase]
+[MovieDetailsVM] --> [MovieDetailsUseCase]
+
+[BrowseUseCase] --> [MoviesRepository]
+[SearchUseCase] --> [MoviesRepository]
+[MovieDetailsUseCase] --> [MoviesRepository]
+
+[MoviesRepositoryImpl] ..|> [MoviesRepository]
+[MoviesRepositoryImpl] --> [RemoteMoviesDataSource]
+[RemoteMoviesDataSource] --> [MoviesService]
+[MoviesService] --> TMDBAPI
+
+[BaseViewController] <-- [NowPlayingVC]
+[BaseViewController] <-- [TopRatedVC]
+[BaseViewController] <-- [SearchVC]
+[BaseViewController] <-- [MovieDetailsVC]
+
+[ViewModel] <|.. [BrowseVM]
+[ViewModel] <|.. [SearchVM]
+[ViewModel] <|.. [MovieDetailsVM]
+
+@enduml
+```
+
+This PlantUML component diagram captures the static architecture of the Cima+ iOS application, focusing on the general architectural concern. It illustrates the main components and their relationships across the App, Domain, and Data layers, as well as the interaction with the external TMDB API.

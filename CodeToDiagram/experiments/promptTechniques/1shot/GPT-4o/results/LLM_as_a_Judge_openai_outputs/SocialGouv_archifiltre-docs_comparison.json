@@ -1,0 +1,307 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Electron",
+        "description": "Framework for building cross-platform desktop apps",
+        "boundary": "Archifiltre",
+        "position": "top"
+      },
+      {
+        "name": "React.js",
+        "description": "JavaScript library for building user interfaces",
+        "boundary": "Archifiltre",
+        "position": "middle"
+      },
+      {
+        "name": "Redux",
+        "description": "State management library",
+        "boundary": "Archifiltre",
+        "position": "bottom"
+      },
+      {
+        "name": "GitHub",
+        "description": "Platform for version control and collaboration",
+        "boundary": "External",
+        "position": "left"
+      },
+      {
+        "name": "Sentry",
+        "description": "Error tracking service",
+        "boundary": "External",
+        "position": "right"
+      },
+      {
+        "name": "Matomo",
+        "description": "Web analytics platform",
+        "boundary": "External",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Archifiltre",
+        "target": "Sentry",
+        "label": "Remontées d'erreur",
+        "type": "data flow"
+      },
+      {
+        "source": "Archifiltre",
+        "target": "Matomo",
+        "label": "Données d'usage",
+        "type": "data flow"
+      },
+      {
+        "source": "GitHub",
+        "target": "Archifiltre",
+        "label": "Continuous Integration/Continuous Deployment, Releases, Issues/Pull requests",
+        "type": "data flow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Archifiltre",
+        "components": [
+          "Electron",
+          "React.js",
+          "Redux"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "Archifiltre_Architecture.png",
+      "title": "Archifiltre"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Main Process",
+        "description": "Handles main application logic",
+        "boundary": "Archifiltre Application",
+        "position": "left"
+      },
+      {
+        "name": "Renderer Process",
+        "description": "Handles UI rendering",
+        "boundary": "Archifiltre Application",
+        "position": "middle"
+      },
+      {
+        "name": "Node.js Worker",
+        "description": "Handles background tasks",
+        "boundary": "Archifiltre Application",
+        "position": "right"
+      },
+      {
+        "name": "File System",
+        "description": "External file storage",
+        "boundary": "External Services",
+        "position": "left"
+      },
+      {
+        "name": "Sentry",
+        "description": "Error tracking service",
+        "boundary": "External Services",
+        "position": "middle"
+      },
+      {
+        "name": "Matomo/Posthog",
+        "description": "Web analytics platform",
+        "boundary": "External Services",
+        "position": "middle"
+      },
+      {
+        "name": "Redis",
+        "description": "In-memory data structure store",
+        "boundary": "External Services",
+        "position": "middle"
+      },
+      {
+        "name": "CSV Exporter",
+        "description": "Exports data to CSV format",
+        "boundary": "Export Services",
+        "position": "right"
+      },
+      {
+        "name": "Excel Exporter",
+        "description": "Exports data to Excel format",
+        "boundary": "Export Services",
+        "position": "right"
+      },
+      {
+        "name": "RESIP Exporter",
+        "description": "Exports data to RESIP format",
+        "boundary": "Export Services",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Main Process",
+        "label": "Start Application",
+        "type": "interaction"
+      },
+      {
+        "source": "Main Process",
+        "target": "Renderer Process",
+        "label": "Initialize UI",
+        "type": "data flow"
+      },
+      {
+        "source": "Main Process",
+        "target": "Node.js Worker",
+        "label": "Load File System",
+        "type": "data flow"
+      },
+      {
+        "source": "Node.js Worker",
+        "target": "File System",
+        "label": "Retrieve File Metadata",
+        "type": "data flow"
+      },
+      {
+        "source": "Node.js Worker",
+        "target": "Main Process",
+        "label": "Return Processed Data",
+        "type": "data flow"
+      },
+      {
+        "source": "Main Process",
+        "target": "Sentry",
+        "label": "Log Errors",
+        "type": "data flow"
+      },
+      {
+        "source": "Main Process",
+        "target": "Matomo/Posthog",
+        "label": "Send Usage Data",
+        "type": "data flow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Archifiltre Application",
+        "components": [
+          "Main Process",
+          "Renderer Process",
+          "Node.js Worker"
+        ]
+      },
+      {
+        "name": "External Services",
+        "components": [
+          "File System",
+          "Sentry",
+          "Matomo/Posthog",
+          "Redis"
+        ]
+      },
+      {
+        "name": "Export Services",
+        "components": [
+          "CSV Exporter",
+          "Excel Exporter",
+          "RESIP Exporter"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "Archifiltre_Sequence.png",
+      "title": "Archifiltre Application"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Sentry",
+      "Matomo/Posthog"
+    ],
+    "unique_to_GroundTruth": [
+      "Electron",
+      "React.js",
+      "Redux",
+      "GitHub"
+    ],
+    "unique_to_GeneratedImage": [
+      "Main Process",
+      "Renderer Process",
+      "Node.js Worker",
+      "File System",
+      "Redis",
+      "CSV Exporter",
+      "Excel Exporter",
+      "RESIP Exporter"
+    ],
+    "common_connectors": [
+      {
+        "source": "Archifiltre",
+        "target": "Sentry",
+        "label": "Remontées d'erreur",
+        "type": "data flow"
+      },
+      {
+        "source": "Archifiltre",
+        "target": "Matomo",
+        "label": "Données d'usage",
+        "type": "data flow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "GitHub",
+        "target": "Archifiltre",
+        "label": "Continuous Integration/Continuous Deployment, Releases, Issues/Pull requests",
+        "type": "data flow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "Main Process",
+        "label": "Start Application",
+        "type": "interaction"
+      },
+      {
+        "source": "Main Process",
+        "target": "Renderer Process",
+        "label": "Initialize UI",
+        "type": "data flow"
+      },
+      {
+        "source": "Main Process",
+        "target": "Node.js Worker",
+        "label": "Load File System",
+        "type": "data flow"
+      },
+      {
+        "source": "Node.js Worker",
+        "target": "File System",
+        "label": "Retrieve File Metadata",
+        "type": "data flow"
+      },
+      {
+        "source": "Node.js Worker",
+        "target": "Main Process",
+        "label": "Return Processed Data",
+        "type": "data flow"
+      },
+      {
+        "source": "Main Process",
+        "target": "Sentry",
+        "label": "Log Errors",
+        "type": "data flow"
+      },
+      {
+        "source": "Main Process",
+        "target": "Matomo/Posthog",
+        "label": "Send Usage Data",
+        "type": "data flow"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of the Archifiltre application. The GroundTruth diagram focuses on the technology stack and external integrations, highlighting components like Electron, React.js, and Redux, along with integrations to GitHub, Sentry, and Matomo. The GeneratedImage diagram, on the other hand, provides a sequence flow of interactions within the application, detailing processes such as Main Process, Renderer Process, and Node.js Worker, and their interactions with external services like Sentry and Matomo/Posthog. Common elements include the use of Sentry and Matomo/Posthog for error tracking and analytics, respectively. The GroundTruth diagram includes unique elements like GitHub integration, while the GeneratedImage diagram includes detailed process flows and additional services like Redis and various data exporters. The GeneratedImage diagram is rated 8 out of 10 for its detailed process flow and comprehensive coverage of application interactions, though it lacks some of the technology stack details present in the GroundTruth diagram.",
+    "Rating": 8
+  }
+}

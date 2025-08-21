@@ -1,0 +1,41 @@
+```plantuml
+@startuml chirgjin_track-my-events
+
+actor User
+
+participant "React App" as React
+participant "API Gateway" as Gateway
+participant "User Service" as UserService
+participant "Tracking Service" as TrackingService
+participant "Redis" as Redis
+participant "PostgreSQL" as PostgreSQL
+
+User -> React: Register/Login
+React -> Gateway: POST /auth
+Gateway -> UserService: POST /auth
+UserService -> PostgreSQL: Validate User
+PostgreSQL --> UserService: User Validated
+UserService --> Gateway: Token
+Gateway --> React: Token
+
+User -> React: Integrate SDK
+React -> React: Include tracking-sdk.js
+
+User -> React: Event Trigger
+React -> Gateway: POST /events
+Gateway -> Redis: Publish Event
+
+Redis -> TrackingService: Notify Event
+TrackingService -> PostgreSQL: Store Event Data
+PostgreSQL --> TrackingService: Data Stored
+
+User -> React: View Dashboard
+React -> Gateway: GET /dashboard
+Gateway -> TrackingService: GET /events
+TrackingService -> PostgreSQL: Retrieve Aggregated Data
+PostgreSQL --> TrackingService: Data Retrieved
+TrackingService --> Gateway: Aggregated Data
+Gateway --> React: Dashboard Data
+
+@enduml
+```

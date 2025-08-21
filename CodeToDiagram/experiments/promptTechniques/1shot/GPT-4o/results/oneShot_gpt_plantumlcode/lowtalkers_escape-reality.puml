@@ -1,0 +1,50 @@
+```plantuml
+@startuml lowtalkers_escape-reality
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Client-side" as Client {
+  rectangle "React Application" as ReactApp {
+    rectangle "index.jsx" as Index
+    rectangle "App.js" as App
+    rectangle "VR Components" as VRComponents
+    rectangle "UI Components" as UIComponents
+  }
+}
+
+rectangle "Server-side" as Server {
+  rectangle "Node.js + Express.js" as Express {
+    rectangle "server.js" as ServerJS
+    rectangle "API Endpoints" as APIEndpoints
+  }
+  rectangle "MariaDB" as MariaDB {
+    rectangle "Sequelize Models" as Models
+    rectangle "db/controllers" as Controllers
+  }
+}
+
+rectangle "AWS S3" as S3
+
+rectangle "Wikipedia API" as WikipediaAPI
+
+' ========== Connections ==========
+User --> Client
+
+' Client-side interactions
+Client <--> Server : HTTP Requests\n(Authentication, Image Uploads, Bookmarks, Comments, Likes)
+ReactApp <--> S3 : Upload/Download Images
+ReactApp <--> WikipediaAPI : Fetch Related Articles
+
+' Server-side interactions
+Express <--> MariaDB : Sequelize Queries
+ServerJS <--> APIEndpoints : Handle Requests\nRoute to Controllers
+Controllers <--> Models : Query Database
+
+@enduml
+```

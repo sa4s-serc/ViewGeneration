@@ -1,0 +1,483 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Website",
+        "description": "Channel for user interaction",
+        "boundary": "Channel",
+        "position": "top left"
+      },
+      {
+        "name": "Azure Functions",
+        "description": "Handles notifications and data processing",
+        "boundary": "Channel",
+        "position": "left"
+      },
+      {
+        "name": "Healthcare Bot",
+        "description": "Processes health-related interactions",
+        "boundary": "Store & Persist",
+        "position": "center"
+      },
+      {
+        "name": "Azure API for FHIR",
+        "description": "Stores and manages healthcare data",
+        "boundary": "Store & Persist",
+        "position": "center right"
+      },
+      {
+        "name": "Azure SQL Database",
+        "description": "Stores structured data",
+        "boundary": "Store & Persist",
+        "position": "bottom right"
+      },
+      {
+        "name": "PowerBI",
+        "description": "Visualizes data",
+        "boundary": "Visualize",
+        "position": "top right"
+      },
+      {
+        "name": "Teams",
+        "description": "Channel for user interaction",
+        "boundary": "Channel",
+        "position": "bottom left"
+      },
+      {
+        "name": "Twilio",
+        "description": "Channel for user interaction",
+        "boundary": "Channel",
+        "position": "bottom left"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Website",
+        "target": "Healthcare Bot",
+        "label": "Trigger Email Notifications",
+        "type": "direct"
+      },
+      {
+        "source": "Azure Functions",
+        "target": "Healthcare Bot",
+        "label": "Trigger Automated Notifications",
+        "type": "direct"
+      },
+      {
+        "source": "Healthcare Bot",
+        "target": "Azure API for FHIR",
+        "label": "",
+        "type": "direct"
+      },
+      {
+        "source": "Azure API for FHIR",
+        "target": "PowerBI",
+        "label": "",
+        "type": "direct"
+      },
+      {
+        "source": "Azure Functions",
+        "target": "Azure SQL Database",
+        "label": "",
+        "type": "direct"
+      },
+      {
+        "source": "Azure SQL Database",
+        "target": "PowerBI",
+        "label": "",
+        "type": "direct"
+      }
+    ],
+    "annotations": [
+      "Channels available: Web Chat, Microsoft Teams, Twilio, Facebook, Telegram",
+      "Databases available: 1. Azure API for FHIR 2. Azure SQL Database"
+    ],
+    "groups": [
+      {
+        "name": "Channel",
+        "components": [
+          "Website",
+          "Azure Functions",
+          "Teams",
+          "Twilio"
+        ]
+      },
+      {
+        "name": "Store & Persist",
+        "components": [
+          "Healthcare Bot",
+          "Azure API for FHIR",
+          "Azure SQL Database"
+        ]
+      },
+      {
+        "name": "Visualize",
+        "components": [
+          "PowerBI"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "ground_truth_diagram.png",
+      "title": "Healthcare Bot Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Employee",
+        "description": "User interacting with the system",
+        "boundary": "Actor",
+        "position": "left"
+      },
+      {
+        "name": "Healthcare Bot",
+        "description": "Processes health-related interactions",
+        "boundary": "System",
+        "position": "left center"
+      },
+      {
+        "name": "Azure Function (Post/Get Handlers)",
+        "description": "Handles API requests",
+        "boundary": "System",
+        "position": "center"
+      },
+      {
+        "name": "DbHelper",
+        "description": "Interacts with the database",
+        "boundary": "System",
+        "position": "center right"
+      },
+      {
+        "name": "Azure SQL Database",
+        "description": "Stores structured data",
+        "boundary": "System",
+        "position": "right"
+      },
+      {
+        "name": "NotificationHelper",
+        "description": "Handles notifications",
+        "boundary": "System",
+        "position": "right"
+      },
+      {
+        "name": "SendGrid",
+        "description": "Sends email notifications",
+        "boundary": "System",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Employee",
+        "target": "Healthcare Bot",
+        "label": "Start health assessment",
+        "type": "interaction"
+      },
+      {
+        "source": "Healthcare Bot",
+        "target": "Azure Function (Post/Get Handlers)",
+        "label": "POST /userinfo",
+        "type": "API call"
+      },
+      {
+        "source": "Azure Function (Post/Get Handlers)",
+        "target": "DbHelper",
+        "label": "SaveUserInfo()",
+        "type": "function call"
+      },
+      {
+        "source": "DbHelper",
+        "target": "Azure SQL Database",
+        "label": "Execute stored procedure",
+        "type": "database interaction"
+      },
+      {
+        "source": "Azure SQL Database",
+        "target": "DbHelper",
+        "label": "Success",
+        "type": "response"
+      },
+      {
+        "source": "DbHelper",
+        "target": "Azure Function (Post/Get Handlers)",
+        "label": "Success",
+        "type": "response"
+      },
+      {
+        "source": "Azure Function (Post/Get Handlers)",
+        "target": "Healthcare Bot",
+        "label": "Success",
+        "type": "response"
+      },
+      {
+        "source": "Healthcare Bot",
+        "target": "Azure Function (Post/Get Handlers)",
+        "label": "POST /symptoms",
+        "type": "API call"
+      },
+      {
+        "source": "Azure Function (Post/Get Handlers)",
+        "target": "DbHelper",
+        "label": "SaveSymptomsInfo()",
+        "type": "function call"
+      },
+      {
+        "source": "Healthcare Bot",
+        "target": "Azure Function (Post/Get Handlers)",
+        "label": "POST /labtest",
+        "type": "API call"
+      },
+      {
+        "source": "Azure Function (Post/Get Handlers)",
+        "target": "DbHelper",
+        "label": "SaveLabTestInfo()",
+        "type": "function call"
+      },
+      {
+        "source": "Healthcare Bot",
+        "target": "Azure Function (Post/Get Handlers)",
+        "label": "GET /requeststatus",
+        "type": "API call"
+      },
+      {
+        "source": "Azure Function (Post/Get Handlers)",
+        "target": "DbHelper",
+        "label": "GetRequestStatus()",
+        "type": "function call"
+      },
+      {
+        "source": "DbHelper",
+        "target": "Azure SQL Database",
+        "label": "Execute stored procedure",
+        "type": "database interaction"
+      },
+      {
+        "source": "Azure SQL Database",
+        "target": "DbHelper",
+        "label": "Status data",
+        "type": "response"
+      },
+      {
+        "source": "DbHelper",
+        "target": "Azure Function (Post/Get Handlers)",
+        "label": "Status data",
+        "type": "response"
+      },
+      {
+        "source": "Azure Function (Post/Get Handlers)",
+        "target": "Healthcare Bot",
+        "label": "Status data",
+        "type": "response"
+      },
+      {
+        "source": "Healthcare Bot",
+        "target": "Azure Function (Post/Get Handlers)",
+        "label": "POST /notify",
+        "type": "API call"
+      },
+      {
+        "source": "Azure Function (Post/Get Handlers)",
+        "target": "NotificationHelper",
+        "label": "SendNotification()",
+        "type": "function call"
+      },
+      {
+        "source": "NotificationHelper",
+        "target": "SendGrid",
+        "label": "Send email with QR code",
+        "type": "email"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "generated_image_diagram.png",
+      "title": "Healthcare Bot Sequence Diagram"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Healthcare Bot",
+      "Azure SQL Database"
+    ],
+    "unique_to_GroundTruth": [
+      "Website",
+      "Azure Functions",
+      "Azure API for FHIR",
+      "PowerBI",
+      "Teams",
+      "Twilio"
+    ],
+    "unique_to_GeneratedImage": [
+      "Employee",
+      "Azure Function (Post/Get Handlers)",
+      "DbHelper",
+      "NotificationHelper",
+      "SendGrid"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Website",
+        "target": "Healthcare Bot",
+        "label": "Trigger Email Notifications",
+        "type": "direct"
+      },
+      {
+        "source": "Azure Functions",
+        "target": "Healthcare Bot",
+        "label": "Trigger Automated Notifications",
+        "type": "direct"
+      },
+      {
+        "source": "Healthcare Bot",
+        "target": "Azure API for FHIR",
+        "label": "",
+        "type": "direct"
+      },
+      {
+        "source": "Azure API for FHIR",
+        "target": "PowerBI",
+        "label": "",
+        "type": "direct"
+      },
+      {
+        "source": "Azure Functions",
+        "target": "Azure SQL Database",
+        "label": "",
+        "type": "direct"
+      },
+      {
+        "source": "Azure SQL Database",
+        "target": "PowerBI",
+        "label": "",
+        "type": "direct"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Employee",
+        "target": "Healthcare Bot",
+        "label": "Start health assessment",
+        "type": "interaction"
+      },
+      {
+        "source": "Healthcare Bot",
+        "target": "Azure Function (Post/Get Handlers)",
+        "label": "POST /userinfo",
+        "type": "API call"
+      },
+      {
+        "source": "Azure Function (Post/Get Handlers)",
+        "target": "DbHelper",
+        "label": "SaveUserInfo()",
+        "type": "function call"
+      },
+      {
+        "source": "DbHelper",
+        "target": "Azure SQL Database",
+        "label": "Execute stored procedure",
+        "type": "database interaction"
+      },
+      {
+        "source": "Azure SQL Database",
+        "target": "DbHelper",
+        "label": "Success",
+        "type": "response"
+      },
+      {
+        "source": "DbHelper",
+        "target": "Azure Function (Post/Get Handlers)",
+        "label": "Success",
+        "type": "response"
+      },
+      {
+        "source": "Azure Function (Post/Get Handlers)",
+        "target": "Healthcare Bot",
+        "label": "Success",
+        "type": "response"
+      },
+      {
+        "source": "Healthcare Bot",
+        "target": "Azure Function (Post/Get Handlers)",
+        "label": "POST /symptoms",
+        "type": "API call"
+      },
+      {
+        "source": "Azure Function (Post/Get Handlers)",
+        "target": "DbHelper",
+        "label": "SaveSymptomsInfo()",
+        "type": "function call"
+      },
+      {
+        "source": "Healthcare Bot",
+        "target": "Azure Function (Post/Get Handlers)",
+        "label": "POST /labtest",
+        "type": "API call"
+      },
+      {
+        "source": "Azure Function (Post/Get Handlers)",
+        "target": "DbHelper",
+        "label": "SaveLabTestInfo()",
+        "type": "function call"
+      },
+      {
+        "source": "Healthcare Bot",
+        "target": "Azure Function (Post/Get Handlers)",
+        "label": "GET /requeststatus",
+        "type": "API call"
+      },
+      {
+        "source": "Azure Function (Post/Get Handlers)",
+        "target": "DbHelper",
+        "label": "GetRequestStatus()",
+        "type": "function call"
+      },
+      {
+        "source": "DbHelper",
+        "target": "Azure SQL Database",
+        "label": "Execute stored procedure",
+        "type": "database interaction"
+      },
+      {
+        "source": "Azure SQL Database",
+        "target": "DbHelper",
+        "label": "Status data",
+        "type": "response"
+      },
+      {
+        "source": "DbHelper",
+        "target": "Azure Function (Post/Get Handlers)",
+        "label": "Status data",
+        "type": "response"
+      },
+      {
+        "source": "Azure Function (Post/Get Handlers)",
+        "target": "Healthcare Bot",
+        "label": "Status data",
+        "type": "response"
+      },
+      {
+        "source": "Healthcare Bot",
+        "target": "Azure Function (Post/Get Handlers)",
+        "label": "POST /notify",
+        "type": "API call"
+      },
+      {
+        "source": "Azure Function (Post/Get Handlers)",
+        "target": "NotificationHelper",
+        "label": "SendNotification()",
+        "type": "function call"
+      },
+      {
+        "source": "NotificationHelper",
+        "target": "SendGrid",
+        "label": "Send email with QR code",
+        "type": "email"
+      }
+    ],
+    "explanation": "The GroundTruth diagram represents a high-level architecture of a healthcare bot system, focusing on components like channels, data storage, and visualization. It includes components such as Azure Functions, PowerBI, and various communication channels. The GeneratedImage diagram is a sequence diagram showing detailed interactions between components like Healthcare Bot, Azure Functions, and database helpers. Both diagrams share common components like Healthcare Bot and Azure SQL Database but differ significantly in their focus and detail. The GroundTruth diagram emphasizes architectural layers and data flow, while the GeneratedImage diagram illustrates specific interactions and processes. The GeneratedImage diagram is rated 7 out of 10 for accuracy and completeness. It effectively captures the interaction flow but lacks the broader architectural context and additional components present in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

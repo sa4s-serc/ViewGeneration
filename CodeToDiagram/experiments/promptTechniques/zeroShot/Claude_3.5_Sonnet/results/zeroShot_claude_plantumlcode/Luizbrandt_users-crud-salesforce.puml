@@ -1,0 +1,72 @@
+Here's a PlantUML sequence diagram representing the control flow for the Salesforce User CRUD API:
+
+```plantuml
+@startuml Luizbrandt_users-crud-salesforce
+
+participant "Client" as client
+participant "API Kit Router" as router
+participant "Mule Flow" as flow
+participant "DataWeave" as dw
+participant "Salesforce Connector" as sf
+database "Salesforce" as sfdb
+
+client -> router: HTTP Request
+activate router
+
+alt Create User
+    router -> flow: Create User Request
+    activate flow
+    flow -> dw: Transform Request
+    dw --> flow: Transformed Data
+    flow -> sf: Create User
+    sf -> sfdb: Insert User
+    sfdb --> sf: User Created
+    sf --> flow: User Created Response
+    flow -> dw: Transform Response
+    dw --> flow: Transformed Response
+    flow --> router: User Created
+    deactivate flow
+
+else Read User
+    router -> flow: Read User Request
+    activate flow
+    flow -> sf: Query User
+    sf -> sfdb: Select User
+    sfdb --> sf: User Data
+    sf --> flow: User Data Response
+    flow -> dw: Transform Response
+    dw --> flow: Transformed Response
+    flow --> router: User Data
+    deactivate flow
+
+else Update User
+    router -> flow: Update User Request
+    activate flow
+    flow -> dw: Transform Request
+    dw --> flow: Transformed Data
+    flow -> sf: Update User
+    sf -> sfdb: Update User
+    sfdb --> sf: User Updated
+    sf --> flow: User Updated Response
+    flow -> dw: Transform Response
+    dw --> flow: Transformed Response
+    flow --> router: User Updated
+    deactivate flow
+
+else Delete User
+    router -> flow: Delete User Request
+    activate flow
+    flow -> sf: Delete User
+    sf -> sfdb: Delete User
+    sfdb --> sf: User Deleted
+    sf --> flow: User Deleted Response
+    flow --> router: User Deleted
+    deactivate flow
+
+end
+
+router --> client: HTTP Response
+deactivate router
+
+@enduml
+```

@@ -1,0 +1,205 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Kubernetes API Server",
+        "description": "Handles API requests",
+        "boundaries": "Rectangle",
+        "position": "Center"
+      },
+      {
+        "name": "Metacontroller",
+        "description": "Manages custom resources",
+        "boundaries": "Rectangle",
+        "position": "Right"
+      },
+      {
+        "name": "Ingress Skipper Config",
+        "description": "Manages ingress configurations",
+        "boundaries": "Rectangle",
+        "position": "Far Right"
+      },
+      {
+        "name": "Gateway Operator HTTP Service",
+        "description": "Contains Admission Controller and Ingress Derivation",
+        "boundaries": "Rectangle",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "kubectl",
+        "target": "Kubernetes API Server",
+        "label": "1. Create/Update FabricGateway Resource",
+        "type": "Arrow"
+      },
+      {
+        "source": "Kubernetes API Server",
+        "target": "Resource Admission Controller",
+        "label": "2. Resource Admission Controller Checks",
+        "type": "Arrow"
+      },
+      {
+        "source": "Kubernetes API Server",
+        "target": "Metacontroller",
+        "label": "3. Notification of resource persistence",
+        "type": "Arrow"
+      },
+      {
+        "source": "Metacontroller",
+        "target": "Ingress Skipper Config",
+        "label": "4. Derive Ingress Definitions",
+        "type": "Arrow"
+      },
+      {
+        "source": "Metacontroller",
+        "target": "Kubernetes API Server",
+        "label": "5. Inform K8s of Required Ingresses",
+        "type": "Arrow"
+      },
+      {
+        "source": "Kubernetes API Server",
+        "target": "Ingress Skipper Config",
+        "label": "6. Create/Update Ingress Resources",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      "Async",
+      "Sync"
+    ],
+    "groups": [
+      {
+        "name": "Gateway Operator HTTP Service",
+        "components": [
+          "Gateway Operator Admission Controller",
+          "Gateway Operator Ingress Derivation"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Gateway: Control Flow"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "FabricGateway CRD",
+        "description": "Defines API configuration",
+        "boundaries": "Rectangle",
+        "position": "Left"
+      },
+      {
+        "name": "IngressDerivationChain",
+        "description": "Derives Ingress resources",
+        "boundaries": "Rectangle",
+        "position": "Center Left"
+      },
+      {
+        "name": "StackSetOperations",
+        "description": "Discovers services via StackSets",
+        "boundaries": "Rectangle",
+        "position": "Center"
+      },
+      {
+        "name": "GatewayWebhookRoutes",
+        "description": "Handles webhook validation",
+        "boundaries": "Rectangle",
+        "position": "Center Right"
+      },
+      {
+        "name": "Kubernetes API",
+        "description": "Handles API requests",
+        "boundaries": "Rectangle",
+        "position": "Right"
+      },
+      {
+        "name": "IAM Service",
+        "description": "Manages authentication",
+        "boundaries": "Rectangle",
+        "position": "Far Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "FabricGateway CRD",
+        "label": "Define API configuration",
+        "type": "Arrow"
+      },
+      {
+        "source": "FabricGateway CRD",
+        "target": "IngressDerivationChain",
+        "label": "Derive Ingress resources",
+        "type": "Arrow"
+      },
+      {
+        "source": "IngressDerivationChain",
+        "target": "StackSetOperations",
+        "label": "Discover services via StackSets",
+        "type": "Arrow"
+      },
+      {
+        "source": "StackSetOperations",
+        "target": "GatewayWebhookRoutes",
+        "label": "Request webhook validation",
+        "type": "Arrow"
+      },
+      {
+        "source": "GatewayWebhookRoutes",
+        "target": "Kubernetes API",
+        "label": "Perform validation",
+        "type": "Arrow"
+      },
+      {
+        "source": "Kubernetes API",
+        "target": "IAM Service",
+        "label": "Request authentication",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Sequence Diagram"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Kubernetes API"
+    ],
+    "unique_to_GroundTruth": [
+      "Metacontroller",
+      "Ingress Skipper Config",
+      "Gateway Operator HTTP Service"
+    ],
+    "unique_to_GeneratedImage": [
+      "FabricGateway CRD",
+      "IngressDerivationChain",
+      "StackSetOperations",
+      "GatewayWebhookRoutes",
+      "IAM Service"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      "Create/Update FabricGateway Resource",
+      "Resource Admission Controller Checks",
+      "Notification of resource persistence",
+      "Derive Ingress Definitions",
+      "Inform K8s of Required Ingresses",
+      "Create/Update Ingress Resources"
+    ],
+    "unique_connectors_GeneratedImage": [
+      "Define API configuration",
+      "Derive Ingress resources",
+      "Discover services via StackSets",
+      "Request webhook validation",
+      "Perform validation",
+      "Request authentication"
+    ],
+    "explanation": "The GroundTruth diagram focuses on the control flow within a Kubernetes environment, highlighting components like the Metacontroller and Ingress Skipper Config. It emphasizes the process of creating and updating ingress resources. The GeneratedImage diagram is a sequence diagram that outlines the interactions between different components, such as FabricGateway CRD and IAM Service, focusing on the sequence of operations from defining API configurations to authentication. While both diagrams involve Kubernetes API, they serve different purposes: one is more about control flow, and the other about interaction sequences. The GeneratedImage diagram is rated 7 out of 10 for its accuracy and completeness, as it captures the sequence of operations well but lacks some specific components and details present in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

@@ -1,0 +1,57 @@
+```plantuml
+@startuml medlab_320-online-prototype
+skinparam rectangle {
+  BackgroundColor<<frontend>> #e0f7fa
+  BackgroundColor<<backend>> #f3e5f5
+  BackgroundColor<<integration>> #ffebee
+  BackgroundColor<<testing>> #f0f4c3
+  Style roundrect
+}
+
+skinparam defaultTextAlignment center
+
+package "React Frontend" <<frontend>> {
+  rectangle "React Components" as ReactComponents
+  rectangle "Ant Design Forms" as AntDesign
+  rectangle "Redux State Management" as Redux
+  rectangle "Routing\n(react-router-dom)" as Routing
+  rectangle "Mock Data\n(mockjs)" as MockData
+  ReactComponents --> AntDesign
+  ReactComponents --> Routing
+  ReactComponents --> Redux
+  ReactComponents --> MockData
+}
+
+package ".NET Core Backend" <<backend>> {
+  rectangle "Controllers\n(RESTful API)" as Controllers
+  rectangle "Data Models" as DataModels
+  rectangle "DbContext\n& Migrations" as DbContext
+  rectangle "Authentication\n(JWT, OAuth/OIDC)" as Auth
+  rectangle "Logging\n(Serilog)" as Logging
+  rectangle "Custom Middleware" as Middleware
+  Controllers --> DataModels
+  Controllers --> Auth
+  Controllers --> Middleware
+  DataModels --> DbContext
+  Auth --> Logging
+}
+
+package "Integration & Microservices" <<integration>> {
+  rectangle "OAuth/OIDC Providers\n(Hydra, IdentityServer4)" as OAuthProviders
+  rectangle "EFK Stack\n(Elasticsearch, Fluentd, Kibana)" as EFK
+  rectangle "Distributed Tracing\n(SkyWalking, OpenTelemetry)" as Tracing
+  rectangle "MinIO\n(Object Storage)" as MinIO
+  Controllers --> OAuthProviders
+  Logging --> EFK
+  Logging --> Tracing
+  DbContext --> MinIO
+}
+
+package "System Integration Testing" <<testing>> {
+  rectangle "Node.js Framework\n(Jest, Puppeteer)" as NodeJSTesting
+  rectangle "Blazor Server\n(UI Component)" as Blazor
+  NodeJSTesting --> Blazor
+}
+
+@enduml
+```

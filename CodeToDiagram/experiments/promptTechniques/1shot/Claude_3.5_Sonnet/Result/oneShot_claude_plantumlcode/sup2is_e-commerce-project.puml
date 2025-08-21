@@ -1,0 +1,83 @@
+@startuml sup2is_e-commerce-project
+
+!define RECTANGLE class
+
+skinparam component {
+  BackgroundColor<<microservice>> LightBlue
+  BackgroundColor<<infrastructure>> LightGreen
+  BackgroundColor<<database>> LightYellow
+  BackgroundColor<<messaging>> LightPink
+}
+
+rectangle "API Gateway" as gateway <<microservice>> {
+  [JWT Authentication]
+  [Request Routing]
+}
+
+rectangle "Eureka Server" as eureka <<infrastructure>> {
+  [Service Discovery]
+}
+
+rectangle "Config Server" as config <<infrastructure>> {
+  [Centralized Configuration]
+}
+
+rectangle "Authentication Service" as auth <<microservice>> {
+  [JWT Token Generation]
+}
+
+rectangle "Member Service" as member <<microservice>> {
+  [User Management]
+}
+
+rectangle "Order Service" as order <<microservice>> {
+  [Order Processing]
+}
+
+rectangle "Product Service" as product <<microservice>> {
+  [Product Catalog]
+  [Inventory Management]
+}
+
+database "MySQL" as mysql <<database>>
+database "Redis" as redis <<database>>
+queue "Kafka" as kafka <<messaging>>
+
+cloud "Docker" {
+  [Docker Compose]
+}
+
+gateway -down-> eureka : registers/discovers
+gateway -down-> auth : authenticates
+gateway -down-> member : routes
+gateway -down-> order : routes
+gateway -down-> product : routes
+
+auth -up-> eureka : registers
+member -up-> eureka : registers
+order -up-> eureka : registers
+product -up-> eureka : registers
+
+auth -left-> config : reads config
+member -left-> config : reads config
+order -left-> config : reads config
+product -left-> config : reads config
+
+member -down-> mysql : persists data
+order -down-> mysql : persists data
+product -down-> mysql : persists data
+
+member -down-> redis : caches data
+product -down-> redis : caches data
+
+product -right-> kafka : publishes events
+
+[Docker Compose] -up-> gateway
+[Docker Compose] -up-> eureka
+[Docker Compose] -up-> config
+[Docker Compose] -up-> auth
+[Docker Compose] -up-> member
+[Docker Compose] -up-> order
+[Docker Compose] -up-> product
+
+@enduml

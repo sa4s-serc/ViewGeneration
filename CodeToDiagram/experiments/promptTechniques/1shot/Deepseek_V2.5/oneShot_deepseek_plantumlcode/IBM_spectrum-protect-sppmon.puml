@@ -1,0 +1,60 @@
+@startuml IBM_spectrum-protect-sppmon
+skinparam rectangle {
+  BackgroundColor<<collection>> #d9e7fd
+  BackgroundColor<<storage>> #d8f5d3
+  BackgroundColor<<visualization>> #fddddd
+  BackgroundColor<<verification>> #fff1c9
+  BackgroundColor<<automation>> #e6d9fd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Data Collection" <<collection>> {
+  rectangle "SPPMon.py" as SPPmon
+  rectangle "REST Client" as REST
+  rectangle "SSH Client" as SSH
+  rectangle "API Queries" as API
+  rectangle "SPPMon Methods" as Methods
+  SPPmon --> REST
+  SPPmon --> SSH
+  REST --> API
+  SSH --> Methods
+}
+
+package "Data Storage" <<storage>> {
+  rectangle "InfluxDB" as Influx
+  rectangle "Influx Client" as InfluxClient
+  rectangle "Retention Policies" as Retention
+  SPPmon --> InfluxClient
+  InfluxClient --> Influx
+  InfluxClient --> Retention
+}
+
+package "Visualization" <<visualization>> {
+  rectangle "Grafana" as Grafana
+  rectangle "Dashboard Generator" as DashboardGen
+  Grafana --> DashboardGen
+  Influx --> Grafana
+}
+
+package "Verification" <<verification>> {
+  rectangle "SPPCheck.py" as SPPCheck
+  rectangle "Predictor" as Predictor
+  rectangle "Report Generator" as ReportGen
+  rectangle "Excel Processor" as Excel
+  SPPCheck --> Predictor
+  SPPCheck --> ReportGen
+  SPPCheck --> Excel
+  Influx --> SPPCheck
+}
+
+package "Automation" <<automation>> {
+  rectangle "Installer Script" as Installer
+  rectangle "Config Generator" as ConfigGen
+  rectangle "Cron Job Setup" as Cron
+  Installer --> ConfigGen
+  Installer --> Cron
+}
+
+SPPmon --> SPPCheck
+@enduml

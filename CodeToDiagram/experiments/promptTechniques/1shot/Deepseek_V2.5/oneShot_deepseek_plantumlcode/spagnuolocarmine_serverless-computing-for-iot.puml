@@ -1,0 +1,27 @@
+@startuml spagnuolocarmine_serverless-computing-for-iot
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "IoT Device" as Device
+
+rectangle "RabbitMQ" as Broker #lightblue {
+}
+
+rectangle "Nuclio" as Serverless #palegreen {
+  rectangle "Producer Function" as Producer
+  rectangle "Consumer Function" as Consumer
+}
+
+rectangle "Logger" as Logger #lightyellow
+
+' ========== Connections ==========
+Device -> Broker : Publish temperature data\n(AMQP/MQTT)
+Broker -> Producer : Trigger event
+Producer -> Broker : Publish processed data
+Broker -> Consumer : Deliver message
+Consumer -> Logger : Log processed data
+@enduml

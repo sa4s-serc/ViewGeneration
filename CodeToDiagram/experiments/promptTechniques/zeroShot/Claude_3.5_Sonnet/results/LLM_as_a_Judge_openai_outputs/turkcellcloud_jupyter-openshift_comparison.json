@@ -1,0 +1,300 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Kubernetes",
+        "description": "Container orchestration",
+        "boundaries": "Box",
+        "position": "Top left"
+      },
+      {
+        "name": "JupyterHub",
+        "description": "Multi-user server",
+        "boundaries": "Box",
+        "position": "Top center"
+      },
+      {
+        "name": "Worker Nodes",
+        "description": "Executes workloads",
+        "boundaries": "Box",
+        "position": "Center"
+      },
+      {
+        "name": "AD",
+        "description": "Active Directory",
+        "boundaries": "Icon",
+        "position": "Right"
+      },
+      {
+        "name": "NVIDIA GPU",
+        "description": "Hardware acceleration",
+        "boundaries": "Icon",
+        "position": "Bottom right"
+      },
+      {
+        "name": "PV",
+        "description": "Persistent Volume",
+        "boundaries": "Icon",
+        "position": "Bottom center"
+      },
+      {
+        "name": "SCM",
+        "description": "Source Control Management",
+        "boundaries": "Icon",
+        "position": "Bottom center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Kubernetes",
+        "target": "JupyterHub",
+        "label": "API",
+        "type": "Arrow"
+      },
+      {
+        "source": "JupyterHub",
+        "target": "Worker Nodes",
+        "label": "kube spawner",
+        "type": "Arrow"
+      },
+      {
+        "source": "JupyterHub",
+        "target": "AD",
+        "label": "ldap authenticator",
+        "type": "Arrow"
+      },
+      {
+        "source": "Worker Nodes",
+        "target": "NVIDIA GPU",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Worker Nodes",
+        "target": "PV",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Worker Nodes",
+        "target": "SCM",
+        "label": "",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Kubernetes",
+        "components": [
+          "etcd",
+          "controllers",
+          "scheduler",
+          "API"
+        ]
+      },
+      {
+        "name": "JupyterHub",
+        "components": [
+          "kube spawner",
+          "http proxy",
+          "ldap authenticator"
+        ]
+      },
+      {
+        "name": "Worker Nodes",
+        "components": [
+          "kubelet",
+          "proxy",
+          "NVIDIA Tools",
+          "kernel",
+          "Docker"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "diagram1.png",
+      "title": "Kubernetes and JupyterHub Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "OpenShift Cluster",
+        "description": "Container platform",
+        "boundaries": "Cloud",
+        "position": "Top"
+      },
+      {
+        "name": "User Namespace",
+        "description": "User pods",
+        "boundaries": "Box",
+        "position": "Top"
+      },
+      {
+        "name": "JupyterHub Namespace",
+        "description": "JupyterHub components",
+        "boundaries": "Box",
+        "position": "Center"
+      },
+      {
+        "name": "Persistent Volume",
+        "description": "Storage",
+        "boundaries": "Cylinder",
+        "position": "Center"
+      },
+      {
+        "name": "LDAP/Active Directory",
+        "description": "Authentication",
+        "boundaries": "Box",
+        "position": "Bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "JupyterHub Namespace",
+        "target": "User Namespace",
+        "label": "Spawn notebooks",
+        "type": "Arrow"
+      },
+      {
+        "source": "JupyterHub Namespace",
+        "target": "LDAP/Active Directory",
+        "label": "Authenticate",
+        "type": "Arrow"
+      },
+      {
+        "source": "JupyterHub Namespace",
+        "target": "Persistent Volume",
+        "label": "Store state",
+        "type": "Arrow"
+      },
+      {
+        "source": "User Namespace",
+        "target": "Persistent Volume",
+        "label": "Read/Write",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "Restricts network traffic to notebook pods",
+        "position": "Top right"
+      },
+      {
+        "text": "Handles authentication, spawning, and proxying",
+        "position": "Center"
+      },
+      {
+        "text": "Automatically shuts down inactive notebook servers",
+        "position": "Bottom right"
+      }
+    ],
+    "groups": [
+      {
+        "name": "User Namespace",
+        "components": [
+          "Jupyter Notebook Pod 1",
+          "Jupyter Notebook Pod 2",
+          "Jupyter Notebook Pod N"
+        ]
+      },
+      {
+        "name": "JupyterHub Namespace",
+        "components": [
+          "JupyterHub Pod",
+          "Idle Server Culler",
+          "KubeSpawner",
+          "PostgreSQL Pod"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "diagram2.png",
+      "title": "OpenShift and JupyterHub Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "JupyterHub",
+      "LDAP/Active Directory",
+      "Persistent Volume"
+    ],
+    "unique_to_GroundTruth": [
+      "Kubernetes",
+      "Worker Nodes",
+      "NVIDIA GPU",
+      "PV",
+      "SCM"
+    ],
+    "unique_to_GeneratedImage": [
+      "OpenShift Cluster",
+      "User Namespace",
+      "JupyterHub Namespace",
+      "Idle Server Culler",
+      "PostgreSQL Pod"
+    ],
+    "common_connectors": [
+      {
+        "source": "JupyterHub",
+        "target": "LDAP/Active Directory",
+        "label": "Authenticate",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Kubernetes",
+        "target": "JupyterHub",
+        "label": "API",
+        "type": "Arrow"
+      },
+      {
+        "source": "JupyterHub",
+        "target": "Worker Nodes",
+        "label": "kube spawner",
+        "type": "Arrow"
+      },
+      {
+        "source": "Worker Nodes",
+        "target": "NVIDIA GPU",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Worker Nodes",
+        "target": "PV",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "Worker Nodes",
+        "target": "SCM",
+        "label": "",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "JupyterHub Namespace",
+        "target": "User Namespace",
+        "label": "Spawn notebooks",
+        "type": "Arrow"
+      },
+      {
+        "source": "JupyterHub Namespace",
+        "target": "Persistent Volume",
+        "label": "Store state",
+        "type": "Arrow"
+      },
+      {
+        "source": "User Namespace",
+        "target": "Persistent Volume",
+        "label": "Read/Write",
+        "type": "Arrow"
+      }
+    ],
+    "explanation": "The two diagrams depict different architectures for deploying JupyterHub. The GroundTruth diagram uses Kubernetes as the orchestration platform and includes components like NVIDIA GPU for hardware acceleration, while the GeneratedImage diagram uses OpenShift and emphasizes network policies and security features. Both diagrams include JupyterHub and LDAP/Active Directory for authentication, but they differ in their approach to storage and pod management. The GroundTruth diagram is more focused on hardware and Kubernetes components, whereas the GeneratedImage diagram highlights OpenShift and security features. The generated image is rated 7 out of 10 for its accuracy and completeness. It effectively captures the core components and relationships but lacks some specific hardware and Kubernetes details present in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

@@ -1,0 +1,41 @@
+```plantuml
+@startuml anvasquezre_sabiduria_asegurada_experiments
+left to right direction
+
+skinparam rectangle {
+  BackgroundColor #f0f0f0
+  BorderColor black
+  Style roundrect
+}
+
+actor User
+
+rectangle "Frontend Interface" {
+  rectangle "Chainlit Chat Interface" as ChatInterface #d9e7fd
+}
+
+package "Backend Services" {
+  rectangle "Langchain Agent" as LangchainAgent #d8f5d3
+  rectangle "Qdrant Vector DB" as QdrantDB #fff1c9
+  rectangle "Data Preprocessing" {
+    rectangle "Data Preloader" as DataPreloader #fddddd
+    rectangle "S3 Bucket" as S3Bucket #fddddd
+  }
+  rectangle "Google Search API" as GoogleSearch #d8f5d3
+}
+
+User --> ChatInterface
+ChatInterface --> LangchainAgent : Ask Question
+LangchainAgent --> QdrantDB : Policy Search
+LangchainAgent --> GoogleSearch : Web Search
+LangchainAgent --> ChatInterface : Provide Answer
+LangchainAgent --> ChatInterface : Request Feedback
+
+ChatInterface --> LangchainAgent : Submit Feedback
+LangchainAgent --> QdrantDB : Save Feedback
+
+DataPreloader --> S3Bucket : Download PDFs
+DataPreloader --> QdrantDB : Store Embeddings
+
+@enduml
+```

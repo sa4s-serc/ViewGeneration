@@ -1,0 +1,201 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Computer 1",
+        "description": "Agent (superlogger.jar) TCP Server",
+        "boundaries": "Box",
+        "position": "Top Left"
+      },
+      {
+        "name": "Computer n",
+        "description": "Agent (superlogger.jar) TCP Server",
+        "boundaries": "Box",
+        "position": "Bottom Left"
+      },
+      {
+        "name": "Logstash",
+        "description": "TCP client",
+        "boundaries": "Box",
+        "position": "Center"
+      },
+      {
+        "name": "ElasticSearch",
+        "description": "",
+        "boundaries": "Box",
+        "position": "Top Right"
+      },
+      {
+        "name": "Kibana",
+        "description": "",
+        "boundaries": "Box",
+        "position": "Bottom Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Computer 1",
+        "target": "Logstash",
+        "label": "TCP connection\nTCP response (JSON)",
+        "type": "Arrow"
+      },
+      {
+        "source": "Computer n",
+        "target": "Logstash",
+        "label": "TCP connection\nTCP response (JSON)",
+        "type": "Arrow"
+      },
+      {
+        "source": "Logstash",
+        "target": "ElasticSearch",
+        "label": "HTTP JSON",
+        "type": "Arrow"
+      },
+      {
+        "source": "ElasticSearch",
+        "target": "Kibana",
+        "label": "HTTP JSON",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "SuperLogger_Architecture.png",
+      "title": "SuperLogger Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "System Host",
+        "description": "Java Agent",
+        "boundaries": "Box",
+        "position": "Top"
+      },
+      {
+        "name": "Java Agent",
+        "description": "SystemInfo, TCPServer",
+        "boundaries": "Box",
+        "position": "Inside System Host"
+      },
+      {
+        "name": "ELK Stack",
+        "description": "Logstash, Elasticsearch, Kibana",
+        "boundaries": "Box",
+        "position": "Bottom"
+      },
+      {
+        "name": "Logstash",
+        "description": "TCP Input, JSON Codec, ES Output",
+        "boundaries": "Box",
+        "position": "Inside ELK Stack"
+      },
+      {
+        "name": "Elasticsearch",
+        "description": "Index Storage",
+        "boundaries": "Box",
+        "position": "Inside ELK Stack"
+      },
+      {
+        "name": "Kibana",
+        "description": "Dashboards, Visualization",
+        "boundaries": "Box",
+        "position": "Inside ELK Stack"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Java Agent",
+        "target": "Logstash",
+        "label": "TCP/JSON",
+        "type": "Arrow"
+      },
+      {
+        "source": "Logstash",
+        "target": "Elasticsearch",
+        "label": "enriched data",
+        "type": "Arrow"
+      },
+      {
+        "source": "Elasticsearch",
+        "target": "Kibana",
+        "label": "query",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "Collects:\n- CPU Load\n- Memory Usage\n- Computer Name\n- IP Address",
+        "position": "Near Java Agent"
+      },
+      {
+        "text": "Enriches with:\n- Timestamp\n- Metadata",
+        "position": "Near Logstash"
+      }
+    ],
+    "groups": [
+      {
+        "name": "ELK Stack",
+        "components": [
+          "Logstash",
+          "Elasticsearch",
+          "Kibana"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "ELK_Architecture.png",
+      "title": ""
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Logstash",
+      "Elasticsearch",
+      "Kibana"
+    ],
+    "unique_to_GroundTruth": [
+      "Computer 1",
+      "Computer n"
+    ],
+    "unique_to_GeneratedImage": [
+      "System Host",
+      "Java Agent",
+      "ELK Stack"
+    ],
+    "common_connectors": [
+      {
+        "source": "Logstash",
+        "target": "Elasticsearch",
+        "label": "HTTP JSON / enriched data"
+      },
+      {
+        "source": "Elasticsearch",
+        "target": "Kibana",
+        "label": "HTTP JSON / query"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Computer 1",
+        "target": "Logstash",
+        "label": "TCP connection\nTCP response (JSON)"
+      },
+      {
+        "source": "Computer n",
+        "target": "Logstash",
+        "label": "TCP connection\nTCP response (JSON)"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Java Agent",
+        "target": "Logstash",
+        "label": "TCP/JSON"
+      }
+    ],
+    "explanation": "Both diagrams depict an architecture involving Logstash, Elasticsearch, and Kibana, indicating a common use of the ELK stack. The GroundTruth diagram focuses on multiple computers sending data via TCP to Logstash, while the GeneratedImage diagram emphasizes a single System Host with a Java Agent collecting system information. The GeneratedImage includes additional annotations and logical grouping of components into an ELK Stack. The GroundTruth diagram lacks these annotations but includes multiple sources (Computer 1 to n). The GeneratedImage is more detailed in terms of data enrichment and collection processes. Rating: 8/10. The GeneratedImage is comprehensive and well-organized, but it omits the multiple computer sources shown in the GroundTruth.",
+    "Rating": 8
+  }
+}

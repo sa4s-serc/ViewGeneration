@@ -1,0 +1,57 @@
+@startuml NicoJuicy_Airline-Microservices
+
+skinparam component {
+  BackgroundColor<<Service>> LightBlue
+  BackgroundColor<<Gateway>> LightGreen
+  BackgroundColor<<MessageBroker>> LightYellow
+  BackgroundColor<<BuildingBlocks>> LightGray
+}
+
+component "API Gateway" <<Gateway>> as ApiGateway
+component "Identity Service" <<Service>> as IdentityService
+component "Flight Service" <<Service>> as FlightService
+component "Passenger Service" <<Service>> as PassengerService
+component "Reservation Service" <<Service>> as ReservationService
+component "RabbitMQ" <<MessageBroker>> as RabbitMQ
+component "Building Blocks" <<BuildingBlocks>> as BuildingBlocks
+
+ApiGateway --> IdentityService : routes
+ApiGateway --> FlightService : routes
+ApiGateway --> PassengerService : routes
+ApiGateway --> ReservationService : routes
+
+IdentityService --> RabbitMQ : publishes/subscribes
+FlightService --> RabbitMQ : publishes/subscribes
+PassengerService --> RabbitMQ : publishes/subscribes
+ReservationService --> RabbitMQ : publishes/subscribes
+
+BuildingBlocks --> IdentityService : uses
+BuildingBlocks --> FlightService : uses
+BuildingBlocks --> PassengerService : uses
+BuildingBlocks --> ReservationService : uses
+
+note right of ApiGateway
+  YARP Reverse Proxy
+end note
+
+note right of IdentityService
+  IdentityServer
+  JWT Authentication
+end note
+
+note right of BuildingBlocks
+  Shared components:
+  - Exception handling
+  - Logging (Serilog)
+  - Swagger config
+  - Data access interfaces
+  - Messaging
+  - Security
+end note
+
+note bottom of RabbitMQ
+  Asynchronous communication
+  between services
+end note
+
+@enduml

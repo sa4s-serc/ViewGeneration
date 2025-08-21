@@ -1,0 +1,39 @@
+Here's the PlantUML sequence diagram for the vishipayyallore_blazorwasm-apim-api-sql-redis system, focusing on the control flow during a book retrieval operation:
+
+```plantuml
+@startuml vishipayyallore_blazorwasm-apim-api-sql-redis
+
+actor User
+participant "Blazor WASM" as Blazor
+participant "Azure API Management" as APIM
+participant "BooksController" as API
+participant "BooksBll" as BLL
+participant "BookCacheRepository" as Cache
+participant "BookRepository" as SQL
+database "Redis" as Redis
+database "SQL Server" as SQLDB
+
+User -> Blazor: Requests book list
+Blazor -> APIM: GET /api/books
+APIM -> API: Forward request
+API -> BLL: GetBooks()
+alt Cache hit
+    BLL -> Cache: GetBooks()
+    Cache -> Redis: GET books
+    Redis --> Cache: Return cached data
+    Cache --> BLL: Return books
+else Cache miss
+    BLL -> SQL: GetBooks()
+    SQL -> SQLDB: SELECT * FROM Books
+    SQLDB --> SQL: Return books
+    SQL --> BLL: Return books
+    BLL -> Cache: CacheBooks(books)
+    Cache -> Redis: SET books
+end
+BLL --> API: Return books
+API --> APIM: Return HTTP 200 with books
+APIM --> Blazor: Return response
+Blazor --> User: Display books
+
+@enduml
+```

@@ -1,0 +1,36 @@
+@startuml jkahn117_aws-news
+
+participant "RSS Feed" as RSS
+participant "EventBridge" as EB
+participant "Ingestion Lambda" as IL
+participant "S3" as S3
+participant "DynamoDB" as DDB
+participant "Image Processing Lambda" as IPL
+participant "ElastiCache" as EC
+participant "AppSync API" as API
+participant "CloudFront" as CF
+participant "Next.js Frontend" as FE
+participant "Pinpoint" as PP
+participant "Kinesis Firehose" as KF
+
+RSS -> IL: Fetch RSS feed
+IL -> S3: Store article content
+IL -> DDB: Store article metadata
+IL -> EB: Publish article_created event
+EB -> IPL: Trigger image processing
+IPL -> S3: Process and store images
+IPL -> DDB: Update article metadata
+FE -> CF: Request content
+CF -> API: Forward request
+API -> EC: Check cache
+EC --> API: Return cached data (if available)
+API -> DDB: Query data (if not in cache)
+DDB --> API: Return data
+API -> EC: Update cache
+API --> CF: Return data
+CF --> FE: Serve content
+FE -> PP: Send user interaction data
+PP -> KF: Stream analytics data
+KF -> S3: Store analytics data
+
+@enduml

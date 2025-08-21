@@ -1,0 +1,25 @@
+```plantuml
+@startuml GoogleCloudPlatform_gke-pubsub-websocket-adapter
+
+actor Client
+participant "websocketd" as WebSocketD
+participant "pulltop" as PullTop
+participant "Google Cloud Pub/Sub" as PubSub
+
+Client -> WebSocketD: Connect to WebSocket
+WebSocketD -> PullTop: Request for latest messages
+PullTop -> PubSub: Pull messages from the subscribed topic
+PubSub -> PullTop: Return messages
+PullTop -> WebSocketD: Forward messages
+WebSocketD -> Client: Push messages to client
+
+note right of WebSocketD
+  WebSocketD stores messages 
+  temporarily in ephemeral storage
+end note
+
+Client -> WebSocketD: Disconnect
+WebSocketD -> Client: Acknowledge disconnect
+
+@enduml
+```

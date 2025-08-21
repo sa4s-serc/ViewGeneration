@@ -1,0 +1,72 @@
+```plantuml
+@startuml chaitin_veinmind-tools
+skinparam rectangle {
+  BackgroundColor #f0f0f0
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+skinparam defaultTextAlignment center
+
+package "Veinmind Tools" {
+  rectangle "veinmind-runner" as Runner #lightblue
+  rectangle "Plugins" as Plugins {
+    rectangle "Malicious File Detection" as MaliciousFile
+    rectangle "Weak Password Identification" as WeakPass
+    rectangle "Unsafe Mount Point Detection" as UnsafeMount
+    rectangle "CVE Vulnerability Detection" as CVE
+    rectangle "Intrusion Trace Detection" as IntrusionTrace
+    rectangle "Sensitive Information Detection" as SensitiveInfo
+  }
+  rectangle "libveinmind" as LibVeinmind #lightgrey
+}
+
+package "Configuration" {
+  rectangle "TOML Config" as TOMLConfig
+  rectangle "Sensitive Rules" as SensitiveRules
+}
+
+package "CI/CD Pipeline" {
+  rectangle "GitHub Actions" as GitHubActions
+}
+
+package "Integration" {
+  rectangle "Filesystem Info" as VeinFS
+  rectangle "Git Repository" as GitRepo
+}
+
+Runner --> Plugins
+Runner --> LibVeinmind
+Runner --> TOMLConfig
+Runner --> GitRepo
+Plugins --> LibVeinmind
+Plugins --> VeinFS
+SensitiveInfo --> SensitiveRules
+GitHubActions --> Runner
+GitHubActions --> Plugins
+
+note right of Plugins
+  Plugin-Based Architecture:
+  - Modularity and Extensibility
+  - CLI for Scan Triggering
+end note
+
+note left of Runner
+  Core Management:
+  - Service Orchestration
+  - Lifecycle Management
+end note
+
+note right of GitHubActions
+  CI/CD:
+  - Automates Build and Release
+end note
+
+note left of Configuration
+  Configuration-Driven:
+  - Service Behavior
+  - Customizable Rules
+end note
+
+@enduml
+```

@@ -1,0 +1,64 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #EEEBDC
+  BorderColor #333333
+  FontColor #333333
+}
+skinparam arrow {
+  Color #333333
+  FontColor #333333
+}
+
+rectangle "Azure Stack-QuickStart-Templates" as ASQT {
+  rectangle "ARM Templates" as ARM {
+    rectangle "azuredeploy.json" as ADJ
+    rectangle "parameters.json" as PJ
+  }
+  
+  rectangle "Scripts" as Scripts {
+    rectangle "PowerShell (.ps1)" as PS
+    rectangle "Shell (.sh)" as SH
+  }
+  
+  rectangle "Configuration Files" as Config {
+    rectangle "XML" as XML
+    rectangle "YAML" as YAML
+  }
+  
+  rectangle "Documentation" as Docs {
+    rectangle "README.md" as README
+    rectangle "SECURITY.md" as SECURITY
+  }
+  
+  rectangle "Validation" as Validation {
+    rectangle "PowerShell Scripts" as VPS
+    rectangle "Parameter Files" as VPF
+  }
+}
+
+cloud "Azure / Azure Stack" as Cloud {
+  rectangle "Virtual Machines" as VM
+  rectangle "Networking" as Net
+  rectangle "Storage" as Storage
+  rectangle "Key Vault" as KV
+  rectangle "Load Balancer" as LB
+}
+
+actor "DevOps Engineer" as DevOps
+
+DevOps --> ASQT : Uses
+ARM --> Cloud : Deploys to
+Scripts --> Cloud : Configures
+Config --> Cloud : Defines settings
+Validation --> Cloud : Validates deployments
+
+ADJ --> VM
+ADJ --> Net
+ADJ --> Storage
+ADJ --> KV
+ADJ --> LB
+
+PS --> VM : Configures
+SH --> VM : Configures
+
+@enduml

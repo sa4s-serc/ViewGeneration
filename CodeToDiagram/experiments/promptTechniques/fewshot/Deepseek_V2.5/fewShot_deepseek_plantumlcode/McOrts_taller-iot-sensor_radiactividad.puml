@@ -1,0 +1,40 @@
+@startuml McOrts_taller-iot-sensor_radiactividad
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+rectangle "Geiger Counter Module" as GeigerModule #lightblue
+
+rectangle "ESP8266 (WEMOS D1 mini Pro)" as ESP8266 {
+  rectangle "Pulse Counter" as PulseCounter
+  rectangle "WiFi Connection" as WiFi
+  rectangle "MQTT Client" as MQTTClient
+}
+
+rectangle "MQTT Broker" as MQTTBroker #lightgreen
+
+rectangle "Node-RED" as NodeRED #pink
+
+rectangle "GMC.MAP Platform" as GMCMAP #lightyellow
+
+rectangle "Mobile/Web App" as App #mistyrose
+
+GeigerModule --> PulseCounter : Radiation Pulses
+PulseCounter --> MQTTClient : CPM Data
+WiFi --> MQTTClient : Network Connection
+MQTTClient --> MQTTBroker : Publish CPM Data
+MQTTClient <-- MQTTBroker : Subscribe to Control Commands
+MQTTBroker --> NodeRED : CPM Data
+NodeRED --> GMCMAP : Processed Data
+GMCMAP --> App : Visualization
+App --> MQTTBroker : Control Commands
+
+note right of MQTTBroker
+  Topics:
+  - radiation/cpm (publish)
+  - radiation/control (subscribe)
+end note
+@enduml

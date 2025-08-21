@@ -1,0 +1,35 @@
+Here's a PlantUML component diagram capturing the static architecture of the Pokemon game system, focusing on the general architectural concern:
+
+```plantuml
+@startuml Connor1996_Pokemon
+
+package "Client" {
+    [GUI Components] as GUI
+    [Client Socket] as ClientSocket
+    [Pokemon Factory] as PokemonFactory
+    [ORM] as ClientORM
+}
+
+package "Server" {
+    [Server Socket] as ServerSocket
+    [Dispatcher] as Dispatcher
+    [ORM] as ServerORM
+    [Game Logic] as GameLogic
+}
+
+database "SQLite Database" as DB
+
+[JSON Communication] as JSON
+
+GUI --> ClientSocket : uses
+GUI --> PokemonFactory : creates Pokemon
+ClientSocket --> JSON : sends/receives
+ServerSocket --> JSON : sends/receives
+Dispatcher --> ServerSocket : handles requests
+Dispatcher --> GameLogic : executes game actions
+GameLogic --> ServerORM : persists data
+ClientORM --> DB : reads/writes
+ServerORM --> DB : reads/writes
+
+@enduml
+```

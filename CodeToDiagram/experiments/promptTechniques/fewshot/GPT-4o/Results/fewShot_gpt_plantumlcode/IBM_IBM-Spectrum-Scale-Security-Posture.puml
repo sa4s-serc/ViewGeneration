@@ -1,0 +1,40 @@
+```plantuml
+@startuml IBM_IBM-Spectrum-Scale-Security-Posture
+skinparam linetype ortho
+
+actor "Admin" as admin
+actor "Cronjob" as cron
+
+package "IBM Spectrum Scale Cluster" {
+  rectangle "Security Posture Collector" as collector #orange
+}
+
+package "Central System" {
+  rectangle "fetch_security_posture_and_upload_to_ES.sh" as fetch_sh #lightblue
+  rectangle "split_json_for_kibana.py" as split_json #lightblue
+}
+
+package "Data Store" {
+  rectangle "Elasticsearch" as elastic #lightgreen
+  note right of elastic
+    External system
+  end note
+}
+
+package "Visualization" {
+  rectangle "Kibana" as kibana #lightgreen
+  note right of kibana
+    External system
+  end note
+}
+
+admin --> cron : Set schedule
+cron --> fetch_sh : Trigger script
+fetch_sh --> collector : SSH execute
+collector -> fetch_sh : Return JSON data
+fetch_sh --> split_json : Process JSON data
+split_json --> fetch_sh : Return split files
+fetch_sh --> elastic : Upload data via curl
+elastic --> kibana : Provide data for visualization
+@enduml
+```

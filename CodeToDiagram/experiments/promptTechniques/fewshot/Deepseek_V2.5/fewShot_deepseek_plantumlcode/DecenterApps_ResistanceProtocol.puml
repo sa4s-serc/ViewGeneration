@@ -1,0 +1,65 @@
+@startuml
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<contract>> #d9e7fd
+  BackgroundColor<<simulation>> #d8f5d3
+  BackgroundColor<<frontend>> #fff1c9
+  BackgroundColor<<backend>> #fddddd
+  BackgroundColor<<external>> #d4f0f0
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Smart Contracts" <<contract>> {
+  rectangle "NOI Stablecoin" as NOI
+  rectangle "CDP Manager" as CDP
+  rectangle "MultiSig Wallet" as MultiSig
+  rectangle "PID Controller" as PID
+  rectangle "Oracle" as Oracle
+  NOI --> CDP
+  CDP --> PID
+  PID --> Oracle
+  MultiSig --> NOI
+  MultiSig --> CDP
+}
+
+package "Simulation Engine" <<simulation>> {
+  rectangle "Agent Models" as Agents
+  rectangle "Price Station" as PriceStation
+  rectangle "Pool" as Pool
+  rectangle "External Data" as ExtData
+  Agents --> PriceStation
+  Agents --> Pool
+  PriceStation --> ExtData
+  Pool --> ExtData
+}
+
+package "Frontend" <<frontend>> {
+  rectangle "React UI" as React
+  rectangle "Dashboard" as Dashboard
+  rectangle "CDP Management" as CDPUI
+  React --> Dashboard
+  React --> CDPUI
+  Dashboard --> NOI
+  CDPUI --> CDP
+}
+
+package "Backend Services" <<backend>> {
+  rectangle "Deployment Scripts" as Deploy
+  rectangle "Event Monitor" as Monitor
+  rectangle "Liquidation Bot" as Bot
+  Deploy --> NOI
+  Monitor --> NOI
+  Bot --> CDP
+}
+
+package "External Systems" <<external>> {
+  rectangle "ETH/USD Price Feed" as ETHPrice
+  rectangle "CPI Data Feed" as CPIData
+  rectangle "Firebase" as Firebase
+  Oracle --> ETHPrice
+  Oracle --> CPIData
+  Monitor --> Firebase
+}
+
+@enduml

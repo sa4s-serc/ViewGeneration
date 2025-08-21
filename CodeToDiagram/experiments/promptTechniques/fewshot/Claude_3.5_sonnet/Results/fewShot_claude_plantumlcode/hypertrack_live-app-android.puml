@@ -1,0 +1,54 @@
+@startuml
+skinparam componentStyle uml2
+skinparam linetype ortho
+
+actor User
+
+rectangle "Android App" {
+  [MainActivity]
+  [CognitoClient]
+  [GeofenceApiAdapter]
+  [BackendClientFactory]
+  [AccessTokenRepository]
+}
+
+rectangle "HyperTrack SDK" {
+  [Location Tracking]
+}
+
+cloud "AWS Cognito" {
+  [Authentication]
+}
+
+cloud "HyperTrack API" {
+  [Trips API]
+}
+
+cloud "Google Maps" {
+  [Map Display]
+}
+
+cloud "Branch.io" {
+  [Deep Linking]
+}
+
+User -> [MainActivity]
+[MainActivity] --> [CognitoClient] : Authenticate
+[MainActivity] --> [GeofenceApiAdapter] : Manage geofences
+[MainActivity] --> [BackendClientFactory] : Create API client
+[MainActivity] --> [AccessTokenRepository] : Get/store tokens
+
+[CognitoClient] --> [Authentication] : Authenticate user
+[BackendClientFactory] ..> [AccessTokenRepository] : Use tokens
+
+[GeofenceApiAdapter] --> [Map Display] : Set home location
+[MainActivity] --> [Map Display] : Show user location
+
+[MainActivity] --> [Location Tracking] : Start/stop tracking
+[Location Tracking] --> [Trips API] : Send location data
+
+[BackendClientFactory] --> [Trips API] : Create/manage trips
+
+[MainActivity] --> [Deep Linking] : Handle deep links
+
+@enduml

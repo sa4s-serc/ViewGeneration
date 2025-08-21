@@ -1,0 +1,549 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "get_data",
+        "description": "Fetches images of minifigures",
+        "boundaries": "Training",
+        "position": "left"
+      },
+      {
+        "name": "data_feeling",
+        "description": "Jupyter notebook for data exploration",
+        "boundaries": "Training",
+        "position": "left"
+      },
+      {
+        "name": "train_model",
+        "description": "Trains model using train dataset",
+        "boundaries": "Training",
+        "position": "left"
+      },
+      {
+        "name": "get_model_from_registry",
+        "description": "Fetches model from registry",
+        "boundaries": "Training",
+        "position": "left"
+      },
+      {
+        "name": "batch_prefect_flow_deployment",
+        "description": "Deploys batch prefect flow",
+        "boundaries": "Production",
+        "position": "center"
+      },
+      {
+        "name": "streaming_send_data",
+        "description": "Sends streaming data",
+        "boundaries": "Production",
+        "position": "center"
+      },
+      {
+        "name": "prediction_service",
+        "description": "Provides prediction service",
+        "boundaries": "Production",
+        "position": "center"
+      },
+      {
+        "name": "prediction_service_stream",
+        "description": "Handles prediction service stream",
+        "boundaries": "Production",
+        "position": "center"
+      },
+      {
+        "name": "monitoring_service",
+        "description": "Monitors service",
+        "boundaries": "Monitoring",
+        "position": "right"
+      },
+      {
+        "name": "mlflow",
+        "description": "Stores and marks best model",
+        "boundaries": "Training",
+        "position": "center"
+      },
+      {
+        "name": "Amazon S3",
+        "description": "Stores model artifacts",
+        "boundaries": "Training",
+        "position": "center"
+      },
+      {
+        "name": "backend store",
+        "description": "Stores backend data",
+        "boundaries": "Training",
+        "position": "center"
+      },
+      {
+        "name": "Flask",
+        "description": "Web framework",
+        "boundaries": "Production",
+        "position": "center"
+      },
+      {
+        "name": "NGINX",
+        "description": "Web server",
+        "boundaries": "Production",
+        "position": "center"
+      },
+      {
+        "name": "Prefect",
+        "description": "Workflow orchestration",
+        "boundaries": "Production",
+        "position": "center"
+      },
+      {
+        "name": "Prometheus",
+        "description": "Metrics monitoring",
+        "boundaries": "Monitoring",
+        "position": "right"
+      },
+      {
+        "name": "Grafana",
+        "description": "Visualization tool",
+        "boundaries": "Monitoring",
+        "position": "right"
+      },
+      {
+        "name": "MongoDB",
+        "description": "Database for JSON inputs and outputs",
+        "boundaries": "Production",
+        "position": "center"
+      },
+      {
+        "name": "Evidently AI",
+        "description": "Generates HTML report",
+        "boundaries": "Production",
+        "position": "center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "get_data",
+        "target": "train_model",
+        "label": "",
+        "type": "data flow"
+      },
+      {
+        "source": "train_model",
+        "target": "mlflow",
+        "label": "stores models",
+        "type": "data flow"
+      },
+      {
+        "source": "mlflow",
+        "target": "NGINX",
+        "label": "gets best model",
+        "type": "data flow"
+      },
+      {
+        "source": "NGINX",
+        "target": "prediction_service",
+        "label": "gets best model",
+        "type": "data flow"
+      },
+      {
+        "source": "batch_prefect_flow_deployment",
+        "target": "Prefect",
+        "label": "creates deployment",
+        "type": "control flow"
+      },
+      {
+        "source": "batch_prefect_flow_deployment",
+        "target": "batch_prefect_flow",
+        "label": "",
+        "type": "data flow"
+      },
+      {
+        "source": "batch_prefect_flow",
+        "target": "MongoDB",
+        "label": "json inputs and outputs",
+        "type": "data flow"
+      },
+      {
+        "source": "MongoDB",
+        "target": "Evidently AI",
+        "label": "",
+        "type": "data flow"
+      },
+      {
+        "source": "Evidently AI",
+        "target": "html report",
+        "label": "",
+        "type": "data flow"
+      },
+      {
+        "source": "Prometheus",
+        "target": "Grafana",
+        "label": "metrics",
+        "type": "data flow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Training",
+        "components": [
+          "get_data",
+          "data_feeling",
+          "train_model",
+          "get_model_from_registry",
+          "mlflow",
+          "Amazon S3",
+          "backend store"
+        ]
+      },
+      {
+        "name": "Production",
+        "components": [
+          "batch_prefect_flow_deployment",
+          "streaming_send_data",
+          "prediction_service",
+          "prediction_service_stream",
+          "Flask",
+          "NGINX",
+          "Prefect",
+          "MongoDB",
+          "Evidently AI"
+        ]
+      },
+      {
+        "name": "Monitoring",
+        "components": [
+          "monitoring_service",
+          "Prometheus",
+          "Grafana"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "Training, Production, Monitoring Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "Initiates data exploration",
+        "boundaries": "",
+        "position": "left"
+      },
+      {
+        "name": "Jupyter Notebooks",
+        "description": "Platform for executing scripts",
+        "boundaries": "",
+        "position": "center"
+      },
+      {
+        "name": "Python Scripts",
+        "description": "Contains scripts for data processing",
+        "boundaries": "",
+        "position": "center"
+      },
+      {
+        "name": "get_data.py",
+        "description": "Script to fetch data",
+        "boundaries": "",
+        "position": "center"
+      },
+      {
+        "name": "train_model.py",
+        "description": "Script to train model",
+        "boundaries": "",
+        "position": "center"
+      },
+      {
+        "name": "MLflow",
+        "description": "Tracks experiments and models",
+        "boundaries": "",
+        "position": "center"
+      },
+      {
+        "name": "CI/CD",
+        "description": "Continuous integration and deployment",
+        "boundaries": "",
+        "position": "center"
+      },
+      {
+        "name": "GitHub Actions",
+        "description": "Runs tests on code push",
+        "boundaries": "",
+        "position": "center"
+      },
+      {
+        "name": "Docker",
+        "description": "Containerization platform",
+        "boundaries": "",
+        "position": "right"
+      },
+      {
+        "name": "MLflow Tracking Server",
+        "description": "Tracks MLflow experiments",
+        "boundaries": "",
+        "position": "right"
+      },
+      {
+        "name": "Streaming Prediction Service",
+        "description": "Handles streaming predictions",
+        "boundaries": "",
+        "position": "right"
+      },
+      {
+        "name": "Batch Prediction Service",
+        "description": "Handles batch predictions",
+        "boundaries": "",
+        "position": "right"
+      },
+      {
+        "name": "Evidently",
+        "description": "Monitors performance and detects drift",
+        "boundaries": "",
+        "position": "right"
+      },
+      {
+        "name": "Prefect",
+        "description": "Orchestrates batch inference",
+        "boundaries": "",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Jupyter Notebooks",
+        "label": "Perform Data Exploration",
+        "type": "control flow"
+      },
+      {
+        "source": "Jupyter Notebooks",
+        "target": "Python Scripts",
+        "label": "Execute Scripts",
+        "type": "control flow"
+      },
+      {
+        "source": "Python Scripts",
+        "target": "MLflow",
+        "label": "Log Experiments Track Models",
+        "type": "data flow"
+      },
+      {
+        "source": "CI/CD",
+        "target": "GitHub Actions",
+        "label": "Run Tests on Code Push",
+        "type": "control flow"
+      },
+      {
+        "source": "MLflow",
+        "target": "Docker",
+        "label": "Deploy Model via Docker",
+        "type": "control flow"
+      },
+      {
+        "source": "Docker",
+        "target": "Streaming Prediction Service",
+        "label": "Start Streaming Service",
+        "type": "control flow"
+      },
+      {
+        "source": "Docker",
+        "target": "Batch Prediction Service",
+        "label": "Start Batch Service",
+        "type": "control flow"
+      },
+      {
+        "source": "Evidently",
+        "target": "Docker",
+        "label": "Monitor Performance Detect Drift",
+        "type": "data flow"
+      },
+      {
+        "source": "Prefect",
+        "target": "Docker",
+        "label": "Orchestrate Batch Inference on Schedule",
+        "type": "control flow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Python Scripts",
+        "components": [
+          "get_data.py",
+          "train_model.py"
+        ]
+      },
+      {
+        "name": "Docker",
+        "components": [
+          "MLflow Tracking Server",
+          "Streaming Prediction Service",
+          "Batch Prediction Service"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": "ML Pipeline Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "get_data",
+      "train_model",
+      "MLflow",
+      "Evidently",
+      "Prefect"
+    ],
+    "unique_to_GroundTruth": [
+      "data_feeling",
+      "get_model_from_registry",
+      "batch_prefect_flow_deployment",
+      "streaming_send_data",
+      "prediction_service",
+      "prediction_service_stream",
+      "monitoring_service",
+      "Amazon S3",
+      "backend store",
+      "Flask",
+      "NGINX",
+      "Prometheus",
+      "Grafana",
+      "MongoDB",
+      "Evidently AI"
+    ],
+    "unique_to_GeneratedImage": [
+      "User",
+      "Jupyter Notebooks",
+      "Python Scripts",
+      "get_data.py",
+      "train_model.py",
+      "CI/CD",
+      "GitHub Actions",
+      "Docker",
+      "MLflow Tracking Server",
+      "Streaming Prediction Service",
+      "Batch Prediction Service"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "get_data",
+        "target": "train_model",
+        "label": "",
+        "type": "data flow"
+      },
+      {
+        "source": "train_model",
+        "target": "mlflow",
+        "label": "stores models",
+        "type": "data flow"
+      },
+      {
+        "source": "mlflow",
+        "target": "NGINX",
+        "label": "gets best model",
+        "type": "data flow"
+      },
+      {
+        "source": "NGINX",
+        "target": "prediction_service",
+        "label": "gets best model",
+        "type": "data flow"
+      },
+      {
+        "source": "batch_prefect_flow_deployment",
+        "target": "Prefect",
+        "label": "creates deployment",
+        "type": "control flow"
+      },
+      {
+        "source": "batch_prefect_flow_deployment",
+        "target": "batch_prefect_flow",
+        "label": "",
+        "type": "data flow"
+      },
+      {
+        "source": "batch_prefect_flow",
+        "target": "MongoDB",
+        "label": "json inputs and outputs",
+        "type": "data flow"
+      },
+      {
+        "source": "MongoDB",
+        "target": "Evidently AI",
+        "label": "",
+        "type": "data flow"
+      },
+      {
+        "source": "Evidently AI",
+        "target": "html report",
+        "label": "",
+        "type": "data flow"
+      },
+      {
+        "source": "Prometheus",
+        "target": "Grafana",
+        "label": "metrics",
+        "type": "data flow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "Jupyter Notebooks",
+        "label": "Perform Data Exploration",
+        "type": "control flow"
+      },
+      {
+        "source": "Jupyter Notebooks",
+        "target": "Python Scripts",
+        "label": "Execute Scripts",
+        "type": "control flow"
+      },
+      {
+        "source": "Python Scripts",
+        "target": "MLflow",
+        "label": "Log Experiments Track Models",
+        "type": "data flow"
+      },
+      {
+        "source": "CI/CD",
+        "target": "GitHub Actions",
+        "label": "Run Tests on Code Push",
+        "type": "control flow"
+      },
+      {
+        "source": "MLflow",
+        "target": "Docker",
+        "label": "Deploy Model via Docker",
+        "type": "control flow"
+      },
+      {
+        "source": "Docker",
+        "target": "Streaming Prediction Service",
+        "label": "Start Streaming Service",
+        "type": "control flow"
+      },
+      {
+        "source": "Docker",
+        "target": "Batch Prediction Service",
+        "label": "Start Batch Service",
+        "type": "control flow"
+      },
+      {
+        "source": "Evidently",
+        "target": "Docker",
+        "label": "Monitor Performance Detect Drift",
+        "type": "data flow"
+      },
+      {
+        "source": "Prefect",
+        "target": "Docker",
+        "label": "Orchestrate Batch Inference on Schedule",
+        "type": "control flow"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on a detailed ML pipeline with specific components for training, production, and monitoring. It includes components like NGINX, Flask, and Prometheus for web serving and monitoring. The GeneratedImage diagram presents a more abstract view, emphasizing the flow from data exploration to deployment using Docker, with CI/CD integration. Common components include MLflow and Prefect, but the GeneratedImage lacks specific production and monitoring details present in GroundTruth. The GeneratedImage is rated 6/10 for capturing the general flow but missing detailed components and connections.",
+    "Rating": 6
+  }
+}

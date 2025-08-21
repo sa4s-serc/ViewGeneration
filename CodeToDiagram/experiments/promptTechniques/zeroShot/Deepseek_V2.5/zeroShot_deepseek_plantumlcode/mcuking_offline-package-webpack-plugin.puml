@@ -1,0 +1,40 @@
+```plantuml
+@startuml mcuking_offline-package-webpack-plugin
+
+participant WebpackCompiler
+participant OfflinePackagePlugin
+participant JSZip
+participant MimeTypes
+
+WebpackCompiler -> OfflinePackagePlugin : apply(compiler)
+activate OfflinePackagePlugin
+
+OfflinePackagePlugin -> WebpackCompiler : hooks.emit.tapAsync()
+deactivate OfflinePackagePlugin
+
+WebpackCompiler -> OfflinePackagePlugin : emit phase (compilation, callback)
+activate OfflinePackagePlugin
+
+OfflinePackagePlugin -> OfflinePackagePlugin : filter assets (fileTypes/excludeFileName)
+OfflinePackagePlugin -> JSZip : new JSZip()
+activate JSZip
+
+loop for each asset
+    OfflinePackagePlugin -> MimeTypes : lookup(filePath)
+    activate MimeTypes
+    MimeTypes --> OfflinePackagePlugin : mimeType
+    deactivate MimeTypes
+
+    OfflinePackagePlugin -> JSZip : file(filePath, content)
+end
+
+OfflinePackagePlugin -> JSZip : generateAsync({type: "nodebuffer"})
+JSZip --> OfflinePackagePlugin : zipBuffer
+deactivate JSZip
+
+OfflinePackagePlugin -> WebpackCompiler : emitFile(zipBuffer, index.json)
+OfflinePackagePlugin --> WebpackCompiler : callback()
+deactivate OfflinePackagePlugin
+
+@enduml
+```

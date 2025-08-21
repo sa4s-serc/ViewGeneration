@@ -1,0 +1,47 @@
+```plantuml
+@startuml gaiax_fLibra
+actor User
+participant "Nuxt.js Frontend" as Frontend
+participant "Vuex Store" as Vuex
+participant "Firebase/Firestore" as Firestore
+participant "Ethereum Smart Contract" as Ethereum
+participant "Libra Blockchain" as Libra
+participant "Elasticsearch" as Elasticsearch
+participant "IPFS" as IPFS
+
+User -> Frontend: Browse Marketplace
+Frontend -> Elasticsearch: Search Items (keyword/category)
+Elasticsearch --> Frontend: Return Search Results
+Frontend -> Firestore: Fetch Item Details
+Firestore --> Frontend: Return Item Data
+Frontend -> IPFS: Load Item Images
+IPFS --> Frontend: Return Images
+
+User -> Frontend: Post New Item
+Frontend -> IPFS: Upload Item Images
+IPFS --> Frontend: Return Image Hash
+Frontend -> Firestore: Save Item Details
+Firestore -> Elasticsearch: Index New Item (via listener)
+Frontend -> Ethereum: Register Item (via smart contract)
+Ethereum --> Frontend: Confirmation
+
+User -> Frontend: Purchase Item
+Frontend -> Ethereum: Initiate Purchase (escrow)
+Ethereum --> Frontend: Confirmation
+Frontend -> Libra: Transfer Payment
+Libra --> Frontend: Transaction Receipt
+Ethereum -> Firestore: Update Item Status (sold)
+Firestore -> Elasticsearch: Update Index (via listener)
+
+User -> Frontend: Mark Item as Delivered
+Frontend -> Ethereum: Confirm Delivery
+Ethereum -> Libra: Release Funds to Seller
+Ethereum -> Firestore: Update Delivery Status
+Firestore -> Elasticsearch: Update Index (via listener)
+
+User -> Frontend: Leave Review
+Frontend -> Firestore: Save Review Data
+Firestore -> Elasticsearch: Update Index (via listener)
+Frontend -> Ethereum: Record Review (optional)
+@enduml
+```

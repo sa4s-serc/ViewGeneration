@@ -1,0 +1,42 @@
+@startuml fdrennan_ndexr-platform
+
+skinparam component {
+  BackgroundColor<<Data Source>> LightBlue
+  BackgroundColor<<Storage>> LightYellow
+  BackgroundColor<<Processing>> LightGreen
+  BackgroundColor<<UI>> LightPink
+  BackgroundColor<<Orchestration>> LightGray
+  BackgroundColor<<Monitoring>> LightCyan
+}
+
+cloud "AWS" {
+  component "S3" <<Storage>>
+  component "EC2" <<Processing>>
+  component "SNS" <<Processing>>
+}
+
+component "Reddit API" <<Data Source>>
+
+database "PostgreSQL" <<Storage>>
+database "Elasticsearch" <<Storage>>
+
+component "PRAW (Python)" <<Processing>>
+component "Airflow" <<Orchestration>>
+component "R Plumber API" <<Processing>>
+component "Shiny App" <<UI>>
+component "NGINX" <<Processing>>
+component "Glances" <<Monitoring>>
+
+[PRAW (Python)] --> [Reddit API] : Fetch data
+[PRAW (Python)] --> PostgreSQL : Store data
+[Airflow] --> [PRAW (Python)] : Orchestrate
+[Airflow] --> EC2 : Manage instances
+[Airflow] --> S3 : Manage backups
+[R Plumber API] --> PostgreSQL : Retrieve data
+[R Plumber API] --> Elasticsearch : Search data
+[Shiny App] --> [R Plumber API] : Request data
+[NGINX] --> [R Plumber API] : Load balance
+SNS --> [Airflow] : Notifications
+[Glances] --> EC2 : Monitor
+
+@enduml

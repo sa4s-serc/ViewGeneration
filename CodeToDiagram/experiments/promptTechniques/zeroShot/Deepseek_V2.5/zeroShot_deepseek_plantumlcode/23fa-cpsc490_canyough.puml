@@ -1,0 +1,68 @@
+```plantuml
+@startuml 23fa-cpsc490_canyough
+
+package "Twitter Recommendation System" {
+    [Product Mixer] as ProductMixer
+    [CR Mixer] as CRMixer
+    [Home Mixer] as HomeMixer
+    [Follow Recommendations Service] as FRS
+    [Navi Serving Server] as NaviServer
+
+    package "Core Components" {
+        [Candidate Sources] as CandidateSources
+        [Feature Hydrators] as FeatureHydrators
+        [Filters] as Filters
+        [Gates] as Gates
+        [Scorers] as Scorers
+        [Transformers] as Transformers
+        [Cursors] as Cursors
+    }
+
+    package "Data Services" {
+        [User Signal Service] as USS
+        [Real Graph] as RealGraph
+        [Earlybird] as Earlybird
+        [TweetyPie] as TweetyPie
+        [Manhattan] as Manhattan
+        [Memcached] as Memcached
+        [Strato] as Strato
+    }
+
+    package "Data Structures" {
+        [Candidates] as Candidates
+        [Features] as Features
+        [Queries] as Queries
+        [Presentation Models] as PresentationModels
+    }
+}
+
+ProductMixer --> CRMixer : uses
+ProductMixer --> HomeMixer : uses
+ProductMixer --> FRS : uses
+ProductMixer --> CandidateSources : orchestrates
+ProductMixer --> FeatureHydrators : orchestrates
+ProductMixer --> Filters : orchestrates
+ProductMixer --> Gates : orchestrates
+ProductMixer --> Scorers : orchestrates
+ProductMixer --> Transformers : orchestrates
+ProductMixer --> Cursors : orchestrates
+
+CRMixer --> NaviServer : ML scoring
+HomeMixer --> NaviServer : ML scoring
+FRS --> NaviServer : ML scoring
+
+CandidateSources --> USS : fetches data
+CandidateSources --> RealGraph : fetches data
+CandidateSources --> Earlybird : fetches data
+FeatureHydrators --> TweetyPie : hydrates features
+FeatureHydrators --> Manhattan : hydrates features
+FeatureHydrators --> Memcached : hydrates features
+Scorers --> Strato : configures
+
+ProductMixer --> Candidates : processes
+ProductMixer --> Features : processes
+ProductMixer --> Queries : processes
+ProductMixer --> PresentationModels : generates
+
+@enduml
+```

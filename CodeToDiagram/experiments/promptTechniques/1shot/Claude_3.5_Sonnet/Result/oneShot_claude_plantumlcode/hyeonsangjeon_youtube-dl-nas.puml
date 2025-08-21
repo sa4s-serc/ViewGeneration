@@ -1,0 +1,49 @@
+@startuml hyeonsangjeon_youtube-dl-nas
+
+actor User
+participant "Web Interface" as WebUI
+participant "REST API" as API
+participant "Web Server" as Server
+participant "Download Queue" as Queue
+participant "Download Worker" as Worker
+participant "WebSocket" as WS
+database "Auth.json" as Auth
+database "downfolder" as Storage
+
+User -> WebUI : Access web interface
+WebUI -> Server : Request login page
+Server -> Auth : Verify credentials
+Auth --> Server : Authentication result
+Server --> WebUI : Login response
+
+User -> WebUI : Submit download request
+WebUI -> Server : Send download request
+Server -> Auth : Authenticate request
+Auth --> Server : Authentication result
+Server -> Queue : Add download task
+Queue --> Server : Task added
+Server --> WebUI : Request accepted
+
+User -> API : Submit REST download request
+API -> Server : Forward request
+Server -> Auth : Authenticate request
+Auth --> Server : Authentication result
+Server -> Queue : Add download task
+Queue --> Server : Task added
+Server --> API : Request accepted
+API --> User : Download initiated
+
+loop Process queue
+    Worker -> Queue : Fetch next task
+    Queue --> Worker : Provide task
+    Worker -> Worker : Download video
+    Worker -> Storage : Save video
+    Worker -> WS : Send progress update
+    WS --> WebUI : Update progress
+end
+
+Worker -> Server : Download complete
+Server -> WS : Send completion notification
+WS --> WebUI : Display completion
+
+@enduml

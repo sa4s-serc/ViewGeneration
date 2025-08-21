@@ -1,0 +1,192 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Jenkins",
+        "description": "Compiles code and packages images",
+        "position": "center"
+      },
+      {
+        "name": "前端代码",
+        "description": "Integrates webpack plugin, automatically generates source maps, and packages into zip",
+        "position": "left"
+      },
+      {
+        "name": "静态资源服务器",
+        "description": "Handles static resource requests from the server and returns corresponding resources from local offline packages",
+        "position": "top right"
+      },
+      {
+        "name": "离线包平台",
+        "description": "Downloads offline packages and uploads them to the offline package management platform",
+        "position": "bottom left"
+      },
+      {
+        "name": "客户端",
+        "description": "Pre-installs initial offline package version and unpacks it to the installation package",
+        "position": "bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "前端代码",
+        "target": "Jenkins",
+        "label": "push",
+        "type": "direct"
+      },
+      {
+        "source": "Jenkins",
+        "target": "静态资源服务器",
+        "label": "Compile code and package images",
+        "type": "direct"
+      },
+      {
+        "source": "静态资源服务器",
+        "target": "客户端",
+        "label": "Return resources",
+        "type": "direct"
+      },
+      {
+        "source": "离线包平台",
+        "target": "客户端",
+        "label": "Download and unpack",
+        "type": "direct"
+      }
+    ],
+    "annotations": [
+      "若上传的非初始版本，需计算与上一个版本的差分包；可添加离线包文件对应的md5值字段，用于客户端进行校验下载的包的完整性"
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "离线包运行机制.png",
+      "title": "离线包运行机制"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Webpack Compiler",
+        "description": "Initiates the emit phase",
+        "position": "top left"
+      },
+      {
+        "name": "JSZip",
+        "description": "Creates zip buffer",
+        "position": "top right"
+      },
+      {
+        "name": "OfflinePackagePlugin",
+        "description": "Handles offline package creation",
+        "position": "center"
+      },
+      {
+        "name": "File System",
+        "description": "Writes offline package zip",
+        "position": "bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Webpack Compiler",
+        "target": "OfflinePackagePlugin",
+        "label": "emit phase",
+        "type": "direct"
+      },
+      {
+        "source": "OfflinePackagePlugin",
+        "target": "JSZip",
+        "label": "create zip buffer",
+        "type": "direct"
+      },
+      {
+        "source": "JSZip",
+        "target": "OfflinePackagePlugin",
+        "label": "zip buffer",
+        "type": "direct"
+      },
+      {
+        "source": "OfflinePackagePlugin",
+        "target": "File System",
+        "label": "write offline package zip",
+        "type": "direct"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "webpack_offline_package.png",
+      "title": "Webpack Offline Package"
+    }
+  },
+  "comparison": {
+    "common_components": [],
+    "unique_to_GroundTruth": [
+      "Jenkins",
+      "前端代码",
+      "静态资源服务器",
+      "离线包平台",
+      "客户端"
+    ],
+    "unique_to_GeneratedImage": [
+      "Webpack Compiler",
+      "JSZip",
+      "OfflinePackagePlugin",
+      "File System"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "前端代码",
+        "target": "Jenkins",
+        "label": "push",
+        "type": "direct"
+      },
+      {
+        "source": "Jenkins",
+        "target": "静态资源服务器",
+        "label": "Compile code and package images",
+        "type": "direct"
+      },
+      {
+        "source": "静态资源服务器",
+        "target": "客户端",
+        "label": "Return resources",
+        "type": "direct"
+      },
+      {
+        "source": "离线包平台",
+        "target": "客户端",
+        "label": "Download and unpack",
+        "type": "direct"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Webpack Compiler",
+        "target": "OfflinePackagePlugin",
+        "label": "emit phase",
+        "type": "direct"
+      },
+      {
+        "source": "OfflinePackagePlugin",
+        "target": "JSZip",
+        "label": "create zip buffer",
+        "type": "direct"
+      },
+      {
+        "source": "JSZip",
+        "target": "OfflinePackagePlugin",
+        "label": "zip buffer",
+        "type": "direct"
+      },
+      {
+        "source": "OfflinePackagePlugin",
+        "target": "File System",
+        "label": "write offline package zip",
+        "type": "direct"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on a broader offline package operation mechanism involving Jenkins, static resource servers, and client interactions. It describes a process involving code compilation, resource management, and client-side operations. The GeneratedImage diagram is more specific to the technical implementation of creating offline packages using Webpack, JSZip, and the file system. There are no common components or connectors between the two diagrams, as they represent different levels of abstraction and focus on different aspects of the software architecture. The GroundTruth diagram provides a high-level overview of the offline package lifecycle, while the GeneratedImage diagram details the technical implementation of package creation. Based on the accuracy and completeness, the GeneratedImage diagram is rated 5 out of 10. It accurately represents the technical process but lacks the broader context and components present in the GroundTruth diagram.",
+    "Rating": 5
+  }
+}

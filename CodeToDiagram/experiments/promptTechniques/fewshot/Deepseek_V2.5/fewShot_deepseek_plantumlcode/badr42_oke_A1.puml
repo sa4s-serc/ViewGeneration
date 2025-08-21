@@ -1,0 +1,77 @@
+### Output:
+@startuml badr42_oke_A1
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+rectangle "Terraform Configuration" as TF {
+  rectangle "main.tf" as Main
+  rectangle "variables.tf" as Vars
+  rectangle "nginx_deployment.yaml" as NginxYaml
+  rectangle "setup_nginx.sh" as SetupScript
+}
+
+rectangle "Oracle Cloud Infrastructure" as OCI {
+  rectangle "VCN" as VCN {
+    rectangle "Public Subnet" as PublicSubnet
+    rectangle "Private Subnet" as PrivateSubnet
+  }
+
+  rectangle "Internet Gateway" as IGW
+  rectangle "NAT Gateway" as NGW
+  rectangle "Service Gateway" as SGW
+
+  rectangle "Route Tables" as Routes
+  rectangle "Security Lists" as Security
+
+  rectangle "OKE Cluster" as OKE {
+    rectangle "Control Plane" as ControlPlane
+    rectangle "Node Pool" as NodePool {
+      rectangle "Worker Node 1" as Worker1
+      rectangle "Worker Node 2" as Worker2
+    }
+  }
+
+  rectangle "Load Balancer" as LB
+}
+
+rectangle "Local Machine" as Local {
+  rectangle "kubectl" as Kubectl
+  rectangle "SSH Client" as SSH
+}
+
+Main --> VCN
+Main --> OKE
+Main --> LB
+Vars --> Main
+NginxYaml --> SetupScript
+SetupScript --> Kubectl
+
+VCN --> IGW
+VCN --> NGW
+VCN --> SGW
+VCN --> Routes
+VCN --> Security
+
+PublicSubnet --> LB
+PrivateSubnet --> NodePool
+NodePool --> Worker1
+NodePool --> Worker2
+
+ControlPlane --> Kubectl
+LB --> Worker1
+LB --> Worker2
+
+Kubectl --> ControlPlane
+SSH --> Worker1
+SSH --> Worker2
+
+note right of OCI
+  VM.Standard.A1.Flex (Ampere A1)
+  Arm-based compute shapes
+end note
+@enduml

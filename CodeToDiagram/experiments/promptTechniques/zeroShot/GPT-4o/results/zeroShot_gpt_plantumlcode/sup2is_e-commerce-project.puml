@@ -1,0 +1,55 @@
+```plantuml
+@startuml sup2is_e-commerce-project
+
+package "E-commerce Platform" {
+
+  component "api-gateway" as ApiGateway
+  component "member-service" as MemberService
+  component "order-service" as OrderService
+  component "product-service" as ProductService
+  component "authentication-service" as AuthService
+  component "config-server" as ConfigServer
+  component "eureka-server" as EurekaServer
+
+  database "H2/MySQL" as Database
+  queue "Kafka" as Kafka
+  database "Redis" as RedisCache
+
+  [Docker] -right-> ApiGateway
+  [Docker] -right-> MemberService
+  [Docker] -right-> OrderService
+  [Docker] -right-> ProductService
+  [Docker] -right-> AuthService
+  [Docker] -right-> EurekaServer
+  [Docker] -right-> ConfigServer
+
+  ApiGateway --> EurekaServer : Service Discovery
+  MemberService --> EurekaServer : Service Discovery
+  OrderService --> EurekaServer : Service Discovery
+  ProductService --> EurekaServer : Service Discovery
+  AuthService --> EurekaServer : Service Discovery
+
+  ApiGateway --> AuthService : JWT Validation
+  ApiGateway --> OrderService : Routes Requests
+  ApiGateway --> MemberService : Routes Requests
+  ApiGateway --> ProductService : Routes Requests
+
+  MemberService --> RedisCache : Cache Member Info
+  ProductService --> RedisCache : Cache Product Stock
+
+  OrderService --> ProductService : Feign Client
+  ProductService --> Kafka : Inventory Updates
+  ProductService --> Database : Persist Data
+  OrderService --> Database : Persist Data
+  MemberService --> Database : Persist Data
+
+  ConfigServer --> ApiGateway : Config Management
+  ConfigServer --> MemberService : Config Management
+  ConfigServer --> OrderService : Config Management
+  ConfigServer --> ProductService : Config Management
+  ConfigServer --> AuthService : Config Management
+
+}
+
+@enduml
+```

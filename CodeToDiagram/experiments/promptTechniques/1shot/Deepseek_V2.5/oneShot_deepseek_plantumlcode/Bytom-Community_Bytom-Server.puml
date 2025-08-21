@@ -1,0 +1,46 @@
+@startuml Bytom-Community_Bytom-Server
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "Client" as Client
+
+rectangle "Bytom Node" as Node {
+  rectangle "gRPC API" as API #palegreen
+  rectangle "P2P Network" as P2P #lightsteelblue
+  rectangle "Blockchain Core" as Core #lightyellow
+  rectangle "Tx Pool" as TxPool #aliceblue
+  rectangle "Mining" as Mining #mistyrose
+  rectangle "DB Storage" as DB #peachpuff
+}
+
+rectangle "External Services" as External {
+  rectangle "Peer Nodes" as Peers
+  rectangle "Oracle Service" as Oracle
+}
+
+' ========== Connections ==========
+Client --> API : gRPC calls\n(wallet ops, queries)
+API --> Core : process requests
+API --> TxPool : submit transactions
+
+Core --> DB : read/write blocks\nand state
+Core --> TxPool : validate txs
+Core --> Mining : submit mined blocks
+
+TxPool --> P2P : broadcast txs
+P2P --> Peers : sync blocks/txs
+Peers --> P2P : receive blocks/txs
+
+Mining --> Core : get block template
+Mining --> P2P : broadcast mined block
+
+Core --> Oracle : fetch external data\n(price feeds, etc)
+Oracle --> Core : provide oracle data
+
+P2P --> Core : process incoming blocks
+P2P --> TxPool : process incoming txs
+@enduml

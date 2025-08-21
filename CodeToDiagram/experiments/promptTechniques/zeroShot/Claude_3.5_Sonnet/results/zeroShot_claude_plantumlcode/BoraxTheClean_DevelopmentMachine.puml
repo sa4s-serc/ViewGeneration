@@ -1,0 +1,55 @@
+@startuml
+actor User
+participant "GitHub Actions" as GHA
+participant "AWS CloudFormation" as CF
+participant "EC2 Instance" as EC2
+participant "IAM" as IAM
+participant "CloudWatch" as CW
+participant "Security Group" as SG
+
+User -> GHA : Trigger deployment
+activate GHA
+
+GHA -> GHA : Configure AWS credentials
+GHA -> CF : Deploy CloudFormation stack
+activate CF
+
+CF -> IAM : Create IAM role with AdministratorAccess
+activate IAM
+IAM --> CF : Role created
+deactivate IAM
+
+CF -> SG : Create Security Group
+activate SG
+SG --> CF : Security Group created
+deactivate SG
+
+CF -> EC2 : Launch EC2 instance
+activate EC2
+EC2 --> CF : Instance launched
+deactivate EC2
+
+CF -> CW : Create inactivity alarm
+activate CW
+CW --> CF : Alarm created
+deactivate CW
+
+CF --> GHA : Stack deployment complete
+deactivate CF
+
+GHA -> GHA : Upload template to S3
+GHA --> User : Deployment finished
+deactivate GHA
+
+User -> EC2 : SSH access (from any IP)
+activate EC2
+EC2 --> User : Access granted
+deactivate EC2
+
+CW -> EC2 : Monitor inactivity
+activate CW
+CW -> EC2 : Stop instance after 1 hour inactivity
+deactivate CW
+deactivate EC2
+
+@enduml

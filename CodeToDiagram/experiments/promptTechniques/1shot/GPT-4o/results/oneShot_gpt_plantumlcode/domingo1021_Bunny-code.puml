@@ -1,0 +1,63 @@
+```plantuml
+@startuml domingo1021_Bunny-code
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Frontend" as FE {
+}
+
+rectangle "Backend" as BE #lightsteelblue {
+  rectangle "Express App" as ExpressApp
+  rectangle "Socket.IO Server" as SocketIOServer
+}
+
+rectangle "Database Layer" as DBLayer #palegreen {
+  rectangle "MySQL" as MySQL
+  rectangle "InfluxDB" as InfluxDB
+  rectangle "Redis" as Redis
+}
+
+rectangle "Sandbox (Docker)" as Sandbox #aliceblue
+
+rectangle "Cloud Services" as CloudServices #lightyellow {
+  rectangle "S3"
+  rectangle "CloudFront"
+  rectangle "CloudWatch"
+}
+
+rectangle "Nginx Reverse Proxy" as Nginx #mistyrose
+
+' ========== Connections ==========
+User --> FE
+
+' Frontend interactions
+FE --> Nginx : HTTP Request
+Nginx --> ExpressApp : Route to API
+ExpressApp --> DBLayer : Query data\n (MySQL, InfluxDB)
+
+' Real-time interactions
+FE --> SocketIOServer : WebSocket Connection
+SocketIOServer --> Redis : Cache and state management
+SocketIOServer --> User : Real-time updates
+
+' Sandbox execution
+ExpressApp --> Sandbox : Execute code in Docker container
+
+' Cloud interactions
+ExpressApp --> S3 : Upload/download files
+ExpressApp --> CloudFront : CDN content delivery
+ExpressApp --> CloudWatch : Logging and monitoring
+
+' Database interactions
+ExpressApp --> MySQL : CRUD operations
+ExpressApp --> InfluxDB : Time-series data query
+ExpressApp --> Redis : Caching
+
+@enduml
+```

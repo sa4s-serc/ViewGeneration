@@ -1,0 +1,91 @@
+```plantuml
+@startuml philipplackner_IvyWallet-PL_Version
+
+skinparam componentStyle uml2
+skinparam monochrome true
+skinparam nodesep 20
+skinparam ranksep 30
+
+title Ivy Wallet - Control Flow Architecture
+
+package "UI Layer" {
+    [HomeScreen] as HomeScreen
+    [TransactionScreen] as TransactionScreen
+    [AccountScreen] as AccountScreen
+    [CategoryScreen] as CategoryScreen
+    [BackupScreen] as BackupScreen
+    [SyncScreen] as SyncScreen
+}
+
+package "ViewModel Layer" {
+    [HomeViewModel] as HomeViewModel
+    [TransactionViewModel] as TransactionViewModel
+    [AccountViewModel] as AccountViewModel
+    [CategoryViewModel] as CategoryViewModel
+    [BackupViewModel] as BackupViewModel
+    [SyncViewModel] as SyncViewModel
+}
+
+package "Domain Layer" {
+    [TrnsFlow] as TrnsFlow
+    [WriteTrnsAct] as WriteTrnsAct
+    [WriteAccountsAct] as WriteAccountsAct
+    [BackupDataAct] as BackupDataAct
+    [ImportBackupDataAct] as ImportBackupDataAct
+    [SyncAct] as SyncAct
+    [FormulaFlow] as FormulaFlow
+}
+
+package "Data Layer" {
+    [TransactionRepository] as TransactionRepository
+    [AccountRepository] as AccountRepository
+    [CategoryRepository] as CategoryRepository
+    [BackupRepository] as BackupRepository
+    [SyncRepository] as SyncRepository
+}
+
+package "External Services" {
+    [GoogleDriveSync] as GoogleDriveSync
+    [ExchangeRateAPI] as ExchangeRateAPI
+}
+
+' Control Flow Relationships
+HomeScreen --> HomeViewModel : observes
+HomeViewModel --> TrnsFlow : calls
+HomeViewModel --> FormulaFlow : calls
+HomeViewModel --> TransactionRepository : calls
+
+TransactionScreen --> TransactionViewModel : observes
+TransactionViewModel --> WriteTrnsAct : calls
+TransactionViewModel --> TrnsFlow : calls
+TransactionViewModel --> TransactionRepository : calls
+
+AccountScreen --> AccountViewModel : observes
+AccountViewModel --> WriteAccountsAct : calls
+AccountViewModel --> AccountRepository : calls
+
+CategoryScreen --> CategoryViewModel : observes
+CategoryViewModel --> CategoryRepository : calls
+
+BackupScreen --> BackupViewModel : observes
+BackupViewModel --> BackupDataAct : calls
+BackupViewModel --> ImportBackupDataAct : calls
+BackupViewModel --> BackupRepository : calls
+
+SyncScreen --> SyncViewModel : observes
+SyncViewModel --> SyncAct : calls
+SyncViewModel --> SyncRepository : calls
+SyncRepository --> GoogleDriveSync : uses
+
+TrnsFlow --> TransactionRepository : queries
+WriteTrnsAct --> TransactionRepository : modifies
+WriteAccountsAct --> AccountRepository : modifies
+BackupDataAct --> BackupRepository : exports
+ImportBackupDataAct --> BackupRepository : imports
+SyncAct --> SyncRepository : synchronizes
+FormulaFlow --> TransactionRepository : queries
+
+TransactionRepository --> ExchangeRateAPI : fetches rates
+
+@enduml
+```

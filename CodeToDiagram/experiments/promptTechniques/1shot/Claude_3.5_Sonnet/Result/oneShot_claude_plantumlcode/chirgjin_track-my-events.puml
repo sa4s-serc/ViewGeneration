@@ -1,0 +1,41 @@
+@startuml chirgjin_track-my-events
+
+actor User
+participant "React Frontend" as Frontend
+participant "Gateway Service" as Gateway
+participant "User Service" as UserService
+participant "Tracking Service" as TrackingService
+database "PostgreSQL" as DB
+queue "Redis" as Redis
+
+User -> Frontend : Access application
+Frontend -> Gateway : Send request
+
+alt User Authentication
+    Gateway -> UserService : Authenticate user
+    UserService -> DB : Verify credentials
+    DB --> UserService : Return user data
+    UserService --> Gateway : Return auth tokens
+    Gateway --> Frontend : Return auth response
+end
+
+alt Event Tracking
+    User -> Frontend : Perform action
+    Frontend -> Gateway : Send event data
+    Gateway -> Redis : Publish event
+    Redis -> TrackingService : Consume event
+    TrackingService -> DB : Store event data
+end
+
+alt Dashboard Data
+    User -> Frontend : Request dashboard
+    Frontend -> Gateway : Get dashboard data
+    Gateway -> TrackingService : Fetch event statistics
+    TrackingService -> DB : Query event data
+    DB --> TrackingService : Return aggregated data
+    TrackingService --> Gateway : Return dashboard data
+    Gateway --> Frontend : Return dashboard response
+    Frontend -> User : Display dashboard
+end
+
+@enduml

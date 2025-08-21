@@ -1,0 +1,292 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Client",
+        "description": "External client component",
+        "boundaries": "External",
+        "position": "Left"
+      },
+      {
+        "name": "Netty Producer Server",
+        "description": "Handles HTTP requests from clients",
+        "boundaries": "Gateway",
+        "position": "Center"
+      },
+      {
+        "name": "Subscription Watcher",
+        "description": "Monitors subscriptions",
+        "boundaries": "Gateway",
+        "position": "Center"
+      },
+      {
+        "name": "ZK/Nacos/Etcd",
+        "description": "Configuration management",
+        "boundaries": "Gateway",
+        "position": "Center"
+      },
+      {
+        "name": "Consumer Processor",
+        "description": "Processes messages for consumers",
+        "boundaries": "Gateway",
+        "position": "Center"
+      },
+      {
+        "name": "RocketMQ",
+        "description": "Message queue",
+        "boundaries": "External",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Client",
+        "target": "Netty Producer Server",
+        "label": "HTTP",
+        "type": "Arrow"
+      },
+      {
+        "source": "Netty Producer Server",
+        "target": "RocketMQ",
+        "label": "TCP",
+        "type": "Arrow"
+      },
+      {
+        "source": "ZK/Nacos/Etcd",
+        "target": "Subscription Watcher",
+        "label": "Listen",
+        "type": "Arrow"
+      },
+      {
+        "source": "Subscription Watcher",
+        "target": "Netty Producer Server",
+        "label": "",
+        "type": "Dashed Arrow"
+      },
+      {
+        "source": "Consumer Processor",
+        "target": "RocketMQ",
+        "label": "TCP",
+        "type": "Arrow"
+      },
+      {
+        "source": "Consumer Processor",
+        "target": "Client",
+        "label": "HTTP PUSH",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "[{\"app\":\"gateway_demo\",\"callback\":\"http://www.xxx.com/index.do\",\"tag\":\"\",\"topic\":\"test\"}]",
+        "position": "Near ZK/Nacos/Etcd"
+      }
+    ],
+    "groups": [
+      {
+        "name": "Gateway",
+        "components": [
+          "Netty Producer Server",
+          "Subscription Watcher",
+          "ZK/Nacos/Etcd",
+          "Consumer Processor"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": null
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "HTTP Clients",
+        "description": "External HTTP clients",
+        "boundaries": "External",
+        "position": "Top Left"
+      },
+      {
+        "name": "RocketMQ HTTP Gateway",
+        "description": "Main gateway component",
+        "boundaries": "Gateway",
+        "position": "Center"
+      },
+      {
+        "name": "Netty Server",
+        "description": "Handles HTTP requests",
+        "boundaries": "Gateway",
+        "position": "Center"
+      },
+      {
+        "name": "Request Processor",
+        "description": "Processes incoming requests",
+        "boundaries": "Gateway",
+        "position": "Center"
+      },
+      {
+        "name": "Consumer Manager",
+        "description": "Manages consumer interactions",
+        "boundaries": "Gateway",
+        "position": "Center"
+      },
+      {
+        "name": "Producer Manager",
+        "description": "Manages producer interactions",
+        "boundaries": "Gateway",
+        "position": "Center"
+      },
+      {
+        "name": "HTTP Executor",
+        "description": "Executes HTTP callbacks",
+        "boundaries": "Gateway",
+        "position": "Center"
+      },
+      {
+        "name": "Subscription Change Watcher",
+        "description": "Watches for subscription changes",
+        "boundaries": "Gateway",
+        "position": "Center"
+      },
+      {
+        "name": "RocketMQ",
+        "description": "Message queue",
+        "boundaries": "External",
+        "position": "Bottom Left"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "HTTP Clients",
+        "target": "RocketMQ HTTP Gateway",
+        "label": "HTTP Requests",
+        "type": "Arrow"
+      },
+      {
+        "source": "RocketMQ HTTP Gateway",
+        "target": "RocketMQ",
+        "label": "Consume Messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "RocketMQ",
+        "target": "RocketMQ HTTP Gateway",
+        "label": "Produce Messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "RocketMQ HTTP Gateway",
+        "target": "HTTP Clients",
+        "label": "HTTP Callbacks",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Gateway",
+        "components": [
+          "Netty Server",
+          "Request Processor",
+          "Consumer Manager",
+          "Producer Manager",
+          "HTTP Executor",
+          "Subscription Change Watcher"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "RocketMQ HTTP Gateway"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "RocketMQ",
+      "Netty Server"
+    ],
+    "unique_to_GroundTruth": [
+      "Client",
+      "Netty Producer Server",
+      "Subscription Watcher",
+      "ZK/Nacos/Etcd",
+      "Consumer Processor"
+    ],
+    "unique_to_GeneratedImage": [
+      "HTTP Clients",
+      "RocketMQ HTTP Gateway",
+      "Request Processor",
+      "Consumer Manager",
+      "Producer Manager",
+      "HTTP Executor",
+      "Subscription Change Watcher"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Client",
+        "target": "Netty Producer Server",
+        "label": "HTTP",
+        "type": "Arrow"
+      },
+      {
+        "source": "Netty Producer Server",
+        "target": "RocketMQ",
+        "label": "TCP",
+        "type": "Arrow"
+      },
+      {
+        "source": "ZK/Nacos/Etcd",
+        "target": "Subscription Watcher",
+        "label": "Listen",
+        "type": "Arrow"
+      },
+      {
+        "source": "Subscription Watcher",
+        "target": "Netty Producer Server",
+        "label": "",
+        "type": "Dashed Arrow"
+      },
+      {
+        "source": "Consumer Processor",
+        "target": "RocketMQ",
+        "label": "TCP",
+        "type": "Arrow"
+      },
+      {
+        "source": "Consumer Processor",
+        "target": "Client",
+        "label": "HTTP PUSH",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "HTTP Clients",
+        "target": "RocketMQ HTTP Gateway",
+        "label": "HTTP Requests",
+        "type": "Arrow"
+      },
+      {
+        "source": "RocketMQ HTTP Gateway",
+        "target": "RocketMQ",
+        "label": "Consume Messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "RocketMQ",
+        "target": "RocketMQ HTTP Gateway",
+        "label": "Produce Messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "RocketMQ HTTP Gateway",
+        "target": "HTTP Clients",
+        "label": "HTTP Callbacks",
+        "type": "Arrow"
+      }
+    ],
+    "explanation": "The two diagrams both involve a gateway interacting with RocketMQ, but they differ significantly in structure and components. The GroundTruth diagram focuses on a detailed flow involving components like 'Netty Producer Server' and 'Subscription Watcher', while the GeneratedImage emphasizes a more abstract gateway with components like 'Request Processor' and 'Consumer Manager'. Both diagrams include a 'Netty Server' and 'RocketMQ', but the connectors and specific interactions differ. The GroundTruth diagram includes more specific components and interactions, whereas the GeneratedImage provides a broader overview of gateway operations. The GeneratedImage is rated 7 out of 10 for capturing the general concept but lacking the detailed interactions present in the GroundTruth.",
+    "Rating": 7
+  }
+}

@@ -1,0 +1,44 @@
+```plantuml
+@startuml ndsev_zswag
+
+package "Zswag Project" {
+    component "OpenAPI Generation" as zswag_gen {
+        [zswag.gen CLI Tool]
+    }
+    component "Python Server" as oa_server {
+        [OAServer]
+    }
+    component "Python Client" as py_oa_client {
+        [OAClient]
+    }
+    component "C++ Client" as cpp_oa_client {
+        [zswagcl]
+        [pyzswagcl]
+    }
+    component "HTTP Client Library" as httpcl {
+        [cpp-httplib Wrapper]
+    }
+}
+
+package "Frameworks" {
+    component "Flask/Connexion"
+    component "cpp-httplib"
+}
+
+package "Zserio" {
+    component "Zserio Data Layer"
+    component "Zserio Reflection"
+}
+
+zswag_gen --> oa_server : Generates OpenAPI YAML
+oa_server --> "Flask/Connexion" : Uses for hosting
+py_oa_client --> zswag_gen : Uses OpenAPI specs
+cpp_oa_client --> zswag_gen : Uses OpenAPI specs
+cpp_oa_client --> "Zserio Reflection" : Utilizes for dynamic interaction
+httpcl --> "cpp-httplib" : Wraps for HTTP communication
+"Zserio Data Layer" --> oa_server
+"Zserio Data Layer" --> py_oa_client
+"Zserio Data Layer" --> cpp_oa_client
+
+@enduml
+```

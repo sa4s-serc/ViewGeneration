@@ -1,0 +1,378 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Registry",
+        "description": "Manages server registrations and allocations",
+        "boundaries": "Rectangle",
+        "position": "Top center"
+      },
+      {
+        "name": "Tarzan Admin",
+        "description": "Admin interface for managing servers",
+        "boundaries": "Rectangle",
+        "position": "Top right"
+      },
+      {
+        "name": "Tarzan Server",
+        "description": "Core server component",
+        "boundaries": "Rectangle",
+        "position": "Center"
+      },
+      {
+        "name": "Tarzan Store",
+        "description": "Database storage component",
+        "boundaries": "Rectangle",
+        "position": "Bottom center"
+      },
+      {
+        "name": "Application1 (Tarzan Client)",
+        "description": "Client application part of Producer Group",
+        "boundaries": "Rectangle",
+        "position": "Bottom left"
+      },
+      {
+        "name": "Application2 (Tarzan Client)",
+        "description": "Client application part of Producer Group",
+        "boundaries": "Rectangle",
+        "position": "Bottom left"
+      },
+      {
+        "name": "RocketMQ",
+        "description": "Message queue component",
+        "boundaries": "Rectangle",
+        "position": "Right center"
+      },
+      {
+        "name": "Other MQ",
+        "description": "Alternative message queue component",
+        "boundaries": "Rectangle",
+        "position": "Right center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Registry",
+        "target": "Tarzan Server",
+        "label": "allocate unique id",
+        "type": "Arrow"
+      },
+      {
+        "source": "Registry",
+        "target": "Tarzan Server",
+        "label": "register/unregister",
+        "type": "Arrow"
+      },
+      {
+        "source": "Tarzan Admin",
+        "target": "Registry",
+        "label": "manage servers",
+        "type": "Dashed Arrow"
+      },
+      {
+        "source": "Tarzan Admin",
+        "target": "Tarzan Server",
+        "label": "query message",
+        "type": "Dashed Arrow"
+      },
+      {
+        "source": "Application1 (Tarzan Client)",
+        "target": "Tarzan Server",
+        "label": "1.Prepare",
+        "type": "Arrow"
+      },
+      {
+        "source": "Application1 (Tarzan Client)",
+        "target": "Tarzan Server",
+        "label": "2.Commit/Rollback",
+        "type": "Arrow"
+      },
+      {
+        "source": "Application2 (Tarzan Client)",
+        "target": "Tarzan Server",
+        "label": "Check Transaction State",
+        "type": "Arrow"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "RocketMQ",
+        "label": "Send",
+        "type": "Arrow"
+      },
+      {
+        "source": "RocketMQ",
+        "target": "Tarzan Server",
+        "label": "Return Result",
+        "type": "Arrow"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "Other MQ",
+        "label": "Send",
+        "type": "Arrow"
+      },
+      {
+        "source": "Other MQ",
+        "target": "Tarzan Server",
+        "label": "Return Result",
+        "type": "Arrow"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "Tarzan Store",
+        "label": "put",
+        "type": "Arrow"
+      },
+      {
+        "source": "Tarzan Store",
+        "target": "Tarzan Server",
+        "label": "get",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Producer Group",
+        "components": [
+          "Application1 (Tarzan Client)",
+          "Application2 (Tarzan Client)"
+        ]
+      },
+      {
+        "name": "MQ Group",
+        "components": [
+          "RocketMQ",
+          "Other MQ"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "Tarzan System Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "ServerStartup",
+        "description": "Initializes the server",
+        "boundaries": "Rectangle",
+        "position": "Within Server"
+      },
+      {
+        "name": "ConfigManager",
+        "description": "Manages server configurations",
+        "boundaries": "Rectangle",
+        "position": "Within Server"
+      },
+      {
+        "name": "ScheduledServiceManager",
+        "description": "Handles scheduled services",
+        "boundaries": "Rectangle",
+        "position": "Within Server"
+      },
+      {
+        "name": "MessageResendService",
+        "description": "Resends messages as needed",
+        "boundaries": "Rectangle",
+        "position": "Within Server"
+      },
+      {
+        "name": "ServerController",
+        "description": "Controls server operations",
+        "boundaries": "Rectangle",
+        "position": "Within Server"
+      },
+      {
+        "name": "TarzanClient",
+        "description": "Client component",
+        "boundaries": "Rectangle",
+        "position": "Within Client"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "ServerStartup",
+        "target": "ConfigManager",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "ConfigManager",
+        "target": "ScheduledServiceManager",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "ScheduledServiceManager",
+        "target": "MessageResendService",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "MessageResendService",
+        "target": "ServerController",
+        "label": "",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "From beston123_Tarzan.puml (line 26)"
+      }
+    ],
+    "groups": [
+      {
+        "name": "Server",
+        "components": [
+          "ServerStartup",
+          "ConfigManager",
+          "ScheduledServiceManager",
+          "MessageResendService",
+          "ServerController"
+        ]
+      },
+      {
+        "name": "Client",
+        "components": [
+          "TarzanClient"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": "Tarzan System Components"
+    }
+  },
+  "comparison": {
+    "common_components": [],
+    "unique_to_GroundTruth": [
+      "Registry",
+      "Tarzan Admin",
+      "Tarzan Server",
+      "Tarzan Store",
+      "Application1 (Tarzan Client)",
+      "Application2 (Tarzan Client)",
+      "RocketMQ",
+      "Other MQ"
+    ],
+    "unique_to_GeneratedImage": [
+      "ServerStartup",
+      "ConfigManager",
+      "ScheduledServiceManager",
+      "MessageResendService",
+      "ServerController",
+      "TarzanClient"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Registry",
+        "target": "Tarzan Server",
+        "label": "allocate unique id",
+        "type": "Arrow"
+      },
+      {
+        "source": "Registry",
+        "target": "Tarzan Server",
+        "label": "register/unregister",
+        "type": "Arrow"
+      },
+      {
+        "source": "Tarzan Admin",
+        "target": "Registry",
+        "label": "manage servers",
+        "type": "Dashed Arrow"
+      },
+      {
+        "source": "Tarzan Admin",
+        "target": "Tarzan Server",
+        "label": "query message",
+        "type": "Dashed Arrow"
+      },
+      {
+        "source": "Application1 (Tarzan Client)",
+        "target": "Tarzan Server",
+        "label": "1.Prepare",
+        "type": "Arrow"
+      },
+      {
+        "source": "Application1 (Tarzan Client)",
+        "target": "Tarzan Server",
+        "label": "2.Commit/Rollback",
+        "type": "Arrow"
+      },
+      {
+        "source": "Application2 (Tarzan Client)",
+        "target": "Tarzan Server",
+        "label": "Check Transaction State",
+        "type": "Arrow"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "RocketMQ",
+        "label": "Send",
+        "type": "Arrow"
+      },
+      {
+        "source": "RocketMQ",
+        "target": "Tarzan Server",
+        "label": "Return Result",
+        "type": "Arrow"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "Other MQ",
+        "label": "Send",
+        "type": "Arrow"
+      },
+      {
+        "source": "Other MQ",
+        "target": "Tarzan Server",
+        "label": "Return Result",
+        "type": "Arrow"
+      },
+      {
+        "source": "Tarzan Server",
+        "target": "Tarzan Store",
+        "label": "put",
+        "type": "Arrow"
+      },
+      {
+        "source": "Tarzan Store",
+        "target": "Tarzan Server",
+        "label": "get",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "ServerStartup",
+        "target": "ConfigManager",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "ConfigManager",
+        "target": "ScheduledServiceManager",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "ScheduledServiceManager",
+        "target": "MessageResendService",
+        "label": "",
+        "type": "Arrow"
+      },
+      {
+        "source": "MessageResendService",
+        "target": "ServerController",
+        "label": "",
+        "type": "Arrow"
+      }
+    ],
+    "explanation": "The GroundTruth diagram provides a high-level overview of the Tarzan system, focusing on external interactions and major components like the Registry, Tarzan Admin, and various client and message queue components. It emphasizes the flow of data and interactions between these components. In contrast, the GeneratedImage diagram delves into the internal structure of the Tarzan Server, detailing specific components like ServerStartup, ConfigManager, and others, showing a more detailed view of the server's internal operations. There are no common components or connectors between the diagrams, as they focus on different aspects of the system. The GroundTruth diagram is more comprehensive in terms of external interactions, while the GeneratedImage provides a detailed internal view. Based on the accuracy and completeness of representing the system's architecture, the GeneratedImage is rated 6 out of 10. It accurately depicts internal server components but lacks the broader system context present in the GroundTruth diagram.",
+    "Rating": 6
+  }
+}

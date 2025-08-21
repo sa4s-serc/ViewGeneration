@@ -1,0 +1,31 @@
+```plantuml
+@startuml gdsc-ys_mlops
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+actor "ML Developer" as MLDev
+
+rectangle "Client-Side Tools" as ClientTools {
+  rectangle "MLflow Client" as MLflowClient
+}
+
+rectangle "Server Infrastructure" {
+  rectangle "Nginx Reverse Proxy" as Nginx
+  rectangle "MLflow Tracking Server" as MLflowServer
+  database "MySQL Database" as MySQLDB
+  rectangle "AWS S3" as S3
+}
+
+MLDev --> MLflowClient : Track Experiments\nLog Artifacts
+MLflowClient --> Nginx : HTTP Requests
+Nginx --> MLflowServer : Forward Requests
+MLflowServer --> MySQLDB : Store Metadata
+MLflowServer --> S3 : Store Artifacts
+
+@enduml
+```

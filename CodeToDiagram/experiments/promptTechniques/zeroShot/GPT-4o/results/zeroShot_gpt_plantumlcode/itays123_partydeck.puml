@@ -1,0 +1,67 @@
+```plantuml
+@startuml itays123_partydeck
+
+package "Partydeck" {
+    
+    [Panel] <<react>> 
+    [Server] <<java>>
+    [Game] <<react>>
+
+    [Panel] --> [Server] : RESTful API
+    [Server] <--> [Game] : WebSocket
+
+    package "Panel Components" {
+        [App.tsx] 
+        [auth/]
+        [game/]
+        [library/]
+        [components/]
+        [helpers/]
+    }
+
+    package "Server Components" {
+        [ServerApplication.java] 
+        [GameController.java]
+        [config/]
+        [models/]
+        [repositories/]
+        [services/]
+    }
+
+    package "Game Components" {
+        [src/]
+    }
+
+    [Panel] -> [App.tsx]
+    [Panel] --> [auth/] : Authentication
+    [Panel] --> [game/] : Game Management
+    [Panel] --> [library/] : Game Library
+    [Panel] --> [components/] : UI Components
+    [Panel] --> [helpers/] : Helper Functions
+
+    [Server] -> [ServerApplication.java] : Entry Point
+    [Server] --> [GameController.java] : REST Controller
+    [Server] --> [config/] : Configuration
+    [Server] --> [models/] : Data Models
+    [Server] --> [repositories/] : Data Access
+    [Server] --> [services/] : Business Logic
+
+    [Game] --> [src/] : Game Interface
+
+}
+
+cloud "Google Cloud" {
+    [Google Cloud Run]
+    [Google Cloud Build]
+
+    [Google Cloud Run] -.-> [Panel]
+    [Google Cloud Run] -.-> [Server]
+    [Google Cloud Run] -.-> [Game]
+
+    [Google Cloud Build] -> [Panel] : CI/CD
+    [Google Cloud Build] -> [Server] : CI/CD
+    [Google Cloud Build] -> [Game] : CI/CD
+}
+
+@enduml
+```

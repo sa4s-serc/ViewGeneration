@@ -1,0 +1,66 @@
+@startuml JuliaParallel_DagScheduler.jl
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<scheduler>> #d8f5d3
+  BackgroundColor<<execution>> #fff1c9
+  BackgroundColor<<storage>> #fddddd
+  BackgroundColor<<external>> #d4f0f0
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core" <<core>> {
+  [DagScheduler.jl] as Core
+  [common.jl] as Common
+  Core --> Common
+}
+
+package "Scheduling" <<scheduler>> {
+  [scheduler.jl] as Scheduler
+  [queue.jl] as Queue
+  Scheduler --> Queue
+}
+
+package "Execution" <<execution>> {
+  [engine.jl] as Engine
+  [broker] as Broker
+  [executor] as Executor
+  Engine --> Broker
+  Engine --> Executor
+}
+
+package "Metadata Stores" <<storage>> {
+  [ShmemMetaStore] as Shmem
+  [SimpleMetaStore] as Simple
+  [FDBMetaStore] as FDB
+}
+
+package "External" <<external>> {
+  [Dagger.jl] as Dagger
+  [RemoteMonitor] as Monitor
+  [FoundationDB] as FDBExternal
+}
+
+Core --> Scheduler
+Core --> Engine
+Engine --> Shmem
+Engine --> Simple
+Engine --> FDB
+FDB --> FDBExternal
+Core --> Dagger
+Core --> Monitor
+
+node "Worker Node 1" as Node1 {
+  Broker --> Executor
+  Executor --> Shmem
+}
+
+node "Worker Node 2" as Node2 {
+  Broker --> Executor
+  Executor --> Shmem
+}
+
+Scheduler --> Node1
+Scheduler --> Node2
+@enduml

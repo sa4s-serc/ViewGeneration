@@ -1,0 +1,46 @@
+@startuml ashavijit_Face-Find
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Frontend" as FE {
+}
+
+rectangle "Django Backend" as Django {
+  rectangle "Views" as Views
+  rectangle "Models" as Models
+  rectangle "Forms" as Forms
+}
+
+rectangle "Azure Face API" as AzureFaceAPI #lightblue
+
+rectangle "Email Service" as EmailService #lightyellow
+
+' ========== Connections ==========
+User --> FE : Interacts with UI
+FE --> Views : HTTP Requests
+Views --> Forms : Validate input
+Forms --> Models : Save data
+Models --> Views : Return data
+Views --> FE : Render response
+
+' Face recognition flow
+Views --> AzureFaceAPI : Generate face ID\nMatch faces
+AzureFaceAPI --> Views : Return match results
+
+' Notification flow
+Views --> EmailService : Send match notification
+EmailService --> User : Deliver email
+
+' CRUD operations
+User -> FE : Submit form (Create/Update)
+FE -> Views : Process request
+Views -> Models : Save/Update record
+Models -> Views : Confirm operation
+Views -> FE : Show success/error
+@enduml

@@ -1,0 +1,53 @@
+```plantuml
+@startuml thill_kafkacap
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor Source
+
+rectangle "Capture Devices" as CaptureDevices {
+  rectangle "AeronCaptureDevice" as AeronCapture
+  rectangle "MulticastCaptureDevice" as MulticastCapture
+  rectangle "WebsocketCaptureDevice" as WebsocketCapture
+}
+
+rectangle "Kafka Topics" as KafkaTopics #mistyrose {
+  rectangle "Capture Topics" as CaptureTopics
+  rectangle "Outbound Topic" as OutboundTopic
+}
+
+rectangle "Kafka Consumer Group" as ConsumerGroup #lightsteelblue {
+  rectangle "Deduplicator" as Deduplicator
+}
+
+rectangle "Buffered Publisher" as BufferedPublisher #lightyellow
+
+rectangle "CaptureQueue" as CaptureQueue #aliceblue
+
+rectangle "RecoveryService" as RecoveryService #lightgrey
+
+' ========== Connections ==========
+Source --> AeronCapture : send messages
+Source --> MulticastCapture : send messages
+Source --> WebsocketCapture : send messages
+
+AeronCapture --> CaptureTopics : write Aeron messages
+MulticastCapture --> CaptureTopics : write Multicast messages
+WebsocketCapture --> CaptureTopics : write Websocket messages
+
+CaptureTopics --> Deduplicator : consume messages
+
+Deduplicator --> CaptureQueue : deduplicate and buffer messages
+
+CaptureQueue --> BufferedPublisher : publish buffered messages
+
+BufferedPublisher --> OutboundTopic : write unique messages
+
+RecoveryService --> OutboundTopic : read last committed offsets
+RecoveryService --> Deduplicator : recover deduplication state
+@enduml
+```

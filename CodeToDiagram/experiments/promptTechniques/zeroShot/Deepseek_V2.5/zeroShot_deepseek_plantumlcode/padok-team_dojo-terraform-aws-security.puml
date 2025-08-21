@@ -1,0 +1,70 @@
+```plantuml
+@startuml padok-team_dojo-terraform-aws-security
+
+skinparam monochrome true
+skinparam componentStyle uml2
+
+package "AWS Infrastructure" {
+    [VPC] as vpc
+    [Public Subnet] as pub_subnet
+    [Private Subnet] as priv_subnet
+    [Internet Gateway] as igw
+    [NAT Gateway] as nat
+    [Route Tables] as rt
+}
+
+package "Security Components" {
+    [Security Groups] as sec_groups
+    [Network ACLs] as nacls
+    [IAM Roles] as iam
+}
+
+package "Compute Resources" {
+    [EC2 Instances] as ec2
+    [Load Balancer] as alb
+}
+
+package "Terraform Configuration" {
+    [main.tf] as main
+    [variables.tf] as vars
+    [network.tf] as network
+    [outputs.tf] as outputs
+    [providers.tf] as providers
+}
+
+package "Environment Config" {
+    [dev.tfvars] as dev
+    [prd.tfvars] as prd
+}
+
+package "Bootstrap" {
+    [bootstrap/main.tf] as bootstrap
+    [bootstrap/outputs.tf] as boot_outputs
+}
+
+vpc -- sec_groups : "enforces"
+vpc -- nacls : "enforces"
+pub_subnet -- alb : "hosts"
+priv_subnet -- ec2 : "hosts"
+igw -- pub_subnet : "provides internet access"
+nat -- priv_subnet : "provides outbound access"
+rt -- pub_subnet : "routes"
+rt -- priv_subnet : "routes"
+
+sec_groups -- ec2 : "protects"
+sec_groups -- alb : "protects"
+iam -- ec2 : "applies permissions"
+
+main ..> vars : "uses"
+main ..> network : "includes"
+main ..> outputs : "generates"
+main ..> providers : "requires"
+main ..> dev : "consumes"
+main ..> prd : "consumes"
+
+bootstrap --> main : "provisions base infra"
+boot_outputs --> dev : "generates"
+boot_outputs --> prd : "generates"
+
+@enduml
+```

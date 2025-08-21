@@ -1,0 +1,44 @@
+```plantuml
+@startuml gapfish_deployer
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "depctl CLI" as CLI #lightgrey
+
+rectangle "Kubernetes Cluster" as KubeCluster #aliceblue {
+  rectangle "Deployment" as Deployment
+  rectangle "Service" as Service
+  rectangle "ConfigMap/Secret" as ConfigMapSecret
+}
+
+rectangle "gapfish_deployer" as Deployer #lightyellow {
+  rectangle "EventStreamLogger" as EventLogger
+  rectangle "Plugin System" as PluginSystem
+  rectangle "Configuration Manager" as ConfigManager
+  rectangle "Docker Image Builder" as DockerBuilder
+}
+
+rectangle "External API" as ExternalAPI #lightsteelblue
+
+' ========== Connections ==========
+User --> CLI : interact with
+
+CLI --> Deployer : trigger deployment\ncheck status\nmanage canary releases
+Deployer --> KubeCluster : apply modified\nresource definitions
+Deployer --> EventLogger : log deployment\nprogress and status
+
+Deployer --> PluginSystem : load and execute\nconfigured plugins
+Deployer --> DockerBuilder : build Docker images\nwith correct tags
+Deployer <-> ConfigManager : manage configurations\nand environment variables
+
+EventLogger --> PluginSystem : notify subscribers\non specific events
+
+Deployer <-> ExternalAPI : communicate with external\nservices (e.g., Bugsnag)
+@enduml
+```

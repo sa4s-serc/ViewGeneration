@@ -1,0 +1,47 @@
+@startuml Luizbrandt_users-crud-salesforce
+
+actor "Client Application" as Client
+participant "API Kit Router" as Router
+participant "CRUD Flows" as Flows
+participant "DataWeave" as DW
+participant "Salesforce Connector" as SFConnector
+database "Salesforce" as SF
+
+Client -> Router: HTTP Request (CRUD operation)
+activate Router
+
+Router -> Flows: Route to appropriate flow
+activate Flows
+
+Flows -> DW: Transform request payload
+activate DW
+DW --> Flows: Transformed data
+deactivate DW
+
+Flows -> SFConnector: Execute Salesforce operation
+activate SFConnector
+
+SFConnector -> SF: Perform CRUD operation
+activate SF
+SF --> SFConnector: Operation result
+deactivate SF
+
+SFConnector --> Flows: Salesforce response
+deactivate SFConnector
+
+alt Success
+    Flows -> DW: Transform response
+    activate DW
+    DW --> Flows: Transformed response
+    deactivate DW
+    Flows --> Router: Success response
+else Error
+    Flows -> Flows: Handle error
+    Flows --> Router: Error response
+end
+
+Router --> Client: HTTP Response
+deactivate Router
+deactivate Flows
+
+@enduml

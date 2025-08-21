@@ -1,0 +1,266 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Приложение-клиент",
+        "description": "Client application",
+        "boundaries": "External",
+        "position": "Left"
+      },
+      {
+        "name": "smev3_adapter_service",
+        "description": "Service for SMEV3 adapter",
+        "boundaries": "Internal",
+        "position": "Center"
+      },
+      {
+        "name": "Адаптер СМЭВ 3 от РТК",
+        "description": "SMEV3 adapter from RTK",
+        "boundaries": "External",
+        "position": "Top right"
+      },
+      {
+        "name": "MongoDB",
+        "description": "Database for storing requests and responses",
+        "boundaries": "Internal",
+        "position": "Bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Приложение-клиент",
+        "target": "smev3_adapter_service",
+        "label": "HTTP REST: GET, POST",
+        "type": "HTTP"
+      },
+      {
+        "source": "smev3_adapter_service",
+        "target": "Адаптер СМЭВ 3 от РТК",
+        "label": "Протокол SOAP",
+        "type": "SOAP"
+      },
+      {
+        "source": "smev3_adapter_service",
+        "target": "MongoDB",
+        "label": "Хранение запросов и ответов СМЭВ3",
+        "type": "Database"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram",
+      "title": "SMEV3 Adapter Service Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Client",
+        "description": "Client application",
+        "boundaries": "External",
+        "position": "Left"
+      },
+      {
+        "name": "Sanic App",
+        "description": "Web application framework",
+        "boundaries": "Internal",
+        "position": "Center"
+      },
+      {
+        "name": "Core",
+        "description": "Core processing unit",
+        "boundaries": "Internal",
+        "position": "Center"
+      },
+      {
+        "name": "QueryProcessor",
+        "description": "Handles query processing",
+        "boundaries": "Internal",
+        "position": "Center"
+      },
+      {
+        "name": "Adapter",
+        "description": "Adapter for external communication",
+        "boundaries": "Internal",
+        "position": "Center"
+      },
+      {
+        "name": "MongoDB",
+        "description": "Database for storing data",
+        "boundaries": "Internal",
+        "position": "Center"
+      },
+      {
+        "name": "SMEV3",
+        "description": "External SMEV3 service",
+        "boundaries": "External",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Client",
+        "target": "Sanic App",
+        "label": "HTTP POST /schedule_query/<тип_запроса>/",
+        "type": "HTTP"
+      },
+      {
+        "source": "Sanic App",
+        "target": "Core",
+        "label": "Validate Request",
+        "type": "Internal"
+      },
+      {
+        "source": "Core",
+        "target": "QueryProcessor",
+        "label": "Process Query",
+        "type": "Internal"
+      },
+      {
+        "source": "QueryProcessor",
+        "target": "Adapter",
+        "label": "Send SOAP Request",
+        "type": "SOAP"
+      },
+      {
+        "source": "Adapter",
+        "target": "SMEV3",
+        "label": "Send Query",
+        "type": "External"
+      },
+      {
+        "source": "SMEV3",
+        "target": "Adapter",
+        "label": "Receive Response",
+        "type": "External"
+      },
+      {
+        "source": "Adapter",
+        "target": "QueryProcessor",
+        "label": "Process Response",
+        "type": "Internal"
+      },
+      {
+        "source": "QueryProcessor",
+        "target": "MongoDB",
+        "label": "Save Data",
+        "type": "Database"
+      },
+      {
+        "source": "QueryProcessor",
+        "target": "Core",
+        "label": "Return Response",
+        "type": "Internal"
+      },
+      {
+        "source": "Core",
+        "target": "Sanic App",
+        "label": "Send HTTP Response",
+        "type": "Internal"
+      },
+      {
+        "source": "Sanic App",
+        "target": "Client",
+        "label": "Send Document",
+        "type": "HTTP"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram",
+      "title": "Query Processing Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Client",
+      "MongoDB",
+      "Adapter"
+    ],
+    "unique_to_GroundTruth": [
+      "smev3_adapter_service",
+      "Адаптер СМЭВ 3 от РТК"
+    ],
+    "unique_to_GeneratedImage": [
+      "Sanic App",
+      "Core",
+      "QueryProcessor",
+      "SMEV3"
+    ],
+    "common_connectors": [
+      {
+        "source": "Client",
+        "target": "Sanic App",
+        "type": "HTTP"
+      },
+      {
+        "source": "QueryProcessor",
+        "target": "MongoDB",
+        "type": "Database"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "smev3_adapter_service",
+        "target": "Адаптер СМЭВ 3 от РТК",
+        "type": "SOAP"
+      },
+      {
+        "source": "smev3_adapter_service",
+        "target": "MongoDB",
+        "type": "Database"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Sanic App",
+        "target": "Core",
+        "type": "Internal"
+      },
+      {
+        "source": "Core",
+        "target": "QueryProcessor",
+        "type": "Internal"
+      },
+      {
+        "source": "QueryProcessor",
+        "target": "Adapter",
+        "type": "SOAP"
+      },
+      {
+        "source": "Adapter",
+        "target": "SMEV3",
+        "type": "External"
+      },
+      {
+        "source": "SMEV3",
+        "target": "Adapter",
+        "type": "External"
+      },
+      {
+        "source": "Adapter",
+        "target": "QueryProcessor",
+        "type": "Internal"
+      },
+      {
+        "source": "QueryProcessor",
+        "target": "Core",
+        "type": "Internal"
+      },
+      {
+        "source": "Core",
+        "target": "Sanic App",
+        "type": "Internal"
+      },
+      {
+        "source": "Sanic App",
+        "target": "Client",
+        "type": "HTTP"
+      }
+    ],
+    "explanation": "The two diagrams have some common elements such as the Client, MongoDB, and Adapter components. However, the GroundTruth diagram focuses on a simpler architecture with a direct connection between the client, service, and database. The GeneratedImage diagram is more detailed, showing a sequence of interactions between multiple components like Sanic App, Core, and QueryProcessor, which are not present in the GroundTruth diagram. The connectors in the GeneratedImage diagram are more detailed and depict a more complex workflow involving internal processing and external communication with SMEV3. The GroundTruth diagram is simpler and more focused on the SMEV3 adapter service. Overall, the GeneratedImage diagram provides a more comprehensive view of the system's architecture. Rating: 7/10. The GeneratedImage diagram is accurate and detailed but introduces additional complexity not present in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

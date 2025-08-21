@@ -1,0 +1,40 @@
+@startuml dylanvanh_MunchOut
+
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<db>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+skinparam sequenceArrowThickness 2
+skinparam sequenceParticipantBorderThickness 2
+
+actor User
+
+box "Frontend (Flutter)" #LightBlue
+    participant "UI Views" as UI <<frontend>>
+    participant "BLoCs" as BLoC <<frontend>>
+    participant "Repositories" as Repo <<frontend>>
+end box
+
+box "Backend (Flask)" #LightGreen
+    participant "Flask API" as API <<backend>>
+    participant "SQLAlchemy Models" as Model <<backend>>
+end box
+
+database "Database" as DB <<db>>
+
+User -> UI : Interacts
+UI -> BLoC : Triggers event
+BLoC -> Repo : Requests data
+Repo -> API : HTTP request
+API -> Model : Query/Update
+Model <-> DB : Read/Write data
+Model --> API : Return data
+API --> Repo : HTTP response
+Repo --> BLoC : Returns data
+BLoC --> UI : Updates state
+UI --> User : Displays updated view
+
+@enduml

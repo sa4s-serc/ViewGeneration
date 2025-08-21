@@ -1,0 +1,239 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Reference Implementation",
+        "description": "Contains TimedService and API Endpoints",
+        "boundaries": "Box",
+        "position": "Left"
+      },
+      {
+        "name": "TimedService",
+        "description": "Handles timed operations",
+        "boundaries": "Inside Reference Implementation",
+        "position": "Top Left"
+      },
+      {
+        "name": "NVSS API Server",
+        "description": "External API server",
+        "boundaries": "Box",
+        "position": "Right"
+      },
+      {
+        "name": "VRDR Reporter",
+        "description": "Part of Jurisdiction System",
+        "boundaries": "Circle",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "TimedService",
+        "target": "NVSS API Server",
+        "label": "POST Auth Token",
+        "type": "Arrow"
+      },
+      {
+        "source": "TimedService",
+        "target": "NVSS API Server",
+        "label": "POST FHIR Messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "NVSS API Server",
+        "target": "TimedService",
+        "label": "GET FHIR responses",
+        "type": "Arrow"
+      },
+      {
+        "source": "TimedService",
+        "target": "NVSS API Server",
+        "label": "POST Resubmit Messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "API Endpoints",
+        "target": "VRDR Reporter",
+        "label": "POST /record/submission",
+        "type": "Arrow"
+      },
+      {
+        "source": "VRDR Reporter",
+        "target": "API Endpoints",
+        "label": "GET /record/status",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "SWSS API Chain",
+        "position": "Between TimedService and NVSS API Server"
+      }
+    ],
+    "groups": [
+      {
+        "name": "Jurisdiction System",
+        "components": [
+          "VRDR Reporter"
+        ],
+        "position": "Bottom"
+      }
+    ],
+    "metadata": {
+      "filename": "diagram1.png",
+      "title": "Reference Implementation Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "React UI",
+        "description": "User interface components",
+        "boundaries": "Box",
+        "position": "Left"
+      },
+      {
+        "name": "UploadRecords",
+        "description": "Component for uploading records",
+        "boundaries": "Inside React UI",
+        "position": "Top"
+      },
+      {
+        "name": "SubmitRecordsDashboard",
+        "description": "Component for submitting records",
+        "boundaries": "Inside React UI",
+        "position": "Bottom"
+      },
+      {
+        "name": "ASP.NET Core Backend",
+        "description": "Backend services",
+        "boundaries": "Box",
+        "position": "Center"
+      },
+      {
+        "name": "RecordController (REST API)",
+        "description": "Handles REST API calls",
+        "boundaries": "Inside ASP.NET Core Backend",
+        "position": "Left"
+      },
+      {
+        "name": "TimedHostedService (Background Service)",
+        "description": "Handles background tasks",
+        "boundaries": "Inside ASP.NET Core Backend",
+        "position": "Right"
+      },
+      {
+        "name": "AppDbContext (Database Access)",
+        "description": "Database access component",
+        "boundaries": "Inside ASP.NET Core Backend",
+        "position": "Right"
+      },
+      {
+        "name": "NVSS API Server",
+        "description": "External API server",
+        "boundaries": "Box",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "UploadRecords",
+        "label": "upload VRDR records",
+        "type": "Arrow"
+      },
+      {
+        "source": "User",
+        "target": "SubmitRecordsDashboard",
+        "label": "query message status",
+        "type": "Arrow"
+      },
+      {
+        "source": "UploadRecords",
+        "target": "RecordController (REST API)",
+        "label": "notify new message",
+        "type": "Arrow"
+      },
+      {
+        "source": "SubmitRecordsDashboard",
+        "target": "RecordController (REST API)",
+        "label": "store/retrieve messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "RecordController (REST API)",
+        "target": "TimedHostedService (Background Service)",
+        "label": "poll for new messages",
+        "type": "Arrow"
+      },
+      {
+        "source": "TimedHostedService (Background Service)",
+        "target": "NVSS API Server",
+        "label": "send message responses",
+        "type": "Arrow"
+      },
+      {
+        "source": "RecordController (REST API)",
+        "target": "AppDbContext (Database Access)",
+        "label": "update message status",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "ASP.NET Core Backend",
+        "components": [
+          "RecordController (REST API)",
+          "TimedHostedService (Background Service)",
+          "AppDbContext (Database Access)"
+        ],
+        "position": "Center"
+      }
+    ],
+    "metadata": {
+      "filename": "diagram2.png",
+      "title": "Generated Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "NVSS API Server"
+    ],
+    "unique_to_GroundTruth": [
+      "Reference Implementation",
+      "TimedService",
+      "VRDR Reporter",
+      "API Endpoints"
+    ],
+    "unique_to_GeneratedImage": [
+      "React UI",
+      "UploadRecords",
+      "SubmitRecordsDashboard",
+      "ASP.NET Core Backend",
+      "RecordController (REST API)",
+      "TimedHostedService (Background Service)",
+      "AppDbContext (Database Access)"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      "POST Auth Token",
+      "POST FHIR Messages",
+      "GET FHIR responses",
+      "POST Resubmit Messages",
+      "POST /record/submission",
+      "GET /record/status"
+    ],
+    "unique_connectors_GeneratedImage": [
+      "upload VRDR records",
+      "query message status",
+      "notify new message",
+      "store/retrieve messages",
+      "poll for new messages",
+      "send message responses",
+      "update message status"
+    ],
+    "explanation": "The two diagrams represent different architectural designs with some overlap in purpose. Both diagrams include an 'NVSS API Server', indicating a shared external dependency. The GroundTruth diagram focuses on a 'Reference Implementation' with components like 'TimedService' and 'VRDR Reporter', emphasizing API interactions and message handling. In contrast, the GeneratedImage diagram presents a more detailed internal architecture with a 'React UI' for user interaction and an 'ASP.NET Core Backend' for processing, including components like 'RecordController' and 'TimedHostedService'. The connectors in the GroundTruth diagram are more focused on specific API calls, while the GeneratedImage diagram illustrates a broader range of interactions, including database access and background services. Overall, the GeneratedImage provides a more comprehensive view of internal processes, while the GroundTruth focuses on external interactions. Rating: 7/10. The GeneratedImage is detailed and covers internal architecture well, but lacks some of the external interaction details present in the GroundTruth.",
+    "Rating": 7
+  }
+}

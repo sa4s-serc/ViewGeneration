@@ -1,0 +1,35 @@
+```plantuml
+@startuml domingo1021_Bunny-code
+
+actor User
+participant "Web Browser" as Browser
+participant "Nginx Reverse Proxy" as Nginx
+participant "Node.js Backend" as Backend
+participant "MySQL Database" as MySQL
+participant "InfluxDB" as InfluxDB
+participant "Redis Cache" as Redis
+participant "Docker Sandbox" as Sandbox
+participant "S3 Storage" as S3
+participant "CloudFront CDN" as CloudFront
+participant "CloudWatch Monitoring" as CloudWatch
+
+User -> Browser : Access Bunny Code Platform
+Browser -> Nginx : Request API/Data
+Nginx -> Backend : Forward Request
+Backend -> MySQL : Query User/Project Data
+MySQL --> Backend : Return Data
+Backend -> InfluxDB : Query Time-series Data
+InfluxDB --> Backend : Return Data
+Backend -> Redis : Check Cache/State
+Redis --> Backend : Return Cached Data
+Backend -> Sandbox : Execute User Code
+Sandbox --> Backend : Return Execution Result
+Backend -> S3 : Store/Retrieve Files
+S3 --> Backend : Return File URL
+Backend -> CloudWatch : Send Logs/Monitoring Data
+Backend -> Nginx : Response
+Nginx -> Browser : Deliver Content via CloudFront
+Browser -> User : Display Response
+
+@enduml
+```

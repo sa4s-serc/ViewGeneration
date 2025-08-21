@@ -1,0 +1,43 @@
+@startuml thangchung_practical-dapr
+
+skinparam component {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<auth>> #fddddd
+  BackgroundColor<<infrastructure>> #fff1c9
+}
+
+[WebUI] <<frontend>> as "CoolStore.WebUI\n(Blazor WebAssembly)"
+[IdentityServer] <<auth>> as "CoolStore.IdentityServer\n(IdentityServer4)"
+[ProductCatalogApi] <<backend>>
+[InventoryApi] <<backend>>
+[N8T.Domain] <<infrastructure>>
+[N8T.Infrastructure] <<infrastructure>>
+
+cloud "Kubernetes / Dapr" {
+  [API Gateway] as Gateway
+  [Redis] as "State & Pub/Sub"
+  [Zipkin]
+  [Seq]
+}
+
+WebUI --> Gateway : HTTP/GraphQL
+Gateway --> ProductCatalogApi : REST/gRPC/GraphQL
+Gateway --> InventoryApi : REST/gRPC/GraphQL
+ProductCatalogApi --> Redis : State/Pub-Sub
+InventoryApi --> Redis : State/Pub-Sub
+WebUI --> IdentityServer : Auth
+ProductCatalogApi --> IdentityServer : Auth
+InventoryApi --> IdentityServer : Auth
+
+ProductCatalogApi ..> N8T.Domain
+ProductCatalogApi ..> N8T.Infrastructure
+InventoryApi ..> N8T.Domain
+InventoryApi ..> N8T.Infrastructure
+
+ProductCatalogApi --> Zipkin : Tracing
+InventoryApi --> Zipkin : Tracing
+ProductCatalogApi --> Seq : Logging
+InventoryApi --> Seq : Logging
+
+@enduml

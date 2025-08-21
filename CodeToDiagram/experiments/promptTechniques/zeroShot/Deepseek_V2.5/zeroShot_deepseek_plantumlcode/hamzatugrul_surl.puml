@@ -1,0 +1,46 @@
+```plantuml
+@startuml hamzatugrul_surl
+
+component "Client" as client {
+    [Web Browser]
+    [API Client]
+}
+
+component "Nginx" as nginx {
+    [Load Balancer]
+}
+
+component "Spring Boot Application" as app {
+    [ShortURLController]
+    [UrlShortenerService]
+    [ShortUrlRepository]
+    [KeyGenerator]
+}
+
+component "Redis" as redis {
+    [Cache]
+}
+
+component "MongoDB" as mongo {
+    [ShortUrlEntity]
+    [Visit Statistics]
+}
+
+client --> nginx : HTTP Requests
+nginx --> app : Load Balanced Requests
+app --> redis : Cache Operations (get/put)
+app --> mongo : CRUD Operations
+app --> mongo : Statistics Updates
+
+note right of app
+    Uses Spring Caching Annotations
+    (@Cacheable, @CachePut)
+end note
+
+note right of nginx
+    Distributes traffic across
+    multiple app instances
+end note
+
+@enduml
+```

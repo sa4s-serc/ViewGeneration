@@ -1,0 +1,70 @@
+### Actual Output:
+@startuml FudanOCR_FudanOCR
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<detection>> #d9e7fd
+  BackgroundColor<<recognition>> #d8f5d3
+  BackgroundColor<<data>> #fff1c9
+  BackgroundColor<<training>> #fddddd
+  BackgroundColor<<utils>> #d4f0f0
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Text Detection" <<detection>> {
+  component "EAST"
+  component "AdvancedEAST"
+  component "PSENet"
+  component "PixelLink"
+  component "TextSnake"
+  component "RRPN"
+}
+
+package "Text Recognition" <<recognition>> {
+  component "CRNN"
+  component "MORAN"
+  component "GRCNN"
+  component "DAN"
+  component "SAR"
+  component "RARE"
+}
+
+package "Data Processing" <<data>> {
+  component "Data Loaders"
+  component "Augmentation"
+  component "LMDB Maker"
+  component "Preprocessing"
+}
+
+package "Training & Evaluation" <<training>> {
+  component "Training Engine"
+  component "Config Manager"
+  component "Metrics"
+  component "Early Stopping"
+}
+
+package "Utils" <<utils>> {
+  component "Custom Layers"
+  component "Post-processing"
+  component "Registry"
+}
+
+"Data Processing" --> "Text Detection"
+"Data Processing" --> "Text Recognition"
+"Text Detection" --> "Training & Evaluation"
+"Text Recognition" --> "Training & Evaluation"
+"Training & Evaluation" --> "Utils"
+"Utils" --> "Text Detection"
+"Utils" --> "Text Recognition"
+
+note right of "Text Detection"
+  Includes rotation-aware operations
+  (RRPN, RROIAlign)
+end note
+
+note right of "Training & Evaluation"
+  YAML config-driven
+  Mixed framework support
+  (TensorFlow/PyTorch)
+end note
+@enduml

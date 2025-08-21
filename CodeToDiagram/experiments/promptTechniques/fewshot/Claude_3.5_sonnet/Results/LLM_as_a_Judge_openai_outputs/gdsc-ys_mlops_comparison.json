@@ -1,0 +1,402 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Amazon RDS",
+        "description": "Database service",
+        "boundaries": "None",
+        "position": "Top left"
+      },
+      {
+        "name": "Amazon S3",
+        "description": "Storage service",
+        "boundaries": "None",
+        "position": "Top center"
+      },
+      {
+        "name": "Amazon ECR",
+        "description": "Container registry",
+        "boundaries": "None",
+        "position": "Top right"
+      },
+      {
+        "name": "Amazon ECS",
+        "description": "Container service",
+        "boundaries": "None",
+        "position": "Top far right"
+      },
+      {
+        "name": "MLflow",
+        "description": "MLflow tracking server",
+        "boundaries": "None",
+        "position": "Center"
+      },
+      {
+        "name": "GitHub",
+        "description": "Version control",
+        "boundaries": "None",
+        "position": "Bottom right"
+      },
+      {
+        "name": "GitHub Actions",
+        "description": "CI/CD service",
+        "boundaries": "None",
+        "position": "Center right"
+      },
+      {
+        "name": "ML Developer",
+        "description": "User",
+        "boundaries": "None",
+        "position": "Bottom left"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "ML Developer",
+        "target": "MLflow",
+        "label": "Train model",
+        "type": "Arrow"
+      },
+      {
+        "source": "ML Developer",
+        "target": "GitHub",
+        "label": "Commit",
+        "type": "Arrow"
+      },
+      {
+        "source": "GitHub",
+        "target": "GitHub Actions",
+        "label": "Hook",
+        "type": "Arrow"
+      },
+      {
+        "source": "GitHub Actions",
+        "target": "Amazon ECR",
+        "label": "Build image",
+        "type": "Arrow"
+      },
+      {
+        "source": "Amazon ECR",
+        "target": "Amazon ECS",
+        "label": "Deploy",
+        "type": "Arrow"
+      },
+      {
+        "source": "Amazon S3",
+        "target": "Amazon ECR",
+        "label": "Fetch model",
+        "type": "Arrow"
+      },
+      {
+        "source": "MLflow",
+        "target": "Amazon RDS",
+        "label": "Save log data",
+        "type": "Arrow"
+      },
+      {
+        "source": "MLflow",
+        "target": "Amazon S3",
+        "label": "Save artifact",
+        "type": "Arrow"
+      },
+      {
+        "source": "GitHub Actions",
+        "target": "MLflow",
+        "label": "Track & Tag model",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "diagram1.png",
+      "title": "MLOps Workflow"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "ML Developer",
+        "description": "User",
+        "boundaries": "Client Environment",
+        "position": "Left"
+      },
+      {
+        "name": "Model Training Script",
+        "description": "Script for training models",
+        "boundaries": "Client Environment",
+        "position": "Center left"
+      },
+      {
+        "name": "MLflow Client (Python SDK)",
+        "description": "MLflow client",
+        "boundaries": "Client Environment",
+        "position": "Center"
+      },
+      {
+        "name": "Nginx Reverse Proxy",
+        "description": "Proxy server",
+        "boundaries": "Infrastructure Layer",
+        "position": "Center right"
+      },
+      {
+        "name": "MLflow Tracking Server",
+        "description": "MLflow tracking server",
+        "boundaries": "Infrastructure Layer",
+        "position": "Center far right"
+      },
+      {
+        "name": "MySQL",
+        "description": "Database for metadata",
+        "boundaries": "Infrastructure Layer",
+        "position": "Bottom right"
+      },
+      {
+        "name": "AWS S3",
+        "description": "Storage for artifacts",
+        "boundaries": "Infrastructure Layer",
+        "position": "Bottom far right"
+      },
+      {
+        "name": "CI/CD Pipeline",
+        "description": "Continuous integration and deployment",
+        "boundaries": "None",
+        "position": "Top right"
+      },
+      {
+        "name": "Docker Registry",
+        "description": "Registry for Docker images",
+        "boundaries": "Deployment",
+        "position": "Top far right"
+      },
+      {
+        "name": "Model Container",
+        "description": "Container for model deployment",
+        "boundaries": "Deployment",
+        "position": "Top far right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "ML Developer",
+        "target": "Model Training Script",
+        "label": "run experiment",
+        "type": "Arrow"
+      },
+      {
+        "source": "Model Training Script",
+        "target": "MLflow Client (Python SDK)",
+        "label": "log params/metrics",
+        "type": "Arrow"
+      },
+      {
+        "source": "MLflow Client (Python SDK)",
+        "target": "Nginx Reverse Proxy",
+        "label": "HTTP/REST API",
+        "type": "Arrow"
+      },
+      {
+        "source": "Nginx Reverse Proxy",
+        "target": "MLflow Tracking Server",
+        "label": "forward request",
+        "type": "Arrow"
+      },
+      {
+        "source": "MLflow Tracking Server",
+        "target": "MySQL",
+        "label": "store metadata",
+        "type": "Arrow"
+      },
+      {
+        "source": "MLflow Tracking Server",
+        "target": "AWS S3",
+        "label": "store artifacts",
+        "type": "Arrow"
+      },
+      {
+        "source": "CI/CD Pipeline",
+        "target": "Docker Registry",
+        "label": "build & push Docker image",
+        "type": "Arrow"
+      },
+      {
+        "source": "Docker Registry",
+        "target": "Model Container",
+        "label": "deploy",
+        "type": "Arrow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "Experiment metadata, run parameters, model registry",
+        "position": "Bottom center"
+      },
+      {
+        "text": "Model artifacts, data snapshots, experiment outputs",
+        "position": "Bottom far right"
+      }
+    ],
+    "groups": [
+      {
+        "name": "Client Environment",
+        "components": [
+          "ML Developer",
+          "Model Training Script",
+          "MLflow Client (Python SDK)"
+        ]
+      },
+      {
+        "name": "Infrastructure Layer",
+        "components": [
+          "Nginx Reverse Proxy",
+          "MLflow Tracking Server",
+          "MySQL",
+          "AWS S3"
+        ]
+      },
+      {
+        "name": "Deployment",
+        "components": [
+          "Docker Registry",
+          "Model Container"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "diagram2.png",
+      "title": "MLOps Control Flow"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "ML Developer",
+      "MLflow Tracking Server",
+      "AWS S3"
+    ],
+    "unique_to_GroundTruth": [
+      "Amazon RDS",
+      "Amazon ECR",
+      "Amazon ECS",
+      "GitHub",
+      "GitHub Actions"
+    ],
+    "unique_to_GeneratedImage": [
+      "Model Training Script",
+      "MLflow Client (Python SDK)",
+      "Nginx Reverse Proxy",
+      "MySQL",
+      "CI/CD Pipeline",
+      "Docker Registry",
+      "Model Container"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "ML Developer",
+        "target": "MLflow",
+        "label": "Train model",
+        "type": "Arrow"
+      },
+      {
+        "source": "ML Developer",
+        "target": "GitHub",
+        "label": "Commit",
+        "type": "Arrow"
+      },
+      {
+        "source": "GitHub",
+        "target": "GitHub Actions",
+        "label": "Hook",
+        "type": "Arrow"
+      },
+      {
+        "source": "GitHub Actions",
+        "target": "Amazon ECR",
+        "label": "Build image",
+        "type": "Arrow"
+      },
+      {
+        "source": "Amazon ECR",
+        "target": "Amazon ECS",
+        "label": "Deploy",
+        "type": "Arrow"
+      },
+      {
+        "source": "Amazon S3",
+        "target": "Amazon ECR",
+        "label": "Fetch model",
+        "type": "Arrow"
+      },
+      {
+        "source": "MLflow",
+        "target": "Amazon RDS",
+        "label": "Save log data",
+        "type": "Arrow"
+      },
+      {
+        "source": "MLflow",
+        "target": "Amazon S3",
+        "label": "Save artifact",
+        "type": "Arrow"
+      },
+      {
+        "source": "GitHub Actions",
+        "target": "MLflow",
+        "label": "Track & Tag model",
+        "type": "Arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "ML Developer",
+        "target": "Model Training Script",
+        "label": "run experiment",
+        "type": "Arrow"
+      },
+      {
+        "source": "Model Training Script",
+        "target": "MLflow Client (Python SDK)",
+        "label": "log params/metrics",
+        "type": "Arrow"
+      },
+      {
+        "source": "MLflow Client (Python SDK)",
+        "target": "Nginx Reverse Proxy",
+        "label": "HTTP/REST API",
+        "type": "Arrow"
+      },
+      {
+        "source": "Nginx Reverse Proxy",
+        "target": "MLflow Tracking Server",
+        "label": "forward request",
+        "type": "Arrow"
+      },
+      {
+        "source": "MLflow Tracking Server",
+        "target": "MySQL",
+        "label": "store metadata",
+        "type": "Arrow"
+      },
+      {
+        "source": "MLflow Tracking Server",
+        "target": "AWS S3",
+        "label": "store artifacts",
+        "type": "Arrow"
+      },
+      {
+        "source": "CI/CD Pipeline",
+        "target": "Docker Registry",
+        "label": "build & push Docker image",
+        "type": "Arrow"
+      },
+      {
+        "source": "Docker Registry",
+        "target": "Model Container",
+        "label": "deploy",
+        "type": "Arrow"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of an MLOps workflow. The GroundTruth diagram focuses on the integration of various AWS services and GitHub for CI/CD, highlighting components like Amazon RDS, ECR, ECS, and GitHub Actions. In contrast, the GeneratedImage diagram emphasizes the client-side environment and infrastructure, including components like the MLflow Client, Nginx Reverse Proxy, and MySQL. Both diagrams share common components like the ML Developer, MLflow Tracking Server, and AWS S3, but they differ significantly in their architectural focus and the specific components and connectors used. The GroundTruth diagram is more AWS-centric, while the GeneratedImage diagram provides a broader view of the MLOps control flow, including Docker deployment. Based on accuracy, completeness, and similarity to the GroundTruth, the GeneratedImage is rated 7 out of 10. It captures the essence of MLOps but lacks some specific AWS integrations present in the GroundTruth.",
+    "Rating": 7
+  }
+}

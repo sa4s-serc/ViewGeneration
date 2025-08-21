@@ -1,0 +1,77 @@
+```plantuml
+@startuml Connor1996_Pokemon
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor #f4f4f4
+  BorderColor #000000
+  Style roundrect
+}
+skinparam arrow {
+  FontSize 10
+  Color #000000
+  Thickness 1
+}
+
+package "Client" {
+  rectangle "Qt GUI" as GUI <<client>> {
+    [Widget]
+    [StackWidget]
+    [GameLobby]
+    [UserListWidget]
+    [BagWidget]
+    [FightWidget]
+    [FightRoom]
+    [ScratchWidget]
+  }
+  rectangle "Client Logic" as ClientLogic <<client>> {
+    [Pokemon]
+    [PokemonFactory]
+  }
+  rectangle "Client Communication" as ClientComm <<client>> {
+    [Socket Client]
+  }
+}
+
+package "Server" {
+  rectangle "Server Logic" as ServerLogic <<server>> {
+    [Dispatch]
+    [PokemonFactory]
+  }
+  rectangle "Server Communication" as ServerComm <<server>> {
+    [Socket Server]
+  }
+}
+
+package "Data Access" {
+  rectangle "SQLite" as SQLite <<data>> {
+    [sqlite3]
+    [ormlite]
+  }
+  rectangle "Data Models" as DataModels <<data>> {
+    [UserInfo]
+    [UserBag]
+    [PokemonList]
+    [PokemonInfo]
+  }
+}
+
+package "Common" {
+  rectangle "JSON Communication" as JSON <<common>> {
+    [JSON Parser]
+  }
+  rectangle "Utilities" as Utilities <<common>> {
+    [Reflector]
+  }
+}
+
+GUI --> ClientComm : "Signals/Slots"
+ClientComm --> ServerComm : "Socket Connection"
+ServerComm --> ServerLogic : "Request Handling"
+ServerLogic --> SQLite : "Database Access"
+SQLite --> DataModels : "Data Mapping"
+ClientLogic --> JSON : "Data Encoding/Decoding"
+ServerLogic --> JSON : "Data Encoding/Decoding"
+Utilities --> ClientLogic : "Object Creation"
+Utilities --> ServerLogic : "Object Creation"
+@enduml
+```

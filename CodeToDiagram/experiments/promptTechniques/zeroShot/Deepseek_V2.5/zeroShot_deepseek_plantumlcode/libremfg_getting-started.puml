@@ -1,0 +1,45 @@
+Here's the PlantUML component diagram for the `libremfg_getting-started` deployment architecture:
+
+```plantuml
+@startuml libremfg_getting-started
+!theme plain
+
+component "Docker Host" {
+    component "Dgraph" as dgraph
+    component "InfluxDB" as influxdb
+    component "EMQX (MQTT Broker)" as emqx
+    component "Grafana" as grafana {
+        component "Pareto Panel Plugin" as pareto
+        component "MultiStat Panel Plugin" as multistat
+    }
+
+    component "Libre Platform" as libre {
+        component "Libre Core" as core
+        component "Libre Admin UI" as adminui
+        component "GraphQL Gateway" as gateway
+        component "GraphQL PubSub" as pubsub
+        component "Workflow Engine" as workflow
+    }
+
+    component "PackML Simulator" as packml
+}
+
+dgraph --> gateway : GraphQL queries
+influxdb --> grafana : Time-series data
+emqx --> pubsub : MQTT events
+pubsub --> gateway : Federated schema
+core --> adminui : Serves UI
+adminui --> gateway : API calls
+gateway --> core : Federated schema
+workflow --> gateway : Federated schema
+packml --> emqx : MQTT telemetry
+pareto --> influxdb : Queries data
+multistat --> influxdb : Queries data
+
+note right of libre
+  Deployed as Docker containers
+  managed via docker-compose.yml
+end note
+
+@enduml
+```

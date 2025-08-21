@@ -1,0 +1,73 @@
+```plantuml
+@startuml awslabs_benchmark-ai
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "bai-bff" as BFF #lightblue {
+}
+
+rectangle "Kafka" as Kafka #lightcoral {
+}
+
+rectangle "executor" as Executor #lightyellow {
+}
+
+rectangle "watcher" as Watcher #lightgreen {
+}
+
+rectangle "sm-executor" as SMExecutor #lightpink {
+}
+
+rectangle "fetcher-dispatcher" as FetcherDispatcher #lightgray {
+}
+
+rectangle "fetcher" as Fetcher #lightgray {
+}
+
+rectangle "cloudwatch-exporter" as CloudwatchExporter #lightpurple {
+}
+
+rectangle "metrics-pusher" as MetricsPusher #lightcyan {
+}
+
+rectangle "metrics-extractor" as MetricsExtractor #lightorange {
+}
+
+rectangle "baictl" as BAICTL #lightgoldenrodyellow {
+}
+
+' ========== Interactions ==========
+User --> BFF : Submit benchmark job
+
+BFF --> Kafka : Publish job submission event
+Kafka --> Executor : Consume job submission event
+Executor --> Kubernetes : Create Kubernetes resources
+
+Executor --> Watcher : Notify job execution start
+Watcher --> Kafka : Publish job status updates
+Watcher --> Executor : Provide job status updates
+
+Kafka --> SMExecutor : Consume job submission event
+SMExecutor --> AWS SageMaker : Execute benchmark job
+
+User --> FetcherDispatcher : Request data fetching
+FetcherDispatcher --> Fetcher : Create fetcher jobs
+Fetcher --> S3/HTTP : Download datasets/models
+
+Executor --> MetricsPusher : Collect metrics
+MetricsPusher --> Kafka : Push metrics to Kafka
+Kafka --> MetricsExtractor : Consume metrics from Kafka
+
+CloudwatchExporter --> AWS CloudWatch : Export metrics
+
+User --> BAICTL : Manage infrastructure
+BAICTL --> AWS : Create/Destroy infrastructure using Terraform
+
+@enduml
+```

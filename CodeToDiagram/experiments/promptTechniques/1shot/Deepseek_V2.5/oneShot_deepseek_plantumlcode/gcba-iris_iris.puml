@@ -1,0 +1,47 @@
+@startuml gcba-iris_iris
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "IoT Device" as Device
+
+rectangle "Dock" as Dock #palegreen {
+}
+
+rectangle "Dispatcher" as Dispatcher #lightsteelblue {
+}
+
+rectangle "Hook (Input)" as InputHook #lightyellow
+rectangle "Hook (Output)" as OutputHook #lightyellow
+
+rectangle "Handler" as Handler #mistyrose
+
+rectangle "Thread Pool" as ThreadPool #aliceblue
+
+' ========== Connections ==========
+Device --> Dock : sends message\n(protocol specific)
+
+Dock --> Dispatcher : parsed message object
+
+Dispatcher --> InputHook : pre-processing
+InputHook --> Dispatcher 
+
+Dispatcher --> Handler : process message
+Handler --> Dispatcher : response (optional)
+
+Dispatcher --> OutputHook : post-processing
+OutputHook --> Dispatcher
+
+Dispatcher --> ThreadPool : execute flow
+ThreadPool --> Dispatcher : completed job
+
+Dispatcher --> Dock : encoded response (if any)
+Dock --> Device : sends response
+
+' Event communication
+Dispatcher -[hidden]right- Dispatcher
+note on link: uses events for\ninter-component\ncommunication
+@enduml

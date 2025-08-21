@@ -1,0 +1,69 @@
+Here's the corrected PlantUML component diagram for the deployment architecture:
+
+```plantuml
+@startuml dsc-sookmyung_2023-mention-all-SolutionChallenge
+
+skinparam componentStyle uml2
+skinparam monochrome true
+skinparam nodesep 10
+skinparam ranksep 20
+
+title Deployment Architecture for CPR2U System
+
+cloud "Google Cloud Platform (GCP)" {
+    node "Kubernetes Cluster (GKE)" {
+        component "Backend Services" {
+            [Auth Service] as auth
+            [Education Service] as edu
+            [Dispatch Service] as dispatch
+            [Notification Service] as notify
+        }
+    }
+
+    database "Firebase" {
+        [Authentication] as firebase_auth
+        [Cloud Messaging] as fcm
+        [Realtime Database] as rtdb
+    }
+
+    database "Cloud SQL" {
+        [PostgreSQL] as pg
+    }
+}
+
+node "Android Client" {
+    component "Mobile App" {
+        [UI Layer] as android_ui
+        [Business Logic] as android_logic
+        [TensorFlow Lite] as android_tflite
+    }
+}
+
+node "iOS Client" {
+    component "Mobile App" {
+        [UI Layer] as ios_ui
+        [Business Logic] as ios_logic
+        [TensorFlow Lite] as ios_tflite
+    }
+}
+
+[Google Maps API] as maps
+[ML Kit] as mlkit
+
+' Connections
+android_logic --> auth : REST API
+ios_logic --> auth : REST API
+
+auth --> firebase_auth
+notify --> fcm
+dispatch --> rtdb
+edu --> pg
+
+android_ui --> maps
+ios_ui --> maps
+
+android_tflite --> mlkit
+ios_tflite --> mlkit
+
+@enduml
+```

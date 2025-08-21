@@ -1,0 +1,113 @@
+```plantuml
+@startuml dylanvanh_MunchOut
+' Force horizontal layout
+left to right direction
+
+skinparam rectangle {
+  BackgroundColor<<presentation>> #d9e7fd
+  BackgroundColor<<business>> #d8f5d3
+  BackgroundColor<<data>> #fff1c9
+  BackgroundColor<<external>> #fddddd
+  BackgroundColor<<db>> #d4f0f0
+  Style roundrect
+}
+skinparam linetype ortho
+
+package "Customer User" {
+  rectangle "PRESENTATION LAYER" <<presentation>> {
+    [Login View] as CLogin
+    [Signup View] as CSignup
+    [AvailableEvents View] as CAvail
+    [Bookings View] as CBookings
+    [Edit Profile View] as CEdit
+    [Individual Event View] as CEvent
+  }
+
+  rectangle "BUSINESS LAYER" <<business>> {
+    [Auth Bloc] as CAuth
+    [Login Bloc] as CLoginBloc
+    [SignUp Bloc] as CSignupBloc
+    [Available Events Bloc] as CAvailBloc
+    [Bookings Bloc] as CBookingsBloc
+    [Edit Profile Bloc] as CEditBloc
+    [Individual Event Bloc] as CEventBloc
+  }
+
+  rectangle "DATA LAYER" <<data>> {
+    [user repository] as CUserRepo
+    [customer repository] as CCustomerRepo
+    [flask-api] as CFlask
+  }
+
+  CLogin --> CLoginBloc
+  CSignup --> CSignupBloc
+  CAvail --> CAvailBloc
+  CBookings --> CBookingsBloc
+  CEdit --> CEditBloc
+  CEvent --> CEventBloc
+
+  CAuth --> CUserRepo
+  CLoginBloc --> CCustomerRepo
+  CSignupBloc --> CCustomerRepo
+  CAvailBloc --> CCustomerRepo
+  CBookingsBloc --> CCustomerRepo
+  CEditBloc --> CCustomerRepo
+  CEventBloc --> CCustomerRepo
+
+  CCustomerRepo --> CFlask
+  CUserRepo --> CFlask
+}
+
+package "Restaurant User" {
+  rectangle "RPRESENTATION LAYER" <<presentation>> {
+    [Login View] as RLogin
+    [SignUp View] as RSignup
+    [Events View] as REvents
+    [EventBookings View] as RBookings
+    [Add Event View] as RAddEvent
+    [Edit Profile View] as REdit
+  }
+
+  rectangle "RBUSINESS LAYER" <<business>> {
+    [Auth Bloc] as RAuth
+    [Login Bloc] as RLoginBloc
+    [SignUp Bloc] as RSignupBloc
+    [Events Bloc] as REventsBloc
+    [EventBookings Bloc] as RBookingsBloc
+    [Add Event Bloc] as RAddEventBloc
+    [Edit Profile Bloc] as REditBloc
+  }
+
+  rectangle "RDATA LAYER" <<data>> {
+    [user repository] as RUserRepo
+    [restaurant repository] as RRestRepo
+    [flask-api] as RFlask
+  }
+
+  RLogin --> RLoginBloc
+  RSignup --> RSignupBloc
+  REvents --> REventsBloc
+  RBookings --> RBookingsBloc
+  RAddEvent --> RAddEventBloc
+  REdit --> REditBloc
+
+  RAuth --> RUserRepo
+  RLoginBloc --> RRestRepo
+  RSignupBloc --> RRestRepo
+  REventsBloc --> RRestRepo
+  RBookingsBloc --> RRestRepo
+  RAddEventBloc --> RRestRepo
+  REditBloc --> RRestRepo
+
+  RRestRepo --> RFlask
+  RUserRepo --> RFlask
+}
+
+rectangle "Python Flask\nREST API" <<external>> as FlaskAPI
+database "MySQL DB" <<db>> as MySQL
+
+CFlask --> FlaskAPI
+RFlask --> FlaskAPI
+FlaskAPI --> MySQL
+@enduml
+```

@@ -1,0 +1,43 @@
+@startuml jlhood_retweet-leaderboard
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "Twitter" as Twitter
+actor "User" as User
+
+rectangle "AWS" {
+  rectangle "API Gateway" as APIGW #orange
+  rectangle "Lambda\nTweetProcessor" as TweetProcessor #orange
+  rectangle "Lambda\nGetLeaderboard" as GetLeaderboard #orange
+  database "DynamoDB\nLeaderboard" as DynamoDB #brown
+}
+
+rectangle "UI" {
+  rectangle "leaderboard.html" as UI #lightblue
+}
+
+Twitter --> TweetProcessor : JSON tweets
+TweetProcessor --> DynamoDB : Update retweet counts
+User --> APIGW : GET /leaderboard
+APIGW --> GetLeaderboard : Invoke
+GetLeaderboard --> DynamoDB : Query leaderboard
+GetLeaderboard --> APIGW : JSON response
+APIGW --> User : Leaderboard data
+UI --> APIGW : Fetch leaderboard
+APIGW --> UI : JSON data
+
+note right of TweetProcessor
+  Filters tweets
+  Processes retweet counts
+  Updates DynamoDB
+end note
+
+note right of GetLeaderboard
+  Retrieves sorted leaderboard
+  Handles limit parameter
+end note
+@enduml

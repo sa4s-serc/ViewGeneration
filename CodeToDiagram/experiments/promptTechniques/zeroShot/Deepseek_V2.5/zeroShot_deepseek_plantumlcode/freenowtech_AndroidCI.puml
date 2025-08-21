@@ -1,0 +1,31 @@
+```plantuml
+@startuml freenowtech_AndroidCI
+
+actor Developer
+participant "Git Repository" as Git
+participant "Jenkins Server" as Jenkins
+participant "Docker Host" as Docker
+participant "Android SDK Container" as AndroidContainer
+
+Developer -> Git: Pushes code changes
+Git -> Jenkins: Triggers build (webhook)
+Jenkins -> Docker: Requests build environment
+Docker -> AndroidContainer: Creates instance
+AndroidContainer -> Jenkins: Reports ready status
+
+group Build Process
+    Jenkins -> AndroidContainer: Pulls latest code
+    AndroidContainer -> Jenkins: Code received
+    Jenkins -> AndroidContainer: Executes build commands
+    AndroidContainer -> Jenkins: Build status
+    alt Build Success
+        Jenkins -> Docker: Releases container
+        Jenkins -> Developer: Notifies success
+    else Build Failure
+        Jenkins -> Docker: Releases container
+        Jenkins -> Developer: Notifies failure
+    end
+end
+
+@enduml
+```

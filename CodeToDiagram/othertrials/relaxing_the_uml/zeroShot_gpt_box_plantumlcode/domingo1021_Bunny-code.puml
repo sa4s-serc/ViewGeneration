@@ -1,0 +1,55 @@
+@startuml
+package "Bunny Code Platform" {
+    actor User
+
+    node "Backend" {
+        component "Node.js/Express" as Backend {
+            [RESTful API] --> [User Authentication]
+            [User Authentication] --> [Project Data Management]
+            [Project Data Management] --> [Socket.IO Real-time]
+        }
+    }
+
+    database "MySQL" {
+        [User Accounts] --> [Projects]
+        [Projects] --> [Version History]
+    }
+
+    database "InfluxDB" {
+        [Time-series Data]
+    }
+
+    database "Redis" {
+        [Caching]
+        [Real-time State Management]
+    }
+
+    node "Sandbox (Docker)" {
+        component "Docker Container" as Docker {
+            [Code Execution] --> [Security Isolation]
+        }
+    }
+
+    component "Cloud Services" {
+        [S3] --> [Store Code Files]
+        [S3] --> [Store User Images]
+        [S3] --> [Store Battle Recordings]
+        [CloudFront] --> [Content Delivery]
+        [CloudWatch] --> [Monitoring & Logging]
+    }
+
+    package "API Endpoints" {
+        [User Management] --> [RESTful API]
+        [Compiler Functionalities] --> [RESTful API]
+        [Project Management] --> [RESTful API]
+        [Battle Management] --> [RESTful API]
+    }
+
+    User --> Backend
+    Backend --> MySQL
+    Backend --> InfluxDB
+    Backend --> Redis
+    Backend --> Docker
+    Backend --> Cloud Services
+}
+@enduml

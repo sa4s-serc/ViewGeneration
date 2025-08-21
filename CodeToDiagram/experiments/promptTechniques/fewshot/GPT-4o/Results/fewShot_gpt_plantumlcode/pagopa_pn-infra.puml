@@ -1,0 +1,50 @@
+```plantuml
+@startuml pagopa_pn-infra
+skinparam rectangle {
+  BackgroundColor #f0f0f0
+  BorderColor #000000
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+skinparam linetype ortho
+
+actor "User" as user
+
+package "AWS Cloud Infrastructure" {
+  rectangle "API Gateway" as api_gw #orange
+  rectangle "Lambda Functions" as lambda #lightyellow
+  rectangle "ECS Cluster\n(Fargate)" as ecs #lightblue
+  rectangle "EventBridge" as event_bridge #lightgreen
+  rectangle "SNS" as sns #pink
+  rectangle "SQS" as sqs #khaki
+  rectangle "CloudWatch" as cloudwatch #lightgrey
+  rectangle "DynamoDB" as dynamodb #wheat
+  rectangle "S3 Buckets" as s3 #deepskyblue
+  rectangle "Kinesis Streams" as kinesis #lavender
+  rectangle "IAM Roles" as iam #plum
+  rectangle "Cognito" as cognito #lightcoral
+
+  api_gw -down-> lambda : invoke
+  api_gw -left-> cognito : authenticate
+  lambda -down-> dynamodb : read/write
+  lambda -down-> s3 : log data
+  lambda -up-> sns : notify
+  lambda -up-> sqs : enqueue
+  lambda -up-> kinesis : stream logs
+  lambda -up-> event_bridge : trigger events
+  ecs -left-> sqs : poll
+  ecs -up-> cloudwatch : metrics/logs
+  ecs -up-> kinesis : send logs
+  event_bridge -up-> lambda : trigger
+  sns -right-> user : notify
+  sqs -right-> lambda : trigger
+  cloudwatch -down-> lambda : alarms
+  cloudwatch -down-> sns : alarm notification
+  cloudwatch -down-> event_bridge : event trigger
+  s3 -right-> kinesis : data flow
+  dynamodb -right-> s3 : backup
+  iam --> lambda : authorization
+}
+
+@enduml
+```

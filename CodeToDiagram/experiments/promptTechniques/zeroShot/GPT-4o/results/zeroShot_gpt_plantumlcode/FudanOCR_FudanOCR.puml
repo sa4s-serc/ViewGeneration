@@ -1,0 +1,90 @@
+```plantuml
+@startuml FudanOCR_FudanOCR
+
+package "FudanOCR Repository" {
+    component "Text Detection" {
+        component EAST
+        component AdvancedEAST
+        component PSENet
+        component PixelLink
+        component LSN
+        component TextSnake
+        component RRPN
+    }
+
+    component "Text Recognition" {
+        component CRNN
+        component MORAN
+        component MORAN_V2
+        component GRCNN
+        component DAN
+        component HARN
+        component SAR
+        component RARE
+        component CAPSOCR
+    }
+
+    component "Super-Resolution" {
+        component DocumentSRModel
+    }
+
+    component "Data Handling and Augmentation" {
+        component DataLoaders
+        component DataAugmentation
+        component PreprocessingPipelines
+        component "LMDB Dataset"
+    }
+
+    component "Model Training and Evaluation" {
+        component TrainingLoop
+        component EvaluationMetrics
+        component EarlyStopping
+    }
+
+    component "Post-processing" {
+        component NMS
+        component Filtering
+    }
+
+    component "Custom Layers and Operations" {
+        component ROIAlign
+        component RROIAlign
+        component ROIPool
+        component FrozenBatchNorm2d
+        component CustomLossFunctions
+        component PythonPSE
+    }
+
+    component "Config Management" {
+        component "YAML Configurations"
+    }
+
+    component "Training Engine" {
+        component "Core Training Engine"
+    }
+
+    component "Rotation Operations" {
+        component RotationIoU
+        component RotationNMS
+    }
+}
+
+"main.py" --> "Training Engine" : Uses
+"model/train/*.py" --> "Model Training and Evaluation" : Implements
+"configs/*.yaml" --> "Config Management" : Configures
+"model/detection_model/*" --> "Text Detection" : Contains
+"model/recognition_model/*" --> "Text Recognition" : Contains
+"model/documents/*" --> "Super-Resolution" : Related
+"data/*" --> "Data Handling and Augmentation" : Contains
+"rotation/*.pyx, *.cu" --> "Rotation Operations" : Implements
+"engine/*" --> "Training Engine" : Core
+
+"Text Detection" --> "Text Recognition" : Integrated With
+"Text Recognition" --> "Super-Resolution" : Can Use
+"Data Handling and Augmentation" --> "Model Training and Evaluation" : Supports
+"Model Training and Evaluation" --> "Post-processing" : Uses
+"Custom Layers and Operations" --> "Model Training and Evaluation" : Supports
+"Config Management" --> "Model Training and Evaluation" : Drives
+
+@enduml
+```

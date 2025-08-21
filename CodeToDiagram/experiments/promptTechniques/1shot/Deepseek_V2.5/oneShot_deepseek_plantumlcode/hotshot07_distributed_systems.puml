@@ -1,0 +1,51 @@
+@startuml hotshot07_distributed_systems
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<db>> #fff1c9
+  BackgroundColor<<infra>> #fddddd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend" <<frontend>> {
+  rectangle "React UI" as React
+  rectangle "Material UI" as MUI
+  rectangle "Auth Components" as Auth
+  React --> MUI
+  React --> Auth
+}
+
+package "Backend Services" <<backend>> {
+  rectangle "Auth Service" as AuthService
+  rectangle "Athlete Service" as AthleteService
+  rectangle "Test Service" as TestService
+  rectangle "Reporting Service" as ReportService
+}
+
+package "Infrastructure" <<infra>> {
+  rectangle "Kubernetes" as K8s
+  rectangle "Docker" as Docker
+  rectangle "GitHub Actions" as CI
+  K8s --> Docker
+  CI --> Docker
+}
+
+database "DynamoDB" <<db>> as DynamoDB
+
+React --> AuthService : HTTP API (JWT)
+React --> AthleteService : HTTP API (JWT)
+React --> TestService : HTTP API (JWT)
+React --> ReportService : HTTP API (JWT)
+
+AuthService --> DynamoDB
+AthleteService --> DynamoDB
+TestService --> DynamoDB
+ReportService --> DynamoDB
+
+AuthService --> K8s
+AthleteService --> K8s
+TestService --> K8s
+ReportService --> K8s
+
+@enduml

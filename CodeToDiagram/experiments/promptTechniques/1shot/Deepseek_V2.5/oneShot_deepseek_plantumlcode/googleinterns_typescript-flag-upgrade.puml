@@ -1,0 +1,67 @@
+@startuml googleinterns_typescript-flag-upgrade
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<manipulators>> #d8f5d3
+  BackgroundColor<<detectors>> #fddddd
+  BackgroundColor<<emitters>> #fff1c9
+  BackgroundColor<<utils>> #e6d9fd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core" <<core>> {
+  rectangle "index.ts\n(CLI Entry)" as CLI
+  rectangle "runner.ts\n(Orchestrator)" as Runner
+  rectangle "parser.ts\n(Project Parser)" as Parser
+  rectangle "types.ts\n(Shared Types)" as Types
+  CLI --> Runner
+  Runner --> Parser
+  Runner --> Types
+}
+
+package "Manipulators" <<manipulators>> {
+  rectangle "no_implicit_returns_manipulator.ts" as NoImplicitReturns
+  rectangle "strict_null_checks_manipulator.ts" as StrictNullChecks
+  rectangle "strict_property_init_manipulator.ts" as StrictPropInit
+  rectangle "no_implicit_any_manipulator.ts" as NoImplicitAny
+  Runner --> NoImplicitReturns
+  Runner --> StrictNullChecks
+  Runner --> StrictPropInit
+  Runner --> NoImplicitAny
+}
+
+package "Error Detectors" <<detectors>> {
+  rectangle "error_detector.ts\n(Base Class)" as BaseDetector
+  rectangle "prod_error_detector.ts\n(Production)" as ProdDetector
+  Runner --> BaseDetector
+  BaseDetector <|-- ProdDetector
+}
+
+package "Emitters" <<emitters>> {
+  rectangle "in_place_emitter.ts" as InPlace
+  rectangle "out_of_place_emitter.ts" as OutOfPlace
+  Runner --> InPlace
+  Runner --> OutOfPlace
+}
+
+package "Loggers" <<utils>> {
+  rectangle "console_logger.ts" as ConsoleLogger
+  rectangle "stub_logger.ts" as StubLogger
+  Runner --> ConsoleLogger
+  Runner --> StubLogger
+}
+
+package "Utilities" <<utils>> {
+  rectangle "util/*.ts" as Utils
+  Runner --> Utils
+  Parser --> Utils
+}
+
+package "Tests" <<utils>> {
+  rectangle "test/**/*_test.ts" as Tests
+  Tests ..> Runner
+  Tests ..> Manipulators
+  Tests ..> Detectors
+  Tests ..> Emitters
+}
+@enduml

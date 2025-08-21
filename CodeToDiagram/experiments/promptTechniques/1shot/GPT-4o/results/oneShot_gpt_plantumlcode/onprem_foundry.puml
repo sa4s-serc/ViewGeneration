@@ -1,0 +1,55 @@
+```plantuml
+@startuml onprem_foundry
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<furnace>> #d8f5d3
+  BackgroundColor<<grpc>> #fddddd
+  BackgroundColor<<storage>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core Application" <<core>> {
+  rectangle "main.go\n(Application Entry)" as Main
+  rectangle "config.go\n(Configuration)" as Config
+  rectangle "furnace.go\n(Furnace Command)" as FurnaceCmd
+  Main --> Config
+  Main --> FurnaceCmd
+}
+
+package "Furnace Logic" <<furnace>> {
+  rectangle "Furnace\n(Build Management)" as Furnace
+  rectangle "pkgMap\n(Build State Management)" as PkgMap
+  rectangle "Scheduler\n(Build Scheduling)" as Scheduler
+  rectangle "Builder Interface\n(Build Strategies)" as Builder
+  Furnace --> PkgMap
+  Furnace --> Scheduler
+  Furnace --> Builder
+}
+
+package "gRPC Definition" <<grpc>> {
+  rectangle "furnace.proto\n(gRPC Service)" as Proto
+  Furnace --> Proto
+}
+
+package "Object Storage Integration" <<storage>> {
+  rectangle "Object Storage\n(Build Package Upload)" as ObjStorage
+  Furnace --> ObjStorage
+}
+
+package "Metrics and Health Checks" <<core>> {
+  rectangle "Prometheus\n(Metrics Monitoring)" as Prometheus
+  rectangle "Health Checks\n(System Health)" as HealthChecks
+  Furnace --> Prometheus
+  Furnace --> HealthChecks
+}
+
+package "Build Automation & Configuration" <<core>> {
+  rectangle "go.mod, go.sum\n(Go Dependencies)" as GoMod
+  rectangle "Dockerfile\n(Containerization)" as Dockerfile
+  rectangle "Makefile\n(Build Automation)" as Makefile
+  GoMod --> Furnace
+}
+
+@enduml
+```

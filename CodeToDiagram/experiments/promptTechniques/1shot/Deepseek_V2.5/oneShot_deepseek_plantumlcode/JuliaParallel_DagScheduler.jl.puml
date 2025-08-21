@@ -1,0 +1,60 @@
+@startuml JuliaParallel_DagScheduler.jl
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<scheduling>> #d8f5d3
+  BackgroundColor<<execution>> #fddddd
+  BackgroundColor<<metadata>> #fff1c9
+  BackgroundColor<<integration>> #e6d9fd
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Core" <<core>> {
+  rectangle "DagScheduler.jl" as MainModule
+  rectangle "common.jl" as Common
+  rectangle "plugin.jl" as Plugin
+  MainModule --> Common
+  MainModule --> Plugin
+}
+
+package "Scheduling" <<scheduling>> {
+  rectangle "scheduler.jl" as Scheduler
+  rectangle "Task Prioritization" as Prioritization
+  rectangle "DAG Decomposition" as Decomposition
+  Scheduler --> Prioritization
+  Scheduler --> Decomposition
+}
+
+package "Execution" <<execution>> {
+  rectangle "engine.jl" as Engine
+  rectangle "queue.jl" as Queue
+  rectangle "Task Execution" as TaskExec
+  rectangle "Fault Handling" as FaultHandling
+  Engine --> Queue
+  Engine --> TaskExec
+  Engine --> FaultHandling
+}
+
+package "Metadata Stores" <<metadata>> {
+  rectangle "ShmemMetaStore" as Shmem
+  rectangle "SimpleMetaStore" as Simple
+  rectangle "FDBMetaStore" as FDB
+}
+
+package "Integration" <<integration>> {
+  rectangle "Dagger.jl" as Dagger
+  rectangle "RemoteMonitor" as Monitor
+  rectangle "FoundationDB" as FoundationDB
+}
+
+MainModule --> Scheduler
+MainModule --> Engine
+Common --> Scheduler
+Common --> Engine
+Engine --> Shmem
+Engine --> Simple
+Engine --> FDB
+Plugin --> Dagger
+FDB --> FoundationDB
+Engine --> Monitor
+@enduml

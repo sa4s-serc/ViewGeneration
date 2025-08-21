@@ -1,0 +1,65 @@
+```plantuml
+@startuml hrchlhck_k8s-bigdata
+skinparam rectangle {
+  BackgroundColor<<spark>> #d9e7fd
+  BackgroundColor<<hdfs>> #fddddd
+  BackgroundColor<<k8s>> #d8f5d3
+  BackgroundColor<<hibench>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Apache Spark Cluster" <<spark>> {
+  rectangle "Spark Master" as SparkMaster
+  rectangle "Spark Worker" as SparkWorker
+  SparkMaster --> SparkWorker : orchestrates
+}
+
+package "HDFS Cluster" <<hdfs>> {
+  rectangle "NameNode" as NameNode
+  rectangle "DataNode" as DataNode
+  NameNode --> DataNode : manages
+}
+
+package "Kubernetes Deployment" <<k8s>> {
+  rectangle "kubernetes/cluster.yml" as ClusterYML
+  rectangle "ConfigMaps" as ConfigMaps
+  rectangle "StatefulSets" as StatefulSets
+  rectangle "Services" as Services
+  ClusterYML --> Services : defines
+  ClusterYML --> StatefulSets : defines
+  ClusterYML --> ConfigMaps : defines env vars
+}
+
+package "Intel HiBench" <<hibench>> {
+  rectangle "Benchmark Suite" as BenchmarkSuite
+  rectangle "HiBench Config" as HiBenchConfig
+  BenchmarkSuite --> HiBenchConfig : uses
+}
+
+rectangle "Docker Containers" {
+  rectangle "Hadoop Base Image" as HadoopBase
+  rectangle "EntryPoint Script" as EntryPoint
+  HadoopBase --> EntryPoint : includes
+}
+
+rectangle "Python Scripts" {
+  rectangle "create_config.py" as CreateConfig
+  rectangle "create_hibench_config.py" as CreateHiBenchConfig
+  EntryPoint --> CreateConfig : uses
+  HiBenchConfig --> CreateHiBenchConfig : uses
+}
+
+rectangle "Shell Scripts" {
+  rectangle "init-cluster.sh" as InitCluster
+  rectangle "run.sh" as RunBenchmark
+  InitCluster --> ClusterYML : deploys
+  RunBenchmark --> BenchmarkSuite : executes
+}
+
+rectangle "Environment Variables" as EnvVars
+HadoopBase --> EnvVars : configures
+HiBenchConfig --> EnvVars : configures
+
+@enduml
+```

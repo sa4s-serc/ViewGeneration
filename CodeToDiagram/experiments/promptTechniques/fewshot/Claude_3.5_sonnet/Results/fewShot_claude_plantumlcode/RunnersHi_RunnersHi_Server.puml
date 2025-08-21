@@ -1,0 +1,61 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "User" as user
+
+rectangle "Client App" as client
+
+rectangle "Express Server" as server {
+  rectangle "Socket.IO" as socketio
+  rectangle "Routes" as routes
+  rectangle "Controllers" as controllers
+  rectangle "Models" as models
+  rectangle "Middleware" as middleware {
+    rectangle "Auth" as auth
+    rectangle "Error Handler" as errorHandler
+    rectangle "Response Handler" as responseHandler
+  }
+}
+
+database "MySQL" as db
+
+user --> client : Interacts
+client <--> server : HTTP/WebSocket
+
+socketio <--> client : Real-time communication
+routes --> controllers : Delegates requests
+controllers --> models : CRUD operations
+models <--> db : Query/Update
+
+auth --> controllers : Authenticates
+errorHandler --> routes : Handles errors
+responseHandler --> routes : Formats responses
+
+note right of socketio
+  Handles runner matching
+  and real-time updates
+end note
+
+note right of models
+  Includes:
+  - authModel
+  - userModel
+  - recordModel
+  - matchingModel
+  - rankingModel
+end note
+
+note right of controllers
+  Includes:
+  - userController
+  - rankingController
+  - authController
+  - recordController
+end note
+
+@enduml

@@ -1,0 +1,36 @@
+```plantuml
+@startuml 2WAY_Design
+
+package "2WAY_Design System" {
+    [Trust Network Manager] as TrustManager
+    [Data Exchange Engine] as DataEngine
+    [Authentication Service] as AuthService
+    [Authorization Service] as AuthzService
+    [Privacy Module] as PrivacyModule
+    [Data Storage] as Storage
+    [API Gateway] as APIGateway
+}
+
+[External System] as External
+
+TrustManager --> DataEngine : manages
+DataEngine --> Storage : reads/writes
+DataEngine --> PrivacyModule : applies\nprivacy rules
+AuthService --> AuthzService : verifies\npermissions
+APIGateway --> AuthService : authenticates\nrequests
+APIGateway --> DataEngine : routes\ndata requests
+APIGateway --> External : exposes\nAPI endpoints
+PrivacyModule --> DataEngine : processes\ndata
+
+note right of TrustManager
+  Manages trusted parties
+  and connection rules
+end note
+
+note left of PrivacyModule
+  May implement techniques like
+  differential privacy
+end note
+
+@enduml
+```

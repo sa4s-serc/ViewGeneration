@@ -1,0 +1,281 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "S3",
+        "description": "Storage service",
+        "boundaries": "rectangle",
+        "position": "top-left"
+      },
+      {
+        "name": "IAM",
+        "description": "Identity and Access Management",
+        "boundaries": "rectangle",
+        "position": "top-right"
+      },
+      {
+        "name": "Management Server",
+        "description": "Server for managing operations",
+        "boundaries": "rectangle",
+        "position": "middle-left"
+      },
+      {
+        "name": "Target Server",
+        "description": "Server where secrets are deployed",
+        "boundaries": "rectangle",
+        "position": "bottom-left"
+      },
+      {
+        "name": "KMS",
+        "description": "Key Management Service",
+        "boundaries": "rectangle",
+        "position": "bottom-right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "S3",
+        "target": "Management Server",
+        "label": "read/write/list objects",
+        "type": "arrow"
+      },
+      {
+        "source": "IAM",
+        "target": "S3",
+        "label": "ACL",
+        "type": "diamond"
+      },
+      {
+        "source": "IAM",
+        "target": "Management Server",
+        "label": "ACL",
+        "type": "diamond"
+      },
+      {
+        "source": "IAM",
+        "target": "KMS",
+        "label": "ACL",
+        "type": "diamond"
+      },
+      {
+        "source": "Management Server",
+        "target": "KMS",
+        "label": "generate data key/decrypt",
+        "type": "arrow"
+      },
+      {
+        "source": "Management Server",
+        "target": "Target Server",
+        "label": "deploy packed secrets",
+        "type": "arrow"
+      },
+      {
+        "source": "KMS",
+        "target": "Target Server",
+        "label": "decrypt",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Secret Management Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "End user executing commands",
+        "boundaries": "actor",
+        "position": "left"
+      },
+      {
+        "name": "CLI",
+        "description": "Command Line Interface",
+        "boundaries": "rectangle",
+        "position": "left-center"
+      },
+      {
+        "name": "Manager",
+        "description": "Management service",
+        "boundaries": "rectangle",
+        "position": "center"
+      },
+      {
+        "name": "S3",
+        "description": "Storage service",
+        "boundaries": "rectangle",
+        "position": "center-right"
+      },
+      {
+        "name": "KMS",
+        "description": "Key Management Service",
+        "boundaries": "rectangle",
+        "position": "right"
+      },
+      {
+        "name": "Envelope",
+        "description": "Envelope encryption",
+        "boundaries": "rectangle",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "CLI",
+        "label": "Execute sneaker command",
+        "type": "arrow"
+      },
+      {
+        "source": "CLI",
+        "target": "Manager",
+        "label": "Parse command and call appropriate function",
+        "type": "arrow"
+      },
+      {
+        "source": "Manager",
+        "target": "KMS",
+        "label": "Request new data key",
+        "type": "arrow"
+      },
+      {
+        "source": "KMS",
+        "target": "Manager",
+        "label": "Return encrypted data key",
+        "type": "arrow"
+      },
+      {
+        "source": "Manager",
+        "target": "S3",
+        "label": "Upload encrypted secret to S3",
+        "type": "arrow"
+      },
+      {
+        "source": "S3",
+        "target": "Manager",
+        "label": "Retrieve encrypted secret from S3",
+        "type": "arrow"
+      },
+      {
+        "source": "Manager",
+        "target": "KMS",
+        "label": "Decrypt data key",
+        "type": "arrow"
+      },
+      {
+        "source": "KMS",
+        "target": "Manager",
+        "label": "Return plaintext data key",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Secret Management Sequence"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "S3",
+      "KMS"
+    ],
+    "unique_to_GroundTruth": [
+      "IAM",
+      "Management Server",
+      "Target Server"
+    ],
+    "unique_to_GeneratedImage": [
+      "User",
+      "CLI",
+      "Manager",
+      "Envelope"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "S3",
+        "target": "Management Server",
+        "label": "read/write/list objects"
+      },
+      {
+        "source": "IAM",
+        "target": "S3",
+        "label": "ACL"
+      },
+      {
+        "source": "IAM",
+        "target": "Management Server",
+        "label": "ACL"
+      },
+      {
+        "source": "IAM",
+        "target": "KMS",
+        "label": "ACL"
+      },
+      {
+        "source": "Management Server",
+        "target": "KMS",
+        "label": "generate data key/decrypt"
+      },
+      {
+        "source": "Management Server",
+        "target": "Target Server",
+        "label": "deploy packed secrets"
+      },
+      {
+        "source": "KMS",
+        "target": "Target Server",
+        "label": "decrypt"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "CLI",
+        "label": "Execute sneaker command"
+      },
+      {
+        "source": "CLI",
+        "target": "Manager",
+        "label": "Parse command and call appropriate function"
+      },
+      {
+        "source": "Manager",
+        "target": "KMS",
+        "label": "Request new data key"
+      },
+      {
+        "source": "KMS",
+        "target": "Manager",
+        "label": "Return encrypted data key"
+      },
+      {
+        "source": "Manager",
+        "target": "S3",
+        "label": "Upload encrypted secret to S3"
+      },
+      {
+        "source": "S3",
+        "target": "Manager",
+        "label": "Retrieve encrypted secret from S3"
+      },
+      {
+        "source": "Manager",
+        "target": "KMS",
+        "label": "Decrypt data key"
+      },
+      {
+        "source": "KMS",
+        "target": "Manager",
+        "label": "Return plaintext data key"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on a high-level architectural view, emphasizing components like IAM, Management Server, and Target Server, with ACLs and data flow between these components. The GeneratedImage diagram provides a detailed sequence of operations involving a user, CLI, and Manager, focusing on the process of secret management with S3 and KMS. Both diagrams share common components such as S3 and KMS but differ significantly in their approach and detail level. The GroundTruth diagram lacks the user interaction and detailed process flow present in the GeneratedImage diagram. The GeneratedImage diagram is rated 7 out of 10 for its detailed sequence representation, but it lacks some high-level components and connections found in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

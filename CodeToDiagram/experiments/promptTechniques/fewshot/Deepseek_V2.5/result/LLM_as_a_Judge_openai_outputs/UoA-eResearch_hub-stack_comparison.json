@@ -1,0 +1,283 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "User",
+        "description": "User interacting with the system",
+        "boundaries": "external",
+        "position": "top-left"
+      },
+      {
+        "name": "CloudFront",
+        "description": "Content delivery network",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "Amazon S3",
+        "description": "Storage service",
+        "boundaries": "AWS",
+        "position": "center"
+      },
+      {
+        "name": "Amazon Cognito",
+        "description": "Authentication service",
+        "boundaries": "AWS",
+        "position": "center-right"
+      },
+      {
+        "name": "Amazon API Gateway",
+        "description": "API management",
+        "boundaries": "AWS",
+        "position": "center-right"
+      },
+      {
+        "name": "AWS Lambda",
+        "description": "Serverless compute service",
+        "boundaries": "AWS",
+        "position": "center-right"
+      },
+      {
+        "name": "AWS ElasticSearch Service",
+        "description": "Search and analytics engine",
+        "boundaries": "AWS",
+        "position": "bottom-right"
+      },
+      {
+        "name": "Contentful",
+        "description": "Content management system",
+        "boundaries": "SaaS",
+        "position": "bottom-left"
+      },
+      {
+        "name": "External Link Checker",
+        "description": "Python script for link checking",
+        "boundaries": "external",
+        "position": "bottom-left"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "CloudFront",
+        "label": "research-hub.auckland.ac.nz",
+        "type": "HTTP"
+      },
+      {
+        "source": "CloudFront",
+        "target": "Amazon S3",
+        "label": "Researchhub SPA",
+        "type": "HTTP"
+      },
+      {
+        "source": "Amazon API Gateway",
+        "target": "AWS Lambda",
+        "label": "bulk indexing",
+        "type": "HTTP"
+      },
+      {
+        "source": "AWS Lambda",
+        "target": "AWS ElasticSearch Service",
+        "label": "hub-search-proxy",
+        "type": "HTTP"
+      },
+      {
+        "source": "Contentful",
+        "target": "AWS Lambda",
+        "label": "webhooks",
+        "type": "HTTP"
+      }
+    ],
+    "annotations": [
+      "UoA SSO",
+      "Frontend Monitoring",
+      "Backend Monitoring"
+    ],
+    "groups": [
+      {
+        "name": "Prod",
+        "description": "Production environment",
+        "boundaries": "AWS"
+      },
+      {
+        "name": "Nonprod",
+        "description": "Non-production environment",
+        "boundaries": "AWS"
+      }
+    ],
+    "metadata": {
+      "filename": "ground_truth_diagram.png",
+      "title": "Research Hub Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "AngularApp",
+        "description": "Contentful: Fetches content",
+        "boundaries": "application",
+        "position": "left"
+      },
+      {
+        "name": "GraphQLAPI",
+        "description": "Proxies requests",
+        "boundaries": "application",
+        "position": "center"
+      },
+      {
+        "name": "SearchProxy",
+        "description": "Proxies queries",
+        "boundaries": "application",
+        "position": "center"
+      },
+      {
+        "name": "ElasticSearch",
+        "description": "Search engine",
+        "boundaries": "application",
+        "position": "center-right"
+      },
+      {
+        "name": "CloudFront",
+        "description": "Static assets",
+        "boundaries": "AWS",
+        "position": "top"
+      },
+      {
+        "name": "S3",
+        "description": "Origin",
+        "boundaries": "AWS",
+        "position": "top"
+      },
+      {
+        "name": "Jenkins",
+        "description": "Manages infra",
+        "boundaries": "CI/CD",
+        "position": "bottom-left"
+      },
+      {
+        "name": "Terraform",
+        "description": "Provisions AWS Infrastructure",
+        "boundaries": "CI/CD",
+        "position": "bottom-left"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "AngularApp",
+        "target": "GraphQLAPI",
+        "label": "GraphQL queries",
+        "type": "HTTP"
+      },
+      {
+        "source": "GraphQLAPI",
+        "target": "Contentful",
+        "label": "Proxies requests",
+        "type": "HTTP"
+      },
+      {
+        "source": "SearchProxy",
+        "target": "ElasticSearch",
+        "label": "Proxies queries",
+        "type": "HTTP"
+      },
+      {
+        "source": "CloudFront",
+        "target": "S3",
+        "label": "Static assets",
+        "type": "HTTP"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "CI/CD",
+        "description": "Continuous Integration/Continuous Deployment",
+        "boundaries": "tools"
+      }
+    ],
+    "metadata": {
+      "filename": "generated_diagram.png",
+      "title": "eResearch Hub Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "CloudFront",
+      "ElasticSearch"
+    ],
+    "unique_to_GroundTruth": [
+      "User",
+      "Amazon S3",
+      "Amazon Cognito",
+      "Amazon API Gateway",
+      "AWS Lambda",
+      "AWS ElasticSearch Service",
+      "Contentful",
+      "External Link Checker"
+    ],
+    "unique_to_GeneratedImage": [
+      "AngularApp",
+      "GraphQLAPI",
+      "SearchProxy",
+      "S3",
+      "Jenkins",
+      "Terraform"
+    ],
+    "common_connectors": [
+      {
+        "source": "CloudFront",
+        "target": "S3",
+        "label": "Static assets",
+        "type": "HTTP"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "User",
+        "target": "CloudFront",
+        "label": "research-hub.auckland.ac.nz",
+        "type": "HTTP"
+      },
+      {
+        "source": "Amazon API Gateway",
+        "target": "AWS Lambda",
+        "label": "bulk indexing",
+        "type": "HTTP"
+      },
+      {
+        "source": "AWS Lambda",
+        "target": "AWS ElasticSearch Service",
+        "label": "hub-search-proxy",
+        "type": "HTTP"
+      },
+      {
+        "source": "Contentful",
+        "target": "AWS Lambda",
+        "label": "webhooks",
+        "type": "HTTP"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "AngularApp",
+        "target": "GraphQLAPI",
+        "label": "GraphQL queries",
+        "type": "HTTP"
+      },
+      {
+        "source": "GraphQLAPI",
+        "target": "Contentful",
+        "label": "Proxies requests",
+        "type": "HTTP"
+      },
+      {
+        "source": "SearchProxy",
+        "target": "ElasticSearch",
+        "label": "Proxies queries",
+        "type": "HTTP"
+      }
+    ],
+    "explanation": "The GroundTruth diagram is more comprehensive, detailing specific AWS services like Amazon Cognito, API Gateway, and Lambda functions, as well as user interaction. It also includes monitoring tools and a non-production environment. The GeneratedImage diagram focuses on application-level components like AngularApp and GraphQLAPI, and CI/CD tools like Jenkins and Terraform. Both diagrams include CloudFront and ElasticSearch, but the connectors and specific services differ significantly. The GroundTruth diagram provides a more detailed view of the infrastructure, while the GeneratedImage diagram offers a high-level overview of application interactions and infrastructure provisioning.",
+    "Rating": 6
+  }
+}

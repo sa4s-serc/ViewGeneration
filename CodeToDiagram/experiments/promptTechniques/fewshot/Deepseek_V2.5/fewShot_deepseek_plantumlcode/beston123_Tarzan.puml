@@ -1,0 +1,61 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+package "Client" {
+  rectangle "Tarzan Client" as Client
+}
+
+package "Server" {
+  rectangle "Server Controller" as ServerController
+  rectangle "Config Manager" as ConfigManager
+  rectangle "Scheduled Service Manager" as ScheduledServiceManager
+  rectangle "Message Resend Service" as MessageResendService
+}
+
+package "Registry" {
+  rectangle "Zookeeper" as Zookeeper
+}
+
+package "Message Broker" {
+  rectangle "RocketMQ" as RocketMQ
+}
+
+package "Storage" {
+  rectangle "MySQL" as MySQL
+  rectangle "Redis" as Redis
+}
+
+package "RPC" {
+  rectangle "Netty RPC" as NettyRPC
+}
+
+Client -> NettyRPC : RPC calls
+NettyRPC -> ServerController : Process requests
+ServerController -> ConfigManager : Get config
+ServerController -> ScheduledServiceManager : Schedule tasks
+ScheduledServiceManager -> MessageResendService : Resend failed messages
+MessageResendService -> RocketMQ : Resend messages
+ServerController -> RocketMQ : Send/receive messages
+ServerController -> Zookeeper : Service discovery
+ServerController -> MySQL : Store messages
+ServerController -> Redis : Distributed locks
+RocketMQ -> MySQL : Persist messages
+Zookeeper -> ConfigManager : Configuration updates
+
+note right of Redis
+  Distributed locks for\nscheduled tasks
+end note
+
+note right of RocketMQ
+  Primary message broker
+end note
+
+note right of Zookeeper
+  Service discovery &\nconfiguration
+end note
+@enduml

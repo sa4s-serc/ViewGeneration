@@ -1,0 +1,26 @@
+```plantuml
+@startuml shinesolutions_sitechecker-slackbot
+
+package "AWS" {
+  [API Gateway] -right-> [Master Lambda Function] 
+  [Master Lambda Function] --> [Worker Lambda Function] : Invoke
+  [Worker Lambda Function] --> [Master Lambda Function] : Return Check Result
+}
+
+package "Slack" {
+  [Slack] --> [API Gateway] : Outgoing Webhook
+  [Master Lambda Function] --> [Slack] : Send Summary
+}
+
+component "Master Lambda Function" {
+  [lambda.js]
+  [bot.js] --> [slack.js]
+}
+
+component "Worker Lambda Function" {
+  [lambda.js]
+  [sitechecker.js]
+}
+
+@enduml
+```

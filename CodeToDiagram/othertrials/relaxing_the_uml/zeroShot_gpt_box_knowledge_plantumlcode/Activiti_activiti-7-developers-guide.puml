@@ -1,0 +1,39 @@
+@startuml
+package "Activiti 7 Cloud" {
+    node "Kubernetes Cluster" {
+        component "Activiti Cloud Runtime Bundle" <<stateless, microservice>> {
+            [Activiti Core]
+        }
+        component "Activiti Cloud Connectors" <<microservice>>
+        component "Activiti Cloud Query Service" <<microservice>>
+        component "Activiti Cloud Audit Service" <<microservice>>
+        component "Activiti Cloud Notification Service" <<microservice>>
+        component "Gateway" <<client-server>>
+        component "Identity Management / SSO" <<security>>
+        component "Spring Cloud Integration" <<SOA>>
+        component "BPMN Modeling Application" <<client-server>>
+    }
+
+    package "External Systems" {
+        component "External Services"
+    }
+
+    package "Deployment Tools" {
+        component "Helm Charts"
+        component "Jenkins X"
+    }
+
+    [Activiti Cloud Runtime Bundle] --> [Activiti Cloud Connectors] : "bi-directional integration"
+    [Activiti Cloud Connectors] --> [External Services] : "decoupled communication"
+    [Activiti Cloud Runtime Bundle] --> [Activiti Cloud Query Service] : "data aggregation"
+    [Activiti Cloud Runtime Bundle] --> [Activiti Cloud Audit Service] : "event consumption"
+    [Activiti Cloud Runtime Bundle] --> [Activiti Cloud Notification Service] : "real-time updates"
+    [Gateway] --> [Activiti Cloud Runtime Bundle] : "entry point"
+    [Gateway] --> [Identity Management / SSO] : "authentication"
+    [Spring Cloud Integration] --> [Activiti Cloud Runtime Bundle] : "asynchronous events"
+    [Spring Cloud Integration] --> [Kubernetes Cluster] : "service orchestration"
+    [BPMN Modeling Application] --> [Activiti Cloud Runtime Bundle] : "process definitions"
+    [Helm Charts] --> [Kubernetes Cluster] : "deployment"
+    [Jenkins X] --> [Kubernetes Cluster] : "CI/CD automation"
+}
+@enduml

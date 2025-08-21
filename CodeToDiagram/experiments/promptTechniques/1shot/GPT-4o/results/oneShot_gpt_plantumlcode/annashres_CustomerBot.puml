@@ -1,0 +1,56 @@
+```plantuml
+@startuml annashres_CustomerBot
+skinparam rectangle {
+  BackgroundColor<<core>> #d9e7fd
+  BackgroundColor<<presentation>> #fddddd
+  BackgroundColor<<data>> #d8f5d3
+  BackgroundColor<<deployment>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Bot Core Logic" <<core>> {
+  rectangle "Bot Logic\n(messages/bot.js)" as BotLogic
+  rectangle "Dialog Management" as Dialog
+  rectangle "Database Interaction" as DBInteraction
+  rectangle "Authentication & Validation" as AuthValidation
+  BotLogic --> Dialog
+  BotLogic --> DBInteraction
+  BotLogic --> AuthValidation
+}
+
+package "Presentation Layer" <<presentation>> {
+  rectangle "Bot Display\n(messages/botdisplay.js)" as BotDisplay
+  rectangle "Adaptive Cards" as AdaptiveCards
+  rectangle "Markdown Renderer" as Markdown
+  rectangle "Email Parser" as EmailParser
+  BotDisplay --> AdaptiveCards
+  BotDisplay --> Markdown
+  BotDisplay --> EmailParser
+}
+
+package "Data Management" <<data>> {
+  database "Azure SQL Database" as AzureSQL
+  rectangle "Fuzzy Matching" as FuzzyMatching
+  DBInteraction --> AzureSQL
+  DBInteraction --> FuzzyMatching
+}
+
+package "Deployment & Configuration" <<deployment>> {
+  rectangle "Entry Point\n(messages/index.js)" as EntryPoint
+  rectangle "Environment Config\n(messages/.env.defaults)" as EnvConfig
+  rectangle "Post Deploy Script\n(PostDeployScripts/runGulp.cmd)" as PostDeploy
+  EntryPoint --> EnvConfig
+  EntryPoint --> PostDeploy
+}
+
+rectangle "Power BI Dashboard" as PowerBI
+rectangle "Multiple Channels\n(Emulator, Webchat, Email)" as Channels
+
+AdaptiveCards --> Channels
+Markdown --> Channels
+EmailParser --> Channels
+DBInteraction --> PowerBI
+
+@enduml
+```

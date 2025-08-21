@@ -1,0 +1,58 @@
+```plantuml
+@startuml chaitin_veinmind-tools
+
+component "Host Machine" {
+    component "Docker Engine" as docker
+    component "Container Registry" as registry
+}
+
+component "veinmind-runner" as runner {
+    component "Plugin Manager" as plugin_mgr
+    component "Service Manager" as service_mgr
+    component "Configuration" as config {
+        file "service.toml"
+    }
+    component "Git Client" as git
+}
+
+component "libveinmind" as lib {
+    component "Container Runtime Interface" as cri
+    component "Filesystem Access" as fs
+}
+
+component "Plugins" as plugins {
+    component "veinmind-weakpass" as weakpass {
+        component "Password Scanner"
+        component "Dictionary"
+    }
+    component "veinmind-sensitive" as sensitive {
+        component "Rule Engine"
+        file "rules.toml"
+    }
+    component "veinmind-malicious" as malicious
+    component "veinmind-vuln" as vuln
+}
+
+component "CI/CD Pipeline" as cicd {
+    component "GitHub Actions"
+    component "Build System"
+    component "Test Runner"
+}
+
+runner --> lib : "uses"
+runner --> registry : "pulls images"
+runner --> docker : "manages containers"
+
+plugin_mgr --> plugins : "loads/executes"
+service_mgr --> config : "reads"
+service_mgr --> git : "clones plugins"
+
+plugins --> lib : "uses"
+weakpass --> registry : "scans images"
+sensitive --> registry : "scans images"
+
+cicd --> runner : "builds/deploys"
+cicd --> plugins : "builds/deploys"
+
+@enduml
+```

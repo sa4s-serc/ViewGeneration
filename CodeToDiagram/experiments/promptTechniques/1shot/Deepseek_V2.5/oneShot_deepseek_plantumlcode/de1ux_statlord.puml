@@ -1,0 +1,50 @@
+@startuml de1ux_statlord
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Frontend" as FE {
+  rectangle "Editor" as Editor
+  rectangle "Viewer" as Viewer
+}
+
+rectangle "Backend" as BE {
+  rectangle "API" as API
+  rectangle "Database" as DB
+}
+
+rectangle "Display Devices" as Devices {
+  rectangle "Raspberry Pi" as RPi
+  rectangle "Arduino" as Arduino
+  rectangle "Browser" as Browser
+}
+
+' ========== Connections ==========
+User --> Editor : Create/edit dashboard
+User --> Viewer : View dashboard
+
+FE --> BE : HTTP requests (GET/POST/PUT/DELETE)
+BE --> DB : CRUD operations
+
+API --> Devices : Push display data
+Devices --> API : Register display\nPoll for updates
+
+Editor <--> Viewer : Redux state updates
+
+RPi --> API : Request display data
+Arduino --> API : Request display data
+Browser --> API : Request display data
+
+rectangle "Mock Data Generator" as Mock {
+}
+Mock --> API : Push test data (time/temp)
+
+rectangle "Server-side Renderer" as SSR {
+}
+SSR --> API : Fetch data for rendering
+@enduml

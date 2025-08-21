@@ -1,0 +1,43 @@
+@startuml dylanvanh_MunchOut
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor Customer
+actor Restaurant
+
+rectangle "Flutter Frontend" as Frontend {
+  rectangle "UI Components" as UI
+  rectangle "BLoC\n(AuthBloc, LoginBloc,\nSignupBloc, etc.)" as BLoC
+  rectangle "Repositories\n(User, Restaurant,\nCustomer)" as Repos
+}
+
+rectangle "Flask Backend" as Backend {
+  rectangle "API Endpoints" as API
+  rectangle "Resources\n(Customer, Restaurant,\nEvent, Booking)" as Resources
+  rectangle "Models" as Models
+  rectangle "Database" as DB
+}
+
+' ========== Connections ==========
+Customer --> UI : Interacts with UI
+Restaurant --> UI : Interacts with UI
+
+UI --> BLoC : Triggers events
+BLoC --> Repos : Fetches data
+Repos --> API : REST API calls
+
+API --> Resources : Routes requests
+Resources --> Models : Processes data
+Models --> DB : CRUD operations
+
+DB --> Models : Returns data
+Models --> Resources : Returns processed data
+Resources --> API : Returns responses
+API --> Repos : Returns JSON
+Repos --> BLoC : Returns models
+BLoC --> UI : Updates state
+@enduml

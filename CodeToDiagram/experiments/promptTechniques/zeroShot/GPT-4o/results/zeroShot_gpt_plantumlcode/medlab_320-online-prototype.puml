@@ -1,0 +1,44 @@
+```plantuml
+@startuml medlab_320-online-prototype
+
+package "medlab_320-online-prototype" {
+    
+    [React Frontend] --> [Node.js SIT Framework]
+    [Node.js SIT Framework] --> [Blazor Server]
+    [Node.js SIT Framework] --> [Jest]
+    [Node.js SIT Framework] --> [Puppeteer]
+
+    package ".NET Core Backend" {
+        [Startup.cs]
+        [Program.cs]
+        [Controllers/*] --> [Models/*]
+        [Models/*] --> [Data/*]
+        [Data/*] --> [Migrations/*]
+        [Controllers/*] --> [Startup.cs]
+        [Program.cs] --> [Startup.cs]
+    }
+
+    [React Frontend] --> ".NET Core Backend" : "API Calls"
+    
+    package "Microservice Focus" {
+        [Authentication]
+        [Logging]
+        [Tracing]
+        [Authentication] --> [OAuth/OIDC Providers]
+        [Logging] --> [EFK Stack]
+        [Tracing] --> [SkyWalking]
+        [Tracing] --> [OpenTelemetry]
+    }
+
+    [Microservice Focus] --> ".NET Core Backend" : "Integration"
+    [Microservice Focus] --> [Kubernetes] : "Deployment"
+
+    [Kubernetes] --> ".NET Core Backend" : "Deployment"
+    [Dockerfile] --> ".NET Core Backend" : "Containerization"
+    [Kubernetes] --> [MinIO] : "Object Storage"
+    [MinioDockerCompose/docker-compose.yaml] --> [MinIO] : "Configuration"
+
+}
+
+@enduml
+```

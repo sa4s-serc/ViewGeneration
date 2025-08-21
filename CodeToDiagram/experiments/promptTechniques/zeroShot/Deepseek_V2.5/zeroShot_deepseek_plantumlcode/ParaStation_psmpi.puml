@@ -1,0 +1,38 @@
+```plantuml
+@startuml ParaStation_psmpi
+
+package "ParaStation MPI (PSMPI)" {
+    [MPI Standard Implementation] as mpi_std
+    [MPICH Core] as mpich
+    [PSCOM Communication Layer] as pscom
+    [Process Management] as proc_mgmt
+    [Collectives Framework (UCG)] as ucg
+    [Networking Module] as net
+    [ROMIO MPI-IO] as romio
+    [Yaksa Data Handling] as yaksa
+    [HCOLL Optimized Collectives] as hcoll
+    [HWLOC Topology] as hwloc
+}
+
+mpi_std --> mpich : "Builds upon"
+mpich --> pscom : "Uses as ADI"
+pscom --> net : "TCP/RDMA/IB"
+pscom --> ucg : "Optimized collectives"
+mpich --> proc_mgmt : "Hydra/psmgmt/PMIx"
+mpich --> romio : "MPI-IO"
+mpich --> yaksa : "Data translation"
+mpich --> hcoll : "Optional integration"
+mpich --> hwloc : "Hardware topology"
+
+package "Third-Party Components" {
+    [UCX] as ucx
+    [PMIx] as pmix
+    [RoCE] as roce
+}
+
+pscom --> ucx : "Communication"
+proc_mgmt --> pmix : "Job launch"
+net --> roce : "RDMA support"
+
+@enduml
+```

@@ -1,0 +1,371 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Amazon S3",
+        "description": "Storage service",
+        "boundaries": "Top left",
+        "position": "Top left"
+      },
+      {
+        "name": "Amazon Aurora Serverless",
+        "description": "Database service",
+        "boundaries": "VPC",
+        "position": "Left"
+      },
+      {
+        "name": "MLflow",
+        "description": "Machine learning lifecycle management",
+        "boundaries": "VPC",
+        "position": "Center"
+      },
+      {
+        "name": "Network Load Balancer",
+        "description": "Load balancing service",
+        "boundaries": "VPC",
+        "position": "Center"
+      },
+      {
+        "name": "AWS PrivateLink",
+        "description": "Private connectivity",
+        "boundaries": "VPC",
+        "position": "Center"
+      },
+      {
+        "name": "Amazon ECS",
+        "description": "Container service",
+        "boundaries": "VPC",
+        "position": "Bottom left"
+      },
+      {
+        "name": "AWS REST API Gateway",
+        "description": "API management",
+        "boundaries": "Outside VPC",
+        "position": "Center"
+      },
+      {
+        "name": "AWS Lambda",
+        "description": "Serverless compute",
+        "boundaries": "Outside VPC",
+        "position": "Bottom center"
+      },
+      {
+        "name": "Amazon SageMaker Studio",
+        "description": "Machine learning IDE",
+        "boundaries": "Right",
+        "position": "Right"
+      },
+      {
+        "name": "Amazon Cognito",
+        "description": "User authentication",
+        "boundaries": "Bottom",
+        "position": "Bottom"
+      },
+      {
+        "name": "AWS Amplify",
+        "description": "Frontend development",
+        "boundaries": "Bottom",
+        "position": "Bottom"
+      },
+      {
+        "name": "AWS CodeCommit",
+        "description": "Source control",
+        "boundaries": "Bottom",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Amazon Aurora Serverless",
+        "target": "MLflow",
+        "label": "",
+        "type": "Data flow"
+      },
+      {
+        "source": "MLflow",
+        "target": "Network Load Balancer",
+        "label": "",
+        "type": "Data flow"
+      },
+      {
+        "source": "Network Load Balancer",
+        "target": "AWS PrivateLink",
+        "label": "",
+        "type": "Data flow"
+      },
+      {
+        "source": "AWS PrivateLink",
+        "target": "AWS REST API Gateway",
+        "label": "IAM Authorizer, Lambda Authorizer",
+        "type": "Data flow"
+      },
+      {
+        "source": "AWS REST API Gateway",
+        "target": "AWS Lambda",
+        "label": "",
+        "type": "Data flow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "VPC",
+        "components": [
+          "Amazon Aurora Serverless",
+          "MLflow",
+          "Network Load Balancer",
+          "AWS PrivateLink",
+          "Amazon ECS"
+        ]
+      },
+      {
+        "name": "Amazon SageMaker Studio",
+        "components": [
+          "mlflow-admin profile",
+          "mlflow-reader profile",
+          "mlflow-model-approver profile"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": null
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Data Scientist",
+        "description": "User role",
+        "boundaries": "Left",
+        "position": "Left"
+      },
+      {
+        "name": "SageMaker Studio",
+        "description": "Machine learning IDE",
+        "boundaries": "Left",
+        "position": "Left"
+      },
+      {
+        "name": "S3 Bucket",
+        "description": "Storage service",
+        "boundaries": "Center",
+        "position": "Center"
+      },
+      {
+        "name": "SageMaker Training",
+        "description": "Training service",
+        "boundaries": "Center",
+        "position": "Center"
+      },
+      {
+        "name": "Hugging Face Hub",
+        "description": "Model repository",
+        "boundaries": "Center",
+        "position": "Center"
+      },
+      {
+        "name": "SageMaker Endpoint",
+        "description": "Deployment service",
+        "boundaries": "Center",
+        "position": "Center"
+      },
+      {
+        "name": "Feature Store",
+        "description": "Feature management",
+        "boundaries": "Center",
+        "position": "Center"
+      },
+      {
+        "name": "Client Application",
+        "description": "Application interface",
+        "boundaries": "Right",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Data Scientist",
+        "target": "SageMaker Studio",
+        "label": "Launch notebook",
+        "type": "Action"
+      },
+      {
+        "source": "SageMaker Studio",
+        "target": "S3 Bucket",
+        "label": "Upload training data",
+        "type": "Data flow"
+      },
+      {
+        "source": "SageMaker Studio",
+        "target": "Hugging Face Hub",
+        "label": "Pull pre-trained model",
+        "type": "Data flow"
+      },
+      {
+        "source": "SageMaker Studio",
+        "target": "SageMaker Training",
+        "label": "Submit training job",
+        "type": "Data flow"
+      },
+      {
+        "source": "SageMaker Training",
+        "target": "S3 Bucket",
+        "label": "Read training data",
+        "type": "Data flow"
+      },
+      {
+        "source": "SageMaker Training",
+        "target": "S3 Bucket",
+        "label": "Save model artifacts",
+        "type": "Data flow"
+      },
+      {
+        "source": "SageMaker Training",
+        "target": "SageMaker Endpoint",
+        "label": "Deploy model",
+        "type": "Action"
+      },
+      {
+        "source": "Client Application",
+        "target": "SageMaker Endpoint",
+        "label": "Inference request",
+        "type": "Data flow"
+      },
+      {
+        "source": "SageMaker Endpoint",
+        "target": "Feature Store",
+        "label": "Store features",
+        "type": "Data flow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "alfredcs_immersion_day_labs",
+        "position": "Top center"
+      }
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "alfredcs_immersion_day_labs"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Amazon S3",
+      "SageMaker Studio"
+    ],
+    "unique_to_GroundTruth": [
+      "Amazon Aurora Serverless",
+      "MLflow",
+      "Network Load Balancer",
+      "AWS PrivateLink",
+      "Amazon ECS",
+      "AWS REST API Gateway",
+      "AWS Lambda",
+      "Amazon Cognito",
+      "AWS Amplify",
+      "AWS CodeCommit"
+    ],
+    "unique_to_GeneratedImage": [
+      "Data Scientist",
+      "SageMaker Training",
+      "Hugging Face Hub",
+      "SageMaker Endpoint",
+      "Feature Store",
+      "Client Application"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Amazon Aurora Serverless",
+        "target": "MLflow",
+        "label": "",
+        "type": "Data flow"
+      },
+      {
+        "source": "MLflow",
+        "target": "Network Load Balancer",
+        "label": "",
+        "type": "Data flow"
+      },
+      {
+        "source": "Network Load Balancer",
+        "target": "AWS PrivateLink",
+        "label": "",
+        "type": "Data flow"
+      },
+      {
+        "source": "AWS PrivateLink",
+        "target": "AWS REST API Gateway",
+        "label": "IAM Authorizer, Lambda Authorizer",
+        "type": "Data flow"
+      },
+      {
+        "source": "AWS REST API Gateway",
+        "target": "AWS Lambda",
+        "label": "",
+        "type": "Data flow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Data Scientist",
+        "target": "SageMaker Studio",
+        "label": "Launch notebook",
+        "type": "Action"
+      },
+      {
+        "source": "SageMaker Studio",
+        "target": "S3 Bucket",
+        "label": "Upload training data",
+        "type": "Data flow"
+      },
+      {
+        "source": "SageMaker Studio",
+        "target": "Hugging Face Hub",
+        "label": "Pull pre-trained model",
+        "type": "Data flow"
+      },
+      {
+        "source": "SageMaker Studio",
+        "target": "SageMaker Training",
+        "label": "Submit training job",
+        "type": "Data flow"
+      },
+      {
+        "source": "SageMaker Training",
+        "target": "S3 Bucket",
+        "label": "Read training data",
+        "type": "Data flow"
+      },
+      {
+        "source": "SageMaker Training",
+        "target": "S3 Bucket",
+        "label": "Save model artifacts",
+        "type": "Data flow"
+      },
+      {
+        "source": "SageMaker Training",
+        "target": "SageMaker Endpoint",
+        "label": "Deploy model",
+        "type": "Action"
+      },
+      {
+        "source": "Client Application",
+        "target": "SageMaker Endpoint",
+        "label": "Inference request",
+        "type": "Data flow"
+      },
+      {
+        "source": "SageMaker Endpoint",
+        "target": "Feature Store",
+        "label": "Store features",
+        "type": "Data flow"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of AWS architecture. The GroundTruth diagram focuses on a broader AWS service integration, including components like Amazon Aurora Serverless, MLflow, and AWS Lambda, organized within a VPC and connected through services like AWS PrivateLink and API Gateway. In contrast, the GeneratedImage diagram is a sequence diagram illustrating a machine learning workflow involving SageMaker Studio, S3, and other components like Hugging Face Hub and SageMaker Endpoint. Common components include Amazon S3 and SageMaker Studio, but they serve different roles in each diagram. The GroundTruth diagram emphasizes infrastructure and service connectivity, while the GeneratedImage diagram highlights the flow of data and actions in a machine learning pipeline. The GeneratedImage is rated 7 out of 10 for its accuracy in depicting a specific workflow, but it lacks the broader service context present in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

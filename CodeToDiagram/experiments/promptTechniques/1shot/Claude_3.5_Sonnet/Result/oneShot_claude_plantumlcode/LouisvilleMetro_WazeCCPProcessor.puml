@@ -1,0 +1,33 @@
+@startuml LouisvilleMetro_WazeCCPProcessor
+
+actor "Waze CCP" as WazeCCP
+actor "API User" as APIUser
+
+participant "waze-data-download\nLambda" as DownloadLambda
+participant "S3 Bucket" as S3
+participant "SNS Topic" as SNS
+participant "SQS Queue" as SQS
+participant "waze-data-process\nLambda" as ProcessLambda
+participant "Specialized Processing\nLambdas" as SpecializedLambdas
+participant "Aurora PostgreSQL" as Database
+participant "API Gateway" as APIGateway
+participant "waze-data-api\nLambda" as APILambda
+
+DownloadLambda -> WazeCCP: Fetch data periodically
+DownloadLambda -> S3: Store raw JSON data
+S3 -> SNS: Trigger event
+SNS -> SQS: Enqueue message
+SQS -> ProcessLambda: Trigger processing
+ProcessLambda -> S3: Retrieve raw data
+ProcessLambda -> SpecializedLambdas: Distribute processing tasks
+SpecializedLambdas -> Database: Store processed data
+ProcessLambda -> SNS: Send processing status
+
+APIUser -> APIGateway: Request data
+APIGateway -> APILambda: Forward request
+APILambda -> Database: Query data
+Database --> APILambda: Return results
+APILambda --> APIGateway: Send response
+APIGateway --> APIUser: Deliver data
+
+@enduml

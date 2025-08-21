@@ -1,0 +1,58 @@
+@startuml UoA-eResearch_hub-stack
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend" {
+  rectangle "Angular App" as AngularApp #lightblue
+  rectangle "Contentful CMS" as Contentful #lightgreen
+}
+
+package "API Layer" {
+  rectangle "GraphQL API\n(cer-graphql)" as GraphQLAPI #pink
+  rectangle "Search Proxy\n(Lambda)" as SearchProxy #orange
+}
+
+package "AWS Infrastructure" {
+  rectangle "CloudFront" as CloudFront #lightgrey
+  rectangle "S3" as S3 #lightgrey
+  rectangle "ElasticSearch" as ElasticSearch #lightgrey
+  rectangle "ECS/ECR" as ECS #lightgrey
+  rectangle "Cognito" as Cognito #lightgrey
+}
+
+package "CI/CD" {
+  rectangle "Jenkins" as Jenkins #yellow
+  rectangle "Terraform" as Terraform #brown
+}
+
+AngularApp --> Contentful : Fetches content
+AngularApp --> GraphQLAPI : GraphQL queries
+GraphQLAPI --> Contentful : Proxies requests
+AngularApp --> SearchProxy : Search requests
+SearchProxy --> ElasticSearch : Proxies queries
+
+AngularApp --> CloudFront : Static assets
+CloudFront --> S3 : Origin
+GraphQLAPI --> ECS : Hosted on
+SearchProxy --> Lambda : Runs as
+
+Jenkins --> Terraform : Manages infra
+Terraform --> AWS Infrastructure : Provisions
+
+AngularApp --> Cognito : User auth
+
+note right of SearchProxy
+  Scheduled events for
+  bulk updates
+end note
+
+note right of Terraform
+  Manages all AWS
+  resources
+end note
+@enduml

@@ -1,0 +1,68 @@
+```plantuml
+@startuml thangchung_practical-dapr
+left to right direction
+skinparam rectangle {
+  BackgroundColor #f9f9f9
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend" {
+  rectangle "WebUI (Blazor)" as WebUI
+}
+
+package "Identity & Security" {
+  rectangle "IdentityServer4" as IdentityServer
+}
+
+package "Backend Services" {
+  rectangle "ProductCatalogApi" as ProductCatalog
+  rectangle "InventoryApi" as Inventory
+}
+
+package "Shared Building Blocks" {
+  rectangle "N8T.Domain\n(aggregate roots, events)" as N8TDomain
+  rectangle "N8T.Infrastructure\n(config, MediatR, Dapr, DB)" as N8TInfrastructure
+}
+
+package "Observability" {
+  rectangle "Zipkin\n(Tracing)" as Zipkin
+  rectangle "Seq\n(Logging)" as Seq
+}
+
+package "Infrastructure" {
+  rectangle "Kubernetes\n(Ingress, Helm)" as Kubernetes
+  rectangle "Dapr\n(service-to-service, state, pub/sub)" as Dapr
+  rectangle "Redis\n(State, Pub/Sub)" as Redis
+}
+
+WebUI --> ProductCatalog : GraphQL
+WebUI --> IdentityServer : Authenticate
+
+IdentityServer --> WebUI : Tokens
+IdentityServer --> ProductCatalog : Secure Access
+IdentityServer --> Inventory : Secure Access
+
+ProductCatalog --> Inventory : gRPC/REST
+ProductCatalog --> Redis : State Management
+ProductCatalog --> Dapr : Pub/Sub Events
+
+Inventory --> Redis : State Management
+Inventory --> Dapr : Pub/Sub Events
+
+ProductCatalog --> N8TDomain
+Inventory --> N8TDomain
+ProductCatalog --> N8TInfrastructure
+Inventory --> N8TInfrastructure
+
+Dapr <--> Kubernetes : Service Mesh
+Zipkin <--> Kubernetes
+Seq <--> Kubernetes
+
+Kubernetes --> ProductCatalog
+Kubernetes --> Inventory
+Kubernetes --> IdentityServer
+
+@enduml
+```

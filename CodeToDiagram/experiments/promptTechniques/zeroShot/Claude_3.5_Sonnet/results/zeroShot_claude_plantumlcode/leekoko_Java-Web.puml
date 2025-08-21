@@ -1,0 +1,49 @@
+@startuml
+participant "Client" as C
+participant "Front Controller Servlet" as FCS
+participant "Controller" as CTRL
+participant "Service" as S
+participant "DAO" as DAO
+database "Database" as DB
+participant "Redis Cache" as RC
+
+C -> FCS : HTTP Request
+activate FCS
+
+FCS -> CTRL : Delegate Request
+activate CTRL
+
+CTRL -> S : Process Business Logic
+activate S
+
+S -> RC : Check Cache
+activate RC
+RC --> S : Cache Result (if exists)
+deactivate RC
+
+alt Cache Miss
+    S -> DAO : Query Data
+    activate DAO
+    DAO -> DB : Execute SQL
+    activate DB
+    DB --> DAO : Return Data
+    deactivate DB
+    DAO --> S : Return Result
+    deactivate DAO
+    
+    S -> RC : Update Cache
+    activate RC
+    RC --> S : Confirm Update
+    deactivate RC
+end
+
+S --> CTRL : Return Result
+deactivate S
+
+CTRL -> FCS : Prepare Response
+deactivate CTRL
+
+FCS -> C : HTTP Response
+deactivate FCS
+
+@enduml

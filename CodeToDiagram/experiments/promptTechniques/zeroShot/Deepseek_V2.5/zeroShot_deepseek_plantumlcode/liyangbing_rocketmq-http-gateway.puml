@@ -1,0 +1,50 @@
+```plantuml
+@startuml liyangbing_rocketmq-http-gateway
+
+package "HTTP Client" {
+    [HTTP Client] as http_client
+}
+
+package "RocketMQ HTTP Gateway" {
+    [Netty Server] as netty_server
+    [Request Decoder] as request_decoder
+    [Request Validator] as request_validator
+    [Response Encoder] as response_encoder
+    [ProduceMessageProcessor] as produce_processor
+    [ProducerManager] as producer_manager
+    [ConsumerManager] as consumer_manager
+    [HttpMessageListener] as http_listener
+    [HttpExecutor] as http_executor
+    [SubscriptionChangeWatcher] as subscription_watcher
+}
+
+package "RocketMQ" {
+    [RocketMQ Producer] as rmq_producer
+    [RocketMQ Consumer] as rmq_consumer
+}
+
+package "Callback Service" {
+    [Callback Endpoint] as callback_endpoint
+}
+
+' Connectivity relationships
+http_client --> netty_server : HTTP Requests
+netty_server --> request_decoder
+request_decoder --> request_validator
+request_validator --> produce_processor
+produce_processor --> producer_manager
+producer_manager --> rmq_producer : Produces Messages
+
+rmq_consumer --> http_listener : Pushes Messages
+http_listener --> http_executor
+http_executor --> callback_endpoint : HTTP Callbacks
+
+subscription_watcher --> producer_manager : Updates Subscriptions
+subscription_watcher --> consumer_manager : Updates Subscriptions
+
+produce_processor --> response_encoder
+response_encoder --> netty_server
+netty_server --> http_client : HTTP Responses
+
+@enduml
+```

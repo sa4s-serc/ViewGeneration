@@ -1,0 +1,57 @@
+@startuml doitintl_banias
+
+skinparam component {
+  BackgroundColor<<frontend>> #LightBlue
+  BackgroundColor<<backend>> #LightGreen
+  BackgroundColor<<cloud>> #LightYellow
+}
+
+cloud "Google Cloud Platform" <<cloud>> {
+  [Google Pub/Sub] as PubSub
+  [Google Cloud Storage] as GCS
+  [BigQuery] as BQ
+}
+
+package "Frontend (Go)" <<frontend>> {
+  [HTTP API (/track)] as API
+  [Event Validator] as Validator
+  [Event Batcher] as Batcher
+  [Pub/Sub Publisher] as Publisher
+  [Prometheus Metrics (/metrics)] as Metrics
+}
+
+package "Backend (Java Dataflow)" <<backend>> {
+  [Dataflow Pipeline] as Pipeline
+  [Schema Loader] as SchemaLoader
+  [Event Processor] as Processor
+}
+
+API --> Validator : Receives events
+Validator --> Batcher : Validated events
+Batcher --> Publisher : Batched events
+Publisher --> PubSub : Publishes events
+
+PubSub --> Pipeline : Reads events
+GCS --> SchemaLoader : Loads schemas
+SchemaLoader --> Processor : Provides schemas
+Pipeline --> Processor : Processes events
+Processor --> BQ : Writes events
+
+Metrics --> [Stackdriver] : Exposes metrics
+
+note right of API
+  Exposed endpoint for
+  receiving event data
+end note
+
+note right of SchemaLoader
+  Dynamically loads BigQuery
+  schemas from GCS
+end note
+
+note bottom of BQ
+  Stores processed events
+  in dynamic tables
+end note
+
+@enduml

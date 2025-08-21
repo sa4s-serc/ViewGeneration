@@ -1,0 +1,35 @@
+@startuml anjuchamantha_EMonitor
+
+skinparam component {
+  BackgroundColor LightSkyBlue
+  BorderColor Black
+  ArrowColor Black
+}
+
+[ESP32 Device] as ESP32
+[Sensors] as Sensors
+[OLED Display] as Display
+[WiFi Module] as WiFi
+[Backend Server] as Server
+[Email Service] as Email
+
+component "Data Buffer" as Buffer
+component "XML Formatter" as XMLFormatter
+
+ESP32 -- Sensors : reads data
+ESP32 -- Display : updates
+ESP32 -- WiFi : connects through
+ESP32 -- Buffer : stores data when offline
+ESP32 -- XMLFormatter : formats data
+ESP32 -- Email : sends alerts
+
+WiFi -- Server : sends data to
+WiFi -- Email : sends alerts through
+
+note right of Buffer : Ensures data persistence\nduring connectivity loss
+
+note bottom of WiFi : Manages connection\nand reconnection
+
+note right of XMLFormatter : Generates CAP-formatted\nXML for transmission
+
+@enduml

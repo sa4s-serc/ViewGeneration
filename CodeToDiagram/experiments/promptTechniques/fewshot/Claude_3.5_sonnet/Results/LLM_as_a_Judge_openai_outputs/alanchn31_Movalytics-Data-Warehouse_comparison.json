@@ -1,0 +1,341 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Kaggle API",
+        "description": "Data source for extraction",
+        "boundary": "Data Extraction",
+        "position": "left"
+      },
+      {
+        "name": "FRED",
+        "description": "Economic data source",
+        "boundary": "Data Extraction",
+        "position": "left"
+      },
+      {
+        "name": "Amazon EC2",
+        "description": "Data ingestion service",
+        "boundary": "Data Ingestion",
+        "position": "center"
+      },
+      {
+        "name": "Amazon S3",
+        "description": "Data storage service",
+        "boundary": "Data Storage",
+        "position": "right"
+      },
+      {
+        "name": "Apache Airflow",
+        "description": "Workflow management",
+        "boundary": "Data Ingestion",
+        "position": "center-right"
+      },
+      {
+        "name": "Apache Spark",
+        "description": "Data processing engine",
+        "boundary": "Data Ingestion",
+        "position": "center-right"
+      },
+      {
+        "name": "Amazon Redshift",
+        "description": "Data warehouse",
+        "boundary": "Data Warehouse",
+        "position": "bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Kaggle API",
+        "target": "Amazon EC2",
+        "label": "Download",
+        "type": "Data Flow"
+      },
+      {
+        "source": "FRED",
+        "target": "Amazon EC2",
+        "label": "Download",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Amazon EC2",
+        "target": "Amazon S3",
+        "label": "Staging",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Amazon EC2",
+        "target": "Amazon Redshift",
+        "label": "Extract, Transform, Load",
+        "type": "Data Flow"
+      }
+    ],
+    "annotations": [
+      "1. Download",
+      "2. Staging",
+      "3. Extract, Transform, Load"
+    ],
+    "groups": [
+      "Data Extraction",
+      "Data Ingestion",
+      "Data Storage",
+      "Data Warehouse"
+    ],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "Data Pipeline Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Apache Airflow",
+        "description": "Workflow management",
+        "boundary": "green box",
+        "position": "top-left"
+      },
+      {
+        "name": "PostgresOperator",
+        "description": "Executes SQL commands",
+        "boundary": "green box",
+        "position": "top-left"
+      },
+      {
+        "name": "DataQualityOperator",
+        "description": "Checks data quality",
+        "boundary": "green box",
+        "position": "top-left"
+      },
+      {
+        "name": "BashOperator",
+        "description": "Executes bash commands",
+        "boundary": "green box",
+        "position": "top-left"
+      },
+      {
+        "name": "S3 Bucket",
+        "description": "Data storage",
+        "boundary": "center",
+        "position": "center"
+      },
+      {
+        "name": "Apache Spark",
+        "description": "Data processing engine",
+        "boundary": "orange box",
+        "position": "center"
+      },
+      {
+        "name": "Amazon Redshift",
+        "description": "Data warehouse",
+        "boundary": "pink box",
+        "position": "top-right"
+      },
+      {
+        "name": "Fact Tables",
+        "description": "Stores facts",
+        "boundary": "pink box",
+        "position": "top-right"
+      },
+      {
+        "name": "Dimension Tables",
+        "description": "Stores dimensions",
+        "boundary": "pink box",
+        "position": "top-right"
+      },
+      {
+        "name": "Staging Tables",
+        "description": "Temporary storage",
+        "boundary": "pink box",
+        "position": "top-right"
+      },
+      {
+        "name": "St. Louis FRED CPI Dataset",
+        "description": "Data source",
+        "boundary": "bottom-left",
+        "position": "bottom-left"
+      },
+      {
+        "name": "Kaggle MovieLens Dataset",
+        "description": "Data source",
+        "boundary": "bottom-left",
+        "position": "bottom-left"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "DAG: movies_dwh_dag.py",
+        "target": "PostgresOperator",
+        "label": "Execute SQL",
+        "type": "Control Flow"
+      },
+      {
+        "source": "DAG: movies_dwh_dag.py",
+        "target": "DataQualityOperator",
+        "label": "Check Quality",
+        "type": "Control Flow"
+      },
+      {
+        "source": "DAG: movies_dwh_dag.py",
+        "target": "BashOperator",
+        "label": "Trigger",
+        "type": "Control Flow"
+      },
+      {
+        "source": "St. Louis FRED CPI Dataset",
+        "target": "S3 Bucket",
+        "label": "Extract",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Kaggle MovieLens Dataset",
+        "target": "S3 Bucket",
+        "label": "Extract",
+        "type": "Data Flow"
+      },
+      {
+        "source": "S3 Bucket",
+        "target": "Apache Spark",
+        "label": "Read",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Apache Spark",
+        "target": "Amazon Redshift",
+        "label": "Transform & Load",
+        "type": "Data Flow"
+      },
+      {
+        "source": "PostgresOperator",
+        "target": "Amazon Redshift",
+        "label": "Upsert",
+        "type": "Data Flow"
+      },
+      {
+        "source": "DataQualityOperator",
+        "target": "Amazon Redshift",
+        "label": "Validate",
+        "type": "Data Flow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      "Apache Airflow",
+      "Apache Spark",
+      "Amazon Redshift",
+      "Data Sources"
+    ],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": "Data Processing Workflow"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Apache Airflow",
+      "Apache Spark",
+      "Amazon Redshift"
+    ],
+    "unique_to_GroundTruth": [
+      "Kaggle API",
+      "FRED",
+      "Amazon EC2",
+      "Amazon S3"
+    ],
+    "unique_to_GeneratedImage": [
+      "PostgresOperator",
+      "DataQualityOperator",
+      "BashOperator",
+      "S3 Bucket",
+      "Fact Tables",
+      "Dimension Tables",
+      "Staging Tables",
+      "St. Louis FRED CPI Dataset",
+      "Kaggle MovieLens Dataset"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Kaggle API",
+        "target": "Amazon EC2",
+        "label": "Download",
+        "type": "Data Flow"
+      },
+      {
+        "source": "FRED",
+        "target": "Amazon EC2",
+        "label": "Download",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Amazon EC2",
+        "target": "Amazon S3",
+        "label": "Staging",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Amazon EC2",
+        "target": "Amazon Redshift",
+        "label": "Extract, Transform, Load",
+        "type": "Data Flow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "DAG: movies_dwh_dag.py",
+        "target": "PostgresOperator",
+        "label": "Execute SQL",
+        "type": "Control Flow"
+      },
+      {
+        "source": "DAG: movies_dwh_dag.py",
+        "target": "DataQualityOperator",
+        "label": "Check Quality",
+        "type": "Control Flow"
+      },
+      {
+        "source": "DAG: movies_dwh_dag.py",
+        "target": "BashOperator",
+        "label": "Trigger",
+        "type": "Control Flow"
+      },
+      {
+        "source": "St. Louis FRED CPI Dataset",
+        "target": "S3 Bucket",
+        "label": "Extract",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Kaggle MovieLens Dataset",
+        "target": "S3 Bucket",
+        "label": "Extract",
+        "type": "Data Flow"
+      },
+      {
+        "source": "S3 Bucket",
+        "target": "Apache Spark",
+        "label": "Read",
+        "type": "Data Flow"
+      },
+      {
+        "source": "Apache Spark",
+        "target": "Amazon Redshift",
+        "label": "Transform & Load",
+        "type": "Data Flow"
+      },
+      {
+        "source": "PostgresOperator",
+        "target": "Amazon Redshift",
+        "label": "Upsert",
+        "type": "Data Flow"
+      },
+      {
+        "source": "DataQualityOperator",
+        "target": "Amazon Redshift",
+        "label": "Validate",
+        "type": "Data Flow"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of data processing architectures. Both diagrams include Apache Airflow, Apache Spark, and Amazon Redshift, indicating a shared focus on workflow management, data processing, and warehousing. However, the GroundTruth diagram emphasizes data extraction and ingestion from external sources like Kaggle and FRED, using Amazon EC2 and S3 for staging and transformation. In contrast, the GeneratedImage diagram focuses on internal workflow operations with detailed components like PostgresOperator and DataQualityOperator, and includes specific datasets and scripts for processing. The GroundTruth diagram is more about the data pipeline's flow from source to warehouse, while the GeneratedImage diagram details the internal processing and quality checks. The GeneratedImage lacks external data sources and staging in S3, while the GroundTruth lacks detailed workflow operations. Based on the completeness and detail, the GeneratedImage is rated 7 out of 10, as it provides a more detailed view of the internal processing but misses some external data flow aspects present in the GroundTruth.",
+    "Rating": 7
+  }
+}

@@ -1,0 +1,59 @@
+@startuml NeuralDev-io_arclytics_simcct
+
+skinparam rectangle {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  RoundCorner 10
+}
+
+!define CONTAINER(name, label) rectangle name as "label" <<container>>
+!define SERVICE(name, label) rectangle name as "label" <<service>>
+!define DATABASE(name, label) database name as "label" <<database>>
+
+rectangle "Client" {
+  CONTAINER(frontend, "React Frontend")
+}
+
+rectangle "Kubernetes Cluster" {
+  SERVICE(simcct, "SimCCT Service")
+  SERVICE(jupyter, "Jupyter Service")
+  SERVICE(celery, "Celery Worker")
+  SERVICE(arclytics, "Arclytics Service")
+  
+  DATABASE(mongodb, "MongoDB")
+  DATABASE(redis, "Redis")
+  
+  rectangle "Logging & Monitoring" {
+    SERVICE(fluentd, "Fluentd")
+    SERVICE(elasticsearch, "Elasticsearch")
+    SERVICE(kibana, "Kibana")
+    SERVICE(apm, "Elastic APM")
+  }
+}
+
+cloud "External Services" {
+  SERVICE(email, "Email Service")
+}
+
+frontend --> simcct : REST API
+simcct --> mongodb : Data Persistence
+simcct --> redis : Caching & Sessions
+simcct --> celery : Async Tasks
+simcct --> arclytics : Analytics
+simcct --> email : Send Emails
+
+celery --> redis : Message Queue
+jupyter --> mongodb : Data Access
+
+simcct --> fluentd : Logs
+celery --> fluentd : Logs
+jupyter --> fluentd : Logs
+arclytics --> fluentd : Logs
+
+fluentd --> elasticsearch : Feed Logs
+elasticsearch --> kibana : Visualize Logs
+
+simcct --> apm : Performance Monitoring
+frontend --> apm : Performance Monitoring
+
+@enduml

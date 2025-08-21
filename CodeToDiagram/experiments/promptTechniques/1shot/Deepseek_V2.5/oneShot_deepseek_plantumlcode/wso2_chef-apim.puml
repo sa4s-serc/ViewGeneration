@@ -1,0 +1,59 @@
+@startuml wso2_chef-apim
+skinparam rectangle {
+  BackgroundColor<<chef>> #d9e7fd
+  BackgroundColor<<wso2>> #d8f5d3
+  BackgroundColor<<db>> #fddddd
+  BackgroundColor<<java>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Chef Cookbook" <<chef>> {
+  rectangle "attributes/default.rb" as Attributes
+  rectangle "recipes/default.rb" as MainRecipe
+  rectangle "recipes/wso2_apim_installation.rb" as InstallRecipe
+  rectangle "recipes/apply_template.rb" as TemplateRecipe
+  rectangle "templates/repository/conf/*" as Templates
+  rectangle "Berksfile" as Berksfile
+  rectangle "metadata.rb" as Metadata
+
+  MainRecipe --> InstallRecipe
+  MainRecipe --> TemplateRecipe
+  TemplateRecipe --> Templates
+  Attributes --> InstallRecipe
+  Attributes --> TemplateRecipe
+  Berksfile --> Metadata
+}
+
+package "WSO2 API Manager" <<wso2>> {
+  rectangle "Key Manager" as KeyManager
+  rectangle "Publisher" as Publisher
+  rectangle "Store" as Store
+  rectangle "Traffic Manager" as TrafficManager
+  rectangle "Gateway Manager" as GatewayManager
+  rectangle "Gateway Worker" as GatewayWorker
+
+  InstallRecipe --> KeyManager
+  InstallRecipe --> Publisher
+  InstallRecipe --> Store
+  InstallRecipe --> TrafficManager
+  InstallRecipe --> GatewayManager
+  InstallRecipe --> GatewayWorker
+}
+
+database "MySQL Database" <<db>> as MySQL
+KeyManager --> MySQL
+Publisher --> MySQL
+Store --> MySQL
+TrafficManager --> MySQL
+GatewayManager --> MySQL
+GatewayWorker --> MySQL
+
+package "Java Runtime" <<java>> as Java {
+  rectangle "JDK Installation" as JDK
+  rectangle "Environment Variables" as EnvVars
+  JDK --> EnvVars
+}
+
+InstallRecipe --> JDK
+@enduml

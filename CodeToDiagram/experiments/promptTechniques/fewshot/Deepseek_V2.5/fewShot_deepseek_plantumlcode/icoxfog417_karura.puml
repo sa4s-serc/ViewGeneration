@@ -1,0 +1,56 @@
+### Actual Output:
+@startuml icoxfog417_karura
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<integration>> #fddddd
+  BackgroundColor<<ml>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+left to right direction
+
+actor "Kintone User" as User
+
+package "Kintone Platform" <<integration>> {
+  rectangle "Karura Master App" as MasterApp
+  rectangle "Karura Client Plugin" as ClientPlugin
+  database "Kintone Data" as KintoneDB
+}
+
+package "Karura Server" <<backend>> {
+  rectangle "Tornado Web Server" as Tornado
+  rectangle "REST API" as API
+  rectangle "Model Manager" as ModelManager
+  rectangle "Model Builder" as ModelBuilder
+  rectangle "Dataset Handler" as Dataset
+  rectangle "Field Manager" as FieldManager
+  rectangle "Feature Builder" as FeatureBuilder
+}
+
+package "Machine Learning" <<ml>> {
+  rectangle "scikit-learn" as Sklearn
+  rectangle "Model Storage" as ModelStorage
+}
+
+User --> MasterApp
+User --> ClientPlugin
+MasterApp --> KintoneDB
+ClientPlugin --> KintoneDB
+
+MasterApp --> API : /train
+ClientPlugin --> API : /predict
+
+API --> ModelManager
+ModelManager --> ModelBuilder
+ModelManager --> Dataset
+ModelManager --> FieldManager
+ModelManager --> FeatureBuilder
+
+ModelBuilder --> Sklearn
+Dataset --> KintoneDB : fetch data
+FieldManager --> KintoneDB : field definitions
+FeatureBuilder --> KintoneDB : feature selection
+
+ModelManager --> ModelStorage : save/load models
+@enduml

@@ -1,0 +1,37 @@
+```plantuml
+@startuml lovasoa_SuperLogger
+
+skinparam rectangle {
+  BackgroundColor<<agent>> #d9edf7
+  BackgroundColor<<logstash>> #dff0d8
+  BackgroundColor<<elasticsearch>> #fcf8e3
+  BackgroundColor<<kibana>> #f2dede
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Agent (Java)" <<agent>> {
+  rectangle "SystemInfo.java" as SystemInfo
+  rectangle "TCPServer.java" as TCPServer
+  SystemInfo --> TCPServer
+}
+
+package "Logstash" <<logstash>> {
+  rectangle "tcp2elastic.conf" as Config
+  rectangle "Dockerfile" as Dockerfile
+  TCPServer --> Config : TCP
+  Config --> Dockerfile
+}
+
+package "Elasticsearch" <<elasticsearch>> {
+  rectangle "Storage & Indexing" as Storage
+  Config --> Storage
+}
+
+package "Kibana" <<kibana>> {
+  rectangle "Visualization Dashboards" as Dashboards
+  Storage --> Dashboards
+}
+
+@enduml
+```

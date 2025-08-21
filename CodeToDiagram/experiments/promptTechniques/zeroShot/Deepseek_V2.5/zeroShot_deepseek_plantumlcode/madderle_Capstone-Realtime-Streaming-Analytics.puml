@@ -1,0 +1,47 @@
+```plantuml
+@startuml madderle_Capstone-Realtime-Streaming-Analytics
+
+actor User
+participant "Twitter API" as TwitterAPI
+participant "IEX API" as IEXAPI
+participant "Twitter Service" as TwitterService
+participant "IEX Service" as IEXService
+participant "Manager Service" as ManagerService
+participant "Redis" as Redis
+participant "AWS Kinesis" as Kinesis
+participant "MongoDB" as MongoDB
+participant "S3 Storage" as S3
+participant "SKLearn Model" as SKLearnModel
+participant "Data Service" as DataService
+
+User -> ManagerService: Start system
+ManagerService -> Redis: Check market status
+Redis --> ManagerService: Market open
+ManagerService -> TwitterService: Start tweet collection
+ManagerService -> IEXService: Start stock data collection
+
+TwitterService -> TwitterAPI: Fetch tweets
+TwitterAPI --> TwitterService: Return tweets
+TwitterService -> Kinesis: Stream tweets
+TwitterService -> MongoDB: Store tweets
+
+IEXService -> IEXAPI: Fetch stock data
+IEXAPI --> IEXService: Return stock data
+IEXService -> Kinesis: Stream stock data
+IEXService -> MongoDB: Store stock data
+
+ManagerService -> SKLearnModel: Trigger prediction
+SKLearnModel -> S3: Load model
+S3 --> SKLearnModel: Return model
+SKLearnModel -> MongoDB: Fetch data
+MongoDB --> SKLearnModel: Return data
+SKLearnModel -> SKLearnModel: Make predictions
+SKLearnModel -> MongoDB: Store predictions
+
+User -> DataService: Request data
+DataService -> MongoDB: Query data
+MongoDB --> DataService: Return data
+DataService --> User: Display results
+
+@enduml
+```

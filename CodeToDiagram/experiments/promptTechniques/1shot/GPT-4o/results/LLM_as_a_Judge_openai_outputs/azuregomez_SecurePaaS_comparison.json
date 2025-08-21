@@ -1,0 +1,384 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "App Gateway WAF",
+        "description": "Web Application Firewall",
+        "boundary": "Hub VNET",
+        "position": "left"
+      },
+      {
+        "name": "Firewall",
+        "description": "Network security",
+        "boundary": "Hub VNET",
+        "position": "bottom left"
+      },
+      {
+        "name": "Private DNS Zones",
+        "description": "DNS Management",
+        "boundary": "Hub VNET",
+        "position": "bottom"
+      },
+      {
+        "name": "Keyvault Private endpoint",
+        "description": "Secure access to Key Vault",
+        "boundary": "Keyvault Subnet",
+        "position": "top"
+      },
+      {
+        "name": "Web App",
+        "description": "Web Application",
+        "boundary": "ASEv3",
+        "position": "center"
+      },
+      {
+        "name": "SQL Private endpoint",
+        "description": "Secure access to SQL Database",
+        "boundary": "Data Subnet",
+        "position": "center"
+      },
+      {
+        "name": "SQL Database",
+        "description": "Database service",
+        "boundary": "Spoke VNET",
+        "position": "right"
+      },
+      {
+        "name": "Key Vault",
+        "description": "Secret management",
+        "boundary": "Internet",
+        "position": "top right"
+      },
+      {
+        "name": "Internet",
+        "description": "External network",
+        "boundary": "none",
+        "position": "top right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "App Gateway WAF",
+        "target": "Web App",
+        "label": "Peering",
+        "type": "direct"
+      },
+      {
+        "source": "Firewall",
+        "target": "App Gateway WAF",
+        "label": "UDR",
+        "type": "direct"
+      },
+      {
+        "source": "Private DNS Zones",
+        "target": "Firewall",
+        "label": "DNS",
+        "type": "dashed"
+      },
+      {
+        "source": "Keyvault Private endpoint",
+        "target": "Key Vault",
+        "label": "Private Link",
+        "type": "direct"
+      },
+      {
+        "source": "Web App",
+        "target": "SQL Private endpoint",
+        "label": "ASEv3",
+        "type": "direct"
+      },
+      {
+        "source": "SQL Private endpoint",
+        "target": "SQL Database",
+        "label": "Private Link",
+        "type": "direct"
+      },
+      {
+        "source": "Key Vault",
+        "target": "Internet",
+        "label": "restricted",
+        "type": "direct"
+      },
+      {
+        "source": "SQL Database",
+        "target": "Internet",
+        "label": "restricted",
+        "type": "direct"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Hub VNET",
+        "components": [
+          "App Gateway WAF",
+          "Firewall",
+          "Private DNS Zones"
+        ]
+      },
+      {
+        "name": "Keyvault Subnet",
+        "components": [
+          "Keyvault Private endpoint"
+        ]
+      },
+      {
+        "name": "ASEv3",
+        "components": [
+          "Web App"
+        ]
+      },
+      {
+        "name": "Data Subnet",
+        "components": [
+          "SQL Private endpoint"
+        ]
+      },
+      {
+        "name": "Spoke VNET",
+        "components": [
+          "SQL Database"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Azure Network Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Azure Firewall",
+        "description": "Network security",
+        "boundary": "Azure PaaS Deployment",
+        "position": "left"
+      },
+      {
+        "name": "Azure App Service",
+        "description": "Web Application",
+        "boundary": "Azure PaaS Deployment",
+        "position": "center"
+      },
+      {
+        "name": "Azure Private Link",
+        "description": "Network connectivity",
+        "boundary": "Azure PaaS Deployment",
+        "position": "right"
+      },
+      {
+        "name": "Azure SQL Database",
+        "description": "Database service",
+        "boundary": "Azure PaaS Deployment",
+        "position": "bottom right"
+      },
+      {
+        "name": "Azure Web Application Firewall (WAF)",
+        "description": "Web Application Firewall",
+        "boundary": "Azure PaaS Deployment",
+        "position": "bottom left"
+      },
+      {
+        "name": "Secret Management",
+        "description": "Secret management",
+        "boundary": "Azure PaaS Deployment",
+        "position": "bottom center"
+      },
+      {
+        "name": "enablefirewallroute.ps1",
+        "description": "Deployment script",
+        "boundary": "Deployment Scripts",
+        "position": "top left"
+      },
+      {
+        "name": "azuredeploy.ps1",
+        "description": "Deployment script",
+        "boundary": "Deployment Scripts",
+        "position": "top right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "enablefirewallroute.ps1",
+        "target": "Azure Firewall",
+        "label": "",
+        "type": "direct"
+      },
+      {
+        "source": "azuredeploy.ps1",
+        "target": "Azure App Service",
+        "label": "",
+        "type": "direct"
+      },
+      {
+        "source": "Azure App Service",
+        "target": "Azure SQL Database",
+        "label": "",
+        "type": "direct"
+      },
+      {
+        "source": "Azure Firewall",
+        "target": "Azure Web Application Firewall (WAF)",
+        "label": "",
+        "type": "direct"
+      },
+      {
+        "source": "Azure App Service",
+        "target": "Azure Private Link",
+        "label": "",
+        "type": "direct"
+      },
+      {
+        "source": "Azure Private Link",
+        "target": "Azure SQL Database",
+        "label": "",
+        "type": "direct"
+      },
+      {
+        "source": "Azure Web Application Firewall (WAF)",
+        "target": "Secret Management",
+        "label": "",
+        "type": "direct"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Azure PaaS Deployment",
+        "components": [
+          "Azure Firewall",
+          "Azure App Service",
+          "Azure Private Link",
+          "Azure SQL Database",
+          "Azure Web Application Firewall (WAF)",
+          "Secret Management"
+        ]
+      },
+      {
+        "name": "Deployment Scripts",
+        "components": [
+          "enablefirewallroute.ps1",
+          "azuredeploy.ps1"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Azure PaaS Deployment Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Firewall",
+      "Web App",
+      "SQL Database",
+      "Web Application Firewall",
+      "Secret Management"
+    ],
+    "unique_to_GroundTruth": [
+      "App Gateway WAF",
+      "Private DNS Zones",
+      "Keyvault Private endpoint",
+      "SQL Private endpoint",
+      "Key Vault",
+      "Internet"
+    ],
+    "unique_to_GeneratedImage": [
+      "Azure Private Link",
+      "enablefirewallroute.ps1",
+      "azuredeploy.ps1"
+    ],
+    "common_connectors": [
+      {
+        "source": "Web App",
+        "target": "SQL Database",
+        "label": "",
+        "type": "direct"
+      },
+      {
+        "source": "Firewall",
+        "target": "Web Application Firewall",
+        "label": "",
+        "type": "direct"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "App Gateway WAF",
+        "target": "Web App",
+        "label": "Peering",
+        "type": "direct"
+      },
+      {
+        "source": "Firewall",
+        "target": "App Gateway WAF",
+        "label": "UDR",
+        "type": "direct"
+      },
+      {
+        "source": "Private DNS Zones",
+        "target": "Firewall",
+        "label": "DNS",
+        "type": "dashed"
+      },
+      {
+        "source": "Keyvault Private endpoint",
+        "target": "Key Vault",
+        "label": "Private Link",
+        "type": "direct"
+      },
+      {
+        "source": "SQL Private endpoint",
+        "target": "SQL Database",
+        "label": "Private Link",
+        "type": "direct"
+      },
+      {
+        "source": "Key Vault",
+        "target": "Internet",
+        "label": "restricted",
+        "type": "direct"
+      },
+      {
+        "source": "SQL Database",
+        "target": "Internet",
+        "label": "restricted",
+        "type": "direct"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "enablefirewallroute.ps1",
+        "target": "Azure Firewall",
+        "label": "",
+        "type": "direct"
+      },
+      {
+        "source": "azuredeploy.ps1",
+        "target": "Azure App Service",
+        "label": "",
+        "type": "direct"
+      },
+      {
+        "source": "Azure App Service",
+        "target": "Azure Private Link",
+        "label": "",
+        "type": "direct"
+      },
+      {
+        "source": "Azure Private Link",
+        "target": "Azure SQL Database",
+        "label": "",
+        "type": "direct"
+      },
+      {
+        "source": "Azure Web Application Firewall (WAF)",
+        "target": "Secret Management",
+        "label": "",
+        "type": "direct"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on a network architecture with components like App Gateway WAF, Key Vault, and SQL Private endpoint, emphasizing secure access and DNS management. The GeneratedImage diagram represents a PaaS deployment architecture with a focus on Azure services and deployment scripts. Common components include Firewall, Web App, and SQL Database. The GroundTruth diagram includes more network-specific elements, while the GeneratedImage diagram incorporates deployment scripts and Azure-specific services. The architectural structures differ, with GroundTruth emphasizing network security and GeneratedImage focusing on deployment and management. Rating: 7/10. The GeneratedImage captures key elements of Azure architecture but lacks some network-specific details present in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

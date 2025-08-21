@@ -1,0 +1,432 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "日志收集模块",
+        "description": "Log Collection Module",
+        "position": "left"
+      },
+      {
+        "name": "广告管理模块",
+        "description": "Ad Management Module",
+        "position": "bottom left"
+      },
+      {
+        "name": "广告排序模块",
+        "description": "Ad Ranking Module",
+        "position": "center"
+      },
+      {
+        "name": "广告检索模块",
+        "description": "Ad Retrieval Module",
+        "position": "right"
+      },
+      {
+        "name": "查询处理模块",
+        "description": "Query Processing Module",
+        "position": "top right"
+      },
+      {
+        "name": "Web服务器",
+        "description": "Web Server",
+        "position": "top center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Web服务器",
+        "label": "搜索请求",
+        "type": "request"
+      },
+      {
+        "source": "Web服务器",
+        "target": "查询处理模块",
+        "label": "",
+        "type": "process"
+      },
+      {
+        "source": "查询处理模块",
+        "target": "广告检索模块",
+        "label": "",
+        "type": "process"
+      },
+      {
+        "source": "广告检索模块",
+        "target": "广告排序模块",
+        "label": "(ad1,..., ad10)",
+        "type": "data"
+      },
+      {
+        "source": "广告排序模块",
+        "target": "广告管理模块",
+        "label": "(ad7, ad2, ad9)",
+        "type": "data"
+      },
+      {
+        "source": "广告管理模块",
+        "target": "日志收集模块",
+        "label": "投放",
+        "type": "log"
+      },
+      {
+        "source": "User",
+        "target": "日志收集模块",
+        "label": "点击",
+        "type": "log"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "1. 标准化\n2. 分词\n3. 查询改写",
+        "position": "top right"
+      }
+    ],
+    "groups": [
+      {
+        "name": "Processing",
+        "components": [
+          "查询处理模块",
+          "广告检索模块",
+          "广告排序模块"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "architecture_diagram_1.png",
+      "title": "广告系统架构"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "SearchServlet",
+        "description": "Handles search requests",
+        "position": "top"
+      },
+      {
+        "name": "ESServlet",
+        "description": "ElasticSearch service",
+        "position": "top"
+      },
+      {
+        "name": "BingServlet",
+        "description": "Bing search service",
+        "position": "top"
+      },
+      {
+        "name": "AdRetrieval",
+        "description": "Retrieves ads",
+        "position": "top"
+      },
+      {
+        "name": "QueryRewriter",
+        "description": "Rewrites queries",
+        "position": "top"
+      },
+      {
+        "name": "ESHandler",
+        "description": "Handles ES operations",
+        "position": "top"
+      },
+      {
+        "name": "DBPool",
+        "description": "Database connection pool",
+        "position": "top"
+      },
+      {
+        "name": "RankingService",
+        "description": "Ranks ads",
+        "position": "top"
+      },
+      {
+        "name": "Log4j",
+        "description": "Logging service",
+        "position": "top"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "SearchServlet",
+        "label": "Submit search query",
+        "type": "request"
+      },
+      {
+        "source": "SearchServlet",
+        "target": "ESServlet",
+        "label": "Forward query (local search)",
+        "type": "process"
+      },
+      {
+        "source": "ESServlet",
+        "target": "SearchServlet",
+        "label": "Return results",
+        "type": "response"
+      },
+      {
+        "source": "SearchServlet",
+        "target": "BingServlet",
+        "label": "Forward query (Bing search)",
+        "type": "process"
+      },
+      {
+        "source": "BingServlet",
+        "target": "SearchServlet",
+        "label": "Return Bing results",
+        "type": "response"
+      },
+      {
+        "source": "SearchServlet",
+        "target": "AdRetrieval",
+        "label": "Retrieve ads for query",
+        "type": "process"
+      },
+      {
+        "source": "AdRetrieval",
+        "target": "QueryRewriter",
+        "label": "Rewrite query",
+        "type": "process"
+      },
+      {
+        "source": "QueryRewriter",
+        "target": "AdRetrieval",
+        "label": "Return rewritten query",
+        "type": "response"
+      },
+      {
+        "source": "AdRetrieval",
+        "target": "RankingService",
+        "label": "Rank ads (Thrift call)",
+        "type": "process"
+      },
+      {
+        "source": "RankingService",
+        "target": "AdRetrieval",
+        "label": "Return ranked ads",
+        "type": "response"
+      },
+      {
+        "source": "AdRetrieval",
+        "target": "Log4j",
+        "label": "Log search request",
+        "type": "log"
+      },
+      {
+        "source": "User",
+        "target": "Log4j",
+        "label": "Log click",
+        "type": "log"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Search Process",
+        "components": [
+          "SearchServlet",
+          "ESServlet",
+          "BingServlet"
+        ]
+      },
+      {
+        "name": "Ad Process",
+        "components": [
+          "AdRetrieval",
+          "QueryRewriter",
+          "RankingService"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "architecture_diagram_2.png",
+      "title": "Search and Ad System"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      {
+        "name": "Ad Retrieval Module",
+        "description": "Retrieves ads"
+      }
+    ],
+    "unique_to_GroundTruth": [
+      {
+        "name": "日志收集模块",
+        "description": "Log Collection Module"
+      },
+      {
+        "name": "广告管理模块",
+        "description": "Ad Management Module"
+      },
+      {
+        "name": "广告排序模块",
+        "description": "Ad Ranking Module"
+      },
+      {
+        "name": "查询处理模块",
+        "description": "Query Processing Module"
+      },
+      {
+        "name": "Web服务器",
+        "description": "Web Server"
+      }
+    ],
+    "unique_to_GeneratedImage": [
+      {
+        "name": "SearchServlet",
+        "description": "Handles search requests"
+      },
+      {
+        "name": "ESServlet",
+        "description": "ElasticSearch service"
+      },
+      {
+        "name": "BingServlet",
+        "description": "Bing search service"
+      },
+      {
+        "name": "QueryRewriter",
+        "description": "Rewrites queries"
+      },
+      {
+        "name": "ESHandler",
+        "description": "Handles ES operations"
+      },
+      {
+        "name": "DBPool",
+        "description": "Database connection pool"
+      },
+      {
+        "name": "RankingService",
+        "description": "Ranks ads"
+      },
+      {
+        "name": "Log4j",
+        "description": "Logging service"
+      }
+    ],
+    "common_connectors": [
+      {
+        "source": "User",
+        "target": "Log Service",
+        "label": "Log click",
+        "type": "log"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "User",
+        "target": "Web服务器",
+        "label": "搜索请求",
+        "type": "request"
+      },
+      {
+        "source": "Web服务器",
+        "target": "查询处理模块",
+        "label": "",
+        "type": "process"
+      },
+      {
+        "source": "查询处理模块",
+        "target": "广告检索模块",
+        "label": "",
+        "type": "process"
+      },
+      {
+        "source": "广告检索模块",
+        "target": "广告排序模块",
+        "label": "(ad1,..., ad10)",
+        "type": "data"
+      },
+      {
+        "source": "广告排序模块",
+        "target": "广告管理模块",
+        "label": "(ad7, ad2, ad9)",
+        "type": "data"
+      },
+      {
+        "source": "广告管理模块",
+        "target": "日志收集模块",
+        "label": "投放",
+        "type": "log"
+      },
+      {
+        "source": "User",
+        "target": "日志收集模块",
+        "label": "点击",
+        "type": "log"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "User",
+        "target": "SearchServlet",
+        "label": "Submit search query",
+        "type": "request"
+      },
+      {
+        "source": "SearchServlet",
+        "target": "ESServlet",
+        "label": "Forward query (local search)",
+        "type": "process"
+      },
+      {
+        "source": "ESServlet",
+        "target": "SearchServlet",
+        "label": "Return results",
+        "type": "response"
+      },
+      {
+        "source": "SearchServlet",
+        "target": "BingServlet",
+        "label": "Forward query (Bing search)",
+        "type": "process"
+      },
+      {
+        "source": "BingServlet",
+        "target": "SearchServlet",
+        "label": "Return Bing results",
+        "type": "response"
+      },
+      {
+        "source": "SearchServlet",
+        "target": "AdRetrieval",
+        "label": "Retrieve ads for query",
+        "type": "process"
+      },
+      {
+        "source": "AdRetrieval",
+        "target": "QueryRewriter",
+        "label": "Rewrite query",
+        "type": "process"
+      },
+      {
+        "source": "QueryRewriter",
+        "target": "AdRetrieval",
+        "label": "Return rewritten query",
+        "type": "response"
+      },
+      {
+        "source": "AdRetrieval",
+        "target": "RankingService",
+        "label": "Rank ads (Thrift call)",
+        "type": "process"
+      },
+      {
+        "source": "RankingService",
+        "target": "AdRetrieval",
+        "label": "Return ranked ads",
+        "type": "response"
+      },
+      {
+        "source": "AdRetrieval",
+        "target": "Log4j",
+        "label": "Log search request",
+        "type": "log"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on a high-level overview of an ad system architecture, detailing components like the log collection, ad management, and query processing modules. It emphasizes the flow of data and requests between these modules. The GeneratedImage diagram, on the other hand, provides a sequence diagram perspective, detailing the interactions between services such as SearchServlet, ESServlet, and AdRetrieval. It highlights the process of handling search queries and ad retrieval in a more detailed manner. Both diagrams share a common component related to ad retrieval, but they differ significantly in their focus and level of detail. The GroundTruth diagram is more about the structural components, while the GeneratedImage diagram is about the interaction flow. Given the differences in focus and detail, the GeneratedImage is rated 7 out of 10 for its accuracy and completeness in depicting a different aspect of the system compared to the GroundTruth.",
+    "Rating": 7
+  }
+}

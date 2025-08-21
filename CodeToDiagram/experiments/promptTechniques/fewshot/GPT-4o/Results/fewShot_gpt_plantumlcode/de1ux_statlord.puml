@@ -1,0 +1,58 @@
+```plantuml
+@startuml de1ux_statlord
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+package "Frontend (React & Redux)" <<frontend>> {
+  rectangle "Editor Component" as Editor
+  rectangle "Viewer Component" as Viewer
+  rectangle "Redux Store" as Store
+  rectangle "API Client" as ApiClient
+}
+
+package "Backend (Django REST)" <<backend>> {
+  rectangle "API Endpoints" as ApiEndpoints
+  rectangle "Data Models" as DataModels
+  rectangle "Serializer" as Serializer
+  rectangle "Views" as Views
+}
+
+package "Deployment & Configuration" <<config>> {
+  rectangle "Docker Container" as Docker
+  rectangle "CI/CD\n(Travis CI)" as CICD
+  rectangle "Configuration Files" as ConfigFiles
+}
+
+package "Data Sources" <<data>> {
+  rectangle "Mock Data Generator\n(scripts/clock_and_temp.py)" as DataGen
+  rectangle "InkyWhat\n(scripts/inky.py)" as InkyWhat
+  rectangle "ESP32 Sharp LCD\n(scripts/esp32_sharp_lcd.ino)" as ESP32LCD
+}
+
+User --> Editor : Create/Edit Layouts
+User --> Viewer : View Dashboards
+
+Editor --> Store : Dispatch Actions
+Viewer --> Store : Dispatch Actions
+Store --> ApiClient : Fetch/Update Data
+
+ApiClient --> ApiEndpoints : HTTP Requests
+ApiEndpoints --> Views : Route Requests
+Views --> Serializer : Serialize/Deserialize Data
+Serializer --> DataModels : Convert to/from Models
+
+Docker --> ApiEndpoints : Run Server
+CICD --> ApiEndpoints : Trigger Builds
+ConfigFiles --> ApiEndpoints : Environment Config
+
+DataGen --> ApiEndpoints : Push Data
+InkyWhat --> Viewer : Render Display
+ESP32LCD --> Viewer : Render Display
+@enduml
+```

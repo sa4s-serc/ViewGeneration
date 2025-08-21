@@ -1,0 +1,55 @@
+@startuml domingo1021_Bunny-code
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Frontend" as FE {
+}
+
+rectangle "Reverse Proxy\n(Nginx)" as Nginx #lightblue
+
+rectangle "Backend\n(Node.js/Express)" as Backend #palegreen {
+  rectangle "API Routes" as API
+  rectangle "Socket.IO" as SocketIO
+}
+
+rectangle "Database Layer" as DB #mistyrose {
+  rectangle "MySQL" as MySQL
+  rectangle "InfluxDB" as InfluxDB
+  rectangle "Redis" as Redis
+}
+
+rectangle "Sandbox\n(Docker)" as Sandbox #lightyellow
+
+rectangle "Cloud Services" as Cloud #aliceblue {
+  rectangle "S3" as S3
+  rectangle "CloudFront" as CloudFront
+  rectangle "CloudWatch" as CloudWatch
+}
+
+' ========== Connections ==========
+User --> FE
+FE --> Nginx : HTTP/HTTPS requests
+FE --> Nginx : WebSocket connection
+
+Nginx --> Backend : Proxy requests
+Nginx --> Backend : Proxy WebSocket
+
+Backend --> DB : Data operations
+API --> MySQL : CRUD operations
+API --> InfluxDB : Time-series data
+SocketIO --> Redis : Real-time state
+
+Backend --> Sandbox : Execute user code
+Sandbox --> Backend : Execution results
+
+Backend --> Cloud : File storage & CDN
+API --> S3 : Store/retrieve files
+API --> CloudFront : Deliver content
+API --> CloudWatch : Logs & metrics
+@enduml

@@ -1,0 +1,45 @@
+```plantuml
+@startuml CMU-RERC-APT_tiramisu3-pr
+
+package "Mobile Client" {
+  [App Module] --> [App Component]
+  [Home Page] --> [App Component]
+  [Route Page] --> [App Component]
+  [Stop Page] --> [App Component]
+  [FavRoutesService] --> [App Component]
+  [FavStopsService] --> [App Component]
+  [AlarmService] --> [App Component]
+  [HandleSettingsService] --> [App Component]
+}
+
+package "Frontend" {
+  [SchedulesForLocationServlet] --> [OneBusAway]
+  [WriteFavRouteServlet] --> [Postgres]
+  [ReadFavRouteServlet] --> [Postgres]
+  [StatusLogServlet] --> [Postgres]
+  [ButtonLogServlet] --> [Postgres]
+  [FocusLogServlet] --> [Postgres]
+}
+
+package "Backend" {
+  [FeedGrabberPAAC] --> [AWS SQS]
+  [FeedGrabberMTA] --> [AWS SQS]
+  [ObservationProcessor] --> [DynamoDB]
+  [DynamoCleaner] --> [DynamoDB]
+  [AlarmProcessor] --> [AWSSendEmail]
+}
+
+package "Prediction" {
+  [Random Forest Model] --> [Historical Data]
+}
+
+package "AWS Infrastructure" {
+  [AWS SQS]
+  [DynamoDB]
+}
+
+[OneBusAway] --> [DynamoDB]
+[AWSSendEmail] --> [Mobile Client]
+
+@enduml
+```

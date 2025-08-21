@@ -1,0 +1,45 @@
+```plantuml
+@startuml gcba-iris_iris
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "CLI" as CLI {
+  rectangle "bin/iris.js" as irisCLI
+}
+
+rectangle "Core Components" {
+  rectangle "Dispatcher" as Dispatcher #lightblue
+  rectangle "Dock" as Dock #lightgreen
+  rectangle "Handler" as Handler #lightyellow
+  rectangle "Hook" as Hook #lightpink
+  rectangle "Flow" as Flow #lightgray
+}
+
+rectangle "Infrastructure" {
+  rectangle "Thread Pool" as ThreadPool #lightcoral
+  rectangle "Logger" as Logger #lightsteelblue
+  rectangle "Validator" as Validator #lightgoldenrodyellow
+}
+
+User --> irisCLI : execute command
+
+irisCLI --> Dispatcher : initialize, register flows
+Dispatcher --> Dock : route message
+Dispatcher --> Handler : process message
+Dispatcher --> Hook : pre/post processing
+Dock --> Dispatcher : receive/parse message
+Handler --> Dispatcher : generate response
+Hook --> Dispatcher : execute custom logic
+
+Dispatcher --> ThreadPool : manage threads
+Dispatcher --> Logger : log events
+Dispatcher --> Validator : validate configuration
+
+@enduml
+```

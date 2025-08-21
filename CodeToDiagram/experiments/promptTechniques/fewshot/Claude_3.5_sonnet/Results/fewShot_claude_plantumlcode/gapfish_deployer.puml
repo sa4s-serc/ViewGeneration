@@ -1,0 +1,37 @@
+@startuml gapfish_deployer
+
+skinparam rectangle {
+  BackgroundColor #EEEBDC
+  ArrowColor #222222
+  BorderColor #666666
+}
+
+actor "User" as user
+rectangle "depctl CLI" as depctl
+rectangle "Gapfish Deployer" as deployer {
+  rectangle "Sinatra Web App" as webapp
+  rectangle "EventStreamLogger" as logger
+  rectangle "Kubernetes Resource Handler" as k8s_handler
+  rectangle "Git Interaction" as git
+  rectangle "Configuration Manager" as config
+  rectangle "Plugin System" as plugins
+}
+rectangle "Docker Registry" as docker_registry
+cloud "Kubernetes Cluster" as k8s {
+  rectangle "kubectl" as kubectl
+}
+database "ConfigMaps/Secrets" as k8s_config
+
+user -> depctl : Trigger deployment
+depctl -> webapp : HTTP request
+webapp -> config : Load configuration
+config -> k8s_config : Fetch secrets
+webapp -> git : Fetch repository info
+git -> docker_registry : Get image tag
+webapp -> k8s_handler : Modify K8s resources
+k8s_handler -> kubectl : Apply changes
+webapp -> logger : Log events
+logger --> plugins : Notify (e.g., Bugsnag)
+kubectl --> k8s : Deploy application
+
+@enduml

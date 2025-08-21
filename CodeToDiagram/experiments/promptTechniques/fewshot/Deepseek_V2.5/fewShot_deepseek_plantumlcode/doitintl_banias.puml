@@ -1,0 +1,50 @@
+@startuml doitintl_banias
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<integration>> #fddddd
+  BackgroundColor<<storage>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend (Go)" <<frontend>> {
+  rectangle "HTTP API\n(/track)" as API
+  rectangle "Event Collector" as Collector
+  rectangle "Event Publisher" as Publisher
+  rectangle "GoPool" as GoPool
+  rectangle "Prometheus\n(/metrics)" as Metrics
+  API --> Collector
+  Collector --> Publisher
+  Publisher --> GoPool
+  GoPool --> Publisher
+}
+
+package "Backend (Java Dataflow)" <<backend>> {
+  rectangle "Dataflow Pipeline" as Dataflow
+  rectangle "Schema Loader" as SchemaLoader
+  rectangle "Error Handler" as ErrorHandler
+  SchemaLoader --> Dataflow
+  Dataflow --> ErrorHandler
+}
+
+package "Google Cloud Services" <<integration>> {
+  rectangle "Pub/Sub" as PubSub
+  rectangle "BigQuery" as BigQuery
+  rectangle "GCS Bucket" as GCS
+  rectangle "Stackdriver" as Stackdriver
+}
+
+Publisher --> PubSub
+PubSub --> Dataflow
+Dataflow --> BigQuery
+GCS --> SchemaLoader
+ErrorHandler --> BigQuery
+Metrics --> Stackdriver
+
+package "Clients" {
+  actor "Web/Mobile Apps" as Clients
+  Clients --> API
+}
+@enduml

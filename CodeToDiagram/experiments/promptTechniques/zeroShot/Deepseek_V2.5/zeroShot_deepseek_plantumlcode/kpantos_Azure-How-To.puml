@@ -1,0 +1,50 @@
+Here's the corrected PlantUML component diagram for the kpantos_Azure-How-To repository:
+
+```plantuml
+@startuml kpantos_Azure-How-To
+
+skinparam monochrome true
+skinparam componentStyle uml2
+
+rectangle "Client" as client
+
+rectangle "Azure Cloud" {
+    component "Azure Application Gateway" as app_gateway {
+        component "WAF" as waf
+    }
+    
+    component "Azure App Service" as app_service {
+        component "Bot Application" as bot
+    }
+    
+    component "Azure API Management" as apim
+    
+    component "Azure AD Application Proxy" as app_proxy
+    
+    component "Azure AD Connect" as aad_connect
+    
+    component "Azure AD" as aad
+}
+
+rectangle "On-Premises" {
+    component "IIS Web Server" as iis {
+        component "Kerberos API" as kerberos_api
+    }
+}
+
+component "Let's Encrypt" as letsencrypt
+
+client --> app_gateway : HTTPS (443)
+app_gateway --> waf : Filters traffic
+waf --> app_service : Proxies requests
+letsencrypt ..> app_gateway : Provides SSL certs
+
+client --> apim : API calls
+apim --> app_proxy : Routes requests
+app_proxy --> iis : Secure tunnel (Kerberos)
+aad_connect --> aad : Syncs identities
+aad --> app_proxy : Authentication
+aad --> apim : Authentication
+
+@enduml
+```

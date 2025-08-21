@@ -1,0 +1,43 @@
+```plantuml
+@startuml lovasoa_SuperLogger
+
+component "Java Agent" as agent {
+    component "SystemInfo" as systeminfo
+    component "TCPServer" as tcpserver
+}
+
+component "Logstash" as logstash {
+    file "tcp2elastic.conf" as logstash_config
+}
+
+component "Elasticsearch" as elasticsearch
+component "Kibana" as kibana
+
+agent --> logstash : "TCP (JSON)"
+systeminfo --> tcpserver : "System metrics"
+logstash --> elasticsearch : "HTTP (JSON)"
+kibana --> elasticsearch : "HTTP (Query)"
+
+note top of agent
+    Collects system metrics (CPU, memory, etc.)
+    and sends via TCP to Logstash
+end note
+
+note right of logstash
+    Processes and enriches data
+    with timestamps before
+    forwarding to Elasticsearch
+end note
+
+note bottom of elasticsearch
+    Stores and indexes
+    system metrics data
+end note
+
+note left of kibana
+    Provides visualization
+    and dashboard capabilities
+end note
+
+@enduml
+```

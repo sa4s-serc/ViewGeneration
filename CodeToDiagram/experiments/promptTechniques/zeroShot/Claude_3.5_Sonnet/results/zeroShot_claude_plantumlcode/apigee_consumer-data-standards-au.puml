@@ -1,0 +1,42 @@
+```plantuml
+@startuml apigee_consumer-data-standards-au
+
+!define RECTANGLE class
+
+rectangle "Apigee API Management Platform" as Apigee {
+    [CDS Banking API Proxies] as BankingAPI
+    [OIDC Proxy] as OIDC
+    [ConsentMgmtWithKVM Proxy] as ConsentMgmt
+    [Dynamic Client Registration] as ClientReg
+    [Shared Flows] as SharedFlows
+    [Admin APIs] as AdminAPI
+}
+
+cloud "External Systems" {
+    [External OIDC Provider] as ExtOIDC
+    [CDR Register] as CDRRegister
+}
+
+rectangle "Google Cloud Platform" {
+    [App Engine] as AppEngine
+    [Metrics Service] as MetricsService
+}
+
+[Mock OIDC Provider] as MockOIDC
+[Client Applications] as ClientApps
+
+ClientApps --> Apigee : API Requests
+Apigee --> MockOIDC : Authentication (Dev/Test)
+Apigee --> ExtOIDC : Authentication (Production)
+Apigee --> CDRRegister : Register Interaction
+BankingAPI --> SharedFlows : Use
+OIDC --> SharedFlows : Use
+ConsentMgmt --> SharedFlows : Use
+ClientReg --> SharedFlows : Use
+AdminAPI --> SharedFlows : Use
+Apigee --> AppEngine : Deploy
+AppEngine --> MetricsService : Host
+MetricsService --> Apigee : Collect Analytics
+
+@enduml
+```

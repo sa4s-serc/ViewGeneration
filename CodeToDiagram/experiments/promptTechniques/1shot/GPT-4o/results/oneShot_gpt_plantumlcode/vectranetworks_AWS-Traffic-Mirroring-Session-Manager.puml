@@ -1,0 +1,60 @@
+```plantuml
+@startuml vectranetworks_AWS-Traffic-Mirroring-Session-Manager
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "Main Entry" as MainEntry #lightgrey {
+  rectangle "tap.py" as Tap
+}
+
+rectangle "Configuration" as Config #lightblue {
+  rectangle "config_vpc.py" as ConfigVPC
+  rectangle "blacklist.py\nwhitelist.py" as BlacklistWhitelist
+}
+
+rectangle "AWS EC2 API" as EC2API #lightyellow {
+  rectangle "ec2_api_client.py" as Ec2ApiClient
+}
+
+rectangle "Session Management" as SessionMgmt #lightgreen {
+  rectangle "spile_tapper.py" as SpileTapper
+  rectangle "spile.py" as Spile
+}
+
+rectangle "NLB Management" as NLBMgmt #lightcyan {
+  rectangle "nlb_factory.py" as NlbFactory
+  rectangle "nlb_target_factory.py" as NlbTargetFactory
+}
+
+rectangle "Tag Management" as TagMgmt #lightgoldenrodyellow {
+  rectangle "tag_config.py" as TagConfig
+}
+
+' ========== Connections ==========
+User --> MainEntry : start session management
+
+' Main Entry interactions
+Tap --> ConfigVPC : load VPC configuration
+Tap --> BlacklistWhitelist : manage instance lists
+Tap --> SpileTapper : discover instances\nmanage sessions
+
+' Configuration interactions
+ConfigVPC --> TagConfig : manage VPC tags
+BlacklistWhitelist --> TagConfig : manage EC2 instance tags
+
+' EC2 API interactions
+SpileTapper --> Ec2ApiClient : discover Nitro instances
+Spile --> Ec2ApiClient : manage ENI sessions
+
+' NLB Management interactions
+SpileTapper --> NlbFactory : create/manage NLBs
+Spile --> NlbTargetFactory : create mirror targets
+
+@enduml
+```

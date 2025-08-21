@@ -1,0 +1,41 @@
+@startuml gapfish_deployer
+
+actor User
+participant "depctl CLI" as CLI
+participant "Deployment Server" as Server
+participant "Kubernetes API" as K8sAPI
+database "Config Files" as Config
+collections "Plugins" as Plugins
+
+User -> CLI : Initiate deployment
+activate CLI
+
+CLI -> Server : Send deployment request
+activate Server
+
+Server -> Config : Load configuration
+Server -> Plugins : Load and execute plugins
+
+Server -> K8sAPI : Fetch current state
+activate K8sAPI
+
+Server -> Server : Modify K8s resource definitions
+
+Server -> K8sAPI : Apply updated resources
+K8sAPI --> Server : Deployment status
+
+Server -> Server : Log events
+
+alt Successful deployment
+    Server --> CLI : Deployment successful
+else Failed deployment
+    Server --> CLI : Deployment failed
+end
+
+CLI --> User : Display result
+
+deactivate K8sAPI
+deactivate Server
+deactivate CLI
+
+@enduml

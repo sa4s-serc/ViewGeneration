@@ -1,0 +1,35 @@
+@startuml Cpanchal1_Chatbot101-with-AWS-Lambda
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+
+actor "User" as User
+rectangle "Webex Teams" as WebexTeams
+rectangle "API Gateway" as APIGateway
+rectangle "AWS Lambda" as Lambda
+rectangle "icanhazdadjoke.com" as JokeAPI
+
+User -> WebexTeams: Mentions bot
+WebexTeams -> APIGateway: Webhook POST
+APIGateway -> Lambda: Invokes
+Lambda -> JokeAPI: GET /joke
+JokeAPI --> Lambda: Returns joke JSON
+Lambda -> WebexTeams: POST /messages (with joke)
+WebexTeams --> User: Displays joke
+
+note right of Lambda
+  Functions:
+  - main()
+  - getJoke()
+  - postJoke()
+end note
+
+note right of APIGateway
+  Configuration:
+  - ROOMID
+  - TOKEN
+end note
+@enduml

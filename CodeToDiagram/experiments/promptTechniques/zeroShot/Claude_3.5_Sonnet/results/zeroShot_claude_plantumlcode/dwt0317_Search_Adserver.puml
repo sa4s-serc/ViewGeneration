@@ -1,0 +1,46 @@
+@startuml dwt0317_Search_Adserver
+
+participant "User" as User
+participant "SearchServlet" as SearchServlet
+participant "AdRetrieval" as AdRetrieval
+participant "QueryRewriter" as QueryRewriter
+participant "ESHandler" as ESHandler
+participant "RewritingHandler" as RewritingHandler
+participant "DBPool" as DBPool
+participant "ExternalRankingService" as ExternalRankingService
+
+User -> SearchServlet : Submit search query
+activate SearchServlet
+
+SearchServlet -> AdRetrieval : retrieveAds(query)
+activate AdRetrieval
+
+AdRetrieval -> QueryRewriter : rewrite(query)
+activate QueryRewriter
+QueryRewriter -> RewritingHandler : rewriteQuery(query)
+RewritingHandler --> QueryRewriter : rewritten query
+QueryRewriter --> AdRetrieval : rewritten query
+deactivate QueryRewriter
+
+AdRetrieval -> ESHandler : getAdIds(rewritten query)
+ESHandler --> AdRetrieval : ad IDs
+
+AdRetrieval -> DBPool : getAdsInfo(ad IDs)
+DBPool --> AdRetrieval : ad information
+
+AdRetrieval -> ExternalRankingService : rankAds(ads)
+ExternalRankingService --> AdRetrieval : ranked ads
+
+AdRetrieval -> DBPool : updateBudgets(ads)
+DBPool --> AdRetrieval : updated budget status
+
+AdRetrieval --> SearchServlet : ranked and filtered ads
+deactivate AdRetrieval
+
+SearchServlet -> SearchServlet : generateImpressionIds()
+SearchServlet -> SearchServlet : logImpressions()
+
+SearchServlet --> User : Search results with ads
+deactivate SearchServlet
+
+@enduml

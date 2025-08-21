@@ -1,0 +1,70 @@
+### Actual Output:
+@startuml kzh_noob
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<integration>> #fddddd
+  BackgroundColor<<db>> #fff1c9
+  BackgroundColor<<infra>> #d4f0f0
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend" <<frontend>> {
+  rectangle "Web UI" as WebUI
+  rectangle "WebSocket Client" as WSClient
+}
+
+package "Backend Services" <<backend>> {
+  rectangle "Auth Service" as Auth
+  rectangle "Problems Service" as Problems
+  rectangle "Submissions Service" as Submissions
+  rectangle "Executor Service" as Executor
+}
+
+package "Infrastructure" <<infra>> {
+  rectangle "Kubernetes" as K8s
+  rectangle "Nginx Ingress" as Ingress
+  rectangle "Docker" as Docker
+}
+
+package "Data Services" <<db>> {
+  rectangle "MongoDB" as MongoDB
+  rectangle "Redis" as Redis
+}
+
+package "Integration" <<integration>> {
+  rectangle "RabbitMQ" as RabbitMQ
+  rectangle "Jaeger" as Jaeger
+}
+
+WebUI --> Ingress
+WSClient --> Submissions
+
+Ingress --> Auth
+Ingress --> Problems
+Ingress --> Submissions
+
+Submissions --> RabbitMQ
+Executor --> RabbitMQ
+Executor --> Docker
+
+Auth --> Redis
+Auth --> MongoDB
+Problems --> MongoDB
+Submissions --> MongoDB
+
+Submissions --> Jaeger
+Executor --> Jaeger
+
+K8s --> Ingress
+K8s --> Auth
+K8s --> Problems
+K8s --> Submissions
+K8s --> Executor
+K8s --> MongoDB
+K8s --> Redis
+K8s --> RabbitMQ
+K8s --> Jaeger
+@enduml

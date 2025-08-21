@@ -1,0 +1,45 @@
+@startuml
+!theme plain
+
+participant "User" as U
+participant "Electron App" as EA
+participant "File System" as FS
+participant "AsyncWorker" as AW
+participant "Redux Store" as RS
+participant "Export Service" as ES
+participant "Tracking Service" as TS
+participant "Update Service" as US
+
+U -> EA: Launch application
+EA -> US: Check for updates
+US --> EA: Update status
+
+U -> EA: Load file system
+EA -> FS: Read file system data
+FS --> EA: Raw file system data
+EA -> AW: Process data (hash, type, duplicates)
+AW --> EA: Processed data
+EA -> RS: Update state
+
+U -> EA: Analyze data
+EA -> RS: Retrieve data
+RS --> EA: Current state
+EA -> U: Display analysis
+
+U -> EA: Export data
+EA -> ES: Initiate export
+ES -> AW: Process export (CSV, Excel, RESIP, etc.)
+AW --> ES: Exported data
+ES --> EA: Export complete
+EA -> U: Provide export file
+
+U -> EA: Perform action (edit metadata, tag, etc.)
+EA -> RS: Update state
+RS --> EA: Updated state
+EA -> TS: Log user action
+
+U -> EA: Close application
+EA -> TS: Send usage data
+EA -> US: Check for updates before exit
+
+@enduml

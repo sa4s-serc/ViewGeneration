@@ -1,0 +1,51 @@
+@startuml lkmSasanga_fas-web-app
+left to right direction
+skinparam rectangle {
+  BackgroundColor<<frontend>> #d9e7fd
+  BackgroundColor<<backend>> #d8f5d3
+  BackgroundColor<<auth>> #fddddd
+  BackgroundColor<<storage>> #fff1c9
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Frontend (React)" <<frontend>> {
+  rectangle "App.js" as App
+  rectangle "InputControl" as InputControl
+  rectangle "RequestData" as RequestData
+  rectangle "Login/Signup" as AuthUI
+  rectangle "Dashboard" as Dashboard
+  rectangle "Charts" as Charts
+  rectangle "UI Components" as UIComponents
+
+  App --> InputControl
+  App --> AuthUI
+  InputControl --> RequestData
+  RequestData --> Dashboard
+  Dashboard --> Charts
+  Dashboard --> UIComponents
+}
+
+package "Backend API" <<backend>> {
+  rectangle "Sentiment Analysis API" as BackendAPI
+}
+
+package "Authentication" <<auth>> {
+  rectangle "Firebase Auth" as FirebaseAuth
+}
+
+package "Hosting" <<storage>> {
+  rectangle "Firebase Hosting" as FirebaseHosting
+}
+
+package "Data Sources" {
+  rectangle "User Input" as UserInput
+  rectangle "Analysis Results" as AnalysisResults
+}
+
+UserInput --> InputControl
+RequestData --> BackendAPI : axios
+BackendAPI --> AnalysisResults
+AuthUI --> FirebaseAuth
+App --> FirebaseHosting
+@enduml

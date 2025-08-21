@@ -1,0 +1,56 @@
+@startuml blockchain-signaling-system_bloss-core
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor "Network Host" as Host
+
+rectangle "Stalk Component" as Stalk #mistyrose {
+  rectangle "Ryu Controller" as Controller
+  rectangle "Flow Statistics\nManager" as FlowStats
+  rectangle "REST API" as StalkAPI
+}
+
+rectangle "Pollen Component" as Pollen #lightsteelblue {
+  rectangle "Blockchain\nManager" as Blockchain
+  rectangle "DataStore\n(IPFS+Encryption)" as DataStore
+  rectangle "Attack\nReporting" as AttackReport
+}
+
+rectangle "BloSS Component" as Bloss #palegreen {
+  rectangle "Manager" as BlossManager
+  rectangle "REST API" as BlossAPI
+}
+
+rectangle "Ethereum\nBlockchain" as EthChain #aliceblue {
+  rectangle "Smart Contracts" as Contracts
+}
+
+rectangle "InfluxDB" as InfluxDB #lightyellow
+
+' ========== Connections ==========
+Host --> Controller : Network traffic
+Controller --> FlowStats : Process flow statistics
+FlowStats --> InfluxDB : Store traffic data
+FlowStats --> Controller : Threshold alerts
+
+StalkAPI --> Controller : Mitigation requests
+Controller --> StalkAPI : Attack notifications
+
+BlossAPI --> BlossManager : Attack reports
+BlossManager --> Blockchain : Submit attack reports
+BlossManager --> DataStore : Store encrypted reports
+
+Blockchain --> Contracts : Interact with\nsmart contracts
+Contracts --> Blockchain : Attack events
+
+AttackReport --> DataStore : Retrieve encrypted reports
+DataStore --> IPFS : Store/retrieve data
+DataStore --> AttackReport : Decrypted reports
+
+Blockchain --> AttackReport : Get attack info
+AttackReport --> BlossManager : Processed reports
+@enduml

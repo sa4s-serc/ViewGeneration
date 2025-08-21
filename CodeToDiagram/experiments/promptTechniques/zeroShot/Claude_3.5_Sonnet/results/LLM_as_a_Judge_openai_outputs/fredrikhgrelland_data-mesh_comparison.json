@@ -1,0 +1,323 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "User",
+        "description": "End user",
+        "boundary": "circle",
+        "position": "left"
+      },
+      {
+        "name": "SQLPad",
+        "description": "SQL interface",
+        "boundary": "rectangle",
+        "position": "center-left"
+      },
+      {
+        "name": "Presto",
+        "description": "Query engine",
+        "boundary": "rectangle",
+        "position": "center"
+      },
+      {
+        "name": "Hive-metastore",
+        "description": "Metadata storage",
+        "boundary": "rectangle",
+        "position": "center-right"
+      },
+      {
+        "name": "MinIO",
+        "description": "Storage service",
+        "boundary": "rectangle",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "Presto",
+        "label": "localhost:8090",
+        "type": "direct"
+      },
+      {
+        "source": "User",
+        "target": "SQLPad",
+        "label": "localhost:3000",
+        "type": "direct"
+      },
+      {
+        "source": "User",
+        "target": "Presto",
+        "label": "localhost:8080",
+        "type": "direct"
+      },
+      {
+        "source": "SQLPad",
+        "target": "Presto",
+        "label": "http",
+        "type": "direct"
+      },
+      {
+        "source": "Presto",
+        "target": "MinIO",
+        "label": "s3",
+        "type": "direct"
+      },
+      {
+        "source": "Presto",
+        "target": "Hive-metastore",
+        "label": "thrift",
+        "type": "direct"
+      },
+      {
+        "source": "Hive-metastore",
+        "target": "MinIO",
+        "label": "s3",
+        "type": "direct"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "VDI",
+        "components": [
+          "User",
+          "SQLPad",
+          "Presto",
+          "Hive-metastore",
+          "MinIO"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "VDI Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "User",
+        "description": "End user",
+        "boundary": "rectangle",
+        "position": "left"
+      },
+      {
+        "name": "SQLPad",
+        "description": "SQL interface",
+        "boundary": "rectangle",
+        "position": "center-left"
+      },
+      {
+        "name": "Consul",
+        "description": "Service discovery",
+        "boundary": "rectangle",
+        "position": "center"
+      },
+      {
+        "name": "Presto",
+        "description": "Query engine",
+        "boundary": "rectangle",
+        "position": "center-right"
+      },
+      {
+        "name": "Hive Metastore",
+        "description": "Metadata storage",
+        "boundary": "rectangle",
+        "position": "right"
+      },
+      {
+        "name": "MinIO",
+        "description": "Storage service",
+        "boundary": "rectangle",
+        "position": "far-right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "SQLPad",
+        "label": "Execute SQL query",
+        "type": "message"
+      },
+      {
+        "source": "SQLPad",
+        "target": "Consul",
+        "label": "Discover Presto service",
+        "type": "message"
+      },
+      {
+        "source": "Consul",
+        "target": "SQLPad",
+        "label": "Return Presto service details",
+        "type": "message"
+      },
+      {
+        "source": "SQLPad",
+        "target": "Presto",
+        "label": "Submit SQL query",
+        "type": "message"
+      },
+      {
+        "source": "Presto",
+        "target": "Consul",
+        "label": "Discover Hive Metastore service",
+        "type": "message"
+      },
+      {
+        "source": "Consul",
+        "target": "Presto",
+        "label": "Return Hive Metastore service details",
+        "type": "message"
+      },
+      {
+        "source": "Presto",
+        "target": "Hive Metastore",
+        "label": "Request metadata",
+        "type": "message"
+      },
+      {
+        "source": "Hive Metastore",
+        "target": "Presto",
+        "label": "Return metadata",
+        "type": "message"
+      },
+      {
+        "source": "Presto",
+        "target": "Consul",
+        "label": "Discover MinIO service",
+        "type": "message"
+      },
+      {
+        "source": "Consul",
+        "target": "Presto",
+        "label": "Return MinIO service details",
+        "type": "message"
+      },
+      {
+        "source": "Presto",
+        "target": "MinIO",
+        "label": "Request data",
+        "type": "message"
+      },
+      {
+        "source": "MinIO",
+        "target": "Presto",
+        "label": "Return data",
+        "type": "message"
+      },
+      {
+        "source": "Presto",
+        "target": "SQLPad",
+        "label": "Return query results",
+        "type": "message"
+      },
+      {
+        "source": "SQLPad",
+        "target": "User",
+        "label": "Display query results",
+        "type": "message"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Service Interaction Sequence"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "User",
+      "SQLPad",
+      "Presto",
+      "Hive Metastore",
+      "MinIO"
+    ],
+    "unique_to_GroundTruth": [
+      "Hive-metastore"
+    ],
+    "unique_to_GeneratedImage": [
+      "Consul"
+    ],
+    "common_connectors": [
+      {
+        "source": "User",
+        "target": "SQLPad"
+      },
+      {
+        "source": "SQLPad",
+        "target": "Presto"
+      },
+      {
+        "source": "Presto",
+        "target": "MinIO"
+      },
+      {
+        "source": "Presto",
+        "target": "Hive Metastore"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "User",
+        "target": "Presto",
+        "label": "localhost:8090"
+      },
+      {
+        "source": "User",
+        "target": "Presto",
+        "label": "localhost:8080"
+      },
+      {
+        "source": "Hive-metastore",
+        "target": "MinIO",
+        "label": "s3"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "SQLPad",
+        "target": "Consul",
+        "label": "Discover Presto service"
+      },
+      {
+        "source": "Consul",
+        "target": "SQLPad",
+        "label": "Return Presto service details"
+      },
+      {
+        "source": "Presto",
+        "target": "Consul",
+        "label": "Discover Hive Metastore service"
+      },
+      {
+        "source": "Consul",
+        "target": "Presto",
+        "label": "Return Hive Metastore service details"
+      },
+      {
+        "source": "Presto",
+        "target": "Consul",
+        "label": "Discover MinIO service"
+      },
+      {
+        "source": "Consul",
+        "target": "Presto",
+        "label": "Return MinIO service details"
+      },
+      {
+        "source": "Presto",
+        "target": "SQLPad",
+        "label": "Return query results"
+      },
+      {
+        "source": "SQLPad",
+        "target": "User",
+        "label": "Display query results"
+      }
+    ],
+    "explanation": "The GroundTruth diagram represents a static architecture with direct connections between components, focusing on network endpoints and protocols. The GeneratedImage diagram is a sequence diagram illustrating dynamic interactions and service discovery processes. Both diagrams share common components like User, SQLPad, Presto, Hive Metastore, and MinIO, but the GeneratedImage includes Consul for service discovery, which is absent in the GroundTruth. The connectors in the GroundTruth are more about network paths, while the GeneratedImage focuses on message exchanges. The GroundTruth diagram is more about architectural layout, whereas the GeneratedImage shows interaction flow. Rating: 7/10. The GeneratedImage accurately represents the interaction flow but lacks the static architectural details present in the GroundTruth.",
+    "Rating": 7
+  }
+}

@@ -1,0 +1,42 @@
+```plantuml
+@startuml ruoccofabrizio_azure-open-ai-embeddings-qna
+skinparam rectangle {
+  BackgroundColor #f0f0f0
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+skinparam linetype ortho
+
+actor "User" as user
+
+package "Azure OpenAI Embeddings QnA" {
+  rectangle "Streamlit Web App" as webApp #lightblue
+  rectangle "Azure Function\nBatchStartProcessing" as batchStart #lightyellow
+  rectangle "Azure Function\nBatchPushResults" as batchPush #lightyellow
+  rectangle "Azure Cognitive Search\nVector Store" as azureSearch #lightgreen
+  rectangle "Redis\nVector Store" as redisStore #lightgreen
+  rectangle "PGVector\nVector Store" as pgvectorStore #lightgreen
+  rectangle "Azure OpenAI\nService" as openAI #lightpink
+  rectangle "Azure Queue" as azureQueue #lightgrey
+  rectangle "Azure Blob Storage" as blobStorage #lightgrey
+}
+
+user -> webApp : Ask Question
+webApp -> openAI : Create Query Embedding
+webApp -> azureSearch : Search Document Chunks
+webApp -> redisStore : Search Document Chunks
+webApp -> pgvectorStore : Search Document Chunks
+webApp <- openAI : Generate Answer
+
+user -> webApp : Upload Documents
+webApp -> batchStart : Trigger Batch Processing
+batchStart -> azureQueue : Add Messages
+batchPush -> azureQueue : Triggered by Messages
+batchPush -> blobStorage : Read Documents
+batchPush -> openAI : Create Document Embeddings
+batchPush -> azureSearch : Store Embeddings
+batchPush -> redisStore : Store Embeddings
+batchPush -> pgvectorStore : Store Embeddings
+@enduml
+```

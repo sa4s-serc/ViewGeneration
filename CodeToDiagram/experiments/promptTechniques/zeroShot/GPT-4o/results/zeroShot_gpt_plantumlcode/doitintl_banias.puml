@@ -1,0 +1,27 @@
+```plantuml
+@startuml doitintl_banias
+
+package "Frontend" {
+  [Event Reception API] <<Go>> 
+  [Event Publisher] <<Go>> 
+  [Metrics Exporter] <<Go>> 
+}
+
+package "Backend" {
+  [Dataflow Pipeline] <<Java>>
+  [Schema Manager] <<Java>>
+}
+
+[Event Reception API] --> [Event Publisher] : receives events
+[Event Publisher] --> [Google Pub/Sub] : publishes events
+[Google Pub/Sub] --> [Dataflow Pipeline] : feeds events
+[Dataflow Pipeline] --> [BigQuery] : writes data
+[Dataflow Pipeline] --> [Error Table] : writes malformed events
+[Schema Manager] --> [Google Cloud Storage] : loads schemas
+
+[Metrics Exporter] --> [Prometheus] : exposes metrics
+
+[Event Reception API] --> [Metrics Exporter] : provides metrics
+
+@enduml
+```

@@ -1,0 +1,43 @@
+@startuml numerica-ideas_ni-microservice-nodejs
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+left to right direction
+
+actor User
+
+rectangle "API Gateway" as Gateway #lightblue
+
+rectangle "Article Service" as ArticleService #palegreen {
+  rectangle "Controller" as Controller
+  rectangle "Service" as Service
+  rectangle "Cache" as Cache
+}
+
+rectangle "Database" as MongoDB #lightyellow
+rectangle "Redis" as Redis #mistyrose
+rectangle "AWS SNS" as SNS #aliceblue
+
+' ========== Connections ==========
+User -> Gateway : HTTP Requests (CRUD)
+Gateway -> Controller : Routes requests
+
+Controller -> Service : Business logic calls
+Service -> MongoDB : CRUD operations
+Service -> Cache : Get/Set cached data
+
+' Cache interactions
+Cache -> Redis : Read/Write cache
+
+' Inter-service communication
+Service -> Redis : Publish events (server)
+Service -> SNS : Publish events (lambda)
+
+Redis -> ArticleService : Subscribe to events (server)
+SNS -> ArticleService : Subscribe to events (lambda)
+
+' Lambda specific
+Gateway -> ArticleService : Triggers (SNS/Scheduled)
+@enduml

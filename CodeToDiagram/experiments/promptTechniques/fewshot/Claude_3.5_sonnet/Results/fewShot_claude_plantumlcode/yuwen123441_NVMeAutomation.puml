@@ -1,0 +1,63 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #EEEBDC
+  BorderColor #333333
+  FontColor #000000
+}
+skinparam component {
+  BackgroundColor #85BBF0
+  BorderColor #333333
+  FontColor #000000
+}
+skinparam database {
+  BackgroundColor #F0E68C
+  BorderColor #333333
+  FontColor #000000
+}
+
+rectangle "Test Cases" as TestCases {
+  [Admin Tests]
+  [IO Tests]
+}
+
+rectangle "Common Library" as CommonLib {
+  [Admin Operations]
+  [IO Operations]
+  [Buffer Management]
+}
+
+rectangle "Logic Layer" as LogicLayer {
+  [NVMe Classes]
+  [Data Structures]
+}
+
+rectangle "Driver Layer" as DriverLayer {
+  component "Python Wrapper (nvme.py)" as PythonWrapper
+  component "C Library (nvme-ioctl.so)" as CLibrary
+}
+
+database "NVMe SSD" as NVMeSSD
+
+TestCases --> CommonLib
+CommonLib --> LogicLayer
+LogicLayer --> DriverLayer
+PythonWrapper --> CLibrary : uses
+CLibrary --> NVMeSSD : ioctl interface
+
+note right of TestCases
+  Implemented using nosetests
+end note
+
+note right of CommonLib
+  High-level Python interfaces
+end note
+
+note right of LogicLayer
+  Abstracts NVMe operations
+end note
+
+note right of DriverLayer
+  Low-level device interaction
+end note
+
+@enduml

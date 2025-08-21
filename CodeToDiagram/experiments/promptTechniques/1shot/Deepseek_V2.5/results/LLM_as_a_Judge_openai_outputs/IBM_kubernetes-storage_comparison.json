@@ -1,0 +1,415 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Kube API",
+        "description": "Handles Kubernetes API requests",
+        "boundary": "Kubernetes",
+        "position": "left"
+      },
+      {
+        "name": "Secrets",
+        "description": "Stores sensitive data",
+        "boundary": "Kubernetes",
+        "position": "top"
+      },
+      {
+        "name": "Storage Class",
+        "description": "Defines storage class",
+        "boundary": "Kubernetes",
+        "position": "top"
+      },
+      {
+        "name": "PVC",
+        "description": "Persistent Volume Claim",
+        "boundary": "Kubernetes",
+        "position": "top"
+      },
+      {
+        "name": "Object Storage Bucket Provisioner",
+        "description": "Provisions object storage",
+        "boundary": "Kubernetes",
+        "position": "center"
+      },
+      {
+        "name": "Kube Scheduler",
+        "description": "Schedules pods",
+        "boundary": "Kubernetes",
+        "position": "bottom"
+      },
+      {
+        "name": "Kubelet",
+        "description": "Manages node-level operations",
+        "boundary": "Kubernetes",
+        "position": "bottom"
+      },
+      {
+        "name": "Kube FlexDriver",
+        "description": "Flex volume driver",
+        "boundary": "Kubernetes",
+        "position": "center"
+      },
+      {
+        "name": "S3FS Fuse Module",
+        "description": "FUSE module for S3FS",
+        "boundary": "Kubernetes",
+        "position": "right"
+      },
+      {
+        "name": "Container",
+        "description": "Runs applications",
+        "boundary": "Kubernetes",
+        "position": "top right"
+      },
+      {
+        "name": "Cloud Object Storage",
+        "description": "External cloud storage",
+        "boundary": "External",
+        "position": "bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Create Secret",
+        "target": "Kube API",
+        "label": "API Calls",
+        "type": "arrow"
+      },
+      {
+        "source": "Create PVC",
+        "target": "Kube API",
+        "label": "API Calls",
+        "type": "arrow"
+      },
+      {
+        "source": "Create POD With PVC",
+        "target": "Kube API",
+        "label": "API Calls",
+        "type": "arrow"
+      },
+      {
+        "source": "Kube API",
+        "target": "Object Storage Bucket Provisioner",
+        "label": "API Calls",
+        "type": "arrow"
+      },
+      {
+        "source": "Object Storage Bucket Provisioner",
+        "target": "Kube FlexDriver",
+        "label": "API Calls",
+        "type": "arrow"
+      },
+      {
+        "source": "Kube Scheduler",
+        "target": "Kubelet",
+        "label": "API Calls",
+        "type": "arrow"
+      },
+      {
+        "source": "Kubelet",
+        "target": "Kube FlexDriver",
+        "label": "API Calls",
+        "type": "arrow"
+      },
+      {
+        "source": "Kube FlexDriver",
+        "target": "S3FS Fuse Module",
+        "label": "API Calls",
+        "type": "arrow"
+      },
+      {
+        "source": "S3FS Fuse Module",
+        "target": "Cloud Object Storage",
+        "label": "Data",
+        "type": "arrow"
+      },
+      {
+        "source": "S3FS Fuse Module",
+        "target": "Container",
+        "label": "Volume",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "API Calls",
+        "position": "bottom left"
+      },
+      {
+        "text": "Data",
+        "position": "bottom right"
+      }
+    ],
+    "groups": [
+      {
+        "name": "Kubernetes",
+        "components": [
+          "Kube API",
+          "Secrets",
+          "Storage Class",
+          "PVC",
+          "Object Storage Bucket Provisioner",
+          "Kube Scheduler",
+          "Kubelet",
+          "Kube FlexDriver",
+          "S3FS Fuse Module",
+          "Container"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "diagram1.png",
+      "title": "Kubernetes and Cloud Object Storage Integration"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Helm",
+        "description": "Package manager for Kubernetes",
+        "boundary": "External",
+        "position": "top"
+      },
+      {
+        "name": "Object Storage",
+        "description": "IBM Cloud object storage",
+        "boundary": "IBM Cloud",
+        "position": "top"
+      },
+      {
+        "name": "Block Storage",
+        "description": "IBM Cloud block storage",
+        "boundary": "IBM Cloud",
+        "position": "top"
+      },
+      {
+        "name": "PersistentVolume",
+        "description": "Kubernetes Persistent Volume",
+        "boundary": "Kubernetes Cluster",
+        "position": "center"
+      },
+      {
+        "name": "StorageClass",
+        "description": "Defines storage class",
+        "boundary": "Kubernetes Cluster",
+        "position": "center"
+      },
+      {
+        "name": "PersistentVolumeClaim",
+        "description": "Requests storage",
+        "boundary": "Kubernetes Cluster",
+        "position": "center"
+      },
+      {
+        "name": "Guestbook App",
+        "description": "Sample application",
+        "boundary": "Kubernetes Cluster",
+        "position": "bottom"
+      },
+      {
+        "name": "Workshop Participant",
+        "description": "User interacting with the system",
+        "boundary": "External",
+        "position": "bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Helm",
+        "target": "Kubernetes Cluster",
+        "label": "Deploys applications",
+        "type": "arrow"
+      },
+      {
+        "source": "Object Storage",
+        "target": "PersistentVolume",
+        "label": "Uses IBM Object Storage (via s3fs/FUSE)",
+        "type": "arrow"
+      },
+      {
+        "source": "Block Storage",
+        "target": "PersistentVolume",
+        "label": "Uses IBM Block Storage (dynamic provisioning)",
+        "type": "arrow"
+      },
+      {
+        "source": "PersistentVolume",
+        "target": "PersistentVolumeClaim",
+        "label": "Binds to available volume",
+        "type": "arrow"
+      },
+      {
+        "source": "PersistentVolumeClaim",
+        "target": "Guestbook App",
+        "label": "Requests storage",
+        "type": "arrow"
+      },
+      {
+        "source": "Workshop Participant",
+        "target": "Helm",
+        "label": "Interacts with",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "Provisions storage resources on demand",
+        "position": "center"
+      }
+    ],
+    "groups": [
+      {
+        "name": "IBM Cloud",
+        "components": [
+          "Object Storage",
+          "Block Storage"
+        ]
+      },
+      {
+        "name": "Kubernetes Cluster",
+        "components": [
+          "PersistentVolume",
+          "StorageClass",
+          "PersistentVolumeClaim",
+          "Guestbook App"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "diagram2.png",
+      "title": "IBM Cloud and Kubernetes Storage Integration"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      {
+        "name": "StorageClass",
+        "description": "Defines storage class"
+      }
+    ],
+    "unique_to_GroundTruth": [
+      "Kube API",
+      "Secrets",
+      "PVC",
+      "Object Storage Bucket Provisioner",
+      "Kube Scheduler",
+      "Kubelet",
+      "Kube FlexDriver",
+      "S3FS Fuse Module",
+      "Container",
+      "Cloud Object Storage"
+    ],
+    "unique_to_GeneratedImage": [
+      "Helm",
+      "Object Storage",
+      "Block Storage",
+      "PersistentVolume",
+      "PersistentVolumeClaim",
+      "Guestbook App",
+      "Workshop Participant"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Create Secret",
+        "target": "Kube API",
+        "label": "API Calls",
+        "type": "arrow"
+      },
+      {
+        "source": "Create PVC",
+        "target": "Kube API",
+        "label": "API Calls",
+        "type": "arrow"
+      },
+      {
+        "source": "Create POD With PVC",
+        "target": "Kube API",
+        "label": "API Calls",
+        "type": "arrow"
+      },
+      {
+        "source": "Kube API",
+        "target": "Object Storage Bucket Provisioner",
+        "label": "API Calls",
+        "type": "arrow"
+      },
+      {
+        "source": "Object Storage Bucket Provisioner",
+        "target": "Kube FlexDriver",
+        "label": "API Calls",
+        "type": "arrow"
+      },
+      {
+        "source": "Kube Scheduler",
+        "target": "Kubelet",
+        "label": "API Calls",
+        "type": "arrow"
+      },
+      {
+        "source": "Kubelet",
+        "target": "Kube FlexDriver",
+        "label": "API Calls",
+        "type": "arrow"
+      },
+      {
+        "source": "Kube FlexDriver",
+        "target": "S3FS Fuse Module",
+        "label": "API Calls",
+        "type": "arrow"
+      },
+      {
+        "source": "S3FS Fuse Module",
+        "target": "Cloud Object Storage",
+        "label": "Data",
+        "type": "arrow"
+      },
+      {
+        "source": "S3FS Fuse Module",
+        "target": "Container",
+        "label": "Volume",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Helm",
+        "target": "Kubernetes Cluster",
+        "label": "Deploys applications",
+        "type": "arrow"
+      },
+      {
+        "source": "Object Storage",
+        "target": "PersistentVolume",
+        "label": "Uses IBM Object Storage (via s3fs/FUSE)",
+        "type": "arrow"
+      },
+      {
+        "source": "Block Storage",
+        "target": "PersistentVolume",
+        "label": "Uses IBM Block Storage (dynamic provisioning)",
+        "type": "arrow"
+      },
+      {
+        "source": "PersistentVolume",
+        "target": "PersistentVolumeClaim",
+        "label": "Binds to available volume",
+        "type": "arrow"
+      },
+      {
+        "source": "PersistentVolumeClaim",
+        "target": "Guestbook App",
+        "label": "Requests storage",
+        "type": "arrow"
+      },
+      {
+        "source": "Workshop Participant",
+        "target": "Helm",
+        "label": "Interacts with",
+        "type": "arrow"
+      }
+    ],
+    "explanation": "The two diagrams both involve Kubernetes and storage solutions but differ in their focus and components. The GroundTruth diagram emphasizes Kubernetes components and their interactions with cloud object storage, highlighting API calls and data flows. The GeneratedImage diagram focuses on IBM Cloud's integration with Kubernetes, showcasing persistent volumes and claims, and includes user interaction via Helm. Both diagrams share the concept of storage classes but differ in specific components and connections. The GroundTruth diagram is more detailed in Kubernetes-specific components, while the GeneratedImage diagram includes IBM Cloud elements and user interaction. Rating: 7/10. The GeneratedImage captures the essence of cloud storage integration with Kubernetes but lacks some specific Kubernetes components and interactions found in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

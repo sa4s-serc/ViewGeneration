@@ -1,0 +1,54 @@
+```plantuml
+@startuml itays123_partydeck
+left to right direction
+skinparam rectangle {
+  BackgroundColor #ffffff
+  BorderColor black
+  Style roundrect
+}
+skinparam defaultTextAlignment center
+
+package "Partydeck System" {
+  
+  package "Frontend Services" {
+    rectangle "Panel (React)" as Panel <<frontend>>
+    rectangle "Game (React)" as Game <<frontend>>
+  }
+
+  package "Backend Service" {
+    rectangle "Server (Java)" as Server <<backend>>
+  }
+
+  package "Google Cloud Platform" {
+    rectangle "Google Cloud Run" as CloudRun <<cloud>>
+    rectangle "Google Cloud Build" as CloudBuild <<cloud>>
+  }
+
+  Panel --> Server : REST API
+  Game --> Server : WebSocket
+  Panel --> CloudRun : Deploy
+  Game --> CloudRun : Deploy
+  Server --> CloudRun : Deploy
+  CloudBuild --> CloudRun : CI/CD
+}
+
+note left of Panel
+  - Manages card decks
+  - User authentication
+  - Game library
+end note
+
+note right of Game
+  - Connects to server
+  - Displays game info
+  - Captures user actions
+end note
+
+note bottom of Server
+  - WebSocket communication
+  - Game state management
+  - Player actions handling
+end note
+
+@enduml
+```

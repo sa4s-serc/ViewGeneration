@@ -1,0 +1,36 @@
+@startuml
+participant "Frontend" as FE
+participant "API Gateway" as GW
+participant "Employee Service" as ES
+participant "Attendance Service" as AS
+participant "Salary Service" as SS
+participant "Notification Service" as NS
+database "MySQL" as DB
+database "Elasticsearch" as ES_DB
+
+FE -> GW: Request employee data
+GW -> ES: Forward request
+ES -> ES_DB: Query employee data
+ES_DB --> ES: Return employee data
+ES --> GW: Return employee data
+GW --> FE: Return employee data
+
+FE -> GW: Record attendance
+GW -> AS: Forward request
+AS -> DB: Store attendance record
+DB --> AS: Confirm storage
+AS --> GW: Confirm attendance recorded
+GW --> FE: Confirm attendance recorded
+
+FE -> GW: Request salary information
+GW -> SS: Forward request
+SS -> ES_DB: Query salary data
+ES_DB --> SS: Return salary data
+SS --> GW: Return salary information
+GW --> FE: Return salary information
+
+NS -> ES_DB: Retrieve employee data
+ES_DB --> NS: Return employee data
+NS -> NS: Generate salary slip notification
+NS -> NS: Send email notification
+@enduml

@@ -1,0 +1,53 @@
+Here's a PlantUML component diagram for the Spotify Tracker system, focusing on the general architectural concern:
+
+```plantuml
+@startuml mxaviersmp_spotify-tracker
+
+!define AWSPUML https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v15.0/dist
+!include AWSPUML/AWSCommon.puml
+!include AWSPUML/ApplicationIntegration/APIGateway.puml
+!include AWSPUML/Compute/Lambda.puml
+!include AWSPUML/Database/RDS.puml
+
+skinparam componentStyle uml2
+
+cloud "AWS Cloud" {
+    APIGateway(apiGateway, "API Gateway", "")
+    Lambda(lambda, "Lambda", "")
+    RDS(rds, "RDS PostgreSQL", "")
+}
+
+component "FastAPI Application" {
+    [API Endpoints]
+    [Authentication]
+    [CRUD Operations]
+    [Spotify Integration]
+}
+
+component "Apache Airflow" {
+    [ETL DAGs]
+    [Scheduler]
+}
+
+component "Streamlit App" {
+    [UI]
+    [Data Visualization]
+}
+
+database "Spotify API" {
+}
+
+[GitHub Actions] ..> lambda : Deploy
+[GitHub Actions] ..> rds : Migrate
+
+apiGateway --> lambda : Route requests
+lambda --> [FastAPI Application] : Execute
+[FastAPI Application] --> rds : Store/Retrieve data
+[Apache Airflow] --> rds : ETL operations
+[Apache Airflow] --> [Spotify API] : Fetch data
+[Streamlit App] --> apiGateway : API requests
+
+@enduml
+```
+
+This PlantUML component diagram captures the static architecture of the Spotify Tracker system, focusing on the general architectural concern. It shows the main components and their relationships, including the AWS services, FastAPI application, Apache Airflow for ETL, and the Streamlit app for the user interface.
