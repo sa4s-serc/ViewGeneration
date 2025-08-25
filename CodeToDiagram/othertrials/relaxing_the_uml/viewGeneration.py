@@ -77,10 +77,8 @@ def compile_plantuml(repo_name, input_path, output_dir="./zeroShot_gpt_box_knowl
             ["plantuml", "-o", temp_dir, input_path],
             capture_output=True, text=True
         )
-
         if result.returncode != 0:
             return False, result.stderr
-
         # Find the generated file (e.g., .png)
         generated_files = glob.glob(os.path.join(temp_dir, "*"))
         if not generated_files:

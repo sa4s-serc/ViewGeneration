@@ -13,8 +13,8 @@ from image_similarity_measures.quality_metrics import (
 )
 
 folderA = "./initial_images"
-folderB = "./zeroShot_gpt_box_output_images"
-output_csv = f"./{os.path.basename(folderB.rstrip('/'))}_similarity_results_interactive.csv"
+folderB = "./output_images"
+output_csv = f"./{os.path.basename(folderB.rstrip('/'))}_similarity_results.csv"
 
 
 # List of valid image extensions
