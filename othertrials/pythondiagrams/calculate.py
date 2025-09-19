@@ -2,7 +2,7 @@ import csv
 import statistics
 
 # Path to your CSV file
-csv_file = "zeroShot_gpt_box_output_images_similarity_results_interactive.csv"
+csv_file = "zeroShot_gpt_python_images_similarity_results.csv"
 
 # List of metric columns
 metric_keys = ["SSIM", "PSNR", "RMSE", "SAM", "SRE", "UIQ"]

@@ -13,7 +13,7 @@ from image_similarity_measures.quality_metrics import (
 )
 
 folderA = "./initial_images"
-folderB = "./output_images"
+folderB = "./zeroShot_gpt_python_images"
 output_csv = f"./{os.path.basename(folderB.rstrip('/'))}_similarity_results.csv"
 
 
