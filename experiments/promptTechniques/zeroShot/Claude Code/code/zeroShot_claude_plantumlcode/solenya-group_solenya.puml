@@ -1,0 +1,207 @@
+@startuml
+!define COMPONENT_COLOR #E1F5FE
+!define APP_COLOR #FFF9C4
+!define STORAGE_COLOR #F0F4C3
+!define DOM_COLOR #FFCCBC
+
+title Solenya Framework - Data Flow Sequence Diagram
+
+actor User
+participant "App" as App <<Entry Point>> APP_COLOR
+participant "Router" as Router COMPONENT_COLOR
+participant "Component" as Component COMPONENT_COLOR
+participant "Validator" as Validator COMPONENT_COLOR
+participant "Storage" as Storage STORAGE_COLOR
+participant "Virtual DOM" as VDOM DOM_COLOR
+participant "Browser DOM" as DOM DOM_COLOR
+participant "TimeTravel" as TimeTravel COMPONENT_COLOR
+
+== Application Initialization ==
+User -> App: Initialize Application
+activate App
+App -> Storage: Load persisted state
+activate Storage
+Storage --> App: Return serialized state
+deactivate Storage
+App -> Component: Create root component
+activate Component
+Component -> Component: Initialize state
+Component --> App: Component instance
+App -> VDOM: Create virtual DOM tree
+activate VDOM
+VDOM --> App: Virtual tree
+deactivate VDOM
+App -> DOM: Render initial UI
+activate DOM
+DOM --> User: Display UI
+deactivate DOM
+deactivate Component
+deactivate App
+
+== User Interaction & State Update ==
+User -> DOM: Interact (e.g., input, click)
+activate DOM
+DOM -> Component: Trigger event handler
+deactivate DOM
+activate Component
+Component -> Component: Update internal state
+Component -> Validator: Validate input data
+activate Validator
+Validator -> Validator: Apply validation rules
+Validator --> Component: Validation result
+deactivate Validator
+
+alt Validation Success
+    Component -> Component: Process state change
+    Component -> Component: Call update()
+    Component -> App: Notify state changed
+    activate App
+    App -> Storage: Serialize current state
+    activate Storage
+    Storage -> Storage: Persist to local storage
+    Storage --> App: Confirmation
+    deactivate Storage
+    App -> TimeTravel: Record state snapshot
+    activate TimeTravel
+    TimeTravel -> TimeTravel: Add to history
+    TimeTravel --> App: Snapshot recorded
+    deactivate TimeTravel
+else Validation Failure
+    Component -> Component: Handle validation error
+    Component -> User: Display error message
+end
+deactivate Component
+
+== View Rendering Cycle ==
+App -> Component: Trigger render cycle
+activate App
+activate Component
+Component -> Component: Execute view() function
+Component -> VDOM: Generate new virtual tree
+activate VDOM
+VDOM --> Component: New virtual tree
+deactivate VDOM
+Component --> App: Virtual tree ready
+deactivate Component
+App -> VDOM: Diff previous and new trees
+activate VDOM
+VDOM -> VDOM: Calculate patches
+VDOM --> App: Patch operations
+deactivate VDOM
+App -> DOM: Apply patches
+activate DOM
+DOM -> DOM: Update actual DOM nodes
+DOM --> User: Updated UI
+deactivate DOM
+deactivate App
+
+== Navigation & Routing ==
+User -> Router: Navigate to new route
+activate Router
+Router -> Router: Parse route parameters
+Router -> Component: Trigger route change
+activate Component
+Component -> Component: Update state based on route
+Component -> Component: Call update()
+Component --> Router: State updated
+deactivate Component
+Router -> App: Request re-render
+activate App
+App -> VDOM: Create virtual tree for new route
+activate VDOM
+VDOM --> App: Virtual tree
+deactivate VDOM
+App -> DOM: Render new view
+activate DOM
+DOM --> User: Display new page
+deactivate DOM
+deactivate App
+deactivate Router
+
+== Parent-Child Component Communication ==
+Component -> Component: Create child component
+activate Component
+Component -> Component: Pass props to child
+activate Component #DarkSalmon
+Component -> Component: Child initializes state
+Component -> Component: Child calls view()
+Component --> Component: Child virtual tree
+deactivate Component
+Component -> Component: Embed child in parent view
+Component -> App: Notify update complete
+activate App
+App -> Component: Trigger updated event
+Component -> Component: Observe child changes
+Component -> Component: React to child state
+deactivate App
+deactivate Component
+
+== Time Travel Debugging ==
+User -> TimeTravel: Request previous state
+activate TimeTravel
+TimeTravel -> TimeTravel: Retrieve snapshot from history
+TimeTravel -> App: Restore previous state
+activate App
+App -> Component: Deserialize state
+activate Component
+Component -> Component: Restore component state
+Component --> App: State restored
+deactivate Component
+App -> VDOM: Generate virtual tree
+activate VDOM
+VDOM --> App: Virtual tree
+deactivate VDOM
+App -> DOM: Render historical state
+activate DOM
+DOM --> User: Display previous UI state
+deactivate DOM
+deactivate App
+deactivate TimeTravel
+
+== Hot Module Reloading ==
+User -> App: Trigger hot reload
+activate App
+App -> Storage: Serialize current state
+activate Storage
+Storage --> App: State serialized
+deactivate Storage
+App -> App: Reload module
+App -> Component: Recreate components
+activate Component
+Component -> Component: Initialize with preserved state
+Component --> App: Components ready
+deactivate Component
+App -> VDOM: Generate virtual tree
+activate VDOM
+VDOM --> App: Virtual tree
+deactivate VDOM
+App -> DOM: Re-render
+activate DOM
+DOM --> User: Updated UI (state preserved)
+deactivate DOM
+deactivate App
+
+== Asynchronous Operation ==
+Component -> Component: Trigger async operation
+activate Component
+Component -> Component: Call async function
+activate Component #LightBlue
+Component -> Component: Await external data
+Component -> Component: Receive data
+Component -> Component: Update state
+Component -> Component: Call update()
+deactivate Component
+Component -> App: Notify state changed
+activate App
+App -> VDOM: Re-render cycle
+activate VDOM
+VDOM --> App: Virtual tree
+deactivate VDOM
+App -> DOM: Update UI
+activate DOM
+DOM --> User: Display updated data
+deactivate DOM
+deactivate App
+deactivate Component
+
+@enduml

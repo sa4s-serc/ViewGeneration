@@ -1,0 +1,153 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam linetype ortho
+
+title Serverless Todo Application - Deployment Architecture
+
+actor "User" as User
+actor "DevOps Engineer" as DevOps
+
+package "Frontend Layer" {
+    component "React UI" as UI {
+        [App.js]
+        [TodoList.js]
+        [NewTodoForm.js]
+        [config.js]
+        [client.js]
+        [render.js]
+    }
+}
+
+package "AWS Cloud Infrastructure" {
+    package "Static Hosting Layer" {
+        component "S3 Bucket" as S3 <<AWS S3>> {
+            [HTML]
+            [CSS]
+            [JavaScript]
+        }
+    }
+
+    package "API Layer" {
+        component "API Gateway" as APIGW <<AWS API Gateway>> {
+            [/{proxy+} Endpoint]
+        }
+    }
+
+    package "Compute Layer" {
+        component "Lambda Function" as Lambda <<AWS Lambda>> {
+            [index.js]
+            [GET Handler]
+            [PUT Handler]
+            [DELETE Handler]
+        }
+    }
+
+    package "Data Layer" {
+        component "DynamoDB Table" as DB <<AWS DynamoDB>> {
+            [Todo Table]
+            [Todo Items]
+        }
+    }
+}
+
+package "Infrastructure as Code" {
+    component "Serverless Framework" as SLS {
+        [serverless.yml]
+        [IAM Roles]
+        [Environment Variables]
+        [Resource Definitions]
+    }
+}
+
+package "Deployment Methods" {
+    component "Click-Ops Approach" as ClickOps {
+        [Manual AWS Console]
+        [Step-by-step Setup]
+    }
+    component "Serverless Approach" as SLSDeploy {
+        [Automated Deployment]
+        [CLI Commands]
+    }
+}
+
+User -down-> S3 : HTTPS Request\n(Static Content)
+S3 -up-> User : HTML/CSS/JS
+
+User -down-> UI : Interacts
+UI -down-> APIGW : API Calls\n(HTTPS REST)
+APIGW -down-> Lambda : Proxy Request\n(/{proxy+})
+Lambda -down-> DB : CRUD Operations\n(Read/Write)
+DB -up-> Lambda : Data Response
+Lambda -up-> APIGW : HTTP Response\n(JSON)
+APIGW -up-> UI : API Response
+
+SLS .right.> S3 : Deploys Static\nWebsite
+SLS .down.> APIGW : Provisions\nAPI Endpoints
+SLS .down.> Lambda : Deploys\nFunction Code
+SLS .down.> DB : Creates\nDynamoDB Table
+
+ClickOps .right.> S3 : Manual Setup\nvia Console
+ClickOps .down.> APIGW : Manual\nConfiguration
+ClickOps .down.> Lambda : Manual\nDeployment
+ClickOps .down.> DB : Manual\nCreation
+
+DevOps -down-> ClickOps : Uses for\nLearning
+DevOps -down-> SLSDeploy : Uses for\nAutomation
+SLSDeploy -right-> SLS : Executes\nsls deploy
+
+note right of S3
+  **Static Website Hosting**
+  - Hosts React UI
+  - Serves HTML, CSS, JavaScript
+  - Public read access
+  - Cost-effective storage
+end note
+
+note right of APIGW
+  **REST API Gateway**
+  - HTTP endpoint facade
+  - Proxy pattern: /{proxy+}
+  - Routes to Lambda
+  - CORS enabled
+end note
+
+note right of Lambda
+  **Serverless Compute**
+  - Node.js runtime
+  - CRUD operation handlers
+  - Stateless execution
+  - Auto-scaling
+end note
+
+note right of DB
+  **NoSQL Database**
+  - Stores todo items
+  - Serverless scaling
+  - Pay-per-request
+end note
+
+note bottom of SLS
+  **Infrastructure as Code**
+  - Defines all AWS resources
+  - Version controlled config
+  - Repeatable deployments
+  - Manages IAM permissions
+end note
+
+note bottom of ClickOps
+  **Manual Deployment**
+  - AWS Console based
+  - Educational approach
+  - Step-by-step learning
+  - Bootcamp training method
+end note
+
+note bottom of SLSDeploy
+  **Automated Deployment**
+  - CLI-based deployment
+  - Production-ready approach
+  - Single command deploy
+  - Best practice method
+end note
+
+@enduml

@@ -1,0 +1,165 @@
+@startuml
+!define RECTANGLE class
+
+skinparam component {
+    BackgroundColor<<container>> LightBlue
+    BackgroundColor<<database>> LightGreen
+    BackgroundColor<<external>> LightGray
+}
+
+title Deployment Architecture - Bookshelf Web Application
+
+package "Docker Deployment Environment" {
+
+    component "Nginx Container" as nginx <<container>> {
+        [Nginx Web Server] as nginx_server
+        [Static File Server] as static_server
+        [Reverse Proxy] as reverse_proxy
+    }
+
+    component "Rails Web Container" as web <<container>> {
+        [Rails Application Server] as rails_app
+
+        package "MVC Components" {
+            [Controllers] as controllers
+            [Models (ActiveRecord)] as models
+            [Views] as views
+        }
+
+        package "API Layer" {
+            [REST API] as rest_api
+            [Books API Controller] as books_api
+            [Lendings API Controller] as lendings_api
+        }
+
+        package "Authentication" {
+            [Devise] as devise
+            [OmniAuth] as omniauth
+        }
+    }
+
+    component "MySQL Database Container" as db <<container>> <<database>> {
+        database "MySQL Database" as mysql {
+            [Books Table] as books_table
+            [Lendings Table] as lendings_table
+            [Users Table] as users_table
+            [Genres Table] as genres_table
+        }
+    }
+}
+
+package "Frontend Assets" {
+    [HTML Pages] as html
+    [JavaScript/jQuery] as js
+    [CSS Styles] as css
+    [jQuery UI] as jquery_ui
+    [API Service (api.js)] as api_service
+}
+
+package "External Services" <<external>> {
+    [Google Books API] as google_api
+    [Facebook OAuth] as facebook_oauth
+}
+
+package "CI/CD Pipeline" {
+    component "CircleCI" as circleci <<external>> {
+        [Build Stage] as build
+        [Test Stage (RSpec)] as test
+        [Deploy Stage] as deploy
+    }
+}
+
+package "Deployment Tools" {
+    [Capistrano] as capistrano
+    [Docker Compose] as docker_compose
+    [Dockerfile] as dockerfile
+}
+
+' Nginx relationships
+nginx_server --> static_server : serves
+reverse_proxy --> rails_app : forwards requests
+
+' Frontend to Backend
+html --> api_service : uses
+js --> api_service : uses
+api_service --> rest_api : HTTP/JSON
+
+' Client to Nginx
+[Client Browser] as browser
+browser --> nginx_server : HTTP/HTTPS
+
+' Static files
+nginx_server --> html : delivers
+nginx_server --> js : delivers
+nginx_server --> css : delivers
+
+' Rails internal relationships
+rest_api --> books_api : includes
+rest_api --> lendings_api : includes
+books_api --> controllers : extends
+lendings_api --> controllers : extends
+controllers --> models : uses
+models --> mysql : queries
+
+' Authentication flow
+controllers --> devise : authenticates via
+devise --> omniauth : integrates
+omniauth --> facebook_oauth : connects to
+
+' External API integration
+models --> google_api : fetches book data
+
+' Database connections
+rails_app --> mysql : connects via\nActiveRecord
+
+' CI/CD flow
+circleci --> build : triggers
+build --> test : on success
+test --> deploy : on success
+deploy --> capistrano : executes
+
+' Deployment orchestration
+capistrano --> docker_compose : uses
+docker_compose --> dockerfile : builds from
+docker_compose --> nginx : deploys
+docker_compose --> web : deploys
+docker_compose --> db : deploys
+
+' Configuration
+[Environment Variables] as env_vars
+[database.yml] as db_config
+[deploy.rb] as deploy_config
+
+env_vars --> rails_app : configures
+db_config --> models : configures
+deploy_config --> capistrano : configures
+
+note right of nginx
+  Port mapping and
+  reverse proxy configuration
+  for routing traffic
+end note
+
+note right of web
+  Rails application with
+  REST API, MVC components,
+  and authentication
+end note
+
+note right of db
+  MySQL database for
+  persistent data storage
+  configured via my.cnf
+end note
+
+note bottom of docker_compose
+  Orchestrates multi-container
+  deployment: web, db, nginx
+end note
+
+note bottom of circleci
+  Automated CI/CD pipeline
+  for build, test, and deploy
+end note
+
+@enduml

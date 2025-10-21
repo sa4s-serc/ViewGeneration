@@ -1,0 +1,182 @@
+@startuml
+!theme plain
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+
+actor User
+participant "Browser/UI\n(React/Next.js)" as UI
+participant "NFTContext\n(Business Logic)" as Context
+participant "Web3Modal/\nMetamask" as Wallet
+participant "IPFS Client" as IPFS
+participant "NFTMarketplace\nSmart Contract" as Contract
+database "IPFS Storage" as IPFSStorage
+database "Blockchain\n(Ethereum/Polygon)" as Blockchain
+
+== NFT Creation Flow ==
+User -> UI: Navigate to create-nft page
+activate UI
+UI -> User: Display NFT creation form
+User -> UI: Upload image & enter metadata
+UI -> Context: createNFT(image, metadata)
+activate Context
+Context -> Wallet: Request wallet connection
+activate Wallet
+Wallet -> User: Prompt for approval
+User -> Wallet: Approve connection
+Wallet -> Context: Return connected account
+deactivate Wallet
+
+Context -> IPFS: Upload image
+activate IPFS
+IPFS -> IPFSStorage: Store image
+activate IPFSStorage
+IPFSStorage -> IPFS: Return image URI
+deactivate IPFSStorage
+IPFS -> Context: Image URI
+deactivate IPFS
+
+Context -> IPFS: Upload metadata with image URI
+activate IPFS
+IPFS -> IPFSStorage: Store metadata
+activate IPFSStorage
+IPFSStorage -> IPFS: Return metadata URI
+deactivate IPFSStorage
+IPFS -> Context: Metadata URI (tokenURI)
+deactivate IPFS
+
+Context -> Wallet: Request transaction signature
+activate Wallet
+Wallet -> User: Prompt for signature
+User -> Wallet: Sign transaction
+Wallet -> Context: Signed transaction
+deactivate Wallet
+
+Context -> Contract: createToken(tokenURI)
+activate Contract
+Contract -> Blockchain: Mint NFT & store tokenURI
+activate Blockchain
+Blockchain -> Contract: Transaction confirmed
+deactivate Blockchain
+Contract -> Context: NFT created (tokenId)
+deactivate Contract
+
+Context -> UI: NFT creation success
+deactivate Context
+UI -> User: Display success message
+deactivate UI
+
+== NFT Listing Flow ==
+User -> UI: Navigate to my-nfts page
+activate UI
+UI -> Context: fetchMyNFTs()
+activate Context
+Context -> Contract: getMyNFTs(userAddress)
+activate Contract
+Contract -> Blockchain: Query owned tokens
+activate Blockchain
+Blockchain -> Contract: Return token data
+deactivate Blockchain
+Contract -> Context: Return NFT list
+deactivate Contract
+Context -> UI: Display user's NFTs
+deactivate Context
+UI -> User: Show owned NFTs
+
+User -> UI: Select NFT & set price
+UI -> Context: createSale(tokenId, price)
+activate Context
+Context -> Wallet: Request transaction signature
+activate Wallet
+Wallet -> User: Prompt for signature
+User -> Wallet: Sign transaction
+Wallet -> Context: Signed transaction
+deactivate Wallet
+
+Context -> Contract: createMarketSale(tokenId, price)
+activate Contract
+Contract -> Blockchain: List NFT for sale
+activate Blockchain
+Blockchain -> Contract: Transaction confirmed
+deactivate Blockchain
+Contract -> Context: NFT listed
+deactivate Contract
+
+Context -> UI: Listing success
+deactivate Context
+UI -> User: Display success message
+deactivate UI
+
+== NFT Purchase Flow ==
+User -> UI: Browse marketplace (index page)
+activate UI
+UI -> Context: fetchNFTs()
+activate Context
+Context -> Contract: fetchMarketItems()
+activate Contract
+Contract -> Blockchain: Query listed NFTs
+activate Blockchain
+Blockchain -> Contract: Return market items
+deactivate Blockchain
+Contract -> Context: Return NFT listings
+deactivate Contract
+
+Context -> IPFS: Fetch metadata for each NFT
+activate IPFS
+IPFS -> IPFSStorage: Retrieve metadata
+activate IPFSStorage
+IPFSStorage -> IPFS: Return metadata
+deactivate IPFSStorage
+IPFS -> Context: NFT metadata
+deactivate IPFS
+
+Context -> UI: NFT listings with metadata
+deactivate Context
+UI -> User: Display NFTs for sale
+
+User -> UI: Select NFT to purchase
+UI -> Context: Navigate to nft-details
+activate Context
+Context -> UI: Display NFT details & price
+deactivate Context
+
+User -> UI: Click "Buy NFT"
+UI -> Context: buyNFT(nftId, price)
+activate Context
+Context -> Wallet: Request transaction with payment
+activate Wallet
+Wallet -> User: Prompt for transaction approval
+User -> Wallet: Approve payment
+Wallet -> Context: Signed transaction
+deactivate Wallet
+
+Context -> Contract: buyNFT(tokenId) {value: price}
+activate Contract
+Contract -> Blockchain: Transfer ownership & payment
+activate Blockchain
+Blockchain -> Contract: Transaction confirmed
+deactivate Blockchain
+Contract -> Context: Purchase complete
+deactivate Contract
+
+Context -> UI: Purchase success
+deactivate Context
+UI -> User: Display ownership confirmation
+deactivate UI
+
+== Wallet Connection Flow ==
+User -> UI: Connect wallet
+activate UI
+UI -> Context: connectWallet()
+activate Context
+Context -> Wallet: Request connection
+activate Wallet
+Wallet -> User: Show wallet selection
+User -> Wallet: Select & approve Metamask
+Wallet -> Context: Return account address
+deactivate Wallet
+Context -> UI: Update user account state
+deactivate Context
+UI -> User: Display connected address
+deactivate UI
+
+@enduml

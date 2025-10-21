@@ -1,0 +1,98 @@
+@startuml
+!define RECTANGLE class
+
+title Lyrics Sentiment Classification - Deployment and Control Flow
+
+actor User
+participant "React\nFrontend" as Frontend
+participant "FastAPI\nBackend" as Backend
+participant "Elasticsearch\nDatabase" as ES
+participant "LyricsGenius\nAPI" as Genius
+participant "CNN Model\nService" as CNN
+database "Model Variables\n(variables.index)" as ModelDB
+
+== System Deployment ==
+note over Frontend, ModelDB
+    Docker Compose orchestrates all services
+end note
+
+activate Frontend
+activate Backend
+activate ES
+activate CNN
+
+ES -> ES: startup.sh executes
+ES -> ES: create_load_save_es_index.py
+ES -> ES: Load lyrics from CSV/JSON
+ES -> ES: Index created and populated
+
+CNN -> ModelDB: Load trained model\nvariables
+activate ModelDB
+ModelDB --> CNN: Model parameters loaded
+deactivate ModelDB
+
+== User Query Flow ==
+User -> Frontend: Enter song and artist
+activate Frontend
+Frontend -> Backend: POST /classify\n{song, artist}
+activate Backend
+
+Backend -> ES: Search for song\nby title and artist
+activate ES
+ES --> Backend: Check if exists
+deactivate ES
+
+alt Song found in Elasticsearch
+    Backend -> Backend: Retrieve cached lyrics\nand mood
+else Song not found
+    Backend -> Genius: GET /search\n{song, artist}
+    activate Genius
+    Genius --> Backend: Return lyrics
+    deactivate Genius
+
+    Backend -> Backend: Preprocess lyrics\n(utils.py)
+    Backend -> Backend: Normalize text
+    Backend -> Backend: Tokenize
+    Backend -> Backend: Remove stop words
+
+    Backend -> CNN: Classify mood\n(preprocessed lyrics)
+    activate CNN
+    CNN -> CNN: Convert to embeddings
+    CNN -> CNN: CNN inference
+    CNN --> Backend: Mood classification
+    deactivate CNN
+
+    Backend -> ES: Index new song\n{lyrics, mood}
+    activate ES
+    ES --> Backend: Document indexed
+    deactivate ES
+end
+
+== Similar Songs Recommendation ==
+Backend -> ES: Query similar songs\nby mood
+activate ES
+ES --> Backend: Retrieve candidate songs
+deactivate ES
+
+Backend -> Backend: Calculate TF-IDF vectors
+Backend -> Backend: Compute cosine similarity
+Backend -> Backend: Rank similar songs
+
+Backend --> Frontend: Return results\n{mood, similar songs}
+deactivate Backend
+
+Frontend -> Frontend: Render results
+Frontend --> User: Display mood and\nrecommendations
+deactivate Frontend
+
+== Data Exploration (Offline) ==
+note over Backend, ModelDB
+    Jupyter Notebooks perform:
+    - Dataset exploration
+    - Preprocessing analysis
+    - Model training (TensorFlow/Keras)
+    - Model evaluation
+    Model saved to cnn_model_v3/
+end note
+
+@enduml

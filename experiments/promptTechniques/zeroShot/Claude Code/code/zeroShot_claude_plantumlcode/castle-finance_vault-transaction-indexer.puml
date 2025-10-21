@@ -1,0 +1,80 @@
+@startuml
+title Castle Finance Vault Transaction Indexer - Control Flow
+
+actor "EventBridge Scheduler" as Scheduler
+participant "index-transaction-ids\nLambda" as IndexLambda
+participant "Solscan API" as Solscan
+participant "SNS Topic\n(Transaction Hashes)" as SNS
+participant "SQS Queue\n(Transaction Hashes)" as SQS
+participant "download-raw-transaction\nLambda" as DownloadLambda
+participant "DynamoDB\n(Raw Transactions)" as RawDB
+database "DynamoDB Stream" as Stream
+participant "normalize-raw-transaction\nLambda" as NormalizeLambda
+participant "DynamoDB\n(Normalized Transactions)" as NormalizedDB
+
+== Transaction Indexing Phase ==
+Scheduler -> IndexLambda : Trigger (Scheduled Event)
+activate IndexLambda
+
+IndexLambda -> Solscan : Fetch Transaction IDs\nfor Vault
+activate Solscan
+Solscan --> IndexLambda : Return Transaction IDs
+deactivate Solscan
+
+loop For each Transaction ID
+    IndexLambda -> SNS : Publish Transaction Hash
+    activate SNS
+    SNS -> SQS : Fan-out Transaction Hash
+    activate SQS
+    deactivate SNS
+end
+
+deactivate IndexLambda
+
+== Raw Transaction Download Phase ==
+SQS -> DownloadLambda : Consume Transaction Hash\n(SQS Event)
+activate DownloadLambda
+
+DownloadLambda -> DownloadLambda : Validate Input
+alt Invalid/Empty Input
+    DownloadLambda -> DownloadLambda : Short-circuit & Log
+    deactivate DownloadLambda
+else Valid Input
+    DownloadLambda -> Solscan : Fetch Raw Transaction Data\n(JSON)
+    activate Solscan
+    Solscan --> DownloadLambda : Return Raw Transaction JSON
+    deactivate Solscan
+
+    DownloadLambda -> RawDB : Store Raw Transaction
+    activate RawDB
+    RawDB --> DownloadLambda : Confirm Storage
+    deactivate RawDB
+
+    RawDB -> Stream : Emit Stream Event
+    activate Stream
+
+    deactivate DownloadLambda
+    deactivate SQS
+end
+
+== Transaction Normalization Phase ==
+Stream -> NormalizeLambda : Trigger (DynamoDB Stream Event)
+activate NormalizeLambda
+deactivate Stream
+
+NormalizeLambda -> NormalizeLambda : Validate Input
+alt Invalid/Empty Input
+    NormalizeLambda -> NormalizeLambda : Short-circuit & Log
+    deactivate NormalizeLambda
+else Valid Input
+    NormalizeLambda -> NormalizeLambda : Normalize Raw Transaction Data
+
+    NormalizeLambda -> NormalizedDB : Store Normalized Transaction
+    activate NormalizedDB
+    NormalizedDB --> NormalizeLambda : Confirm Storage
+    deactivate NormalizedDB
+
+    deactivate NormalizeLambda
+end
+
+@enduml

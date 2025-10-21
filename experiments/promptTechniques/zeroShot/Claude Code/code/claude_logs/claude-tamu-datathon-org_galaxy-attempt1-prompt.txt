@@ -1,0 +1,74 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: tamu-datathon-org_galaxy
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** general
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## Galaxy Repository Analysis: Central Entrypoint and Routing for TAMU Datathon Applications
+
+The `galaxy` repository serves as a crucial central point for TAMU Datathon applications, providing a unified entrypoint and routing mechanism. It's designed to provide a single domain (`tamudatathon.com`) for a consistent user experience across different applications and services. This is achieved through a reverse proxy architecture, handling incoming web requests and directing traffic to appropriate backend services based on the URL path.
+
+**Key Functionalities:**
+
+*   **Request Routing:** At its core, the repository routes incoming web requests to backend services.
+*   **Authentication & User Data:** Integrates with `gatekeeper` (a submodule) for authentication and user data retrieval.
+*   **Single Domain Architecture:** Facilitates shared cookies and a seamless user experience via a single domain.
+
+**Architectural Overview:**
+
+The architecture utilizes a reverse proxy, implemented by the `router` service (based on Nginx), directing traffic based on URL paths. The design suggests a microservices approach, with separate services such as `gatekeeper` (authentication), `obos` (event management), and a static website (`gigabowser`). The `galaxy` application itself acts as a gateway, handling incoming requests and routing them. Configuration relies heavily on environment variables for flexibility across environments.
+
+**Key Components & Their Roles:**
+
+*   **`router/Dockerfile` & `router/routes.conf`:** Defines the Nginx-based router image and its configuration template, using `envsubst` to dynamically configure routes based on environment variables (e.g., `GATEKEEPER_URL`).
+*   **`gatekeeper` Submodule:** A separate, versioned component responsible for authentication. Defined in `.gitmodules`, it's crucial for proper repository cloning.
+*   **`docker-compose.yml`:** Defines the services (router, gatekeeper) needed for local development using Docker, facilitating environment setup.
+*   **`.github/workflows/deploy-gatekeeper.yml` & `.github/workflows/deploy-obos.yml`:** GitHub Actions workflows for automated deployment of `gatekeeper` and `obos` to Heroku, including secret management for environment variables.
+*   **`README.md` & `td-architecture.excalidraw`:** Provides a high-level overview, architecture diagram, and basic installation/usage instructions. Crucial documentation for understanding the project. The architecture diagram, in Excalidraw format, provides detailed insights.
+*   **`.github/dependabot.yml`:** Configures Dependabot for automated dependency updates, including the `gatekeeper` submodule.
+
+**Deployment & Technology:**
+
+The project leverages Heroku for deploying `gatekeeper` and potentially `obos`. Docker Compose is used for development and local testing.
+
+**Notable Design Patterns:**
+
+*   **Reverse Proxy:** Implemented by the `router` service.
+*   **Gateway Pattern:** `galaxy` acts as a gateway, routing requests to backend services.
+*   **Configuration via Environment Variables:** Promotes flexibility and different configurations across environments.
+
+In summary, the `galaxy` repository is a well-structured project that plays a critical role in the TAMU Datathon ecosystem by providing a unified entrypoint, authentication, and routing mechanism for various applications and services, utilizing established design patterns and deployment strategies.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: general
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/tamu-datathon-org_galaxy.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

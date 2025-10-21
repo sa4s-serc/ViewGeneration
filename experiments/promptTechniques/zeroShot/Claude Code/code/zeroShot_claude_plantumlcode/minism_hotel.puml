@@ -1,0 +1,144 @@
+@startuml
+!define RECTANGLE_CONTAINER package
+
+title Minism Hotel - Deployment Architecture
+
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+
+cloud "Client Applications" {
+    component [Game Client] as GameClient
+}
+
+node "Docker Container: hotel-master" {
+    package "Master Server" {
+        component [REST API] as RestAPI
+        component [RPC Server] as MasterRPC
+        component [Session Management] as SessionMgmt
+        component [SessionStore] as SessionStore <<singleton>>
+        component [Database Access Layer] as DAL
+        component [Reaper Process] as Reaper
+
+        database "SQLite Database" as DB {
+            component [Game Servers] as DBGameServers
+            component [Spawners] as DBSpawners
+        }
+    }
+}
+
+node "Docker Container: hotel-spawner" {
+    package "Spawner Service" {
+        component [RPC Server] as SpawnerRPC
+        component [Game Server Manager] as GameMgr
+        component [Process Executor] as ProcessExec
+        component [Status Reporter] as StatusReporter
+    }
+
+    node "Game Server Processes" {
+        component [Game Server 1] as GS1
+        component [Game Server 2] as GS2
+        component [Game Server N] as GSN
+    }
+}
+
+package "Shared Libraries" {
+    component [Configuration Loader] as ConfigLoader
+    component [Environment Handler] as EnvHandler
+    component [Logging Utilities] as LogUtil
+    component [Crypto Utilities] as CryptoUtil
+    component [Common Models] as Models
+}
+
+package "Protocol Definitions" {
+    component [Protobuf Definitions] as Protobuf
+}
+
+package "Configuration Files" {
+    file "master-config.json" as MasterConfig
+    file "spawner-config.json" as SpawnerConfig
+}
+
+package "Build & Deployment" {
+    artifact "Makefile" as Makefile
+    artifact "docker-compose.yml" as DockerCompose
+    artifact "Dockerfile (Master)" as DockerfileMaster
+    artifact "Dockerfile (Spawner)" as DockerfileSpawner
+}
+
+' Client connections
+GameClient --> RestAPI : HTTP/REST
+
+' Master Server internal relationships
+RestAPI --> SessionMgmt : authenticate
+SessionMgmt --> SessionStore : store/retrieve
+RestAPI --> DAL : CRUD operations
+MasterRPC --> DAL : register/update spawners
+DAL --> DB : persist data
+Reaper --> DB : cleanup expired
+Reaper --> SessionStore : cleanup sessions
+
+' Master-Spawner communication
+MasterRPC <--> SpawnerRPC : gRPC\n(Registration, Status, Spawn)
+StatusReporter --> MasterRPC : periodic status
+
+' Spawner internal relationships
+SpawnerRPC --> GameMgr : spawn request
+GameMgr --> ProcessExec : execute process
+ProcessExec --> GS1 : start/monitor
+ProcessExec --> GS2 : start/monitor
+ProcessExec --> GSN : start/monitor
+GameMgr --> StatusReporter : report status
+
+' Shared library usage
+RestAPI ..> ConfigLoader : uses
+RestAPI ..> LogUtil : uses
+MasterRPC ..> Models : uses
+SessionMgmt ..> CryptoUtil : uses
+SpawnerRPC ..> ConfigLoader : uses
+SpawnerRPC ..> LogUtil : uses
+GameMgr ..> Models : uses
+
+' Protobuf usage
+MasterRPC ..> Protobuf : implements
+SpawnerRPC ..> Protobuf : implements
+
+' Configuration usage
+ConfigLoader ..> MasterConfig : loads
+ConfigLoader ..> SpawnerConfig : loads
+
+' Build and deployment
+DockerCompose --> DockerfileMaster : builds
+DockerCompose --> DockerfileSpawner : builds
+Makefile --> DockerCompose : orchestrates
+Makefile --> Protobuf : generates code
+
+note right of MasterRPC
+  gRPC Interface:
+  - Spawner Registration
+  - Status Updates
+  - Spawn Requests
+end note
+
+note right of RestAPI
+  HTTP Endpoints:
+  - Server Registration
+  - Server Discovery
+  - Health Checks
+  - CRUD Operations
+end note
+
+note bottom of Reaper
+  Background cleanup:
+  - Expired sessions
+  - Dead game servers
+  - Inactive spawners
+end note
+
+note bottom of DockerCompose
+  Orchestrates deployment of:
+  - Master container
+  - Spawner container(s)
+  - Network configuration
+end note
+
+@enduml

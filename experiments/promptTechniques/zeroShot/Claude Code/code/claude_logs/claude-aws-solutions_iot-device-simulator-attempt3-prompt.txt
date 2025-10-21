@@ -1,0 +1,254 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: aws-solutions_iot-device-simulator
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** deployment, connectivity
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## AWS IoT Device Simulator: Repository Analysis
+
+This report summarizes the functionality, structure, and deployment of the AWS IoT Device Simulator, a solution that enables users to simulate IoT devices and their interactions with AWS IoT services, facilitating testing and assessment without requiring physical devices. The solution leverages serverless technologies and microservices architecture for scalability and cost-effectiveness.
+
+**Core Functionality & Components:**
+
+The core function is **device simulation**, generating and sending data to AWS IoT. A **GUI-based engine** provides a user-friendly interface for defining and managing these simulated devices. Users can define **device types** with specific attributes, topics, and payload structures. **Simulation management** allows users to create, start, stop, and delete simulations. **Data generation** is based on device type definitions, employing algorithms like random, sinusoidal, and decay. Sophisticated simulations, such as vehicle simulations, utilize location calculation and driving dynamics models for realistic data. The solution features tight **AWS IoT integration**, enabling simulated devices to interact with other AWS services. Anonymous **metrics collection** helps AWS improve the solution.
+
+**Key Files and Their Roles:**
+
+*   **`README.md`:** Solution overview, architecture, and deployment instructions.
+*   **`LICENSE`:** Distribution license (Apache 2.0).
+*   **`CHANGELOG.md`:** Version change log.
+*   **`solution-manifest.yaml`:** Solution metadata definition.
+*   **`source/microservices/index.js`:** Microservices Lambda function entry point.
+*   **`source/microservices/lib/deviceTypeManager.js`:** Device type CRUD operations.
+*   **`source/microservices/lib/simulationManager.js`:** Simulation CRUD operations.
+*   **`source/microservices/lib/responseManager.js`:** API request/response handling and routing.
+*   **`source/simulator/index.js`:** Simulator Lambda function entry point.
+*   **`source/simulator/lib/device/index.js`:** Simulated device representation, data generation, and data sending.
+*   **`source/simulator/lib/device/generators/*`:** Data generation algorithms (random, vehicle).
+*   **`source/custom-resource/index.ts`:** Custom resource logic (UUID creation, S3 asset copying, IoT policy detachment).
+*   **`source/infrastructure/*`:** AWS CDK code defining the solution's infrastructure.
+
+**Architectural Overview:**
+
+The backend follows a **microservices architecture**, with each microservice responsible for a specific task. It utilizes **serverless technologies** like AWS Lambda and AWS Step Functions for scalability and cost optimization. The simulation process is **event-driven**, orchestrated by AWS Step Functions. **AWS CloudFormation** is used for consistent and repeatable infrastructure deployment. The solution leverages **AWS CDK and Solutions Constructs** to streamline infrastructure creation following best practices. The **AWS CDK** defines the solution's infrastructure.
+
+**Design Patterns:**
+
+*   **Factory Pattern:** The `Engine` class creates `Device` instances based on device type.
+*   **Strategy Pattern:** Data generation algorithms are implemented using the strategy pattern.
+*   **Façade Pattern:** The `ResponseManager` simplifies the backend logic interface.
+
+
+
+IMPORTANT - RETRY ATTEMPT:
+A previous PlantUML generation failed with the following error:
+```
+issue raw.githubusercontent.com java.util.concurrent.ExecutionException: java.io.IOException: HTTP error 404 with 404: Not Found
+Error line 6 in file: zeroShot_claude_plantumlcode/aws-solutions_iot-device-simulator.puml
+Some diagram description contains errors
+
+```
+
+The problematic code was:
+```plantuml
+@startuml
+!define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v18.0/dist
+!include AWSPuml/AWSCommon.puml
+!include AWSPuml/Compute/Lambda.puml
+!include AWSPuml/ApplicationIntegration/StepFunctions.puml
+!include AWSPuml/ManagementAndGovernance/CloudFormation.puml
+!include AWSPuml/Storage/SimpleStorageService.puml
+!include AWSPuml/InternetOfThings/IoTCore.puml
+!include AWSPuml/Database/DynamoDB.puml
+
+title AWS IoT Device Simulator - Deployment and Connectivity Flow
+
+actor User
+participant "CloudFormation" as CF <<CloudFormation>>
+participant "Custom Resource\nLambda" as CRL <<Lambda>>
+participant "S3 Bucket" as S3 <<SimpleStorageService>>
+participant "Microservices\nLambda" as MSL <<Lambda>>
+participant "DynamoDB" as DB <<DynamoDB>>
+participant "Step Functions" as SF <<StepFunctions>>
+participant "Simulator\nLambda" as SIM <<Lambda>>
+participant "AWS IoT Core" as IOT <<IoTCore>>
+participant "Device Engine" as ENG
+
+== Deployment Phase ==
+User -> CF: Deploy CloudFormation Stack
+activate CF
+
+CF -> CRL: Create Custom Resource
+activate CRL
+CRL -> CRL: Generate UUID
+CRL -> S3: Copy Assets to S3
+activate S3
+S3 --> CRL: Assets Copied
+deactivate S3
+CRL -> IOT: Create IoT Policy
+activate IOT
+IOT --> CRL: Policy Created
+deactivate IOT
+CRL --> CF: Custom Resource Complete
+deactivate CRL
+
+CF -> DB: Create DynamoDB Tables
+activate DB
+DB --> CF: Tables Created
+deactivate DB
+
+CF -> MSL: Deploy Microservices Lambda
+activate MSL
+MSL --> CF: Lambda Deployed
+deactivate MSL
+
+CF -> SF: Create Step Functions State Machine
+activate SF
+SF --> CF: State Machine Created
+deactivate SF
+
+CF -> SIM: Deploy Simulator Lambda
+activate SIM
+SIM --> CF: Lambda Deployed
+deactivate SIM
+
+CF --> User: Stack Deployment Complete
+deactivate CF
+
+== Device Type Configuration ==
+User -> MSL: Create Device Type (API Request)
+activate MSL
+MSL -> DB: Store Device Type Definition
+activate DB
+DB --> MSL: Device Type Stored
+deactivate DB
+MSL --> User: Device Type Created
+deactivate MSL
+
+== Simulation Initialization ==
+User -> MSL: Create Simulation (API Request)
+activate MSL
+MSL -> DB: Store Simulation Configuration
+activate DB
+DB --> MSL: Simulation Stored
+deactivate DB
+MSL -> SF: Start Simulation Execution
+activate SF
+MSL --> User: Simulation Created
+deactivate MSL
+
+== Simulation Execution & Connectivity ==
+SF -> SIM: Invoke Simulator Lambda
+activate SIM
+SIM -> DB: Retrieve Device Type & Simulation Config
+activate DB
+DB --> SIM: Configuration Data
+deactivate DB
+
+SIM -> ENG: Initialize Device Engine
+activate ENG
+ENG -> ENG: Create Device Instances (Factory Pattern)
+ENG --> SIM: Devices Initialized
+deactivate ENG
+
+loop For Each Simulated Device
+    SIM -> SIM: Generate Data (Strategy Pattern)
+    SIM -> IOT: Publish MQTT Message
+    activate IOT
+    IOT --> SIM: Message Accepted
+    deactivate IOT
+end
+
+SIM -> SIM: Check Simulation Duration
+alt Simulation Complete
+    SIM --> SF: Execution Complete
+    deactivate SIM
+else Continue Simulation
+    SF -> SIM: Re-invoke Simulator Lambda
+    activate SIM
+    SIM --> SF: Execution Continues
+    deactivate SIM
+end
+deactivate SF
+
+== IoT Data Flow ==
+IOT -> IOT: Route Messages to AWS Services
+IOT --> User: Data Available for Testing/Analysis
+
+== Simulation Management ==
+User -> MSL: Stop Simulation (API Request)
+activate MSL
+MSL -> SF: Stop State Machine Execution
+activate SF
+SF -> SIM: Cancel Execution
+activate SIM
+SIM --> SF: Stopped
+deactivate SIM
+SF --> MSL: Execution Stopped
+deactivate SF
+MSL -> DB: Update Simulation Status
+activate DB
+DB --> MSL: Status Updated
+deactivate DB
+MSL --> User: Simulation Stopped
+deactivate MSL
+
+== Cleanup Phase ==
+User -> CF: Delete CloudFormation Stack
+activate CF
+CF -> CRL: Delete Custom Resource
+activate CRL
+CRL -> IOT: Detach IoT Policy
+activate IOT
+IOT --> CRL: Policy Detached
+deactivate IOT
+CRL --> CF: Cleanup Complete
+deactivate CRL
+CF -> DB: Delete DynamoDB Tables
+activate DB
+DB --> CF: Tables Deleted
+deactivate DB
+CF -> S3: Delete S3 Bucket Contents
+activate S3
+S3 --> CF: Contents Deleted
+deactivate S3
+CF --> User: Stack Deleted
+deactivate CF
+
+@enduml
+
+```
+
+Please analyze the error, identify the issue, and generate corrected PlantUML code that compiles successfully.
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment, connectivity
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/aws-solutions_iot-device-simulator.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

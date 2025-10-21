@@ -1,0 +1,200 @@
+@startuml
+!define RECTANGLE component
+
+skinparam component {
+    BackgroundColor<<frontend>> LightBlue
+    BackgroundColor<<backend>> LightGreen
+    BackgroundColor<<ml>> LightYellow
+    BackgroundColor<<storage>> LightGray
+    BackgroundColor<<external>> Pink
+}
+
+package "Frontend Layer" {
+    [React Dashboard] <<frontend>> as ReactUI
+    [Redux State Manager] <<frontend>> as Redux
+    [Material-UI Components] <<frontend>> as MaterialUI
+
+    ReactUI --> Redux
+    ReactUI --> MaterialUI
+}
+
+package "API Layer" {
+    [Django Backend] <<backend>> as Django
+    [REST API] <<backend>> as REST
+    [gRPC Service] <<backend>> as gRPC
+
+    Django --> REST
+    Django --> gRPC
+}
+
+package "Video Processing" {
+    [HysiaDecode] <<backend>> as Decoder
+    [CPU Decoder] <<backend>> as CPUDecoder
+    [GPU Decoder] <<backend>> as GPUDecoder
+    [Decode Queue] <<backend>> as DecodeQueue
+
+    Decoder --> CPUDecoder
+    Decoder --> GPUDecoder
+    Decoder --> DecodeQueue
+}
+
+package "Multimodal Processing" {
+    [Video Processor] <<backend>> as VideoProc
+    [Audio Processor] <<backend>> as AudioProc
+    [Subtitle Processor] <<backend>> as SubtitleProc
+
+    VideoProc ..> Decoder
+    AudioProc ..> Decoder
+    SubtitleProc ..> Decoder
+}
+
+package "ML Model Services" {
+    [Object Detection Service] <<ml>> as ObjectDetection
+    [Face Recognition Service] <<ml>> as FaceRecog
+    [Scene Recognition Service] <<ml>> as SceneRecog
+    [Sentence Embedding Service] <<ml>> as SentenceEmbed
+    [Model Manager] <<ml>> as ModelManager
+
+    ModelManager --> ObjectDetection
+    ModelManager --> FaceRecog
+    ModelManager --> SceneRecog
+    ModelManager --> SentenceEmbed
+}
+
+package "Object Detection Models" {
+    [SSD TensorFlow] <<ml>> as SSD
+    [Faster R-CNN] <<ml>> as RCNN
+    [MMDetection PyTorch] <<ml>> as MMDet
+    [CTPN Text Detection] <<ml>> as CTPN
+
+    ObjectDetection --> SSD
+    ObjectDetection --> RCNN
+    ObjectDetection --> MMDet
+    ObjectDetection --> CTPN
+}
+
+package "Scene Recognition Models" {
+    [Places365 ResNet] <<ml>> as Places365
+    [SoundNet Audio] <<ml>> as SoundNet
+
+    SceneRecog --> Places365
+    SceneRecog --> SoundNet
+}
+
+package "Data Processing Pipeline" {
+    [Data Loader] <<backend>> as DataLoader
+    [Preprocessor] <<backend>> as Preprocessor
+    [Data Augmentation] <<backend>> as Augmentation
+    [TFRecord Creator] <<backend>> as TFRecord
+
+    DataLoader --> Preprocessor
+    Preprocessor --> Augmentation
+    DataLoader --> TFRecord
+}
+
+package "Model Training & Evaluation" {
+    [Meta-Architecture] <<ml>> as MetaArch
+    [Quantization Engine] <<ml>> as Quantization
+    [Evaluation Metrics] <<ml>> as Metrics
+    [COCO Evaluator] <<ml>> as COCO
+
+    MetaArch --> Quantization
+    Metrics --> COCO
+}
+
+package "Storage Layer" {
+    database "SQLite Database" as DB <<storage>>
+    database "Pickle Index Files" as PickleDB <<storage>>
+
+    DB -- PickleDB
+}
+
+package "System Monitoring" {
+    [CPU Monitor] <<backend>> as CPUMon
+    [GPU Monitor] <<backend>> as GPUMon
+    [Memory Monitor] <<backend>> as MemMon
+    [Process Monitor] <<backend>> as ProcMon
+    [Network Monitor] <<backend>> as NetMon
+    [Monitoring Dashboard] <<backend>> as MonDash
+
+    MonDash --> CPUMon
+    MonDash --> GPUMon
+    MonDash --> MemMon
+    MonDash --> ProcMon
+    MonDash --> NetMon
+}
+
+package "Deployment Services" {
+    [Docker Container Manager] <<backend>> as Docker
+    [Clipper Prediction Server] <<backend>> as Clipper
+    [Auto Serving Runner] <<backend>> as AutoServe
+
+    Docker --> Clipper
+    Docker --> AutoServe
+}
+
+package "External Libraries" {
+    [FFmpeg] <<external>> as FFmpeg
+    [CUDA SDK] <<external>> as CUDA
+    [OpenCV] <<external>> as OpenCV
+    [TensorFlow] <<external>> as TF
+    [PyTorch] <<external>> as PyTorch
+    [Cython Runtime] <<external>> as Cython
+}
+
+' Frontend to Backend connections
+ReactUI --> REST : HTTP Requests
+ReactUI --> gRPC : gRPC Calls
+
+' API to Processing
+Django --> VideoProc
+Django --> AudioProc
+Django --> SubtitleProc
+Django --> ModelManager
+
+' Processing to ML Services
+VideoProc --> ObjectDetection
+VideoProc --> SceneRecog
+VideoProc --> FaceRecog
+SubtitleProc --> SentenceEmbed
+
+' ML Services to Deployment
+ModelManager --> Clipper
+ModelManager --> AutoServe
+
+' Data Pipeline to ML
+DataLoader --> MetaArch
+Preprocessor --> ModelManager
+
+' Storage connections
+Django --> DB : Store/Retrieve
+Django --> PickleDB : Index Access
+ModelManager --> DB : Model Metadata
+VideoProc --> DB : Analysis Results
+
+' Monitoring connections
+MonDash --> ReactUI : Metrics Display
+Django --> MonDash : System Status
+
+' External Library dependencies
+CPUDecoder ..> FFmpeg
+GPUDecoder ..> FFmpeg
+GPUDecoder ..> CUDA
+VideoProc ..> OpenCV
+SSD ..> TF
+RCNN ..> TF
+MMDet ..> PyTorch
+FaceRecog ..> TF
+FaceRecog ..> PyTorch
+Places365 ..> PyTorch
+SoundNet ..> PyTorch
+SentenceEmbed ..> TF
+Decoder ..> Cython
+Preprocessor ..> Cython
+
+' Deployment
+Docker ..> Django
+Docker ..> ModelManager
+Docker ..> Decoder
+
+@enduml

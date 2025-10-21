@@ -1,0 +1,101 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: serverdevcamp_camp4_quadcore
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** data_flow
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+Here's a consolidated report summarizing the analysis of the GitHub repository `serverdevcamp_camp4_quadcore`, drawing from the provided partial summaries:
+
+**Project Overview:**
+
+The `serverdevcamp_camp4_quadcore` repository contains a TweetDeck clone, a team project developed during a server development camp. It utilizes a microservices architecture, handling real-time Twitter data through the Twitter API. The project emphasizes modularity, scalability, and separation of concerns to manage high-volume data and real-time user interactions.
+
+**Key Functionalities and Components:**
+
+*   **TweetDeck Clone:** Core functionality replicates TweetDeck features for a real-time social media dashboard.
+*   **Real-time Data Streaming:** Project handles real-time Twitter data via the Twitter API.
+*   **Data Processing & Storage:** Utilizes Cassandra for data storage and Kafka for the data pipeline. Spark is used to process data from Cassandra for data trend analysis and to identify popular tweets and hashtags.
+*   **Microservices Architecture:** Deployed as independent services: `APIGateway`, `AuthFront`, `AuthServer`, `DataPipeline`, `DataProcessing`, `DataSending`, and `UserActivity`, promoting independent scaling, development, and deployment.
+*   **Authentication and Authorization:** Authentication microservice manages user registration, login, and JWT-based authorization.  Redis is used for storing refresh tokens.
+*   **Frontend:** React-based frontend.  Infinite scrolling implemented.
+
+**Architectural Insights:**
+
+*   **Microservices:** Demonstrates a microservices architecture, enabling independent scaling, development, and deployment.
+*   **API Gateway Pattern:** `APIGateway` acts as a single entry point, routing client requests to appropriate backend services and providing a central point for authentication and authorization. It uses Spring Cloud Gateway with JWT validation.
+*   **Backend for Frontend (BFF):** `AuthFront` implies a BFF pattern, streamlining frontend interactions with a dedicated backend.
+*   **Event-Driven Architecture:** Kafka facilitates asynchronous communication between services.
+*   **Data Pipeline:** Employs a pipeline involving Kafka (data ingestion buffer), Spark (data transformation and analysis), and Cassandra (scalable NoSQL database for storing processed data).
+*   **Modular SCSS Styling:** The client-side styling uses modular SCSS, separating core Bootstrap styles from custom styles, with extensive use of variables and mixins for theming and customization.
+
+**Important Files and Their Roles (Server-Side):**
+
+*   **`README.md`:** Provides a high-level overview, acting as the primary entry point.
+*   **`pom.xml` (Various Services):** Maven project object model file, declaring dependencies and build configurations. Defines each service as a Spring Boot application.
+*   **`*Application.java` (Various Services):** Main class for each microservice, configuring application-specific settings.
+*   **`JwtValidator.java` / `JwtRequestFilter.java` (API-Gateway, Auth-Server):**  API Gateway validates JWT tokens, extracts user information, and enforces authorization. The Auth-Server filter intercepts requests and authenticates based on JWT.
+*   **`MainController.java` (Auth-Server):** Core authentication endpoints (register, login, refresh token, logout) and admin functions.  Uses Redis for storing refresh tokens and JavaMailSender for sending verification emails.
+*   **`*Repository.java` (User-Activity, Auth-Server, Data-Sending):** Cassandra/JPA/Mongo repository interfaces for interacting with databases.
+*   **`CasanController.java` (Data-Sending):** REST endpoints for managing Cassandra data and WebSocket endpoints for pushing data, managing socket connection by setting a socket token to Redis.
+*   **`*Controller.java` (User-Activity):** Handles follow/unfollow actions and retrieving user activity feeds.
+*   **`SecurityConfig.java` (Auth-Server):** Configures Spring Security settings, including authentication and authorization.
+
+**Important Files and Their Roles (Client-Side):**
+
+*   **`App.js`:** Root component, setting up routing between layouts (`AdminLayout`, `AuthLayout`, `MainLayout`).
+*   **`/components/auth/routes.js`:** Defines authentication routes (`Login`, `Register`).
+*   **`/components/auth/layouts/*`:** Layout components for admin, auth, and main application sections.
+*   **`/components/scroll/ScrollBox.js`**: Implements infinite scrolling.
+*   **`/components/column/body/*Column.jsx`**: Renders hashtag ranks and BTS related content.
+*   **`/components/auth/utils/AuthService.js`**: Authenticates the user and saves the token.
+*   **`*.scss` (various folders):** Defines styling for various components and overall application look and feel.
+
+**Notable Design Patterns:**
+
+*   **Front Controller:** API Gateway acts as a front controller.
+*   **Service Repository**:  The code utilizes Service and Repository design pattern.
+*   **Factory Pattern**:  AbstractGatewayFilterFactory is potentially an implementation for Factory pattern.
+*   **Sass-based theming:** The code heavily relies on Sass variables and mixins for defining colors, typography, and other style attributes, allowing for easy customization and theming.
+*   **Utility classes:** Many utility classes are defined to provide quick and easy ways to apply common styles, such as margin, padding, alignment, and visibility.
+
+**Additional Considerations:**
+
+*   Ensure consistent color palette across the project.
+*   Follow a consistent project structure for all components.
+*   Ensure well-documented custom mixins and functions.
+*   Address the noted security concerns in future development.
+*   The project utilizes and configures third-party icon libraries (Font Awesome, Nucleo) for enhanced UI. The configurations include auto-replacement of SVG icons and ensuring accessibility enhancements. Nucleo icons are styled with custom CSS for customization.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: data_flow
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/serverdevcamp_camp4_quadcore.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

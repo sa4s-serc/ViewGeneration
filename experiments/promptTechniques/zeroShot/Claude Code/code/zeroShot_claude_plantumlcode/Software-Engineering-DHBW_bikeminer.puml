@@ -1,0 +1,133 @@
+@startuml
+!define RECTANGLE rectangle
+
+title Bikeminer System - Component Diagram (Data Flow)
+
+package "Mobile Client Layer" {
+    component "Flutter App" as FlutterApp {
+        component [Map Page] as MapPage
+        component [Login/Registration Page] as LoginPage
+        component [Wallet Page] as WalletPage
+        component [Rides Page] as RidesPage
+        component [API Connector] as APIConnector
+        component [Storage Adapter] as StorageAdapter
+        component [Background Location Tracker] as LocationTracker
+    }
+
+    component "Android App (Legacy)" as AndroidApp {
+        component [Maps Activity] as MapsActivity
+        component [GPS Data Acquisition] as GPSAcquisition
+        component [Points/Reward System] as RewardSystem
+    }
+}
+
+package "Backend Service Layer" {
+    component "FastAPI Backend" as Backend {
+        component [API Routes] as APIRoutes
+        component [Authentication Service] as AuthService
+        component [CRUD Operations] as CRUDOps
+        component [Distance Calculator] as DistanceCalc
+        component [JWT Handler] as JWTHandler
+    }
+}
+
+package "Data Layer" {
+    database "MariaDB Database" as Database {
+        component [Users Table] as UsersTable
+        component [History Table] as HistoryTable
+        component [Coordinates Table] as CoordinatesTable
+    }
+
+    component "SQLAlchemy ORM" as ORM {
+        component [Models] as Models
+        component [Schemas (Pydantic)] as Schemas
+    }
+}
+
+package "External Services" {
+    component [Google Maps API] as GoogleMaps
+    component [GPS Service] as GPSService
+}
+
+' Flutter App Data Flow
+MapPage --> LocationTracker : "trigger location tracking"
+LocationTracker --> GPSService : "acquire location data"
+GPSService --> LocationTracker : "GPS coordinates"
+LocationTracker --> APIConnector : "send ride coordinates"
+
+LoginPage --> APIConnector : "user credentials"
+APIConnector --> StorageAdapter : "store JWT token"
+StorageAdapter --> APIConnector : "retrieve JWT token"
+
+WalletPage --> APIConnector : "request BikeCoin balance"
+RidesPage --> APIConnector : "request ride history"
+
+APIConnector --> APIRoutes : "HTTP REST requests\n(JSON)"
+
+' Android App Data Flow
+MapsActivity --> GPSAcquisition : "request GPS data"
+GPSAcquisition --> GPSService : "acquire location"
+GPSService --> GPSAcquisition : "GPS coordinates"
+GPSAcquisition --> GoogleMaps : "display location"
+MapsActivity --> RewardSystem : "cycling activity data"
+
+' Backend Data Flow
+APIRoutes --> AuthService : "authenticate request"
+AuthService --> JWTHandler : "validate/generate JWT"
+JWTHandler --> AuthService : "token/validation result"
+
+APIRoutes --> CRUDOps : "data operations"
+APIRoutes --> DistanceCalc : "coordinate data"
+DistanceCalc --> CRUDOps : "calculated distance"
+
+CRUDOps --> ORM : "database queries"
+ORM --> Models : "map to models"
+Models --> Schemas : "validate data"
+
+' Database Data Flow
+ORM --> Database : "SQL queries"
+Database --> UsersTable : "user CRUD"
+Database --> HistoryTable : "ride history CRUD"
+Database --> CoordinatesTable : "coordinate CRUD"
+
+UsersTable --> ORM : "user data"
+HistoryTable --> ORM : "ride data"
+CoordinatesTable --> ORM : "GPS coordinate data"
+
+ORM --> CRUDOps : "query results"
+CRUDOps --> APIRoutes : "processed data"
+APIRoutes --> APIConnector : "HTTP REST responses\n(JSON)"
+
+APIConnector --> MapPage : "ride data"
+APIConnector --> WalletPage : "balance data"
+APIConnector --> RidesPage : "history data"
+APIConnector --> LoginPage : "auth response"
+
+' Storage Flow
+StorageAdapter ..> StorageAdapter : "Flutter Secure Storage\n(local persistence)"
+
+note right of APIConnector
+  Handles all HTTP communication
+  with backend using REST API.
+  Manages authentication tokens.
+end note
+
+note right of ORM
+  SQLAlchemy provides abstraction
+  between Python objects and
+  database tables.
+end note
+
+note bottom of Database
+  MariaDB stores all persistent
+  data: users, ride history,
+  and GPS coordinates.
+end note
+
+note left of LocationTracker
+  Background service tracks
+  location during rides and
+  sends data to backend.
+end note
+
+@enduml

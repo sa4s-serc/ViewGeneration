@@ -1,0 +1,66 @@
+@startuml
+title Geiger Counter IoT Sensor - Deployment Sequence
+
+actor User
+participant "ESP8266\n(WEMOS D1 mini Pro)" as ESP8266
+participant "Geiger Counter\nModule" as Geiger
+participant "WiFi Network" as WiFi
+participant "MQTT Broker" as MQTT
+participant "Node-RED" as NodeRED
+participant "GMC.MAP\nPlatform" as GMCMAP
+
+== System Initialization ==
+User -> ESP8266: Power On & Deploy Firmware
+activate ESP8266
+ESP8266 -> ESP8266: Load settings.h\n(WiFi credentials, MQTT config)
+ESP8266 -> Geiger: Initialize GPIO Pin\n(Pulse Detection)
+activate Geiger
+ESP8266 -> ESP8266: Setup Interrupt Handler\nfor Pulse Counting
+
+== Network Connection ==
+ESP8266 -> WiFi: Connect to WiFi Network
+activate WiFi
+WiFi --> ESP8266: Connection Established
+ESP8266 -> MQTT: Connect to MQTT Broker\n(using credentials)
+activate MQTT
+MQTT --> ESP8266: Connection Acknowledged
+ESP8266 -> MQTT: Subscribe to Control Topic\n(for LED commands)
+
+== Runtime Operation ==
+loop Continuous Monitoring
+    Geiger -> ESP8266: Radiation Pulse Detected\n(Interrupt Triggered)
+    ESP8266 -> ESP8266: Increment Pulse Counter
+
+    alt Every Measurement Interval
+        ESP8266 -> ESP8266: Calculate CPM\n(Counts Per Minute)
+        ESP8266 -> MQTT: Publish CPM Data\n(to data topic)
+        MQTT -> NodeRED: Forward CPM Data
+        activate NodeRED
+        NodeRED -> NodeRED: Process & Transform Data
+        NodeRED -> GMCMAP: Send Radiation Data\n(with location)
+        activate GMCMAP
+        GMCMAP -> GMCMAP: Store & Visualize\non Map
+        deactivate GMCMAP
+        deactivate NodeRED
+    end
+end
+
+== Remote Control ==
+User -> MQTT: Send LED Control Command\n(via MQTT client)
+MQTT -> ESP8266: Forward Command\n(to subscribed topic)
+ESP8266 -> ESP8266: Process Command\n(Turn LED On/Off)
+ESP8266 --> MQTT: Publish Status Update
+MQTT --> User: Command Executed
+
+== System Monitoring ==
+User -> GMCMAP: View Radiation Map\n& Historical Data
+activate GMCMAP
+GMCMAP --> User: Display Sensor Location\n& Radiation Levels
+deactivate GMCMAP
+
+deactivate MQTT
+deactivate WiFi
+deactivate Geiger
+deactivate ESP8266
+
+@enduml

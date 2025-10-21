@@ -1,0 +1,201 @@
+@startuml
+
+skinparam componentStyle rectangle
+skinparam linetype ortho
+skinparam defaultFontSize 11
+
+title SiteChecker Slack Bot - Deployment and Connectivity Architecture
+
+package "Slack Platform" {
+    component [Slack Workspace] as Slack <<External Service>>
+}
+
+package "AWS Master Region" {
+    component "API Gateway" as APIGW <<AWS Service>> #LightBlue {
+        portin " " as apigw_in
+        portout " " as apigw_out
+    }
+
+    component "Master Lambda" as Master <<AWS Lambda>> #Orange {
+        component [lambda.js\n(Entry Point)] as MasterEntry
+        component [bot.js\n(Core Logic)] as BotLogic
+        component [slack.js\n(Slack Helpers)] as SlackHelper
+
+        portin " " as master_in
+        portout " " as master_out
+    }
+
+    artifact "serverless.yml" as MasterConfig <<Configuration>>
+}
+
+package "AWS Region: us-east-1" {
+    component "Worker Lambda 1" as Worker1 <<AWS Lambda>> #Orange {
+        component [lambda.js] as W1Entry
+        component [sitechecker.js] as W1Check
+
+        portin " " as w1_in
+        portout " " as w1_out
+    }
+
+    artifact "serverless.yml" as W1Config <<Configuration>>
+}
+
+package "AWS Region: us-west-2" {
+    component "Worker Lambda 2" as Worker2 <<AWS Lambda>> #Orange {
+        component [lambda.js] as W2Entry
+        component [sitechecker.js] as W2Check
+
+        portin " " as w2_in
+        portout " " as w2_out
+    }
+
+    artifact "serverless.yml" as W2Config <<Configuration>>
+}
+
+package "AWS Region: eu-west-1" {
+    component "Worker Lambda 3" as Worker3 <<AWS Lambda>> #Orange {
+        component [lambda.js] as W3Entry
+        component [sitechecker.js] as W3Check
+
+        portin " " as w3_in
+        portout " " as w3_out
+    }
+
+    artifact "serverless.yml" as W3Config <<Configuration>>
+}
+
+package "AWS Region: ap-southeast-1" {
+    component "Worker Lambda N" as WorkerN <<AWS Lambda>> #Orange {
+        component [lambda.js] as WNEntry
+        component [sitechecker.js] as WNCheck
+
+        portin " " as wn_in
+        portout " " as wn_out
+    }
+
+    artifact "serverless.yml" as WNConfig <<Configuration>>
+}
+
+cloud "Internet" {
+    component [Target Website 1] as Site1 <<HTTP Endpoint>>
+    component [Target Website 2] as Site2 <<HTTP Endpoint>>
+    component [Target Website 3] as Site3 <<HTTP Endpoint>>
+    component [Target Website N] as SiteN <<HTTP Endpoint>>
+}
+
+package "NPM Dependencies" #LightGray {
+    component [speakeasy-nlp] as NLP <<Library>>
+    component [bagofrequest] as HTTP <<Library>>
+}
+
+Slack -down-> apigw_in : HTTPS POST\n(Outgoing Webhook)
+apigw_out -down-> master_in : API Gateway Event\n(Request/Response)
+
+master_out -down-> w1_in : Lambda Invoke\n(URL + Config)
+master_out -down-> w2_in : Lambda Invoke\n(URL + Config)
+master_out -down-> w3_in : Lambda Invoke\n(URL + Config)
+master_out -down-> wn_in : Lambda Invoke\n(URL + Config)
+
+w1_out -down-> Site1 : HTTP GET/HEAD
+w2_out -down-> Site2 : HTTP GET/HEAD
+w3_out -down-> Site3 : HTTP GET/HEAD
+wn_out -down-> SiteN : HTTP GET/HEAD
+
+Site1 -up-> w1_in : HTTP Response\n(Status Code)
+Site2 -up-> w2_in : HTTP Response\n(Status Code)
+Site3 -up-> w3_in : HTTP Response\n(Status Code)
+SiteN -up-> wn_in : HTTP Response\n(Status Code)
+
+w1_out -up-> master_in : Response Payload\n(Status + Metadata)
+w2_out -up-> master_in : Response Payload\n(Status + Metadata)
+w3_out -up-> master_in : Response Payload\n(Status + Metadata)
+wn_out -up-> master_in : Response Payload\n(Status + Metadata)
+
+master_out -up-> apigw_in : Formatted Response
+apigw_out -up-> Slack : JSON Response\n(Aggregated Report)
+
+BotLogic ..> NLP : <<uses>>
+BotLogic ..> SlackHelper : <<uses>>
+MasterEntry ..> BotLogic : <<invokes>>
+
+W1Check ..> HTTP : <<uses>>
+W2Check ..> HTTP : <<uses>>
+W3Check ..> HTTP : <<uses>>
+WNCheck ..> HTTP : <<uses>>
+
+W1Entry ..> W1Check : <<invokes>>
+W2Entry ..> W2Check : <<invokes>>
+W3Entry ..> W3Check : <<invokes>>
+WNEntry ..> WNCheck : <<invokes>>
+
+MasterConfig ..> Master : <<configures>>
+W1Config ..> Worker1 : <<configures>>
+W2Config ..> Worker2 : <<configures>>
+W3Config ..> Worker3 : <<configures>>
+WNConfig ..> WorkerN : <<configures>>
+
+note right of APIGW
+  **API Gateway Endpoint**
+  - Receives Slack webhooks
+  - Authenticates via token
+  - Routes to Master Lambda
+  - Returns to Slack channel
+end note
+
+note right of Master
+  **Master Lambda Function**
+  - Authentication & validation
+  - URL parsing with NLP
+  - Parallel worker invocation
+  - Result aggregation
+  - Response formatting
+  - Serverless deployment
+end note
+
+note right of Worker1
+  **Worker Lambda (Region 1)**
+  - Receives URL from Master
+  - Makes HTTP request
+  - Returns status + timing
+  - Geographic location check
+  - Independent deployment
+end note
+
+note bottom of Worker2
+  **Worker Lambda (Region 2)**
+  - Tests from different region
+  - Detects geo-restrictions
+  - Parallel execution
+end note
+
+note bottom of Worker3
+  **Worker Lambda (Region 3)**
+  - Multi-region availability
+  - Censorship detection
+end note
+
+note bottom of WorkerN
+  **Worker Lambda (Region N)**
+  - Scalable to any region
+  - Distributed checking
+end note
+
+legend top left
+  **Deployment & Connectivity Architecture**
+  |= Symbol |= Description |
+  | <<AWS Lambda>> | Serverless compute functions |
+  | <<AWS Service>> | Managed AWS services |
+  | <<Configuration>> | Deployment configuration |
+  | <<Library>> | External dependencies |
+  | Solid arrows | Synchronous communication |
+  | Dotted arrows | Dependency relationships |
+
+  **Key Characteristics:**
+  - Serverless architecture (no server management)
+  - Master-Worker pattern for distributed checking
+  - Multi-region deployment for geographic diversity
+  - Event-driven execution via API Gateway
+  - Parallel processing for performance
+end legend
+
+@enduml

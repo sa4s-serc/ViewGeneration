@@ -1,0 +1,165 @@
+@startuml
+!define COMPONENT_STYLE rectangle
+
+title hAFL2 Hypervisor Fuzzing Architecture - Deployment & Connectivity
+
+skinparam componentStyle rectangle
+skinparam backgroundColor #FFFFFF
+skinparam component {
+    BackgroundColor<<host>> #E8F5E9
+    BackgroundColor<<l1>> #E3F2FD
+    BackgroundColor<<l2root>> #FFF3E0
+    BackgroundColor<<l2child>> #FCE4EC
+    BackgroundColor<<fuzzer>> #F3E5F5
+    BorderColor #424242
+}
+
+package "Linux Host (L0)" <<host>> {
+    component "kAFL Fuzzer" <<fuzzer>> {
+        component [kafl_fuzz.py] as fuzz
+        component [Master Process] as master
+        component [Slave Process(es)] as slave
+        component [kafl_gui.py] as gui
+        component [kafl_cov.py] as cov
+        component [kafl_debug.py] as debug
+    }
+
+    component "Modified KVM" as kvm {
+        component [KVM Hypercall Handler] as kvm_hcall
+        component [Intel PT Controller] as kvm_pt
+        component [VM-Entry/Exit Handlers] as kvm_vmx
+        component [Nested Virt Support] as kvm_nested
+    }
+
+    component "Modified QEMU" as qemu {
+        component [PT Implementation] as qemu_pt
+        component [Hypercall Processor] as qemu_hcall
+        component [Redqueen Engine] as redqueen
+        component [Memory Snapshot] as snapshot
+        component [PT Monitor Commands] as pt_monitor
+    }
+}
+
+package "Windows VM (L1)" <<l1>> {
+    component "Hyper-V Hypervisor" as hyperv
+
+    package "Root Partition" <<l2root>> {
+        component [VMSwitch (vmswitch.sys)] as vmswitch
+        component [VSP Components] as vsp
+        component [CrashMonitoringDriver.sys] as crash_monitor
+        component [Windows Kernel] as l2root_kernel
+    }
+
+    package "Child Partition" <<l2child>> {
+        component [CPHarness.sys] as cpharness
+        component [Target Application] as target_app
+        component [Windows Guest Kernel] as l2child_kernel
+    }
+}
+
+component "Intel PT Buffers" as pt_buffers
+component "Coverage Feedback" as coverage
+component "Crash Reports" as crash_reports
+component "Fuzzing Inputs" as inputs
+
+' Master-Slave Communication
+master -down-> slave : "Task Distribution"
+slave -up-> master : "Results Reporting"
+fuzz --> master : "Launches"
+fuzz --> slave : "Launches"
+gui --> master : "Monitors Stats"
+cov --> coverage : "Analyzes"
+debug --> slave : "Executes Inputs"
+
+' Fuzzer to QEMU/KVM
+slave -down-> qemu : "Controls VM Execution"
+qemu -down-> kvm : "VM Operations"
+
+' KVM Hypercall Flow
+kvm --> kvm_hcall : "Intercepts Hypercalls"
+kvm_hcall -up-> qemu_hcall : "Forwards kAFL Hypercalls"
+qemu_hcall -up-> slave : "Hypercall Events"
+
+' Intel PT Integration
+kvm_pt --> kvm_vmx : "Enable/Disable PT"
+kvm_vmx --> pt_buffers : "Writes Trace Data"
+pt_buffers --> qemu_pt : "Processes PT Data"
+qemu_pt --> coverage : "Generates Coverage"
+coverage --> slave : "Feedback"
+pt_monitor --> qemu_pt : "Configure PT"
+
+' Nested Virtualization
+kvm_nested --> hyperv : "Enables L2 Virtualization"
+qemu --> hyperv : "Hosts L1 VM"
+hyperv --> l2root_kernel : "Manages Root Partition"
+hyperv --> l2child_kernel : "Manages Child Partition"
+
+' Crash Monitoring Flow
+crash_monitor --> l2root_kernel : "Monitors"
+crash_monitor -up-> kvm_hcall : "Reports via Hypercall"
+kvm_hcall -up-> crash_reports : "Crash Info"
+crash_reports -up-> slave : "Crash Detection"
+
+' Fuzzing Input Flow
+slave --> inputs : "Generates/Mutates"
+inputs --> qemu : "Injects"
+qemu --> cpharness : "Delivers to Harness"
+cpharness --> l2child_kernel : "Kernel Driver"
+cpharness --> vmswitch : "Sends RNDIS Packets"
+vmswitch --> vsp : "Forwards to VSP"
+vsp --> l2root_kernel : "Executes in Root"
+vmswitch --> cpharness : "Completion Status"
+
+' Redqueen Instrumentation
+redqueen --> l2root_kernel : "Hooks & Traces"
+redqueen --> qemu_hcall : "Breakpoint Handling"
+redqueen --> coverage : "Enhanced Feedback"
+
+' Snapshot Management
+snapshot --> qemu : "Restore State"
+slave --> snapshot : "Controls Snapshots"
+
+' Target Execution
+target_app --> cpharness : "Triggers Fuzzing"
+cpharness --> target_app : "Feedback"
+
+' KVM PT Specific
+kvm_pt ..> l2root_kernel : "Traces Root Partition Only"
+
+note right of kvm
+  Modified KVM handles:
+  - kAFL hypercalls
+  - Intel PT for L2 Root
+  - EXIT_REASON_TOPA_FULL
+  - Nested virt support
+end note
+
+note right of cpharness
+  Child Partition Driver:
+  - Sends fuzzing inputs
+  - Receives completion status
+  - Communicates via hypercalls
+end note
+
+note right of crash_monitor
+  Root Partition Driver:
+  - Monitors VSP crashes
+  - Captures registers/stack
+  - Reports via hypercalls
+end note
+
+note right of redqueen
+  Redqueen Features:
+  - Instruction disassembly (Capstone)
+  - Register/memory tracking
+  - Symbolic execution data
+  - Whitelist/blacklist filtering
+end note
+
+note bottom of hyperv
+  Nested Virtualization:
+  L0 (Linux/KVM) → L1 (Windows/Hyper-V) → L2 (Root & Child)
+  Intel PT traces L2 Root Partition
+end note
+
+@enduml

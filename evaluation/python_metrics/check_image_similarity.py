@@ -1,4 +1,3 @@
-
 '''This script compares images in two folders and calculates various similarity metrics.
 It generates a CSV file with the results, including SSIM, PSNR, RMSE, SAM, SRE, and UIQ.
 The script handles images with the same stem name in both folders, resizing them as necessary.
@@ -8,12 +7,13 @@ import os
 import csv
 from collections import defaultdict
 import cv2
+from skimage.metrics import structural_similarity
 from image_similarity_measures.quality_metrics import (
-    ssim, psnr, rmse, sam, sre, uiq
+    psnr, rmse, sam, sre, uiq
 )
 
 folderA = "./initial_images"
-folderB = "./zeroShot_gpt_python_images"
+folderB = "./approach_gpt_python_images"
 output_csv = f"./{os.path.basename(folderB.rstrip('/'))}_similarity_results.csv"
 
 
@@ -21,8 +21,10 @@ output_csv = f"./{os.path.basename(folderB.rstrip('/'))}_similarity_results.csv"
 valid_extensions = ('.png', '.jpg', '.jpeg', '.bmp', '.tiff')
 
 def compare_images(img1, img2):
+    # <-- Change: Use structural_similarity from scikit-image for SSIM
+    ssim_value = structural_similarity(img1, img2, channel_axis=-1, data_range=255)
     return {
-        "SSIM": ssim(img1, img2),
+        "SSIM": ssim_value,
         "PSNR": psnr(img1, img2),
         "RMSE": rmse(img1, img2),
         "SAM": sam(img1, img2),

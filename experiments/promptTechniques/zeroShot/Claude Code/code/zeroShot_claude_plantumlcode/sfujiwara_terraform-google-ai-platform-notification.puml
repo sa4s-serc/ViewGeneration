@@ -1,0 +1,50 @@
+@startuml
+!theme plain
+title Google AI Platform Training Job Notification - Data Flow
+
+participant "AI Platform\nTraining Job" as AIJob
+participant "Google Cloud\nLogging" as Logging
+participant "Logging Sink" as Sink
+participant "ai_platform_log\nPub/Sub Topic" as LogTopic
+participant "Cloud Function\n(main.py)" as Function
+participant "Notification\nPub/Sub Topic" as NotifyTopic
+participant "Subscriber" as Subscriber
+
+== Job State Change ==
+AIJob -> Logging: Generate log entry\n(State: QUEUED/SUCCEEDED/FAILED/CANCELLED)
+activate Logging
+
+Logging -> Sink: Forward AI Platform logs
+activate Sink
+
+Sink -> LogTopic: Publish log message
+activate LogTopic
+deactivate Sink
+deactivate Logging
+
+== Log Processing ==
+LogTopic -> Function: Trigger Cloud Function\n(Pub/Sub event)
+activate Function
+
+Function -> Function: Parse log message\n(Extract job state, job ID,\nproject ID, timestamp)
+
+alt Valid Job State Detected
+    Function -> NotifyTopic: Publish notification message\n{job_id, project_id,\ntimestamp, job_state}
+    activate NotifyTopic
+
+    NotifyTopic -> Subscriber: Deliver notification
+    activate Subscriber
+    Subscriber --> NotifyTopic: Acknowledge
+    deactivate Subscriber
+    deactivate NotifyTopic
+
+    Function --> LogTopic: Processing complete
+else Invalid or Unparseable Log
+    Function -> Function: Handle error\n(Log error/skip)
+    Function --> LogTopic: Processing complete
+end
+
+deactivate Function
+deactivate LogTopic
+
+@enduml

@@ -1,0 +1,274 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: lkravi_kube8aws
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** deployment, connectivity
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+Here's a merged and refined summary of the Terraform and Ansible code for deploying a Kubernetes cluster on AWS:
+
+**Overview:**
+
+This Terraform configuration automates the deployment of a Kubernetes cluster on AWS using Kubeadm and Ansible. It embodies Infrastructure as Code (IaC) principles, defining and provisioning the necessary AWS resources and subsequently configuring the cluster in an automated and consistent manner. The architecture leverages a Bastion host for secure access and utilizes a Network Load Balancer (NLB) to ensure a highly available Kubernetes API server endpoint. `cri-dockerd` enables Docker to be used as the cluster's container runtime.
+
+**Key Functionalities:**
+
+*   **Automated Infrastructure Provisioning (Terraform):**  Provisions the AWS infrastructure: VPC, subnets, security groups, EC2 instances (Bastion, Masters, Workers), and NLB.  A Terraform module (`terraform-aws-modules/vpc/aws`) simplifies VPC configuration, promoting reusability.
+*   **Automated Kubernetes Cluster Setup (Ansible):** Configures the Kubernetes cluster using Kubeadm, installing necessary packages, and setting up networking. This includes initializing the control plane and joining worker nodes.
+*   **Secure Access & Control:**  The Bastion host serves as a secure jump box for SSH access to the cluster nodes located within private subnets. It also functions as the Ansible control node, executing the playbooks.
+*   **Highly Available API Server:** An NLB provides a stable and highly available endpoint for the Kubernetes API server, crucial for a resilient control plane.
+
+**Component Breakdown & File Roles:**
+
+*   **`vpc.tf`:** Defines the Virtual Private Cloud (VPC) leveraging the `terraform-aws-modules/vpc/aws` module.
+*   **`servers.tf`:** Defines EC2 instances for Bastion, master, and worker nodes, including initial setup via user data for the Bastion.
+*   **`load_balance.tf`:** Creates and configures the NLB with target groups and listeners for the Kubernetes API server, using IP-based targets.
+*   **`security.tf`:** Defines security groups controlling access (SSH) and communication between Kubernetes nodes and components.
+*   **`keys.tf`:** Generates an SSH key pair, storing the private key locally and creating an AWS key pair resource.
+*   **`ansible_helper.tf`:** Generates the Ansible inventory from the `templates/inventry.tftpl` template, copies Ansible playbooks to the Bastion, and executes them. It includes a `time_sleep` resource as a basic retry/wait mechanism to ensure the Bastion is ready before Ansible execution.
+*   **`templates/inventry.tftpl`:** Template for dynamically generating the Ansible inventory, listing master and worker node hostnames and IP addresses.
+*   **`ansible/play.yml`:** The main Ansible playbook orchestrating the Kubernetes cluster configuration. It handles Docker installation, Kubernetes component installation (kubelet, kubeadm, kubectl), Kubeadm initialization and joining of nodes, and configuring `cri-dockerd`.
+*   **`ansible/ansible_vars_file.yml`:** Contains variables passed to Ansible, including the NLB's DNS name.
+*   **`outputs.tf`:** Defines output variables, notably the Bastion host's public IP address.
+*   **`providers.tf`:** Configures the AWS provider, specifying the AWS region.
+*   **`vars.tf`:** Defines variables used throughout the configuration, such as AWS region, AMI ID, VPC CIDR, subnet ranges, and instance types.
+*   **`README.md`:** Project overview, usage instructions, prerequisites, architecture diagram, and notes on known issues.
+
+**Design Patterns:**
+
+*   **Modular Design:** The use of Terraform modules, especially for the VPC, promotes code reusability and simplifies configuration.
+*   **Templating:** Dynamic generation of the Ansible inventory from a template ensures accurate configuration based on the provisioned infrastructure.
+*   **Remote Execution:** Ansible playbooks are executed remotely on the Bastion host using Terraform's `remote-exec` provisioner.
+
+
+
+IMPORTANT - RETRY ATTEMPT:
+A previous PlantUML generation failed with the following error:
+```
+issue raw.githubusercontent.com java.util.concurrent.ExecutionException: java.io.IOException: HTTP error 404 with 404: Not Found
+Error line 4 in file: zeroShot_claude_plantumlcode/lkravi_kube8aws.puml
+Some diagram description contains errors
+
+```
+
+The problematic code was:
+```plantuml
+@startuml
+!define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v14.0/dist
+!include AWSPuml/AWSCommon.puml
+!include AWSPuml/NetworkingContentDelivery/VPC.puml
+!include AWSPuml/Compute/EC2.puml
+!include AWSPuml/NetworkingContentDelivery/ElasticLoadBalancingNetworkLoadBalancer.puml
+
+skinparam componentStyle rectangle
+
+package "AWS Cloud" {
+    package "VPC (terraform-aws-modules/vpc/aws)" as VPC {
+
+        package "Public Subnet" {
+            component "Bastion Host\n(EC2)" as Bastion {
+                component "Ansible Control" as AnsibleControl
+                component "SSH Jump Box" as SSHJump
+            }
+        }
+
+        package "Private Subnet - Control Plane" {
+            component "Master Node 1\n(EC2)" as Master1 {
+                component "Kubelet" as M1Kubelet
+                component "Kubeadm" as M1Kubeadm
+                component "Kubectl" as M1Kubectl
+                component "API Server" as M1API
+                component "cri-dockerd" as M1CRI
+                component "Docker" as M1Docker
+            }
+
+            component "Master Node N\n(EC2)" as MasterN {
+                component "Kubelet" as MNKubelet
+                component "Kubeadm" as MNKubeadm
+                component "API Server" as MNAPI
+                component "cri-dockerd" as MNCRI
+                component "Docker" as MNDocker
+            }
+        }
+
+        package "Private Subnet - Worker Nodes" {
+            component "Worker Node 1\n(EC2)" as Worker1 {
+                component "Kubelet" as W1Kubelet
+                component "Kubeadm" as W1Kubeadm
+                component "cri-dockerd" as W1CRI
+                component "Docker" as W1Docker
+            }
+
+            component "Worker Node N\n(EC2)" as WorkerN {
+                component "Kubelet" as WNKubelet
+                component "Kubeadm" as WNKubeadm
+                component "cri-dockerd" as WNCRI
+                component "Docker" as WNDocker
+            }
+        }
+
+        component "Network Load Balancer\n(NLB)" as NLB {
+            interface "API Endpoint" as APIEndpoint
+            component "Target Group" as TargetGroup
+        }
+
+        component "Security Groups" as SecurityGroups {
+            component "Bastion SG\n(SSH: 22)" as BastionSG
+            component "Master SG\n(API: 6443, SSH: 22)" as MasterSG
+            component "Worker SG\n(SSH: 22)" as WorkerSG
+        }
+    }
+
+    component "AWS Key Pair" as AWSKeyPair
+}
+
+package "Terraform Configuration" {
+    component "vpc.tf" as VPCTerraform
+    component "servers.tf" as ServersTerraform
+    component "load_balance.tf" as LBTerraform
+    component "security.tf" as SecurityTerraform
+    component "keys.tf" as KeysTerraform
+    component "ansible_helper.tf" as AnsibleHelper
+}
+
+package "Ansible Playbooks" {
+    component "play.yml" as PlayYml
+    component "ansible_vars_file.yml" as AnsibleVars
+    component "inventry.tftpl" as InventoryTemplate
+}
+
+package "Local Machine" {
+    component "SSH Private Key" as LocalKey
+    component "Terraform CLI" as TerraformCLI
+}
+
+' Terraform provisioning relationships
+TerraformCLI --> VPCTerraform : executes
+TerraformCLI --> ServersTerraform : executes
+TerraformCLI --> LBTerraform : executes
+TerraformCLI --> SecurityTerraform : executes
+TerraformCLI --> KeysTerraform : executes
+TerraformCLI --> AnsibleHelper : executes
+
+VPCTerraform --> VPC : provisions
+ServersTerraform --> Bastion : provisions
+ServersTerraform --> Master1 : provisions
+ServersTerraform --> MasterN : provisions
+ServersTerraform --> Worker1 : provisions
+ServersTerraform --> WorkerN : provisions
+LBTerraform --> NLB : provisions
+SecurityTerraform --> SecurityGroups : configures
+KeysTerraform --> AWSKeyPair : creates
+KeysTerraform --> LocalKey : generates
+
+AnsibleHelper --> InventoryTemplate : uses
+AnsibleHelper --> PlayYml : copies to Bastion
+AnsibleHelper --> AnsibleVars : copies to Bastion
+AnsibleHelper --> AnsibleControl : executes playbooks
+
+' Ansible configuration relationships
+AnsibleControl --> PlayYml : executes
+PlayYml --> AnsibleVars : reads
+PlayYml --> Master1 : configures
+PlayYml --> MasterN : configures
+PlayYml --> Worker1 : configures
+PlayYml --> WorkerN : configures
+
+' SSH connectivity
+LocalKey --> Bastion : SSH (22)
+SSHJump --> Master1 : SSH (22)
+SSHJump --> MasterN : SSH (22)
+SSHJump --> Master1 : SSH (22)
+SSHJump --> MasterN : SSH (22)
+SSHJump --> Worker1 : SSH (22)
+SSHJump --> WorkerN : SSH (22)
+
+' Load balancer connectivity
+NLB --> TargetGroup : routes traffic
+TargetGroup --> M1API : IP-based target (6443)
+TargetGroup --> MNAPI : IP-based target (6443)
+APIEndpoint --> NLB : exposes
+
+' Kubernetes cluster connectivity
+M1API --> M1CRI : uses
+M1CRI --> M1Docker : runtime
+MNKubelet --> MNCRI : uses
+MNCRI --> MNDocker : runtime
+W1Kubelet --> W1CRI : uses
+W1CRI --> W1Docker : runtime
+WNKubelet --> WNCRI : uses
+WNCRI --> WNDocker : runtime
+
+' Worker to Master connectivity
+W1Kubelet --> APIEndpoint : connects (6443)
+WNKubelet --> APIEndpoint : connects (6443)
+M1Kubelet --> APIEndpoint : connects (6443)
+MNKubelet --> APIEndpoint : connects (6443)
+
+' Security group enforcement
+BastionSG --> Bastion : protects
+MasterSG --> Master1 : protects
+MasterSG --> MasterN : protects
+WorkerSG --> Worker1 : protects
+WorkerSG --> WorkerN : protects
+
+' Kubeadm cluster setup
+M1Kubeadm ..> M1API : initializes
+MNKubeadm ..> Master1 : joins cluster
+W1Kubeadm ..> APIEndpoint : joins cluster
+WNKubeadm ..> APIEndpoint : joins cluster
+
+note right of NLB
+  Highly Available API Server Endpoint
+  Provides stable DNS endpoint for
+  Kubernetes API access
+end note
+
+note right of Bastion
+  Secure Jump Box and
+  Ansible Control Node
+  for cluster provisioning
+end note
+
+note bottom of VPC
+  Infrastructure as Code:
+  Terraform provisions AWS resources
+  Ansible configures Kubernetes cluster
+end note
+
+@enduml
+
+```
+
+Please analyze the error, identify the issue, and generate corrected PlantUML code that compiles successfully.
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment, connectivity
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/lkravi_kube8aws.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

@@ -1,0 +1,119 @@
+@startuml
+title Stotra Stock Trading Simulator - Deployment Sequence
+
+actor Developer
+participant "AWS Amplify" as Amplify
+participant "Frontend Build\n(Vite)" as ViteBuild
+participant "AWS EC2" as EC2
+participant "Backend Server\n(Node.js/Express)" as Backend
+participant "MongoDB Atlas" as MongoDB
+participant "External APIs\n(Yahoo/Alpha Vantage)" as ExternalAPI
+participant "Cloudflare" as Cloudflare
+participant "End User Browser" as Browser
+
+== Frontend Deployment ==
+Developer -> ViteBuild: npm run build
+activate ViteBuild
+ViteBuild -> ViteBuild: Bundle React app\nwith Vite
+ViteBuild --> Developer: Build artifacts ready
+deactivate ViteBuild
+
+Developer -> Amplify: Deploy frontend build
+activate Amplify
+Amplify -> Amplify: Upload static assets
+Amplify -> Amplify: Configure routing
+Amplify -> Amplify: Setup CDN
+Amplify --> Developer: Frontend deployed
+deactivate Amplify
+
+== Backend Deployment ==
+Developer -> EC2: SSH connection
+activate EC2
+Developer -> EC2: Upload backend code
+EC2 -> EC2: Install dependencies\n(npm install)
+
+EC2 -> EC2: Configure environment\nvariables (.env)
+note right
+  - MongoDB connection string
+  - JWT secret
+  - API keys (Yahoo, Alpha Vantage)
+  - Cloudflare Turnstile
+end note
+
+EC2 -> MongoDB: Test database connection
+activate MongoDB
+MongoDB --> EC2: Connection successful
+deactivate MongoDB
+
+EC2 -> ExternalAPI: Verify API credentials
+activate ExternalAPI
+ExternalAPI --> EC2: APIs accessible
+deactivate ExternalAPI
+
+EC2 -> EC2: Start Node.js server\n(pm2/systemd)
+EC2 -> EC2: Initialize Express app
+EC2 -> EC2: Setup middleware\n(auth, rate limiting)
+EC2 -> EC2: Load Swagger docs
+EC2 -> EC2: Initialize node-cache
+
+EC2 -> Cloudflare: Register with Turnstile
+activate Cloudflare
+Cloudflare --> EC2: Security integration active
+deactivate Cloudflare
+
+EC2 --> Developer: Backend deployed & running
+deactivate EC2
+
+== Runtime Configuration ==
+Developer -> Amplify: Configure API proxy
+activate Amplify
+Amplify -> EC2: Set backend endpoint
+activate EC2
+EC2 --> Amplify: Endpoint configured
+deactivate EC2
+Amplify --> Developer: Proxy configured
+deactivate Amplify
+
+== User Access Flow ==
+Browser -> Amplify: Request application
+activate Browser
+activate Amplify
+Amplify --> Browser: Serve frontend (HTML/JS/CSS)
+deactivate Amplify
+
+Browser -> EC2: API requests via proxy
+activate EC2
+EC2 -> Cloudflare: Validate request (Turnstile)
+activate Cloudflare
+Cloudflare --> EC2: Request validated
+deactivate Cloudflare
+
+EC2 -> MongoDB: Query user data
+activate MongoDB
+MongoDB --> EC2: Return data
+deactivate MongoDB
+
+EC2 -> ExternalAPI: Fetch stock data (cached)
+activate ExternalAPI
+ExternalAPI --> EC2: Return stock info
+deactivate ExternalAPI
+
+EC2 --> Browser: API response (JSON)
+deactivate EC2
+Browser -> Browser: Render UI with data
+deactivate Browser
+
+== Monitoring & Scaling ==
+EC2 -> EC2: Health check endpoint
+EC2 -> MongoDB: Monitor connections
+activate MongoDB
+MongoDB --> EC2: Connection pool status
+deactivate MongoDB
+
+note over Amplify, EC2
+  AWS Amplify auto-scales frontend
+  EC2 instance can be scaled manually
+  or with auto-scaling groups
+end note
+
+@enduml

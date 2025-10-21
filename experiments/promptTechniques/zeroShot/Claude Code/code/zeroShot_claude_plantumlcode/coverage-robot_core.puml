@@ -1,0 +1,204 @@
+@startuml
+!define AWSPUML https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v14.0/dist
+!include AWSPUML/AWSCommon.puml
+
+title Coverage Robot - Control Flow Sequence Diagram
+
+actor User
+participant "GitHub App" as GitHub
+participant "API Service\n(Lambda)" as API
+participant "Cognito" as Cognito
+participant "S3" as S3
+participant "SQS" as SQS
+participant "EventBridge" as EventBridge
+participant "Orchestrator Service\n(Lambda)" as Orchestrator
+participant "Event Store\n(DynamoDB)" as EventStore
+participant "Ingest Service\n(Lambda)" as Ingest
+participant "Analyse Service\n(Lambda)" as Analyse
+participant "BigQuery" as BigQuery
+participant "Publish Service\n(Lambda)" as Publish
+participant "Configuration\n(DynamoDB)" as Config
+participant "CloudWatch EMF" as CloudWatch
+
+== Upload Coverage Report Flow ==
+
+User -> API: Request upload URL
+activate API
+API -> Cognito: Validate upload token
+activate Cognito
+Cognito --> API: Token validated
+deactivate Cognito
+API -> S3: Generate pre-signed URL
+activate S3
+S3 --> API: Pre-signed URL
+deactivate S3
+API --> User: Return pre-signed URL
+deactivate API
+
+User -> S3: Upload coverage data
+activate S3
+S3 --> User: Upload complete
+deactivate S3
+
+User -> API: Notify upload complete
+activate API
+API -> SQS: Enqueue upload message
+activate SQS
+SQS --> API: Message queued
+deactivate SQS
+API --> User: Acknowledged
+deactivate API
+
+== Webhook Processing Flow ==
+
+GitHub -> API: Webhook event (PR/Push)
+activate API
+API -> API: Validate webhook signature
+API -> SQS: Enqueue webhook message
+activate SQS
+SQS --> API: Message queued
+deactivate SQS
+API --> GitHub: Webhook acknowledged
+deactivate API
+
+== Event-Driven Orchestration Flow ==
+
+SQS -> Orchestrator: Pull message
+activate Orchestrator
+Orchestrator -> EventStore: Check event state
+activate EventStore
+EventStore --> Orchestrator: Current state
+deactivate EventStore
+
+Orchestrator -> EventStore: Persist state change
+activate EventStore
+EventStore --> Orchestrator: State persisted
+deactivate EventStore
+
+Orchestrator -> EventBridge: Publish event
+activate EventBridge
+EventBridge --> Orchestrator: Event published
+deactivate EventBridge
+
+Orchestrator -> CloudWatch: Report metrics
+activate CloudWatch
+CloudWatch --> Orchestrator: Metrics recorded
+deactivate CloudWatch
+deactivate Orchestrator
+
+== Ingest Event Processing ==
+
+EventBridge -> Ingest: Ingest event
+activate Ingest
+Ingest -> S3: Fetch coverage data
+activate S3
+S3 --> Ingest: Coverage data
+deactivate S3
+
+Ingest -> Ingest: Process coverage data
+Ingest -> BigQuery: Store aggregated data
+activate BigQuery
+BigQuery --> Ingest: Data stored
+deactivate BigQuery
+
+Ingest -> EventStore: Update event state
+activate EventStore
+EventStore --> Ingest: State updated
+deactivate EventStore
+
+Ingest -> EventBridge: Publish ingest complete event
+activate EventBridge
+EventBridge --> Ingest: Event published
+deactivate EventBridge
+
+Ingest -> CloudWatch: Report metrics
+activate CloudWatch
+CloudWatch --> Ingest: Metrics recorded
+deactivate CloudWatch
+deactivate Ingest
+
+== Analysis Flow ==
+
+EventBridge -> Analyse: Analyse event
+activate Analyse
+Analyse -> Config: Fetch project configuration
+activate Config
+Config --> Analyse: Configuration data
+deactivate Config
+
+Analyse -> S3: Fetch current coverage data
+activate S3
+S3 --> Analyse: Current coverage
+deactivate S3
+
+Analyse -> BigQuery: Query historical coverage
+activate BigQuery
+BigQuery --> Analyse: Historical data
+deactivate BigQuery
+
+Analyse -> Analyse: Calculate coverage metrics\n(with caching)
+Analyse -> Analyse: Compare with previous state
+Analyse -> Analyse: Generate coverage report
+
+Analyse -> EventStore: Update event state
+activate EventStore
+EventStore --> Analyse: State updated
+deactivate EventStore
+
+Analyse -> EventBridge: Publish analysis complete event
+activate EventBridge
+EventBridge --> Analyse: Event published
+deactivate EventBridge
+
+Analyse -> CloudWatch: Report metrics
+activate CloudWatch
+CloudWatch --> Analyse: Metrics recorded
+deactivate CloudWatch
+deactivate Analyse
+
+== Publish Flow ==
+
+EventBridge -> Publish: Publish event
+activate Publish
+Publish -> EventStore: Fetch analysis results
+activate EventStore
+EventStore --> Publish: Analysis data
+deactivate EventStore
+
+Publish -> Config: Fetch configuration\n(comment style, path replacements)
+activate Config
+Config --> Publish: Configuration data
+deactivate Config
+
+Publish -> Publish: Format coverage report
+
+Publish -> GitHub: Post coverage comment on PR
+activate GitHub
+GitHub --> Publish: Comment posted
+deactivate GitHub
+
+Publish -> EventStore: Update event state (complete)
+activate EventStore
+EventStore --> Publish: State updated
+deactivate EventStore
+
+Publish -> CloudWatch: Report metrics
+activate CloudWatch
+CloudWatch --> Publish: Metrics recorded
+deactivate CloudWatch
+deactivate Publish
+
+== Badge Generation Flow ==
+
+User -> API: Request coverage badge
+activate API
+API -> Config: Fetch badge data from DynamoDB
+activate Config
+Config --> API: Coverage percentage
+deactivate Config
+
+API -> API: Generate SVG badge
+API --> User: Return badge SVG
+deactivate API
+
+@enduml

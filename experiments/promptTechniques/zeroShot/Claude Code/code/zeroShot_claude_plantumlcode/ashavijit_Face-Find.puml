@@ -1,0 +1,135 @@
+@startuml
+title Face-Find System - Control Flow Sequence Diagram
+
+actor User
+participant "Django Frontend" as Frontend
+participant "Django Views" as Views
+participant "Django Forms" as Forms
+participant "Django Models" as Models
+participant "Azure Face API" as FaceAPI
+participant "Email Service" as Email
+database "Database" as DB
+
+== Report Missing Person ==
+User -> Frontend: Submit Missing Person Form
+Frontend -> Views: POST /missing/create
+Views -> Forms: MissingPersonCreateForm.validate()
+Forms -> Forms: Validate input data
+Forms --> Views: Validation result
+Views -> Models: Create MissingPerson instance
+Models -> DB: INSERT missing person
+DB --> Models: Person ID
+Views -> FaceAPI: Generate Face ID from photo
+FaceAPI -> FaceAPI: Process facial features
+FaceAPI --> Views: Face ID
+Views -> Models: Update person with Face ID
+Models -> DB: UPDATE missing person
+DB --> Models: Success
+Views --> Frontend: Redirect to success page
+Frontend --> User: Display success message
+
+== Report Found Person ==
+User -> Frontend: Submit Reported Person Form
+Frontend -> Views: POST /reported/create
+Views -> Forms: ReportedPersonCreateForm.validate()
+Forms -> Forms: Validate input data
+Forms --> Views: Validation result
+Views -> Models: Create ReportedPerson instance
+Models -> DB: INSERT reported person
+DB --> Models: Person ID
+Views -> FaceAPI: Generate Face ID from photo
+FaceAPI -> FaceAPI: Process facial features
+FaceAPI --> Views: Face ID
+Views -> Models: Update person with Face ID
+Models -> DB: UPDATE reported person
+DB --> Models: Success
+Views -> FaceAPI: Match against missing persons
+FaceAPI -> FaceAPI: Compare face IDs
+FaceAPI --> Views: Matching results
+alt Match Found
+    Views -> Models: Query MissingPerson by Face ID
+    Models -> DB: SELECT missing person
+    DB --> Models: Person details
+    Models --> Views: Missing person data
+    Views -> Email: Send notification to contact
+    Email -> Email: Compose email with match details
+    Email --> Views: Email sent
+    Views -> Models: Update verification status
+    Models -> DB: UPDATE reported person status
+    DB --> Models: Success
+    Views --> Frontend: Redirect to found person page
+    Frontend --> User: Display match details
+else No Match
+    Views --> Frontend: Redirect to success page
+    Frontend --> User: Display report submitted
+end
+
+== View Missing Persons List ==
+User -> Frontend: Access missing persons page
+Frontend -> Views: GET /missing/list
+Views -> Models: Query all missing persons
+Models -> DB: SELECT * FROM missing_persons
+DB --> Models: Person records
+Models --> Views: Missing persons list
+Views --> Frontend: Render template with data
+Frontend --> User: Display missing persons
+
+== View Reported Persons List ==
+User -> Frontend: Access reported persons page
+Frontend -> Views: GET /reported/list
+Views -> Models: Query reported persons by status
+Models -> DB: SELECT * FROM reported_persons WHERE status
+DB --> Models: Person records
+Models --> Views: Reported persons list
+Views --> Frontend: Render template with data
+Frontend --> User: Display reported persons
+
+== Update Missing Person ==
+User -> Frontend: Submit update form
+Frontend -> Views: POST /missing/update/<id>
+Views -> Forms: MissingPersonUpdateForm.validate()
+Forms -> Forms: Validate input data
+Forms --> Views: Validation result
+Views -> Models: Query existing person
+Models -> DB: SELECT missing person by ID
+DB --> Models: Person data
+alt Photo Updated
+    Views -> FaceAPI: Generate new Face ID
+    FaceAPI -> FaceAPI: Process facial features
+    FaceAPI --> Views: New Face ID
+end
+Views -> Models: Update MissingPerson instance
+Models -> DB: UPDATE missing person
+DB --> Models: Success
+Views --> Frontend: Redirect to list page
+Frontend --> User: Display updated list
+
+== Delete Person Record ==
+User -> Frontend: Click delete button
+Frontend -> Views: POST /delete/<id>
+Views -> Models: Query person by ID
+Models -> DB: SELECT person by ID
+DB --> Models: Person data
+Views -> Models: Delete person
+Models -> DB: DELETE person
+DB --> Models: Success
+Views --> Frontend: Redirect to list page
+Frontend --> User: Display updated list
+
+== User Authentication ==
+User -> Frontend: Submit login credentials
+Frontend -> Views: POST /login
+Views -> Models: Authenticate user
+Models -> DB: SELECT user credentials
+DB --> Models: User data
+Models --> Views: Authentication result
+alt Authentication Success
+    Views -> Views: Create session
+    Views --> Frontend: Redirect to dashboard
+    Frontend --> User: Display dashboard
+else Authentication Failed
+    Views --> Frontend: Render login with error
+    Frontend --> User: Display error message
+end
+
+@enduml

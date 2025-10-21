@@ -1,0 +1,177 @@
+@startuml
+title UnoCash - Deployment and Control Flow Sequence Diagram
+
+actor User
+participant "Blazor WebAssembly\nSPA" as Blazor
+participant "Azure API\nManagement" as APIM
+participant "Azure Functions\nAPI" as Functions
+participant "Azure Blob\nStorage" as BlobStorage
+participant "Azure Table\nStorage" as TableStorage
+participant "Azure Form\nRecognizer" as FormRecognizer
+participant "Azure AD" as AD
+participant "Pulumi\nIaC Engine" as Pulumi
+participant "Azure\nResource Manager" as ARM
+
+== Infrastructure Deployment Phase ==
+Pulumi -> ARM: Provision Resource Group
+activate ARM
+ARM --> Pulumi: Resource Group Created
+deactivate ARM
+
+Pulumi -> ARM: Create Storage Account
+activate ARM
+ARM --> Pulumi: Storage Account Created
+deactivate ARM
+
+Pulumi -> ARM: Deploy Function App Service Plan
+activate ARM
+ARM --> Pulumi: Function App Created
+deactivate ARM
+
+Pulumi -> ARM: Configure API Management
+activate ARM
+ARM --> Pulumi: APIM Configured with Policies
+deactivate ARM
+
+Pulumi -> ARM: Setup Azure AD Application
+activate ARM
+ARM --> Pulumi: AD App Registered
+deactivate ARM
+
+Pulumi -> ARM: Configure DNS Records
+activate ARM
+ARM --> Pulumi: DNS Configured
+deactivate ARM
+
+== Application Runtime - Authentication Flow ==
+User -> Blazor: Access Application
+activate Blazor
+Blazor -> AD: Request Authentication
+activate AD
+AD --> Blazor: Return Auth Token
+deactivate AD
+Blazor --> User: Display Home Page
+deactivate Blazor
+
+== Expense Creation Flow ==
+User -> Blazor: Add New Expense
+activate Blazor
+Blazor -> APIM: POST /expenses (with Auth Token)
+activate APIM
+APIM -> APIM: Validate Auth & Apply Policies
+APIM -> Functions: Forward AddExpense Request
+activate Functions
+Functions -> TableStorage: Write Expense Data
+activate TableStorage
+TableStorage --> Functions: Confirm Write
+deactivate TableStorage
+Functions --> APIM: Return Success
+deactivate Functions
+APIM --> Blazor: Response with Expense ID
+deactivate APIM
+Blazor --> User: Display Success
+deactivate Blazor
+
+== Receipt Upload and Processing Flow ==
+User -> Blazor: Upload Receipt Image
+activate Blazor
+Blazor -> APIM: GET /receipt/upload-token
+activate APIM
+APIM -> Functions: GetReceiptUploadSasToken
+activate Functions
+Functions -> BlobStorage: Generate SAS Token
+activate BlobStorage
+BlobStorage --> Functions: Return SAS Token
+deactivate BlobStorage
+Functions --> APIM: Return Token
+deactivate Functions
+APIM --> Blazor: SAS Token Response
+deactivate APIM
+
+Blazor -> BlobStorage: Upload Receipt (using SAS Token)
+activate BlobStorage
+BlobStorage --> Blazor: Upload Complete
+deactivate BlobStorage
+
+Blazor -> APIM: POST /receipt/parse (Receipt URL)
+activate APIM
+APIM -> Functions: Trigger ReceiptParser
+activate Functions
+Functions -> TableStorage: Check Cache
+activate TableStorage
+TableStorage --> Functions: Cache Miss
+deactivate TableStorage
+
+Functions -> FormRecognizer: Analyze Receipt Image
+activate FormRecognizer
+FormRecognizer --> Functions: Extracted Data
+deactivate FormRecognizer
+
+Functions -> TableStorage: Store Parsed Result
+activate TableStorage
+TableStorage --> Functions: Confirm Storage
+deactivate TableStorage
+
+Functions --> APIM: Return Parsed Data
+deactivate Functions
+APIM --> Blazor: Receipt Data Response
+deactivate APIM
+Blazor --> User: Display Parsed Data
+deactivate Blazor
+
+== Expense Retrieval Flow ==
+User -> Blazor: View Expenses
+activate Blazor
+Blazor -> APIM: GET /expenses
+activate APIM
+APIM -> APIM: Validate & Apply Policies
+APIM -> Functions: GetExpenses Request
+activate Functions
+Functions -> TableStorage: Query Expenses
+activate TableStorage
+TableStorage --> Functions: Return Expense List
+deactivate TableStorage
+Functions --> APIM: Expense Data
+deactivate Functions
+APIM --> Blazor: Expense List Response
+deactivate APIM
+Blazor --> User: Display Expenses
+deactivate Blazor
+
+== Expense Update Flow ==
+User -> Blazor: Update Expense
+activate Blazor
+Blazor -> APIM: PUT /expenses/{id}
+activate APIM
+APIM -> Functions: UpdateExpense Request
+activate Functions
+Functions -> TableStorage: Update Expense Record
+activate TableStorage
+TableStorage --> Functions: Confirm Update
+deactivate TableStorage
+Functions --> APIM: Success Response
+deactivate Functions
+APIM --> Blazor: Update Confirmed
+deactivate APIM
+Blazor --> User: Display Updated Data
+deactivate Blazor
+
+== Expense Deletion Flow ==
+User -> Blazor: Delete Expense
+activate Blazor
+Blazor -> APIM: DELETE /expenses/{id}
+activate APIM
+APIM -> Functions: DeleteExpense Request
+activate Functions
+Functions -> TableStorage: Delete Expense Record
+activate TableStorage
+TableStorage --> Functions: Confirm Deletion
+deactivate TableStorage
+Functions --> APIM: Success Response
+deactivate Functions
+APIM --> Blazor: Deletion Confirmed
+deactivate APIM
+Blazor --> User: Update UI
+deactivate Blazor
+
+@enduml

@@ -1,0 +1,140 @@
+@startuml
+title OpenIPC Motors - Control Flow Sequence Diagram
+
+actor "Camera Application" as App
+participant "Motors Daemon" as Daemon
+participant "Driver Wrapper" as Wrapper
+participant "Kernel Driver\n(Optional)" as Kernel
+participant "Hardware Interface\n(GPIO/I2C/SPI/UART)" as Hardware
+participant "Motor Controller\nHardware" as Motor
+
+== Initialization Phase ==
+App -> Daemon: Connect via Unix Socket
+activate Daemon
+Daemon -> Daemon: Load Configuration\n(GPIO pins, max steps)
+Daemon -> Wrapper: Initialize Driver Wrapper
+activate Wrapper
+Wrapper -> Kernel: Open Device (/dev/motor)
+activate Kernel
+Kernel -> Hardware: Initialize Hardware Interface\n(GPIO/I2C/SPI/UART)
+activate Hardware
+Hardware -> Motor: Send Initialization Sequence
+activate Motor
+Motor --> Hardware: ACK
+Hardware --> Kernel: Success
+Kernel --> Wrapper: Device Ready
+Wrapper --> Daemon: Driver Initialized
+deactivate Kernel
+deactivate Wrapper
+Daemon --> App: Connection Established
+deactivate Daemon
+
+== Motor Control Command Flow ==
+App -> Daemon: Send Motor Command\n(Pan/Tilt/Zoom/Focus + Speed)
+activate Daemon
+Daemon -> Daemon: Validate Command Parameters
+Daemon -> Wrapper: Translate to Driver-Specific Command
+activate Wrapper
+
+alt GPIO-based Control (camhi-motor/ingenic-motor)
+    Wrapper -> Kernel: ioctl() with Motor Command
+    activate Kernel
+    Kernel -> Hardware: Set GPIO Pins
+    Hardware -> Motor: Direct GPIO Control Signal
+    Motor -> Motor: Execute Movement
+    Motor --> Hardware: Position Update
+    Hardware --> Kernel: GPIO State
+    Kernel --> Wrapper: Command Executed
+    deactivate Kernel
+else I2C-based Control (i2c-motor)
+    Wrapper -> Hardware: I2C Write Command\n(via i2c-dev.h)
+    Hardware -> Motor: I2C Motor Driver Command
+    Motor -> Motor: Execute Movement
+    Motor --> Hardware: I2C Response
+    Hardware --> Wrapper: Command Executed
+else SPI-based Control (AN41908A)
+    Wrapper -> Hardware: SPI Command Sequence
+    Hardware -> Motor: AN41908A Control Signal
+    Motor -> Motor: Execute Movement\n(Focus/Zoom/Iris)
+    Motor --> Hardware: SPI Response
+    Hardware --> Wrapper: Command Executed
+else UART-based Control (Pelco-D)
+    Wrapper -> Hardware: Serial Write\n(Pelco-D Protocol Packet)
+    Hardware -> Motor: UART PTZ Command
+    Motor -> Motor: Execute PTZ Movement
+    Motor --> Hardware: Status (if supported)
+    Hardware --> Wrapper: Command Executed
+end
+
+Wrapper --> Daemon: Execution Status
+deactivate Wrapper
+Daemon --> App: Command Result
+deactivate Daemon
+
+== Status Query Flow ==
+App -> Daemon: Query Motor Status
+activate Daemon
+Daemon -> Wrapper: Get Status Request
+activate Wrapper
+Wrapper -> Kernel: ioctl() Read Status
+activate Kernel
+Kernel -> Hardware: Read Hardware State
+activate Hardware
+Hardware -> Motor: Query Position/Limits
+Motor --> Hardware: Current State
+deactivate Hardware
+Hardware --> Kernel: Status Data
+Kernel --> Wrapper: Motor Position & Limits
+deactivate Kernel
+Wrapper -> Wrapper: Format Status\n(JSON output)
+Wrapper --> Daemon: Structured Status Data
+deactivate Wrapper
+Daemon --> App: Status Response\n(Position, Limits)
+deactivate Daemon
+
+== Autofocus Flow ==
+App -> Daemon: Trigger Autofocus
+activate Daemon
+Daemon -> Wrapper: Start Autofocus Routine
+activate Wrapper
+loop Focus Search Algorithm
+    Wrapper -> Kernel: ioctl() Focus Command
+    activate Kernel
+    Kernel -> Hardware: Set Focus Position
+    Hardware -> Motor: Adjust Focus
+    Motor --> Hardware: Position Reached
+    deactivate Hardware
+    Hardware --> Kernel: Complete
+    Kernel --> Wrapper: Position Set
+    deactivate Kernel
+    Wrapper -> App: Request Image Sharpness\n(via callback/API)
+    App --> Wrapper: Sharpness Metric
+    Wrapper -> Wrapper: Evaluate Focus Quality
+end
+Wrapper -> Wrapper: Optimal Focus Found
+Wrapper --> Daemon: Autofocus Complete
+deactivate Wrapper
+Daemon --> App: Focus Locked
+deactivate Daemon
+
+== Shutdown Phase ==
+App -> Daemon: Disconnect Request
+activate Daemon
+Daemon -> Wrapper: Shutdown Driver
+activate Wrapper
+Wrapper -> Kernel: Close Device
+activate Kernel
+Kernel -> Hardware: Release Hardware Interface
+activate Hardware
+Hardware -> Motor: Stop All Movement
+Motor --> Hardware: Motors Stopped
+Hardware --> Kernel: Released
+deactivate Hardware
+Kernel --> Wrapper: Device Closed
+deactivate Kernel
+Wrapper --> Daemon: Driver Stopped
+deactivate Wrapper
+Daemon --> App: Disconnected
+deactivate Daemon
+
+@enduml

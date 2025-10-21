@@ -1,0 +1,103 @@
+@startuml
+!theme plain
+title Prediction Cards - Control Flow Sequence Diagram
+
+actor User
+participant "Frontend\n(React)" as Frontend
+participant "WalletClient" as Wallet
+participant "PredictionCards\nAPI" as API
+participant "PredictionCards\nSmart Contract" as Contract
+participant "Aeternity\nBlockchain" as Blockchain
+participant "Process Prediction\nService" as ProcessService
+participant "Oracle\nService" as OracleService
+
+== Prediction Creation ==
+User -> Frontend: Create new prediction
+Frontend -> Wallet: Check wallet connection
+Wallet --> Frontend: Account info
+Frontend -> API: create_prediction(asset, price, times, NFT images)
+API -> Contract: create_prediction()
+Contract -> Blockchain: Store prediction data
+Blockchain --> Contract: Confirmation
+Contract --> API: Prediction created
+API --> Frontend: Prediction ID
+Frontend --> User: Display prediction
+
+== NFT Renting ==
+User -> Frontend: Rent NFT (outcome)
+Frontend -> Wallet: Check balance
+Wallet --> Frontend: Balance confirmed
+Frontend -> API: rent_nft(prediction_id, option, deposit, price_per_ms)
+API -> Contract: rent_nft()
+Contract -> Contract: Validate rental
+Contract -> Blockchain: Update NFT state
+Blockchain --> Contract: Confirmation
+Contract --> API: NFT rented
+API --> Frontend: Rental confirmed
+Frontend --> User: Display rental status
+
+== Additional Deposit ==
+User -> Frontend: Deposit more to NFT
+Frontend -> API: deposit_to_nft(prediction_id, option, amount)
+API -> Contract: deposit_to_nft()
+Contract -> Blockchain: Update deposit
+Blockchain --> Contract: Confirmation
+Contract --> API: Deposit added
+API --> Frontend: Success
+Frontend --> User: Updated balance
+
+== Prediction End & Processing ==
+ProcessService -> ProcessService: Scheduled task triggers
+ProcessService -> Blockchain: Query predictions in CLOSED state
+Blockchain --> ProcessService: List of closed predictions
+ProcessService -> Contract: ask_for_winning_option(prediction_id)
+Contract -> Blockchain: Create oracle query
+Blockchain --> Contract: Query created
+Contract --> ProcessService: Oracle query initiated
+
+== Oracle Response ==
+OracleService -> OracleService: Scheduled task triggers
+OracleService -> Blockchain: Check for pending queries
+Blockchain --> OracleService: Oracle queries
+OracleService -> OracleService: Fetch asset price
+OracleService -> Blockchain: Respond to oracle query
+Blockchain --> OracleService: Response recorded
+
+ProcessService -> ProcessService: Monitor oracle response
+ProcessService -> Contract: process_oracle_response(prediction_id)
+Contract -> Blockchain: Get oracle response
+Blockchain --> Contract: Price data
+Contract -> Contract: Determine winning option
+Contract -> Contract: Calculate winner (longest renter)
+Contract -> Blockchain: Update prediction state to ORACLE_RESOLVED
+Blockchain --> Contract: State updated
+Contract --> ProcessService: Processing complete
+
+== Reward Claiming ==
+User -> Frontend: View holdings
+Frontend -> API: get_prediction_state(prediction_id)
+API -> Contract: Query state
+Contract --> API: Prediction resolved
+API --> Frontend: Winning option & rewards
+Frontend --> User: Display claimable rewards
+
+User -> Frontend: Claim rewards
+Frontend -> API: claim(prediction_id, option)
+API -> Contract: claim()
+Contract -> Contract: Calculate reward share
+Contract -> Contract: Verify renting duration
+Contract -> Blockchain: Transfer rewards
+Blockchain --> Contract: Transfer confirmed
+Contract -> Contract: Update NFT owner (longest renter)
+Contract -> Blockchain: Update ownership
+Blockchain --> Contract: Ownership updated
+Contract --> API: Rewards claimed
+API --> Frontend: Success
+Frontend --> User: Rewards received
+
+== Oracle Extension ==
+OracleService -> OracleService: Periodic extension task
+OracleService -> Blockchain: Extend oracle TTL
+Blockchain --> OracleService: Oracle extended
+
+@enduml

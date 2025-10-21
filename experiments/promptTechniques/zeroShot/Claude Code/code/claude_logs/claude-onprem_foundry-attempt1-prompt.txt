@@ -1,0 +1,93 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: onprem_foundry
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** general
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## Foundry Analysis: Building and Managing Arch Linux Packages
+
+This report analyzes the Foundry system, designed for building and managing Arch Linux packages from the Arch User Repository (AUR). Foundry aims to simplify running a custom package repository for Arch Linux, leveraging object storage for scalable and cost-efficient storage. The core component is the "Furnace," responsible for on-demand package building.
+
+**Key Functionalities and Components:**
+
+*   **Furnace:** The central component for building packages. It retrieves package information from the AUR, employs the Arch Build System (`makepkg`), and uploads the resulting package to object storage. The Furnace's stateless design facilitates horizontal scaling. It exposes a gRPC interface for clients to request builds and check package queue status.
+*   **Package Management:**  Tracks the state of packages (queued, building, built, error) using a `pkgMap`. This ensures only one build occurs for a package at a time.
+*   **Metrics and Health Checks:** Internal endpoints are implemented for health checks, metrics (using Prometheus), and profiling (pprof) to monitor system health and performance.
+*   **Object Storage Integration:** The Furnace uploads built packages to an object storage bucket.
+*   **Builder Interface:** A generic `Builder` interface and its implementation, `MakepkgBuilder`, encapsulate package building logic using the `makepkg` script. `BuilderWithMetrics` decorates Builders with Prometheus metrics instrumentation.
+
+**Important Files and Their Roles:**
+
+*   **Core Application:**
+    *   `cmd/foundry/main.go`: The application entry point, responsible for setting up logging, metrics, Cobra command handling, and running the internal HTTP server.
+    *   `cmd/foundry/config.go`: Defines application configuration, especially for the gRPC server.
+    *   `cmd/foundry/furnace.go`: Defines the Cobra command for the Furnace, configuring and initiating the Furnace component along with its builder.
+*   **Furnace Logic:**
+    *   `pkg/furnace/furnace.go`: Defines the `Furnace` struct, manages build requests, checks queue status, and handles gRPC registration. It also contains the build queue logic using channels for asynchronous processing.
+    *   `pkg/furnace/map.go`: Implements `pkgMap` for managing package build states, ensuring single builds.
+    *   `pkg/furnace/schedule.go`: Schedules builds from the `buildQueue` and initiates the build process.
+    *   `pkg/furnace/builder/builder.go`: Defines the `Builder` interface and implementations, enabling different build strategies (e.g., `MakepkgBuilder`, `NoOpBuilder`).
+*   **gRPC Definition:**
+    *   `pkg/furnace/furnacepb/furnace.proto`: Defines the gRPC service and messages using Protocol Buffers (e.g., `BuildRequest`, `BuildResponse`). The `protoc` compiler generates Go code from this definition.
+*   **Build Automation & Configuration:**
+    *   `go.mod`, `go.sum`: Go module dependencies.
+    *   `Dockerfile`: Defines the containerization process using Docker (base images: `golang:1.15-alpine3.13` for building and `archlinux:base-devel-20210124.0.14185` for runtime).
+    *   `Makefile`: Automates build, install, test, lint, and Docker image management tasks. Uses `bingo` for managing Go tools.
+    *   `.golangci.yaml`: Linter configuration.
+*   **GitHub Actions:**
+    *   `.github/workflows/test.yaml`: Executes tests and linters on code pushes/pull requests.
+    *   `.github/workflows/upload_assets.yaml`: Builds and uploads release assets (binaries) on release creation.
+    *   `.github/workflows/codeql.yaml`: Performs CodeQL code analysis.
+*   **Documentation:**
+    *   `README.md`: Project overview, architecture, contribution guidelines.
+    *   `CHANGELOG.md`: Tracks notable changes.
+
+**Architectural Insights:**
+
+*   **Microservices:** The design favors a microservices architecture with components like Furnace communicating via gRPC.
+*   **Statelessness (Furnace):** Enables easy scaling and resilience.
+*   **Asynchronous Processing:** The `buildQueue` channel allows asynchronous processing of build requests, improving responsiveness.
+*   **Pluggable Builders:** The `Builder` interface enables different build strategies.
+*   **Metrics-Driven:** Uses Prometheus for monitoring build performance and system health.
+*   **Configuration via Flags:** Uses Cobra for command-line flag handling.
+
+**Notable Design Patterns:**
+
+*   **Interface:** The `Builder` interface promotes loose coupling between the Furnace and the build process.
+*   **Decorator:** The `BuilderWithMetrics` function applies the decorator pattern, adding functionality (Prometheus metrics) to a `Builder` without altering its core logic.
+*   **Worker Pool:** The `Start` method utilizes a worker pool of goroutines to process packages from the build queue in parallel.
+*   **gRPC Service:** Exposes the `Furnace` functionality as a gRPC service, providing a well-defined API.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: general
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/onprem_foundry.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

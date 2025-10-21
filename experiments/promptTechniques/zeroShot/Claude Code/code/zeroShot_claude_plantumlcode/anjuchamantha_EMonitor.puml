@@ -1,0 +1,141 @@
+@startuml
+!define COMPONENT_STYLE rectangle
+
+skinparam component {
+    BackgroundColor<<sensor>> LightBlue
+    BackgroundColor<<network>> LightGreen
+    BackgroundColor<<display>> LightYellow
+    BackgroundColor<<processing>> LightCoral
+}
+
+component "ESP32 Device" {
+    component "Main Controller" as main <<processing>>
+
+    component "Sensor Module" as sensors <<sensor>> {
+        component "DHT11 (Temp/Humidity)" as dht11
+        component "BMP180/BMP085 (Pressure)" as bmp
+        component "LDR (Light)" as ldr
+        component "Readings Handler" as readings
+    }
+
+    component "Data Processing" as processing <<processing>> {
+        component "Utils (Statistics)" as utils
+        component "Data Buffer Queue" as buffer
+        component "XML Generator" as xml
+    }
+
+    component "Network Module" as network <<network>> {
+        component "WiFi Manager" as wifi
+        component "HTTP Client" as http
+        component "NTP Time Sync" as ntp
+    }
+
+    component "Alert Module" as alert <<network>> {
+        component "Mail Client" as mail
+        component "SMTP Handler" as smtp
+    }
+
+    component "Display Module" as display <<display>> {
+        component "OLED Driver" as oled
+    }
+
+    component "Configuration" as config <<processing>> {
+        component "config.h" as configfile
+    }
+}
+
+cloud "Internet" {
+    component "Backend Server" as server
+    component "NTP Server\n(pool.ntp.org)" as ntpserver
+    component "SMTP Server" as smtpserver
+}
+
+component "WiFi Network" as wifiap <<network>>
+
+' Sensor connections
+dht11 -down-> readings : temperature/humidity data
+bmp -down-> readings : pressure data
+ldr -down-> readings : light intensity data
+
+' Data flow from sensors to processing
+readings -right-> main : raw sensor data
+main --> utils : calculate statistics
+utils --> main : mean/std deviation
+
+' Buffering and XML generation
+main --> buffer : store readings\n(when offline)
+buffer --> xml : retrieve buffered data
+main --> xml : format data
+xml --> main : CAP-formatted XML
+
+' Network connectivity
+main --> wifi : manage connection
+wifi <--> wifiap : WiFi protocol\n(SSID/Password)
+wifiap <--> server : Internet connection
+wifiap <--> ntpserver : Internet connection
+wifiap <--> smtpserver : Internet connection
+
+' NTP synchronization
+wifi --> ntp : connection established
+ntp --> ntpserver : NTP protocol
+ntpserver --> ntp : time sync
+ntp --> main : synchronized time
+
+' HTTP communication
+main --> http : send XML data
+http --> wifi : use WiFi connection
+http --> server : HTTP POST request
+server --> http : response status
+http --> main : transmission status
+
+' Mail alerts
+main --> mail : trigger alert\n(temp threshold)
+mail --> smtp : send email
+smtp --> wifi : use WiFi connection
+smtp --> smtpserver : SMTP protocol
+smtpserver --> smtp : send status
+smtp --> mail : callback result
+mail --> main : alert status
+
+' Display updates
+main --> oled : update display
+oled -up-> display : WiFi status (t6)\nServer status (t7)\nSensor values
+
+' Configuration
+configfile --> wifi : WiFi credentials
+configfile --> http : server URL
+configfile --> smtp : email credentials
+configfile --> main : device config
+
+' Connection status feedback
+wifi --> main : connection status\n(connected/reconnecting)
+main --> buffer : buffer when offline
+buffer --> main : data available
+
+note right of wifi
+  - Manages connection/reconnection
+  - Functions: wait_and_connect_to_wifi()
+  - Functions: connect_to_wifi()
+  - Handles WiFi connectivity loss
+end note
+
+note right of buffer
+  - Queue-based buffering
+  - pushToBuffers() when offline
+  - popBuffers() when online
+  - Ensures no data loss
+end note
+
+note bottom of server
+  Backend receives sensor data
+  via HTTP POST requests
+  in CAP-formatted XML
+end note
+
+note bottom of configfile
+  CRITICAL: Should be excluded
+  from version control
+  Contains sensitive credentials
+end note
+
+@enduml

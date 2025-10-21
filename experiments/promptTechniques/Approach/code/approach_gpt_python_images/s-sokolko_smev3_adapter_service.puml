@@ -1,0 +1,41 @@
+
+    @startuml
+    title SMEV3 Adapter Service Architecture
+
+    package "API Layer" {
+        class API_Handler {
+            smev_int/views.py
+        }
+    }
+
+    package "Business Logic" {
+        class Query_Processor {
+            smev_int/processors/query.py
+        }
+    }
+
+    package "Data Access" {
+        class Data_Access {
+            smev_int/models.py
+        }
+    }
+
+    package "SMEV3 Integration" {
+        class SMEV_Adapter {
+            smev_int/adapter.py
+        }
+    }
+
+    package "Schema Loading" {
+        class Schema_Loader {
+            smev_int/schema_loader/loader.py
+        }
+    }
+
+    API_Handler --> Query_Processor : REST API Request
+    Query_Processor --> SMEV_Adapter : SOAP Call
+    Query_Processor --> Data_Access : MongoDB Query
+    SMEV_Adapter --> Schema_Loader : Load XSD Schema
+
+    @enduml
+    

@@ -1,0 +1,125 @@
+@startuml
+!define RECTANGLE class
+
+skinparam component {
+    BackgroundColor<<external>> LightBlue
+    BackgroundColor<<infrastructure>> LightGray
+    BackgroundColor<<service>> LightGreen
+    BackgroundColor<<database>> LightYellow
+}
+
+package "Kubernetes Cluster (GKE)" {
+
+    package "Ingress Layer" {
+        component "Nginx Ingress Controller" as nginx <<infrastructure>>
+        component "Cert Manager" as certmgr <<infrastructure>>
+    }
+
+    package "Application Services" {
+        component "Frontend\n(Next.js)" as frontend <<service>> {
+            portin HTTP_IN
+            portout API_OUT
+            portout WS_OUT
+        }
+
+        component "API\n(Flask/Python)" as api <<service>> {
+            portin HTTP_API
+            portin WS_IN
+            portout MQ_PUB_IMG
+            portout MQ_PUB_LOC
+            portout DB_CONN
+        }
+
+        component "Metrics API\n(Node.js)" as metrics <<service>> {
+            portin HTTP_METRICS
+            portin MQ_SUB
+            portout DB_METRICS
+            portout GRAFANA_OUT
+        }
+    }
+
+    package "Message Queue Layer" {
+        component "RabbitMQ" as rabbitmq <<infrastructure>> {
+            portin PUBLISH
+            portout SUBSCRIBE
+        }
+    }
+
+    package "Data Layer" {
+        component "MongoDB\n(StatefulSet)" as mongodb <<database>> {
+            portin DB_PORT
+        }
+    }
+
+    package "Horizontal Pod Autoscaler" {
+        component "HPA" as hpa <<infrastructure>>
+    }
+}
+
+package "External Services" {
+    component "Let's Encrypt\n(ACME)" as letsencrypt <<external>>
+    component "Positionstack API" as positionstack <<external>>
+    component "Grafana" as grafana <<external>>
+}
+
+package "Client" {
+    component "Web Browser" as browser <<external>>
+}
+
+' Ingress and Certificate Management
+browser --> nginx : HTTPS
+nginx --> certmgr : TLS Certificate
+certmgr --> letsencrypt : ACME Protocol
+nginx --> frontend : Route /
+nginx --> api : Route /api
+nginx --> metrics : Route /metrics
+
+' Frontend Connections
+frontend --> api : REST API Calls
+frontend --> api : WebSocket\n(Image Processing)
+
+' API Connections
+api --> rabbitmq : Publish Events\n(Image Processing)
+api --> rabbitmq : Publish Events\n(Location Data)
+api --> mongodb : Store/Retrieve Data
+api --> positionstack : Geocoding API
+
+' Metrics API Connections
+metrics --> rabbitmq : Subscribe to Events
+metrics --> mongodb : Store Metrics Data
+metrics --> grafana : Expose Metrics
+
+' Autoscaling
+hpa ..> frontend : Scale
+hpa ..> api : Scale
+hpa ..> metrics : Scale
+
+note right of nginx
+  Entry point for all
+  external traffic
+end note
+
+note right of rabbitmq
+  Event-driven architecture
+  Decouples services via
+  async messaging
+end note
+
+note right of certmgr
+  Automated TLS certificate
+  management using CRDs
+  and Operator pattern
+end note
+
+note bottom of mongodb
+  Deployed as StatefulSet
+  for persistent storage
+end note
+
+note left of metrics
+  Observer pattern:
+  Consumes RabbitMQ events
+  Aggregates metrics data
+end note
+
+@enduml

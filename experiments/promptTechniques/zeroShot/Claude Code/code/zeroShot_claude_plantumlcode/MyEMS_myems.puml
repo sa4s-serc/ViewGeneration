@@ -1,0 +1,202 @@
+@startuml
+!define COMPONENT_STYLE rectangle
+
+skinparam component {
+    BackgroundColor<<frontend>> LightBlue
+    BackgroundColor<<api>> LightGreen
+    BackgroundColor<<service>> LightYellow
+    BackgroundColor<<database>> LightCoral
+    BackgroundColor<<external>> LightGray
+}
+
+title MyEMS - Energy Management System Architecture
+
+package "Frontend Layer" {
+    [Admin UI\n(AngularJS 1.x)] <<frontend>> as AdminUI
+    [User Portal] <<frontend>> as UserPortal
+}
+
+package "API Gateway" {
+    [RESTful API\n(Falcon Framework)] <<api>> as API
+    [Authentication & Authorization] <<api>> as Auth
+    [Session Management] <<api>> as Session
+}
+
+package "Core Services" {
+    [User Management Service] <<service>> as UserMgmt
+    [Tenant Management Service] <<service>> as TenantMgmt
+    [Command Service] <<service>> as CommandSvc
+    [Tariff Service] <<service>> as TariffSvc
+    [Cost Center Service] <<service>> as CostCenterSvc
+}
+
+package "Data Acquisition Layer" {
+    [Modbus TCP Acquisition] <<service>> as ModbusTCP
+    [MQTT Client] <<service>> as MQTTClient
+    [Protocol Manager] <<service>> as ProtocolMgr
+    [Point Manager] <<service>> as PointMgr
+}
+
+package "Data Processing Services" {
+    [Data Cleaning Service] <<service>> as CleaningSvc
+    [Data Normalization Service] <<service>> as NormalizationSvc
+    [Data Aggregation Service\n(Multiprocessing)] <<service>> as AggregationSvc
+}
+
+package "Business Logic Services" {
+    [Energy Monitoring] <<service>> as EnergyMon
+    [Carbon Emission Tracking] <<service>> as CarbonTrack
+    [Billing Service] <<service>> as BillingSvc
+    [Fault Detection & Diagnostics] <<service>> as FDD
+    [Virtual Power Plant Mgmt] <<service>> as VPPMgmt
+    [Wind Farm Management] <<service>> as WindFarm
+    [Energy Storage Management] <<service>> as EnergyStor
+    [Microgrid Management] <<service>> as Microgrid
+}
+
+package "Reporting Layer" {
+    [Report Generation Service] <<service>> as ReportGen
+    [Excel Exporter] <<service>> as ExcelExport
+    [Energy Reports] <<service>> as EnergyReports
+    [Carbon Reports] <<service>> as CarbonReports
+    [Cost Analysis Reports] <<service>> as CostReports
+    [FDD Reports] <<service>> as FDDReports
+}
+
+package "Notification Services" {
+    [SMS Notification] <<service>> as SMS
+    [Email Notification] <<service>> as Email
+    [Web Notification] <<service>> as WebNotif
+    [WeChat Notification] <<service>> as WeChat
+}
+
+package "Data Storage Layer" {
+    database "MySQL System DB" <<database>> as SystemDB
+    database "MySQL Energy DB" <<database>> as EnergyDB
+    database "MySQL Billing DB" <<database>> as BillingDB
+    database "MySQL Historical DB" <<database>> as HistoricalDB
+    database "MySQL Carbon DB" <<database>> as CarbonDB
+}
+
+package "External Systems" {
+    [IoT Devices\n(Meters, Sensors)] <<external>> as IoTDevices
+    [Configuration\n(Environment Variables)] <<external>> as Config
+}
+
+' Frontend to API connections
+AdminUI --> API : HTTPS/REST
+UserPortal --> API : HTTPS/REST
+
+' API Layer connections
+API --> Auth : authenticate
+API --> Session : manage sessions
+API ..> Config : load config
+
+' API to Core Services
+API --> UserMgmt : user operations
+API --> TenantMgmt : tenant operations
+API --> CommandSvc : command operations
+API --> TariffSvc : tariff operations
+API --> CostCenterSvc : cost center operations
+
+' API to Business Logic
+API --> EnergyMon : monitor energy
+API --> CarbonTrack : track emissions
+API --> BillingSvc : billing operations
+API --> FDD : fault detection
+API --> VPPMgmt : VPP operations
+API --> WindFarm : wind farm operations
+API --> EnergyStor : storage operations
+API --> Microgrid : microgrid operations
+
+' API to Reporting
+API --> ReportGen : generate reports
+
+' Data Acquisition connections
+IoTDevices --> ModbusTCP : Modbus/TCP
+IoTDevices --> MQTTClient : MQTT
+ModbusTCP --> ProtocolMgr : protocol handling
+MQTTClient --> ProtocolMgr : protocol handling
+ProtocolMgr --> PointMgr : data points
+
+' Data Processing Pipeline
+PointMgr --> CleaningSvc : raw data
+CleaningSvc --> NormalizationSvc : cleaned data
+NormalizationSvc --> AggregationSvc : normalized data
+
+' Data Processing to Databases
+CleaningSvc --> EnergyDB : store cleaned data
+NormalizationSvc --> EnergyDB : store normalized data
+AggregationSvc --> EnergyDB : store aggregated data
+AggregationSvc --> HistoricalDB : store historical data
+
+' Business Logic to Databases
+EnergyMon --> EnergyDB : read/write
+CarbonTrack --> CarbonDB : read/write
+BillingSvc --> BillingDB : read/write
+BillingSvc --> TariffSvc : get tariffs
+FDD --> SystemDB : read/write
+
+UserMgmt --> SystemDB : read/write
+TenantMgmt --> SystemDB : read/write
+CommandSvc --> SystemDB : read/write
+TariffSvc --> SystemDB : read/write
+CostCenterSvc --> SystemDB : read/write
+
+VPPMgmt --> SystemDB : read/write
+WindFarm --> SystemDB : read/write
+EnergyStor --> SystemDB : read/write
+Microgrid --> SystemDB : read/write
+
+' Reporting connections
+ReportGen --> ExcelExport : use exporter
+ReportGen --> EnergyReports : energy reports
+ReportGen --> CarbonReports : carbon reports
+ReportGen --> CostReports : cost reports
+ReportGen --> FDDReports : FDD reports
+
+EnergyReports --> EnergyDB : query data
+CarbonReports --> CarbonDB : query data
+CostReports --> BillingDB : query data
+FDDReports --> SystemDB : query data
+
+ExcelExport --> API : base64 encoded
+
+' FDD to Notifications
+FDD --> SMS : send alerts
+FDD --> Email : send alerts
+FDD --> WebNotif : send alerts
+FDD --> WeChat : send alerts
+
+' Configuration connections
+ModbusTCP ..> Config : load config
+MQTTClient ..> Config : load config
+CleaningSvc ..> Config : load config
+NormalizationSvc ..> Config : load config
+AggregationSvc ..> Config : load config
+
+note right of API
+  Central API Gateway using
+  Falcon Framework with
+  JSON REST endpoints
+end note
+
+note right of AggregationSvc
+  Hourly aggregation with
+  multiprocessing for
+  performance optimization
+end note
+
+note bottom of "Data Storage Layer"
+  Multiple MySQL databases for
+  different concerns supporting
+  eventual consistency model
+end note
+
+note left of FDD
+  Fault Detection with
+  multi-channel alerting
+  (SMS, Email, Web, WeChat)
+end note
+
+@enduml

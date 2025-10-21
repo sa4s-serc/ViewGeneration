@@ -1,0 +1,147 @@
+@startuml
+title Autopatzer System - Deployment and Connectivity Sequence Diagram
+
+actor User
+participant "React UI\n(Electron App)" as UI
+participant "WebSocket\n(autopatzerd)" as WS
+participant "Lichess API\n(Event Stream)" as Lichess
+participant "Perl\nCommunication Layer" as Perl
+participant "Teensy 3.2\nMicrocontroller" as Teensy
+participant "A4988\nStepper Drivers" as Drivers
+participant "NEMA17\nMotors (X/Y)" as Motors
+participant "CD4051B\nMultiplexers" as Mux
+participant "Hall Effect\nSensors" as Sensors
+participant "IRF540N MOSFET\n(Electromagnet)" as Magnet
+
+== System Initialization and Network Setup ==
+
+User -> UI: Launch Application
+activate UI
+UI -> UI: Fetch Current IP Address\n(useEffect/useInterval)
+UI -> Lichess: Establish WebSocket Connection\n(useLichessEventStream)
+activate Lichess
+Lichess --> UI: Connection Established
+UI -> WS: Establish WebSocket Connection\n(useBoardEventStream)
+activate WS
+WS --> UI: Connection Established
+UI -> Teensy: Initialize via Perl Layer
+activate Perl
+Perl -> Teensy: Send Initialization Commands
+activate Teensy
+Teensy -> Drivers: Initialize Stepper Drivers
+activate Drivers
+Teensy -> Mux: Configure Multiplexer Channels
+activate Mux
+Teensy --> Perl: Initialization Complete
+Perl --> UI: System Ready
+UI --> User: Display Home Screen
+
+== Game Start and Connectivity ==
+
+User -> UI: Select Game/Start Match
+UI -> Lichess: Request Game Stream\n(Lichess Boards API)
+Lichess --> UI: Game Data & Stream Events
+UI -> WS: Subscribe to Board Events
+WS --> UI: Board Event Stream Active
+
+== Move Detection and Processing ==
+
+Lichess -> UI: Opponent Move Event\n(WebSocket)
+UI -> UI: Update Game State\n(React Component)
+UI -> WS: Send Move Command
+WS -> Perl: Relay Move Instructions
+Perl -> Teensy: Transmit Move Coordinates
+Teensy -> Drivers: Calculate Motor Steps\n(AccelStepper)
+Drivers -> Motors: Drive X-Axis Motor
+activate Motors
+Motors --> Drivers: Position Reached
+Drivers -> Motors: Drive Y-Axis Motor
+Motors --> Drivers: Position Reached
+deactivate Motors
+Teensy -> Magnet: Activate Electromagnet\n(via MOSFET)
+activate Magnet
+Magnet --> Teensy: Piece Grabbed
+Teensy -> Drivers: Move to Target Position
+activate Motors
+Drivers -> Motors: Execute Movement
+Motors --> Drivers: Target Reached
+deactivate Motors
+Teensy -> Magnet: Deactivate Electromagnet
+deactivate Magnet
+Teensy -> Mux: Select Sensor Channel
+Mux -> Sensors: Read Hall Effect Values
+activate Sensors
+Sensors --> Mux: Analog Signal
+deactivate Sensors
+Mux --> Teensy: Sensor Reading
+Teensy -> Perl: Position Confirmed
+Perl -> WS: Board State Update
+WS -> UI: Update Board Display
+UI --> User: Show Updated Position
+
+== User Move Execution ==
+
+User -> UI: Make Physical Move
+UI -> Teensy: Monitor Board via Perl
+Teensy -> Mux: Scan All Sensor Positions
+loop For Each Board Square
+    Mux -> Sensors: Read Position
+    activate Sensors
+    Sensors --> Mux: Piece Presence
+    deactivate Sensors
+    Mux --> Teensy: Sensor Data
+end
+Teensy -> Perl: Detected Board Changes
+Perl -> WS: Move Detected
+WS -> UI: Board Change Event
+UI -> UI: Validate Move\n(ConfirmMove Component)
+UI --> User: Display Move Confirmation
+User -> UI: Confirm Move
+UI -> Lichess: Send Move via API\n(POST Request)
+Lichess --> UI: Move Accepted
+UI -> WS: Update Local Board State
+UI --> User: Display Move Confirmation\n(Moves Component)
+
+== Continuous Connectivity Monitoring ==
+
+loop During Active Game
+    Lichess -> UI: Heartbeat/Keep-Alive
+    UI --> Lichess: Acknowledge
+    WS -> UI: Board Status Updates
+    UI --> WS: Acknowledge
+    UI -> Teensy: Poll Sensors via Perl
+    Teensy -> Mux: Multiplex Sensor Inputs
+    Mux -> Sensors: Read All Positions
+    activate Sensors
+    Sensors --> Mux: Analog Readings
+    deactivate Sensors
+    Mux --> Teensy: Consolidated Data
+    Teensy --> Perl: Board State
+    Perl --> WS: State Update
+    WS --> UI: Real-time Board Status
+end
+
+== Game Completion ==
+
+Lichess -> UI: Game Over Event
+UI -> UI: Display Result\n(Result Component)
+UI --> User: Show Game Outcome
+UI -> Teensy: Reset Board via Perl
+Teensy -> Drivers: Return to Home Position
+activate Motors
+Drivers -> Motors: Execute Homing Sequence
+Motors --> Drivers: Home Position Reached
+deactivate Motors
+deactivate Drivers
+deactivate Mux
+Teensy --> Perl: Board Reset Complete
+Perl --> WS: Ready for New Game
+WS --> UI: System Ready
+deactivate Teensy
+deactivate Perl
+deactivate WS
+deactivate Lichess
+UI --> User: Return to Home Screen
+deactivate UI
+
+@enduml

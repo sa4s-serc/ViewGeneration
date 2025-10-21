@@ -1,0 +1,138 @@
+@startuml
+!define RECTANGLE class
+
+title Algorithm Visualization Application - Control Flow Sequence Diagram
+
+actor User
+participant "Browser\n(React App)" as Browser
+participant "MyRoute\n(Router)" as Router
+participant "MainInterface" as MainInterface
+participant "Sidebar" as Sidebar
+participant "Map\n(BMap API)" as Map
+participant "Panel" as Panel
+participant "GraphSVG" as GraphSVG
+participant "GraphTable" as GraphTable
+participant "eventProxy\n(Pub-Sub)" as EventProxy
+participant "Express Server" as ExpressServer
+participant "Authorize\n(Middleware)" as Authorize
+participant "routes/index.js" as Routes
+participant "User Module\n(DAO)" as UserModule
+participant "MySQL Database" as Database
+participant "C++ Algorithm\n(External Process)" as CppAlgorithm
+
+== Application Initialization ==
+User -> Browser: Access Application URL
+Browser -> Router: Load Application
+Router -> MainInterface: Render Main Interface
+MainInterface -> Sidebar: Initialize Sidebar
+MainInterface -> Map: Initialize Map with BMap API
+MainInterface -> Panel: Initialize Panel
+Panel -> GraphSVG: Initialize Graph Visualization
+Panel -> GraphTable: Initialize Graph Table
+GraphSVG -> EventProxy: Subscribe to events
+GraphTable -> EventProxy: Subscribe to events
+
+== User Authentication ==
+User -> Sidebar: Enter Credentials
+Sidebar -> Browser: Submit Login Form
+Browser -> ExpressServer: POST /users/login
+ExpressServer -> Authorize: Validate Session
+Authorize -> UserModule: Check User Credentials
+UserModule -> Database: Query User Data
+Database --> UserModule: Return User Record
+UserModule --> Authorize: User Validated
+Authorize --> ExpressServer: Authentication Success
+ExpressServer --> Browser: Session Token
+Browser --> User: Login Success
+
+== Algorithm Selection and Node Management ==
+User -> Sidebar: Select Algorithm (e.g., DFS, Dijkstra)
+Sidebar -> Sidebar: Update UI State
+User -> Sidebar: Add/Delete Nodes
+Sidebar -> Map: Update Map Markers
+Map -> Map: Render/Remove Node Markers
+Sidebar -> Panel: Update Graph Data
+Panel -> GraphSVG: Refresh Graph Visualization
+Panel -> GraphTable: Update Table Data
+
+== Algorithm Execution Request ==
+User -> Sidebar: Click "Visualize" Button
+Sidebar -> Browser: Prepare Request Data
+Browser -> ExpressServer: POST /code (with algorithm params)
+ExpressServer -> Authorize: Check Authorization
+Authorize -> ExpressServer: Authorized
+ExpressServer -> Routes: Handle Algorithm Execution
+Routes -> Routes: Write Input to File
+Routes -> CppAlgorithm: Spawn External Process (exec)
+activate CppAlgorithm
+CppAlgorithm -> CppAlgorithm: Execute Algorithm\n(DFS/Dijkstra/etc.)
+CppAlgorithm -> CppAlgorithm: Generate Output File
+CppAlgorithm --> Routes: Process Complete
+deactivate CppAlgorithm
+Routes -> Routes: Read Output File
+Routes -> Routes: Transform to Animation Steps
+Routes -> Database: Persist Algorithm State
+Database --> Routes: Save Confirmation
+Routes --> ExpressServer: Return Animation Data
+ExpressServer --> Browser: JSON Response with Steps
+Browser -> Panel: Receive Animation Steps
+
+== Visualization and Animation ==
+Panel -> EventProxy: Publish "startAnimation" Event
+EventProxy -> GraphSVG: Notify Animation Start
+EventProxy -> GraphTable: Notify Animation Start
+GraphSVG -> GraphSVG: Begin Step-by-Step Animation
+loop For Each Animation Step
+    GraphSVG -> Map: Update Node/Edge States
+    Map -> Map: Render Visual Changes
+    GraphSVG -> EventProxy: Publish "stepUpdate" Event
+    EventProxy -> GraphTable: Notify Step Update
+    GraphTable -> GraphTable: Highlight Current Row
+    GraphSVG -> GraphSVG: Display Code Snippet
+    GraphSVG -> GraphSVG: Wait for Animation Delay
+end
+GraphSVG -> EventProxy: Publish "animationComplete" Event
+EventProxy -> GraphTable: Notify Animation Complete
+GraphTable -> GraphTable: Reset Highlighting
+GraphSVG --> User: Display Completion Status
+
+== View Reports ==
+User -> Sidebar: Navigate to Reports
+Sidebar -> Router: Route to /reports
+Router -> Reports: Render Reports Component
+Reports -> Browser: Request Report Data
+Browser -> ExpressServer: GET /reports
+ExpressServer -> Authorize: Check Authorization
+Authorize -> ExpressServer: Authorized
+ExpressServer -> Routes: Fetch Report Data
+Routes -> Database: Query Algorithm History
+Database --> Routes: Return Report Records
+Routes --> ExpressServer: Report Data
+ExpressServer --> Browser: JSON Response
+Browser -> Reports: Display Reports
+Reports -> BodyInfo: Render Report Body
+Reports -> HeadInfo: Render Report Header
+Reports --> User: Show Visualization History
+
+== Multi-Process Handling (Backend) ==
+note over ExpressServer: Cluster Module spawns\nmultiple worker processes
+ExpressServer -> ExpressServer: Master Process Forks Workers
+loop For Each Worker
+    ExpressServer -> ExpressServer: Worker Binds to Port
+    ExpressServer -> ExpressServer: Handle Requests
+end
+
+== Error Scenarios ==
+Browser -> ExpressServer: Request (Any)
+ExpressServer -> Authorize: Check Authorization
+Authorize --> ExpressServer: Authorization Failed
+ExpressServer --> Browser: 401 Unauthorized
+Browser -> Router: Redirect to Login
+Router --> User: Show Login Screen
+
+ExpressServer -> Database: Database Query
+Database --> ExpressServer: Connection Error\n(Too Many Connections)
+ExpressServer --> Browser: 500 Internal Server Error
+Browser --> User: Display Error Message
+
+@enduml

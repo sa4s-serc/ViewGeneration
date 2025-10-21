@@ -1,0 +1,86 @@
+@startuml
+title Azure OpenAI Embeddings QnA - Data Flow and Control Flow
+
+actor User
+participant "Streamlit Web App\n(OpenAI_Queries.py)" as WebApp
+participant "Helper\n(helper.py)" as Helper
+participant "Azure OpenAI\nService" as OpenAI
+participant "Vector Store\n(Azure Search/Redis/PGVector)" as VectorStore
+participant "BatchStartProcessing\n(Azure Function)" as BatchStart
+participant "Azure Queue" as Queue
+participant "BatchPushResults\n(Azure Function)" as BatchPush
+participant "Azure Blob Storage" as BlobStorage
+participant "Azure Form Recognizer" as FormRecognizer
+participant "Azure Translator" as Translator
+
+== Query Flow ==
+User -> WebApp: Submit question
+activate WebApp
+WebApp -> Helper: process_query(question)
+activate Helper
+Helper -> OpenAI: create_embedding(question)
+activate OpenAI
+OpenAI --> Helper: question_embedding
+deactivate OpenAI
+Helper -> VectorStore: search_similar_documents(question_embedding)
+activate VectorStore
+VectorStore --> Helper: relevant_document_chunks
+deactivate VectorStore
+Helper -> OpenAI: generate_answer(question, document_chunks)
+activate OpenAI
+OpenAI --> Helper: generated_answer
+deactivate OpenAI
+Helper --> WebApp: answer_result
+deactivate Helper
+WebApp --> User: Display answer
+deactivate WebApp
+
+== Batch Document Processing Flow ==
+User -> BatchStart: HTTP request to start batch processing
+activate BatchStart
+BatchStart -> Queue: add_messages(file_list)
+activate Queue
+Queue --> BatchStart: confirmation
+deactivate Queue
+BatchStart --> User: Processing started
+deactivate BatchStart
+
+Queue -> BatchPush: trigger on queue message
+activate BatchPush
+BatchPush -> BlobStorage: read_file(file_path)
+activate BlobStorage
+BlobStorage --> BatchPush: file_content
+deactivate BlobStorage
+
+BatchPush -> FormRecognizer: extract_text(file_content)
+activate FormRecognizer
+FormRecognizer --> BatchPush: extracted_text
+deactivate FormRecognizer
+
+opt Translation Required
+BatchPush -> Translator: translate_text(extracted_text)
+activate Translator
+Translator --> BatchPush: translated_text
+deactivate Translator
+end
+
+BatchPush -> Helper: chunk_text(extracted_text)
+activate Helper
+Helper --> BatchPush: text_chunks
+deactivate Helper
+
+loop for each chunk
+BatchPush -> OpenAI: create_embedding(chunk)
+activate OpenAI
+OpenAI --> BatchPush: chunk_embedding
+deactivate OpenAI
+BatchPush -> VectorStore: store_embedding(chunk, embedding)
+activate VectorStore
+VectorStore --> BatchPush: confirmation
+deactivate VectorStore
+end
+
+BatchPush --> Queue: message processed
+deactivate BatchPush
+
+@enduml

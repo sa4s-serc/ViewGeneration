@@ -1,0 +1,77 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: badr42_oke_A1
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** deployment, connectivity, performance
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## OKE A1 Cluster Provisioning with Terraform: Repository Analysis
+
+This report analyzes a Terraform configuration designed to provision an Oracle Kubernetes Engine (OKE) cluster on Oracle Cloud Infrastructure (OCI) using cost-effective Ampere A1 compute shapes (Arm-based instances). The configuration encompasses the necessary networking infrastructure and deploys a basic Nginx application.
+
+**Key Functionalities and Components:**
+
+*   **OKE Cluster Creation:** The core function is provisioning a fully managed OKE cluster, including control plane and worker nodes, defining the cluster name, Kubernetes version, and relevant freeform tags.
+*   **Networking Infrastructure:** The configuration sets up a Virtual Cloud Network (VCN) serving as a private network for the cluster, alongside regional subnets for worker nodes, load balancers, and the Kubernetes API endpoint, enhancing high availability. It also establishes an Internet Gateway (IGW) for outbound internet access for worker nodes, a NAT Gateway (NGW) for similar access from private subnets, and a Service Gateway (SGW) enabling secure interaction with OCI services without public IPs. Route tables define traffic routing rules, while security lists enforce network security rules, controlling inbound and outbound traffic.
+*   **Node Pool Management:** A node pool is defined, grouping worker nodes with identical configurations. This specifies the node shape (VM.Standard.A1.Flex), OCPU count, memory allocation, and the image used. Initial node labels are also defined.
+*   **Kubernetes Configuration Retrieval:** The configuration retrieves the Kubernetes configuration (kubeconfig) file, enabling cluster interaction via `kubectl`. This configuration is stored locally.
+*   **Application Deployment (Nginx):** A basic Nginx deployment and service definition are included, triggered by a `local-exec` provisioner executing a script after node pool creation.
+
+**Important Files and Their Roles:**
+
+*   **`main.tf`:** The primary Terraform configuration file. It defines all OCI resources (VCN, subnets, gateways, security lists, OKE cluster, node pools) and their dependencies.
+*   **`variables.tf`:** Defines variables used in `main.tf`, allowing for customization without modifying core configuration. This includes a crucial map of `InstanceImageOCID` values, specific to each region.
+*   **`nginx_deployment.yaml`:** A Kubernetes manifest file defining the Nginx deployment and service, creating a deployment with Nginx pods and exposing them through a LoadBalancer service.
+*   **`setup_nginx.sh`:** A shell script executed by the `local-exec` provisioner. It applies the `nginx_deployment.yaml` manifest to the Kubernetes cluster and exposes the deployment as a LoadBalancer.
+*   **`README.md`:** Provides instructions for using the Terraform configuration, outlining architecture, requirements, configuration, and build processes.
+*   **`.gitattributes`:** Configures Git's handling of line endings.
+*   **`generate-keys.sh`:** Used to generate SSH keys.
+
+**Architectural Insights:**
+
+*   **Hub-and-Spoke Model:** The VCN acts as a central hub, with subnets forming the spokes.
+*   **Security:** Security lists are configured to allow essential traffic between worker nodes, the Kubernetes API endpoint, and external access. Ingress rules permit SSH access and access to the Kubernetes API endpoint.
+*   **Load Balancing:** A Load Balancer service ensures external accessibility to the Nginx application.
+*   **Ampere A1 Optimization:** The configuration prioritizes Ampere A1 compute shapes for cost-effective Kubernetes deployments.
+*   **Private vs. Public Subnets:** Worker nodes reside in a private subnet, while the Kubernetes API endpoint and load balancer can utilize public IPs, balancing security and accessibility.
+
+**Notable Design Patterns:**
+
+*   **Infrastructure as Code (IaC):** The entire infrastructure is defined and managed as code using Terraform.
+*   **Modular Design:** The configuration is structured into logical modules (e.g., networking, compute, Kubernetes).
+*   **Variable-Driven Configuration:** The use of variables facilitates easy customization.
+*   **Provisioner Pattern:** The `local-exec` provisioner executes commands on created resources. *Note: Utilizing the `kubernetes_manifest` resource is a cleaner and more idiomatic approach for deploying Kubernetes resources.*
+*   **Resource Tagging:** Freeform tags are used for resource labeling, aiding organization and cost tracking.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment, connectivity, performance
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/badr42_oke_A1.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

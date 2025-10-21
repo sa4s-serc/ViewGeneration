@@ -1,0 +1,95 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: lowes_auditor
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** deployment
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## Audit Framework Analysis: auditor-v1
+
+This report summarizes the architecture, components, and functionality of the `auditor-v1` framework, designed for auditing in JVM-based applications, particularly microservices. The framework decouples auditing from business logic, leveraging asynchronous processing, eventual consistency, and high throughput through the use of Kafka for event streaming and Elasticsearch for data storage.
+
+**Core Functionality:**
+
+The framework supports both auditing and logging. Auditing focuses on capturing changes (creates, updates, deletes) to data. Logging records specific events or data states. Key functionalities include:
+
+*   **Auditing and Logging:** Capturing and recording changes and events within applications.
+*   **Asynchronous Processing:** Utilizes Project Reactor to ensure non-blocking event handling, preventing performance bottlenecks in applications.
+*   **Event Streaming:** Employs Kafka for scalable and reliable event distribution, promoting eventual consistency.
+*   **Data Storage & Retrieval:** Utilizes Elasticsearch for storing and indexing audit events, enabling efficient querying and analysis.
+*   **Filtering:** Allows configuration of rules to exclude or include different event types to limit the volume of audit data stored.
+*   **Decoration:** Provides means to enhance audit events with additional metadata, both static and dynamically generated from the application context.
+*   **Configuration:** Supports flexible configuration options, allowing both startup and runtime customization.
+
+**Key Components & Architecture:**
+
+The framework follows a layered architecture (API, Service, Infrastructure) with clear separation of concerns.  It's designed for microservices architectures and leverages event-driven principles.
+
+*   **Client Library:** Provides a simple API for applications to generate audit events and logs.  A Spring Boot starter module is included for streamlined integration within Spring Boot applications. Example applications demonstrating client usage in standalone and Spring Boot environments are provided in the `/client-example` and `/client-example-springboot` directories.
+*   **Application Server ( `/app` ):** A deployable application responsible for consuming audit events from Kafka and persisting them in Elasticsearch. It comprises:
+    *   `Application.kt`: The application's main entry point.
+    *   `ConsumerService.kt`: Responsible for subscribing to Kafka topics and receiving audit events.
+    *   `AuditEventRepositoryService.kt`: Handles the persistence of audit events to Elasticsearch.
+*   **`/core`:** This module houses reusable code, including data mappers and auto-generated OpenAPI specifications for DTOs and entities. Notably:
+    *   `AuditEventDTOMapper.kt` and `AuditEventMapper.kt` facilitate mapping between DTOs and domain entities.
+    *   `JsonObject.kt` provides a Singleton object containing a pre-configured `ObjectMapper` for JSON serialization and deserialization.
+*   **`/specs`:** Contains OpenAPI specifications used for generating code and documentation, ensuring API consistency.
+
+**Important Files:**
+
+*   **`LICENSE`:** Defines the Apache 2.0 license.
+*   **`README.md`:** Provides an overview, motivation, architecture, modules, and integration instructions.
+*   **`versions.properties`:** Manages dependency versions using the `refreshVersions` Gradle plugin.
+*   **`build.gradle.kts`:** Defines the Gradle build configuration, including dependencies, plugins, and tasks.
+*   **`CONTRIBUTING.md`:** Outlines contribution guidelines.
+*   **`settings.gradle.kts`:** Specifies subprojects included in the Gradle build.
+
+**Design Patterns:**
+
+The framework leverages several design patterns to promote maintainability, flexibility, and efficiency:
+
+*   **Singleton:** Ensures a single instance of `ObjectMapper` via the `JsonObject` object.
+*   **Factory:** `Auditor`'s `getInstance` methods use a factory pattern to create auditor instances with default values.
+*   **Strategy:** The `AuditEventElementFilter` interface, with implementations like `InclusionFilter` and `ExclusionFilter`, enables flexible filtering logic.
+*   **Template Method:** `EventConsumerService` provides a template for consuming Kafka events, delegating specific consumption logic to subclasses through abstract methods.
+*   **Data Mapper:** Mapper classes like `AuditEventDTOMapper` and `AuditEventMapper` handle conversion between DTOs and domain objects.
+*   **Retry Pattern:**  Implements retry logic using Project Reactor for robust error handling.
+
+**Code Quality:**
+
+The project incorporates tools like ktlint, detekt, and jacoco to ensure code quality, maintainability, and test coverage.
+
+In conclusion, `auditor-v1` offers a comprehensive audit framework well-suited for modern, distributed applications. Its design emphasizes decoupling, scalability, and ease of integration, making it a valuable tool for tracking and analyzing data changes and events within JVM-based environments.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/lowes_auditor.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

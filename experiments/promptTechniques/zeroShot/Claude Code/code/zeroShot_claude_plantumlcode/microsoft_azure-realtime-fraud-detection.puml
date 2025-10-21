@@ -1,0 +1,158 @@
+@startuml
+title Azure Real-Time Fraud Detection Platform - Component Diagram\n(Deployment & Performance Architecture)
+
+skinparam component {
+    BackgroundColor #E1F5FF
+    BorderColor #0078D4
+    ArrowColor #0078D4
+}
+
+skinparam database {
+    BackgroundColor #C8E6C9
+    BorderColor #388E3C
+}
+
+skinparam note {
+    BackgroundColor #FFF9C4
+    BorderColor #FBC02D
+}
+
+package "Data Ingestion Layer" {
+    component [Event Generator] as EventGen <<Simulator>>
+    component [Azure Event Hub] as EventHub <<Message Broker>>
+
+    note right of EventHub
+        Performance Features:
+        - High throughput ingestion
+        - Horizontal scaling
+        - Event buffering
+    end note
+}
+
+package "Stream Processing Layer" {
+    component [Azure Stream Analytics] as StreamAnalytics <<Stream Processor>>
+
+    note right of StreamAnalytics
+        Performance Features:
+        - Real-time processing
+        - Low-latency analytics
+        - Parallel processing
+    end note
+}
+
+package "Machine Learning Layer" {
+    component [Azure ML Service] as AzureML <<ML Platform>>
+    component [ML Model] as MLModel <<Trained Model>>
+    component [Conda Environment] as CondaEnv <<Runtime>>
+    component [Scoring Script] as ScoringScript <<Inference>>
+
+    AzureML ..> MLModel : trains/deploys
+    AzureML ..> CondaEnv : manages
+    AzureML ..> ScoringScript : deploys
+
+    note right of AzureML
+        Deployment:
+        - Model versioning
+        - A/B testing support
+        - Scalable inference
+    end note
+}
+
+package "Function Orchestration Layer" {
+    component [Orchestration Function] as OrchFunction <<Azure Function>>
+    component [Benford's Law Function] as BenfordFunction <<Azure Function>>
+    component [Fraud Ring Detection Function] as FraudRingFunction <<Azure Function>>
+
+    note right of OrchFunction
+        Performance:
+        - Serverless scaling
+        - Event-driven execution
+        - Parallel processing
+    end note
+}
+
+package "Data Storage Layer" {
+    database [Cosmos DB SQL API] as CosmosSQL <<Document Store>>
+    database [Cosmos DB Gremlin API] as CosmosGremlin <<Graph Database>>
+    database [Azure Synapse Analytics] as Synapse <<Data Warehouse>>
+
+    note right of CosmosSQL
+        Performance:
+        - Multi-region replication
+        - Low-latency reads/writes
+        - Automatic indexing
+    end note
+
+    note right of CosmosGremlin
+        Performance:
+        - Graph traversal optimization
+        - Horizontal partitioning
+        - Global distribution
+    end note
+
+    note right of Synapse
+        Performance:
+        - Massive parallel processing
+        - Column-store indexes
+        - Result set caching
+    end note
+}
+
+package "Configuration & Deployment" {
+    component [ARM Templates] as ARMTemplate <<IaC>>
+    component [Jupyter Notebooks] as Notebooks <<Development>>
+    component [Config Files] as Config <<Configuration>>
+
+    note right of ARMTemplate
+        Deployment:
+        - Infrastructure as Code
+        - Repeatable deployments
+        - Environment consistency
+    end note
+}
+
+EventGen --> EventHub : generates\ntransactions
+EventHub --> StreamAnalytics : streams events
+StreamAnalytics --> MLModel : requests\nfraud score
+MLModel --> StreamAnalytics : returns\nprediction
+StreamAnalytics --> CosmosSQL : persists\ntransaction data
+StreamAnalytics --> Synapse : persists for\nanalytics
+StreamAnalytics --> OrchFunction : triggers on\nfraud event
+
+OrchFunction --> BenfordFunction : invokes for\nstatistical analysis
+OrchFunction --> FraudRingFunction : invokes for\nring detection
+BenfordFunction --> CosmosSQL : queries\ntransaction patterns
+FraudRingFunction --> CosmosGremlin : queries\nrelationship graph
+CosmosGremlin --> FraudRingFunction : returns\nfraud rings
+CosmosSQL --> BenfordFunction : returns\ntransaction data
+
+AzureML --> MLModel : deploys model
+Notebooks --> AzureML : trains/configures
+Config --> AzureML : configures
+
+ARMTemplate ..> EventHub : provisions
+ARMTemplate ..> StreamAnalytics : provisions
+ARMTemplate ..> AzureML : provisions
+ARMTemplate ..> OrchFunction : provisions
+ARMTemplate ..> CosmosSQL : provisions
+ARMTemplate ..> CosmosGremlin : provisions
+ARMTemplate ..> Synapse : provisions
+
+StreamAnalytics -[#red,thickness=3]-> MLModel : Real-time\nInference
+EventHub -[#red,thickness=3]-> StreamAnalytics : High-throughput\nStream
+StreamAnalytics -[#red,thickness=3]-> CosmosSQL : Low-latency\nWrites
+
+legend right
+    |= Symbol |= Description |
+    | Thick Red Lines | Performance-critical paths |
+    | <<Message Broker>> | Event streaming service |
+    | <<Stream Processor>> | Real-time analytics |
+    | <<ML Platform>> | Machine learning service |
+    | <<Azure Function>> | Serverless compute |
+    | <<Document Store>> | NoSQL database |
+    | <<Graph Database>> | Relationship modeling |
+    | <<Data Warehouse>> | Analytics storage |
+    | <<IaC>> | Infrastructure as Code |
+endlegend
+
+@enduml

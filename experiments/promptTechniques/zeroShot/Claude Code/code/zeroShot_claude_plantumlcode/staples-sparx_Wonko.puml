@@ -1,0 +1,58 @@
+@startuml
+!define RECTANGLE class
+
+participant "SparX Service\n(Krikkit/Eccentrica)" as Service
+participant "wonko-client" as Client
+participant "Kafka" as Kafka
+participant "wonko/core" as Core
+participant "wonko/kafka/consume" as Consumer
+participant "wonko/kafka/produce" as Producer
+participant "wonko/alert" as Alert
+participant "wonko/export/prometheus/create" as PrometheusCreate
+participant "wonko/export/prometheus/register" as PrometheusRegister
+participant "wonko/web_server" as WebServer
+participant "Prometheus" as Prometheus
+participant "PagerDuty API" as PagerDuty
+
+== Initialization ==
+Core -> Core: Start Nrepl server
+Core -> Consumer: Start consumption processes
+Core -> WebServer: Start web server
+WebServer -> WebServer: Setup routes for metrics endpoint
+
+== Event Monitoring Flow ==
+Service -> Client: Send event/metric
+Client -> Kafka: Publish event to topic
+Kafka -> Consumer: Consume event from topic
+Consumer -> Consumer: Process event
+Consumer -> PrometheusCreate: Create metric from event
+PrometheusCreate -> PrometheusRegister: Register metric
+PrometheusRegister -> PrometheusRegister: Store metric in registry
+
+== Alert Processing Flow ==
+Consumer -> Alert: Check event against alert criteria
+Alert -> Alert: Evaluate alert conditions
+alt Alert triggered
+    Alert -> Alert: Queue alert to thread pool
+    activate Alert
+    Alert -> PagerDuty: Send notification via HTTP
+    PagerDuty --> Alert: Acknowledge notification
+    deactivate Alert
+    Alert -> Producer: Publish alert to Kafka
+    Producer -> Kafka: Write alert message
+end
+
+== Metrics Exposition Flow ==
+Prometheus -> WebServer: Scrape metrics endpoint (HTTP GET)
+WebServer -> PrometheusRegister: Retrieve registered metrics
+PrometheusRegister --> WebServer: Return metrics data
+WebServer -> WebServer: Format metrics (TextFormat)
+WebServer --> Prometheus: Return Prometheus-compatible metrics
+
+== Data Clearing Flow ==
+Prometheus -> WebServer: Request data clear (HTTP)
+WebServer -> PrometheusRegister: Clear metrics registry
+PrometheusRegister --> WebServer: Confirm cleared
+WebServer --> Prometheus: Return success response
+
+@enduml

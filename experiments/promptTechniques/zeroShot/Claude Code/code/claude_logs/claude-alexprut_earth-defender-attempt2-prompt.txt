@@ -1,0 +1,309 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: alexprut_earth-defender
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** connectivity
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## Earth Defender: A Distributed Real-Time 3D Game - Architectural Overview
+
+Earth Defender is a distributed soft real-time 3D single/multiplayer game built using Erlang/OTP for the server-side and Three.js for the client-side. The game's objective is to defend Earth from incoming meteorites using a spaceship.
+
+**Key Functionalities:**
+
+The game offers both singleplayer and multiplayer game modes, with the following key features:
+
+*   Real-time 3D rendering using Three.js.
+*   Collision detection between spaceships, meteorites, and Earth.
+*   Scoring and health tracking.
+*   Real-time client-server communication via WebSockets.
+*   Fault tolerance and distributed architecture on the server-side (Erlang/OTP).
+*   Dynamic room management for multiplayer games, including reconnection logic.
+*   Intuitive spaceship controls for movement and shooting.
+*   Dynamic asteroid spawning and movement patterns.
+*   Game state synchronization between server and clients.
+
+**Client-Side Architecture (Three.js):**
+
+The client-side utilizes Three.js for rendering and handles the user interface and game logic. Key components include:
+
+*   `Game`: The core class managing the game loop, rendering, scene initialization, camera setup, and game element interactions.
+*   `GameClient`: Handles WebSocket communication with the Erlang server for multiplayer functionality.
+*   `GameDOMHandler`: Manages interactions with the HTML DOM, updating the display with game information (life, score, players) and handling UI elements (game mode selection, room joining).
+*   `GameElements`: Provides classes (factories) for creating game objects like Earth, Sun, Moon, SpaceShip, Bullet, and Meteorite using Three.js.
+*   `TextureLoader`: A singleton class that caches textures to improve performance.
+*   `Light`: Defines lighting parameters for the scene.
+*   Specific classes for game objects: `Earth`, `Sun`, `Moon`, `SpaceShip`, `Bullet`, and `Meteorite`, defining their visual and physical properties.
+
+**Server-Side Architecture (Erlang/OTP):**
+
+The server-side, built with Erlang/OTP, emphasizes fault tolerance, concurrency, and scalability. It employs a master-slave architecture with automatic failover, providing a robust multiplayer experience. Key Erlang modules include:
+
+*   `slave_handler.erl`: Handles slave/replica server functionality.
+*   `websocket_handler.erl`: Handles WebSocket requests from clients.
+*   `player.erl`: Manages individual player state.
+*   `utils.erl`: Contains utility functions such as UUID generation and logging.
+*   `local_rooms_state.erl`: Manages the state of game rooms.
+*   `room.erl`: Manages the game logic for individual rooms.
+*   `earth_defender_sup.erl`: Supervisor module responsible for managing server processes.
+*   `monitor_mesh.erl`: Monitors the Erlang mesh network for node failures.
+*   `earth_defender_app.erl`: Application module that starts the Cowboy web server and the supervisor.
+*   Configuration files: `config.hrl` (defines configuration constants) and `room_state.hrl` (defines the room state record).
+
+**Important Files:**
+
+*   `LICENSE` (MIT License): Specifies the terms of use and distribution.
+*   `README.md`: Provides an overview, installation instructions, architecture description, and usage examples.
+*   `client/index.html`: Main HTML file structuring the game layout and including Three.js libraries.
+*   `client/css/style.css`: Defines the visual style of the game's UI.
+*   `client/js/game.js`: Core game logic, rendering, and initialization.
+*   `client/js/gameClient.js`: Handles WebSocket communication.
+*   `client/js/gameElements.js`: Defines classes for creating game objects.
+*   `client/js/gameDOMHandler.js`: Handles DOM interaction.
+*   `client/js/main.js`: Client-side entry point.
+*   `server/Makefile`: Defines the build process.
+*   `server/relx.config`: Configuration file for relx.
+
+**Design Patterns:**
+
+The codebase incorporates several design patterns:
+
+*   **Singleton:** `TextureLoader` ensures a single instance for texture caching.
+*   **Module Pattern:** `GameDOMHandler` encapsulates DOM manipulation logic with a clean API.
+*   **Factory Pattern:** `GameElements` acts as factories for creating Three.js game objects.
+*   **Supervisor Pattern:** Erlang's OTP supervisor behavior is central to the server's fault tolerance and process management.
+
+**Architectural Insights:**
+
+The game architecture exhibits the following key traits:
+
+*   A clear client-server model with separation of concerns.
+*   Client-side rendering powered by Three.js for visual presentation.
+*   Server-side robustness achieved through Erlang/OTP's fault-tolerance and concurrency features.
+*   Real-time communication facilitated by WebSockets.
+*   Distributed design with replication for scalability and high availability.
+
+
+
+IMPORTANT - RETRY ATTEMPT:
+A previous PlantUML generation failed with the following error:
+```
+Error line 42 in file: zeroShot_claude_plantumlcode/alexprut_earth-defender.puml
+Some diagram description contains errors
+
+```
+
+The problematic code was:
+```plantuml
+@startuml
+!define RECTANGLE class
+
+skinparam component {
+    BackgroundColor<<client>> LightBlue
+    BackgroundColor<<server>> LightGreen
+    BackgroundColor<<infrastructure>> LightYellow
+    BorderColor Black
+    ArrowColor Black
+}
+
+package "Client-Side (Browser)" <<client>> {
+    component [Game] as Game {
+        [Game Loop]
+        [Rendering Engine]
+        [Scene Manager]
+    }
+
+    component [GameClient] as GameClient {
+        [WebSocket Handler]
+        [Message Parser]
+    }
+
+    component [GameDOMHandler] as DOMHandler {
+        [UI Controller]
+        [Display Updater]
+    }
+
+    component [GameElements] as GameElements {
+        [SpaceShip Factory]
+        [Meteorite Factory]
+        [Bullet Factory]
+        [Earth Factory]
+    }
+
+    component [TextureLoader] as TextureLoader {
+        [Texture Cache]
+    }
+}
+
+package "Communication Layer" <<infrastructure>> {
+    component [WebSocket Connection] as WebSocket {
+        [Client Socket]
+        [Server Socket]
+        [Message Queue]
+    }
+
+    interface "WebSocket Protocol" as WSProtocol
+}
+
+package "Server-Side (Erlang/OTP)" <<server>> {
+    component [earth_defender_app] as App {
+        [Cowboy Web Server]
+        [Application Controller]
+    }
+
+    component [websocket_handler] as WSHandler {
+        [Connection Manager]
+        [Message Router]
+    }
+
+    component [earth_defender_sup] as Supervisor {
+        [Process Monitor]
+        [Restart Strategy]
+    }
+
+    component [room] as Room {
+        [Game Logic]
+        [State Manager]
+        [Collision Detection]
+    }
+
+    component [local_rooms_state] as RoomsState {
+        [Room Registry]
+        [State Synchronizer]
+    }
+
+    component [player] as Player {
+        [Player State]
+        [Action Handler]
+    }
+
+    component [monitor_mesh] as MonitorMesh {
+        [Node Monitor]
+        [Failover Manager]
+    }
+
+    component [slave_handler] as SlaveHandler {
+        [Replication Logic]
+        [Sync Handler]
+    }
+}
+
+package "Distributed Erlang Cluster" <<infrastructure>> {
+    component [Master Node] as MasterNode
+    component [Slave Node 1] as SlaveNode1
+    component [Slave Node 2] as SlaveNode2
+
+    interface "Erlang Distribution Protocol" as ErlangDistribution
+}
+
+' Client-side internal connections
+Game --> GameClient : "sends player actions"
+Game --> DOMHandler : "updates UI"
+Game --> GameElements : "creates objects"
+GameElements --> TextureLoader : "loads textures"
+GameClient --> Game : "receives game state"
+DOMHandler --> GameClient : "triggers commands"
+
+' Client to Server connections
+GameClient --> WSProtocol : "connects via"
+WSProtocol --> WebSocket : "establishes"
+WebSocket --> WSHandler : "routes messages to"
+
+' Server-side internal connections
+App --> Supervisor : "starts"
+Supervisor --> WSHandler : "supervises"
+Supervisor --> Room : "supervises"
+Supervisor --> RoomsState : "supervises"
+Supervisor --> MonitorMesh : "supervises"
+
+WSHandler --> RoomsState : "queries room state"
+WSHandler --> Player : "manages"
+WSHandler --> Room : "forwards events to"
+
+Room --> Player : "updates player state"
+Room --> RoomsState : "registers with"
+RoomsState --> Room : "broadcasts state"
+
+MonitorMesh --> Supervisor : "reports failures to"
+MonitorMesh --> SlaveHandler : "coordinates with"
+
+' Distributed cluster connections
+Room --> ErlangDistribution : "replicates via"
+RoomsState --> ErlangDistribution : "syncs via"
+SlaveHandler --> ErlangDistribution : "communicates via"
+
+ErlangDistribution --> MasterNode : "connects"
+ErlangDistribution --> SlaveNode1 : "connects"
+ErlangDistribution --> SlaveNode2 : "connects"
+
+MasterNode --> SlaveNode1 : "replicates to"
+MasterNode --> SlaveNode2 : "replicates to"
+SlaveNode1 --> MasterNode : "failover"
+SlaveNode2 --> MasterNode : "failover"
+
+' Bidirectional WebSocket communication
+WSHandler --> WebSocket : "sends game state"
+WebSocket --> GameClient : "delivers updates"
+
+note right of WebSocket
+    Real-time bidirectional
+    communication protocol
+    for low-latency game state
+    synchronization
+end note
+
+note right of ErlangDistribution
+    Distributed Erlang protocol
+    enables node-to-node
+    communication for
+    replication and failover
+end note
+
+note bottom of MonitorMesh
+    Monitors cluster health
+    and triggers automatic
+    failover on node failure
+end note
+
+note left of GameClient
+    Single WebSocket connection
+    per client for all
+    game communications
+end note
+
+@enduml
+
+```
+
+Please analyze the error, identify the issue, and generate corrected PlantUML code that compiles successfully.
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: connectivity
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/alexprut_earth-defender.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

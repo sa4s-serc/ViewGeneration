@@ -1,0 +1,101 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: mxaviersmp_spotify-tracker
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** general
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+Okay, here's a consolidated and refined report based on the provided analysis of the "Spotify Tracker" repository:
+
+**Spotify Tracker Analysis Report**
+
+This repository implements a "Spotify Tracker," a system designed to collect and analyze user listening statistics from Spotify. It employs a microservice architecture, leveraging FastAPI for the API, Apache Airflow for ETL processes, and serverless deployment using AWS Lambda and API Gateway (managed via the Serverless Framework). The backend uses a PostgreSQL database managed by AWS RDS. Automated CI/CD is achieved through GitHub Actions for serverless deployments and database migrations. A Streamlit app provides a simple UI for data interaction and visualization.
+
+**Key Functionalities and Components:**
+
+*   **API (FastAPI):** Provides endpoints for user authentication (OAuth2), retrieving user data (played tracks, artists, genres, audio features), and administrative functions (user management, scope management). Uses Dependency Injection extensively.
+*   **ETL (Apache Airflow):** Orchestrates the extraction of listening history from Spotify, transformation, and loading into a database. Scheduled tasks include updating access tokens, fetching played tracks, and enriching track and artist information.
+*   **Database (PostgreSQL/AWS RDS):** Stores user data, track information, artist details, play history, and genre mappings. `ormar` (built on SQLAlchemy and asyncpg) is used as the ORM. Uses Alembic for database migrations.
+*   **Serverless Deployment (Serverless Framework):** Deploys the FastAPI application as a Lambda function behind an API Gateway, providing scalability and cost-efficiency.
+*   **CI/CD (GitHub Actions):** Automates serverless deployment and database migration processes.
+*   **Streamlit App:** UI component for interacting with API and visualizing data.
+
+**Architectural Insights:**
+
+*   **Microservice Architecture:** API and ETL components are developed and deployed independently.
+*   **Serverless:** The API benefits from Lambda's scalability and cost-effectiveness.
+*   **Event-Driven:** Airflow DAGs are triggered on a schedule; GitHub Actions respond to release events.
+*   **API Gateway Pattern:** AWS API Gateway handles authentication, request routing, and cross-cutting concerns.
+
+**Notable Design Patterns:**
+
+*   **Repository Pattern:** Implemented in `app/api/crud/` to abstract data access.
+*   **Asynchronous Programming:** Utilizes `asyncio` and `httpx` for improved performance.
+*   **Configuration via Environment Variables:** Facilitates deployment in different environments.
+
+**Important Files and Their Roles:**
+
+*   **`serverless.yml`:** Serverless Framework configuration.
+*   **`requirements.txt`:** Python dependencies for the API.
+*   **`.pre-commit-config.yaml`:** Pre-commit hooks for code style and quality.
+*   **`Dockerfile`:** Docker image definition for the FastAPI application.
+*   **`Makefile`:** Shortcuts for development tasks.
+*   **`README.md`:** Project overview and instructions.
+*   **`setup.py`:** Python package metadata.
+*   **`app/` directory:** Core application logic.
+    *   **`app/api/`:** FastAPI application definition (routes, models, dependencies, security).
+    *   **`app/database/`:** Database schema definition (using `ormar`), connection settings, and initialization.
+    *   **`app/spotify/`:** Spotify API interaction code.
+    *   **`app/utils/`:** Utility functions (logging, data manipulation, async HTTP requests).
+    *   **`app/alembic/`:** Alembic migration scripts.
+*   **`etl/` directory:** Airflow DAG and Docker configuration for ETL processes.
+    *   **`etl/dags/spotify_etl.py`:** Airflow DAG definition.
+    *   **`etl/Dockerfile`:** Docker image for the Airflow worker.
+    *   **`etl/docker-compose.yaml`:** Docker Compose file for Airflow, PostgreSQL, and Redis.
+*   **`.github/workflows/` directory:** GitHub Actions workflows.
+    *   **`deploy-serverless.yml`:** Serverless application deployment workflow.
+    *   **`migrate-db.yml`:** Database migration workflow.
+*   **`streamlit/` directory:** Streamlit application code.
+    *   **`streamlit/App.py`:** Streamlit app definition.
+
+**Further Considerations:**
+
+*   **Security:** The current method of handling user passwords via an HTML form in `register.html` is insecure and should be addressed by securely sending the password directly to the backend via a POST request.
+*   **Error Handling:** More comprehensive error handling and logging are needed beyond the existing checks for `UniqueViolationError`.
+*   **Testing:** Implement unit and integration tests to ensure application quality.
+*   **Data Validation:** Pydantic models provide solid data validation in the API.
+*   **Code Style:** Consistent code style is enforced by pre-commit hooks.
+*   **Airflow Task Management:** Implement error handling and retry mechanisms for Airflow tasks to ensure completion.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: general
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/mxaviersmp_spotify-tracker.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

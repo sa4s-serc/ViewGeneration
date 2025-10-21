@@ -1,0 +1,162 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam linetype ortho
+
+title JupyterHub on OpenShift - Deployment and Security Architecture
+
+actor "User" as user
+actor "Administrator" as admin
+
+cloud "External Services" {
+    component "Active Directory/LDAP" as ldap <<Authentication>>
+}
+
+package "OpenShift Cluster" {
+
+    component "Image Registry" as registry <<Container Registry>> {
+        artifact "JupyterHub Image"
+        artifact "Notebook CPU Image"
+        artifact "Notebook GPU Image"
+    }
+
+    component "Kubernetes API Server" as k8sapi <<Control Plane>>
+
+    package "JupyterHub Namespace" {
+
+        component "Route" as route <<Ingress>> {
+            portin "HTTPS"
+        }
+
+        component "Service" as svc <<Network>>
+
+        component "JupyterHub Pod" as hub <<Application>> {
+            component "JupyterHub Core" as hubcore
+            component "KubeSpawner" as spawner
+            component "LDAPAuthenticator" as ldapauth
+            component "Wrapspawner" as wrapspawner
+            component "Idle Server Culler" as culler
+        }
+
+        component "PostgreSQL Pod" as db <<Database>>
+
+        component "ConfigMap" as configmap <<Configuration>> {
+            artifact "jupyterhub_config.py"
+            artifact "tcuser_profile_mappings"
+        }
+
+        component "NetworkPolicy" as netpol <<Security>> {
+            artifact "Pod Isolation Rules"
+            artifact "Traffic Restrictions"
+        }
+
+        component "ServiceAccount" as sa <<Identity>>
+
+        component "RoleBinding" as rb <<RBAC>>
+
+        database "PVC - Hub Data" as pvc1 <<Storage>>
+        database "PVC - User Data" as pvc2 <<Storage>>
+
+        package "User Notebook Pods" <<Dynamic>> {
+            component "Notebook Pod (CPU)" as nb1 {
+                component "JupyterLab" as lab1
+                component "Git Extension" as git1
+            }
+
+            component "Notebook Pod (GPU)" as nb2 {
+                component "JupyterLab" as lab2
+                component "CUDA Libraries" as cuda
+            }
+
+            component "Notebook Pod N" as nbn {
+                component "JupyterLab" as labn
+            }
+        }
+    }
+}
+
+user --> route : HTTPS/TLS
+route --> svc : Route Traffic
+svc --> hub : Forward to Hub
+
+hubcore --> db : Store Sessions
+hubcore --> ldapauth : Delegate Auth
+ldapauth --> ldap : LDAP Query
+
+spawner --> k8sapi : Create/Manage Pods
+culler --> k8sapi : Delete Idle Pods
+
+k8sapi --> nb1 : Deploy
+k8sapi --> nb2 : Deploy
+k8sapi --> nbn : Deploy
+
+registry ..> hub : Pull Image
+registry ..> nb1 : Pull Image
+registry ..> nb2 : Pull Image
+registry ..> nbn : Pull Image
+
+configmap ..> hub : Mount Config
+configmap ..> spawner : Profile Mappings
+
+pvc1 --> hub : Persistent Data
+pvc2 --> nb1 : User Storage
+pvc2 --> nb2 : User Storage
+pvc2 --> nbn : User Storage
+
+sa --> hub : Service Identity
+rb --> sa : Grant Permissions
+rb --> k8sapi : Apply RBAC
+
+netpol --> nb1 : Enforce Isolation
+netpol --> nb2 : Enforce Isolation
+netpol --> nbn : Enforce Isolation
+
+admin ..> configmap : Configure
+admin ..> netpol : Define Policies
+admin ..> rb : Manage RBAC
+
+note right of netpol
+  **Network Security:**
+  - Isolate notebook pods
+  - Restrict inter-pod traffic
+  - Control ingress/egress
+  - Prevent lateral movement
+end note
+
+note right of ldapauth
+  **Authentication:**
+  - AD/LDAP integration
+  - User validation
+  - Centralized identity
+end note
+
+note right of rb
+  **RBAC Security:**
+  - Service account perms
+  - Pod creation rights
+  - Resource access control
+  - Least privilege principle
+end note
+
+note bottom of configmap
+  **Deployment Config:**
+  - User profiles (CPU/Memory)
+  - Resource allocations
+  - Authentication settings
+  - Spawner parameters
+end note
+
+note bottom of pvc2
+  **Persistent Storage:**
+  - User data protection
+  - Survives pod restarts
+  - Data persistence
+end note
+
+note top of spawner
+  **Dynamic Provisioning:**
+  - Profile-based resources
+  - CPU/GPU allocation
+  - Container orchestration
+end note
+
+@enduml

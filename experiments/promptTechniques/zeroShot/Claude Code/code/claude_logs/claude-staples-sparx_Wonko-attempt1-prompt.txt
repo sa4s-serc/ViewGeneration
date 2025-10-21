@@ -1,0 +1,89 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: staples-sparx_Wonko
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** control_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## Wonko: Monitoring and Alerting Service for Staples SparX
+
+Wonko is a monitoring and alerting service designed for Staples SparX microservices. Built primarily in Clojure, it centralizes the collection, processing, and alerting of events from services like Krikkit and Eccentrica, leveraging Kafka, Prometheus, and PagerDuty.
+
+**Key Functionalities:**
+
+*   **Monitoring:** Collects metrics and events from SparX services via Kafka, providing an API (`wonko-client`) for simplified data submission.
+*   **Alerting:** Processes incoming events against predefined criteria, triggering notifications to PagerDuty when alerts are identified.
+*   **Metrics Exposition:** Transforms received data into Prometheus-compatible metrics, exposed via an HTTP endpoint for scraping.
+*   **Kafka Integration:** Consumes events and publishes alerts using the `clj-kafka` library, enabling asynchronous message processing.
+*   **Prometheus Integration:**  Creates and registers metrics using `io.prometheus.client` and exposes them in the required format using `io.prometheus.client.exporter.common.TextFormat`.
+*   **Web Server:**  Provides an HTTP endpoint for Prometheus scraping and data clearing, implemented using `compojure` and `ring`.
+
+**Core Components and Files:**
+
+*   **`project.clj`:** Leiningen project definition file, declaring project metadata and dependencies, including `clj-kafka`, `io.prometheus`, `compojure`, `ring`, and `wonko-client`.
+*   **`LICENSE`:**  Defines the software license (Eclipse Public License).
+*   **`Makefile`:** Automates build, test, and deployment tasks using `lein`, managing dependencies and Archiva credentials via environment variables.
+*   **`README.md`:** Provides a high-level overview of Wonko and integration guidelines.
+*   **`Vagrantfile`:**  Defines a Vagrant development environment (Ubuntu), specifying network settings and provisioning.
+*   **`src/wonko/core.clj`:** The application's entry point, responsible for starting the Nrepl server, consumption processes, and the web server.
+*   **`src/wonko/web_server.clj`:** Defines the web server routes and logic for exposing the Prometheus metrics endpoint.
+*   **`src/wonko/alert.clj`:** Handles alert processing and sends notifications to the PagerDuty API using `clj-http.client`.
+*   **`src/wonko/config.clj`:** Manages application configuration, reading settings from `config.edn`.
+*   **`src/wonko/kafka/admin.clj`:** Manages Kafka topics using `clj-kafka.admin`.
+*   **`src/wonko/kafka/consume.clj`:** Consumes and processes events from Kafka topics using `clj-kafka.consumer`.
+*   **`src/wonko/kafka/produce.clj`:** Exposes an API to publish messages to kafka.
+*   **`src/wonko/export/prometheus.clj`:** Handles the integration with Prometheus, exposing metrics through an HTTP endpoint.
+*   **`src/wonko/export/prometheus/create.clj`:** Creates the prometheus metrics.
+*   **`src/wonko/export/prometheus/register.clj`:** Registers the metrics to prometheus.
+*   **`resources/config.edn.dev`:**  Contains development-specific configuration.
+*   **`bin/setup.sh`:**  Shell script for setting up the Linux development environment, including Java, Leiningen, and other prerequisites.
+*   **`bin/svc`:**  Shell script controlling the Wonko service lifecycle (start, stop, restart, status).
+*   **`bin/lein-classpath`:**  Defines the classpath for running the project with Leiningen.
+
+**Architectural Overview:**
+
+*   **Microservice Architecture:**  Designed as a centralized monitoring service for other SparX microservices.
+*   **Event-Driven System:**  Relies on Kafka for asynchronous event propagation between services and Wonko.
+*   **Centralized Monitoring:**  Consolidates monitoring and alerting logic, relieving individual services of this responsibility.
+*   **Asynchronous Processing:** Employs thread pools for non-blocking alert sending and logging operations, improving responsiveness.
+
+**Design Patterns:**
+
+*   **Configuration Management:** Utilizes a central `config.edn` file for managing application-wide settings.
+*   **Thread Pool:**  Asynchronously handles tasks like alert delivery and logging using thread pools.
+*   **Singleton:** Uses `defonce` to guarantee unique instantiation of certain vars.
+*   **Dependency Injection:** Enhances flexibility and testability by passing processing functions and configurations as arguments.
+*   **Producer/Consumer:** Implements the producer/consumer pattern with Kafka for asynchronous message handling.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: control_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/staples-sparx_Wonko.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

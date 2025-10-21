@@ -1,0 +1,129 @@
+@startuml
+!define COMPONENT_STYLE rectangle
+
+skinparam componentStyle rectangle
+skinparam component {
+    BackgroundColor<<Python>> LightBlue
+    BackgroundColor<<CPP>> LightGreen
+    BackgroundColor<<Tool>> LightYellow
+    BackgroundColor<<External>> LightGray
+}
+
+package "Zswag System" {
+
+    package "Code Generation Layer" {
+        [zswag.gen CLI Tool] <<Tool>> as gen
+        [reflect.py] <<Python>> as reflect
+    }
+
+    package "Server Layer" {
+        [OAServer] <<Python>> as server
+        component "Flask/Connexion" <<External>> as flask
+        [Controller Module] <<Python>> as controller
+    }
+
+    package "Python Client Layer" {
+        [OAClient (Python)] <<Python>> as pyclient
+        component "requests" <<External>> as requests
+    }
+
+    package "C++ Client Layer" {
+        [OAClient (C++)] <<CPP>> as cppclient
+        [zswagcl] <<CPP>> as zswagcl
+        [pyzswagcl] <<Python>> as pyzswagcl
+    }
+
+    package "HTTP Communication Layer" {
+        [httpcl] <<CPP>> as httpcl
+        component "cpp-httplib" <<External>> as httplib
+        component "OS Keychain" <<External>> as keychain
+    }
+
+    package "Data Layer" {
+        [Zserio Service Definitions] <<Tool>> as zserio_def
+        component "Zserio Runtime" <<External>> as zserio_rt
+        [OpenAPI Specifications] as openapi_spec
+    }
+}
+
+package "External Systems" {
+    [Zserio Services via HTTP/REST] as rest_service
+    [Client Applications] as client_apps
+}
+
+' Code Generation Dependencies
+gen --> zserio_def : reads
+gen --> reflect : uses
+reflect --> zserio_rt : uses
+gen ..> openapi_spec : generates
+
+' Server Dependencies
+server --> flask : uses
+server --> controller : integrates
+server --> openapi_spec : reads
+server --> zserio_rt : uses
+controller --> zserio_rt : implements services
+server ..> rest_service : exposes
+
+' Python Client Dependencies
+pyclient --> openapi_spec : reads
+pyclient --> requests : uses HTTP
+pyclient --> zserio_rt : uses
+client_apps --> pyclient : uses
+
+' C++ Client Dependencies
+cppclient --> zswagcl : uses
+zswagcl --> httpcl : uses
+zswagcl --> zserio_rt : uses reflection
+zswagcl --> openapi_spec : reads
+pyzswagcl --> cppclient : wraps
+client_apps --> cppclient : uses
+client_apps --> pyzswagcl : uses
+
+' HTTP Layer Dependencies
+httpcl --> httplib : wraps
+httpcl --> keychain : stores secrets
+pyclient --> rest_service : calls
+
+' Cross-layer interactions
+cppclient --> rest_service : calls via HTTP
+
+' Interfaces
+interface "REST API" as rest_if
+interface "OpenAPI" as oa_if
+interface "Zserio Types" as zs_if
+
+rest_service - rest_if
+server - rest_if
+openapi_spec - oa_if
+zserio_rt - zs_if
+
+note right of gen
+  **OpenAPI Generator**
+  - Generates OpenAPI YAML
+  - Customizes HTTP methods
+  - Extracts documentation
+end note
+
+note right of server
+  **OAServer (Facade)**
+  - Hosts Zserio services
+  - Handles request/response
+  - Dependency injection
+end note
+
+note right of cppclient
+  **C++ Client (Adapter)**
+  - Dynamic interaction
+  - Reflection-based
+  - Cross-platform
+end note
+
+note bottom of httpcl
+  **HTTP Client Library**
+  - Proxy support
+  - Configuration management
+  - OS secret storage
+end note
+
+@enduml

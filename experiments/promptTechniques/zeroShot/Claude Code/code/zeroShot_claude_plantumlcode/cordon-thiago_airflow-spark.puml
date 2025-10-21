@@ -1,0 +1,140 @@
+@startuml
+!define ICONURL https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/v2.4.0
+skinparam componentStyle rectangle
+
+title Airflow-Spark Deployment Architecture
+
+package "Docker Environment" {
+    package "Airflow Container" {
+        component "Apache Airflow" as airflow {
+            component "DAG Scheduler" as scheduler
+            component "DAG Executor" as executor
+            component "Web Server" as webserver
+        }
+        component "Airflow DAGs" as dags
+    }
+
+    package "Spark Container" {
+        component "Spark Master" as spark_master
+        component "Spark Workers" as spark_workers
+        component "Spark Core" as spark_core
+
+        package "Spark Applications" {
+            component "Python Apps" as python_apps
+            component "Scala Apps" as scala_apps
+            component "R Apps (SparkR)" as r_apps
+        }
+
+        package "Spark Modules" {
+            component "Spark SQL" as spark_sql
+            component "Spark MLlib" as spark_mllib
+            component "Spark Streaming" as spark_streaming
+            component "GraphX" as graphx
+        }
+
+        component "Spark Config" as spark_config
+    }
+
+    component "PostgreSQL Container" as postgres {
+        database "PostgreSQL DB" as pgdb
+        component "Init Scripts" as pg_init
+    }
+
+    component "Jupyter Notebooks" as jupyter
+}
+
+package "Kubernetes Cluster" {
+    component "K8s Master" as k8s_master
+    component "K8s Node Pool" as k8s_nodes {
+        component "Spark Driver Pod" as driver_pod
+        component "Spark Executor Pods" as executor_pods
+    }
+    component "K8s Services" as k8s_services
+}
+
+package "Data Sources" {
+    storage "HDFS" as hdfs
+    component "Kafka" as kafka
+    storage "File System" as filesystem {
+        file "CSV Files" as csv
+        file "JSON Files" as json
+        file "Parquet Files" as parquet
+        file "Avro Files" as avro
+        file "ORC Files" as orc
+    }
+}
+
+package "External Systems" {
+    component "Network Socket" as socket
+    component "Hive Metastore" as hive
+}
+
+' Airflow relationships
+scheduler --> executor
+executor --> dags
+webserver --> scheduler
+dags --> spark_master : triggers Spark jobs
+
+' Spark internal relationships
+spark_master --> spark_workers : manages
+spark_workers --> spark_core : executes on
+python_apps --> spark_core : uses
+scala_apps --> spark_core : uses
+r_apps --> spark_core : uses
+
+spark_sql --> spark_core : built on
+spark_mllib --> spark_core : built on
+spark_streaming --> spark_core : built on
+graphx --> spark_core : built on
+
+spark_config --> spark_master : configures
+spark_config --> spark_workers : configures
+
+' Data source connections
+spark_core --> postgres : reads/writes
+spark_core --> hdfs : reads/writes
+spark_streaming --> kafka : ingests from
+spark_streaming --> socket : ingests from
+spark_core --> filesystem : reads
+spark_sql --> hive : integrates with
+
+' PostgreSQL initialization
+pg_init --> pgdb : initializes
+
+' Jupyter integration
+jupyter --> spark_master : submits jobs
+
+' Kubernetes deployment
+k8s_master --> k8s_nodes : orchestrates
+k8s_services --> driver_pod : exposes
+driver_pod --> executor_pods : manages
+executor_pods --> spark_core : runs
+k8s_master ..> spark_master : alternative deployment
+
+' Docker orchestration
+airflow ..> postgres : depends on
+airflow ..> spark_master : orchestrates
+
+note right of k8s_master
+  Alternative deployment:
+  Spark on Kubernetes
+  for scalable execution
+end note
+
+note bottom of postgres
+  Stores metadata and
+  serves as data source
+end note
+
+note top of airflow
+  Orchestrates Spark
+  jobs via DAGs
+end note
+
+note right of spark_core
+  Modular architecture with
+  SQL, MLlib, Streaming, GraphX
+  built on top of Core
+end note
+
+@enduml

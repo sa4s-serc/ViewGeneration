@@ -1,0 +1,114 @@
+@startuml
+title RNN Language Modeling - Control Flow
+
+actor User
+participant "Jupyter Notebook\n(Controller)" as Notebook
+participant "reader.py\n(Data Loader)" as Reader
+participant "Penn Treebank\nDataset" as Dataset
+participant "TensorFlow Keras\nSequential API" as Keras
+participant "Embedding Layer" as Embedding
+participant "LSTM Layers" as LSTM
+participant "Dense Layer\n(Softmax)" as Dense
+participant "Training Engine" as Training
+participant "Evaluation Engine" as Evaluation
+
+User -> Notebook: Execute notebook
+activate Notebook
+
+Notebook -> Reader: Load Penn Treebank dataset
+activate Reader
+Reader -> Dataset: Read data files
+activate Dataset
+Dataset --> Reader: Raw text data
+deactivate Dataset
+Reader -> Reader: Process and batch data
+Reader --> Notebook: Training batches (iterator)
+deactivate Reader
+
+Notebook -> Keras: Initialize Sequential model
+activate Keras
+
+Notebook -> Embedding: Add embedding layer
+activate Embedding
+Embedding -> Keras: Register layer
+deactivate Embedding
+
+Notebook -> LSTM: Add LSTM layers
+activate LSTM
+LSTM -> Keras: Register layers
+deactivate LSTM
+
+Notebook -> Dense: Add dense layer with softmax
+activate Dense
+Dense -> Keras: Register layer
+deactivate Dense
+
+Keras --> Notebook: Model built
+deactivate Keras
+
+Notebook -> Training: Train model with batches
+activate Training
+
+loop For each epoch
+    loop For each batch
+        Training -> Embedding: Forward pass - word to vector
+        activate Embedding
+        Embedding --> Training: Word embeddings
+        deactivate Embedding
+
+        Training -> LSTM: Process sequence
+        activate LSTM
+        LSTM --> Training: Hidden states
+        deactivate LSTM
+
+        Training -> Dense: Predict next word probabilities
+        activate Dense
+        Dense --> Training: Probability distribution
+        deactivate Dense
+
+        Training -> Training: Calculate loss
+        Training -> Training: Backpropagation
+        Training -> Training: Update weights
+    end
+
+    Training --> Notebook: Epoch metrics
+end
+
+Training --> Notebook: Training complete
+deactivate Training
+
+Notebook -> Evaluation: Evaluate model performance
+activate Evaluation
+
+Evaluation -> Reader: Get test data
+activate Reader
+Reader --> Evaluation: Test batches
+deactivate Reader
+
+loop For each test batch
+    Evaluation -> Embedding: Forward pass
+    activate Embedding
+    Embedding --> Evaluation: Word embeddings
+    deactivate Embedding
+
+    Evaluation -> LSTM: Process sequence
+    activate LSTM
+    LSTM --> Evaluation: Hidden states
+    deactivate LSTM
+
+    Evaluation -> Dense: Predict next word
+    activate Dense
+    Dense --> Evaluation: Predictions
+    deactivate Dense
+
+    Evaluation -> Evaluation: Calculate perplexity
+end
+
+Evaluation --> Notebook: Perplexity metric
+deactivate Evaluation
+
+Notebook -> Notebook: Display results and visualizations
+Notebook --> User: Training results, metrics, model
+deactivate Notebook
+
+@enduml

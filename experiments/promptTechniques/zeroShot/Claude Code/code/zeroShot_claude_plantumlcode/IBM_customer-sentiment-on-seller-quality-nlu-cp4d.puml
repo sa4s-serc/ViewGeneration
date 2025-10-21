@@ -1,0 +1,62 @@
+@startuml
+title Seller Quality Analysis Using Watson NLU - Control Flow
+
+actor User
+participant "Jupyter Notebook" as Notebook
+database "Db2 Database" as Db2
+participant "Watson NLU" as NLU
+participant "Data Processing Pipeline" as Pipeline
+participant "Embedded Dashboard" as Dashboard
+
+User -> Notebook: Execute notebook
+activate Notebook
+
+Notebook -> Db2: Connect to database
+activate Db2
+Db2 --> Notebook: Connection established
+deactivate Db2
+
+Notebook -> Pipeline: Initialize data processing pipeline
+activate Pipeline
+
+Pipeline -> Db2: Load customer review data
+activate Db2
+Db2 --> Pipeline: Return raw review data
+deactivate Db2
+
+Pipeline -> Pipeline: Extract and clean data
+Pipeline -> Pipeline: Preprocess reviews
+
+loop For each customer review
+    Pipeline -> NLU: Send review text for analysis
+    activate NLU
+    NLU -> NLU: Perform sentiment analysis
+    NLU -> NLU: Perform emotion analysis (joy, sadness, anger)
+    NLU --> Pipeline: Return sentiment and emotion scores
+    deactivate NLU
+end
+
+Pipeline -> Pipeline: Analyze delivery performance
+Pipeline -> Pipeline: Compare estimated vs actual delivery dates
+Pipeline -> Pipeline: Calculate delivery timeliness score
+
+Pipeline -> Pipeline: Calculate overall seller quality rating (0-5 stars)
+Pipeline -> Pipeline: Generate optimized dataset for visualization
+
+Pipeline --> Notebook: Return processed data with seller ratings
+deactivate Pipeline
+
+Notebook -> Dashboard: Load dashboard configuration
+activate Dashboard
+Dashboard -> Dashboard: Read dashboard.json
+
+Notebook -> Dashboard: Send processed data for visualization
+Dashboard -> Dashboard: Generate interactive visualizations
+Dashboard -> Dashboard: Display seller and product performance
+
+Dashboard --> User: Present insights and analytics
+deactivate Dashboard
+
+deactivate Notebook
+
+@enduml

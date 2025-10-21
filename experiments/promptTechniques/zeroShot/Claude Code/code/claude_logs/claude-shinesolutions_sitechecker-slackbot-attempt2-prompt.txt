@@ -1,0 +1,235 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: shinesolutions_sitechecker-slackbot
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** deployment, connectivity
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## SiteChecker Slack Bot: Repository Analysis
+
+This report summarizes the architecture, functionality, and key components of the "SiteChecker" Slack bot repository. The bot leverages a serverless architecture to check website availability from multiple AWS regions.
+
+**Overall Functionality:**
+
+The SiteChecker bot allows users to check website availability directly from Slack. It receives commands via an outgoing webhook, parses the URL using `speakeasy-nlp` for natural language processing, and initiates a check. The bot then aggregates results from distributed workers and reports a summary back to Slack.
+
+**Architecture:**
+
+The application employs a master-worker architecture built entirely on serverless technologies (AWS Lambda, API Gateway). This eliminates server management and provides inherent scalability. The architecture is event-driven, triggered by Slack messages and API Gateway requests.
+
+*   **Master Lambda Function (Bot):** This central component receives requests from Slack via API Gateway, authenticates them using a token, and extracts the URL. It distributes the URL checking task to worker Lambda functions deployed in multiple AWS regions, aggregates the results, formats them, and sends a summary back to Slack.
+*   **Worker Lambda Functions:** These functions receive a URL from the master, make an HTTP request using `bagofrequest`, and return the HTTP status code and other relevant information (or an error message). They are deployed across multiple AWS regions, enabling checks from different geographic locations to test for geo-fencing or censorship issues.
+
+**Key Components & Design Patterns:**
+
+*   **Slack Integration:** Utilizes Slack's outgoing webhook to receive commands and provides formatted responses via the `slack.js` module, acting as a Facade.
+*   **Master-Worker Pattern:** Distributes the workload for parallel processing and geographic diversity.
+*   **Configuration Pattern:** Behavior is configured via JSON files, facilitating customization and deployment to different environments.
+*   **Regional Distribution:** Worker functions are deployed across multiple AWS regions.
+
+**Important Files and Their Roles:**
+
+*   **`./LICENSE`:** Apache 2.0 License information.
+*   **`./Makefile`:** Defines build, deployment, and testing commands using `make`, including `clean`, `deps`, `test` (JSHint), `deploy`, `remove`, and `start` (serverless offline).
+*   **`./.jshintrc`:** JSHint configuration allowing ESNext features.
+*   **`./README.md`:** Provides a detailed explanation of the bot's functionality, architecture, installation instructions, configuration options, and usage, including diagrams and examples.
+*   **`./.travis.yml`:** Travis CI configuration for continuous integration, defining Node.js versions and build steps.
+*   **`./master/serverless.yml`:** Serverless framework configuration for the master Lambda function, defining the AWS provider, runtime, IAM role, functions, API Gateway endpoint, and plugins.
+*   **`./master/lib/lambda.js`:** Entry point for the master Lambda function, handling the incoming event and calling the `bot.interact` function.
+*   **`./master/lib/slack.js`:** Contains helper functions for formatting messages and parsing URLs.
+*   **`./master/lib/bot.js`:** Contains the core logic for interacting with Slack, parsing the URL, distributing the checking task, and generating the report.
+*   **`./worker/serverless.yml`:** Serverless framework configuration for the worker Lambda function.
+*   **`./worker/lib/lambda.js`:** Entry point for the worker Lambda function, handling the event (URL) and calling the `sitechecker.check` function.
+*   **`./worker/lib/sitechecker.js`:** Contains the logic for checking website availability using `bagofrequest`.
+
+This analysis provides a cohesive overview of the SiteChecker Slack bot's architecture, functionality, and key components, highlighting its utilization of serverless technologies and the master-worker pattern for efficient website availability monitoring.
+
+
+
+IMPORTANT - RETRY ATTEMPT:
+A previous PlantUML generation failed with the following error:
+```
+issue raw.githubusercontent.com java.util.concurrent.ExecutionException: java.io.IOException: HTTP error 404 with 404: Not Found
+Error line 5 in file: zeroShot_claude_plantumlcode/shinesolutions_sitechecker-slackbot.puml
+Some diagram description contains errors
+
+```
+
+The problematic code was:
+```plantuml
+@startuml
+!define AWSPUML https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v14.0/dist
+!include AWSPUML/AWSCommon.puml
+!include AWSPUML/Compute/Lambda.puml
+!include AWSPUML/NetworkingContentDelivery/APIGateway.puml
+
+skinparam componentStyle rectangle
+skinparam linetype ortho
+
+package "Slack Platform" {
+    [Slack Workspace] as Slack
+}
+
+package "AWS Master Region" {
+    component "API Gateway" as APIGW <<API Gateway>>
+
+    component "Master Lambda Function" as Master <<Lambda>> {
+        [lambda.js] as MasterEntry
+        [bot.js] as BotLogic
+        [slack.js] as SlackHelper
+    }
+
+    component "Configuration" as MasterConfig {
+        [serverless.yml]
+    }
+}
+
+package "AWS Region 1" {
+    component "Worker Lambda 1" as Worker1 <<Lambda>> {
+        [lambda.js] as W1Entry
+        [sitechecker.js] as W1Check
+    }
+
+    component "Configuration" as W1Config {
+        [serverless.yml]
+    }
+}
+
+package "AWS Region 2" {
+    component "Worker Lambda 2" as Worker2 <<Lambda>> {
+        [lambda.js] as W2Entry
+        [sitechecker.js] as W2Check
+    }
+
+    component "Configuration" as W2Config {
+        [serverless.yml]
+    }
+}
+
+package "AWS Region N" {
+    component "Worker Lambda N" as WorkerN <<Lambda>> {
+        [lambda.js] as WNEntry
+        [sitechecker.js] as WNCheck
+    }
+
+    component "Configuration" as WNConfig {
+        [serverless.yml]
+    }
+}
+
+cloud "Target Websites" {
+    [Website 1] as Site1
+    [Website 2] as Site2
+    [Website N] as SiteN
+}
+
+package "External Libraries" {
+    [speakeasy-nlp] as NLP
+    [bagofrequest] as HTTP
+}
+
+Slack -down-> APIGW : "Outgoing Webhook\n(HTTPS POST)"
+APIGW -down-> Master : "API Gateway Event"
+
+Master -down-> Worker1 : "Lambda Invoke\n(URL payload)"
+Master -down-> Worker2 : "Lambda Invoke\n(URL payload)"
+Master -down-> WorkerN : "Lambda Invoke\n(URL payload)"
+
+Worker1 -down-> Site1 : "HTTP Request"
+Worker2 -down-> Site2 : "HTTP Request"
+WorkerN -down-> SiteN : "HTTP Request"
+
+Site1 -up-> Worker1 : "HTTP Response\n(Status Code)"
+Site2 -up-> Worker2 : "HTTP Response\n(Status Code)"
+SiteN -up-> WorkerN : "HTTP Response\n(Status Code)"
+
+Worker1 -up-> Master : "Response\n(Status + Metadata)"
+Worker2 -up-> Master : "Response\n(Status + Metadata)"
+WorkerN -up-> Master : "Response\n(Status + Metadata)"
+
+Master -up-> APIGW : "Formatted Response"
+APIGW -up-> Slack : "JSON Response\n(Summary Report)"
+
+BotLogic ..> NLP : "uses"
+W1Check ..> HTTP : "uses"
+W2Check ..> HTTP : "uses"
+WNCheck ..> HTTP : "uses"
+
+note right of Master
+  - Authenticates requests
+  - Parses URL using NLP
+  - Distributes checks
+  - Aggregates results
+  - Formats Slack response
+end note
+
+note right of Worker1
+  - Receives URL
+  - Makes HTTP request
+  - Returns status code
+  - Deployed in Region 1
+end note
+
+note right of Worker2
+  - Receives URL
+  - Makes HTTP request
+  - Returns status code
+  - Deployed in Region 2
+end note
+
+note right of WorkerN
+  - Receives URL
+  - Makes HTTP request
+  - Returns status code
+  - Deployed in Region N
+end note
+
+note top of APIGW
+  Entry point for
+  Slack webhooks
+end note
+
+legend right
+  |= Component |= Description |
+  | Master Lambda | Central controller and aggregator |
+  | Worker Lambda | Distributed site checkers |
+  | API Gateway | HTTP endpoint handler |
+  | Configuration | Serverless deployment config |
+endlegend
+
+@enduml
+
+```
+
+Please analyze the error, identify the issue, and generate corrected PlantUML code that compiles successfully.
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment, connectivity
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/shinesolutions_sitechecker-slackbot.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

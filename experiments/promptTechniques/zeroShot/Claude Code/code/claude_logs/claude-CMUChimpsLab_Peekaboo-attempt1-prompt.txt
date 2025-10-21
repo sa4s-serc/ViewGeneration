@@ -1,0 +1,97 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: CMUChimpsLab_Peekaboo
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** control_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## Peekaboo Repository Analysis: Node-RED Node Set for Privacy-Sensitive Smart Home Applications
+
+This report summarizes the architecture, key functionalities, and design patterns of the `node-red-contrib-peekaboo` Node-RED node set within the Peekaboo project. Peekaboo provides a visual programming interface in Node-RED for building privacy-sensitive smart home applications. The node set enables interaction with various data sources, application of inference models, data filtering, and transmission of processed data to cloud services.
+
+**Key Functionalities and Components:**
+
+*   **Node-RED Node Definitions:** The core comprises custom Node-RED nodes categorized as:
+    *   **Provider (Pull, Push):** Ingest data from sources like hardware sensors, MQTT, and web sockets. *Pull* nodes actively retrieve data, while *Push* nodes passively receive data.
+    *   **Inference (Classify, Detect, Extract):** Apply machine learning or algorithms to analyze data and extract information (e.g., face detection, audio classification, heart rate extraction).
+    *   **Filter (Select, Noisify, Spoof):** Modify or remove data for privacy enhancement or data reduction. Noise addition to audio is performed via `fluent-ffmpeg`.
+    *   **Network (Post):** Transmit processed data to external services.
+    *   **Utility (Aggregate, pkbInject, pkbJoin):** Handle data manipulation, message injection, and aggregation within Node-RED.
+*   **Dynamic UI Generation:** `dom-util.js` and related code dynamically generate UI elements for the Node-RED nodes based on configurations from JSON files (e.g., available models, data types, target content).
+*   **Service Abstraction:** A `PeekabooService` class provides a standardized way for nodes to interact with external inference services, promoting modularity. The `AsyncPeekabooService` class handles asynchronous tasks.
+*   **Sensor Configuration and Management:** `WiFiConfig` components within sensor directories facilitate setup and MQTT integration for sensors using ESP8266/ESP32 boards.
+*   **State Management:** StateIO handles saving and loading the configuration state of the nodes.
+*   **UI Widget Integration:**  Leverages `select2.min.js` for enhanced select elements in the UI.
+
+**Important Files and Their Roles:**
+
+*   **`reinstall_allnodes.sh`:** Installation script.
+*   **`[node_name].html`:** HTML template for the node's configuration panel.
+*   **`[node_name].js`:** JavaScript code defining the node's logic and behavior.
+*   **`resource-dist.js`:** Serves static assets (JSON, CSS, JavaScript).
+*   **`resource/models/*.json`:** Defines available ML models, their data types, targets, and service endpoints.
+*   **`resource/ontology.json`:** Defines the audio event ontology.
+*   **`dom/dom-util.js`:** Provides utilities for dynamically generating the node UI.
+*   **`dom/stateIO.js`:** Loads and saves the state of the node.
+*   **`inference/inference-services.js`:** Provides an abstraction layer for interacting with inference services.
+*   **`inference/*.js`:** Implementations of inference services (e.g., `FFTAudioService`, `CustomRuleService`).
+*   **`filter/buffer-stream.js`:** Implements a writable buffer stream.
+*   **`filter/filter-image.js`:** Logic for filtering and manipulating image data.
+*   **`filter/noisify-audio.js`:** Functions for adding noise to audio.
+*   **`peekaboo-sensors/*`:** Code for sensor data handling and publishing.
+*   **`peekaboo-applications/*`:** Scripts for application-specific tasks like visitor detection.
+*   **`widgets/*`:** External widgets like `select2.min.js` for better UI functionality.
+*    **`widgets/helptip.css`:** Styles for help tooltips.
+
+**Architectural Insights:**
+
+*   **Component-Based Architecture:** Each Node-RED node is a distinct component, promoting modularity and reusability.
+*   **Data-Driven UI:** The UI is dynamically generated based on data from JSON files, enhancing adaptability.
+*   **Microservice Architecture:** Reliance on external services for inference suggests a microservice-based approach.
+*   **Flow-Based Programming (FBP):**  Data flows through interconnected processing units (Node-RED nodes).
+*   **Modular Design:** Code organized into distinct files based on functionality.
+*   **Event-Driven:**  The Select2 library heavily relies on events.
+*   **Asynchronous Programming:** Using `async/await` and `Promises` for asynchronous operations.
+
+**Notable Design Patterns:**
+
+*   **Strategy Pattern:** The `resourceMap` and service handlers (e.g., `ExternalService`, `CustomRuleService`) determine specific task implementations at runtime. The Select2 library and associated data files also use the Decorator Pattern in a similar manner.
+*   **Decorator Pattern (Select2):** Extends the functionality of data adapters, dropdown adapters, and selection adapters in Select2.
+*   **Observer Pattern (Select2):** Used extensively within Select2 for managing interactions between different parts of the widget. The `Observable` class allows components to subscribe to and be notified of events.
+*   **Factory Pattern:** Implied in the creation of input DOM elements in `dom/dom-util.js` based on the `option.type` property.
+*   **Template Method Pattern:** The `PeekabooService` and `AsyncPeekabooService` classes provide a template for concrete service implementations.
+
+This analysis highlights a flexible framework for building privacy-sensitive smart home applications within Node-RED. Dynamic UI generation, service abstraction, and a well-defined data flow promote modularity, extensibility, and reusability. Performance considerations are addressed through logging, especially in image and audio processing components.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: control_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/CMUChimpsLab_Peekaboo.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

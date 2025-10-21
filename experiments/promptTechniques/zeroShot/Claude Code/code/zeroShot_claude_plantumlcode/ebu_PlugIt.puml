@@ -1,0 +1,102 @@
+@startuml
+!define RECTANGLE_COMPONENT
+skinparam componentStyle rectangle
+
+title ebu_PlugIt - Component Diagram (Connectivity Focus)
+
+package "Repository Analysis System" {
+    component "Analysis Controller" as AC
+    component "Chunk Processor" as CP
+    component "Token Counter" as TC
+    component "Error Handler" as EH
+    component "Retry Manager" as RM
+}
+
+package "Google Gemini API" {
+    component "API Gateway" as AG
+    component "Rate Limiter" as RL
+    component "Gemini 2.0 Flash Model" as GM
+    component "Quota Manager" as QM
+}
+
+package "Data Processing" {
+    component "Repository Content Loader" as RCL
+    component "Content Chunker" as CC
+    component "Token Optimizer" as TO
+    component "Cache Manager" as CM
+}
+
+package "Monitoring & Logging" {
+    component "Usage Monitor" as UM
+    component "Error Logger" as EL
+}
+
+cloud "GitHub Repository\nebu_PlugIt" as GR
+
+database "Cache Storage" as CS
+database "Analysis Results" as AR
+
+' Connectivity relationships
+GR --> RCL : "Fetch repository\ncontent"
+RCL --> CC : "Stream content"
+CC --> TO : "Raw chunks"
+TO --> TC : "Optimized chunks"
+
+TC --> AC : "Token-counted\nchunks"
+AC --> CP : "Dispatch chunks"
+CP --> AG : "API Request\n(HTTP/REST)"
+
+AG --> RL : "Check rate limit"
+RL --> QM : "Validate quota"
+QM --> RL : "Quota status"
+
+RL --> GM : "Process request" : allowed
+RL --> AG : "429 Error" : quota exceeded
+AG --> CP : "API Response"
+
+CP --> EH : "Error response\n(429)"
+EH --> RM : "Trigger retry"
+RM --> CP : "Retry after delay\n(10-12s)"
+
+CP --> CM : "Cache result"
+CM --> CS : "Store"
+CP --> AR : "Store analysis"
+
+AC --> UM : "Report usage"
+CP --> UM : "Track tokens"
+EH --> EL : "Log errors"
+
+CM -up-> CP : "Cached response"
+CS -up-> CM : "Retrieve cache"
+
+interface "REST API" as API
+interface "Quota Metrics" as QMetrics
+interface "Retry Policy" as RetryPolicy
+
+CP -- API
+AG -- API
+
+RL -- QMetrics : "generativelanguage.googleapis.com/\ngenerate_content_free_tier_\ninput_token_count"
+RM -- RetryPolicy : "Exponential backoff\nwith retry_delay"
+
+note right of RL
+  Free Tier Quota:
+  - Metric: generate_content_free_tier_input_token_count
+  - Quota ID: GenerateContentInputTokensPerModelPerMinute-FreeTier
+  - Location: global
+  - Action on limit: HTTP 429
+end note
+
+note left of RM
+  Retry Strategy:
+  - Wait time: 10-12 seconds
+  - Exponential backoff
+  - Max retries configurable
+end note
+
+note bottom of CP
+  Failed on chunks 1 & 2
+  due to quota exceeded
+end note
+
+@enduml

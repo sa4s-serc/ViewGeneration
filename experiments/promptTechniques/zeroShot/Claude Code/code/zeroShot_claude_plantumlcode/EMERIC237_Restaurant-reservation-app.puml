@@ -1,0 +1,151 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam linetype ortho
+
+title Restaurant Reservation Application - Component Diagram (Deployment & Data Flow)
+
+package "Client Browser" {
+    component [React Application] as ReactApp
+    component [App.js] as App
+    component [Layout] as Layout
+    component [Dashboard] as Dashboard
+    component [CreateReservation] as CreateRes
+    component [ReservationForm] as ResForm
+    component [SearchReservation] as SearchRes
+    component [EditReservation] as EditRes
+    component [SeatReservation] as SeatRes
+    component [CreateTable] as CreateTable
+    component [ErrorAlert] as ErrorAlert
+    component [API Client\nutils/api.js] as APIClient
+    component [Date/Time Utils] as DateUtils
+}
+
+package "Backend Server (Node.js/Express)" {
+    component [Express App\napp.js] as ExpressApp
+    component [CORS Middleware] as CORS
+    component [JSON Parser] as JSONParser
+    component [Error Handler] as ErrorHandler
+    component [Not Found Handler] as NotFound
+
+    package "Reservations Module" {
+        component [Reservations Router] as ResRouter
+        component [Reservations Controller] as ResController
+        component [Reservations Service] as ResService
+        component [Validation Middleware] as ResValidation
+    }
+
+    package "Tables Module" {
+        component [Tables Router] as TableRouter
+        component [Tables Controller] as TableController
+        component [Tables Service] as TableService
+        component [Table Validation Middleware] as TableValidation
+    }
+
+    component [Database Connection\nKnex] as DBConnection
+}
+
+package "Database Layer" {
+    database "PostgreSQL" as DB
+    component [Reservations Table] as ResTable
+    component [Tables Table] as TablesTable
+    component [Knex Migrations] as Migrations
+    component [Seed Data] as Seeds
+}
+
+package "Configuration & Environment" {
+    file "knexfile.js" as KnexConfig
+    file ".env" as EnvFile
+    file "vercel.json" as VercelConfig
+}
+
+App --> Layout
+Layout --> Dashboard
+Layout --> CreateRes
+Layout --> EditRes
+Layout --> SearchRes
+Layout --> SeatRes
+Layout --> CreateTable
+Layout --> ErrorAlert
+
+CreateRes --> ResForm
+EditRes --> ResForm
+Dashboard ..> DateUtils : uses
+
+APIClient --> ExpressApp : HTTP/REST API\n(JSON)
+ReactApp --> APIClient : API calls
+
+Dashboard --> APIClient : GET /reservations?date
+CreateRes --> APIClient : POST /reservations
+EditRes --> APIClient : PUT /reservations/:id
+SearchRes --> APIClient : GET /reservations?mobile
+SeatRes --> APIClient : PUT /tables/:id/seat
+CreateTable --> APIClient : POST /tables
+
+ExpressApp --> CORS : request
+CORS --> JSONParser : request
+JSONParser --> ResRouter : /reservations/*
+JSONParser --> TableRouter : /tables/*
+ResRouter --> ResValidation : validate
+ResRouter --> ResController : handle
+TableRouter --> TableValidation : validate
+TableRouter --> TableController : handle
+
+ResController --> ResService : business logic
+TableController --> TableService : business logic
+
+ResService --> DBConnection : query
+TableService --> DBConnection : query
+DBConnection --> DB : SQL queries
+
+DBConnection --> ResTable : CRUD operations
+DBConnection --> TablesTable : CRUD operations
+
+ResController --> ErrorHandler : errors
+TableController --> ErrorHandler : errors
+NotFound --> ErrorHandler : 404 errors
+ErrorHandler --> APIClient : error response
+
+KnexConfig --> DBConnection : configuration
+EnvFile --> DBConnection : DB_URL
+VercelConfig ..> ExpressApp : deployment config
+
+Migrations --> DB : schema changes
+Seeds --> DB : initial data
+
+DBConnection ..> ResService : query results
+DBConnection ..> TableService : query results
+ResService ..> ResController : data
+TableService ..> TableController : data
+ResController ..> ExpressApp : response
+TableController ..> ExpressApp : response
+ExpressApp ..> APIClient : JSON response
+APIClient ..> ReactApp : data/errors
+
+note right of APIClient
+  Data Flow:
+  1. User interaction triggers API call
+  2. Request sent to Express backend
+  3. Validation & business logic
+  4. Database query via Knex
+  5. Response returns through layers
+  6. UI updates with data/errors
+end note
+
+note bottom of DB
+  Database Tables:
+  - reservations (id, first_name, last_name,
+    mobile_number, reservation_date,
+    reservation_time, people, status)
+  - tables (table_id, table_name,
+    capacity, reservation_id)
+end note
+
+note top of ExpressApp
+  Deployment:
+  - Frontend & Backend in monorepo
+  - Deployed on Vercel
+  - PostgreSQL database
+  - RESTful API architecture
+end note
+
+@enduml

@@ -1,0 +1,96 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: orchsym_runtime
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** general
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+**Apache NiFi/Orchsym Runtime Repository Analysis: A Consolidated Report**
+
+This report consolidates analyses of multiple sections within the Apache NiFi and Orchsym Runtime repositories, focusing on core functionalities, key components, architectural insights, and design patterns. It highlights NiFi's dataflow engine, extensibility, security, and integration capabilities, as well as Orchsym's customizations and overall system architecture.
+
+**1. Core Framework and Dataflow Management:**
+
+*   **NiFi's Core:** NiFi's architecture enables users to define automated, directed, and guaranteed dataflows. The foundation is a component-based design, providing interfaces for processors, controller services, and reporting tasks, scheduled by a central `FlowController`.  Key components include `ProcessSession` (transactional context), `FlowFile` (data representation), `Connection` (data flow path), and the `ProcessScheduler` (managing component execution).
+*   **Flow Definition and Management:** NiFi manages data flows as Process Groups, which are composite components containing other processors and connections.  Flow configurations are serialized to `flow.xml.gz` and managed by the `StandardFlowService`.  `FlowSynchronizer` manages cluster synchronization and `FlowFileQueue` handles FlowFile queuing, prioritization, and backpressure. Version control with a Flow Registry is supported.
+*    **State Management:** A core functionality is component state management, provided by the `StateManagerProvider` (with local and ZooKeeper implementations) which enable fault tolerance and coordination across cluster nodes.
+
+**2. Key Infrastructure Components:**
+
+*   **Repositories:** Central to NiFi's architecture are the FlowFile Repository, Content Repository, and Provenance Repository, which provide data durability, replayability, and data lineage capabilities.  Implementations for repositories are pluggable, allowing for customization.
+*   **Controller Services:** Reusable components providing shared functionality and state. Managed by a `ControllerServiceProvider` , they are configured, enabled/disabled, and accessed through lookups.
+*   **REST API:** NiFi's functionality is exposed through a RESTful API with resources (e.g., `/processors`, `/connections`) and standard HTTP methods. DTOs (Data Transfer Objects) and Entities manage the communication between server and clients, using JAXB for serialization.
+*   **Data Transfer:** HTTP-based Site-to-Site is the preferred method for data transfer between NiFi instances. This offers high-throughput capabilities with secure configuration and load balancing.
+*   **User Interface:** The web UI leverages a hybrid approach combining jQuery and AngularJS components. Spring configures the core resources of the API.
+
+**3. Security and Authorization:**
+
+*   **Pluggable Authentication:** NiFi supports multiple authentication mechanisms (LDAP, Kerberos, OpenId Connect, X.509 certificates, JWT), configured through a Login Identity Provider interface. This is integrated with Spring Security.
+*   **Role-Based Access Control (RBAC):** Enforced through access policies that govern user and group permissions on NiFi resources. Access to resources is controlled by `Authorizer` implementations.
+*   **Secure Communication:** Supports secure communication via keystores, truststores, and SSLContextService.
+*   **Sensitive Property Encryption:** Provides tools to encrypt sensitive properties in NiFi configuration files. Key management is handled through a bootstrap file and an AES provider.
+
+**4. Integration and Extensibility:**
+
+*   **NAR Bundles:** NiFi is extended through NiFi Archive (NAR) bundles, allowing components to be dynamically loaded. This provides a modular design and prevents dependency conflicts.
+*   **Scripting:** `ExecuteScript` and `InvokeScriptedProcessor` allow the use of custom scripts (Groovy, Python, JavaScript, Lua, Clojure) within NiFi flows.
+*   **External Integrations:** Provides bundles for interacting with external systems like Hadoop (HDFS, Hive, Avro, ORC), Apache Kafka (PublishKafka, ConsumeKafka), Apache Druid, Apache Ignite, AMQP (RabbitMQ), Couchbase, Windows Event Logs, and JMS messaging systems. Also includes supports for Google Cloud Platform (GCP), and the Hadoop framework for integrating Hadoop clusters. Also provides processors for cybersecurity tools such as fuzzy hashing.
+*   **Data formats:** Offers various capabilities, such as converting Avro records in SQL, converting data to ORC format, and multiple file validators, and XML handling.
+*   **Schema Management:** Employs a schema registry that allows components to read, access, and write schemas, especially Avro records.
+
+**5. Cluster Coordination and Management:**
+
+*   **Zero-Master Clustering:**  NiFi uses a zero-master clustering architecture, with Zookeeper used to elect a Cluster Coordinator.
+*   **Cluster Protocol:**  The `ClusterCoordinator` and a heartbeat mechanism manage node state and flow synchronization.  HTTP request replication ensures consistency.
+*   **Flow Election:** A "popular vote" approach is used to elect the active flow in a cluster.
+
+**6. Orchsym Runtime Specifics:**
+
+* **Branding Extension**: Customized bootstrap that includes branding extension and shutdown hook implementation.
+* **Identity Access and Authorization Providers**: Includes login identity providers with a custom login provider authenticating users against an Orchsym backend.
+* **Usage Data Collection**: Integration of a usage data collection service (UDC) to monitor and analyze the runtime.
+
+**7. Key Design Patterns:**
+
+*   **Service Provider Interface (SPI):** Used for authorizers, user group providers, state providers, login identity providers, and schema registry implementations.
+*   **Strategy Pattern:** Used for compression codecs, error handling, schema access, authentication strategies, and load distribution.
+*   **Factory Pattern:** Used extensively for creating CipherProvider implementations, HTTP clients, client instances, and other resources.
+*   **Template Method:** Used in abstract processor and authorizer classes to define the overall flow of execution while allowing subclasses to implement specific steps.
+*   **Observer Pattern:** Used for lifecycle methods in components.
+*   **Data Transfer Object (DTO):** Heavily used to transfer data between layers of the application or between different systems.
+*   **Singleton Pattern (Potential):** Service class may adhere to the Singleton pattern (via controller instances).
+
+This consolidated report provides a framework for understanding the broader context and relationships between the various components of the NiFi and Orchsym Runtime repositories.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: general
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/orchsym_runtime.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

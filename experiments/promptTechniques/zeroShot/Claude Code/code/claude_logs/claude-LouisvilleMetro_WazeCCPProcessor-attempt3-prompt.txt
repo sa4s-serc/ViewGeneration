@@ -1,0 +1,88 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: LouisvilleMetro_WazeCCPProcessor
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** control_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## LouisvilleMetro_WazeCCPProcessor Repository Analysis
+
+This report summarizes an analysis of the `LouisvilleMetro_WazeCCPProcessor` repository, a cloud-based, open-source solution for processing and analyzing data from the Waze Connected Citizens Program (CCP). The system automates the ingestion, storage, and querying of Waze data, primarily built on AWS and leveraging infrastructure-as-code with Terraform for various mobility use cases.
+
+**Key Functionalities and Components:**
+
+The repository is structured around four key components:
+
+*   **Data Ingestion:** The `waze-data-download` Lambda function periodically fetches data from the Waze CCP data feed URL and stores it as JSON files in an S3 bucket (acting as a data lake).
+*   **Data Processing:** A suite of Lambda functions (`waze-data-process`, `waze-data-alerts-processing`, `waze-data-jams-processing`, `waze-data-irregularities-processing`) processes the raw JSON data. This involves parsing, transforming it into a relational schema, and storing it in an Aurora PostgreSQL database. SQS queues manage the processing workflow for reliable delivery, and SNS topics provide notifications about data retrieval and processing status. The `waze-data-process` function orchestrates the processing of Waze data files, distributing the workload to other specialized lambdas.
+*   **Database Management:** An Aurora PostgreSQL database stores the processed Waze data. The `waze-db-initialize` Lambda function initializes and manages the database schema using SQL scripts, considering schema updates and versioning. The `./code/lambda-functions/waze-data-process/src/db/*` directory contains database access logic for interacting with the database.
+*   **API Access:** The API Gateway exposes the `waze-data-api` Lambda function, providing access to stored Waze data (jams, alerts, irregularities). Functionality includes data filtering, pagination, and coordinate inclusion. Data models for API requests and responses, including validation logic, are defined in `./code/lambda-functions/waze-data-api/src/api-models/*`.
+
+**Important Files:**
+
+*   `LICENSE`: Defines the terms of use (MIT License).
+*   `README.md`: Provides a project overview, goals, deployment instructions, and contribution guidelines.
+*   `./code/lambda-functions/waze-data-download/src/waze-data-download.ts`: Data download Lambda function.
+*   `./code/lambda-functions/waze-data-process/src/waze-data-process.ts`: Main data processing orchestration Lambda.
+*   `./code/lambda-functions/waze-data-api/src/waze-data-api.ts`: API entry point Lambda function.
+*   `./code/lambda-functions/waze-db-initialize/src/waze-db-initialize.ts`: Database initialization Lambda function.
+*   `./infrastructure/terraform/*`: Terraform configuration files for infrastructure management.
+*   `./docs/*`: Deployment process and backloading data documentation.
+
+**Architectural Insights:**
+
+*   **Microservices:** The data processing component utilizes multiple Lambda functions for modularity, scalability, and independent deployment.
+*   **Event-Driven:** S3 events and SNS notifications trigger Lambda functions for asynchronous processing and decoupling.
+*   **Infrastructure-as-Code (IaC):** Terraform automates infrastructure provisioning, ensuring consistency.
+*   **Data Lake:** S3 bucket stores raw data in JSON format.
+*   **API Gateway as Facade:** API Gateway manages API access, request routing, authentication, and rate limiting.
+
+**Notable Design Patterns:**
+
+*   **Asynchronous Processing:** SQS queues and SNS topics enable asynchronous data processing.
+*   **Retry Mechanism:** The `redrive_policy` on the SQS queue implements a retry mechanism.
+*   **Data Validation:** API request models include validation logic.
+*   **Configuration Management:** Terraform variables configure the system for customization and deployment.
+*   **Singleton Pattern:** `connectionPool.ts` may use a singleton pattern for database connection management.
+
+**Further Considerations:**
+
+*   **Security:** The `README.md` highlights the importance of removing the admin user created during AWS setup. More robust IAM role policies are recommended.
+*   **Error Handling:** Error handling and logging should be further improved with detailed error reporting and monitoring.
+*   **Scalability:** Performance testing should be conducted to identify bottlenecks and optimize resource allocation.
+*   **Cost Optimization:** Continuous efforts to reduce costs through right-sizing Lambda functions and optimizing database queries are recommended.
+*   **Versioning**: The use of a version table and app version number module facilitate tracking changes.
+*   **API Versioning**: Consider implementing API versioning at the API Gateway level.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: control_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/LouisvilleMetro_WazeCCPProcessor.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

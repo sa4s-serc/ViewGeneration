@@ -1,0 +1,149 @@
+@startuml
+!define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v14.0/dist
+!include AWSPuml/AWSCommon.puml
+!include AWSPuml/SecurityIdentityCompliance/SecurityHub.puml
+!include AWSPuml/ApplicationIntegration/EventBridge.puml
+!include AWSPuml/ApplicationIntegration/SimpleQueueService.puml
+!include AWSPuml/ApplicationIntegration/StepFunctions.puml
+!include AWSPuml/Compute/Lambda.puml
+!include AWSPuml/ManagementGovernance/SystemsManager.puml
+!include AWSPuml/ManagementGovernance/CloudWatch.puml
+!include AWSPuml/SecurityIdentityCompliance/IdentityAccessManagementRole.puml
+
+title Automated Security Response on AWS - Security Finding Remediation Flow
+
+actor "Security\nAdministrator" as Admin
+participant "Security Hub" as SecurityHub <<SecurityHub>>
+participant "EventBridge\nRule" as EventBridge <<EventBridge>>
+participant "SQS Queue" as SQS <<SimpleQueueService>>
+participant "Orchestrator\n(Step Function)" as Orchestrator <<StepFunctions>>
+participant "Parse Input\nLambda" as ParseLambda <<Lambda>>
+participant "SSM Automation\nDocument" as SSMDoc <<SystemsManager>>
+participant "Remediation\nLambda" as RemediationLambda <<Lambda>>
+participant "IAM Role\n(Cross-Account)" as IAMRole <<IdentityAccessManagementRole>>
+participant "Member Account\nResource" as MemberResource
+participant "Update Finding\nLambda" as UpdateLambda <<Lambda>>
+participant "CloudWatch\nLogs/Metrics" as CloudWatch <<CloudWatch>>
+participant "Ticketing System\n(Jira/ServiceNow)" as Ticketing
+
+== Security Finding Detection ==
+
+SecurityHub -> SecurityHub: Detect security\nfinding from\nstandard check
+activate SecurityHub
+
+SecurityHub -> EventBridge: Publish finding event\n(CIS/FSBP/PCI/NIST)
+deactivate SecurityHub
+activate EventBridge
+
+EventBridge -> SQS: Queue finding for\nthrottling
+deactivate EventBridge
+activate SQS
+
+SQS -> Orchestrator: Trigger Step Function\nwith finding data
+deactivate SQS
+activate Orchestrator
+
+== Finding Parsing and Validation ==
+
+Orchestrator -> ParseLambda: Invoke parse_input.py\nwith Security Hub finding
+activate ParseLambda
+
+ParseLambda -> ParseLambda: Extract:\n- Control ID\n- Security Standard\n- Resource ARN\n- Account ID
+
+ParseLambda -> ParseLambda: Validate finding\nand parameters
+
+ParseLambda --> Orchestrator: Return parsed data\n(ControlId, Standard, Resource)
+deactivate ParseLambda
+
+== Remediation Selection and Execution ==
+
+Orchestrator -> Orchestrator: Determine appropriate\nPlaybook based on\nSecurity Standard
+
+Orchestrator -> Orchestrator: Map Control ID to\nSSM Automation Document
+
+Orchestrator -> SSMDoc: Execute Automation\nDocument (Runbook)
+activate SSMDoc
+
+SSMDoc -> SSMDoc: Load remediation\nworkflow (YAML)
+
+SSMDoc -> RemediationLambda: Execute remediation\nscript (aws:executeScript)
+activate RemediationLambda
+
+== Cross-Account Access and Remediation ==
+
+RemediationLambda -> IAMRole: Assume role in\nMember Account
+activate IAMRole
+
+IAMRole --> RemediationLambda: Temporary credentials\n(least privilege)
+deactivate IAMRole
+
+RemediationLambda -> MemberResource: Apply remediation:\n- Update security group\n- Add tags\n- Modify configuration
+activate MemberResource
+
+MemberResource --> RemediationLambda: Remediation result
+deactivate MemberResource
+
+RemediationLambda -> CloudWatch: Log remediation\nactions and status
+activate CloudWatch
+deactivate CloudWatch
+
+RemediationLambda --> SSMDoc: Return remediation\noutcome (success/failure)
+deactivate RemediationLambda
+
+SSMDoc --> Orchestrator: Automation execution\ncomplete
+deactivate SSMDoc
+
+== Finding Status Update ==
+
+Orchestrator -> UpdateLambda: Update Security Hub\nfinding status
+activate UpdateLambda
+
+UpdateLambda -> SecurityHub: Mark finding as:\nRESOLVED/SUPPRESSED
+activate SecurityHub
+
+SecurityHub --> UpdateLambda: Update confirmation
+deactivate SecurityHub
+
+UpdateLambda --> Orchestrator: Status updated
+deactivate UpdateLambda
+
+== Metrics and Notifications ==
+
+Orchestrator -> CloudWatch: Publish remediation\nmetrics (success/failure)
+activate CloudWatch
+
+CloudWatch -> CloudWatch: Update dashboard\nand trigger alarms\nif needed
+deactivate CloudWatch
+
+Orchestrator -> Ticketing: Create ticket\n(optional integration)
+activate Ticketing
+
+Ticketing --> Orchestrator: Ticket created
+deactivate Ticketing
+
+Orchestrator --> SQS: Remediation complete
+deactivate Orchestrator
+
+== Manual Remediation (Custom Action) ==
+
+Admin -> SecurityHub: Select finding and\ninvoke Custom Action
+activate SecurityHub
+
+SecurityHub -> EventBridge: Trigger Custom Action\nevent
+activate EventBridge
+
+EventBridge -> Orchestrator: Initiate manual\nremediation workflow
+activate Orchestrator
+
+note right of Orchestrator
+Manual remediation follows
+same flow as automated
+remediation from this point
+end note
+
+Orchestrator --> Admin: Remediation initiated
+deactivate Orchestrator
+deactivate EventBridge
+deactivate SecurityHub
+
+@enduml

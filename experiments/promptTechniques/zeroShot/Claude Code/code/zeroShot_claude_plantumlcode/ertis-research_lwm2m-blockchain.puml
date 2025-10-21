@@ -1,0 +1,149 @@
+@startuml
+
+skinparam component {
+    BackgroundColor<<frontend>> LightBlue
+    BackgroundColor<<backend>> LightGreen
+    BackgroundColor<<blockchain>> LightYellow
+    BackgroundColor<<lwm2m>> LightCoral
+}
+
+package "Frontend Layer" {
+    [Anomaly Detection\nAngular App] as AnomalyApp <<frontend>>
+    [Management\nAngular App] as MainApp <<frontend>>
+}
+
+package "Backend Layer" {
+    [Client Controller] as ClientCtrl <<backend>>
+    [Anomaly Controller] as AnomalyCtrl <<backend>>
+    [User Controller] as UserCtrl <<backend>>
+    [Login Controller] as LoginCtrl <<backend>>
+
+    [Client Service] as ClientSvc <<backend>>
+    [Anomaly Service] as AnomalySvc <<backend>>
+    [User Service] as UserSvc <<backend>>
+    [Blockchain Service] as BlockchainSvc <<backend>>
+
+    [Web3j Wrappers] as Web3jWrappers <<backend>>
+    [JWT Middleware] as JWT <<backend>>
+}
+
+package "LwM2M Infrastructure" {
+    [LwM2M Server] as LwM2MServer <<lwm2m>>
+    [Eclipse Leshan Server] as LeshanServer <<lwm2m>>
+    [CoAP Handler] as CoAPHandler <<lwm2m>>
+    [LwM2M REST API] as LwM2MAPI <<lwm2m>>
+    [ClientStore Service] as ClientStoreService <<lwm2m>>
+
+    [Bootstrap Server] as BootstrapServer <<lwm2m>>
+    [Eclipse Leshan Bootstrap] as LeshanBootstrap <<lwm2m>>
+    [Blockchain Bootstrap Store] as BlockchainBootstrap <<lwm2m>>
+
+    [LwM2M Client] as LwM2MClient <<lwm2m>>
+}
+
+package "Blockchain Layer" {
+    [Ethereum Network] as Ethereum <<blockchain>>
+    [UserStore Contract] as UserStore <<blockchain>>
+    [ClientStore Contract] as ClientStore <<blockchain>>
+    [AnomalyStore Contract] as AnomalyStore <<blockchain>>
+}
+
+interface "HTTP/REST" as REST1
+interface "HTTP/REST" as REST2
+interface "HTTP/REST" as REST3
+interface "HTTP/REST" as REST4
+interface "CoAP" as CoAP1
+interface "CoAP" as CoAP2
+interface "Web3 RPC" as Web3RPC
+interface "JWT Auth" as JWTAuth
+
+AnomalyApp --> REST1
+MainApp --> REST2
+
+REST1 --> JWT
+REST2 --> JWT
+
+JWT --> LoginCtrl
+JWT --> ClientCtrl
+JWT --> AnomalyCtrl
+JWT --> UserCtrl
+
+ClientCtrl --> ClientSvc
+AnomalyCtrl --> AnomalySvc
+UserCtrl --> UserSvc
+LoginCtrl --> UserSvc
+
+ClientSvc --> BlockchainSvc
+AnomalySvc --> BlockchainSvc
+UserSvc --> BlockchainSvc
+
+BlockchainSvc --> Web3jWrappers
+
+Web3jWrappers --> Web3RPC
+Web3RPC --> UserStore
+Web3RPC --> ClientStore
+Web3RPC --> AnomalyStore
+
+UserStore --> Ethereum
+ClientStore --> Ethereum
+AnomalyStore --> Ethereum
+
+AnomalyApp --> REST3
+REST3 --> LwM2MAPI
+
+LwM2MAPI --> LeshanServer
+LeshanServer --> CoAPHandler
+LeshanServer --> ClientStoreService
+
+ClientStoreService ..> BlockchainSvc : retrieve client info
+
+CoAPHandler --> CoAP1
+CoAP1 --> LwM2MClient
+
+LwM2MClient --> CoAP2
+CoAP2 --> BootstrapServer
+
+BootstrapServer --> LeshanBootstrap
+BootstrapServer --> BlockchainBootstrap
+
+BlockchainBootstrap ..> ClientStore : retrieve credentials
+
+MainApp --> REST4
+REST4 --> LwM2MServer
+
+LwM2MServer --> LeshanServer
+
+note right of Ethereum
+  Decentralized storage for:
+  - User credentials & roles
+  - Client configurations
+  - Anomaly records with timestamps
+  - Bootstrap security info
+end note
+
+note left of LwM2MServer
+  Control Flow:
+  - Monitors IoT devices via CoAP
+  - Validates clients via blockchain
+  - Reports anomalies to backend
+  - Provides secure REST API
+end note
+
+note bottom of AnomalyApp
+  Detection Flow:
+  1. User authenticates via JWT
+  2. Fetch client data from Backend
+  3. Trigger temperature analysis
+  4. Anomalies stored on blockchain
+  5. Query and display anomalies
+end note
+
+note top of BlockchainSvc
+  Connectivity Hub:
+  - Bridges backend to blockchain
+  - Uses Web3j for Ethereum RPC
+  - Manages smart contract calls
+  - Provides data persistence
+end note
+
+@enduml

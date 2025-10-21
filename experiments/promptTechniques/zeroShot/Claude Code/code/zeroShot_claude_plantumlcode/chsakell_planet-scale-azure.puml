@@ -1,0 +1,150 @@
+@startuml
+!define AZURE_CLOUD_COLOR #0078D4
+!define COMPONENT_COLOR #E8F4F8
+!define DATABASE_COLOR #FFF4E6
+
+skinparam component {
+    BackgroundColor COMPONENT_COLOR
+    BorderColor #000000
+}
+
+skinparam database {
+    BackgroundColor DATABASE_COLOR
+    BorderColor #000000
+}
+
+skinparam cloud {
+    BackgroundColor AZURE_CLOUD_COLOR
+    BorderColor #000000
+    FontColor #FFFFFF
+}
+
+title Planet-Scale Online Store - Deployment & Connectivity Architecture
+
+cloud "Azure Traffic Manager" as ATM {
+}
+
+node "Region 1" {
+    component "Azure CDN" as CDN1
+
+    package "Web Tier" {
+        component [Online.Store\n(.NET Core + Angular)] as WebApp1
+    }
+
+    package "Cache Layer" {
+        component [Azure Redis Cache] as Redis1
+    }
+
+    package "Messaging" {
+        component [Azure Service Bus] as ServiceBus1
+    }
+
+    package "Background Processing" {
+        component [Online.Store.WebJob] as WebJob1
+    }
+
+    package "Data Layer" {
+        database "Azure SQL Server\n(Primary)" as SQL1
+        database "Azure Cosmos DB\n(Geo-Replicated)" as Cosmos1
+    }
+
+    package "Search" {
+        component [Azure Search] as Search1
+    }
+}
+
+node "Region 2" {
+    component "Azure CDN" as CDN2
+
+    package "Web Tier " {
+        component [Online.Store\n(.NET Core + Angular)] as WebApp2
+    }
+
+    package "Cache Layer " {
+        component [Azure Redis Cache] as Redis2
+    }
+
+    package "Messaging " {
+        component [Azure Service Bus] as ServiceBus2
+    }
+
+    package "Background Processing " {
+        component [Online.Store.WebJob] as WebJob2
+    }
+
+    package "Data Layer " {
+        database "Azure SQL Server\n(Geo-Replicated)" as SQL2
+        database "Azure Cosmos DB\n(Geo-Replicated)" as Cosmos2
+    }
+
+    package "Search " {
+        component [Azure Search] as Search2
+    }
+}
+
+component [Azure Active Directory B2C] as AAD
+actor User
+
+' User connections
+User --> ATM : HTTPS Requests
+ATM --> CDN1 : Route to Region 1
+ATM --> CDN2 : Route to Region 2
+
+' CDN to Web App
+CDN1 --> WebApp1 : Static Content\nDynamic Requests
+CDN2 --> WebApp2 : Static Content\nDynamic Requests
+
+' Web App to Authentication
+WebApp1 --> AAD : Authentication
+WebApp2 --> AAD : Authentication
+
+' Web App to Redis Cache (Shopping Cart)
+WebApp1 --> Redis1 : Cache Operations\n(Shopping Cart)
+WebApp2 --> Redis2 : Cache Operations\n(Shopping Cart)
+
+' Web App to Service Bus
+WebApp1 --> ServiceBus1 : Send Messages\n(Orders)
+WebApp2 --> ServiceBus2 : Send Messages\n(Orders)
+
+' Web App to Cosmos DB (Read Operations - Product Catalog, Forum)
+WebApp1 --> Cosmos1 : Read Operations\n(Product Catalog, Forum)
+WebApp2 --> Cosmos2 : Read Operations\n(Product Catalog, Forum)
+
+' Web App to SQL Server (Write Operations - Orders, Identity)
+WebApp1 --> SQL1 : Write Operations\n(Orders, Identity)
+WebApp2 --> SQL2 : Write Operations\n(Orders, Identity)
+
+' Web App to Search
+WebApp1 --> Search1 : Product Search
+WebApp2 --> Search2 : Product Search
+
+' WebJob to Service Bus
+WebJob1 --> ServiceBus1 : Process Messages\n(Order Processing)
+WebJob2 --> ServiceBus2 : Process Messages\n(Order Processing)
+
+' WebJob to SQL Server
+WebJob1 --> SQL1 : Update Orders
+WebJob2 --> SQL2 : Update Orders
+
+' Cross-region data replication
+SQL1 <..> SQL2 : Geo-Replication
+Cosmos1 <..> Cosmos2 : Geo-Replication
+
+note right of ATM
+  Global traffic routing
+  based on performance,
+  priority, or geographic
+end note
+
+note bottom of Cosmos1
+  CQRS Pattern:
+  - Cosmos DB for Read Operations
+  - SQL Server for Write Operations
+end note
+
+note bottom of ServiceBus1
+  Asynchronous order processing
+  via Service Bus messaging
+end note
+
+@enduml

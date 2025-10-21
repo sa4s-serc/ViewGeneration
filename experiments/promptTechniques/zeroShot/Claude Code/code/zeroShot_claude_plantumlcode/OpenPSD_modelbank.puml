@@ -1,0 +1,109 @@
+@startuml
+!define RECTANGLE class
+
+skinparam component {
+    BackgroundColor<<presentation>> LightBlue
+    BackgroundColor<<usecase>> LightGreen
+    BackgroundColor<<entity>> LightYellow
+    BackgroundColor<<infrastructure>> LightCoral
+}
+
+package "Presentation Layer" {
+    component [ModelBankController] <<presentation>> as controller
+    component [gRPC Server] <<presentation>> as grpc
+}
+
+package "Application Layer (Use Cases)" {
+    component [ModelBankUseCase] <<usecase>> as usecase
+
+    interface "ModelBankUsecaseInputPort" as usecaseInputPort
+    interface "ModelBankUsecaseOutputPort" as usecaseOutputPort
+    interface "ModelBankControllerInputPort" as controllerInputPort
+    interface "ModelBankControllerOutputPort" as controllerOutputPort
+}
+
+package "Domain Layer (Entities)" {
+    component [FinancialInstitution] <<entity>> as fi
+    component [AccountHolder] <<entity>> as ah
+    component [Account] <<entity>> as acc
+    component [Consent] <<entity>> as consent
+    component [PaymentInstruction] <<entity>> as payment
+    component [PaymentTransaction] <<entity>> as transaction
+    component [LedgerEntry] <<entity>> as ledger
+
+    interface "FinancialInstitutionProcessor" as fiProcessor
+    interface "AccountHolderProcessor" as ahProcessor
+    interface "AccountProcessor" as accProcessor
+}
+
+package "Infrastructure Layer (Providers)" {
+    component [DbProvider] <<infrastructure>> as db
+    component [PostgreSQL Database] <<infrastructure>> as postgres
+
+    interface "ModelBankEntityGateway" as gateway
+}
+
+component [gRPC Client] as client
+
+client --> grpc : gRPC calls
+grpc --> controller : CreateConsent
+controller ..> controllerInputPort : implements
+controller --> usecaseInputPort : uses
+usecase ..> usecaseInputPort : implements
+usecase --> controllerOutputPort : uses
+controller --> usecase : invokes
+
+usecase --> gateway : uses
+db ..> gateway : implements
+db --> postgres : SQL queries
+
+usecase --> fi : manages
+usecase --> ah : manages
+usecase --> acc : manages
+usecase --> consent : manages
+usecase --> payment : processes
+usecase --> transaction : processes
+usecase --> ledger : books entries
+
+fi --> fiProcessor : processes via
+ah --> ahProcessor : processes via
+acc --> accProcessor : processes via
+fi "1" --> "*" ah : contains
+ah "1" --> "*" acc : owns
+acc "1" --> "*" ledger : records
+payment "1" --> "*" transaction : generates
+transaction --> ledger : creates
+
+db --> fi : persists
+db --> ah : persists
+db --> acc : persists
+db --> consent : persists
+db --> payment : persists
+db --> transaction : persists
+db --> ledger : persists
+
+note right of controller
+  Clean Architecture:
+  - Controllers translate between
+    external world and use cases
+  - Uses Ports & Adapters pattern
+  - Loose coupling via interfaces
+end note
+
+note right of usecase
+  Core Business Logic:
+  - Financial Institution Management
+  - Account Holder Management
+  - Account Management (open, close, debit, credit)
+  - Consent Management
+  - Payment Processing
+end note
+
+note right of db
+  Repository Pattern:
+  - Abstracts data access
+  - Uses go-pg ORM
+  - PostgreSQL backend
+end note
+
+@enduml

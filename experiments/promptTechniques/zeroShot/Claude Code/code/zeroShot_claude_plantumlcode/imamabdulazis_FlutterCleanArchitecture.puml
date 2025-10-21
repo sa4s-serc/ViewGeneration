@@ -1,0 +1,209 @@
+@startuml
+!define RECTANGLE component
+
+skinparam component {
+  BackgroundColor<<presentation>> #LIGHTBLUE
+  BackgroundColor<<domain>> #LIGHTGREEN
+  BackgroundColor<<data>> #LIGHTYELLOW
+  BackgroundColor<<core>> #LIGHTGRAY
+  BackgroundColor<<external>> #PINK
+}
+
+package "Presentation Layer" <<presentation>> {
+  [UI Components] as UI
+  [Screens] as Screens
+  [BLoC State Management] as BLoC
+
+  component "HomeScreen" as HomeScreen
+  component "LoginScreen" as LoginScreen
+  component "MenuScreen" as MenuScreen
+  component "Navigation" as Navigation
+
+  Screens -down-> HomeScreen
+  Screens -down-> LoginScreen
+  Screens -down-> MenuScreen
+
+  UI -down-> Screens
+  UI -down-> Navigation
+  BLoC -down-> UI
+}
+
+package "Domain Layer" <<domain>> {
+  [Entities] as Entities
+  [Use Cases] as UseCases
+  [Repository Interfaces] as RepoInterfaces
+
+  component "CheckBindStatusUsecase" as CheckBindUC
+  component "LoginUseCase" as LoginUC
+  component "GetPreferredLanguageUseCase" as GetLangUC
+  component "UpdateLanguageUseCase" as UpdateLangUC
+  component "UserRepository Interface" as UserRepoInterface
+  component "AppRepository Interface" as AppRepoInterface
+
+  UseCases -down-> CheckBindUC
+  UseCases -down-> LoginUC
+  UseCases -down-> GetLangUC
+  UseCases -down-> UpdateLangUC
+
+  CheckBindUC -down-> RepoInterfaces
+  LoginUC -down-> RepoInterfaces
+  GetLangUC -down-> RepoInterfaces
+  UpdateLangUC -down-> RepoInterfaces
+
+  RepoInterfaces -down-> UserRepoInterface
+  RepoInterfaces -down-> AppRepoInterface
+}
+
+package "Data Layer" <<data>> {
+  [Repository Implementations] as RepoImpl
+  [Data Sources] as DataSources
+  [Models] as Models
+
+  component "UserRepository Implementation" as UserRepoImpl
+  component "AppRepository Implementation" as AppRepoImpl
+  component "Remote Data Source" as RemoteDS
+  component "Local Data Source" as LocalDS
+  component "BindingDataSourceFactory" as DSFactory
+
+  RepoImpl -down-> UserRepoImpl
+  RepoImpl -down-> AppRepoImpl
+
+  UserRepoImpl -down-> DataSources
+  AppRepoImpl -down-> DataSources
+
+  DataSources -down-> RemoteDS
+  DataSources -down-> LocalDS
+  DataSources -down-> DSFactory
+
+  DSFactory -down-> RemoteDS
+  DSFactory -down-> LocalDS
+
+  RemoteDS -down-> Models
+  LocalDS -down-> Models
+}
+
+package "Core Layer" <<core>> {
+  [Networking] as Networking
+  [Error Handling] as ErrorHandling
+  [Device Services] as DeviceServices
+  [Use Case Abstraction] as UseCaseAbstraction
+
+  component "HttpClient" as HttpClient
+  component "HttpRetrier" as HttpRetrier
+  component "DioConnectivityRequestRetrier" as DioRetrier
+  component "RetryOnConnectionChangeInterceptor" as RetryInterceptor
+  component "Failure" as Failure
+  component "Exception" as Exception
+  component "SentryExceptions" as SentryExceptions
+  component "Device Connection Manager" as DeviceConnection
+  component "Push Notification Handler" as PushNotification
+
+  Networking -down-> HttpClient
+  Networking -down-> HttpRetrier
+  Networking -down-> DioRetrier
+  Networking -down-> RetryInterceptor
+
+  ErrorHandling -down-> Failure
+  ErrorHandling -down-> Exception
+  ErrorHandling -down-> SentryExceptions
+
+  DeviceServices -down-> DeviceConnection
+  DeviceServices -down-> PushNotification
+}
+
+package "Dependency Injection" {
+  [InjectionContainer] as DI
+  component "get_it" as GetIt
+
+  DI -down-> GetIt
+}
+
+package "External Services" <<external>> {
+  [Firebase Messaging] as Firebase
+  [Sentry] as Sentry
+  [Dio] as Dio
+  [SharedPreferences] as SharedPrefs
+}
+
+package "Application Entry" {
+  [main.dart] as Main
+  [app.dart] as App
+  [routes.dart] as Routes
+
+  Main -down-> App
+  App -down-> Routes
+}
+
+' Dependency relationships
+BLoC -down-> UseCases : uses
+UseCases -down-> Entities : manipulates
+UseCases --> RepoInterfaces : depends on
+RepoImpl .up.|> RepoInterfaces : implements
+RepoImpl -down-> DataSources : uses
+DataSources -down-> Networking : uses
+DataSources -down-> SharedPrefs : uses
+Networking -down-> Dio : uses
+ErrorHandling -down-> Sentry : reports to
+DeviceServices -down-> Firebase : uses
+Main -down-> DI : initializes
+DI -down-> BLoC : provides
+DI -down-> UseCases : provides
+DI -down-> RepoImpl : provides
+DI -down-> DataSources : provides
+DI -down-> Networking : provides
+DI -down-> ErrorHandling : provides
+DI -down-> DeviceServices : provides
+App -down-> BLoC : configures
+Routes -down-> Screens : maps
+
+' Theme and Localization
+package "Configuration" {
+  [Theme Manager] as Theme
+  [Localization] as L10n
+
+  component "Light Theme" as LightTheme
+  component "Dark Theme" as DarkTheme
+  component "English" as English
+  component "Indonesian" as Indonesian
+
+  Theme -down-> LightTheme
+  Theme -down-> DarkTheme
+  L10n -down-> English
+  L10n -down-> Indonesian
+}
+
+App -down-> Theme : applies
+App -down-> L10n : supports
+Theme -down-> SharedPrefs : persists
+L10n -down-> SharedPrefs : persists
+
+note right of "Presentation Layer"
+  Responsible for UI rendering,
+  user interactions, and
+  state management via BLoC
+end note
+
+note right of "Domain Layer"
+  Contains business logic,
+  entities, and use cases.
+  Framework independent.
+end note
+
+note right of "Data Layer"
+  Handles data fetching from
+  remote APIs and local storage.
+  Implements repository interfaces.
+end note
+
+note right of "Core Layer"
+  Provides common utilities:
+  networking, error handling,
+  and device services
+end note
+
+note bottom of DI
+  Centralized dependency injection
+  using get_it for loose coupling
+end note
+
+@enduml

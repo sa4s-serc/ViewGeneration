@@ -1,0 +1,101 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: hrchlhck_k8s-bigdata
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** deployment
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## Analysis of the `hrchlhck_k8s-bigdata` Repository
+
+This report provides an analysis of the `hrchlhck_k8s-bigdata` GitHub repository, focusing on its functionality, components, architecture, and design patterns. The repository aims to deploy an Apache Spark cluster with HDFS within a Kubernetes environment, enabling the execution of big data workloads using the Intel HiBench benchmark suite. The cluster functions as a regular Spark and HDFS cluster when not running benchmarks.
+
+**Key Functionalities and Components:**
+
+The system provides distributed data processing (Apache Spark) and storage (HDFS) capabilities, orchestrated by Kubernetes. Key components include:
+
+*   **Apache Spark Cluster:** For distributed data processing.
+*   **HDFS (Hadoop Distributed File System):** For distributed storage.
+*   **Kubernetes Deployment:** Manages the deployment, scaling, and networking of the Spark and HDFS components using `kubernetes/cluster.yml` to define namespaces, services, pods, and StatefulSets.
+*   **Intel HiBench:** A benchmark suite for evaluating big data performance. It supports Micro, Machine Learning, and Websearch workloads.
+*   **Automated Configuration:** Python scripts and environment variables automate the configuration of HiBench and Hadoop/Spark within the containers. No manual DataNode registration is required.
+*   **Node Affinity:** Kubernetes node labels are used to assign specific nodes as "master" nodes for services like NameNode, ResourceManager, and HistoryServer.
+
+**Important Files and Their Roles:**
+
+Several files play crucial roles in the repository's functionality:
+
+*   **`LICENSE`:** Defines the project's Apache 2.0 license.
+*   **`README.md`:** Provides an overview, build/run instructions, and references.
+*   **`build.sh`:** Builds and pushes Docker images for all components to a Docker Hub repository (`vpemfh7`).
+*   **`kubernetes/cluster.yml`:** Defines the Kubernetes deployment, including services (NameNode, ResourceManager, HistoryServer, DataNode), StatefulSets for DataNodes (persistent storage), and environment variables via ConfigMaps.
+*   **`hadoop/base/Dockerfile`:** Base Docker image for Hadoop components, installing Java, Hadoop, and related dependencies. Includes `entrypoint.sh` and core Hadoop configuration.
+*   **`hadoop/base/entrypoint.sh`:** Executed on container start, loads environment variables, creates Hadoop configuration files (`core-site.xml`, `hdfs-site.xml`, `yarn-site.xml`, `mapred-site.xml`) using Python scripts, waits for dependencies, and starts Hadoop daemons.
+*   **`hadoop/base/create_config.py`:** Generates Hadoop configuration XML files from environment variables (prefixed with `CORE_CONF_`).
+*   **`hadoop/base/hadoop.env`:** Defines environment variables for Core, HDFS, Yarn, and MapReduce configurations.
+*   **`hadoop/{namenode,datanode,resourcemanager,historyserver}/Dockerfile`:** Dockerfiles for specific Hadoop components, extending `hadoop/base`.
+*   **`hadoop/{namenode,datanode,resourcemanager,historyserver}/run.sh`:** Starts the Hadoop daemons within the respective containers.
+*   **`hadoop/namenode/create_hibench_config.py`:** Generates HiBench configuration files based on environment variables.
+*   **`hadoop/namenode/hadoop.env` and `hadoop/namenode/spark.env`:** Defines environment variables for HiBench and Spark within the NameNode container.
+*   **`hadoop/namenode/hibench_conf/*.conf`:** Configuration files for various HiBench workloads.
+*   **`hadoop/namenode/hibench_conf/hibench_prop_env_mapping.py`:** Maps HiBench properties to environment variable names.
+*   **`scripts/init-cluster.sh`:** Deploys the cluster using `kubectl apply`, sets the benchmark input size, and prepares HiBench workload data.
+*   **`scripts/run.sh`:** Executes a HiBench benchmark inside the NameNode container.
+*   **`scripts/functions.sh`:** Defines helper functions like `podexec`, `apply`, `prepare`, `set_benchmark_input_size`, `bench`, and `wait_for_pod`.
+*   **`doc/k8s-bigdata-architecture.drawio`:** Diagram illustrating the system architecture, showcasing the co-location of HiBench, Hadoop NameNode, and Spark Master in the same container.
+
+**Architectural Insights:**
+
+The architecture leverages:
+
+*   **Containerization:** Docker containers provide modularity and portability for each Hadoop and Spark component.
+*   **Kubernetes Orchestration:** Kubernetes manages the deployment, scaling, and networking of the cluster using Services and StatefulSets.
+*   **Configuration via Environment Variables:** Hadoop and HiBench configurations are managed using environment variables for flexibility.
+*   **Code Reuse:** The `hadoop/base` image serves as a common foundation for all Hadoop components.
+*   **Separation of Concerns:** Dockerfiles build images, while shell scripts handle runtime configuration and daemon startup.
+*   **Co-location of HiBench, NameNode, and Spark Master:** These components are placed within the same container to optimize performance based on locality of reference and to simplify HiBench integration with Hadoop and Spark directories.
+
+**Notable Design Patterns:**
+
+The repository employs several design patterns:
+
+*   **Infrastructure as Code (IaC):**  `kubernetes/cluster.yml` defines the infrastructure declaratively, enabling consistent deployments.
+*   **Configuration as Code:** Environment variables and Python scripts programmatically manage configuration.
+*   **Microservices (to some degree):** The separation of Hadoop components into individual containers promotes modularity.
+*   **Sidecar:** The DataNode pod contains both the Hadoop DataNode container and a YARN NodeManager container.
+
+**Next Steps (Inferred from the README):**
+
+The repository aims to add support for data streaming frameworks like Apache Kafka.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/hrchlhck_k8s-bigdata.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

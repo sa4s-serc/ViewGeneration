@@ -1,0 +1,155 @@
+@startuml
+title HyperTrack Live App Android - Control Flow Sequence Diagram
+
+actor User
+participant "Android App UI" as UI
+participant "CognitoClient" as Cognito
+participant "AWS Cognito" as AWSCognito
+participant "AccessTokenRepository" as TokenRepo
+participant "BackendClientFactory" as Factory
+participant "AbstractBackendProvider" as Backend
+participant "AccessTokenInterceptor" as Interceptor
+participant "Retrofit API Client" as Retrofit
+participant "HyperTrack Trips API" as TripsAPI
+participant "HyperTrack SDK" as SDK
+participant "GeofenceApiAdapter" as GeofenceAdapter
+participant "Google Maps" as Maps
+participant "Branch.io" as Branch
+
+== User Authentication ==
+User -> UI: Launch App
+UI -> Cognito: authenticate()
+Cognito -> AWSCognito: signIn(credentials)
+activate Cognito
+activate AWSCognito
+AWSCognito --> Cognito: authentication token
+deactivate AWSCognito
+Cognito -> TokenRepo: storeAccessToken(token)
+activate TokenRepo
+TokenRepo --> Cognito: token stored
+deactivate TokenRepo
+Cognito --> UI: authentication success
+deactivate Cognito
+
+== Trip Creation ==
+User -> UI: Create Trip
+UI -> Factory: getBackendProvider()
+activate Factory
+Factory -> Backend: create instance
+activate Backend
+Factory --> UI: backend provider
+deactivate Factory
+UI -> Backend: createTrip(tripDetails)
+Backend -> Interceptor: intercept request
+activate Interceptor
+Interceptor -> TokenRepo: getAccessToken()
+activate TokenRepo
+TokenRepo --> Interceptor: access token
+deactivate TokenRepo
+Interceptor -> Retrofit: add auth header
+deactivate Interceptor
+activate Retrofit
+Retrofit -> TripsAPI: POST /trips
+activate TripsAPI
+TripsAPI --> Retrofit: trip created response
+deactivate TripsAPI
+Retrofit --> Backend: trip data
+deactivate Retrofit
+Backend --> UI: trip object
+deactivate Backend
+
+== Location Tracking ==
+UI -> SDK: startTracking(tripId)
+activate SDK
+SDK -> SDK: initialize tracking
+SDK --> UI: tracking started
+UI -> Maps: displayLocation()
+activate Maps
+Maps --> UI: map view updated
+deactivate Maps
+
+loop Location Updates
+    SDK -> SDK: capture location
+    SDK -> TripsAPI: POST location data
+    activate TripsAPI
+    TripsAPI --> SDK: acknowledgment
+    deactivate TripsAPI
+    SDK -> UI: location update
+    UI -> Maps: updateMarker(location)
+    activate Maps
+    Maps --> UI: marker updated
+    deactivate Maps
+end
+deactivate SDK
+
+== Geofence Management ==
+User -> UI: Set Home Location
+UI -> GeofenceAdapter: setHomeGeofence(location)
+activate GeofenceAdapter
+GeofenceAdapter -> Backend: createGeofence(homeLocation)
+activate Backend
+Backend -> Retrofit: POST geofence
+activate Retrofit
+Retrofit -> TripsAPI: create geofence
+activate TripsAPI
+TripsAPI --> Retrofit: geofence created
+deactivate TripsAPI
+Retrofit --> Backend: geofence data
+deactivate Retrofit
+Backend --> GeofenceAdapter: success
+deactivate Backend
+GeofenceAdapter --> UI: home location set
+deactivate GeofenceAdapter
+
+== Deep Link Handling ==
+User -> Branch: Click invite link
+activate Branch
+Branch -> UI: handleDeepLink(url)
+activate UI
+UI -> Backend: getInviteDetails(linkData)
+activate Backend
+Backend -> Retrofit: GET invite details
+activate Retrofit
+Retrofit -> TripsAPI: fetch invite data
+activate TripsAPI
+TripsAPI --> Retrofit: invite details
+deactivate TripsAPI
+Retrofit --> Backend: invite data
+deactivate Retrofit
+Backend --> UI: trip invitation
+deactivate Backend
+UI -> Maps: showTripLocation(tripData)
+activate Maps
+Maps --> UI: location displayed
+deactivate Maps
+deactivate UI
+deactivate Branch
+
+== Trip Completion ==
+User -> UI: Complete Trip
+UI -> Backend: completeTrip(tripId)
+activate Backend
+Backend -> Interceptor: intercept request
+activate Interceptor
+Interceptor -> TokenRepo: getAccessToken()
+activate TokenRepo
+TokenRepo --> Interceptor: access token
+deactivate TokenRepo
+Interceptor -> Retrofit: add auth header
+deactivate Interceptor
+activate Retrofit
+Retrofit -> TripsAPI: POST /trips/{id}/complete
+activate TripsAPI
+TripsAPI --> Retrofit: trip completed
+deactivate TripsAPI
+Retrofit --> Backend: completion data
+deactivate Retrofit
+Backend --> UI: trip completed
+deactivate Backend
+UI -> SDK: stopTracking()
+activate SDK
+SDK -> SDK: stop location updates
+SDK --> UI: tracking stopped
+deactivate SDK
+
+@enduml

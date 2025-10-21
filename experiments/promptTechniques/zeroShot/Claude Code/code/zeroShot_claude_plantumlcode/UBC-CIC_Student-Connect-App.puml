@@ -1,0 +1,108 @@
+@startuml
+!theme plain
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+
+actor User
+participant "React PWA\n(App.js)" as Frontend
+participant "AWS Cognito" as Cognito
+participant "GraphQL API" as GraphQL
+participant "Lambda:\nget_*_data" as DataLambda
+participant "External Sources\n(UBCO Events/News/Blogs)" as External
+participant "DynamoDB" as DynamoDB
+participant "DynamoDB Streams" as Streams
+participant "Lambda:\ndocument_stream_handler" as StreamHandler
+participant "Lambda:\nes_hasher" as Hasher
+participant "Elasticsearch" as ES
+participant "Lambda:\nget_es_documents" as ESQuery
+participant "S3 Data Lake" as S3
+participant "CloudWatch Events" as CloudWatch
+participant "Kibana Admin" as Kibana
+
+== User Authentication ==
+User -> Frontend: Access Application
+Frontend -> Cognito: Sign In Request
+alt SAML Authentication
+    Cognito -> Cognito: Integrate with OneLogin (SAML)
+end
+Cognito --> Frontend: Authentication Token
+Frontend --> User: Display Dashboard
+
+== Initial Survey & Preferences ==
+User -> Frontend: Complete Survey (Survey.js)
+Frontend -> GraphQL: Save User Preferences
+GraphQL -> DynamoDB: Store User Interests
+DynamoDB --> GraphQL: Confirmation
+GraphQL --> Frontend: Success Response
+Frontend --> User: Survey Completed
+
+== Scheduled Data Aggregation ==
+CloudWatch -> DataLambda: Trigger Scheduled Event
+activate DataLambda
+DataLambda -> External: Fetch Events/News/Blogs/Athletics/Clubs
+External --> DataLambda: Return Raw Data
+DataLambda -> DataLambda: Parse & Transform Data
+DataLambda -> DynamoDB: Store Aggregated Data
+DynamoDB --> DataLambda: Write Confirmation
+DataLambda -> S3: Archive Data to Data Lake
+S3 --> DataLambda: Storage Confirmation
+deactivate DataLambda
+
+== Real-Time Data Synchronization ==
+DynamoDB -> Streams: Data Change Event
+activate Streams
+Streams -> StreamHandler: Trigger Stream Event
+activate StreamHandler
+StreamHandler -> ES: Update Index (Insert/Update/Delete)
+ES --> StreamHandler: Index Update Confirmation
+deactivate StreamHandler
+deactivate Streams
+
+== Batch Data Synchronization ==
+CloudWatch -> Hasher: Trigger Scheduled Comparison
+activate Hasher
+Hasher -> DynamoDB: Fetch All Records
+DynamoDB --> Hasher: Return Records
+Hasher -> ES: Fetch All Documents
+ES --> Hasher: Return Documents
+Hasher -> Hasher: Compare & Identify Differences
+Hasher -> ES: Update Missing/Changed Documents
+ES --> Hasher: Update Confirmation
+Hasher -> ES: Remove Outdated Documents
+ES --> Hasher: Delete Confirmation
+deactivate Hasher
+
+== User Content Browsing ==
+User -> Frontend: Browse Content
+Frontend -> ESQuery: Query Documents (by User Interests)
+activate ESQuery
+ESQuery -> ES: Search Query with Filters
+ES --> ESQuery: Return Matching Documents
+deactivate ESQuery
+ESQuery --> Frontend: Personalized Content Results
+Frontend --> User: Display Recommendations
+
+== User Content Management ==
+User -> Frontend: Save Preferred Item
+Frontend -> GraphQL: Save User Preference
+GraphQL -> DynamoDB: Update User Saved Items
+DynamoDB --> GraphQL: Confirmation
+GraphQL --> Frontend: Success Response
+Frontend --> User: Item Saved Confirmation
+
+== Admin Data Visualization ==
+User -> Kibana: Access Admin Console
+Kibana -> ES: Query Data for Visualization
+ES --> Kibana: Return Aggregated Data
+Kibana --> User: Display Dashboards & Analytics
+
+== Password Reset Flow ==
+User -> Frontend: Request Password Reset (Login.js)
+Frontend -> Cognito: Password Reset Request
+Cognito -> User: Send Reset Code (Email)
+User -> Frontend: Submit Reset Code & New Password
+Frontend -> Cognito: Verify Code & Update Password
+Cognito --> Frontend: Password Reset Confirmation
+Frontend --> User: Password Updated Successfully
+
+@enduml

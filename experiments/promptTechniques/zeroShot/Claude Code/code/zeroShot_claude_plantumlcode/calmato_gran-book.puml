@@ -1,0 +1,178 @@
+@startuml
+!define RECTANGLE_COLOR #E3F2FD
+!define DATABASE_COLOR #FFF3E0
+!define SERVICE_COLOR #E8F5E9
+
+title Gran Book Application - Component Connectivity Architecture
+
+' Client Layer
+package "Client Layer" <<Rectangle>> {
+  [Web Admin Panel\n(Nuxt.js)] as WebAdmin
+  [Mobile Native App] as MobileApp
+}
+
+' API Gateway Layer
+package "API Gateway Layer" <<Rectangle>> {
+  [Admin Gateway] as AdminGateway
+  [Native Gateway] as NativeGateway
+
+  component "API Gateway Features" {
+    [Routing]
+    [Authentication Middleware]
+    [Request/Response Transform]
+    [CORS Handler]
+  }
+}
+
+' Backend Microservices
+package "Backend Microservices" <<Rectangle>> {
+  [Auth Service] as AuthService <<SERVICE_COLOR>>
+  [User Service] as UserService <<SERVICE_COLOR>>
+  [Book Service] as BookService <<SERVICE_COLOR>>
+  [Chat Service] as ChatService <<SERVICE_COLOR>>
+
+  package "Book Service Components" {
+    [Book Application Layer] as BookApp
+    [Book Domain Layer] as BookDomain
+    [Book Infrastructure Layer] as BookInfra
+  }
+}
+
+' External Services
+package "External Services" <<Cloud>> {
+  [Firebase Authentication] as Firebase
+  [Image Storage] as ImageStore
+}
+
+' Data Layer
+package "Data Layer" <<Database>> {
+  database "Relational Database" as RDB {
+    [Books Table]
+    [Authors Table]
+    [Users Table]
+    [Reviews Table]
+    [Bookshelves Table]
+    [Chat Messages Table]
+  }
+}
+
+' State Management
+package "State Management (Vuex)" <<Rectangle>> {
+  [Admin Store Module]
+  [Auth Store Module]
+  [Book Store Module]
+  [Common Store Module]
+}
+
+' Client to Gateway connections
+WebAdmin --> AdminGateway : HTTPS/REST API
+MobileApp --> NativeGateway : HTTPS/REST API
+
+' Gateway to Backend connections
+AdminGateway ..> AuthService : gRPC
+AdminGateway ..> UserService : gRPC
+AdminGateway ..> BookService : gRPC
+AdminGateway ..> ChatService : gRPC
+
+NativeGateway ..> AuthService : gRPC
+NativeGateway ..> UserService : gRPC
+NativeGateway ..> BookService : gRPC
+NativeGateway ..> ChatService : gRPC
+
+' Backend to Database connections
+AuthService --> RDB : SQL
+UserService --> RDB : SQL
+BookService --> RDB : SQL
+ChatService --> RDB : SQL
+
+' Book Service internal connectivity
+BookApp --> BookDomain : Domain Logic
+BookApp --> BookInfra : Repository Pattern
+BookInfra --> RDB : Data Access
+
+' External Service connections
+WebAdmin --> Firebase : Authentication
+MobileApp --> Firebase : Authentication
+AuthService --> Firebase : Token Validation
+
+BookService --> ImageStore : Store/Retrieve Images
+ChatService --> ImageStore : Store/Retrieve Images
+
+' State Management connections
+WebAdmin --> [Admin Store Module] : State Updates
+WebAdmin --> [Auth Store Module] : State Updates
+WebAdmin --> [Book Store Module] : State Updates
+WebAdmin --> [Common Store Module] : State Updates
+
+' Plugin connections
+package "Nuxt.js Plugins" {
+  [Axios Plugin] as AxiosPlugin
+  [Firebase Plugin] as FirebasePlugin
+  [Vuex Persisted State]
+  [Vee-Validate Plugin]
+}
+
+WebAdmin ..> AxiosPlugin : HTTP Client
+WebAdmin ..> FirebasePlugin : Auth Integration
+WebAdmin ..> [Vuex Persisted State] : State Persistence
+WebAdmin ..> [Vee-Validate Plugin] : Form Validation
+
+AxiosPlugin --> AdminGateway : API Requests
+
+' Middleware Layer
+package "Middleware Components" {
+  [Auth Middleware]
+  [Request ID Generator]
+  [Logging Middleware]
+}
+
+AdminGateway ..> [Auth Middleware] : Request Processing
+NativeGateway ..> [Auth Middleware] : Request Processing
+AdminGateway ..> [Request ID Generator] : Request Tracking
+NativeGateway ..> [Request ID Generator] : Request Tracking
+AdminGateway ..> [Logging Middleware] : Request Logging
+NativeGateway ..> [Logging Middleware] : Request Logging
+
+' Component Architecture
+package "Web Admin UI Components" {
+  [Atoms] as UIAtoms
+  [Molecules] as UIMolecules
+  [Organisms] as UIOrganisms
+  [Templates] as UITemplates
+  [Pages] as UIPages
+}
+
+UIAtoms <-- UIMolecules : Composition
+UIMolecules <-- UIOrganisms : Composition
+UIOrganisms <-- UITemplates : Composition
+UITemplates <-- UIPages : Page Structure
+
+WebAdmin --> UIPages : Renders
+
+' API Documentation
+note right of AdminGateway
+  OpenAPI/Swagger
+  Documented APIs
+end note
+
+note right of NativeGateway
+  OpenAPI/Swagger
+  Documented APIs
+end note
+
+' Architecture Notes
+note bottom of "Backend Microservices"
+  Hexagonal Architecture
+  - Domain Layer (Core Logic)
+  - Application Layer (Use Cases)
+  - Infrastructure Layer (Adapters)
+end note
+
+legend right
+  |= Connection Type |= Description |
+  | Solid Arrow | REST/HTTP API |
+  | Dotted Arrow | gRPC Communication |
+  | Simple Line | Internal Component |
+endlegend
+
+@enduml

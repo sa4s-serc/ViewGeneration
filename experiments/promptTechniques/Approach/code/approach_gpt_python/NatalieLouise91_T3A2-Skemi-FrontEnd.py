@@ -1,0 +1,50 @@
+from graphviz import Digraph
+
+# Create a new directed graph
+dot = Digraph(comment='Skemi Front-End Architecture')
+
+# Define nodes with colors based on their types
+dot.node('Index', 'src/index.js', shape='rectangle', style='filled', fillcolor='lightblue')
+dot.node('App', 'src/App.js', shape='rectangle', style='filled', fillcolor='lightblue')
+dot.node('Nav', 'src/components/UI/Nav.js', shape='rectangle', style='filled', fillcolor='lightcoral')
+dot.node('Login', 'src/components/User/Login.js', shape='rectangle', style='filled', fillcolor='lightcoral')
+dot.node('NewUser', 'src/components/User/NewUser.js', shape='rectangle', style='filled', fillcolor='lightcoral')
+dot.node('CreateOccasion', 'src/components/Occasion/CreateOccasion.js', shape='rectangle', style='filled', fillcolor='lightcoral')
+dot.node('ViewOccasion', 'src/components/Occasion/ViewOccasion.js', shape='rectangle', style='filled', fillcolor='lightcoral')
+dot.node('OccasionList', 'src/components/Occasion/OccasionList.js', shape='rectangle', style='filled', fillcolor='lightcoral')
+dot.node('CreateRoster', 'src/components/Roster/CreateRoster.js', shape='rectangle', style='filled', fillcolor='lightcoral')
+dot.node('ViewRoster', 'src/components/Roster/ViewRoster.js', shape='rectangle', style='filled', fillcolor='lightcoral')
+dot.node('EditRoster', 'src/components/Roster/EditRoster.js', shape='rectangle', style='filled', fillcolor='lightcoral')
+dot.node('StateContext', 'src/utils/stateContext.js', shape='rectangle', style='filled', fillcolor='lightgreen')
+dot.node('StateReducer', 'src/utils/stateReducer.js', shape='rectangle', style='filled', fillcolor='lightgreen')
+dot.node('APIConfig', 'src/config/api.js', shape='rectangle', style='filled', fillcolor='lightgreen')
+dot.node('OccasionServices', 'src/services/occasionServices.js', shape='rectangle', style='filled', fillcolor='lightgreen')
+dot.node('RosterServices', 'src/services/rosterServices.js', shape='rectangle', style='filled', fillcolor='lightgreen')
+dot.node('AuthServices', 'src/services/authServices.js', shape='rectangle', style='filled', fillcolor='lightgreen')
+dot.node('UserServices', 'src/services/userServices.js', shape='rectangle', style='filled', fillcolor='lightgreen')
+
+# Define edges representing interactions
+dot.edge('Index', 'App')
+dot.edge('App', 'Nav')
+dot.edge('App', 'Login')
+dot.edge('App', 'NewUser')
+dot.edge('App', 'CreateOccasion')
+dot.edge('App', 'ViewOccasion')
+dot.edge('App', 'OccasionList')
+dot.edge('App', 'CreateRoster')
+dot.edge('App', 'ViewRoster')
+dot.edge('App', 'EditRoster')
+dot.edge('App', 'StateContext')
+dot.edge('App', 'StateReducer')
+dot.edge('App', 'APIConfig')
+dot.edge('CreateOccasion', 'OccasionServices')
+dot.edge('ViewOccasion', 'OccasionServices')
+dot.edge('OccasionList', 'OccasionServices')
+dot.edge('CreateRoster', 'RosterServices')
+dot.edge('ViewRoster', 'RosterServices')
+dot.edge('EditRoster', 'RosterServices')
+dot.edge('Login', 'AuthServices')
+dot.edge('NewUser', 'UserServices')
+
+# Render the graph
+dot.render('skemi_frontend_architecture', format='png', cleanup=True)

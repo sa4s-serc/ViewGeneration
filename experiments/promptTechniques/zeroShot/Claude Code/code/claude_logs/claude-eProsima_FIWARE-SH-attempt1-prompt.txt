@@ -1,0 +1,83 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: eProsima_FIWARE-SH
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** connectivity
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+Here's a consolidated analysis of the FIWARE System Handle (SH) for eProsima Integration Service, merging the provided summaries:
+
+**FIWARE System Handle for Integration Service: Overview**
+
+This code implements a System Handle (SH) designed to facilitate communication between the eProsima Integration Service and a FIWARE Context Broker, effectively acting as a bridge. The SH translates data between the `xtypes` data model used by the Integration Service and the NGSIv2 protocol employed by FIWARE, enabling bidirectional data exchange.
+
+**Key Functionalities and Components:**
+
+*   **Bidirectional Communication:** The SH supports publishing data to the FIWARE Context Broker and subscribing to data from it.
+*   **Data Translation:** It handles data type conversion between the Integration Service's `xtypes` and the JSON-based format of FIWARE using functions within `conversion.hpp`.
+*   **NGSIv2 Connector (`NGSIV2Connector`):** This core component interacts with the FIWARE Context Broker via its NGSIv2 API. It manages entity creation, attribute updates, subscription registration/unregistration, and data transfer.
+*   **Listener (`Listener`):** Manages incoming connections from the FIWARE Context Broker, asynchronously listens for notifications on a specified port using `asio`, and forwards them to the connector.
+*   **Publisher and Subscriber (`Publisher`, `Subscriber`):** `Publisher` handles publishing data to FIWARE, and `Subscriber` handles receiving data from FIWARE. They leverage the `NGSIV2Connector` for communication and conversion.
+*   **Configuration:** The SH is configured using a YAML file to define connection parameters (host, port) for the FIWARE Context Broker and to map topics between the Integration Service and FIWARE.
+
+**Important Files and Their Roles:**
+
+*   **`CMakeLists.txt`:** Defines the build process, dependencies (xtypes, is-core, is-json-xtypes, curlpp, ASIO, yaml-cpp), compilation flags, installation rules, and testing setup.
+*   **`LICENSE`:** Apache 2.0 license.
+*   **`README.md`:** Provides an introduction to the FIWARE System Handle, its purpose, dependencies, configuration, and examples.
+*   **`src/SystemHandle.cpp`:** Implements the `SystemHandle` class, the entry point for the Integration Service to interact with FIWARE. It configures the connector, registers types, and creates publishers/subscribers.  The `IS_REGISTER_SYSTEM` macro registers the `SystemHandle` class with the Integration Service, effectively using a factory pattern.
+*   **`src/NGSIV2Connector.hpp/cpp`:** Implements the `NGSIV2Connector` class, responsible for NGSIv2 communication with the FIWARE Context Broker.
+*   **`src/Listener.hpp`:** Defines the `Listener` class for asynchronous listening and handling of incoming FIWARE messages.
+*   **`src/Publisher.hpp`:** Defines the `Publisher` class for publishing data to FIWARE.
+*   **`src/Subscriber.hpp`:** Defines the `Subscriber` class for subscribing to data from FIWARE.
+*   **`src/conversion.hpp`:** Contains functions for data conversion between FIWARE's JSON format and the `xtypes` data model, including the `fiware_type_to_xtypes` function.
+*   **`test/integration/roundtrip.cpp`:** Contains integration tests to verify roundtrip communication between Integration Service and FIWARE using a mock system to simulate the Integration Service.
+
+**Architectural Insights and Design Patterns:**
+
+*   **Plugin Architecture:** The SH is designed as a plugin for the Integration Service, adhering to its System Handle interface for modularity.
+*   **Layered Design:** The code exhibits a layered design, where the `SystemHandle` orchestrates the `NGSIV2Connector`, `Listener`, `Publisher`, and `Subscriber` components. This improves maintainability and testability.
+*   **Asynchronous Communication:**  The `Listener` utilizes `asio` for non-blocking asynchronous network communication, enhancing responsiveness.
+*   **Bridge Pattern:** The System Handle acts as a Bridge pattern, decoupling the Integration Service API from the FIWARE NGSIv2 API.
+*   **Observer Pattern:** The `Listener` and its callback mechanism for received data implement the Observer pattern.
+*   **Error Handling:** The code includes error handling using `try-catch` blocks and logging via `is::utils::Logger`.
+
+**Important Considerations:**
+
+*   **Dependencies:** The SH relies on external libraries such as `curlpp`, `asio`, `yaml-cpp`, `is-core`, and `is-json-xtypes`.
+*   **Testing:** Comprehensive integration tests in the `test` directory simulate data exchange between the Integration Service and a FIWARE Context Broker.
+*   **Configuration:** YAML configuration allows for flexible configuration without recompilation.
+*   **Docker integration:** The CI workflow uses Docker to run a context-broker instance for testing.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: connectivity
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/eProsima_FIWARE-SH.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

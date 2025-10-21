@@ -1,0 +1,74 @@
+@startuml
+!define RECTANGLE class
+
+participant "Main" as Main
+participant "Canal" as Canal
+participant "RowEventHandler" as Handler
+participant "BinlogParser" as Parser
+participant "User/Email/Mobile\n(Data Models)" as Model
+participant "Target Database" as TargetDB
+participant "Source MySQL\n(Binlog)" as SourceDB
+
+Main -> Canal: Initialize canal.Canal
+activate Canal
+Main -> Canal: RegisterEventHandler(RowEventHandler)
+Canal --> Main: Handler registered
+Main -> Canal: Start()
+Canal -> SourceDB: Connect and listen to binlog
+activate SourceDB
+
+loop Binlog Event Stream
+    SourceDB -> Canal: Binlog Event
+    Canal -> Handler: OnRow(RowsEvent)
+    activate Handler
+
+    Handler -> Handler: defer...recover()\n(Error handling)
+
+    Handler -> Parser: ParseRow(event)
+    activate Parser
+
+    Parser -> Parser: Handle data type conversions\n(bool, string, int, time, Null)
+    Parser -> Parser: parseTagSetting()\nExtract column names from struct tags
+    Parser -> Parser: Use reflection to map\nbinlog data to Go struct
+    Parser --> Handler: Mapped data (User/Email/Mobile struct)
+    deactivate Parser
+
+    alt Insert Event
+        Handler -> Model: InsertToNew(data)
+        activate Model
+        Model -> TargetDB: Execute INSERT SQL
+        activate TargetDB
+        TargetDB --> Model: Insert result
+        deactivate TargetDB
+        Model --> Handler: Success/Error
+        deactivate Model
+    else Update Event
+        Handler -> Model: UpdateToNew(data)
+        activate Model
+        Model -> TargetDB: Execute UPDATE SQL
+        activate TargetDB
+        TargetDB --> Model: Update result
+        deactivate TargetDB
+        Model --> Handler: Success/Error
+        deactivate Model
+    else Delete Event
+        Handler -> Model: DeleteFromNew(data)
+        activate Model
+        Model -> TargetDB: Execute DELETE SQL
+        activate TargetDB
+        TargetDB --> Model: Delete result
+        deactivate TargetDB
+        Model --> Handler: Success/Error
+        deactivate Model
+    end
+
+    Handler --> Canal: Event processed
+    deactivate Handler
+end
+
+SourceDB --> Canal: Binlog stream continues
+deactivate SourceDB
+Canal --> Main: Running
+deactivate Canal
+
+@enduml

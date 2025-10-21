@@ -1,0 +1,215 @@
+@startuml
+title DORA Metrics Automation Tool - Deployment and Control Flow
+
+actor "DevOps User" as User
+participant "Gin API\nRouter" as API
+participant "Handler\nLayer" as Handler
+participant "Service\nLayer" as Service
+participant "DAO\nLayer" as DAO
+participant "MongoDB" as DB
+participant "GitLab\nConnector" as GitLab
+participant "Prometheus\nConnector" as Prometheus
+participant "Metrics\nCalculation" as Metrics
+participant "Prometheus\nMonitoring" as PromServer
+
+== Integration Setup ==
+User -> API: POST /integrations\n(GitLab config)
+activate API
+API -> Handler: createIntegration()
+activate Handler
+Handler -> Service: validateAndStoreIntegration()
+activate Service
+Service -> DAO: saveIntegration()
+activate DAO
+DAO -> DB: insert(integration)
+activate DB
+DB --> DAO: success
+deactivate DB
+DAO --> Service: integrationId
+deactivate DAO
+Service --> Handler: integrationId
+deactivate Service
+Handler --> API: 201 Created
+deactivate Handler
+API --> User: integrationId
+deactivate API
+
+== Dataflow Configuration ==
+User -> API: POST /dataflows\n(repo, metrics config)
+activate API
+API -> Handler: createDataflow()
+activate Handler
+Handler -> Service: setupDataflow()
+activate Service
+Service -> DAO: saveDataflow()
+activate DAO
+DAO -> DB: insert(dataflow)
+activate DB
+DB --> DAO: dataflowId
+deactivate DB
+DAO --> Service: dataflowId
+deactivate DAO
+Service --> Handler: dataflowId
+deactivate Service
+Handler --> API: 201 Created
+deactivate Handler
+API --> User: dataflowId
+deactivate API
+
+== Data Collection and Metrics Calculation ==
+Service -> Service: scheduledJob()
+activate Service
+Service -> GitLab: fetchOrganizations()
+activate GitLab
+GitLab -> GitLab: authenticateWithToken()
+GitLab --> Service: organizations
+deactivate GitLab
+
+Service -> GitLab: fetchRepositories()
+activate GitLab
+GitLab --> Service: repositories
+deactivate GitLab
+
+Service -> GitLab: fetchPullRequests()
+activate GitLab
+GitLab --> Service: pullRequests
+deactivate GitLab
+
+Service -> GitLab: fetchCommits()
+activate GitLab
+GitLab --> Service: commits
+deactivate GitLab
+
+Service -> GitLab: fetchPipelineRuns()
+activate GitLab
+GitLab --> Service: pipelineRuns
+deactivate GitLab
+
+Service -> DAO: saveBulkData(commits,\npipelines, repos)
+activate DAO
+DAO -> DB: bulkInsert()
+activate DB
+DB --> DAO: success
+deactivate DB
+DAO --> Service: saved
+deactivate DAO
+
+Service -> Metrics: aggregateDailyData()
+activate Metrics
+Metrics -> DAO: fetchRawData()
+activate DAO
+DAO -> DB: query(commits,\npipelines, date)
+activate DB
+DB --> DAO: rawData
+deactivate DB
+DAO --> Metrics: rawData
+deactivate DAO
+
+Metrics -> Metrics: calculateDeploymentFrequency()
+Metrics -> Metrics: calculateLeadTime()
+
+Metrics -> DAO: saveDailySummary()
+activate DAO
+DAO -> DB: insert(dailyMetrics)
+activate DB
+DB --> DAO: success
+deactivate DB
+DAO --> Metrics: saved
+deactivate DAO
+Metrics --> Service: aggregationComplete
+deactivate Metrics
+deactivate Service
+
+== Prometheus Alert Handling ==
+PromServer -> API: POST /alerts\n(alert webhook)
+activate API
+API -> Handler: handleAlert()
+activate Handler
+Handler -> Service: processAlert()
+activate Service
+Service -> DAO: createIncident()
+activate DAO
+DAO -> DB: insert(incident)
+activate DB
+DB --> DAO: incidentId
+deactivate DB
+DAO --> Service: incidentId
+deactivate DAO
+
+Service -> Metrics: calculateMTTR()
+activate Metrics
+Metrics -> DAO: fetchIncidents()
+activate DAO
+DAO -> DB: query(incidents, resolved)
+activate DB
+DB --> DAO: incidents
+deactivate DB
+DAO --> Metrics: incidents
+deactivate DAO
+
+Metrics -> Metrics: computeMeanTimeToRestore()
+
+Metrics -> DAO: updateMTTRMetric()
+activate DAO
+DAO -> DB: update(mttrMetric)
+activate DB
+DB --> DAO: success
+deactivate DB
+DAO --> Metrics: updated
+deactivate DAO
+Metrics --> Service: mttrCalculated
+deactivate Metrics
+
+Service --> Handler: alertProcessed
+deactivate Service
+Handler --> API: 200 OK
+deactivate Handler
+API --> PromServer: acknowledged
+deactivate API
+
+== Metrics Retrieval ==
+User -> API: GET /metrics/dora\n?dataflowId=X
+activate API
+API -> Handler: getMetrics()
+activate Handler
+Handler -> Service: retrieveMetrics()
+activate Service
+Service -> Metrics: calculateChangeFailureRate()
+activate Metrics
+Metrics -> DAO: fetchPipelines(failed)
+activate DAO
+DAO -> DB: query(pipelines, status)
+activate DB
+DB --> DAO: pipelineData
+deactivate DB
+DAO --> Metrics: pipelineData
+deactivate DAO
+
+Metrics -> Metrics: computeChangeFailureRate()
+Metrics --> Service: changeFailureRate
+deactivate Metrics
+
+Service -> DAO: getAggregatedMetrics()
+activate DAO
+DAO -> DB: query(metrics, dataflowId)
+activate DB
+DB --> DAO: metricsData
+deactivate DB
+DAO --> Service: metricsData
+deactivate DAO
+
+Service --> Handler: doraMetrics
+deactivate Service
+Handler --> API: 200 OK + metrics JSON
+deactivate Handler
+API --> User: DORA metrics response
+deactivate API
+
+== Metrics Export to Prometheus ==
+PromServer -> API: GET /metrics
+activate API
+API -> API: collectPrometheusMetrics()
+API --> PromServer: metrics in\nPrometheus format
+deactivate API
+
+@enduml

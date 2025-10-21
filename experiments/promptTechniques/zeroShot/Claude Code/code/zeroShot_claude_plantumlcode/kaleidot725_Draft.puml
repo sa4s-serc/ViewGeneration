@@ -1,0 +1,186 @@
+@startuml
+!define RECTANGLE class
+
+skinparam component {
+    BackgroundColor<<presentation>> LightBlue
+    BackgroundColor<<domain>> LightGreen
+    BackgroundColor<<data>> LightYellow
+    BackgroundColor<<framework>> LightGray
+}
+
+package "Presentation Layer" {
+    component [ComposeMainActivity] <<presentation>>
+    component [EmomemoApp] <<presentation>>
+
+    package "View Pages" {
+        component [NotebookPage] <<presentation>>
+        component [MemoPage] <<presentation>>
+        component [AddPage] <<presentation>>
+        component [EditPage] <<presentation>>
+        component [DeletePage] <<presentation>>
+        component [DetailPage] <<presentation>>
+    }
+
+    package "ViewModels" {
+        component [NotebookViewModel] <<presentation>>
+        component [MemoViewModel] <<presentation>>
+        component [AddViewModel] <<presentation>>
+        component [EditViewModel] <<presentation>>
+        component [DeleteViewModel] <<presentation>>
+        component [DetailViewModel] <<presentation>>
+    }
+}
+
+package "Domain Layer" {
+    package "Use Cases" {
+        component [CreateMemoUseCase] <<domain>>
+        component [GetNotebooksUseCase] <<domain>>
+        component [CreateNotebookUseCase] <<domain>>
+        component [GetMemosUseCase] <<domain>>
+        component [UpdateMemoUseCase] <<domain>>
+        component [DeleteMemoUseCase] <<domain>>
+        component [UpdateNotebookUseCase] <<domain>>
+        component [DeleteNotebookUseCase] <<domain>>
+    }
+}
+
+package "Data Layer" {
+    package "Repositories" {
+        component [NotebookRepository] <<data>>
+        component [MemoRepository] <<data>>
+    }
+
+    package "Database" {
+        component [AppDatabase] <<data>>
+        component [NotebookDao] <<data>>
+        component [MemoDao] <<data>>
+        component [NotebookEntity] <<data>>
+        component [MemoEntity] <<data>>
+    }
+}
+
+package "Framework & Libraries" {
+    component [Jetpack Compose] <<framework>>
+    component [Navigation Compose] <<framework>>
+    component [TextEditor] <<framework>>
+    component [Orbit MVI] <<framework>>
+    component [Koin DI] <<framework>>
+    component [Room Database] <<framework>>
+    component [Kotlin Coroutines] <<framework>>
+    component [Kotlin Flows] <<framework>>
+}
+
+' Presentation to Framework
+[ComposeMainActivity] --> [Jetpack Compose]
+[ComposeMainActivity] --> [Navigation Compose]
+[EmomemoApp] --> [Koin DI]
+[NotebookPage] --> [Jetpack Compose]
+[MemoPage] --> [Jetpack Compose]
+[AddPage] --> [Jetpack Compose]
+[EditPage] --> [Jetpack Compose]
+[DeletePage] --> [Jetpack Compose]
+[DetailPage] --> [Jetpack Compose]
+[EditPage] --> [TextEditor]
+[AddPage] --> [TextEditor]
+
+' ViewModels to Framework
+[NotebookViewModel] --> [Orbit MVI]
+[MemoViewModel] --> [Orbit MVI]
+[AddViewModel] --> [Orbit MVI]
+[EditViewModel] --> [Orbit MVI]
+[DeleteViewModel] --> [Orbit MVI]
+[DetailViewModel] --> [Orbit MVI]
+
+' Navigation
+[ComposeMainActivity] --> [NotebookPage]
+[ComposeMainActivity] --> [MemoPage]
+[ComposeMainActivity] --> [AddPage]
+[ComposeMainActivity] --> [EditPage]
+[ComposeMainActivity] --> [DeletePage]
+[ComposeMainActivity] --> [DetailPage]
+
+' View to ViewModel
+[NotebookPage] --> [NotebookViewModel]
+[MemoPage] --> [MemoViewModel]
+[AddPage] --> [AddViewModel]
+[EditPage] --> [EditViewModel]
+[DeletePage] --> [DeleteViewModel]
+[DetailPage] --> [DetailViewModel]
+
+' ViewModel to Use Cases
+[NotebookViewModel] --> [GetNotebooksUseCase]
+[NotebookViewModel] --> [CreateNotebookUseCase]
+[NotebookViewModel] --> [UpdateNotebookUseCase]
+[NotebookViewModel] --> [DeleteNotebookUseCase]
+[MemoViewModel] --> [GetMemosUseCase]
+[AddViewModel] --> [CreateMemoUseCase]
+[EditViewModel] --> [UpdateMemoUseCase]
+[DeleteViewModel] --> [DeleteMemoUseCase]
+[DetailViewModel] --> [GetMemosUseCase]
+
+' Use Cases to Repositories
+[CreateMemoUseCase] --> [MemoRepository]
+[GetMemosUseCase] --> [MemoRepository]
+[UpdateMemoUseCase] --> [MemoRepository]
+[DeleteMemoUseCase] --> [MemoRepository]
+[GetNotebooksUseCase] --> [NotebookRepository]
+[CreateNotebookUseCase] --> [NotebookRepository]
+[UpdateNotebookUseCase] --> [NotebookRepository]
+[DeleteNotebookUseCase] --> [NotebookRepository]
+
+' Repositories to Database
+[NotebookRepository] --> [NotebookDao]
+[MemoRepository] --> [MemoDao]
+
+' Database Components
+[AppDatabase] --> [NotebookDao]
+[AppDatabase] --> [MemoDao]
+[NotebookDao] --> [NotebookEntity]
+[MemoDao] --> [MemoEntity]
+[AppDatabase] --> [Room Database]
+
+' Coroutines and Flows
+[NotebookRepository] --> [Kotlin Coroutines]
+[MemoRepository] --> [Kotlin Coroutines]
+[NotebookRepository] --> [Kotlin Flows]
+[MemoRepository] --> [Kotlin Flows]
+[GetNotebooksUseCase] --> [Kotlin Flows]
+[GetMemosUseCase] --> [Kotlin Flows]
+
+' Dependency Injection
+[Koin DI] ..> [NotebookViewModel]
+[Koin DI] ..> [MemoViewModel]
+[Koin DI] ..> [AddViewModel]
+[Koin DI] ..> [EditViewModel]
+[Koin DI] ..> [DeleteViewModel]
+[Koin DI] ..> [DetailViewModel]
+[Koin DI] ..> [CreateMemoUseCase]
+[Koin DI] ..> [GetNotebooksUseCase]
+[Koin DI] ..> [CreateNotebookUseCase]
+[Koin DI] ..> [GetMemosUseCase]
+[Koin DI] ..> [UpdateMemoUseCase]
+[Koin DI] ..> [DeleteMemoUseCase]
+[Koin DI] ..> [UpdateNotebookUseCase]
+[Koin DI] ..> [DeleteNotebookUseCase]
+[Koin DI] ..> [NotebookRepository]
+[Koin DI] ..> [MemoRepository]
+
+note right of "Presentation Layer"
+  MVI Pattern with Orbit
+  Jetpack Compose UI
+  Navigation Compose
+end note
+
+note right of "Domain Layer"
+  Clean Architecture
+  Business Logic
+  Use Case Pattern
+end note
+
+note right of "Data Layer"
+  Repository Pattern
+  Room Database
+  Local Persistence
+end note
+
+@enduml

@@ -1,0 +1,114 @@
+@startuml
+
+skinparam component {
+    BackgroundColor<<Console>> LightBlue
+    BackgroundColor<<Engine>> LightGreen
+    BackgroundColor<<Storage>> LightYellow
+    BackgroundColor<<Queue>> LightCoral
+    BackgroundColor<<External>> LightGray
+}
+
+skinparam node {
+    BackgroundColor<<DeploymentNode>> WhiteSmoke
+}
+
+node "Console Server" <<DeploymentNode>> {
+    component "Nginx\nSSL Termination\nAPI Gateway/Proxy" <<Console>> as nginx
+
+    package "Django Application" <<Console>> {
+        component "Django Web UI\nMTV Pattern\nUser Interface" as django_web
+        component "REST API\nDjango REST Framework\nToken Authentication" as rest_api
+        component "Scan Scheduler\ndjango-recurrence\nscan_scheduler.py" as scheduler
+        component "Result Processor\nCSV Conversion\nnmap/masscan to CSV" as result_processor
+        component "Retention Manager\nscan_retention.py\nData Cleanup" as retention
+    }
+
+    database "PostgreSQL/MySQL\nModels: Configuration\nEngine, Site, Scan\nScheduledScan" as db
+    component "Redis Queue (RQ)\nAsync Task Processing\nJob Queue" <<Queue>> as redis_queue
+}
+
+node "Scanning Engine 1" <<DeploymentNode>> {
+    component "Engine Service\nengine.py\nScan Executor" <<Engine>> as engine1
+    component "nmap\nNetwork Scanner" <<Engine>> as nmap1
+    component "masscan\nPort Scanner" <<Engine>> as masscan1
+    component "NFS Watcher\nnfs_watcher.sh" <<Engine>> as nfs_watcher1
+}
+
+node "Scanning Engine N" <<DeploymentNode>> {
+    component "Engine Service\nengine.py\nScan Executor" <<Engine>> as engineN
+    component "nmap\nNetwork Scanner" <<Engine>> as nmapN
+    component "masscan\nPort Scanner" <<Engine>> as masscanN
+}
+
+node "NFS Server" <<DeploymentNode>> {
+    storage "Shared NFS Volume\ntarget_files/\nfor_bigdata_analytics/\nScan Results Storage" <<Storage>> as nfs
+}
+
+component "Big Data Analytics\nCSV Data Consumer" <<External>> as bigdata
+component "Email Service\nAlerts & Notifications" <<External>> as email
+component "External API Clients\nscantron_api_client.py" <<External>> as api_client
+
+package "Ansible Automation" {
+    component "console.yml\nConsole Deployment\nRoles: common, console" as ansible_console
+    component "engine.yml\nEngine Deployment\nRoles: common, engine" as ansible_engine
+}
+
+nginx --> django_web : HTTP/HTTPS
+nginx --> rest_api : HTTP/HTTPS
+api_client ..> nginx : REST API Calls
+
+django_web --> db : ORM Queries
+rest_api --> db : ORM Queries
+scheduler --> db : Read/Write Schedules
+result_processor --> db : Update Results
+retention --> db : Cleanup Data
+
+scheduler --> redis_queue : Queue Scan Jobs
+result_processor --> redis_queue : Async Processing
+rest_api --> email : Send Alerts
+
+engine1 ..> rest_api : Poll for Jobs\n(REST API)
+engineN ..> rest_api : Poll for Jobs\n(REST API)
+
+engine1 --> nmap1 : Execute Scan
+engine1 --> masscan1 : Execute Scan
+engineN --> nmapN : Execute Scan
+engineN --> masscanN : Execute Scan
+
+nfs_watcher1 ..> nfs : Monitor Mount
+engine1 --> nfs : Read Targets\nWrite Results
+engineN --> nfs : Read Targets\nWrite Results
+result_processor --> nfs : Read Results\nWrite CSV
+scheduler --> nfs : Read Target Files
+
+nfs --> bigdata : CSV Files
+
+ansible_console ..> nginx : Deploy & Configure
+ansible_console ..> django_web : Deploy & Configure
+ansible_console ..> db : Configure
+ansible_console ..> redis_queue : Configure
+ansible_engine ..> engine1 : Deploy & Configure
+ansible_engine ..> engineN : Deploy & Configure
+
+note right of redis_queue
+  Performance: Async task processing
+  improves web responsiveness
+end note
+
+note bottom of nfs
+  Performance: Shared storage enables
+  distributed scanning but may become
+  bottleneck at scale
+end note
+
+note right of rest_api
+  Deployment: Token-based auth
+  enables horizontal scaling of engines
+end note
+
+note left of ansible_console
+  Deployment: Infrastructure as Code
+  ensures consistent, repeatable deployments
+end note
+
+@enduml

@@ -1,0 +1,193 @@
+@startuml
+title ActiveX.NET Framework - Deployment Sequence Diagram
+
+actor "System Administrator" as Admin
+participant "Program.cs\n(Entry Point)" as Program
+participant "ActiveXServerContext" as Context
+participant "ActiveXServers\n(MEF Container)" as MEF
+participant "App.config" as Config
+participant "Plugin DLL\n(ActiveX.NET.Plugin)" as Plugin
+participant "ActiveXServerBase\n(COM Object)" as ComObject
+participant "Windows Registry" as Registry
+participant "DefaultActiveXFactory\n(IClassFactory)" as Factory
+participant "COM Runtime" as COM
+
+== Server Deployment and Registration ==
+
+Admin -> Program: Execute with /regserver
+activate Program
+
+Program -> Context: Create ActiveXServerContext()
+activate Context
+
+Context -> Config: Read plugin location
+activate Config
+Config --> Context: Return MEF plugin path
+deactivate Config
+
+Context -> MEF: Initialize MEF Container
+activate MEF
+
+MEF -> Plugin: Discover IActiveXServer implementations
+activate Plugin
+
+Plugin -> Plugin: Load ActiveXServerAttribute metadata
+Plugin --> MEF: Return CoClass types and interfaces
+deactivate Plugin
+
+MEF -> MEF: Catalog IActiveXServer exports
+MEF --> Context: Return discovered COM servers
+deactivate MEF
+
+Context -> Registry: Register COM classes
+activate Registry
+
+loop For each discovered COM object
+    Context -> Registry: Register CoClass GUID
+    Context -> Registry: Register ProgID
+    Context -> Registry: Register LocalServer32 (EXE path)
+    Registry --> Context: Registration complete
+end
+
+deactivate Registry
+
+Context --> Program: Registration successful
+deactivate Context
+
+Program --> Admin: Display success message
+deactivate Program
+
+== COM Object Deployment (Runtime) ==
+
+Admin -> COM: Request COM object creation\n(via CoCreateInstance)
+activate COM
+
+COM -> Registry: Lookup CoClass GUID
+activate Registry
+Registry --> COM: Return LocalServer32 path
+deactivate Registry
+
+COM -> Program: Launch EXE server process
+activate Program
+
+Program -> Context: Start ActiveXServerContext
+activate Context
+
+Context -> MEF: Initialize MEF Container
+activate MEF
+
+MEF -> Plugin: Load plugin DLL
+activate Plugin
+Plugin --> MEF: Return IActiveXServer implementations
+deactivate Plugin
+
+MEF --> Context: COM servers ready
+deactivate MEF
+
+Context -> COM: Register class factories
+activate COM
+
+loop For each COM object type
+    Context -> Factory: Create DefaultActiveXFactory(CoClassType)
+    activate Factory
+    Context -> COM: CoRegisterClassObject(CLSID, Factory)
+    COM --> Context: Return registration token
+    deactivate Factory
+end
+
+deactivate COM
+
+Context -> Context: Start message loop (STA/MTA)
+Context --> Program: Server running
+deactivate Context
+
+Program --> COM: Server ready
+deactivate Program
+
+COM -> Factory: IClassFactory::CreateInstance()
+activate Factory
+
+Factory -> ComObject: Instantiate COM object\n(via Activator.CreateInstance)
+activate ComObject
+
+ComObject -> ComObject: LockActiveXServer()
+ComObject -> ComObject: Initialize threading model\n(STA/MTA/UserControl)
+
+Factory --> COM: Return COM object interface
+deactivate Factory
+
+COM --> Admin: COM object ready for use
+deactivate COM
+
+== Object Lifetime Management ==
+
+Admin -> ComObject: Use COM object methods
+activate ComObject
+ComObject --> Admin: Return results
+deactivate ComObject
+
+Admin -> ComObject: Release COM object
+activate ComObject
+
+ComObject -> ComObject: UnLockActiveXServer()
+ComObject -> ComObject: Decrement reference count
+
+alt Reference count == 0
+    ComObject -> Context: Notify object released
+    activate Context
+    Context -> Context: Check if all objects released
+
+    alt No active objects
+        Context -> COM: Revoke class factories
+        activate COM
+        COM --> Context: Factories revoked
+        deactivate COM
+
+        Context -> Context: Exit message loop
+        Context -> Program: Shutdown server
+        deactivate Context
+
+        Program -> Program: Terminate process
+    end
+end
+
+deactivate ComObject
+
+== Server Unregistration ==
+
+Admin -> Program: Execute with /unregserver
+activate Program
+
+Program -> Context: Create ActiveXServerContext()
+activate Context
+
+Context -> MEF: Initialize MEF Container
+activate MEF
+
+MEF -> Plugin: Discover IActiveXServer implementations
+activate Plugin
+Plugin --> MEF: Return COM server metadata
+deactivate Plugin
+
+MEF --> Context: Return COM servers to unregister
+deactivate MEF
+
+Context -> Registry: Unregister COM classes
+activate Registry
+
+loop For each COM object
+    Context -> Registry: Delete CoClass GUID keys
+    Context -> Registry: Delete ProgID keys
+    Context -> Registry: Delete LocalServer32 keys
+    Registry --> Context: Unregistration complete
+end
+
+deactivate Registry
+
+Context --> Program: Unregistration successful
+deactivate Context
+
+Program --> Admin: Display success message
+deactivate Program
+
+@enduml

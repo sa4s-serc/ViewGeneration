@@ -1,0 +1,179 @@
+@startuml
+title Sneaker Secret Management - Security & Deployment Flow
+
+actor User
+participant "CLI\n(main.go)" as CLI
+participant "Manager\n(sneaker.go)" as Manager
+participant "Envelope\n(envelope.go)" as Envelope
+participant "KMS\n(KeyManagement)" as KMS
+participant "S3\n(ObjectStorage)" as S3
+
+== Secret Upload with Encryption ==
+User -> CLI: sneaker upload <secret>
+activate CLI
+CLI -> Manager: Upload(secret, path)
+activate Manager
+Manager -> Envelope: Seal(plaintext)
+activate Envelope
+Envelope -> KMS: GenerateDataKey(keyId, context)
+activate KMS
+KMS --> Envelope: dataKey + encryptedKey
+deactivate KMS
+Envelope -> Envelope: AES-256-GCM encrypt\nwith dataKey
+Envelope --> Manager: encrypted envelope\n(ciphertext + encryptedKey + metadata)
+deactivate Envelope
+Manager -> S3: PutObject(path, envelope)
+activate S3
+S3 --> Manager: success
+deactivate S3
+Manager --> CLI: upload complete
+deactivate Manager
+CLI --> User: secret uploaded
+deactivate CLI
+
+== Secret Download with Decryption ==
+User -> CLI: sneaker download <path>
+activate CLI
+CLI -> Manager: Download(path)
+activate Manager
+Manager -> S3: GetObject(path)
+activate S3
+S3 --> Manager: encrypted envelope
+deactivate S3
+Manager -> Envelope: Open(envelope)
+activate Envelope
+Envelope -> KMS: Decrypt(encryptedKey, context)
+activate KMS
+KMS --> Envelope: dataKey
+deactivate KMS
+Envelope -> Envelope: AES-256-GCM decrypt\nwith dataKey
+Envelope --> Manager: plaintext secret
+deactivate Envelope
+Manager --> CLI: secret content
+deactivate Manager
+CLI --> User: display secret
+deactivate CLI
+
+== Pack Multiple Secrets (Deployment Bundle) ==
+User -> CLI: sneaker pack <pattern> <output>
+activate CLI
+CLI -> Manager: Pack(pattern, output)
+activate Manager
+Manager -> Manager: List(pattern)
+Manager -> S3: ListObjects(pattern)
+activate S3
+S3 --> Manager: secret paths
+deactivate S3
+loop for each secret
+    Manager -> S3: GetObject(path)
+    activate S3
+    S3 --> Manager: encrypted secret
+    deactivate S3
+end
+Manager -> Manager: create tarball with\nall encrypted secrets
+Manager -> Envelope: Seal(tarball)
+activate Envelope
+Envelope -> KMS: GenerateDataKey(keyId, context)
+activate KMS
+KMS --> Envelope: dataKey + encryptedKey
+deactivate KMS
+Envelope -> Envelope: AES-256-GCM encrypt
+Envelope --> Manager: encrypted tarball
+deactivate Envelope
+Manager -> S3: PutObject(output, tarball)
+activate S3
+S3 --> Manager: success
+deactivate S3
+Manager --> CLI: pack complete
+deactivate Manager
+CLI --> User: bundle created
+deactivate CLI
+
+== Unpack Deployment Bundle ==
+User -> CLI: sneaker unpack <tarball> <dest>
+activate CLI
+CLI -> Manager: Unpack(tarball, dest)
+activate Manager
+Manager -> S3: GetObject(tarball)
+activate S3
+S3 --> Manager: encrypted tarball
+deactivate S3
+Manager -> Envelope: Open(tarball)
+activate Envelope
+Envelope -> KMS: Decrypt(encryptedKey, context)
+activate KMS
+KMS --> Envelope: dataKey
+deactivate KMS
+Envelope -> Envelope: AES-256-GCM decrypt
+Envelope --> Manager: tarball content
+deactivate Envelope
+Manager -> Manager: extract tarball
+loop for each secret in tarball
+    Manager -> S3: PutObject(dest/path, secret)
+    activate S3
+    S3 --> Manager: success
+    deactivate S3
+end
+Manager --> CLI: unpack complete
+deactivate Manager
+CLI --> User: secrets deployed
+deactivate CLI
+
+== Key Rotation (Security Maintenance) ==
+User -> CLI: sneaker rotate <pattern>
+activate CLI
+CLI -> Manager: Rotate(pattern)
+activate Manager
+Manager -> S3: ListObjects(pattern)
+activate S3
+S3 --> Manager: secret paths
+deactivate S3
+loop for each secret
+    Manager -> S3: GetObject(path)
+    activate S3
+    S3 --> Manager: old encrypted envelope
+    deactivate S3
+    Manager -> Envelope: Open(old envelope)
+    activate Envelope
+    Envelope -> KMS: Decrypt(oldEncryptedKey, context)
+    activate KMS
+    KMS --> Envelope: oldDataKey
+    deactivate KMS
+    Envelope -> Envelope: decrypt with oldDataKey
+    Envelope --> Manager: plaintext
+    deactivate Envelope
+    Manager -> Envelope: Seal(plaintext)
+    activate Envelope
+    Envelope -> KMS: GenerateDataKey(newKeyId, context)
+    activate KMS
+    KMS --> Envelope: newDataKey + newEncryptedKey
+    deactivate KMS
+    Envelope -> Envelope: encrypt with newDataKey
+    Envelope --> Manager: new encrypted envelope
+    deactivate Envelope
+    Manager -> S3: PutObject(path, new envelope)
+    activate S3
+    S3 --> Manager: success
+    deactivate S3
+end
+Manager --> CLI: rotation complete
+deactivate Manager
+CLI --> User: keys rotated
+deactivate CLI
+
+note over Manager, KMS
+  **Security Context:**
+  - All encryption uses AES-256-GCM
+  - KMS provides envelope encryption
+  - Encryption context adds binding
+  - Data keys never stored unencrypted
+end note
+
+note over S3
+  **Storage Security:**
+  - Only encrypted data stored
+  - Secrets never in plaintext on S3
+  - Supports deletion and rotation
+end note
+
+@enduml

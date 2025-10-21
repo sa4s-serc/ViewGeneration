@@ -1,0 +1,186 @@
+@startuml
+!define RECTANGLE class
+
+skinparam component {
+    BackgroundColor<<core>> LightBlue
+    BackgroundColor<<communication>> LightGreen
+    BackgroundColor<<external>> LightYellow
+    BackgroundColor<<management>> LightCoral
+    BackgroundColor<<io>> LightPink
+}
+
+package "ParaStation MPI (PSMPI)" {
+
+    package "MPI Layer" {
+        component "MPI-4 API" as MPI_API <<core>>
+        component "MPI Sessions" as MPI_Sessions <<core>>
+        component "C/C++ Bindings" as C_Bindings <<core>>
+        component "Fortran Bindings" as F_Bindings <<core>>
+    }
+
+    package "MPICH Core" {
+        component "MPICH Framework" as MPICH <<core>>
+        component "Datatype Engine" as Datatype <<core>>
+        component "Yaksa Library" as Yaksa <<core>>
+        component "External32 Support" as External32 <<core>>
+    }
+
+    package "Communication Layer" {
+        component "PSCOM (ADI)" as PSCOM <<communication>>
+        component "PSP Device" as PSP <<communication>>
+        component "Shared Memory" as SHM <<communication>>
+        component "POSIX SHM" as POSIX_SHM <<communication>>
+        component "XPMEM" as XPMEM <<communication>>
+        component "TCP Transport" as TCP <<communication>>
+        component "RDMA Engine" as RDMA <<communication>>
+        component "CUDA Awareness" as CUDA <<communication>>
+        component "Multi-NIC Support" as MultiNIC <<communication>>
+        component "Message Pipeline" as Pipeline <<communication>>
+        component "Zero Copy Engine" as ZeroCopy <<communication>>
+        component "DMA Offload" as DMA <<communication>>
+    }
+
+    package "Collectives Framework" {
+        component "UCG API" as UCG <<core>>
+        component "HCOLL Integration" as HCOLL <<external>>
+        component "Optimized Collectives" as CollOpt <<core>>
+    }
+
+    package "Process Management" {
+        component "Hydra PM" as Hydra <<management>>
+        component "ParaStation MGMT" as PSMGMT <<management>>
+        component "PMIx Interface" as PMIx <<external>>
+    }
+
+    package "I/O Subsystem" {
+        component "ROMIO" as ROMIO <<io>>
+        component "Data Sieving" as DataSieve <<io>>
+        component "Collective I/O" as CollIO <<io>>
+        component "Lustre Driver" as Lustre <<io>>
+        component "GPFS Driver" as GPFS <<io>>
+        component "NFS Driver" as NFS <<io>>
+    }
+
+    package "Hardware Integration" {
+        component "HWLOC" as HWLOC <<external>>
+        component "UCX Framework" as UCX <<external>>
+        component "RoCE Support" as RoCE <<external>>
+        component "InfiniBand" as IB <<external>>
+    }
+
+    package "Build & Configuration" {
+        component "Autotools" as Autotools <<management>>
+        component "Configure Script" as Configure <<management>>
+        component "Confsets" as Confsets <<management>>
+        component "CVARs/Info Hints" as CVARs <<management>>
+    }
+
+    package "Error Handling & Testing" {
+        component "Error Handlers" as ErrorHandler <<core>>
+        component "ULFM Support" as ULFM <<core>>
+        component "MPICH Test Suite" as TestSuite <<management>>
+        component "TAP/XML Reporter" as Reporter <<management>>
+        component "Jenkins CI/CD" as Jenkins <<management>>
+    }
+}
+
+' MPI Layer Relationships
+MPI_API --> MPICH
+MPI_Sessions --> MPICH
+C_Bindings --> MPI_API
+F_Bindings --> MPI_API
+
+' MPICH Core Relationships
+MPICH --> Datatype
+MPICH --> Yaksa
+Datatype --> Yaksa
+Datatype --> External32
+
+' MPICH to Communication Layer
+MPICH --> PSCOM : "ADI Interface"
+PSCOM --> PSP
+
+' Communication Layer Internal
+PSP --> SHM : "Intra-node"
+SHM --> POSIX_SHM
+SHM --> XPMEM : "Optimized"
+PSP --> TCP : "Inter-node"
+PSP --> RDMA : "High Performance"
+PSP --> Pipeline
+PSCOM --> CUDA : "GPU Direct"
+PSP --> MultiNIC : "Bandwidth Aggregation"
+RDMA --> ZeroCopy
+RDMA --> DMA
+RDMA --> IB : "Uses"
+RDMA --> RoCE : "Uses"
+
+' Collectives
+MPICH --> UCG
+UCG --> HCOLL : "Optional"
+UCG --> CollOpt
+
+' Process Management
+MPICH --> Hydra
+MPICH --> PSMGMT
+MPICH --> PMIx
+
+' I/O Subsystem
+MPICH --> ROMIO
+ROMIO --> DataSieve
+ROMIO --> CollIO
+ROMIO --> Lustre
+ROMIO --> GPFS
+ROMIO --> NFS
+
+' Hardware Integration
+PSCOM --> HWLOC : "Topology Discovery"
+PSCOM --> UCX : "Communication Channels"
+HWLOC --> PSCOM : "Memory Binding"
+
+' Build & Configuration
+Configure --> Autotools
+Configure --> Confsets
+Configure --> CVARs
+CVARs ..> MPICH : "Runtime Config"
+CVARs ..> PSCOM : "Runtime Config"
+
+' Error Handling & Testing
+MPICH --> ErrorHandler
+MPICH --> ULFM : "Fault Tolerance"
+TestSuite --> MPI_API : "Validates"
+TestSuite --> C_Bindings : "Tests"
+TestSuite --> F_Bindings : "Tests"
+TestSuite --> Reporter
+Jenkins --> TestSuite : "Automated"
+
+' External Dependencies
+note right of HWLOC
+  Processor architecture
+  discovery and memory
+  node mapping
+end note
+
+note right of PMIx
+  Job launch
+  interface
+end note
+
+note right of UCX
+  Device communication
+  channel creation
+end note
+
+note bottom of PSCOM
+  Core communication layer
+  providing PSP device
+  implementation with
+  CUDA awareness
+end note
+
+note bottom of ROMIO
+  Portable MPI-IO with
+  optimizations for various
+  file systems
+end note
+
+@enduml

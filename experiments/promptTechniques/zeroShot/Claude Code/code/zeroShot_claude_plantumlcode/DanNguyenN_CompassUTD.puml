@@ -1,0 +1,142 @@
+@startuml
+title CompassUTD - Deployment Architecture
+
+skinparam rectangle {
+    BackgroundColor LightSkyBlue
+    BorderColor Black
+}
+
+skinparam component {
+    BackgroundColor White
+    BorderColor Black
+}
+
+skinparam cloud {
+    BackgroundColor LightYellow
+    BorderColor Black
+}
+
+skinparam database {
+    BackgroundColor LightGreen
+    BorderColor Black
+}
+
+package "Google Cloud Platform" {
+    node "Cloud Run Container" {
+        rectangle "FastAPI Application" as fastapi {
+            component [main.py] as main
+            component [API Endpoints] as endpoints
+            component [Session Management] as session
+        }
+
+        rectangle "CompassUTD Core" as core {
+            component [CompassInference] as inference
+            component [Content Filter] as filter
+        }
+
+        rectangle "LangChain Layer" as langchain {
+            component [CompassAgent] as agent
+            component [ZeroShotAgent] as zeroshot
+            component [CompassToolkit] as toolkit
+            component [Prompts] as prompts
+        }
+
+        rectangle "Tools Layer" as tools {
+            component [SearchCourse] as search_course
+            component [SearchDegree] as search_degree
+            component [SearchGeneral] as search_general
+            component [DefinitionLookup] as definition
+            component [RateMyProfessor] as rmp
+        }
+
+        rectangle "Web Scraping Layer" as webscrape {
+            component [TextExtractor] as extractor
+            component [HTMLParser] as html_parser
+            component [PDFParser] as pdf_parser
+        }
+    }
+
+    cloud "Vertex AI" {
+        component [PaLM 2 LLM] as palm2
+        component [Filter LLM] as filter_llm
+    }
+
+    database "MongoDB Atlas" {
+        component [Chat History] as chat_history
+        component [Session Store] as session_store
+    }
+}
+
+cloud "External Services" {
+    component [Google Search API] as google_search
+    component [RateMyProfessor API] as rmp_api
+    component [UTD Course Catalog] as utd_catalog
+    component [UTD Websites] as utd_web
+}
+
+actor User as user
+
+user --> endpoints : HTTP/REST Request
+
+endpoints --> session : Manage Sessions
+endpoints --> inference : Process Query
+
+inference --> filter : Filter Input
+filter --> filter_llm : Validate Content
+
+inference --> agent : Execute Query
+agent --> zeroshot : Run ReAct Loop
+agent --> toolkit : Get Tools
+toolkit --> search_course : Provide Tool
+toolkit --> search_degree : Provide Tool
+toolkit --> search_general : Provide Tool
+toolkit --> definition : Provide Tool
+toolkit --> rmp : Provide Tool
+
+search_course --> google_search : Search Query
+search_degree --> google_search : Search Query
+search_general --> google_search : Search Query
+definition --> extractor : Extract Text
+rmp --> rmp_api : Fetch Ratings
+
+search_course --> webscrape : Scrape Content
+search_degree --> webscrape : Scrape Content
+search_general --> webscrape : Scrape Content
+
+extractor --> html_parser : Parse HTML
+extractor --> pdf_parser : Parse PDF
+webscrape --> utd_catalog : Fetch Pages
+webscrape --> utd_web : Fetch Pages
+
+agent --> palm2 : Generate Response
+zeroshot --> prompts : Use Prompts
+
+session --> session_store : Store sessionId
+main --> chat_history : Persist Conversations
+
+note right of "Cloud Run Container"
+    Containerized Deployment
+    Using Dockerfile
+    Auto-scaling enabled
+    Stateless design
+end note
+
+note right of "MongoDB Atlas"
+    Cloud-hosted Database
+    Stores conversation history
+    Session management via cookies
+end note
+
+note right of "Vertex AI"
+    Google AI Platform
+    PaLM 2 for NLP
+    Separate LLM for filtering
+end note
+
+note bottom of tools
+    ReAct Pattern:
+    Reasoning + Action
+    Tool selection by LLM
+end note
+
+@enduml

@@ -1,0 +1,139 @@
+@startuml
+
+skinparam component {
+    BackgroundColor<<core>> LightBlue
+    BackgroundColor<<example>> LightGreen
+    BackgroundColor<<external>> LightGray
+    BackgroundColor<<data>> LightYellow
+    BorderColor Black
+}
+
+skinparam package {
+    BackgroundColor White
+    BorderColor Black
+}
+
+skinparam interface {
+    BackgroundColor White
+    BorderColor Black
+}
+
+package "Salesforce REST/JSON Integration Framework" {
+
+    package "Core Framework" {
+        [RestWrapper\n<<abstract>>\n+ toJSON()\n+ fromJSON()\n+ convertData()] <<core>> as RestWrapper
+
+        [RestResponse\n+ addError()\n+ hasErrors()\n+ getErrors()] <<core>> as RestResponse
+
+        [RestCallout\n<<abstract>>\n+ setEndpoint()\n+ setHeaders()\n+ setBody()\n+ execute()] <<core>> as RestCallout
+
+        [RestLogBuilder\n+ setEndpoint()\n+ setRequestBody()\n+ setResponseBody()\n+ setError()\n+ build()] <<core>> as RestLogBuilder
+    }
+
+    package "Example Implementation" {
+        [ExampleRatingRestResource\n+ handleRequest()\n+ processAccountRating()\n+ processOpportunityRating()] <<example>> as RatingResource
+
+        [ExampleRatingCallout\n+ sendBatchOfAccounts()\n+ makeRatingRequest()] <<example>> as RatingCallout
+
+        [Example Wrappers\nAccountRatingWrapper\nOpportunityRatingWrapper] <<example>> as ExampleWrappers
+    }
+
+    package "Data Layer" {
+        [Rest_Log__c\nEndpoint__c\nRequest_Body__c\nResponse_Body__c\nError__c\nStack_Trace__c] <<data>> as RestLog
+
+        [Salesforce SObjects\nAccount\nOpportunity] <<data>> as SObjects
+    }
+
+    package "Testing" {
+        [Unit Tests\nRestWrapperTest\nRestCalloutTest\nExampleTests] as Tests
+    }
+
+    package "CI/CD & Tools" {
+        [Salesforce DX\nScratch Org Management\nDeployment\nSource Control] as SFDX
+
+        [Travis CI\nAutomated Testing\nBuild Pipeline] as Travis
+
+        [PMD Analysis\nCode Quality\nSecurity Checks] as PMD
+
+        [Gitpod\nDevelopment Environment] as Gitpod
+    }
+}
+
+package "External Systems" {
+    [External REST API\nRating Service\nThird-party APIs] <<external>> as ExternalAPI
+}
+
+interface "REST Endpoint" as RESTEndpoint
+interface "HTTP Interface" as HTTPInterface
+interface "JSON Serialization" as JSONInterface
+interface "Logging Interface" as LogInterface
+interface "Data Access" as DataAccess
+
+RestWrapper <|-- RestResponse
+RestWrapper <|-- ExampleWrappers
+RestCallout <|-- RatingCallout
+
+RatingResource --> RestResponse : uses
+RatingResource --> ExampleWrappers : uses
+RatingResource --> SObjects : reads/writes
+RatingCallout --> RestResponse : uses
+RatingCallout --> ExampleWrappers : uses
+RatingCallout --> SObjects : queries
+
+RestLogBuilder --> RestLog : creates
+RatingResource --> RestLogBuilder : logs interactions
+RatingCallout --> RestLogBuilder : logs callouts
+
+RatingCallout --> HTTPInterface
+HTTPInterface --> ExternalAPI : HTTP Request/Response
+
+RESTEndpoint --> RatingResource : inbound requests
+
+RestWrapper --> JSONInterface : serialize/deserialize
+ExampleWrappers --> JSONInterface
+
+SObjects --> DataAccess
+RestLog --> DataAccess
+
+Tests --> RestWrapper : tests
+Tests --> RestResponse : tests
+Tests --> RestCallout : tests
+Tests --> RatingResource : tests
+Tests --> RatingCallout : tests
+
+SFDX --> Travis : integrates
+Travis --> PMD : runs analysis
+Travis --> Tests : executes
+Gitpod --> SFDX : provides environment
+
+note right of RestWrapper
+  Template Pattern:
+  Defines base algorithm for
+  JSON transformation
+end note
+
+note right of RestCallout
+  Template Pattern:
+  Base class for HTTP callouts
+  with authentication handling
+end note
+
+note right of RestLogBuilder
+  Builder Pattern:
+  Fluent API for creating
+  Rest_Log__c records
+end note
+
+note right of RatingCallout
+  Dependency Injection:
+  Promotes loose coupling
+  Uses @future for async
+end note
+
+note bottom of ExternalAPI
+  Security Note:
+  Use Named Credentials
+  instead of hardcoded endpoints
+end note
+
+@enduml

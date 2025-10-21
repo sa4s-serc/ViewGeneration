@@ -1,0 +1,77 @@
+@startuml
+title Nobel Prize Laureates Autocomplete - Control Flow Component Diagram
+
+skinparam componentStyle rectangle
+
+package "Front-end (Public Directory)" {
+    component [index.html] as HTML
+    component [main.css] as CSS
+    component [main.js] as MainJS
+
+    HTML --> MainJS : loads script
+    HTML --> CSS : applies styles
+}
+
+package "Back-end (Src Directory)" {
+    component [server.js] as Server
+    component [router.js] as Router
+    component [handler.js] as Handler
+    component [algorithm.js] as Algorithm
+    database [data.json] as DataJSON
+
+    Server --> Router : routes request
+    Router --> Handler : delegates to handler
+    Handler --> Algorithm : calls autocomplete
+    Algorithm --> DataJSON : reads laureate data
+}
+
+package "Testing (Test Directory)" {
+    component [qunit.html] as QUnit
+    component [frontendTests.js] as FrontendTests
+    component [backendTests.js] as BackendTests
+
+    QUnit --> FrontendTests : runs tests
+    BackendTests --> Algorithm : tests
+}
+
+interface "HTTP Request" as HTTPReq
+interface "HTTP Response" as HTTPResp
+interface "/search/:query API" as SearchAPI
+interface "Static Files" as StaticFiles
+
+Browser --> HTTPReq
+HTTPReq --> Server : 1. User types in search
+Server --> Router : 2. Forward request
+Router --> Handler : 3. Route to handler
+Handler --> StaticFiles : 3a. Serve static files
+StaticFiles --> HTML : returns
+Handler --> SearchAPI : 3b. Handle search request
+SearchAPI --> Algorithm : 4. Execute autocomplete
+Algorithm --> DataJSON : 5. Filter data
+DataJSON --> Algorithm : 6. Return filtered results
+Algorithm --> Handler : 7. Return suggestions
+Handler --> HTTPResp : 8. Format response
+HTTPResp --> MainJS : 9. Receive JSON data
+MainJS --> HTML : 10. Update UI with suggestions
+
+note right of MainJS
+  Event-driven programming:
+  - Listens for keystrokes
+  - Async fetch to server
+  - Updates suggestion list
+end note
+
+note right of Router
+  RESTful API pattern:
+  Routes requests based on URL
+  /search/:query endpoint
+end note
+
+note right of Algorithm
+  Core autocomplete logic:
+  - Extracts data from JSON
+  - Filters based on user input
+  - Returns matching laureates
+end note
+
+@enduml

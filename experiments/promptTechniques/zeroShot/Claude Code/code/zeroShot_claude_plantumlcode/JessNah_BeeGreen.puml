@@ -1,0 +1,147 @@
+@startuml
+!pragma teoz true
+
+title BeeGreen - Sequence Diagram: Control Flow for Sustainable Shopping
+
+actor User
+participant "Chrome Extension\n(Background Script)" as Background
+participant "Chrome Extension\n(Content Script)" as ContentScript
+participant "Chrome Extension\n(Popup)" as Popup
+participant "Extension UI\n(SideTab/Dialog)" as ExtensionUI
+participant "Store Page\n(Amazon/Instacart/Apple)" as Store
+participant "Client Website\n(React App)" as Client
+participant "LoopBack 4 Server\n(REST API)" as Server
+participant "IBM Cloudant\nDatabase" as Database
+
+== Extension Initialization ==
+User -> Browser: Browse to e-commerce site
+Browser -> Background: Tab update event
+activate Background
+Background -> Background: Listen for tab updates
+Background -> ContentScript: Inject content script
+activate ContentScript
+ContentScript -> Store: Extract page information
+Store --> ContentScript: Page DOM data
+ContentScript -> ContentScript: Identify store type\n(storesCommon.js)
+deactivate ContentScript
+deactivate Background
+
+== User Activates Extension ==
+User -> Popup: Click extension icon
+activate Popup
+Popup -> Popup: Activate main logic
+Popup -> ContentScript: Request cart data
+activate ContentScript
+ContentScript -> Store: Extract shopping cart info
+Store --> ContentScript: Cart items data
+ContentScript -> ContentScript: Analyze cart information\n(storesCommon.js)
+ContentScript --> Popup: Cart data
+deactivate ContentScript
+Popup -> ExtensionUI: Display SideTab
+activate ExtensionUI
+deactivate Popup
+
+== Product Sustainability Check ==
+ExtensionUI -> Server: GET /api/products/{productId}
+activate Server
+Server -> Database: Query product data
+activate Database
+Database --> Server: Product information
+deactivate Database
+Server -> Server: Calculate sustainability score\n(dataprocessing)
+Server --> ExtensionUI: Product with sustainability score
+deactivate Server
+ExtensionUI -> ExtensionUI: Display sustainability score
+ExtensionUI -> User: Show sustainable alternatives
+
+== User Contributes Review ==
+User -> ExtensionUI: Submit product review/carbon score
+activate ExtensionUI
+ExtensionUI -> Server: POST /api/products/review
+activate Server
+Server -> Server: Normalize data\n(dataprocessing)
+Server -> Database: Store review data
+activate Database
+Database --> Server: Confirmation
+deactivate Database
+Server --> ExtensionUI: Success response
+deactivate Server
+ExtensionUI -> User: Display confirmation
+deactivate ExtensionUI
+
+== User Accesses Client Website ==
+User -> Client: Navigate to BeeGreen website
+activate Client
+Client -> Client: App.js routing
+Client -> Client: Check login status\n(BeeGreen.js)
+
+alt User Not Logged In
+    Client -> User: Display Welcome page\n(Welcome.js)
+    User -> Client: Login/Register
+    Client -> Server: POST /api/users/login
+    activate Server
+    Server -> Database: Verify credentials
+    activate Database
+    Database --> Server: User data
+    deactivate Database
+    Server --> Client: Auth token + user info
+    deactivate Server
+end
+
+alt User Logged In
+    Client -> Server: GET /api/users/{userId}/dashboard
+    activate Server
+    Server -> Database: Query user purchases
+    activate Database
+    Database --> Server: Purchase history
+    deactivate Database
+    Server -> Database: Query sustainability metrics
+    activate Database
+    Database --> Server: Carbon savings data
+    deactivate Database
+    Server -> Server: Calculate comparisons\nand statistics
+    Server --> Client: Dashboard data
+    deactivate Server
+    Client -> Client: Render Dashboard\n(DashBoard.js)
+    Client -> User: Display shopping habits,\ncarbon savings, comparisons
+end
+
+== User Makes Purchase ==
+User -> Store: Complete checkout
+Store --> User: Purchase confirmation
+User -> ExtensionUI: Confirm purchase tracking
+activate ExtensionUI
+ExtensionUI -> Server: POST /api/purchases
+activate Server
+Server -> Server: Process purchase data\n(dataprocessing)
+Server -> Database: Store purchase record
+activate Database
+Database --> Server: Confirmation
+deactivate Database
+Server -> Database: Update user statistics
+activate Database
+Database --> Server: Updated stats
+deactivate Database
+Server --> ExtensionUI: Purchase recorded
+deactivate Server
+ExtensionUI -> User: Show impact summary
+deactivate ExtensionUI
+
+== User Contributes to Public Database ==
+User -> Client: Navigate to Contribute page
+Client -> Client: Render Contribute component\n(Contribute.js)
+Client -> User: Display contribution form
+User -> Client: Submit sustainability metrics
+Client -> Server: POST /api/inventory-items
+activate Server
+Server -> Server: Validate and normalize data\n(dataprocessing)
+Server -> Database: Store inventory item
+activate Database
+Database --> Server: Confirmation
+deactivate Database
+Server --> Client: Success response
+deactivate Server
+Client -> User: Display thank you message
+deactivate Client
+
+@enduml

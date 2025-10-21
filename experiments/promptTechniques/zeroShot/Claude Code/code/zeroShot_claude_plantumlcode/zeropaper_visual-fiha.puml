@@ -1,0 +1,172 @@
+@startuml
+!define COMPONENT_STYLE rectangle
+
+skinparam component {
+  BackgroundColor<<core>> LightBlue
+  BackgroundColor<<worker>> LightGreen
+  BackgroundColor<<ui>> LightYellow
+  BackgroundColor<<util>> LightGray
+  BackgroundColor<<layer>> LightPink
+}
+
+package "VS Code Extension" {
+  component "VFExtension" <<core>> as ext {
+    [Command Handler]
+    [State Manager]
+    [Webview Manager]
+  }
+
+  component "Redux Store" <<core>> as store
+
+  package "Commands" {
+    component "Command Registry" <<core>> as commands
+  }
+
+  component "WebServer" <<core>> as webserver {
+    [HTTP Server]
+    [Socket Manager]
+    [State Broadcaster]
+  }
+}
+
+package "Webviews (UI Panels)" {
+  component "AudioView" <<ui>> as audioview
+  component "ControlView" <<ui>> as controlview
+  component "DisplaysView" <<ui>> as displaysview
+  component "TimelineView" <<ui>> as timelineview
+  component "Webview Redux Store" <<ui>> as webviewstore
+}
+
+package "Display & Rendering" {
+  component "DisplayWorker" <<worker>> as displayworker {
+    [Canvas Manager]
+    [Script Executor]
+    [Layer Renderer]
+  }
+
+  package "Layers" {
+    component "Layer Factory" <<layer>> as layerfactory
+    component "Canvas2DLayer" <<layer>> as canvas2d
+    component "ThreeJSLayer" <<layer>> as threejs
+  }
+
+  component "ScriptRunner" <<worker>> as scriptrunner
+  component "Scriptable" <<worker>> as scriptable
+}
+
+package "Capture System" {
+  component "Audio Capture" <<ui>> as audiocapture
+  component "MIDI Capture" <<ui>> as midicapture
+}
+
+package "Utilities & Communication" {
+  component "Com Module" <<util>> as com {
+    [Message Passing]
+    [Event Bus]
+  }
+
+  component "Asset Manager" <<util>> as assets
+  component "Math Tools" <<util>> as mathtools
+  component "Misc Tools" <<util>> as misctools
+}
+
+package "VS Code API" {
+  component "Event Emitter" as eventemitter
+  component "Extension Context" as context
+}
+
+' Core Extension Relationships
+ext --> store : manages
+ext --> webserver : controls
+ext --> commands : registers
+ext ..> context : subscribes to
+webserver ..> eventemitter : publishes events
+
+' Communication Layer
+ext --> com : uses
+webserver --> com : broadcasts via
+displayworker --> com : receives messages via
+audioview --> com : communicates via
+controlview --> com : communicates via
+displaysview --> com : communicates via
+timelineview --> com : communicates via
+
+' State Management
+store --> ext : provides state to
+webviewstore --> audioview : provides state to
+webviewstore --> controlview : provides state to
+webviewstore --> displaysview : provides state to
+webviewstore --> timelineview : provides state to
+webserver --> store : synchronizes
+com --> webviewstore : syncs state via
+
+' WebServer Connections
+webserver --> displayworker : serves & updates
+webserver --> audiocapture : serves page
+webserver --> midicapture : serves page
+webserver ..> audioview : updates
+webserver ..> controlview : updates
+webserver ..> displaysview : updates
+webserver ..> timelineview : updates
+
+' Display Worker & Rendering
+displayworker --> scriptrunner : executes scripts via
+displayworker --> layerfactory : creates layers via
+scriptrunner --> scriptable : manages contexts
+layerfactory --> canvas2d : instantiates
+layerfactory --> threejs : instantiates
+displayworker --> canvas2d : renders
+displayworker --> threejs : renders
+
+' Layer Dependencies
+canvas2d --> mathtools : uses
+threejs --> mathtools : uses
+scriptable --> misctools : uses
+
+' Capture to Extension
+audiocapture --> com : sends audio data
+midicapture --> com : sends MIDI data
+audiocapture ..> webserver : served by
+midicapture ..> webserver : served by
+
+' Asset Management
+displayworker --> assets : loads assets via
+scriptable --> assets : accesses assets
+
+' Utilities Usage
+ext --> assets : manages
+scriptrunner --> mathtools : provides
+scriptrunner --> misctools : provides
+
+interface "HTTP/WebSocket" as http
+interface "Display Page" as displaypage
+interface "Capture Page" as capturepage
+interface "Command Palette" as cmdpalette
+
+' External Interfaces
+webserver -up- http
+http -down- displaypage
+http -down- capturepage
+ext -up- cmdpalette
+
+note right of ext
+  Central orchestrator managing
+  the entire VJing environment
+end note
+
+note right of displayworker
+  Separate worker for rendering
+  to prevent UI blocking
+end note
+
+note bottom of com
+  Message-passing system enabling
+  loose coupling between components
+end note
+
+note right of layerfactory
+  Factory pattern for creating
+  2D and 3D rendering contexts
+end note
+
+@enduml

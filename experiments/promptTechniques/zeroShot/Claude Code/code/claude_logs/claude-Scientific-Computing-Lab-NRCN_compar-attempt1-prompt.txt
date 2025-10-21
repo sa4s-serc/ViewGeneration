@@ -1,0 +1,114 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: Scientific-Computing-Lab-NRCN_compar
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** control_flow
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## CodeMirror and ComPar Repository Analysis Report
+
+This report summarizes the key components, functionalities, architectural insights, and design patterns found in the analyzed segments of the CodeMirror and ComPar repositories.
+
+**CodeMirror: A Versatile Text Editor Component**
+
+CodeMirror is a powerful text editor component designed for integration into web applications. It provides syntax highlighting, code completion, and other language-specific features for various programming, markup, and data languages. Its modular architecture promotes extensibility and customization.
+
+**Key Functionalities and Components:**
+
+*   **Core Editor Functionality:** Text editing, syntax highlighting, indentation management, code folding, bracket matching, comment handling (line and block), search functionality.
+*   **Language Modes:** Implement syntax highlighting rules, indentation, and code completion for languages like JavaScript, HTML, CSS, SQL, Python, XML, Clojure, YAML, Fortran, Julia, Sass, and many more. Modes are defined separately for easy extension. Mode metadata is stored in `mode/meta.js`. Modes are loaded dynamically as needed via `loadmode.js`.
+*   **Keymaps:** Keyboard configurations for different editing styles (e.g., Vim, Emacs, Sublime Text). Implemented in `keymap/*.js`. Vim mode (`keymap/vim.js`) provides modal editing with motions, operators, actions, Ex commands, registers, and macro recording.
+*   **Addons:** Enhancements such as auto-completion (including HTML, CSS, SQL, and JavaScript/CoffeeScript hinting - `addon/hint/*-hint.js`), linting (`addon/lint/*.js`), scrollbar customization (`addon/scroll/*.js`), merge functionality (`addon/merge/merge.js`), text markers (`src/model/mark_text.js`), code folding (`addon/fold/*.js`), search and replace (`addon/search/*.js`), close brackets (`addon/edit/closebrackets.js`), fullscreen display (`addon/display/fullscreen.js`)
+*   **Code Completion (Hints):** Supports code completion suggestions for keywords, variables, and properties within a language. Utilizes helper functions to provide "anyword", "xml" and "html" hints (`addon/hint/*-hint.js`).
+*   **Event Handling:** Core functionalities leverage event handlers (e.g., `beforeSelectionChange`) for dynamic behavior and communication. Functions like `on`, `off`, `signal` provide the basis for the event system.
+*   **Document Management:** Models the document using a B-tree structure (`LeafChunk`, `BranchChunk`). The `Doc` class represents the entire document.
+*   **History Management:** Implements undo/redo functionality using the `History` class.
+*   **Input Methods:** Supports `TextareaInput` and `ContentEditableInput`, providing strategies for handling input based on browser capabilities.
+*   **Linter Addons:** These addons check for syntactical and stylistic errors and warnings in the user's code in various languages.
+
+**Architectural Insights (CodeMirror):**
+
+*   **Modularity:** Language modes and addons are implemented as separate files, enabling easy extension and customization.
+*   **Event-Driven:**  Core functionalities leverage event handlers for dynamic behavior. The editor consumes an input stream and assigns properties based on functions and triggers.
+*   **Extensibility:** Designed for extensibility through options, modes, and addons.
+*   **Line-Based Rendering:** Updates the display by re-rendering individual lines as needed.
+*   **Operation Grouping:** Batches changes to the document and display for efficient updates.
+*   **Virtual DOM (Simplified):** Uses a "view" data structure to represent the visible portion of the document to improve rendering efficiency.
+
+**Design Patterns (CodeMirror):**
+
+*   **Strategy Pattern:** The `token` function in many modes, input methods (`TextareaInput`, `ContentEditableInput`), and folding range finders exemplify this pattern.
+*   **Factory Pattern:** `tokenStringFactory`, `CodeMirror.defineMode`.
+*   **State Pattern:** The `state` object in each mode tracks the parsing context.
+*   **Observer Pattern:** The event system (`signal`, `signalLater`, `on`, `off`) and MIME type registration.
+*   **Composite Pattern:** Document chunk tree structure (`LeafChunk`, `BranchChunk`).
+
+**ComPar: Automated Program Parallelization and Comparison**
+
+ComPar is a system designed for automated program parallelization and comparison. It automates compilation, execution, and performance analysis of C/C++ code, providing a GUI for configuration and management.
+
+**Key Functionalities and Components:**
+
+*   **GUI Framework:** HTML/CSS, Jinja2 templating, JavaScript/jQuery for interactivity, CodeMirror integration. It supports three project modes: single file, multiple files, and Makefile-based projects.
+*   **Compiler Abstraction:** An abstract `Compiler` class with concrete implementations for GCC, ICC, Cetus, Autopar, Par4all, and a Dummy compiler (`compilers/*.py`).
+*   **Parallelization Tools Integration:**  Supports source-to-source parallelization using tools like Cetus, Autopar, and Par4All.
+*   **Compilation Parameter Combinations:** Generates combinations of compilation parameters (OpenMP directives, RTL parameters, compiler flags).
+*   **Code Instrumentation:** Instruments code with timers to measure loop execution times.
+*   **Runtime Analysis:** Performs runtime analysis and optimal code selection based on performance.
+*   **Slurm Job Management:** Submits jobs to a Slurm cluster for parallel execution.
+*   **Output Validation:** Supports output validation using Python scripts.
+*   **Database Interaction (MongoDB):** Stores compilation combinations and results.
+*   **Code Formatting:** Uses clang-format.
+*   **Subprocess Handler:** Runs subprocess commands safely.
+*   **CombinationValidator:** Validates parameter combinations with unit tests.
+
+**Architectural Insights (ComPar):**
+
+*   **Plugin-based Compiler Design:** Facilitates easy extension with new compilers.
+*   **Separation of Concerns:** Well-defined modules for GUI, compilation, execution, and validation.
+*   **Asynchronous Operations:** Utilizes `async` functions for I/O operations to avoid blocking the GUI.
+*   **Event-Driven Architecture:** JavaScript events drive user interactions.
+*   **Configuration-Driven:** Uses configuration files to manage settings and dependencies.
+*   **Modular Design:** Dedicated components for parameter generation, code instrumentation, compiler integration, and database management.
+
+**Design Patterns (ComPar):**
+
+*   **Abstract Factory:** The `Compiler` class hierarchy.
+*   **Template Method:** The `compile()` method in `Compiler` classes.
+*   **Strategy:** Selection of compiler and parallelizer.
+*   **Facade:** The `Compar` class acts as a facade, simplifying the parallelization process.
+
+This merged report provides a cohesive overview of both the CodeMirror and ComPar repositories, highlighting their individual strengths and common design patterns. The modularity and extensibility of both projects allow for adaptation to diverse use cases and environments.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: control_flow
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/Scientific-Computing-Lab-NRCN_compar.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

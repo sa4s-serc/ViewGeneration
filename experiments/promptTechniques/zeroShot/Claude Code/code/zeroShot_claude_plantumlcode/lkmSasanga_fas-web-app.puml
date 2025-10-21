@@ -1,0 +1,121 @@
+@startuml
+!define RECTANGLE class
+
+skinparam component {
+  BackgroundColor<<container>> LightBlue
+  BackgroundColor<<component>> LightGreen
+  BackgroundColor<<external>> LightGray
+  BorderColor Black
+  ArrowColor Black
+}
+
+package "Firebase Hosting" {
+  [Web Application] as WebApp <<deployment>>
+}
+
+package "React Application" {
+  component "index.js\n(Entry Point)" as Index <<container>>
+  component "App.js\n(Root Router)" as App <<container>>
+
+  package "Containers" {
+    component "Layout" as Layout <<container>>
+    component "Login" as Login <<container>>
+    component "InputControl\n(Search)" as InputControl <<container>>
+    component "RequestData\n(API Client)" as RequestData <<container>>
+  }
+
+  package "UI Components" {
+    component "Navigation" as Nav <<component>>
+    component "DonutChart" as DonutChart <<component>>
+    component "BarChart" as BarChart <<component>>
+    component "ProgressBar" as ProgressBar <<component>>
+    component "Cards" as Cards <<component>>
+    component "Spinner" as Spinner <<component>>
+    component "Backdrop" as Backdrop <<component>>
+    component "Modal" as Modal <<component>>
+  }
+
+  package "Data & Utilities" {
+    component "DataProcessing.js\n(Chart Data)" as DataProcessing <<component>>
+    component "reportWebVitals.js" as WebVitals <<component>>
+  }
+}
+
+package "External Services" {
+  database "Firebase\nAuthentication" as FirebaseAuth <<external>>
+  component "Backend API\n(malindu-fas.herokuapp.com)" as BackendAPI <<external>>
+}
+
+package "Backend System" {
+  component "Sentiment Analysis\nService" as SentimentService <<external>>
+  component "Kafka\nMessage Queue" as Kafka <<external>>
+  component "FAS Algorithm" as Algorithm <<external>>
+}
+
+' Control Flow: Application Bootstrap
+Index --> App : 1. renders
+Index --> WebVitals : monitors performance
+
+' Control Flow: Routing
+App --> Login : 2. routes to /login
+App --> InputControl : 2. routes to /search
+
+' Control Flow: Layout Management
+Login --> Layout : wrapped by
+InputControl --> Layout : wrapped by
+Layout --> Nav : renders
+
+' Control Flow: Authentication
+Login --> FirebaseAuth : 3. authenticate user
+FirebaseAuth --> Login : auth response
+
+' Control Flow: Search and Analysis
+InputControl --> RequestData : 4. trigger search
+RequestData --> BackendAPI : 5. POST /sentiment\n(axios request)
+BackendAPI --> SentimentService : 6. analyze sentiment
+SentimentService --> Kafka : 7. process via
+Kafka --> Algorithm : 8. execute analysis
+Algorithm --> Kafka : 9. return results
+Kafka --> SentimentService : 10. aggregate results
+SentimentService --> BackendAPI : 11. return analysis
+BackendAPI --> RequestData : 12. JSON response
+RequestData --> InputControl : 13. update state
+
+' Control Flow: Data Visualization
+InputControl --> DonutChart : 14. display sentiment
+InputControl --> BarChart : 14. display trends
+InputControl --> ProgressBar : 14. show progress
+InputControl --> Cards : 14. show feedback
+DataProcessing --> DonutChart : provides data
+DataProcessing --> BarChart : provides data
+
+' Control Flow: UI State Management
+InputControl --> Spinner : show during loading
+InputControl --> Backdrop : show modal overlay
+InputControl --> Modal : display messages
+
+' Deployment
+WebApp --> Index : serves
+
+note right of BackendAPI
+  API Endpoint:
+  https://malindu-fas.herokuapp.com/sentiment
+end note
+
+note right of WebApp
+  Deployment Platform:
+  Firebase Hosting
+  (configured via .firebaserc)
+end note
+
+note bottom of RequestData
+  Uses axios for HTTP requests
+  Manages async data fetching
+end note
+
+note bottom of App
+  Uses react-router-dom
+  for client-side routing
+end note
+
+@enduml

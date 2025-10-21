@@ -1,0 +1,97 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: NicoJuicy_Airline-Microservices
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** general
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+Here's a consolidated report summarizing the analysis of the .NET 6 microservices application for an airline:
+
+**Overview**
+
+This .NET 6 application implements a microservices architecture for an airline, designed for Docker and Kubernetes deployment. It leverages Domain-Driven Design (DDD) principles, CQRS, MediatR, and event-driven communication to achieve a clean and scalable architecture. The application encompasses several core services: Identity, Flight, Passenger, and Reservation, all managed by an API Gateway.
+
+**Key Components and Functionalities**
+
+*   **Microservices Architecture:** The application is decomposed into independent services:
+    *   **Identity Service:** Handles user authentication and authorization via IdentityServer and JWT.
+    *   **Flight Service:** Manages flight-related data and operations, including seat availability.
+    *   **Passenger Service:** Manages passenger information.
+    *   **Reservation Service:** Handles flight ticket reservations.
+    *   **ApiGateway:** Implemented using YARP, acts as a reverse proxy, routing external requests to appropriate backend services.
+*   **Building Blocks:** A shared library provides reusable components, extensions, and abstractions across services, enhancing code reuse and consistency.  These include utilities for exception handling, logging (Serilog), Swagger configuration, data access interfaces, messaging, and security.
+*   **Domain-Driven Design (DDD):** The architecture reflects DDD principles, emphasizing modeling the business domain within bounded contexts. Aggregate Root entities use `Create()` methods as factory methods.
+*   **CQRS (Command Query Responsibility Segregation):** CQRS is implemented within services to separate read and write operations, optimizing performance and maintainability. Features are organized within dedicated folders containing commands, queries, handlers, validators, and DTOs.
+*   **MediatR:** Facilitates decoupled communication between components within services using the mediator pattern. Controllers dispatch commands and queries to handlers through MediatR, promoting thin controllers.
+*   **Event-Driven Architecture:** Asynchronous communication between services is achieved through MassTransit, utilizing RabbitMQ as a message broker. Domain events within services are translated into integration events for inter-service communication.
+*   **API Versioning:** Microsoft.AspNetCore.Mvc.Versioning is used to manage multiple versions of APIs.
+*   **Swagger/OpenAPI:** Enables API documentation and discovery.
+*   **Health Checks:** Integrated for monitoring service health and availability.
+*   **Docker Support:** Dockerfiles for each service facilitate containerization. Docker Compose files orchestrate services in containerized environments, separating infrastructure and application service definitions.
+*   **Exception Handling:** `Hellang.Middleware.ProblemDetails` ensures consistent error responses across services.
+
+**Architectural Insights**
+
+*   **Layered Architecture:** Services adhere to a layered architecture (API, Application, Domain, Infrastructure) to promote separation of concerns.
+*   **Hexagonal Architecture (Ports and Adapters):** Data access using interfaces (repositories) and external service interactions (message broker, third-party APIs via Refit) align with hexagonal architecture principles.
+*   **Configuration:** The Options Pattern, using `IOptions<>` and named configuration sections, is employed to configure services.
+
+**Key Files and Their Roles**
+
+*   `*.csproj`: Project files defining dependencies, target frameworks, and build configurations.
+*   `Airline-Microservices.sln`: The Visual Studio solution file.
+*   `Directory.Build.props`: Defines common NuGet package references and analyzer settings.
+*   `.editorconfig`: Enforces code style and formatting consistency.
+*   `README.md`: Provides project overview, goals, technologies, and setup instructions.
+*   `tye.yml`: Configuration file for the Tye developer tool.
+*   `deployments/docker-compose/*.yaml`: Docker Compose files for service orchestration.
+*   `src/BuildingBlocks/*`: Reusable components and abstractions.
+*   `src/Services/*/Dockerfile`: Dockerfiles for each microservice.
+*   `src/Services/*/Program.cs`: Entry point for each service.
+*   `src/Services/*/Data/*.cs`: Entity Framework Core DbContext and data access classes.
+*   `src/Services/*/Features/*`: CQRS implementation with commands, queries, handlers, etc.
+*   `src/ApiGateway/Airline.ApiGateway/*`: API Gateway implementation using YARP.
+
+**Notable Design Patterns**
+
+*   **Microservices:** Decomposing the application into independently deployable units.
+*   **API Gateway:** Centralizing external access and routing.
+*   **CQRS:** Separating read and write operations.
+*   **Mediator:** Decoupling components within services.
+*   **Event-Driven Architecture:** Asynchronous inter-service communication.
+*   **Repository:** Abstracting data access.
+*   **Factory Method:**  Usage of  `Create()` methods in Aggregate Root entities
+*   **Options Pattern:** Configuration through `IOptions<>` and named configuration sections.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: general
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/NicoJuicy_Airline-Microservices.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

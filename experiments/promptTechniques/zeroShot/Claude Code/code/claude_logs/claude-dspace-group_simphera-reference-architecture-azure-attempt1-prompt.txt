@@ -1,0 +1,87 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: dspace-group_simphera-reference-architecture-azure
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** deployment, connectivity
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## SIMPHERA Azure Reference Architecture: Terraform Code Analysis
+
+This report provides an analysis of the Terraform code used to deploy a SIMPHERA reference architecture on Azure. The solution leverages Infrastructure-as-Code (IaC) principles, ensuring reproducibility and version control through Terraform. The architecture emphasizes security, modularity, and the use of Azure Platform-as-a-Service (PaaS) offerings to minimize operational overhead. The code also promotes collaboration and code quality through pre-commit hooks and a GitHub workflow.
+
+**Key Functionalities and Components:**
+
+The Terraform code provisions the following core components:
+
+*   **Kubernetes Cluster (AKS):** A managed Kubernetes cluster with autoscaling, multiple node pools (including GPU-enabled options), and Azure Policy integration.
+*   **PostgreSQL Flexible Servers:** Azure Database for PostgreSQL flexible servers configured for high availability and private link integration. Specifically used for storing Keycloak and Simphera data.
+*   **MinIO Storage Accounts:** Azure Storage Accounts utilized by MinIO for object storage, a critical component of the SIMPHERA architecture.
+*   **Azure Key Vault:** Securely manages secrets (e.g., PostgreSQL passwords, license server credentials) and encryption keys (e.g., for license server disk encryption).  Centralizes secrets management and improves security.
+*   **Networking:** A virtual network with segregated subnets for AKS, execution nodes, GPU nodes, PaaS services, PostgreSQL servers, a license server (optional), and a Bastion host (optional).
+*   **Private Link:** Enables secure, private connections to PaaS services like PostgreSQL and MinIO, minimizing exposure to the public internet.
+*   **License Server (Optional):** A Windows VM to host the dSPACE Installation Manager. Includes configurations for IaaSAntimalware and MicrosoftMonitoringAgent.
+*   **Log Analytics Integration (Optional):** Integrates with Azure Log Analytics for centralized logging and monitoring.
+*   **Bastion Host (Optional):** Provides secure access to VMs within the virtual network.
+
+**Important Files and Their Roles:**
+
+*   **`main.tf`:** Defines the overall infrastructure and acts as the entry point for Terraform.
+*   **`variables.tf`:** Declares and documents input variables used to configure the infrastructure. Includes default values for ease of use.
+*   **`outputs.tf`:** Defines output values exported after provisioning, providing key information like kubeconfig, PostgreSQL server hostnames, and Key Vault URI.
+*   **`terraform.tfvars.example`:** A template file for users to define their own variable values in a `terraform.tfvars` file.
+*   **`state-backend-template`:** Configures the Terraform state to be stored in an Azure Storage Account, enabling team collaboration and versioning.
+*   **`modules/simphera_base/*`:** Contains Terraform modules for the core infrastructure components (AKS, networking, Key Vault).
+*   **`modules/simphera_base/modules/simphera_instance/*`:** Contains a module for provisioning individual SIMPHERA instances (PostgreSQL servers, MinIO storage accounts).
+*   **`.pre-commit-config.yaml`:** Configures pre-commit hooks for automated code quality checks (formatting, validation, linting, and security scanning).
+*   **`tfsec.yaml`:** Configuration for the `tfsec` security scanner.
+*   **`.tflint.hcl`:** Configuration for `tflint`, a Terraform linter.
+*   **`README.md`:** Provides comprehensive documentation, including prerequisites and deployment instructions.
+*   **`LICENSE` & `CONTRIBUTING.md`:** Standard files specifying the MIT License and contribution guidelines.
+*   **`Dockerfile`:** Facilitates building a custom Docker image pre-configured with Terraform and Azure CLI, simplifying deployment and CI/CD integration.
+*   **`hooks/*`:** Shell scripts executed by pre-commit hooks.
+*   **`.github/workflows/qualitygate.yml`:** Defines a GitHub Actions workflow for running Terraform format, validation, and linting on pull requests.
+
+**Architectural Insights and Design Patterns:**
+
+*   **Modular Design:** The code is highly modular, improving reusability, maintainability, and scalability. The `simphera_base` and `simphera_instance` modules enable easy deployment of multiple SIMPHERA environments.
+*   **Infrastructure as Code (IaC):** Terraform enables consistent and repeatable infrastructure deployments.
+*   **Azure PaaS Services:** Leveraging managed Azure services reduces operational burden and simplifies management.
+*   **Private Link Integration:** Enhances security by providing private connectivity to PaaS services.
+*   **Security Focus:** Key Vault, Network Security Groups (NSGs), and optional authorized IP ranges for Kubernetes API server and Key Vault access contribute to a secure infrastructure.
+*   **Configuration via Variables:** Terraform variables allow for flexible customization of the infrastructure.
+*   **DRY (Don't Repeat Yourself):** Modules and `for_each` loops are used to minimize code duplication.
+*   **Pre-commit Hooks:** Automated code quality checks ensure consistency and adherence to best practices.
+*   **GitOps Ready:** The inclusion of pre-commit hooks and a GitHub workflow supports a GitOps approach to infrastructure management.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment, connectivity
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/dspace-group_simphera-reference-architecture-azure.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

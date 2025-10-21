@@ -1,0 +1,156 @@
+@startuml
+!define RECTANGLE_COMPONENT
+
+skinparam component {
+    BackgroundColor<<frontend>> LightBlue
+    BackgroundColor<<backend>> LightGreen
+    BackgroundColor<<database>> LightYellow
+    BackgroundColor<<config>> LightGray
+}
+
+title LectureLens - Component Diagram (General Architecture)
+
+package "Frontend (React)" <<frontend>> {
+    component [App.jsx] as App
+    component [SyllabusSearch.jsx] as Search
+    component [GlassCard.jsx] as Card
+    component [LecturePage.jsx] as LecturePage
+    component [ReviewItem.jsx] as ReviewItem
+    component [Auth.jsx] as Auth
+    component [ReviewPost.jsx] as ReviewPost
+
+    package "State Management" {
+        component [Zustand Store] as Store
+        component [React Query Hooks] as QueryHooks
+    }
+
+    package "API Client" {
+        component [Axios] as Axios
+    }
+
+    component [react-router-dom] as Router
+}
+
+package "Backend (Go/Echo)" <<backend>> {
+    component [main.go] as Main
+
+    package "Router Layer" {
+        component [router.go] as RouterGo
+    }
+
+    package "Controller Layer" {
+        component [User Controller] as UserController
+        component [Review Controller] as ReviewController
+    }
+
+    package "Usecase Layer" {
+        component [User Usecase] as UserUsecase
+        component [Review Usecase] as ReviewUsecase
+    }
+
+    package "Repository Layer" {
+        component [User Repository] as UserRepo
+        component [Review Repository] as ReviewRepo
+    }
+
+    package "Model Layer" {
+        component [User Model] as UserModel
+        component [Review Model] as ReviewModel
+    }
+
+    component [JWT Auth] as JWT
+    component [CSRF Protection] as CSRF
+    component [GORM] as GORM
+}
+
+package "Database" <<database>> {
+    database "PostgreSQL" as DB {
+        component [Users Table] as UsersTable
+        component [Lectures Table] as LecturesTable
+        component [Reviews Table] as ReviewsTable
+    }
+}
+
+package "Configuration" <<config>> {
+    component [.env] as Env
+    component [docker-compose.yml] as Docker
+}
+
+' Frontend Internal Relationships
+App --> Router : uses
+App --> Search : routes to
+App --> LecturePage : routes to
+App --> Auth : routes to
+App --> ReviewPost : routes to
+
+Search --> Card : displays
+LecturePage --> ReviewItem : displays
+LecturePage --> ReviewPost : contains
+
+Search --> QueryHooks : uses
+LecturePage --> QueryHooks : uses
+ReviewPost --> QueryHooks : uses
+Auth --> QueryHooks : uses
+
+QueryHooks --> Axios : uses
+ReviewPost --> Store : manages state
+Store --> QueryHooks : provides state
+
+' Frontend to Backend Communication
+Axios --> RouterGo : HTTP/REST API
+
+' Backend Internal Relationships
+Main --> RouterGo : initializes
+Main --> JWT : configures
+Main --> CSRF : configures
+Main --> GORM : initializes
+
+RouterGo --> UserController : routes /users
+RouterGo --> ReviewController : routes /reviews
+RouterGo --> JWT : applies middleware
+RouterGo --> CSRF : applies middleware
+
+UserController --> UserUsecase : delegates
+ReviewController --> ReviewUsecase : delegates
+
+UserUsecase --> UserRepo : uses
+ReviewUsecase --> ReviewRepo : uses
+
+UserRepo --> GORM : uses
+ReviewRepo --> GORM : uses
+
+UserRepo --> UserModel : maps
+ReviewRepo --> ReviewModel : maps
+
+' Backend to Database
+GORM --> DB : queries
+UserRepo --> UsersTable : CRUD
+ReviewRepo --> ReviewsTable : CRUD
+ReviewRepo --> LecturesTable : reads
+
+' Configuration
+Main --> Env : reads config
+Docker --> DB : provisions
+
+note right of JWT
+  Stored in cookies
+  with CSRF protection
+end note
+
+note right of QueryHooks
+  useQueryReviews.jsx
+  useMutateReview.jsx
+  Handles async data
+end note
+
+note bottom of GORM
+  ORM for database
+  interaction
+end note
+
+note left of RouterGo
+  RESTful API
+  endpoints
+end note
+
+@enduml

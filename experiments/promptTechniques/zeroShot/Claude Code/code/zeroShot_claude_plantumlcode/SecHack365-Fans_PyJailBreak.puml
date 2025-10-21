@@ -1,0 +1,182 @@
+@startuml
+!define RECTANGLE class
+
+skinparam component {
+  BackgroundColor<<frontend>> LightBlue
+  BackgroundColor<<backend>> LightGreen
+  BackgroundColor<<deployment>> LightYellow
+  BackgroundColor<<external>> LightGray
+}
+
+package "Deployment Environment" {
+
+  package "Frontend Deployment" <<deployment>> {
+    component "GitHub Pages" as GHPages {
+      component "Static Site" as StaticSite
+    }
+
+    component "Next.js Application" as NextApp <<frontend>> {
+      component "Pages Layer" as Pages {
+        component "index.tsx\n(Main Page)" as IndexPage
+        component "_app.tsx\n(Redux Provider)" as AppPage
+        component "openapi.tsx\n(Swagger UI)" as SwaggerPage
+      }
+
+      component "Components Layer" as Components {
+        component "RequestForm" as RequestForm
+        component "ExecuteAttack\n(API Client)" as ExecuteAttack
+        component "DialogEditor" as DialogEditor
+        component "DataGridFooters" as DataGridFooters
+        component "ImportFile" as ImportFile
+        component "StatusChip" as StatusChip
+        component "Layout" as Layout
+      }
+
+      component "State Management" as StateManagement {
+        component "Redux Store" as ReduxStore
+        component "payloadsSlice" as PayloadsSlice
+        component "emulateSlice" as EmulateSlice
+        component "endPointsSlice" as EndPointsSlice
+        component "dialogSlice" as DialogSlice
+      }
+    }
+  }
+
+  package "Backend Deployment" <<deployment>> {
+    component "PyJailBreak API Server" as APIServer <<backend>> {
+      component "Vulnerability Scanner" as Scanner
+      component "Payload Processor" as PayloadProcessor
+      component "API Endpoints" as APIEndpoints
+    }
+
+    component "Swagger Documentation" as SwaggerDoc {
+      component "swagger.yaml" as SwaggerYAML
+    }
+  }
+
+  package "Examples Deployment" <<deployment>> {
+    component "Vulnerable Servers" as VulnServers <<external>> {
+      component "Docker Containers" as DockerContainers
+      component "Test Servers" as TestServers
+    }
+  }
+}
+
+package "External Systems" {
+  component "User Browser" as Browser <<external>>
+  component "Target Python Server" as TargetServer <<external>>
+}
+
+' Control Flow - User Interaction
+Browser --> IndexPage : "1. Access Web UI"
+IndexPage --> Layout : "2. Render Layout"
+Layout --> RequestForm : "3. Display Form"
+
+' Control Flow - Configuration
+Browser --> RequestForm : "4. Configure Scan\n(Target, Protocol, Payloads)"
+RequestForm --> EndPointsSlice : "5. Update Endpoint Config"
+RequestForm --> PayloadsSlice : "6. Manage Payloads"
+RequestForm --> EmulateSlice : "7. Set Emulation Mode"
+
+' Control Flow - Payload Management
+Browser --> DataGridFooters : "8a. Import/Export Payloads"
+DataGridFooters --> ImportFile : "8b. Import JSON"
+ImportFile --> PayloadsSlice : "8c. Update Payloads"
+Browser --> DialogEditor : "9a. Edit Payload"
+DialogEditor --> DialogSlice : "9b. Manage Dialog State"
+DialogEditor --> PayloadsSlice : "9c. Save Payload"
+
+' Control Flow - Scan Execution
+RequestForm --> ExecuteAttack : "10. Execute Scan"
+ExecuteAttack --> ReduxStore : "11. Get Configuration"
+ReduxStore --> PayloadsSlice : "11a. Get Payloads"
+ReduxStore --> EndPointsSlice : "11b. Get Target Config"
+ReduxStore --> EmulateSlice : "11c. Get Emulation Mode"
+
+ExecuteAttack --> APIEndpoints : "12. Send Scan Request\n(HTTP/HTTPS)"
+APIEndpoints --> PayloadProcessor : "13. Process Payloads"
+PayloadProcessor --> Scanner : "14. Execute Scan"
+Scanner --> TargetServer : "15. Send Attack Payloads\n(if not emulated)"
+TargetServer --> Scanner : "16. Return Response"
+Scanner --> APIEndpoints : "17. Scan Results"
+APIEndpoints --> ExecuteAttack : "18. Return Results"
+ExecuteAttack --> RequestForm : "19. Display Results"
+RequestForm --> StatusChip : "20. Show Status\n(Safe/Warning/Critical)"
+
+' Control Flow - Documentation Access
+Browser --> SwaggerPage : "21. Access API Docs"
+SwaggerPage --> SwaggerYAML : "22. Load Swagger Spec"
+SwaggerYAML --> SwaggerPage : "23. Render Swagger UI"
+
+' Control Flow - Deployment Pipeline
+component "GitHub Actions" as GHActions <<deployment>>
+GHActions --> StaticSite : "Deploy SSG Build"
+StaticSite --> GHPages : "Host Static Files"
+Browser --> GHPages : "Fetch Application"
+
+' Redux Store Relationships
+ReduxStore *-- PayloadsSlice
+ReduxStore *-- EmulateSlice
+ReduxStore *-- EndPointsSlice
+ReduxStore *-- DialogSlice
+
+' State Management Access
+AppPage ..> ReduxStore : "Provide Store"
+RequestForm ..> ReduxStore : "Connect"
+ExecuteAttack ..> ReduxStore : "Access State"
+DialogEditor ..> ReduxStore : "Connect"
+
+' Component Dependencies
+Pages *-- IndexPage
+Pages *-- AppPage
+Pages *-- SwaggerPage
+Components *-- RequestForm
+Components *-- ExecuteAttack
+Components *-- DialogEditor
+Components *-- DataGridFooters
+Components *-- ImportFile
+Components *-- StatusChip
+Components *-- Layout
+NextApp *-- Pages
+NextApp *-- Components
+NextApp *-- StateManagement
+StateManagement *-- ReduxStore
+
+' Testing Environment
+VulnServers ..> TestServers : "Provide Test Targets"
+DockerContainers ..> TestServers : "Container Runtime"
+Scanner ..> VulnServers : "Test Against Examples"
+
+' API Documentation
+APIServer ..> SwaggerDoc : "Provide API Spec"
+
+note right of ExecuteAttack
+  API Client Pattern:
+  - Communicates with Backend
+  - Retrieves scan results
+  - Handles emulation mode
+end note
+
+note right of ReduxStore
+  Centralized State Management:
+  - Payloads configuration
+  - Target endpoints
+  - Emulation settings
+  - Dialog state
+end note
+
+note bottom of Scanner
+  Vulnerability Scanning:
+  - Processes payloads by severity
+  - Executes black-box testing
+  - Returns vulnerability results
+end note
+
+note top of GHActions
+  CI/CD Pipeline:
+  - Automated deployment
+  - Static site generation
+  - GitHub Pages hosting
+end note
+
+@enduml

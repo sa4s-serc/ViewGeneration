@@ -1,0 +1,86 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: qunarcorp_m_adr_qapm_open_source
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** control_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## QAPM: Android Application Performance Monitoring Library - Analysis Report
+
+This report summarizes the QAPM library, an Android Application Performance Monitoring (APM) tool designed for non-intrusive performance monitoring of Android applications. QAPM leverages Aspect-Oriented Programming (AOP) via a custom Gradle plugin to inject monitoring code during the build process. This approach minimizes modification of the existing codebase. Collected performance data is then stored locally and reported to a configured endpoint.
+
+**Key Functionalities and Components:**
+
+QAPM monitors several key aspects of application performance:
+
+*   **Network Requests:** Tracks and analyzes network activity.
+*   **Frame Rates (FPS):** Monitors UI rendering performance.
+*   **Memory Usage:** Tracks memory allocation and consumption.
+*   **CPU Usage:** Monitors CPU utilization.
+*   **Battery Consumption:** Monitors battery usage.
+
+**Architectural Overview:**
+
+The QAPM architecture comprises two primary components:
+
+1.  **QAPM Library (qapm-lib/):** The core component responsible for data collection, storage, and reporting. It’s designed with a modular approach, separating concerns into distinct packages. This library houses the core monitoring logic and data management functions.
+2.  **QAPM Gradle Plugin (buildSrc/):** Facilitates the AOP injection of monitoring code during the application's build process. The plugin uses ASM bytecode manipulation to achieve this without directly modifying the application's source code.
+
+**Key Components and Their Roles:**
+
+*   **`README.md`:** Provides a comprehensive overview of the QAPM library, including features, architecture, setup instructions, and contact information. This is the primary entry point for understanding and using the library.
+*   **`qapm-lib/src/main/java/com/mqunar/qapm/QAPM.java`:**  The central entry point for the library. It handles initialization, configuration through `QAPMConfig` and `QConfigManager` (located in `qapm-lib/src/main/java/com/mqunar/qapm/config/`), and manages other library components.
+*   **`qapm-lib/src/main/java/com/mqunar/qapm/tracing/`:** Contains classes for tracing various performance metrics, including FPS, memory, CPU, and battery. Includes tracers and the `WatchMan` class for monitoring activity lifecycles.
+*   **`qapm-lib/src/main/java/com/mqunar/qapm/dao/`:** Manages data storage, employing `Storage` and `IStorage` classes to store collected performance data.
+*   **`qapm-lib/src/main/java/com/mqunar/qapm/network/`:** Provides network instrumentation, intercepting and instrumenting HTTP calls through the `network.instrumentation` package and sending collected data via `network.sender`.
+*   **`qapm-lib/src/main/java/com/mqunar/qapm/plugin/`:** Defines interfaces and abstract classes for plugin lifecycle methods. `TracePlugin` is the main starting point for triggering all tracers within the lifecycle methods.
+*   **`buildSrc/src/main/groovy/com/qunar/gradle/plugin/QBuildPlugin.groovy`:** The entry point for the Gradle plugin. Its `apply` function adds necessary extensions and registers the transform.
+*   **`buildSrc/src/main/groovy/com/qunar/gradle/plugin/transform/AspectJAppTransform.groovy`:** The core implementation of the Gradle Transform API. It intercepts class compilation and injects QAPM monitoring logic.
+*   **`qapm-sample/`:** A sample Android application demonstrating the integration and usage of the QAPM library.
+
+**Design Patterns:**
+
+The QAPM library utilizes several design patterns to improve code maintainability, reusability, and flexibility:
+
+*   **Singleton:** Employed in classes like `QAPM`, `BatteryTracer`, `CpuTracer`, `MemoryTracer`, `Storage`, `WorkHandlerManager`, `AsyncExecutor` and `QConfigManager` to ensure a single instance throughout the application's lifecycle.
+*   **Observer:** Used within `ApplicationLifeObserver` and the various `*Tracer` classes to monitor activity lifecycle events and other performance metrics.
+*   **Template Method:** Utilized in the `WatchMan` class, defining a generic algorithm structure where subclasses implement specific steps.
+*   **Builder:** Used in `QAPMConfig` to facilitate the creation of complex configuration objects.
+*   **AOP (Aspect-Oriented Programming):** The core paradigm enabling non-intrusive code injection during the build process.
+
+**Summary:**
+
+QAPM is a comprehensive Android APM library offering non-intrusive performance monitoring through AOP. Its modular architecture, combined with a flexible configuration system and the use of well-established design patterns, makes it a valuable tool for optimizing Android application performance. The included Gradle plugin simplifies integration, allowing developers to quickly implement performance monitoring without significant codebase modifications. The `qapm-sample` project further aids in understanding the library's usage and capabilities.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: control_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/qunarcorp_m_adr_qapm_open_source.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

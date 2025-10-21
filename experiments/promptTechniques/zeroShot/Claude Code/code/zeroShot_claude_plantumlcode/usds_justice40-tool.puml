@@ -1,0 +1,158 @@
+@startuml
+title Justice40 Tool - Data Flow Sequence Diagram
+
+actor User
+participant "CLI\n(application.py)" as CLI
+participant "Runner\n(runner.py)" as Runner
+participant "ETL Classes\n(base.py)" as ETL
+participant "DataSource\n(datasource.py)" as DataSource
+participant "External APIs\n(Census, FEMA, EPA)" as APIs
+participant "S3 Data Lake" as S3
+participant "Score Runner\n(score_runner.py)" as ScoreRunner
+participant "Scoring Engine\n(ScoreA, ScoreB, etc.)" as Scoring
+participant "Tile Generator\n(generate.py)" as TileGen
+participant "Tippecanoe" as Tippecanoe
+participant "Client App\n(React/Gatsby)" as Client
+participant "Map Component\n(J40Map.tsx)" as Map
+
+== Data Pipeline - ETL Process ==
+
+User -> CLI: Execute ETL command
+activate CLI
+CLI -> Runner: Orchestrate ETL execution
+activate Runner
+
+Runner -> ETL: Initialize ETL class
+activate ETL
+
+ETL -> DataSource: Request data retrieval
+activate DataSource
+
+DataSource -> APIs: Fetch data from external sources
+activate APIs
+APIs --> DataSource: Return raw data
+deactivate APIs
+
+DataSource -> DataSource: Handle file/ZIP extraction
+DataSource --> ETL: Provide extracted data
+deactivate DataSource
+
+ETL -> ETL: Transform data\n(clean, validate, normalize)
+ETL -> ETL: Validate data integrity\n(missing values, duplicates)
+
+ETL -> S3: Store processed data
+activate S3
+S3 --> ETL: Confirm storage
+deactivate S3
+
+ETL --> Runner: ETL complete
+deactivate ETL
+
+Runner -> Runner: Process concurrent ETLs\n(high-memory support)
+Runner --> CLI: All ETLs complete
+deactivate Runner
+
+== Scoring Process ==
+
+CLI -> ScoreRunner: Execute scoring command
+activate ScoreRunner
+
+ScoreRunner -> S3: Retrieve processed data
+activate S3
+S3 --> ScoreRunner: Return data
+deactivate S3
+
+ScoreRunner -> Scoring: Calculate Justice40 scores
+activate Scoring
+
+Scoring -> Scoring: Apply thresholds and criteria
+Scoring -> Scoring: Identify disadvantaged communities
+Scoring -> Scoring: Generate multiple score methodologies
+
+Scoring --> ScoreRunner: Return calculated scores
+deactivate Scoring
+
+ScoreRunner -> S3: Store score results
+activate S3
+S3 --> ScoreRunner: Confirm storage
+deactivate S3
+
+ScoreRunner --> CLI: Scoring complete
+deactivate ScoreRunner
+
+== Map Tile Generation ==
+
+CLI -> TileGen: Generate map tiles
+activate TileGen
+
+TileGen -> S3: Retrieve GeoJSON data
+activate S3
+S3 --> TileGen: Return GeoJSON
+deactivate S3
+
+TileGen -> Tippecanoe: Process tiles at various zoom levels
+activate Tippecanoe
+Tippecanoe -> Tippecanoe: Generate tile pyramid
+Tippecanoe -> Tippecanoe: Include tribal land areas
+Tippecanoe --> TileGen: Return generated tiles
+deactivate Tippecanoe
+
+TileGen -> S3: Store map tiles
+activate S3
+S3 --> TileGen: Confirm storage
+deactivate S3
+
+TileGen --> CLI: Tile generation complete
+deactivate TileGen
+
+CLI --> User: Pipeline execution complete
+deactivate CLI
+
+== Client-Side Data Visualization ==
+
+User -> Client: Access CEJST website
+activate Client
+
+Client -> Client: Initialize React app\n(Gatsby build)
+
+Client -> S3: Request map tiles
+activate S3
+S3 --> Client: Return tiles
+deactivate S3
+
+Client -> S3: Request score data
+activate S3
+S3 --> Client: Return scores
+deactivate S3
+
+Client -> Map: Render map with data
+activate Map
+
+Map -> Map: Load MapLibre GL
+Map -> Map: Display tiles at appropriate zoom
+Map -> Map: Apply feature flags
+
+Map --> Client: Map rendered
+deactivate Map
+
+Client -> Client: Display AreaDetail components\n(Indicators, Categories)
+
+Client --> User: Show interactive visualization
+deactivate Client
+
+User -> Client: Interact with map\n(zoom, select area)
+activate Client
+
+Client -> Map: Update view
+activate Map
+Map -> S3: Request additional data
+activate S3
+S3 --> Map: Return detailed area data
+deactivate S3
+Map --> Client: Update display
+deactivate Map
+
+Client --> User: Show updated information
+deactivate Client
+
+@enduml

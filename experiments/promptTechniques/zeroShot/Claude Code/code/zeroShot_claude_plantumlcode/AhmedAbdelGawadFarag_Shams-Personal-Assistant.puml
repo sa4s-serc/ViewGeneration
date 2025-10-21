@@ -1,0 +1,145 @@
+@startuml
+!define RECTANGLE class
+
+participant "User" as User
+participant "MainActivity" as MainActivity
+participant "RecordingManager" as RecordingManager
+participant "BotManager" as BotManager
+participant "DialogManager" as DialogManager
+participant "Main Server\n(Flask)" as MainServer
+participant "Speech-to-Text\n(Google Cloud)" as STT
+participant "Intent Classifier" as IntentClassifier
+participant "NER Server\n(Flask)" as NERServer
+participant "NER Model" as NERModel
+participant "Intent Handler" as IntentHandler
+participant "CalendarManager" as CalendarManager
+participant "ContactManager" as ContactManager
+participant "EmailManager" as EmailManager
+participant "WebSearchManager" as WebSearchManager
+participant "OpenAppManager" as OpenAppManager
+participant "NotificationProvider" as NotificationProvider
+participant "ArabicTranslationManager" as TranslationManager
+participant "Text-to-Speech\n(Google Cloud)" as TTS
+
+User -> MainActivity: Voice Command (Arabic)
+activate MainActivity
+
+MainActivity -> RecordingManager: startRecording()
+activate RecordingManager
+RecordingManager --> MainActivity: Audio Data
+deactivate RecordingManager
+
+MainActivity -> BotManager: processCommand(audioData)
+activate BotManager
+
+BotManager -> MainServer: POST /process_audio
+activate MainServer
+
+MainServer -> STT: convert(audioFile)
+activate STT
+STT --> MainServer: Transcribed Text (Arabic)
+deactivate STT
+
+MainServer -> IntentClassifier: classify(text)
+activate IntentClassifier
+IntentClassifier --> MainServer: Intent + Confidence
+deactivate IntentClassifier
+
+alt Intent requires NER
+    MainServer -> NERServer: POST /extract_entities
+    activate NERServer
+
+    NERServer -> NERModel: tag(text)
+    activate NERModel
+    NERModel --> NERServer: Entities (Names, Dates, etc.)
+    deactivate NERModel
+
+    NERServer --> MainServer: Extracted Entities
+    deactivate NERServer
+end
+
+alt Missing Required Information
+    MainServer -> DialogManager: checkMissingParameters(intent, entities)
+    activate DialogManager
+    DialogManager --> MainServer: Missing Parameters List
+    deactivate DialogManager
+
+    MainServer -> TTS: synthesize(promptQuestion)
+    activate TTS
+    TTS --> MainServer: Audio Response
+    deactivate TTS
+
+    MainServer --> BotManager: Clarification Request
+    BotManager --> MainActivity: Display Prompt
+    MainActivity --> User: Audio/Text Prompt
+
+    User -> MainActivity: Additional Information
+    MainActivity -> BotManager: processCommand(additionalInfo)
+    BotManager -> MainServer: POST /process_audio
+    note right: Repeat flow for additional input
+end
+
+MainServer -> IntentHandler: execute(intent, entities)
+activate IntentHandler
+
+alt Calendar Management
+    IntentHandler -> CalendarManager: createEvent(eventDetails)
+    activate CalendarManager
+    CalendarManager --> IntentHandler: Event Created
+    deactivate CalendarManager
+
+else Contact Management
+    IntentHandler -> ContactManager: addContact(contactInfo)
+    activate ContactManager
+    ContactManager --> IntentHandler: Contact Added
+    deactivate ContactManager
+
+else Email Handling
+    IntentHandler -> EmailManager: sendEmail(emailData)
+    activate EmailManager
+    EmailManager --> IntentHandler: Email Sent
+    deactivate EmailManager
+
+else Web Search
+    IntentHandler -> WebSearchManager: search(query)
+    activate WebSearchManager
+    WebSearchManager --> IntentHandler: Search Results
+    deactivate WebSearchManager
+
+else Translation
+    IntentHandler -> TranslationManager: translate(text)
+    activate TranslationManager
+    TranslationManager --> IntentHandler: Translated Text
+    deactivate TranslationManager
+
+else Open Application
+    IntentHandler -> OpenAppManager: openApp(appName)
+    activate OpenAppManager
+    OpenAppManager --> IntentHandler: App Launched
+    deactivate OpenAppManager
+
+else Read Notifications
+    IntentHandler -> NotificationProvider: getNotifications()
+    activate NotificationProvider
+    NotificationProvider --> IntentHandler: Notification List
+    deactivate NotificationProvider
+end
+
+IntentHandler --> MainServer: Action Result
+deactivate IntentHandler
+
+MainServer -> TTS: synthesize(responseText)
+activate TTS
+TTS --> MainServer: Audio Response
+deactivate TTS
+
+MainServer --> BotManager: Response Data (Text + Audio)
+deactivate MainServer
+
+BotManager --> MainActivity: Display Response
+deactivate BotManager
+
+MainActivity --> User: Show in RecyclerView + Play Audio
+deactivate MainActivity
+
+@enduml

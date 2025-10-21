@@ -1,0 +1,128 @@
+@startuml
+!define AWSPUML https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v14.0/dist
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+
+actor User
+participant "bai-bff\n(Backend For Frontend)" as BFF
+participant "Kafka Event Bus" as Kafka
+participant "fetcher-dispatcher" as FetcherDispatcher
+participant "fetcher" as Fetcher
+participant "executor" as Executor
+participant "sm-executor" as SMExecutor
+participant "watcher" as Watcher
+database "Kubernetes\nCluster" as K8s
+database "SageMaker" as SageMaker
+participant "metrics-pusher\n(sidecar)" as MetricsPusher
+participant "metrics-extractor\n(sidecar)" as MetricsExtractor
+participant "cloudwatch-exporter" as CloudWatchExporter
+database "CloudWatch" as CloudWatch
+database "ZooKeeper" as ZooKeeper
+database "S3 / HTTP" as DataSource
+
+== Job Submission ==
+User -> BFF: Submit benchmark job\n(TOML descriptor)
+activate BFF
+BFF -> BFF: Validate TOML descriptor
+BFF -> Kafka: Publish BenchmarkJob event
+activate Kafka
+BFF --> User: Job accepted (job_id)
+deactivate BFF
+
+== Data Fetching ==
+Kafka -> FetcherDispatcher: Consume BenchmarkJob event
+activate FetcherDispatcher
+FetcherDispatcher -> ZooKeeper: Register fetcher coordination
+activate ZooKeeper
+FetcherDispatcher -> K8s: Create fetcher Job
+activate K8s
+K8s -> Fetcher: Start fetcher pod
+activate Fetcher
+Fetcher -> ZooKeeper: Check coordination state
+ZooKeeper --> Fetcher: Coordination info
+Fetcher -> DataSource: Download dataset/model\n(S3 or HTTP)
+activate DataSource
+DataSource --> Fetcher: Data chunks
+deactivate DataSource
+Fetcher -> K8s: Write to PersistentVolume
+Fetcher -> Kafka: Publish DataFetched event
+deactivate Fetcher
+K8s --> FetcherDispatcher: Fetcher job completed
+deactivate K8s
+deactivate ZooKeeper
+deactivate FetcherDispatcher
+
+== Job Execution (Kubernetes Path) ==
+Kafka -> Executor: Consume DataFetched event
+activate Executor
+Executor -> Executor: Translate TOML to K8s resources\n(Jobs, ConfigMaps, Services)
+Executor -> Executor: Apply training strategy\n(single-node/Horovod)
+Executor -> K8s: Create Kubernetes Job/MPIJob
+activate K8s
+K8s -> K8s: Start benchmark pods
+K8s -> MetricsPusher: Deploy metrics-pusher sidecar
+activate MetricsPusher
+K8s -> MetricsExtractor: Deploy metrics-extractor sidecar
+activate MetricsExtractor
+Executor -> Kafka: Publish JobExecutionStarted event
+deactivate Executor
+
+== Job Execution (SageMaker Path) ==
+Kafka -> SMExecutor: Consume DataFetched event
+activate SMExecutor
+SMExecutor -> SMExecutor: Create SageMaker estimator\n(using EstimatorFactory)
+SMExecutor -> SageMaker: Start SageMaker training job
+activate SageMaker
+SMExecutor -> Kafka: Publish JobExecutionStarted event
+deactivate SMExecutor
+
+== Monitoring and Metrics Collection ==
+Watcher -> Kafka: Consume JobExecutionStarted event
+activate Watcher
+loop Poll job status
+    alt Kubernetes Job
+        Watcher -> K8s: Query job status
+        K8s --> Watcher: Job status
+        Watcher -> Watcher: Infer status using\nSingleNodeStrategyKubernetesStatusInferrer
+    else SageMaker Job
+        Watcher -> SageMaker: Query training job status
+        SageMaker --> Watcher: Training job status
+    end
+    Watcher -> Kafka: Publish JobStatusChanged event
+end
+
+K8s -> MetricsExtractor: Extract metrics from pod logs
+MetricsExtractor -> MetricsPusher: Forward metrics
+MetricsPusher -> Kafka: Publish Metrics event
+deactivate MetricsExtractor
+deactivate MetricsPusher
+
+Kafka -> CloudWatchExporter: Consume Metrics event
+activate CloudWatchExporter
+CloudWatchExporter -> CloudWatch: Export user-defined metrics
+activate CloudWatch
+deactivate CloudWatchExporter
+
+== Job Completion ==
+alt Kubernetes Job Completed
+    K8s --> Watcher: Job completed
+    deactivate K8s
+else SageMaker Job Completed
+    SageMaker --> Watcher: Training job completed
+    deactivate SageMaker
+end
+
+Watcher -> Kafka: Publish JobCompleted event
+Watcher -> Kafka: Publish FinalMetrics event
+deactivate Watcher
+
+== Status Query ==
+User -> BFF: Query job status/results
+activate BFF
+Kafka -> BFF: Consume JobStatusChanged/JobCompleted events
+BFF --> User: Job status and results
+deactivate BFF
+deactivate CloudWatch
+deactivate Kafka
+
+@enduml

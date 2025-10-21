@@ -1,0 +1,85 @@
+@startuml
+title Prometheus Monitoring System - Control Flow
+
+actor User
+participant "Sample Node.js App" as App
+participant "prom-client Library" as PromClient
+participant "Prometheus Server" as Prometheus
+participant "Alertmanager" as Alertmanager
+participant "Grafana" as Grafana
+
+== Application Startup ==
+User -> App: Start Application
+activate App
+App -> PromClient: Initialize metrics\n(summaries, histograms)
+activate PromClient
+PromClient --> App: Metrics initialized
+deactivate PromClient
+App --> User: Application running\non HTTP server
+deactivate App
+
+== Metric Collection ==
+User -> App: HTTP Request
+activate App
+App -> PromClient: Record request start
+activate PromClient
+App -> App: Process request\n(simulate latency)
+App -> PromClient: Record request duration
+PromClient -> PromClient: Update summary\nand histogram metrics
+PromClient --> App: Metrics updated
+deactivate PromClient
+App --> User: HTTP Response
+deactivate App
+
+== Prometheus Scraping (Pull-Based) ==
+Prometheus -> Prometheus: Scrape interval triggered\n(configured in prometheus.yml)
+activate Prometheus
+Prometheus -> App: GET /metrics
+activate App
+App -> PromClient: Generate metrics output
+activate PromClient
+PromClient --> App: Prometheus format metrics
+deactivate PromClient
+App --> Prometheus: Metrics data
+deactivate App
+Prometheus -> Prometheus: Store metrics in\ntime-series database
+deactivate Prometheus
+
+== Alert Evaluation ==
+Prometheus -> Prometheus: Evaluate alert rules\n(prometheus.rules.yml)
+activate Prometheus
+Prometheus -> Prometheus: Rule conditions met?
+alt Alert condition triggered
+    Prometheus -> Alertmanager: Send alert
+    activate Alertmanager
+    Alertmanager -> Alertmanager: Deduplicate and\ngroup alerts
+    Alertmanager -> Alertmanager: Route alert based\non configuration
+    Alertmanager --> Prometheus: Alert received
+    deactivate Alertmanager
+end
+deactivate Prometheus
+
+== Visualization ==
+User -> Grafana: Access dashboard
+activate Grafana
+Grafana -> Prometheus: Query metrics\n(PromQL query)
+activate Prometheus
+Prometheus -> Prometheus: Retrieve time-series data
+Prometheus --> Grafana: Query results
+deactivate Prometheus
+Grafana -> Grafana: Render dashboard\nvisualization
+Grafana --> User: Display metrics dashboard
+deactivate Grafana
+
+== SLO/Error Budget Monitoring ==
+User -> Grafana: View SLO dashboard
+activate Grafana
+Grafana -> Prometheus: Query error budget\nand burn rate
+activate Prometheus
+Prometheus -> Prometheus: Calculate SLO metrics\nfrom existing data
+Prometheus --> Grafana: SLO calculation results
+deactivate Prometheus
+Grafana --> User: Display SLO metrics
+deactivate Grafana
+
+@enduml

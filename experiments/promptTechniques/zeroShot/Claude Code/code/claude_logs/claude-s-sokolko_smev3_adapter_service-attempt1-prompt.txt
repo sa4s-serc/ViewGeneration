@@ -1,0 +1,91 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: s-sokolko_smev3_adapter_service
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** data_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+Here's a consolidated report based on the provided analysis, focusing on key aspects and avoiding redundancy:
+
+**Report: Analysis of `smev3_adapter_service` GitHub Repository**
+
+This report summarizes the analysis of a Python-based web service (`smev3_adapter_service`) designed to interact with the SMEV3 adapter (a Russian government data exchange system) via HTTP. The service abstracts the complexities of SMEV3 interaction, providing a simplified HTTP REST API for sending requests and receiving responses.
+
+**1. Core Functionality and Key Components:**
+
+The service provides a REST API with endpoints like `/schedule_query/<тип_запроса>/` and `/get_document/<тип_запроса>/<идентификатор_запроса>/`.  It leverages the `zeep` library to communicate with the SMEV3 adapter using SOAP. Data persistence is achieved through MongoDB, accessed asynchronously via the `motor` library.  Requests and responses are validated against XSD schemas using `lxml` and `zeep`. The service utilizes `asyncio` and `uvloop` for asynchronous processing and concurrency. Authentication is implemented using `sanic-token-auth`. Configuration is managed via `settings.py`, which contains parameters for MongoDB URL, adapter settings, API keys, and document identifiers. A background task periodically polls the SMEV3 adapter for responses.
+
+**2. Key Files and Their Roles:**
+
+*   **Infrastructure:**
+    *   `requirements.txt`: Defines project dependencies.
+    *   `Makefile`: Contains build and deployment tasks (virtualenv, install, tests, start).
+    *   `README.md`: Provides an overview, architecture, API examples, and configuration instructions.
+    *   `setup.py`: Defines project metadata for packaging and distribution.
+    *   `docker-compose.yml`: Defines services for containerized deployment (MongoDB, mongo-express).
+*   **Application Core:**
+    *   `smev_int/run.py`: Entry point; initializes and starts the Sanic application.
+    *   `smev_int/core.py`: Initializes the Sanic application, configures logging, sets up the MongoDB connection, creates the SMEV3 adapter instance, and handles shutdown signals.
+    *   `smev_int/settings.py`: Holds configuration settings (database URLs, API keys, SMEV adapter parameters).
+    *   `smev_int/utils.py`: Contains utility functions for serialization and connection string parsing.
+*   **Business Logic & Data Access:**
+    *   `smev_int/models.py`: Defines data models (Query, _Document) using a custom Model class for MongoDB interaction; includes the `create_model` factory function for dynamic document model creation.
+    *   `smev_int/views.py`: Defines HTTP request handlers (views) for API endpoints (scheduling queries, retrieving documents).
+    *   `smev_int/adapter.py`: Implements the Adapter class for SMEV3 adapter interaction via SOAP, including message construction.
+    *   `smev_int/processors/query.py`: Implements the QueryProcessor class (Singleton), responsible for handling SMEV3 queries, sending requests, processing responses, and saving data.
+*   **Schema Management:**
+    *   `smev_int/schema_loader/transport.py`: Custom Transport class for Zeep to load XSD schemas from local files.
+    *   `smev_int/schema_loader/loader.py`: Implements the Loader class (Singleton), responsible for loading and managing XSD schemas.
+    *   `xsd/*`: Contains XSD schema files.
+
+**3. Architectural Overview:**
+
+The service employs a layered architecture:
+
+*   **API Layer:** Handles HTTP requests/responses (`smev_int/views.py`).
+*   **Business Logic:** Processes SMEV queries (`smev_int/processors/query.py`).
+*   **Data Access:** Manages database interaction (`smev_int/models.py`, `smev_int/core.py`).
+*   **SMEV3 Integration:** Encapsulates SMEV3 adapter interaction (`smev_int/adapter.py`).
+*   **Schema Loading:** Handles XSD schema management (`smev_int/schema_loader/*`).
+
+The design aligns with a microservice pattern, promoting modularity and independent deployability.  Configuration-driven design (via `settings.py`) ensures adaptability across environments. Asynchronous operations (using `asyncio` and `uvloop`) optimize concurrency and performance.
+
+**4. Design Patterns:**
+
+*   **Singleton:** `Loader` and `QueryProcessor` ensure single instances for managing shared resources (schemas, adapter initialization).
+*   **Factory Pattern:** `create_model` dynamically creates document model classes based on document type, enhancing flexibility.
+*   **Data Access Object (DAO):** The `Model` class provides an abstraction layer for database interactions.
+*   **Adapter Pattern:** The `Adapter` class encapsulates SMEV3 adapter interaction behind a consistent interface.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: data_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/s-sokolko_smev3_adapter_service.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

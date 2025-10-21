@@ -1,0 +1,117 @@
+@startuml
+title APRConfig - Automated Program Repair Control Flow
+
+actor User
+participant "Run_d4j_1.py" as Runner
+participant "Config.py" as Config
+participant "DatasetFactory" as DFactory
+participant "Defects4j" as Dataset
+participant "LocalizerFactory" as LFactory
+participant "Gzoltar" as Localizer
+participant "AprFactory" as AFactory
+participant "APR Tool\n(SimFix/TBar/Nopol/DynamoTH)" as APRTool
+participant "PatchValidator" as Validator
+participant "Main_parse.py" as Parser
+
+User -> Runner: Execute APR Process
+activate Runner
+
+Runner -> Config: Load Configuration
+activate Config
+Config --> Runner: Configuration Data
+deactivate Config
+
+Runner -> DFactory: Create Dataset
+activate DFactory
+DFactory -> Dataset: Initialize Defects4j Dataset
+activate Dataset
+Dataset --> DFactory: Dataset Instance
+deactivate Dataset
+DFactory --> Runner: Dataset Instance
+deactivate DFactory
+
+Runner -> Dataset: Load Bug Information
+activate Dataset
+Dataset --> Runner: Bug Metadata
+deactivate Dataset
+
+Runner -> LFactory: Create Localizer
+activate LFactory
+LFactory -> Localizer: Initialize Gzoltar
+activate Localizer
+Localizer --> LFactory: Localizer Instance
+deactivate Localizer
+LFactory --> Runner: Localizer Instance
+deactivate LFactory
+
+Runner -> Localizer: Perform Fault Localization
+activate Localizer
+Localizer -> Dataset: Get Test Cases
+activate Dataset
+Dataset --> Localizer: Test Cases
+deactivate Dataset
+Localizer -> Localizer: Execute Tests & Analyze Coverage
+Localizer --> Runner: Suspicious Statements
+deactivate Localizer
+
+Runner -> AFactory: Create APR Tool
+activate AFactory
+AFactory -> APRTool: Initialize APR Tool
+activate APRTool
+APRTool --> AFactory: APR Tool Instance
+deactivate APRTool
+AFactory --> Runner: APR Tool Instance
+deactivate AFactory
+
+Runner -> APRTool: Generate Patches
+activate APRTool
+APRTool -> Dataset: Get Source Code
+activate Dataset
+Dataset --> APRTool: Source Files
+deactivate Dataset
+APRTool -> APRTool: Analyze Fault Location
+APRTool -> APRTool: Generate Candidate Patches
+APRTool --> Runner: Candidate Patches
+deactivate APRTool
+
+loop For Each Candidate Patch
+    Runner -> Validator: Validate Patch
+    activate Validator
+    Validator -> Dataset: Apply Patch
+    activate Dataset
+    Dataset --> Validator: Patched Code
+    deactivate Dataset
+    Validator -> Validator: Compile Patched Code
+    Validator -> Dataset: Run Test Suite
+    activate Dataset
+    Dataset --> Validator: Test Results
+    deactivate Dataset
+    Validator -> Validator: Check for Overfitting
+    Validator --> Runner: Validation Result
+    deactivate Validator
+
+    alt Patch is Valid
+        Runner -> Runner: Record Successful Patch
+        Runner -> Dataset: Store Patch Metadata
+        activate Dataset
+        Dataset --> Runner: Confirmation
+        deactivate Dataset
+    else Patch is Invalid
+        Runner -> Runner: Continue to Next Patch
+    end
+end
+
+Runner -> Runner: Store Execution Results
+
+Runner -> Parser: Parse Repair Data
+activate Parser
+Parser -> Parser: Read Result Files
+Parser -> Parser: Analyze Metrics
+Parser -> Parser: Calculate Statistics
+Parser --> Runner: CSV Report
+deactivate Parser
+
+Runner --> User: APR Process Complete
+deactivate Runner
+
+@enduml

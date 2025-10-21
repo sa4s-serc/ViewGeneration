@@ -1,0 +1,118 @@
+@startuml
+
+skinparam rectangle {
+    BackgroundColor<<layer>> LightBlue
+    BackgroundColor<<external>> LightGray
+}
+
+skinparam component {
+    BackgroundColor LightYellow
+    BorderColor Black
+}
+
+skinparam database {
+    BackgroundColor LightGreen
+}
+
+database "MySQL Database" as MySQL
+
+database "Elasticsearch" as ES
+
+package "Spring Boot Application" {
+
+    package "Controller Layer" <<layer>> {
+        component "HomeController" as HomeCtrl
+        component "ServiceManagementController" as ServiceMgmtCtrl
+        component "APIController" as APICtrl
+    }
+
+    package "Service Layer" <<layer>> {
+        component "IndexService" as IndexSvc
+    }
+
+    package "Repository Layer" <<layer>> {
+        interface "ServiceRepository" as ServiceRepo
+        interface "BulkRepository" as BulkRepo
+        component "JdbcTemplateServiceRepository" as JdbcServiceRepo
+        component "JdbcTemplateBulkRepository" as JdbcBulkRepo
+    }
+
+    package "Elasticsearch Client Layer" <<layer>> {
+        component "ElasticsearchClient" as ESClient
+    }
+
+    package "Configuration" {
+        component "SpringConfig" as SpringCfg
+        component "ESConfig" as ESCfg
+        component "application.yml" as AppConfig
+    }
+
+    package "Domain" {
+        component "DataBaseInfo" as DBInfo
+        component "Service" as ServiceModel
+        component "Search" as SearchModel
+        component "Indexing" as IndexingModel
+    }
+}
+
+actor "Administrator" as Admin
+actor "API User" as APIUser
+
+component "Thymeleaf Templates" as Templates
+
+Admin --> HomeCtrl : HTTP
+Admin --> ServiceMgmtCtrl : HTTP
+APIUser --> APICtrl : REST API
+
+HomeCtrl ..> Templates : renders
+ServiceMgmtCtrl ..> Templates : renders
+
+APICtrl --> IndexSvc : search/index requests
+ServiceMgmtCtrl --> IndexSvc : bulk index
+
+IndexSvc --> ServiceRepo : query service config
+IndexSvc --> BulkRepo : fetch data for indexing
+
+ServiceRepo <|.. JdbcServiceRepo : implements
+BulkRepo <|.. JdbcBulkRepo : implements
+
+JdbcServiceRepo --> MySQL : JdbcTemplate
+JdbcBulkRepo --> MySQL : JdbcTemplate
+
+IndexSvc --> ESClient : index/search/manage
+
+ESClient --> ES : High-Level REST Client
+
+SpringCfg ..> JdbcServiceRepo : creates bean
+SpringCfg ..> JdbcBulkRepo : creates bean
+ESCfg ..> ESClient : configures
+AppConfig ..> ESCfg : database config
+AppConfig ..> ESCfg : ES host/port
+
+IndexSvc ..> DBInfo : uses
+IndexSvc ..> ServiceModel : uses
+IndexSvc ..> SearchModel : uses
+IndexSvc ..> IndexingModel : uses
+ServiceRepo ..> ServiceModel : uses
+BulkRepo ..> DBInfo : uses
+
+note right of MySQL
+  Dynamic connection using
+  stored connection info
+  (host, ID, password)
+end note
+
+note right of ES
+  REST API connectivity
+  with configurable
+  host and port
+end note
+
+note bottom of IndexSvc
+  Core connectivity hub:
+  - Connects MySQL data to Elasticsearch
+  - Manages bulk/partial indexing
+  - Handles search requests
+end note
+
+@enduml

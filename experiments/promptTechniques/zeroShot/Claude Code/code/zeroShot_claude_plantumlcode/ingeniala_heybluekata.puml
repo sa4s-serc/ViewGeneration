@@ -1,0 +1,205 @@
+@startuml
+!define AWSPUML https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v14.0/dist
+!include AWSPUML/AWSCommon.puml
+
+skinparam componentStyle rectangle
+skinparam linetype ortho
+
+title HeyBlue Application - Component Diagram
+
+package "Client Layer" {
+    [Web Application] as WebApp
+    [Mobile Application] as MobileApp
+}
+
+package "API Gateway Layer" {
+    [API Gateway] as APIGateway
+}
+
+package "Backend for Frontend (BFF) Layer" {
+    [BFF Web Container] as BFFWeb
+    [HeyBlue BFF Mobile] as BFFMobile
+    [Omnichannel BFF] as OmnichannelBFF
+}
+
+package "Core Services" {
+    component "User Management" {
+        [User Registration] as UserReg
+        [Authentication Service] as AuthService
+        [Profile Management] as ProfileMgmt
+        [Identity Validation] as IdentityVal
+    }
+
+    component "Interaction & Gamification" {
+        [Connection Service] as ConnectionSvc
+        [QR Code Service] as QRCodeSvc
+        [Points Management] as PointsMgmt
+        [Scoring Engine] as ScoringEngine
+        [Social Graph] as SocialGraph
+    }
+
+    component "Commerce Services" {
+        [Storefront Management] as StorefrontMgmt
+        [Catalog Service] as CatalogSvc
+        [Marketplace Service] as MarketplaceSvc
+        [Redemption Service] as RedemptionSvc
+    }
+
+    component "Content Management" {
+        [Content Service] as ContentSvc
+        [Static Content Manager] as StaticContent
+    }
+
+    component "Analytics & Reporting" {
+        [Report Generation] as ReportGen
+        [Data Analytics] as DataAnalytics
+        [Audit Service] as AuditSvc
+    }
+
+    component "Notification Service" {
+        [Notification Manager] as NotificationMgr
+        [Message Handler] as MessageHandler
+    }
+}
+
+package "AWS Cloud Services" {
+    database "DynamoDB" as DynamoDB {
+    }
+
+    database "S3" as S3 {
+    }
+
+    database "Glacier" as Glacier {
+    }
+
+    [AWS Cognito] as Cognito
+    [CloudFront] as CloudFront
+    [Lambda Functions] as Lambda
+    [Kinesis Data Streams] as KinesisStreams
+    [Kinesis Data Firehose] as KinesisFirehose
+    [AWS EventBridge] as EventBridge
+    [AWS Athena] as Athena
+}
+
+package "External Services" {
+    [Prismic CMS] as Prismic
+    [Gatsby] as Gatsby
+    [Metabase] as Metabase
+}
+
+package "Security Layer" {
+    [Security Groups] as SecurityGroups
+    [Network ACLs] as NetworkACLs
+}
+
+' Client to API Gateway
+WebApp --> APIGateway : HTTPS
+MobileApp --> APIGateway : HTTPS
+
+' API Gateway to BFF
+APIGateway --> BFFWeb
+APIGateway --> BFFMobile
+APIGateway --> OmnichannelBFF
+
+' BFF to Core Services
+BFFWeb --> UserReg
+BFFWeb --> ConnectionSvc
+BFFWeb --> StorefrontMgmt
+BFFWeb --> ContentSvc
+BFFWeb --> ReportGen
+
+BFFMobile --> UserReg
+BFFMobile --> ConnectionSvc
+BFFMobile --> PointsMgmt
+BFFMobile --> RedemptionSvc
+BFFMobile --> NotificationMgr
+
+OmnichannelBFF --> ProfileMgmt
+OmnichannelBFF --> SocialGraph
+OmnichannelBFF --> MarketplaceSvc
+
+' User Management Dependencies
+UserReg --> Cognito : authenticate
+AuthService --> Cognito : validate
+ProfileMgmt --> DynamoDB : store/retrieve
+IdentityVal --> DynamoDB : verify
+
+' Interaction & Gamification Dependencies
+ConnectionSvc --> QRCodeSvc : generate
+ConnectionSvc --> SocialGraph : update
+PointsMgmt --> ScoringEngine : calculate
+ScoringEngine --> DynamoDB : read/write
+SocialGraph --> DynamoDB : persist
+
+' Commerce Dependencies
+StorefrontMgmt --> CatalogSvc : manage
+CatalogSvc --> DynamoDB : store
+MarketplaceSvc --> CatalogSvc : query
+RedemptionSvc --> PointsMgmt : deduct points
+RedemptionSvc --> DynamoDB : record
+
+' Content Management Dependencies
+ContentSvc --> Prismic : fetch
+ContentSvc --> S3 : store
+StaticContent --> Gatsby : generate
+StaticContent --> S3 : upload
+CloudFront --> S3 : serve
+
+' Analytics Dependencies
+ReportGen --> Athena : query
+DataAnalytics --> Athena : analyze
+AuditSvc --> DynamoDB : log
+DataAnalytics --> Metabase : visualize
+
+' Event-Driven Architecture
+ConnectionSvc --> EventBridge : publish events
+PointsMgmt --> EventBridge : publish events
+RedemptionSvc --> EventBridge : publish events
+EventBridge --> KinesisStreams : route events
+KinesisStreams --> KinesisFirehose : stream
+KinesisFirehose --> S3 : archive
+
+' Notification Flow
+EventBridge --> NotificationMgr : trigger
+NotificationMgr --> MessageHandler : process
+MessageHandler --> Lambda : execute
+
+' Data Archival
+S3 --> Glacier : archive old data
+KinesisFirehose --> Glacier : long-term storage
+
+' Security
+SecurityGroups ..> APIGateway : protect
+SecurityGroups ..> Lambda : protect
+NetworkACLs ..> DynamoDB : secure
+NetworkACLs ..> S3 : secure
+
+' Lambda Functions
+Lambda --> DynamoDB : access
+Lambda --> S3 : access
+Lambda --> EventBridge : publish
+
+note right of SecurityGroups
+  AWS Well-Architected Framework
+  GDPR Compliance
+end note
+
+note bottom of EventBridge
+  Event-Driven Architecture
+  Asynchronous Communication
+  Service Decoupling
+end note
+
+note bottom of DynamoDB
+  Primary Data Store
+  User Profiles, Points,
+  Transactions, Social Graph
+end note
+
+note bottom of S3
+  Data Lake
+  Static Content
+  Analytics Storage
+end note
+
+@enduml

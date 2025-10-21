@@ -1,0 +1,87 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: swir-rs_swir
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** general
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## SWIR Sidecar Service Analysis Report
+
+This report provides an overview of SWIR (Sidecar Written in Rust), a sidecar service designed to abstract infrastructure interactions from business logic, enabling applications to easily integrate with resources like PubSub, state management, and service invocation. SWIR promotes flexibility through support for multiple protocols, including HTTP/HTTPS, gRPC, Kafka, NATS, AWS Kinesis, Redis, and DynamoDB. It leverages Rust's asynchronous programming model for optimal performance and employs conditional compilation to create tailored sidecar instances. Service discovery is facilitated using mDNS and DynamoDB.
+
+**Key Functionalities and Components:**
+
+SWIR provides a range of core functionalities accessible through HTTP/HTTPS and gRPC interfaces:
+
+*   **PubSub:** Supports publishing and subscribing to messages via Kafka, NATS, and AWS Kinesis.
+*   **Persistence:** Offers data storage and retrieval capabilities using Redis and DynamoDB.
+*   **Service Invocation:** Enables communication with other services through HTTP/HTTPS and gRPC, utilizing mDNS and DynamoDB for service discovery and GRPC Clients utilize load balancing with endpoint discovery.
+*   **Metrics and Tracing:** Collects metrics via OpenTelemetry and provides tracing capabilities for monitoring and debugging system performance.
+*   **Configuration:** Allows configuration via YAML files and environment variables for flexible deployment.
+
+**Important File Roles:**
+
+The following files are crucial to SWIR's functionality:
+
+*   **`Cargo.toml`:** Defines project dependencies, metadata, features (e.g., `with_nats`), and build configurations.
+*   **`src/main.rs`:** Application entry point; responsible for setting up configuration, tracing, metrics, and starting HTTP and gRPC servers, orchestrating all other modules.
+*   **`src/frontend_handlers/http_handler/mod.rs`:** Handles incoming HTTP requests, routing them to appropriate backend services (PubSub, Persistence, Service Invocation).
+*   **`src/frontend_handlers/grpc_handler/mod.rs`:** Handles incoming gRPC requests for PubSub, Persistence, and Service Invocation and configures GRPC client for notification api.
+*   **`src/si_handlers/mod.rs`:** Manages service invocation logic, including service discovery (mDNS and DynamoDB) and communication with backend services via gRPC.
+*   **`src/messaging_handlers/mod.rs`:** Configures and manages message broker connections (Kafka, NATS, AWS Kinesis) and handles PubSub operations.
+*   **`src/persistence_handlers/mod.rs`:** Configures and manages connections to persistence stores (Redis, DynamoDB) and handles data storage and retrieval operations.
+*   **`src/utils/config.rs`:** Defines configuration structures (e.g., `Swir`, `PubSub`, `Stores`, `Services`) and handles loading configuration from YAML files and environment variables.
+*   **`src/utils/metric_utils.rs`:** Initializes and manages metrics collection using OpenTelemetry.
+*   **`src/utils/structs.rs`:** Defines various data structures and enums used throughout the application.
+*   **`src/service_discovery/mod.rs`:** Defines traits and structures for service discovery mechanisms (mDNS and DynamoDB).
+*   **`src/messaging_handlers/aws_kinesis_handler.rs`, `src/messaging_handlers/kafka_handler.rs`, `src/messaging_handlers/nats_handler.rs`:** Manage communication with the respective message brokers (AWS Kinesis, Kafka, NATS) for pub/sub operations.
+*   **`src/persistence_handlers/dynamodb_store.rs`, `src/persistence_handlers/redis_store.rs`:** Manage data storage and retrieval operations using DynamoDB and Redis respectively.
+*   **`src/utils/tracing_utils.rs`:** Initializes tracing and provides functions for injecting/extracting tracing context from HTTP and gRPC headers.
+
+**Architectural Insights:**
+
+*   **Microservices Enabler:** SWIR isolates microservices from infrastructure concerns by handling them as a sidecar.
+*   **Asynchronous and Concurrent:** Rust's asynchronous capabilities and Tokio's concurrency model drive high performance and scalability.
+*   **Pluggable Components:** The architecture supports various message brokers (Kafka, NATS, Kinesis) and persistence stores (Redis, DynamoDB).
+*   **Service Discovery Abstraction:**  mDNS and DynamoDB abstracts service discovery, facilitating dynamic service registration and resolution.
+*   **Centralized Metrics and Tracing:** OpenTelemetry provides a central point of observation for health and performance.
+
+**Notable Design Patterns:**
+
+*   **Sidecar:** SWIR's core function is to operate as a sidecar, handling cross-cutting concerns for other applications.
+*   **Service Locator:** The `ServiceDiscovery` trait and its implementations implement a service locator pattern to retrieve backend services.
+*   **Strategy:**  Broker and persistence store configurations uses the Strategy pattern to choose appropriate implementations (Kafka/NATS, Redis/DynamoDB) based on the specific needs.
+*   **Observer:** Changes in service discovery are published through `mpsc::Sender<Change<K, Endpoint>>` and observed by connected endpoints.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: general
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/swir-rs_swir.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

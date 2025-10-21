@@ -1,0 +1,97 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: GoogleCloudPlatform_datacatalog-tag-engine
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** deployment
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## Tag Engine v3 Analysis Report
+
+This report summarizes the key functionalities, components, architectural insights, and design patterns of the Tag Engine v3, a tool for managing metadata tags within Google Cloud's Data Catalog and Dataplex services.
+
+**Overview:**
+
+The Tag Engine is designed to manage metadata tags within Google Cloud's Data Catalog and Dataplex. It facilitates tag creation, updating, and exporting via API endpoints and a web UI, utilizing Cloud Run for deployment, Firestore for configuration storage, and Cloud Tasks for asynchronous job processing. A central concept is the use of "configurations" to define how tags are managed.
+
+**Key Functionalities and Components:**
+
+*   **Tag Management:** Creates, updates (and implicitly deletes by setting fields to empty) tags in Data Catalog and Dataplex. Supports both Data Catalog tag templates and Dataplex Aspect Types.
+*   **Dynamic Tagging:**  Dynamically adjusts tags based on SQL queries against BigQuery metadata. This enables real-time data-driven tagging.
+*   **Import/Export:** Imports tag data from CSV files in GCS and exports existing Data Catalog tags to BigQuery for reporting and analysis.
+*   **Job Management:**  Manages asynchronous tag creation jobs using Cloud Tasks. Includes job splitting and status tracking.
+*   **Configuration Management:** Stores tag configurations (dynamic tag, import, export) in Firestore. Provides a UI for creating, viewing, editing, and deleting configurations.
+*   **User Interface (UI):**  Offers a web-based UI built with Jinja2 templates for configuring tag creation, editing configurations, triggering jobs, and viewing job statuses.
+*   **API Endpoints:** Exposes API endpoints (via Flask) for programmatic interaction (creating configurations, triggering jobs, retrieving job status).
+*   **Authentication and Authorization:** Uses OAuth 2.0 and IAM roles to control access to the system, verifying user credentials before executing tag operations, utilizing access tokens.
+*   **Tag History:**  Optionally stores tag creation and modification history in BigQuery tables for auditing and lineage purposes.
+*   **Settings Management:** Allows users to define default settings (Tag Template ID, Project, Region, Service Account) to avoid re-entering them repeatedly.
+
+**Important Files and Roles:**
+
+*   **`main.py`:**  Main entry point for the Flask application. Defines API endpoints, handles routing, authentication, and coordination.
+*   **`DataCatalogController.py`:** Handles interactions with the Google Cloud Data Catalog API.
+*   **`DataplexController.py`:** Handles interactions with the Google Cloud Dataplex API, specifically for managing Aspect Types and aspects on dataplex resources.
+*   **`TagEngineStoreHandler.py`:** Handles data persistence and retrieval using Firestore, abstracting database interactions.
+*   **`BigQueryUtils.py`:** Provides utility functions for interacting with BigQuery.
+*   **`TaskManager.py`:** Creates and manages Cloud Tasks for asynchronous job processing.
+*   **`JobManager.py`:** Creates and manages the lifecycle of Tag Engine jobs.
+*   **`access.py`:** Handles authentication and authorization logic.
+*   **`constants.py`:** Defines constants used throughout the application.
+*   **`cloudbuild.yaml`:** Defines the Cloud Build configuration.
+*   **`deploy/*`:** Contains Terraform files for deployment to Google Cloud.
+*   **UI Template Files (`*.html`):** Define the structure and elements of the web interface.
+
+**Architectural Insights:**
+
+*   **Microservice Architecture:** Deployed as two Cloud Run services (API and UI).
+*   **Asynchronous Processing:** Cloud Tasks handle potentially long-running tag operations.
+*   **Configuration-Driven:** Behavior is determined by configurations stored in Firestore.
+*   **Modular Design:** The code is organized into modules with well-defined responsibilities.
+*   **Google Cloud Integration:** Heavily relies on Google Cloud services (Data Catalog, BigQuery, GCS).
+
+**Notable Design Patterns:**
+
+*   **Factory Pattern:** Used for `DataCatalogController` and `DataplexController` depending on whether Data Catalog Tag Templates or Dataplex Aspects are used.
+*   **Strategy Pattern:** Chooses which data product's metadata to use for configuration.
+*   **Template Method Pattern:** Functions generalize code execution based on a given input.
+*   **Model-View-Template (MVT):** The application structure suggests an MVT pattern.
+*   **Configuration Pattern:** Uses configurations to define tag management operations.
+
+**Important Considerations:**
+
+*   **Error Handling:** Requires robust server-side error handling.
+*   **Security:** Securely handling and storing service account credentials.
+*   **Validation:** Input validation to prevent invalid data and errors during job execution.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/GoogleCloudPlatform_datacatalog-tag-engine.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

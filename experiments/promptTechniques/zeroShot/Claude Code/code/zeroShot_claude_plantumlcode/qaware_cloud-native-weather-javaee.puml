@@ -1,0 +1,110 @@
+@startuml
+
+skinparam component {
+    BackgroundColor<<external>> LightBlue
+    BackgroundColor<<database>> LightGreen
+    BackgroundColor<<service>> LightYellow
+    BackgroundColor<<infrastructure>> LightGray
+}
+
+package "Cloud-Native Weather JavaEE Application" {
+
+    package "Presentation Layer" {
+        component [PayaraMicroWeatherResource\n(REST API /api/weather)] as Resource <<service>>
+        component [Health Check Endpoints\n(Liveness & Readiness)] as Health <<service>>
+        component [Metrics Endpoint\n(/metrics)] as Metrics <<service>>
+    }
+
+    package "Business Logic Layer" {
+        component [PayaraMicroWeatherService\n(Weather Service)] as Service <<service>>
+        component [OpenWeatherMapConnector\n(@Retry, @Timeout, @Fallback)] as Connector <<service>>
+    }
+
+    package "Data Access Layer" {
+        component [PayaraMicroWeatherRepository\n(Data Access Object)] as Repository <<service>>
+        component [PayaraMicroWeather\n(JPA Entity)] as Entity <<service>>
+    }
+
+    package "External Integration" {
+        component [OpenWeatherMap\n(JAX-RS Client Interface)] as APIClient <<service>>
+    }
+
+    package "Configuration & Infrastructure" {
+        component [MicroProfile Config\n(Env Vars, ConfigMap, Secret)] as Config <<infrastructure>>
+        component [Payara Micro Runtime\n(JavaEE Container)] as Runtime <<infrastructure>>
+    }
+}
+
+package "External Systems" {
+    database [PostgreSQL Database\n(Weather Data Store)] as DB <<database>>
+    component [OpenWeatherMap API\n(External Weather Service)] as ExternalAPI <<external>>
+}
+
+package "Container & Orchestration" {
+    component [Docker Image\n(Multi-stage, Distroless)] as Docker <<infrastructure>>
+    component [Kubernetes\n(Deployment, Service, Kustomize)] as K8s <<infrastructure>>
+    component [FluxCD\n(GitOps Deployment)] as Flux <<infrastructure>>
+}
+
+package "Development & CI/CD" {
+    component [Tilt\n(Local Development)] as Tilt <<infrastructure>>
+    component [Skaffold\n(Continuous Development)] as Skaffold <<infrastructure>>
+    component [GitHub Actions\n(CI/CD Pipeline)] as CI <<infrastructure>>
+}
+
+Resource --> Service : uses
+Health --> Service : checks
+Health --> DB : checks connection
+
+Service --> Repository : uses
+Service --> Connector : uses
+
+Repository --> Entity : manages
+Repository --> DB : persists/retrieves
+
+Connector --> APIClient : uses
+APIClient --> ExternalAPI : calls
+
+Service ..> Config : reads
+Connector ..> Config : reads
+Repository ..> Config : reads
+
+Resource .up.> Runtime : runs on
+Service .up.> Runtime : runs on
+Repository .up.> Runtime : runs on
+Connector .up.> Runtime : runs on
+Health .up.> Runtime : runs on
+Metrics .up.> Runtime : runs on
+
+Runtime --> Docker : packaged in
+Docker --> K8s : deployed to
+Flux --> K8s : manages
+
+Tilt --> Docker : builds
+Skaffold --> Docker : builds
+CI --> Docker : builds
+Tilt --> K8s : deploys
+Skaffold --> K8s : deploys
+
+note right of Connector
+  Resilience Patterns:
+  - Retry on failure
+  - Timeout protection
+  - Fallback to default values
+end note
+
+note right of Health
+  Cloud-Native Features:
+  - Liveness probe
+  - Readiness probe
+  - Metrics endpoint
+end note
+
+note bottom of K8s
+  Environment Overlays:
+  - dev
+  - prod
+  GitOps with FluxCD
+end note
+
+@enduml

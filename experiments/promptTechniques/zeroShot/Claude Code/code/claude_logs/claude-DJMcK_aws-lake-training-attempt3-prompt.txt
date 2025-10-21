@@ -1,0 +1,81 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: DJMcK_aws-lake-training
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** control_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## Analysis of the DJMcK_aws-lake-training GitHub Repository
+
+This repository provides a practical guide and code examples for constructing a data lake on AWS, specifically focusing on the ingestion, transformation, and analysis of FDA drug label data. It leverages a variety of AWS services including S3, EMR (Spark), Glue, Athena, Comprehend Medical, Lambda, Step Functions, CloudFormation, and SAM (Serverless Application Model). The project exemplifies a standard data lake architecture, dividing data into raw, landing, and curated zones, and demonstrates the extraction of valuable insights from unstructured text using natural language processing (NLP) in conjunction with structured data analysis.
+
+**Key Functionalities and Components:**
+
+*   **Data Ingestion:** The repository showcases how to ingest data from a public FDA S3 bucket.
+*   **Data Transformation (Spark on EMR):** Key data transformation processes include deflating zipped files, exploding JSON arrays, converting data types, and partitioning data for optimized querying. These transformations are performed on EMR using Spark scripts.
+*   **Data Cataloging (AWS Glue):** AWS Glue is used to crawl the curated data and establish a metadata catalog, which is essential for efficient querying.
+*   **Data Querying (AWS Athena):** The project employs AWS Athena to query the data residing in S3 using standard SQL queries.
+*   **NLP with Comprehend Medical:** AWS Comprehend Medical is integrated to extract crucial medical entities, specifically indications, from the unstructured drug label text.
+*   **Serverless Workflow (Lambda & Step Functions):** The extraction of indications is orchestrated through a serverless architecture utilizing Lambda functions and AWS Step Functions. This provides scalability and cost-effectiveness.
+*   **Data Lake Zones (Raw, Landing, Curated):** The implementation of a data lake architecture with clearly defined raw, landing, and curated data zones ensures organized data management throughout the processing pipeline.
+*   **IAM and Security:** The repository includes configuration for creating appropriate IAM roles, assigning necessary permissions for each AWS service involved.
+*   **Deployment Automation:** Infrastructure and application deployment are automated using CloudFormation and SAM.
+
+**Important Files and Their Roles:**
+
+*   **`.editorconfig`:** Enforces consistent coding style guidelines (indentation, line endings, etc.).
+*   **`README.md` (multiple locations):** Provides detailed, step-by-step instructions for setting up the environment, deploying resources, and executing the data processing pipeline. Each directory contains its own `README.md` file, tailoring instructions to the specific tasks of that stage.
+*   **`03_FDA_Labels/fda.01.land.py`:** This Spark script handles the initial extraction and transformation of raw FDA drug label data, landing it into the designated landing zone. A key function is deflating zipped data and exploding the JSON array.
+*   **`03_FDA_Labels/fda.02.curate.py`:** This Spark script performs further curation of the data from the landing zone. Its tasks include data type transformations and partitioning of the data for optimized querying.
+*   **`01_Buckets/lake-buckets.yaml`:** A CloudFormation template used to provision the raw, landing, and curated S3 buckets that form the foundation of the data lake.
+*   **`06_comprehend_medical_service/comprehend-service/serverless.yml`:** A Serverless Framework configuration file that defines and deploys the Comprehend Medical processing pipeline (Lambda functions and Step Function). It specifies function handlers, environment variables, IAM roles, and the state machine definition.
+*   **`06_comprehend_medical_service/comprehend-service/configure_count.py`:** This Lambda function sets up the initial processing counts required for the Comprehend Medical pipeline.
+*   **`06_comprehend_medical_service/comprehend-service/call_comprehend.py`:** This Lambda function invokes the AWS Comprehend Medical service to extract relevant entities from the drug label text.
+*   **`06_comprehend_medical_service/comprehend-service/query_athena.py`:** This Lambda function queries Athena to retrieve drug indications for processing by Comprehend Medical.
+*   **`06_comprehend_medical_service/comprehend-service/iterator.py`:** This Lambda function determines whether further iteration is required in the Comprehend Medical processing loop.
+*   **`07_FDA_Product_Indications/fda.indications.py`:** This Spark script combines the FDA product label data with the indications extracted from Comprehend Medical.
+*   **`01_Buckets/deployment-artifacts.yaml`:** A CloudFormation template that creates an S3 bucket dedicated to storing deployment artifacts.
+
+**Architectural Insights and Design Patterns:**
+
+*   **Data Lake Architecture:** The repository effectively demonstrates a standard data lake architecture with distinct raw, landing, and curated zones for organized data management.
+*   **Serverless Architecture:** The utilization of Lambda functions and Step Functions for the Comprehend Medical pipeline showcases a serverless architecture, offering scalability, cost efficiency, and simplified management.
+*   **ETL Pipeline:** The combination of Spark, Glue, and Athena creates a foundational ETL pipeline, where Spark handles data transformation, Glue catalogs the data, and Athena provides a querying interface.
+*   **Microservices (Potential):** The compartmentalization of the Comprehend Medical workflow into individual Lambda functions (querying Athena, configuring counts, calling Comprehend, iterating) suggests a microservices approach, promoting modularity and independent scalability.
+*   **Configuration as Code:** The YAML-based configuration files (e.g., `serverless.yml`, CloudFormation templates) embrace the "Configuration as Code" pattern, enabling version control, automation, and reproducibility.
+*   **Orchestration:** AWS Step Functions orchestrates the execution of multiple Lambda functions within the Comprehend Medical pipeline, ensuring proper sequencing and dependency management.
+*   **Layered Architecture:** The data lake is strategically layered with raw, landing, and curated zones, each serving a specific purpose with different levels of processing and quality control.
+*   **External Configuration:** Scripts utilize environment variables for critical settings like bucket names and chunk sizes, enhancing code reusability and configurability.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: control_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/DJMcK_aws-lake-training.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

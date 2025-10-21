@@ -1,0 +1,133 @@
+@startuml
+!define RECTANGLE class
+
+skinparam component {
+    BackgroundColor<<external>> LightBlue
+    BackgroundColor<<infrastructure>> LightGreen
+    BackgroundColor<<application>> LightYellow
+    BackgroundColor<<mesh>> LightPink
+}
+
+package "Development Environment" {
+    [Docker Build Scripts] as dockerBuild <<external>>
+    [Dockerfile] as dockerfile <<external>>
+    [index.html] as indexhtml <<external>>
+}
+
+package "Container Registry" {
+    [Docker Hub] as dockerhub <<external>>
+}
+
+package "Kubernetes Cluster" {
+    package "Master Node" {
+        [API Server] as apiserver <<infrastructure>>
+        [Scheduler] as scheduler <<infrastructure>>
+        [Controller Manager] as controller <<infrastructure>>
+        [etcd] as etcd <<infrastructure>>
+    }
+
+    package "Worker Nodes" {
+        package "Pod" {
+            [Nginx Container] as nginx <<application>>
+            [Envoy Proxy Sidecar] as envoy <<mesh>>
+        }
+
+        [kubelet] as kubelet <<infrastructure>>
+        [kube-proxy] as kubeproxy <<infrastructure>>
+    }
+
+    package "Kubernetes Resources" {
+        [Deployment] as deployment <<infrastructure>>
+        [ReplicaSet] as replicaset <<infrastructure>>
+        [Service] as service <<infrastructure>>
+        [Volume] as volume <<infrastructure>>
+    }
+
+    package "Istio Service Mesh" {
+        [Istio Control Plane] as istiocontrol <<mesh>>
+        [Traffic Management] as traffic <<mesh>>
+        [Policy Enforcement] as policy <<mesh>>
+    }
+
+    package "Monitoring & Management" {
+        [Prometheus] as prometheus <<infrastructure>>
+        [Kubernetes Dashboard] as dashboard <<infrastructure>>
+        [RBAC] as rbac <<infrastructure>>
+    }
+}
+
+package "Cloud Providers" {
+    [Google Kubernetes Engine] as gke <<external>>
+    [AWS EKS] as aws <<external>>
+    [Azure AKS] as azure <<external>>
+}
+
+package "Deployment Automation" {
+    [kubProvisioning.sh] as kubscript <<external>>
+    [kubectl CLI] as kubectl <<external>>
+}
+
+dockerBuild --> dockerfile : uses
+dockerBuild --> indexhtml : includes
+dockerBuild --> dockerhub : pushes image
+
+dockerfile --> nginx : defines
+
+dockerhub --> nginx : pulls image
+
+kubscript --> kubectl : executes
+kubectl --> apiserver : communicates
+
+apiserver --> scheduler : schedules
+apiserver --> controller : manages
+apiserver --> etcd : stores state
+
+scheduler --> kubelet : assigns pods
+controller --> deployment : manages
+deployment --> replicaset : creates
+replicaset --> nginx : creates instances
+
+kubelet --> nginx : runs
+kubelet --> envoy : runs
+
+service --> nginx : routes traffic to
+kubeproxy --> service : implements
+
+istiocontrol --> envoy : configures
+traffic --> envoy : manages
+policy --> envoy : enforces
+
+prometheus --> nginx : monitors
+prometheus --> kubelet : collects metrics
+dashboard --> apiserver : visualizes
+rbac --> apiserver : controls access
+
+volume --> nginx : mounts to
+
+gke -.-> "Kubernetes Cluster" : hosts
+aws -.-> "Kubernetes Cluster" : hosts
+azure -.-> "Kubernetes Cluster" : hosts
+
+note right of "Kubernetes Cluster"
+  Orchestration layer managing
+  containerized application
+  deployment and scaling
+end note
+
+note right of nginx
+  Simple Nginx web server
+  serving index.html
+end note
+
+note right of envoy
+  Istio sidecar proxy for
+  traffic management and
+  observability
+end note
+
+note left of dockerhub
+  Container image repository
+  for distribution
+end note
+
+@enduml

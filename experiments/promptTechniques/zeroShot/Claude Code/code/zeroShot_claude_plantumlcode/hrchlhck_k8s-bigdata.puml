@@ -1,0 +1,155 @@
+@startuml
+!define RECTANGLE class
+
+skinparam component {
+    BackgroundColor<<kubernetes>> LightBlue
+    BackgroundColor<<hadoop>> LightGreen
+    BackgroundColor<<spark>> Orange
+    BackgroundColor<<storage>> Yellow
+    BackgroundColor<<benchmark>> Pink
+}
+
+package "Kubernetes Cluster" {
+
+    package "Namespace: bigdata" {
+
+        component "NameNode Service" as namenode_svc <<kubernetes>> {
+            component "NameNode Pod" as namenode_pod {
+                component "HiBench" as hibench <<benchmark>>
+                component "HDFS NameNode" as namenode <<hadoop>>
+                component "Spark Master" as spark_master <<spark>>
+                component "Hadoop Config\n(core-site.xml\nhdfs-site.xml\nyarn-site.xml\nmapred-site.xml)" as hadoop_config
+            }
+        }
+
+        component "ResourceManager Service" as rm_svc <<kubernetes>> {
+            component "ResourceManager Pod" as rm_pod {
+                component "YARN ResourceManager" as resource_manager <<hadoop>>
+            }
+        }
+
+        component "HistoryServer Service" as history_svc <<kubernetes>> {
+            component "HistoryServer Pod" as history_pod {
+                component "MapReduce HistoryServer" as history_server <<hadoop>>
+            }
+        }
+
+        component "DataNode Service" as datanode_svc <<kubernetes>> {
+            component "DataNode StatefulSet" as datanode_statefulset <<kubernetes>> {
+                component "DataNode Pod 0" as datanode_pod_0 {
+                    component "HDFS DataNode 0" as datanode_0 <<hadoop>>
+                    component "NodeManager 0" as nodemanager_0 <<hadoop>>
+                    component "Persistent Volume 0" as pv_0 <<storage>>
+                }
+                component "DataNode Pod 1" as datanode_pod_1 {
+                    component "HDFS DataNode 1" as datanode_1 <<hadoop>>
+                    component "NodeManager 1" as nodemanager_1 <<hadoop>>
+                    component "Persistent Volume 1" as pv_1 <<storage>>
+                }
+                component "DataNode Pod N" as datanode_pod_n {
+                    component "HDFS DataNode N" as datanode_n <<hadoop>>
+                    component "NodeManager N" as nodemanager_n <<hadoop>>
+                    component "Persistent Volume N" as pv_n <<storage>>
+                }
+            }
+        }
+
+        component "ConfigMap" as configmap <<kubernetes>> {
+            component "Environment Variables\n(hadoop.env\nspark.env)" as env_vars
+        }
+    }
+
+    component "Node Affinity" as node_affinity <<kubernetes>> {
+        component "Master Node Labels" as master_labels
+    }
+}
+
+package "Docker Registry" {
+    component "Docker Hub\n(vpemfh7)" as docker_hub {
+        component "hadoop-base:latest" as base_image
+        component "hadoop-namenode:latest" as namenode_image
+        component "hadoop-datanode:latest" as datanode_image
+        component "hadoop-resourcemanager:latest" as rm_image
+        component "hadoop-historyserver:latest" as history_image
+    }
+}
+
+package "Configuration Scripts" {
+    component "create_config.py" as create_config
+    component "create_hibench_config.py" as create_hibench_config
+    component "entrypoint.sh" as entrypoint
+}
+
+namenode_pod --> hadoop_config : generates
+rm_pod --> hadoop_config : uses
+history_pod --> hadoop_config : uses
+datanode_pod_0 --> hadoop_config : uses
+datanode_pod_1 --> hadoop_config : uses
+datanode_pod_n --> hadoop_config : uses
+
+hibench --> spark_master : executes workloads
+hibench --> namenode : uses HDFS
+spark_master --> resource_manager : submits jobs
+namenode --> datanode_0 : manages blocks
+namenode --> datanode_1 : manages blocks
+namenode --> datanode_n : manages blocks
+resource_manager --> nodemanager_0 : allocates containers
+resource_manager --> nodemanager_1 : allocates containers
+resource_manager --> nodemanager_n : allocates containers
+nodemanager_0 --> datanode_0 : co-located
+nodemanager_1 --> datanode_1 : co-located
+nodemanager_n --> datanode_n : co-located
+
+datanode_0 --> pv_0 : persists data
+datanode_1 --> pv_1 : persists data
+datanode_n --> pv_n : persists data
+
+configmap --> namenode_pod : provides config
+configmap --> rm_pod : provides config
+configmap --> history_pod : provides config
+configmap --> datanode_pod_0 : provides config
+configmap --> datanode_pod_1 : provides config
+configmap --> datanode_pod_n : provides config
+
+env_vars --> create_config : input
+env_vars --> create_hibench_config : input
+create_config --> hadoop_config : generates
+create_hibench_config --> hibench : configures
+entrypoint --> create_config : executes
+entrypoint --> create_hibench_config : executes
+
+node_affinity --> namenode_pod : assigns to master
+node_affinity --> rm_pod : assigns to master
+node_affinity --> history_pod : assigns to master
+
+base_image --> namenode_image : extends
+base_image --> datanode_image : extends
+base_image --> rm_image : extends
+base_image --> history_image : extends
+
+docker_hub --> namenode_pod : deploys
+docker_hub --> datanode_pod_0 : deploys
+docker_hub --> datanode_pod_1 : deploys
+docker_hub --> datanode_pod_n : deploys
+docker_hub --> rm_pod : deploys
+docker_hub --> history_pod : deploys
+
+note right of namenode_pod
+  Co-location of HiBench,
+  NameNode, and Spark Master
+  for performance optimization
+end note
+
+note right of datanode_statefulset
+  StatefulSet provides stable
+  network identity and
+  persistent storage
+end note
+
+note bottom of configmap
+  Configuration via
+  environment variables
+  for flexibility
+end note
+
+@enduml

@@ -1,0 +1,80 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: Taymindis_fcgi-function
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** control_flow
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## FastCGI Function Handler Framework Analysis Report
+
+This report analyzes a C/C++ framework designed to enable Function as a Service (FaaS) capabilities by allowing HTTP requests to trigger the execution of native C/C++ functions via a FastCGI server (e.g., Nginx, Apache). The framework acts as a middleware layer between the web server and the application logic.
+
+**Core Functionality & Components:**
+
+The framework's primary function is to map incoming HTTP requests, identified by the `FN_HANDLER` parameter, to specific C/C++ functions. It achieves this through:
+
+*   **FastCGI Integration:** Utilizes the `fcgiapp` library for communication with the FastCGI server.
+*   **Function Mapping:** Configurable via the `ffunc_config_t` structure, this mechanism defines the association between URL endpoints and corresponding C/C++ function handlers.
+*   **Request Handling:** Provides utilities for reading request bodies (with size limits) and extracting query parameters.
+*   **Multi-threading:** Supports multi-threaded request handling for improved concurrency, managed within the `ffunc.c` file through thread management functions.
+*   **Configuration:**  The `ffunc_config_t` structure governs server parameters such as socket port, backlog, max threads, and function mappings.
+
+**Key Files and Their Roles:**
+
+*   **`ffunc.h`:** Defines the API for the `ffunc` library. This header file contains the definitions for core data structures like `ffunc_pool`, `ffunc_session_t`, `ffunc_config_t`, function prototypes, and macros used throughout the framework.
+*   **`ffunc.c`:** The central implementation file. It contains the `main` function, request handling logic (`handle_request`), memory pool management (`ffunc_create_pool`, `_ffunc_alloc`, `ffunc_destroy_pool`), socket handling (`hook_socket`), thread management (`ffunc_thread_worker`), and function mapping initialization (`ffunc_init`).  It also includes platform-specific adaptations for Windows and Linux/macOS.
+*   **`CMakeLists.txt`:** The build script, using CMake, compiles the library and example programs. It manages finding the FastCGI library, setting compiler flags, and creating static and shared libraries.  It handles platform differences between UNIX-like systems and Windows.
+*   **`examples/profile_service.c` / `examples/profile_service.cpp`:**  Example applications demonstrating the use of the `ffunc` framework. They define handler functions (e.g., `getProfile`, `postError`, `postProfile`) triggered by specific HTTP requests.
+*   **`DockerExample/*`:**  Provides files for creating a Docker image, including a `Dockerfile`, Nginx configuration (`ffunc_profile`), and a startup script (`start_ffunc.sh`) for deploying the `ffunc` application.
+*   **`README.md`:** Documentation outlining building, configuration, and usage instructions, including Nginx configuration examples.
+
+**Architectural Insights & Design Patterns:**
+
+*   **FaaS Paradigm:** Mirrors a basic Function as a Service (FaaS) architecture.
+*   **Event-Driven:** The FastCGI server acts as an event source, initiating function execution based on incoming HTTP requests.
+*   **Memory Management (Object Pool):** Implements a custom memory pool (`ffunc_pool`) to manage memory allocation and deallocation efficiently, reducing overhead and preventing potential memory leaks. This is a core optimization.
+*   **Strategy Pattern:** Employs function pointers (`h handle` in `struct ffunc_handler`) to represent the function to be executed for each request. The handler is selected dynamically based on the `FN_HANDLER` parameter.
+*   **Template Method Pattern (Potential):** The user-defined `ffunc_main` function outlines the initialization steps, while the user provides the specific implementation.
+*   **Platform Dependent:** The code uses conditional compilation (`#ifdef`, `#ifndef`) to handle differences between Windows and Unix-based operating systems.
+
+**Important Considerations:**
+
+*   **Security:** The code lacks explicit security mechanisms. Input validation and sanitization are crucial to prevent vulnerabilities.
+*   **Error Handling:**  Basic error handling is implemented. Enhanced error reporting and logging would benefit production deployments.
+*   **Memory Management:** While a memory pool is provided, ensuring all allocated memory is properly freed within request handlers is critical to avoid memory leaks. The inclusion of Valgrind examples indicates awareness of potential memory issues.
+*   **Configuration:**  Configuration is currently based on `ffunc_config_t` and environment variables. A more flexible configuration mechanism (e.g., configuration files) would improve maintainability.
+*   **Error Handling:** Includes basic error handling and signal handling (specifically for debugging signals on Linux), and HTTP status code writing functions.
+*   **Daemonization:** Supports running the FastCGI process as a daemon.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: control_flow
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/Taymindis_fcgi-function.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

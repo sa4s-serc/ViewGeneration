@@ -1,0 +1,272 @@
+@startuml
+!define RECTANGLE class
+
+skinparam component {
+    BackgroundColor<<deployment>> LightBlue
+    BackgroundColor<<connectivity>> LightGreen
+    BackgroundColor<<performance>> LightYellow
+    BackgroundColor<<security>> LightPink
+    BorderColor Black
+    ArrowColor Black
+}
+
+skinparam package {
+    BackgroundColor WhiteSmoke
+    BorderColor DarkGray
+}
+
+title Azure Stack QuickStart Templates - Component Diagram\n(Deployment, Connectivity, Performance, Security)
+
+package "Deployment Layer" {
+    component "ARM Templates" <<deployment>> as ARM {
+        [azuredeploy.json]
+        [azuredeploy.parameters.json]
+        [Nested Templates]
+    }
+
+    component "PowerShell Scripts" <<deployment>> as PS {
+        [Deploy-AzureResourceGroup.ps1]
+        [Artifact Staging]
+        [DSC Configurations]
+        [Publish-SecretToVault.ps1]
+    }
+
+    component "Shell Scripts" <<deployment>> as SH {
+        [install-geth.sh]
+        [configure-geth.sh]
+        [docker-setup.sh]
+        [hadoop-setup.sh]
+    }
+
+    component "Validation Scripts" <<deployment>> as VAL {
+        [Template Validation]
+        [Automated Testing]
+    }
+}
+
+package "Security Layer" {
+    component "Azure Key Vault" <<security>> as KV {
+        [Secret Storage]
+        [Certificate Management]
+        [Cluster Certificates]
+    }
+
+    component "Network Security" <<security>> as NSG {
+        [Network Security Groups]
+        [Firewall Rules]
+        [Access Control Lists]
+    }
+
+    component "Identity Management" <<security>> as AD {
+        [Active Directory]
+        [Domain Controllers]
+        [Authentication]
+    }
+}
+
+package "Connectivity Layer" {
+    component "Virtual Network" <<connectivity>> as VNET {
+        [Subnets]
+        [Address Spaces]
+        [VNet Peering]
+    }
+
+    component "Load Balancer" <<connectivity>> as LB {
+        [Traffic Distribution]
+        [Health Probes]
+        [NAT Rules]
+    }
+
+    component "VPN Gateway" <<connectivity>> as VPN {
+        [VNet-to-VNet]
+        [ConsortiumBridge]
+        [Hybrid Connections]
+    }
+
+    component "Network Interfaces" <<connectivity>> as NIC {
+        [VM NICs]
+        [IP Configurations]
+    }
+}
+
+package "Compute Layer" {
+    component "Virtual Machines" <<performance>> as VM {
+        [Master Nodes]
+        [Worker Nodes]
+        [Transaction Nodes]
+        [Mining Nodes]
+    }
+
+    component "VM Extensions" <<deployment>> as EXT {
+        [Custom Script Extension]
+        [BGInfo]
+        [Monitoring Agent]
+        [DSC Extension]
+    }
+
+    component "Availability Sets" <<performance>> as AVSET {
+        [Fault Domains]
+        [Update Domains]
+        [High Availability]
+    }
+}
+
+package "Application Platforms" {
+    component "Container Platform" <<deployment>> as CONTAINER {
+        [Docker Swarm]
+        [docker-compose.yml]
+        [Container Registry]
+    }
+
+    component "Service Fabric" <<deployment>> as SF {
+        [Cluster Management]
+        [Microservices]
+        [Service Orchestration]
+    }
+
+    component "Blockchain Platform" <<deployment>> as BC {
+        [Ethereum Consortium]
+        [Geth Nodes]
+        [Admin Website]
+        [Boot Nodes]
+    }
+
+    component "Big Data Platform" <<deployment>> as HADOOP {
+        [Hadoop Cluster]
+        [HDFS]
+        [MapReduce]
+        [Configuration Files]
+    }
+
+    component "Mesos Platform" <<deployment>> as MESOS {
+        [Mesos Cluster]
+        [Marathon]
+        [Chronos]
+    }
+}
+
+package "High Availability Solutions" {
+    component "RDS HA" <<performance>> as RDS {
+        [RD Gateway]
+        [RD Web Access]
+        [RD Session Host]
+        [Connection Broker]
+    }
+
+    component "SQL HA" <<performance>> as SQL {
+        [SQL Server Farm]
+        [AlwaysOn Availability Groups]
+        [Cluster Configuration]
+    }
+
+    component "Storage Spaces Direct" <<performance>> as S2D {
+        [Distributed Storage]
+        [Storage Pool]
+        [Performance Optimization]
+    }
+}
+
+package "Performance Testing" {
+    component "Workload Testing" <<performance>> as PERF {
+        [VM Bootstorm]
+        [IOStorm Generator]
+        [Performance Metrics]
+    }
+}
+
+package "Hybrid Cloud Infrastructure" {
+    component "Azure Public Cloud" <<connectivity>> as AZURE {
+        [Azure Resources]
+        [Azure Services]
+    }
+
+    component "Azure Stack" <<connectivity>> as AZSTACK {
+        [On-Premises Resources]
+        [ASDK]
+    }
+}
+
+package "Storage Layer" {
+    component "Storage Accounts" <<performance>> as STORAGE {
+        [Blob Storage]
+        [Artifact Storage]
+        [VHD Storage]
+    }
+
+    component "File Server" <<deployment>> as FS {
+        [Standalone File Server]
+        [App Service Storage]
+    }
+}
+
+package "Monitoring & Management" {
+    component "Monitoring" <<performance>> as MON {
+        [Microsoft Monitoring Agent]
+        [Performance Counters]
+        [Diagnostics]
+    }
+
+    component "Admin Interfaces" <<deployment>> as ADMIN {
+        [Blockchain Admin Website]
+        [Management Portals]
+    }
+}
+
+ARM ..> PS : triggers
+ARM ..> SH : executes
+PS ..> KV : retrieves secrets
+PS ..> VAL : validates with
+
+ARM --> VNET : creates
+ARM --> VM : provisions
+ARM --> LB : configures
+ARM --> NSG : defines
+ARM --> STORAGE : creates
+ARM --> AVSET : organizes
+
+VM --> EXT : uses
+VM --> NIC : connects via
+VM --> AVSET : grouped in
+
+VNET --> NSG : protected by
+NIC --> VNET : attached to
+LB --> NIC : routes to
+
+VPN --> VNET : connects
+VPN --> AZURE : bridges
+VPN --> AZSTACK : bridges
+
+CONTAINER --> VM : runs on
+SF --> VM : deployed on
+BC --> VM : operates on
+HADOOP --> VM : installed on
+MESOS --> VM : executes on
+
+RDS --> LB : balanced by
+SQL --> LB : balanced by
+RDS --> AVSET : uses
+SQL --> AVSET : uses
+
+S2D --> VM : distributed across
+S2D --> STORAGE : manages
+
+KV --> SF : provides certificates
+KV --> BC : stores keys
+AD --> NSG : integrates with
+AD --> VM : authenticates
+
+PERF --> VM : tests
+PERF --> STORAGE : measures
+
+MON --> VM : monitors
+ADMIN --> BC : manages
+
+FS --> STORAGE : utilizes
+FS --> AZSTACK : enables App Service
+
+BC --> VPN : uses ConsortiumBridge
+BC --> ADMIN : monitored via
+
+AZURE <--> AZSTACK : Hybrid Connection
+
+@enduml

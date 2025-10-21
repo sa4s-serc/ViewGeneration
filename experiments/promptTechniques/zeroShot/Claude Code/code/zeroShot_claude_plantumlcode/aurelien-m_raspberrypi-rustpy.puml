@@ -1,0 +1,85 @@
+@startuml
+title Raspberry Pi Hardware Control System - Deployment and Data Flow
+
+actor User
+participant "Web Browser\n(Client)" as Browser
+participant "Rocket Web Server\n(Rust)" as WebServer
+participant "WebSocket\nHandler" as WebSocket
+participant "Script Controller\n(helper.rs)" as ScriptController
+participant "Python Controller\n(demo_controller_app.py)" as PythonApp
+participant "ScriptControl Module\n(scriptcontrol/__init__.py)" as ScriptControl
+participant "Mode Controllers\n(demo/rainbow/cosmic)" as ModeController
+participant "LuminoLib\n(luminolib.py)" as LuminoLib
+participant "Python Bridge\n(rpipy.py)" as PythonBridge
+participant "Rust Library\n(libraspberrypylib.so)" as RustLib
+participant "GPIO Hardware\n(rppal)" as GPIO
+participant "Bluetooth\nCommunication" as Bluetooth
+
+== User Authentication ==
+User -> Browser: Access Web Interface
+Browser -> WebServer: HTTP Request (Login)
+WebServer -> WebServer: Check credentials\n(users.txt)
+WebServer -> Browser: Serve Login/Index Template\n(Askama)
+Browser -> User: Display GUI
+
+== Mode Selection and Configuration ==
+User -> Browser: Select LED Mode\n(demo/rainbow/cosmic)
+Browser -> WebServer: POST Mode Settings
+WebServer -> ScriptController: Send Command via ZMQ
+ScriptController -> PythonApp: Serial Communication\n(Command Message)
+PythonApp -> ScriptControl: Initialize Mode
+ScriptControl -> ModeController: Load Mode Settings\n(demo.py/rainbow.py/cosmic.py)
+ModeController -> ScriptControl: Mode Configured
+
+== LED Control Data Flow ==
+ScriptControl -> LuminoLib: Execute LED Control Logic
+LuminoLib -> PythonBridge: Call Hardware Functions
+PythonBridge -> RustLib: Invoke Rust Functions\n(cpython binding)
+RustLib -> GPIO: GPIO Control\n(blink_led/set_high/send_pwm)
+GPIO -> GPIO: Manipulate LED Hardware
+
+== Real-time Updates via WebSocket ==
+PythonApp -> ScriptController: Status Update\n(Serial Communication)
+ScriptController -> WebSocket: Push Update
+WebSocket -> Browser: WebSocket Message\n(Real-time Data)
+Browser -> User: Update Display
+
+== System Information Retrieval ==
+Browser -> WebServer: Request System Info
+WebServer -> Bluetooth: Query Raspberry Pi Info
+Bluetooth -> WebServer: System Data\n(CPU Temperature)
+WebServer -> Browser: JSON Response
+Browser -> User: Display System Status
+
+== Configuration Adjustment ==
+User -> Browser: Adjust Settings\n(Mode Parameters)
+Browser -> WebServer: HTTP POST\n(Settings Update)
+WebServer -> ScriptController: Update Command\n(ZMQ Message)
+ScriptController -> PythonApp: Serial Command
+PythonApp -> ScriptControl: Apply New Settings
+ScriptControl -> ModeController: Reconfigure Mode
+ModeController -> LuminoLib: Update LED Behavior
+LuminoLib -> PythonBridge: Hardware Control
+PythonBridge -> RustLib: Execute Commands
+RustLib -> GPIO: Update GPIO State
+
+== Continuous Operation ==
+loop LED Animation Cycle
+    ModeController -> LuminoLib: Next Animation Frame
+    LuminoLib -> PythonBridge: Set LED States
+    PythonBridge -> RustLib: PWM Signals
+    RustLib -> GPIO: Drive LEDs
+    GPIO -> GPIO: LED Display
+    PythonApp -> ScriptController: Status Update
+    ScriptController -> WebSocket: Broadcast State
+    WebSocket -> Browser: Update UI
+end
+
+== User Logout ==
+User -> Browser: Logout
+Browser -> WebServer: Logout Request
+WebServer -> WebServer: Clear Session\n(ServerState)
+WebServer -> Browser: Redirect to Login
+Browser -> User: Display Login Page
+
+@enduml

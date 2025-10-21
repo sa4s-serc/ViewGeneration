@@ -1,0 +1,174 @@
+@startuml
+!define AZURE_COLOR #0078D4
+!define SECURITY_COLOR #FF6B6B
+!define DEPLOYMENT_COLOR #4ECDC4
+
+title SpektraSystems CloudLabs-Azure - Deployment and Security Sequence Diagram
+
+actor "Lab User" as User
+participant "CloudLabs Portal" as Portal
+participant "PowerShell\nSetup Scripts" as Scripts
+participant "Azure Resource\nManager (ARM)" as ARM
+participant "Azure Migrate" as Migrate
+participant "Hyper-V\nOn-Premises" as HyperV
+participant "Azure VM\n(IaaS)" as VM
+participant "Azure Functions\n(PaaS)" as Functions
+participant "Cosmos DB" as CosmosDB
+participant "Azure Storage\n(Static Web)" as Storage
+participant "Azure Monitor" as Monitor
+participant "Log Analytics" as LogAnalytics
+participant "Application Insights" as AppInsights
+participant "Authentication\nService" as Auth
+
+== Lab Environment Deployment ==
+
+User -> Portal: Access CloudLabs Environment
+activate Portal
+Portal -> Scripts: Trigger setup.ps1
+activate Scripts
+Scripts -> ARM: Deploy Infrastructure (IaC)
+activate ARM
+ARM -> ARM: Validate ARM Templates
+ARM -> VM: Provision Virtual Networks
+activate VM
+ARM -> VM: Create Availability Sets
+ARM -> VM: Deploy VMs
+VM --> ARM: VM Resources Created
+deactivate VM
+ARM -> Storage: Provision Storage Accounts
+activate Storage
+Storage --> ARM: Storage Created
+deactivate Storage
+ARM -> CosmosDB: Create Cosmos DB Instance
+activate CosmosDB
+CosmosDB --> ARM: Database Provisioned
+deactivate CosmosDB
+ARM --> Scripts: Deployment Complete
+deactivate ARM
+Scripts -> Monitor: Configure Monitoring Agents
+activate Monitor
+Monitor -> LogAnalytics: Create Log Analytics Workspace
+activate LogAnalytics
+LogAnalytics --> Monitor: Workspace Ready
+deactivate LogAnalytics
+Monitor --> Scripts: Monitoring Configured
+deactivate Monitor
+Scripts --> Portal: Lab Environment Ready
+deactivate Scripts
+Portal --> User: Environment Provisioned
+deactivate Portal
+
+== Azure Migrate Deployment Flow ==
+
+User -> Portal: Start Migration Lab
+activate Portal
+Portal -> Migrate: Create Azure Migrate Project
+activate Migrate
+Migrate -> Migrate: Initialize Assessment Tools
+Migrate -> HyperV: Deploy Migration Appliance
+activate HyperV
+HyperV -> Migrate: Register Appliance
+Migrate -> HyperV: Discover On-Premises VMs
+HyperV --> Migrate: VM Inventory Data
+Migrate -> Migrate: Assess Migration Readiness
+Migrate --> User: Assessment Report
+User -> Migrate: Initiate VM Replication
+Migrate -> HyperV: Start Replication Process
+HyperV --> Migrate: Replication Data Stream
+Migrate -> ARM: Prepare Target Azure Resources
+activate ARM
+ARM -> VM: Create Target VMs
+activate VM
+VM --> ARM: Target Resources Ready
+deactivate VM
+ARM --> Migrate: Target Infrastructure Ready
+deactivate ARM
+User -> Migrate: Execute Test Migration
+Migrate -> VM: Deploy Test VMs
+activate VM
+VM --> Migrate: Test VMs Running
+Migrate --> User: Test Migration Validation
+User -> Migrate: Confirm Production Migration
+Migrate -> VM: Cutover to Production VMs
+VM --> Migrate: Migration Complete
+deactivate VM
+deactivate HyperV
+deactivate Migrate
+deactivate Portal
+
+== Serverless App Modernization Deployment ==
+
+User -> Portal: Start Modernization Lab
+activate Portal
+Portal -> Functions: Deploy Azure Functions
+activate Functions
+Functions -> Auth: Configure Authentication
+activate Auth
+Auth -> Auth: Setup Identity Provider
+Auth --> Functions: Auth Configured
+Functions -> CosmosDB: Configure Database Binding
+activate CosmosDB
+CosmosDB --> Functions: Connection Established
+Functions -> AppInsights: Enable Application Monitoring
+activate AppInsights
+AppInsights --> Functions: Monitoring Active
+deactivate AppInsights
+Functions --> User: API Endpoints Published
+deactivate Functions
+
+User -> Storage: Deploy Blazor Static Website
+activate Storage
+Storage -> Auth: Apply Authentication Policies
+Auth --> Storage: Auth Applied
+deactivate Auth
+Storage -> Functions: Configure API Integration
+activate Functions
+Functions --> Storage: API Connected
+deactivate Functions
+Storage -> ARM: Apply CORS Policies
+activate ARM
+ARM --> Storage: Security Policies Applied
+deactivate ARM
+Storage --> User: Website Deployed
+deactivate Storage
+deactivate Portal
+
+== Security and Monitoring ==
+
+VM -> Monitor: Stream Performance Metrics
+activate Monitor
+Monitor -> LogAnalytics: Forward Logs
+activate LogAnalytics
+LogAnalytics -> LogAnalytics: Analyze Security Events
+LogAnalytics --> Monitor: Security Alerts
+deactivate LogAnalytics
+Monitor --> User: Alert Notifications
+deactivate Monitor
+
+Functions -> AppInsights: Send Telemetry Data
+activate AppInsights
+AppInsights -> AppInsights: Detect Anomalies
+AppInsights -> Monitor: Forward Insights
+activate Monitor
+Monitor --> User: Performance Dashboard
+deactivate Monitor
+AppInsights --> User: Application Health Status
+deactivate AppInsights
+
+User -> LogAnalytics: Query Security Logs
+activate LogAnalytics
+LogAnalytics -> LogAnalytics: Execute KQL Queries
+LogAnalytics --> User: Security Audit Report
+deactivate LogAnalytics
+
+CosmosDB -> Monitor: Stream Database Metrics
+activate Monitor
+Monitor -> LogAnalytics: Store Database Logs
+activate LogAnalytics
+LogAnalytics --> Monitor: Compliance Validation
+deactivate LogAnalytics
+Monitor --> User: Compliance Dashboard
+deactivate Monitor
+deactivate CosmosDB
+
+@enduml

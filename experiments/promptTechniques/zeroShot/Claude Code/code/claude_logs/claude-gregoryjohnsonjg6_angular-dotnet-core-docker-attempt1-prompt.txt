@@ -1,0 +1,84 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: gregoryjohnsonjg6_angular-dotnet-core-docker
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** deployment, control_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## Code Repository Analysis: Contact Management Application
+
+This report summarizes the architecture, key components, and functionalities of a full-stack contact management application. The application leverages a microservices-inspired architecture using Angular for the frontend, a .NET Core Web API for the backend, and PostgreSQL for data storage. Docker and Docker Compose are used for containerization and orchestration, facilitating development and deployment.
+
+**Functionality Overview:**
+
+The application offers core features for contact management, including create, read, update, and delete (CRUD) operations. It also provides secure user authentication and authorization through registration, login, and role-based access control using JWT tokens.
+
+**Architectural Components:**
+
+*   **Frontend (Angular):** The user interface, built with Angular, allows users to interact with the application. Key components include user management (login, registration, profile) and contact management (list, details, form). The frontend implements Server-Side Rendering (SSR). The core application logic resides in `frontend/src/app/`, with specific areas like `frontend/src/app/core/` housing core services and models, and `frontend/src/app/feature/contact/` focusing on contact management features.
+
+*   **Backend (ASP.NET Core Web API):** This RESTful API handles requests from the frontend, interacts with the database, and enforces security policies. The API follows a Clean Architecture approach, promoting maintainability and testability. Projects are organized into:
+    *   `Api/WebApi/`: The main Web API project.
+    *   `Api/Application/`: Application logic, DTOs, and business rules. This area utilizes CQRS (Command Query Responsibility Segregation) patterns with MediatR, separating queries and commands.
+    *   `Api/Domain/`: Core domain entities.
+    *   `Api/Infrastructure.Persistence/`: Data access implementation using Entity Framework Core and the Repository Pattern.
+    *   `Api/Infrastructure.Identity/`: User authentication and authorization using ASP.NET Core Identity.
+
+*   **Database (PostgreSQL):** Stores user and contact data. Entity Framework Core Migrations are used to manage schema changes, with a dedicated Dockerfile (`Api/Migration.Dockerfile`) for running migrations.
+
+*   **Load Balancer (NGINX):** Nginx acts as an API gateway, distributing incoming traffic between the frontend and backend services.
+
+*   **Containerization (Docker):** The entire application is containerized using Docker, enabling consistent and portable deployment. `docker-compose.yaml` and `docker-debug-compose.yaml` define the multi-container application, specifying services, dependencies, build configurations, ports, networks, and environment variables. `docker-debug-compose.yaml` is configured for debugging, with hot reload and debugging port exposure. `Dockerfile` files define the build processes for the frontend (`frontend/Dockerfile`, `frontend/debug.dockerfile`), backend (`Api/Dockerfile`, `Api/debug.dockerfile`), PostgreSQL, and load balancer (`loadbalancer/Dockerfile`).
+
+**Design Patterns:**
+
+*   **Clean Architecture:** Separates concerns in the .NET Core Web API.
+*   **Repository Pattern:** Abstracts data access in `Infrastructure.Persistence`.
+*   **CQRS and Mediator:** Evident in the `Application/Features/Contacts` folder, utilizing the `MediatR` library to separate queries and commands.
+*   **Dependency Injection:** Used extensively for managing dependencies and promoting loose coupling.
+*   **API Gateway:** Nginx acts as the entry point for the application.
+*   **Options Pattern:** Configures settings from configuration files.
+*   **JWT Authentication:** Secures the application using JSON Web Tokens.
+
+**Potential Issues & Considerations:**
+
+*   **Security:** Hardcoded database credentials (`root` / `root`) in `docker-compose.yaml` pose a significant security risk. Environment variables and secrets management are crucial for production.
+*   **Email Sending:** SendGrid API key is missing. The code to send emails is commented out.
+*   **Configuration Management:** A robust configuration management solution is needed for different environments.
+*   **Error Handling:** While the `ErrorHandlerMiddleware` exists, more detailed logging and custom error responses are recommended.
+*   **Database Seeding:** Default user/role seeding in `Program.Main` should be moved to a more controlled initialization process.
+*   **Architecture Diagram:** The `README.md` refers to an `architecture.png` that is not available. This should be provided for better understanding.
+*   **Monolith vs Microservices:** While the application is containerized, the backend API may be a monolith. Evaluate whether further separation into independent microservices is beneficial.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment, control_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/gregoryjohnsonjg6_angular-dotnet-core-docker.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

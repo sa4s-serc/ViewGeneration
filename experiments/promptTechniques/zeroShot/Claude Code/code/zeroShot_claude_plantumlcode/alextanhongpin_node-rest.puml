@@ -1,0 +1,101 @@
+@startuml
+!define COMPONENT_STYLE rectangle
+
+skinparam component {
+  BackgroundColor<<external>> LightGray
+  BorderColor Black
+  ArrowColor Black
+}
+
+package "Express Application" {
+  component [index.js\nMain Entry Point] as Main
+  component [Middleware] as Middleware
+}
+
+package "Food Service" <<COMPONENT_STYLE>> {
+  component [food-service/index.js\nService Orchestrator] as FoodServiceOrchestrator
+  component [food-service/route.js\nRoute Handler] as Route
+  component [food-service/model.js\nBusiness Logic] as Model
+  component [food-service/store.js\nData Access] as Store
+}
+
+package "Configuration & Validation" {
+  component [config/\nConvict Config Manager] as Config
+  component [schema/\nJSON Schema Validator] as Schema
+  component [Helper\nResponse Formatter] as Helper
+}
+
+package "Infrastructure" {
+  component [database/index.js\nMySQL Connection Pool] as Database
+}
+
+database "MySQL Database" as MySQL <<external>>
+
+package "Testing" {
+  component [test/\nMocha + Chai Tests] as Tests
+}
+
+package "External Libraries" <<external>> {
+  component [Express Framework] as Express
+  component [mysql2/promise] as MySQL2
+  component [ajv] as AJV
+  component [convict] as Convict
+}
+
+' Main application flow
+Main --> Middleware
+Main --> FoodServiceOrchestrator
+Main --> Config
+Middleware --> Route
+
+' Food Service internal dependencies (Onion Architecture)
+FoodServiceOrchestrator --> Route
+FoodServiceOrchestrator --> Model
+FoodServiceOrchestrator --> Store
+
+Route --> Model : delegates requests
+Model --> Store : data access
+Model --> Schema : validates payloads
+Route --> Helper : formats responses
+Model --> Helper : formats responses
+
+' Infrastructure dependencies
+Store --> Database : executes queries
+Database --> MySQL2 : uses
+Database --> MySQL : connects to
+
+' Configuration dependencies
+Config --> Convict : uses
+Main --> Config : loads settings
+
+' Validation dependencies
+Schema --> AJV : uses
+
+' External framework dependencies
+Main --> Express : initializes
+Route --> Express : defines routes
+Middleware --> Express : uses middleware
+
+' Testing dependencies
+Tests ..> Model : tests
+Tests ..> Store : tests
+
+note right of FoodServiceOrchestrator
+  Onion Architecture:
+  - Inner layers (Model) are independent
+  - Outer layers (Route) depend on inner
+  - Dependency Inversion principle
+  - Promotes testability & loose coupling
+end note
+
+note left of Database
+  Connection pooling for
+  optimized performance
+end note
+
+note bottom of Schema
+  AJV validation ensures
+  data integrity at entry points
+end note
+
+@enduml

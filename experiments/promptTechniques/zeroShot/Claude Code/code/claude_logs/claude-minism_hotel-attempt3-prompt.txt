@@ -1,0 +1,109 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: minism_hotel
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** deployment
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## Minism Hotel Repository Analysis: A Comprehensive Overview
+
+This report summarizes an analysis of the "minism_hotel" GitHub repository, focusing on its functionality, architecture, and key components. The project implements a master/lobby server (Hotel) designed for managing multiplayer game servers. It encompasses two primary services: a master server (`hotel-master`) and an optional spawner (`hotel-spawner`), supported by shared libraries, build scripts, configuration files, and tests.
+
+**Core Functionality:**
+
+The system facilitates game server registration, discovery, and spawning. The master server provides a REST API and an RPC interface. The spawner, in turn, utilizes RPC to communicate with the master server and manage the execution of game server processes. The design emphasizes modularity through service separation and protobuf-based communication. Integration tests verify API behavior.
+
+**Key Components & Their Roles:**
+
+*   **Master Server (`hotel-master`):**
+    *   **REST API:**  HTTP endpoints for managing game server registration, discovery, updates, creation, updating, deletion, and health checks.
+    *   **RPC Server:**  gRPC interface for spawners to register, report status, and receive spawn requests.
+    *   **Session Management:**  Authentication of clients and resource management using session tokens. `SessionStore` appears to be implemented as a singleton.
+    *   **Database:**  SQLite database for storing game server and spawner information. Provides a database access layer for managing game servers and spawners.
+    *   **Reaper:** Background process that cleans up expired sessions, game servers, and inactive spawners.
+
+*   **Spawner (`hotel-spawner`):**
+    *   **RPC Server:** gRPC server handling spawn requests from the master server.
+    *   **Game Server Management:** Executes and monitors game server processes, implemented in `src/spawner/exec.go`.
+    *   **Master Server Communication:**  Registers with the master server on startup and periodically reports its status.
+
+*   **Shared Libraries (`src/shared/*.go`):**
+    *   Configuration Loading: Parses JSON configuration files.
+    *   Environment Variable Handling: Helper function to retrieve environment variables with default values.
+    *   Logging: Configures basic logging functionality.
+    *   Crypto: Generation of random session tokens
+    *   Common utility functions and data structures shared between the master and spawner services, including models.
+
+*   **Configuration:**
+    *   Master Server: `src/master/config/config.go` defines the configuration structure and loading logic. Middleware injects the configuration into HTTP request contexts.
+    *   Spawner: `src/spawner/config.go` defines the spawner configuration structure and loading logic.
+
+*   **Communication (Protobuf):**
+    *   `proto/*.proto`: Defines gRPC messages and services for communication between master and spawner. Includes registration, status checks, and server spawning protocols.  The protobuf messages act as DTOs for communication.
+
+*   **Build & Deployment:**
+    *   `Makefile`: Build automation script defining targets for compilation, protobuf code generation, Docker image creation, testing, and cleanup.
+    *   `docker-compose.yml`: Docker Compose configuration for building and deploying the master and spawner services.
+    *   `examples/deploy-spawner/*`: An example on how to extend and deploy the spawner.
+
+*   **Testing:**
+    *   `test/*.py`: Python integration tests for the master server's REST API.
+
+**Architectural Insights:**
+
+*   **Microservice Architecture:**  The separation of master and spawner services enables modularity and independent scaling.
+*   **gRPC for Inter-Service Communication:** Efficient and type-safe communication between the master and spawner services.
+*   **REST API for Client Interaction:** Simple HTTP interface for game client interaction.
+*   **Configuration-Driven Design:** JSON configuration files for easy customization without code modification.
+*   **Database Abstraction:** Abstraction layer facilitates switching to different database implementations.
+*   **Dockerized Deployment:** Dockerfiles and Docker Compose simplify containerized deployment.
+
+**Design Patterns:**
+
+*   **Singleton:**  `SessionStore` implementation.
+*   **Middleware:** Used to inject configuration and session information into HTTP request contexts.
+*   **Data Transfer Objects (DTOs):** Protobuf messages.
+*   **Reaper Pattern:** Periodic cleanup of expired resources.
+
+**Further Considerations (TODO):**
+
+*   NAT Hole Punching.
+*   Better Error Handling.
+*   Persistent Sessions.
+*   Security requirements.
+*   Support for Different Game Server Hosting Models.
+
+This overview provides a comprehensive understanding of the "minism_hotel" repository, its architecture, components, and functionalities.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/minism_hotel.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

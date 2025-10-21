@@ -1,0 +1,120 @@
+@startuml
+
+skinparam component {
+    BackgroundColor<<Unity>> LightBlue
+    BackgroundColor<<CoppeliaSim>> LightGreen
+    BackgroundColor<<Web>> LightYellow
+    BackgroundColor<<Cloud>> LightCoral
+}
+
+package "Presentation Layer" {
+    component "Unity Environment" <<Unity>> as UnityEnv
+    component "Drop Zone Prefab" as DropZone
+    component "Warehouse Shelves Prefab" as Shelves
+    component "Robot Prefab" as RobotPrefab
+    component "MonoBehaviour Scripts" as MonoScripts
+
+    component "Web Interface" <<Web>> as WebUI
+    component "JavaScript UI" as JSUI
+    component "RecorderJS" as Recorder
+
+    UnityEnv ..> DropZone
+    UnityEnv ..> Shelves
+    UnityEnv ..> RobotPrefab
+    UnityEnv ..> MonoScripts
+
+    WebUI ..> JSUI
+    WebUI ..> Recorder
+}
+
+package "Application Layer" {
+    component "Robot Control System" as RobotControl
+    component "robot.py" as RobotPy
+    component "main.py" as MainPy
+    component "Inverse Kinematics" as IK
+
+    component "Computer Vision System" as CVSystem
+    component "OCR_Lite.py" as OCR
+    component "LettersNumbersClassification.py" as Classification
+    component "LabelingRegions.py" as Labeling
+
+    RobotControl ..> RobotPy
+    RobotControl ..> MainPy
+    RobotControl ..> IK
+
+    CVSystem ..> OCR
+    CVSystem ..> Classification
+    CVSystem ..> Labeling
+}
+
+package "Simulation & Physics Layer" {
+    component "CoppeliaSim" <<CoppeliaSim>> as Coppelia
+    component "Remote API" as RemoteAPI
+    component "Physics Engine" as Physics
+    component "Robot Simulation" as RobotSim
+    component "sim.py" as SimAPI
+
+    Coppelia ..> RemoteAPI
+    Coppelia ..> Physics
+    Coppelia ..> RobotSim
+}
+
+package "Cloud Services" {
+    component "Google Cloud Functions" <<Cloud>> as CloudFunc
+    component "Speech-to-Text Service" as SpeechService
+
+    CloudFunc ..> SpeechService
+}
+
+interface "Remote API Interface" as IRemoteAPI
+interface "OCR Interface" as IOCRIF
+interface "Speech API" as ISpeechAPI
+interface "Control Interface" as IControlIF
+interface "Visual Interface" as IVisualIF
+
+UnityEnv --> IVisualIF
+IVisualIF -- Coppelia
+
+SimAPI ..> IRemoteAPI
+IRemoteAPI -- RemoteAPI
+
+MainPy --> RobotPy
+RobotPy --> SimAPI
+MainPy --> IK
+
+RobotPy --> IOCRIF
+IOCRIF -- OCR
+OCR --> Classification
+OCR --> Labeling
+
+RemoteAPI --> Physics
+Physics --> RobotSim
+
+WebUI --> IControlIF
+IControlIF -- MainPy
+
+Recorder --> ISpeechAPI
+ISpeechAPI -- SpeechService
+SpeechService --> IControlIF
+
+note right of SimAPI
+    Facade pattern
+    Simplifies CoppeliaSim API access
+end note
+
+note right of RobotPy
+    State pattern
+    FSM for robot actions
+end note
+
+note bottom of UnityEnv
+    Prefab pattern
+    Reusable game objects
+end note
+
+note top of CloudFunc
+    Cloud integration
+    Speech processing
+end note
+
+@enduml

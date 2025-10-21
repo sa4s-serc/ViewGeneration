@@ -1,0 +1,88 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: zmyzheng_TweetMap
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** deployment, data_flow
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+Okay, here's a merged and refined summary of the GitHub repository analysis, focusing on a cohesive overview of the microservices-based Twitter data application.
+
+**Project Overview:**
+
+This repository contains a microservices-based application designed for real-time collection, processing, storage, analysis, and visualization of Twitter data on a map. It leverages technologies like Apache Kafka, Apache Flink, Elasticsearch, Spring Boot, Angular, Docker, and Kubernetes.
+
+**Architecture:**
+
+The application employs a microservices architecture, promoting modularity, scalability, and independent deployment. Key components communicate asynchronously through Kafka, forming an event-driven architecture. Docker and Kubernetes are used for containerization and orchestration, making it suitable for cloud-native deployments.
+
+**Key Components and Functionalities:**
+
+*   **Tweet Collector:** Collects real-time tweets using the Twitter Streaming API and pushes them to a Kafka cluster. Implemented using `SocialMediaCollector`, `Sinkable` interfaces for extensibility, and `KafkaSink` for Kafka integration. Kubernetes deployment configuration is found in `DevOps/tweet-collector.yaml`, and a Dockerfile is provided for containerization.
+*   **Kafka Message Queue:**  Acts as a central message queue for asynchronous communication between the Tweet Collector and the Flink Processor.
+*   **Flink Processor:** Consumes tweets from Kafka, processes them (parsing, filtering, transforming), and ingests the processed data into Elasticsearch. Core logic resides in `StreamProcessor.java`, `StreamProcessingDriver.java`, `KafkaEsProcessor.java`, and `TweetKafkaEsProcessor.java`. Configuration files `logback.xml` and `application.properties` manage logging and application settings.
+*   **Elasticsearch Data Store:** Stores and indexes processed tweets for querying and analysis.
+*   **REST API Server:** Provides RESTful endpoints (using Spring Boot) to query tweet data from Elasticsearch. Features include:
+    *   **Controllers:** `TweetController`, `TopicController` to handle HTTP requests.
+    *   **Services:** `TweetService`, `TopicService` for business logic.
+    *   **Repositories:** `TweetRepository`, `EsOperationRepository` (for custom Elasticsearch queries using `ElasticsearchRestTemplate` for aggregations/filtering).
+    *   **Domain Objects:** `Tweet`, `TopicStatistic`, `TopicTrend`, `HotTopicsTrend`.
+    *   **DTOs:** `TweetDTO`, `TopicStatisticDTO`, `TopicTrendDTO`, `HotTopicsTrendDTO` for API data transfer.
+    *   **Mappers:** MapStruct mappers (`TweetMapper`, `TopicStatisticMapper`, `TopicTrendMapper`, `HotTopicsTrendMapper`) for domain object/DTO conversion.
+    *   **Endpoints:** Retrieve all tweets, filter by time, hashtags, location, and radius, get topic statistics, topic trends, and hot topic trends. `application.yaml` stores API configurations.
+*   **Frontend Visualization:** An Angular-based web application visualizes real-time tweet trends and displays a geographical tweet heatmap (likely utilizing Kibana for Elasticsearch visualization capabilities). Core files include `src/index.html`, `src/main.ts`, and components within `src/app/*`.
+
+**Important Files:**
+
+*   `LICENSE`: Apache 2.0 License
+*   `README.md`: Project overview, architecture, build instructions
+*   `gradlew`, `gradlew.bat`, `gradle.properties`: Gradle build configuration
+*   `flink-processor/*`: Flink processor implementation and configuration.
+*   `DevOps/tweet-collector.yaml`: Kubernetes deployment for tweet collector.
+*   `tweet-collector/*`: Tweet collector implementation and Dockerfile.
+*   `tweet-map-frontend/*`: Angular frontend application files.
+*   `rest-api-server/*`: REST API server implementation using Spring Boot.
+
+**Design Patterns:**
+
+*   **Interface-Based Design:** Used in the Tweet Collector (`SocialMediaCollector`, `Sinkable`) for flexibility in integrating with different data sources and sinks.
+*   **Data Transfer Objects (DTOs):** Used in the REST API to define data structures exchanged with clients, decoupling the API from the internal domain model.
+*   **Repository Pattern:** Spring Data Elasticsearch repositories provide an abstraction layer for data access in the REST API.
+*   **Mapper Pattern:** MapStruct is used for object mapping in the REST API (Domain <-> DTO), reducing boilerplate code.
+*   **Layered Architecture:** (REST API Server): Controller, Service, Repository layers separate concerns, and improve maintainability.
+
+**Summary:**
+
+The application demonstrates a robust, scalable architecture for handling real-time Twitter data. The microservices approach, combined with technologies like Kafka, Flink, Elasticsearch, and Spring Boot, provides a powerful platform for data collection, processing, storage, and visualization. The design patterns employed enhance code maintainability and extensibility.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment, data_flow
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/zmyzheng_TweetMap.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

@@ -7,11 +7,11 @@ import shutil
 import tempfile
 client = OpenAI(api_key="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")
 
-def get_python_from_summary(view_details, error_message=None, code=None):
-    system_prompt="""You are an expert Software Architect specializing in software architecture views and also you are proficient in python. Your task in the hand is generating a python code which represents a view given summary and other meta information.
+def get_python_from_summary(view_details, error_message=None, python_library="diagrams", code=None):
+    system_prompt=f"""You are an expert Software Architect specializing in software architecture views and also you are proficient in python. Your task in the hand is generating a python code which represents a view given summary and other meta information.
     You are given architectural knowledge extracted from a software repository. This input includes a summary of the architecture and additional metadata fields that describe different aspects of the architectural view.
     Your task is to **generate valid Python code** that produces a diagram of the architecture described in the summary and metadata.The diagram should represent the architecture visually, incorporating components, connectors, styles, and metadata into the final structure.
-    The Python code must be self-contained, executable, and use a standard visualization library such as graphviz, diagrams, networkx, or plantuml. Type of diagram should be decided based on the metadata information. Do not return plain text explanations only Python code that, when run, generates the diagram.
+    The Python code must be self-contained, executable, and use a standard visualization library {python_library}. Type of diagram should be decided based on the metadata information. Do not return plain text explanations only Python code that, when run, generates the diagram.
     Below is the detailed explanation of the each field of metadata.
     {view_details["summary"]} provides a textual description of the architecture and should be treated as the primary guide for the overall structure and relationships in the diagram.
     {view_details["Concern"]} describes the main purpose or goal of this architectural view, such as performance, scalability, or maintainability, and the diagram should highlight this focus accordingly.
@@ -32,7 +32,7 @@ def get_python_from_summary(view_details, error_message=None, code=None):
 3.  **Architectural Reasoning:** Apply your knowledge of software architecture to create a logical and well-structured diagram that respects the specified concern and scope.
 4.  **Completeness:** Ensure all key components and their primary relationships from the metadata are visible in the diagram.
 5.  **Clarity:** You are also specializing in creating clear diagrams in a 'box and arrows' style using Python syntax.
-6.  **Architectural Notation:** Use appropriate syntax given in the metadata and conventions to represent the architectural elements accurately **please use python as only means of representation**.
+6.  **Architectural Notation:** Use appropriate syntax given in the metadata and conventions to represent the architectural elements accurately **please use given python library {python_library} as only means of representation**.
 7.  Output must be only raw Python code, without any Markdown code fences (no python or ), without explanations, and without surrounding text. The response should begin directly with Python code and end with Python code.
 """
     if error_message:
@@ -127,10 +127,15 @@ def process_view(repo_name, view_details):
     cnt=0
     error_message = None
     python_code = None
+    python_library = "diagrams"  
+    if view_details["Architectural Notation"] == "boxes_and_arrows":
+        python_library = "graphviz"
+    elif view_details["Architectural Notation"] == "UML":
+        python_library = "plantuml"
     # Open log file in append mode
     with open("error.log", "a", encoding="utf-8") as log_file:
         while attempt < max_retries:
-            python_code = get_python_from_summary(view_details, error_message=error_message, code=python_code)
+            python_code = get_python_from_summary(view_details, error_message=error_message, python_library=python_library, code=python_code)
 
             file_path = save_code(python_code, repo_name)
             success, error_message = compile_python(repo_name, file_path)
@@ -203,7 +208,7 @@ def main():
         else:
             print(f"Skipping entry due to missing required fields: {entry}")
 
-    print(f"✅ Results saved in results folder. Total failed attempts: {global_cnt}")
+    print(f"Results saved in results folder. Total failed attempts: {global_cnt}")
 
 if __name__ == "__main__":
     main()

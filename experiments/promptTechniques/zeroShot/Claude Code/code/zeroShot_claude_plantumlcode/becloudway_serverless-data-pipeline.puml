@@ -1,0 +1,163 @@
+@startuml
+!pragma teoz true
+
+title Serverless Data Pipeline - Traffic Analysis Control Flow
+
+actor "External API" as API
+participant "RetrieveXMLTrafficData\nLambda" as RetrieveXML
+participant "S3 XML Bucket" as S3XML
+participant "TransformTrafficDataToJson\nLambda" as TransformXML
+participant "S3 JSON Bucket" as S3JSON
+participant "PublishTrafficData\nLambda" as PublishData
+participant "Kinesis Firehose" as Firehose
+participant "S3 Analytics Bucket" as S3Analytics
+participant "Kinesis Stream" as KinesisStream
+participant "StreamProcessor\nLambda" as StreamProcessor
+participant "Kinesis Data Analytics" as KinesisAnalytics
+participant "S3 Reference Data" as S3Reference
+participant "StoreAnalyticsResultsPerPoint\nLambda" as StoreAnalytics
+participant "DynamoDB\nAnalyticsTable" as DynamoAnalytics
+participant "AlertSaver\nLambda" as AlertSaver
+participant "DynamoDB\nAlertsTable" as DynamoAlerts
+participant "AlertSender\nLambda" as AlertSender
+participant "Slack" as Slack
+participant "Flask API" as FlaskAPI
+participant "PowerBiForwarder\nLambda" as PowerBI
+participant "Power BI" as PowerBIService
+participant "SQS DLQ" as DLQ
+
+== Data Ingestion and Transformation ==
+
+RetrieveXML -> API: Request XML traffic data
+activate RetrieveXML
+activate API
+API --> RetrieveXML: Return XML data
+deactivate API
+
+RetrieveXML -> S3XML: Store XML file
+activate S3XML
+S3XML --> RetrieveXML: S3 object created event
+deactivate RetrieveXML
+
+S3XML -> TransformXML: Trigger (S3 event)
+activate TransformXML
+TransformXML -> S3XML: Read XML file
+S3XML --> TransformXML: XML data
+TransformXML -> TransformXML: Convert XML to JSON
+TransformXML -> S3JSON: Store JSON file
+activate S3JSON
+S3JSON --> TransformXML: Confirmation
+deactivate TransformXML
+deactivate S3XML
+
+== Data Publishing and Streaming ==
+
+S3JSON -> PublishData: Trigger (S3 event)
+activate PublishData
+PublishData -> S3JSON: Read JSON file
+S3JSON --> PublishData: JSON data
+deactivate S3JSON
+PublishData -> PublishData: Transform and clean data\nFlatten nested structures
+
+PublishData -> Firehose: Publish traffic events
+activate Firehose
+Firehose -> S3Analytics: Store buffered data
+activate S3Analytics
+S3Analytics --> Firehose: Confirmation
+deactivate S3Analytics
+Firehose --> PublishData: Confirmation
+deactivate Firehose
+
+PublishData -> KinesisStream: Publish traffic events
+activate KinesisStream
+KinesisStream --> PublishData: Confirmation
+deactivate PublishData
+
+== Stream Processing and Filtering ==
+
+KinesisStream -> StreamProcessor: Trigger (stream event)
+activate StreamProcessor
+StreamProcessor -> StreamProcessor: Filter data by location IDs
+StreamProcessor -> KinesisStream: Filtered data output
+deactivate StreamProcessor
+
+== Real-time Analytics ==
+
+KinesisStream -> KinesisAnalytics: Stream filtered data
+activate KinesisAnalytics
+KinesisAnalytics -> S3Reference: Load reference data\n(measurement locations)
+activate S3Reference
+S3Reference --> KinesisAnalytics: Reference dataset
+deactivate S3Reference
+KinesisAnalytics -> KinesisAnalytics: Execute SQL analytics\nDetect traffic jams\nCalculate speed differentials
+
+KinesisAnalytics -> StoreAnalytics: Output analytics results
+deactivate KinesisStream
+activate StoreAnalytics
+StoreAnalytics -> DynamoAnalytics: Store analytics per point
+activate DynamoAnalytics
+DynamoAnalytics --> StoreAnalytics: Confirmation
+
+alt Storage failure
+    StoreAnalytics -> DLQ: Send to dead letter queue
+    activate DLQ
+    deactivate DLQ
+end
+
+deactivate StoreAnalytics
+deactivate KinesisAnalytics
+
+== Alert Processing ==
+
+DynamoAnalytics -> AlertSaver: Trigger (DynamoDB stream)
+activate AlertSaver
+AlertSaver -> AlertSaver: Add alert indicators
+AlertSaver -> DynamoAlerts: Store traffic jam alerts
+activate DynamoAlerts
+DynamoAlerts --> AlertSaver: Confirmation
+deactivate AlertSaver
+
+DynamoAlerts -> AlertSender: Trigger (DynamoDB stream)
+activate AlertSender
+AlertSender -> AlertSender: Process alert event
+
+par Parallel Alert Notifications
+    AlertSender -> Slack: Send Slack notification
+    activate Slack
+    Slack --> AlertSender: Confirmation
+    deactivate Slack
+
+    AlertSender -> FlaskAPI: Send API notification
+    activate FlaskAPI
+    FlaskAPI --> AlertSender: Confirmation
+    deactivate FlaskAPI
+end
+
+alt Alert sending failure
+    AlertSender -> DLQ: Send to dead letter queue
+    activate DLQ
+    deactivate DLQ
+end
+
+deactivate AlertSender
+deactivate DynamoAlerts
+deactivate DynamoAnalytics
+
+== Power BI Data Forwarding ==
+
+KinesisStream -> PowerBI: Trigger (stream event)
+activate PowerBI
+PowerBI -> PowerBIService: Forward data to streaming dataset
+activate PowerBIService
+PowerBIService --> PowerBI: Confirmation
+deactivate PowerBIService
+
+alt PowerBI forwarding failure
+    PowerBI -> DLQ: Send to dead letter queue
+    activate DLQ
+    deactivate DLQ
+end
+
+deactivate PowerBI
+
+@enduml

@@ -1,0 +1,210 @@
+@startuml
+!define RECTANGLE class
+
+skinparam componentStyle rectangle
+skinparam linetype ortho
+
+title Jenkins on OCI Deployment Architecture - Deployment, Connectivity & Performance
+
+package "Oracle Cloud Infrastructure (OCI)" {
+
+    package "Virtual Cloud Network (VCN)" {
+
+        package "Public Subnet" {
+            component "Internet Gateway" as IGW
+            component "Load Balancer" as LB {
+                port "HTTP/HTTPS" as LB_Port
+            }
+            component "Bastion Host\n(Optional)" as Bastion {
+                port "SSH:22" as Bastion_SSH
+            }
+        }
+
+        package "Private Subnet - Controller" {
+            component "Jenkins Controller" as Controller {
+                port "HTTP:8080" as Controller_HTTP
+                port "JNLP:50000" as Controller_JNLP
+                component "setup.sh" as ControllerSetup
+            }
+        }
+
+        package "Private Subnet - Agents" {
+            component "Jenkins Agent 1" as Agent1 {
+                component "config.sh" as Agent1Config
+            }
+            component "Jenkins Agent 2" as Agent2 {
+                component "config.sh" as Agent2Config
+            }
+            component "Jenkins Agent N" as AgentN {
+                component "config.sh" as AgentNConfig
+            }
+        }
+
+        component "NAT Gateway" as NAT
+        component "Security Lists" as SecLists
+    }
+
+    component "OCI Bastion Service\n(Optional)" as BastionService {
+        port "Managed SSH" as BS_SSH
+    }
+
+    component "Flexible Instance Shapes" as FlexShapes
+
+    package "OCI Compute Resources" {
+        component "Controller Instance\n(VM/Bare Metal)" as ControllerInstance
+        component "Agent Instances\n(VM/Bare Metal)" as AgentInstances
+    }
+}
+
+package "Terraform Configuration" {
+    component "main.tf" as MainTF {
+        component "Module Orchestration" as Orchestration
+    }
+
+    package "jenkins-controller module" {
+        component "controller/main.tf" as ControllerModule
+        component "scripts/setup.sh" as SetupScript
+    }
+
+    package "jenkins-agent module" {
+        component "agent/main.tf" as AgentModule
+        component "scripts/config.sh" as ConfigScript
+        component "null_resource" as NullResource
+        component "local-exec provisioner" as LocalExec
+    }
+
+    component "variables.tf" as Variables
+    component "outputs.tf" as Outputs
+    component "versions.tf" as Versions
+}
+
+package "External Access" {
+    actor "Administrator" as Admin
+    actor "Developer" as Dev
+    cloud "Internet" as Internet
+}
+
+' Connectivity Relationships
+Internet --> IGW : "External Traffic"
+IGW --> LB : "Routes to"
+LB --> Controller_HTTP : "Distributes Traffic\n(High Availability)"
+Admin --> Bastion_SSH : "SSH Access\n(Option 1)"
+Admin --> BS_SSH : "Managed SSH\n(Option 2)"
+Bastion --> Controller : "Secure Access"
+BastionService --> Controller : "Secure Access"
+BastionService --> Agent1 : "Secure Access"
+BastionService --> Agent2 : "Secure Access"
+BastionService --> AgentN : "Secure Access"
+Bastion --> Agent1 : "Secure Access"
+Bastion --> Agent2 : "Secure Access"
+Bastion --> AgentN : "Secure Access"
+
+Controller --> Agent1 : "Job Distribution\nvia JNLP:50000"
+Controller --> Agent2 : "Job Distribution\nvia JNLP:50000"
+Controller --> AgentN : "Job Distribution\nvia JNLP:50000"
+
+Agent1 --> Controller_JNLP : "Registers &\nReports Status"
+Agent2 --> Controller_JNLP : "Registers &\nReports Status"
+AgentN --> Controller_JNLP : "Registers &\nReports Status"
+
+NAT --> Internet : "Outbound Traffic\n(Updates, Packages)"
+Controller --> NAT : "Uses for\nExternal Access"
+Agent1 --> NAT : "Uses for\nExternal Access"
+Agent2 --> NAT : "Uses for\nExternal Access"
+AgentN --> NAT : "Uses for\nExternal Access"
+
+SecLists --> Controller : "Firewall Rules"
+SecLists --> Agent1 : "Firewall Rules"
+SecLists --> Agent2 : "Firewall Rules"
+SecLists --> AgentN : "Firewall Rules"
+SecLists --> LB : "Firewall Rules"
+SecLists --> Bastion : "Firewall Rules"
+
+Dev --> LB_Port : "Access Jenkins UI"
+
+' Deployment Relationships
+MainTF --> ControllerModule : "Provisions"
+MainTF --> AgentModule : "Provisions"
+Variables --> MainTF : "Configuration Input"
+MainTF --> Outputs : "Exposes Resources"
+Versions --> MainTF : "Version Control"
+
+ControllerModule --> ControllerInstance : "Creates"
+ControllerModule --> Controller : "Deploys"
+ControllerModule --> SetupScript : "Executes via\nremote-exec"
+SetupScript --> ControllerSetup : "Configures"
+
+AgentModule --> AgentInstances : "Creates"
+AgentModule --> Agent1 : "Deploys"
+AgentModule --> Agent2 : "Deploys"
+AgentModule --> AgentN : "Deploys"
+AgentModule --> NullResource : "Uses"
+AgentModule --> LocalExec : "Sleep for\nReadiness"
+NullResource --> ConfigScript : "Executes"
+ConfigScript --> Agent1Config : "Configures &\nRegisters"
+ConfigScript --> Agent2Config : "Configures &\nRegisters"
+ConfigScript --> AgentNConfig : "Configures &\nRegisters"
+
+' Performance & Scaling
+FlexShapes --> ControllerInstance : "Dynamic OCPU/Memory\nScaling"
+FlexShapes --> AgentInstances : "Dynamic OCPU/Memory\nScaling"
+
+ControllerInstance .[#blue].> Controller : "Hosts"
+AgentInstances .[#blue].> Agent1 : "Hosts"
+AgentInstances .[#blue].> Agent2 : "Hosts"
+AgentInstances .[#blue].> AgentN : "Hosts"
+
+note right of LB
+  **Performance:**
+  - Load balancing for HA
+  - Traffic distribution
+  - Health checks
+end note
+
+note bottom of FlexShapes
+  **Performance:**
+  - On-demand scaling
+  - Resource optimization
+  - Cost efficiency
+end note
+
+note left of SecLists
+  **Security & Connectivity:**
+  - Network segmentation
+  - Firewall rules
+  - Access control
+end note
+
+note top of NAT
+  **Connectivity:**
+  - Outbound internet access
+  - Package downloads
+  - External integrations
+end note
+
+note bottom of Controller
+  **Deployment:**
+  - Automated via Terraform
+  - Configured via setup.sh
+  - Manages build orchestration
+end note
+
+note bottom of Agent1
+  **Deployment:**
+  - Automated provisioning
+  - Auto-registration
+  - Scalable worker pool
+end note
+
+legend right
+  |= Line Type |= Meaning |
+  | Solid Arrow | Direct Connectivity/Deployment |
+  | Dashed Blue | Hosting Relationship |
+
+  **Architectural Concerns:**
+  - **Deployment:** Modular Terraform-based provisioning
+  - **Connectivity:** Multi-tier network with secure access patterns
+  - **Performance:** Load balancing, flexible scaling, distributed agents
+endlegend
+
+@enduml

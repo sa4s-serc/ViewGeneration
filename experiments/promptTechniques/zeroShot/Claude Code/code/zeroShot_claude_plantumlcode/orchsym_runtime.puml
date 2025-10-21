@@ -1,0 +1,214 @@
+@startuml
+!define COMPONENT_STYLE rectangle
+
+skinparam component {
+  BackgroundColor<<core>> LightBlue
+  BackgroundColor<<infrastructure>> LightGreen
+  BackgroundColor<<security>> LightPink
+  BackgroundColor<<integration>> LightYellow
+  BackgroundColor<<orchsym>> LightCoral
+}
+
+package "NiFi Core Framework" {
+  [FlowController] <<core>>
+  [ProcessScheduler] <<core>>
+  [ProcessSession] <<core>>
+  [FlowFile] <<core>>
+  [Connection] <<core>>
+  [ProcessGroup] <<core>>
+
+  [FlowController] --> [ProcessScheduler]
+  [FlowController] --> [ProcessGroup]
+  [ProcessScheduler] --> [ProcessSession]
+  [ProcessSession] --> [FlowFile]
+  [ProcessGroup] --> [Connection]
+}
+
+package "Flow Management" {
+  [StandardFlowService] <<core>>
+  [FlowSynchronizer] <<core>>
+  [FlowFileQueue] <<core>>
+  [FlowRegistry] <<core>>
+
+  [StandardFlowService] --> [FlowSynchronizer]
+  [FlowFileQueue] ..> [Connection] : manages
+  [FlowRegistry] ..> [StandardFlowService] : version control
+}
+
+package "Repository Layer" {
+  [FlowFile Repository] <<infrastructure>>
+  [Content Repository] <<infrastructure>>
+  [Provenance Repository] <<infrastructure>>
+
+  [ProcessSession] --> [FlowFile Repository]
+  [ProcessSession] --> [Content Repository]
+  [ProcessSession] --> [Provenance Repository]
+}
+
+package "State Management" {
+  [StateManagerProvider] <<infrastructure>>
+  [Local StateManager] <<infrastructure>>
+  [ZooKeeper StateManager] <<infrastructure>>
+
+  [StateManagerProvider] --> [Local StateManager]
+  [StateManagerProvider] --> [ZooKeeper StateManager]
+}
+
+package "Controller Services" {
+  [ControllerServiceProvider] <<infrastructure>>
+  [ControllerService] <<infrastructure>>
+  [SSLContextService] <<security>>
+
+  [ControllerServiceProvider] --> [ControllerService]
+  [ControllerServiceProvider] --> [SSLContextService]
+}
+
+package "REST API Layer" {
+  [REST Resources] <<core>>
+  [DTOs/Entities] <<core>>
+  [Spring Configuration] <<core>>
+
+  [REST Resources] --> [DTOs/Entities]
+  [Spring Configuration] ..> [REST Resources] : configures
+  [REST Resources] --> [FlowController] : manages
+}
+
+package "User Interface" {
+  [Web UI] <<core>>
+  [jQuery Components] <<core>>
+  [AngularJS Components] <<core>>
+
+  [Web UI] --> [jQuery Components]
+  [Web UI] --> [AngularJS Components]
+  [Web UI] --> [REST Resources] : HTTP calls
+}
+
+package "Security & Authorization" {
+  [Login Identity Provider] <<security>>
+  [Authorizer] <<security>>
+  [Access Policies] <<security>>
+  [Spring Security] <<security>>
+  [Sensitive Property Encryption] <<security>>
+
+  [Login Identity Provider] ..> [Spring Security] : integrates
+  [Authorizer] --> [Access Policies]
+  [FlowController] --> [Authorizer] : enforces
+}
+
+package "Authentication Mechanisms" {
+  [LDAP Auth] <<security>>
+  [Kerberos Auth] <<security>>
+  [OpenID Connect] <<security>>
+  [X.509 Certificates] <<security>>
+  [JWT Auth] <<security>>
+
+  [Login Identity Provider] --> [LDAP Auth]
+  [Login Identity Provider] --> [Kerberos Auth]
+  [Login Identity Provider] --> [OpenID Connect]
+  [Login Identity Provider] --> [X.509 Certificates]
+  [Login Identity Provider] --> [JWT Auth]
+}
+
+package "Extension & Integration" {
+  [NAR Bundle System] <<integration>>
+  [ExecuteScript] <<integration>>
+  [InvokeScriptedProcessor] <<integration>>
+  [Schema Registry] <<integration>>
+
+  [NAR Bundle System] ..> [FlowController] : loads components
+  [ExecuteScript] ..> [ProcessSession] : uses
+  [InvokeScriptedProcessor] ..> [ProcessSession] : uses
+}
+
+package "External System Integrations" {
+  [Hadoop Bundle] <<integration>>
+  [Kafka Bundle] <<integration>>
+  [GCP Bundle] <<integration>>
+  [AMQP/RabbitMQ] <<integration>>
+  [Couchbase] <<integration>>
+  [Apache Druid] <<integration>>
+  [Apache Ignite] <<integration>>
+  [JMS] <<integration>>
+
+  [NAR Bundle System] --> [Hadoop Bundle]
+  [NAR Bundle System] --> [Kafka Bundle]
+  [NAR Bundle System] --> [GCP Bundle]
+  [NAR Bundle System] --> [AMQP/RabbitMQ]
+  [NAR Bundle System] --> [Couchbase]
+  [NAR Bundle System] --> [Apache Druid]
+  [NAR Bundle System] --> [Apache Ignite]
+  [NAR Bundle System] --> [JMS]
+}
+
+package "Data Transfer" {
+  [Site-to-Site HTTP] <<integration>>
+  [Load Balancer] <<integration>>
+
+  [Site-to-Site HTTP] --> [SSLContextService] : secure transfer
+  [Site-to-Site HTTP] --> [Load Balancer]
+}
+
+package "Cluster Management" {
+  [ClusterCoordinator] <<infrastructure>>
+  [ZooKeeper] <<infrastructure>>
+  [Heartbeat Mechanism] <<infrastructure>>
+  [HTTP Request Replication] <<infrastructure>>
+
+  [ClusterCoordinator] --> [ZooKeeper] : election
+  [ClusterCoordinator] --> [Heartbeat Mechanism]
+  [ClusterCoordinator] --> [HTTP Request Replication]
+  [FlowSynchronizer] --> [ClusterCoordinator] : coordinates
+}
+
+package "Orchsym Extensions" <<orchsym>> {
+  [Custom Bootstrap] <<orchsym>>
+  [Branding Extension] <<orchsym>>
+  [Orchsym Login Provider] <<orchsym>>
+  [Usage Data Collection] <<orchsym>>
+
+  [Custom Bootstrap] --> [Branding Extension]
+  [Orchsym Login Provider] --> [Login Identity Provider] : implements
+  [Usage Data Collection] ..> [FlowController] : monitors
+}
+
+package "Data Format Processors" {
+  [Avro Processors] <<integration>>
+  [ORC Processors] <<integration>>
+  [XML Processors] <<integration>>
+  [File Validators] <<integration>>
+
+  [Avro Processors] --> [Schema Registry] : uses
+  [NAR Bundle System] --> [Avro Processors]
+  [NAR Bundle System] --> [ORC Processors]
+  [NAR Bundle System] --> [XML Processors]
+  [NAR Bundle System] --> [File Validators]
+}
+
+package "Storage Layer" {
+  database "flow.xml.gz" as flowxml
+  database "Keystore/Truststore" as keystores
+
+  [StandardFlowService] --> flowxml : persists
+  [SSLContextService] --> keystores : uses
+}
+
+[FlowController] --> [StateManagerProvider] : manages state
+[FlowController] --> [ControllerServiceProvider] : manages services
+[ProcessGroup] --> [ControllerService] : uses
+
+note right of [ClusterCoordinator]
+  Zero-Master Clustering
+  Popular Vote Flow Election
+end note
+
+note right of [NAR Bundle System]
+  Dynamic Component Loading
+  Prevents Dependency Conflicts
+end note
+
+note right of [Orchsym Extensions]
+  Orchsym-specific
+  Customizations
+end note
+
+@enduml

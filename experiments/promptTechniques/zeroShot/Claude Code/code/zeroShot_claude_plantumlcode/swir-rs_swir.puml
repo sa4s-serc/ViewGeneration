@@ -1,0 +1,232 @@
+@startuml
+!define RECTANGLE class
+
+skinparam component {
+    BackgroundColor<<frontend>> LightBlue
+    BackgroundColor<<backend>> LightGreen
+    BackgroundColor<<infrastructure>> LightYellow
+    BackgroundColor<<utility>> LightGray
+}
+
+package "SWIR Sidecar Service" {
+
+    component "Main Application" <<utility>> as Main {
+        [Configuration Loader]
+        [Tracing Initializer]
+        [Metrics Initializer]
+        [Server Orchestrator]
+    }
+
+    package "Frontend Handlers" <<frontend>> {
+        component "HTTP Handler" as HTTP {
+            [HTTP Router]
+            [HTTP Request Handler]
+        }
+
+        component "gRPC Handler" as GRPC {
+            [gRPC Server]
+            [gRPC Request Handler]
+            [Notification API Client]
+        }
+    }
+
+    package "Service Invocation" {
+        component "Service Invocation Handler" as SIHandler {
+            [Service Discovery Manager]
+            [gRPC Client Pool]
+            [Load Balancer]
+        }
+    }
+
+    package "Messaging Handlers" <<backend>> {
+        component "PubSub Manager" as PubSubMgr {
+            [Broker Config Manager]
+            [Message Router]
+        }
+
+        component "Kafka Handler" as Kafka {
+            [Kafka Producer]
+            [Kafka Consumer]
+        }
+
+        component "NATS Handler" as NATS {
+            [NATS Publisher]
+            [NATS Subscriber]
+        }
+
+        component "AWS Kinesis Handler" as Kinesis {
+            [Kinesis Producer]
+            [Kinesis Consumer]
+        }
+    }
+
+    package "Persistence Handlers" <<backend>> {
+        component "Persistence Manager" as PersistMgr {
+            [Store Config Manager]
+            [Data Router]
+        }
+
+        component "Redis Store" as Redis {
+            [Redis Client]
+            [Cache Operations]
+        }
+
+        component "DynamoDB Store" as DynamoDB {
+            [DynamoDB Client]
+            [Table Operations]
+        }
+    }
+
+    package "Service Discovery" {
+        interface "ServiceDiscovery" as SDInterface
+
+        component "mDNS Discovery" as mDNS {
+            [Service Registration]
+            [Service Resolution]
+            [Change Publisher]
+        }
+
+        component "DynamoDB Discovery" as DynamoSD {
+            [Service Registry]
+            [Endpoint Lookup]
+            [Change Notifier]
+        }
+    }
+
+    package "Utilities" <<utility>> {
+        component "Configuration" as Config {
+            [YAML Parser]
+            [Environment Variables]
+            [Config Structures]
+        }
+
+        component "Metrics Utils" as Metrics {
+            [OpenTelemetry Integration]
+            [Metrics Collector]
+        }
+
+        component "Tracing Utils" as Tracing {
+            [Trace Context Manager]
+            [Header Injection/Extraction]
+        }
+
+        component "Data Structures" as Structs {
+            [Common Types]
+            [Enums]
+        }
+    }
+}
+
+' External Systems
+cloud "External Message Brokers" {
+    database "Kafka Cluster" as KafkaExt
+    database "NATS Server" as NATSExt
+    database "AWS Kinesis" as KinesisExt
+}
+
+cloud "External Persistence" {
+    database "Redis Server" as RedisExt
+    database "AWS DynamoDB" as DynamoDBExt
+}
+
+cloud "External Services" {
+    component "Microservice A" as ServiceA
+    component "Microservice B" as ServiceB
+}
+
+cloud "Observability Platform" {
+    component "OpenTelemetry Collector" as OTel
+}
+
+' Main Application Dependencies
+Main --> Config : loads
+Main --> Tracing : initializes
+Main --> Metrics : initializes
+Main --> HTTP : starts
+Main --> GRPC : starts
+
+' Frontend Handler Dependencies
+HTTP --> SIHandler : routes service calls
+HTTP --> PubSubMgr : routes pub/sub
+HTTP --> PersistMgr : routes persistence
+HTTP --> Tracing : injects/extracts context
+
+GRPC --> SIHandler : routes service calls
+GRPC --> PubSubMgr : routes pub/sub
+GRPC --> PersistMgr : routes persistence
+GRPC --> Tracing : injects/extracts context
+
+' Service Invocation Dependencies
+SIHandler --> SDInterface : discovers services
+SIHandler --> ServiceA : invokes via gRPC
+SIHandler --> ServiceB : invokes via gRPC
+mDNS ..|> SDInterface : implements
+DynamoSD ..|> SDInterface : implements
+
+' Messaging Handler Dependencies
+PubSubMgr --> Kafka : routes to
+PubSubMgr --> NATS : routes to
+PubSubMgr --> Kinesis : routes to
+PubSubMgr --> Config : reads broker config
+
+Kafka --> KafkaExt : publishes/subscribes
+NATS --> NATSExt : publishes/subscribes
+Kinesis --> KinesisExt : publishes/subscribes
+
+' Persistence Handler Dependencies
+PersistMgr --> Redis : routes to
+PersistMgr --> DynamoDB : routes to
+PersistMgr --> Config : reads store config
+
+Redis --> RedisExt : stores/retrieves
+DynamoDB --> DynamoDBExt : stores/retrieves
+
+' Service Discovery Dependencies
+mDNS --> DynamoDBExt : optional registry
+DynamoSD --> DynamoDBExt : service registry
+
+' Utility Dependencies
+Metrics --> OTel : exports metrics
+Tracing --> OTel : exports traces
+Config --> Structs : uses
+HTTP --> Structs : uses
+GRPC --> Structs : uses
+
+' Cross-cutting Concerns
+Metrics ..> HTTP : monitors
+Metrics ..> GRPC : monitors
+Metrics ..> SIHandler : monitors
+Metrics ..> PubSubMgr : monitors
+Metrics ..> PersistMgr : monitors
+
+note right of Main
+  Entry point: orchestrates
+  configuration, tracing,
+  metrics, and server startup
+end note
+
+note right of SDInterface
+  Service Locator pattern:
+  mDNS and DynamoDB provide
+  dynamic service discovery
+end note
+
+note bottom of PubSubMgr
+  Strategy pattern: selects
+  appropriate broker based
+  on configuration
+end note
+
+note bottom of PersistMgr
+  Strategy pattern: selects
+  appropriate store based
+  on configuration
+end note
+
+note left of SIHandler
+  Observer pattern: monitors
+  service discovery changes
+  via mpsc channels
+end note
+
+@enduml

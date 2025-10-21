@@ -1,0 +1,285 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: marklogic_cloud-enablement-aws
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** deployment, performance
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+Here's a consolidated report based on the provided summaries, prioritizing key aspects and ensuring a logical flow:
+
+**MarkLogic Cloud Enablement on AWS: Architecture and Functionality Overview**
+
+This code represents an infrastructure-as-code solution for deploying and managing a MarkLogic cluster on AWS, primarily through CloudFormation templates and Lambda functions. The goal is to automate the setup, network interface management, and node lifecycle events within the cluster.
+
+**Key Functionalities and Components:**
+
+*   **CloudFormation Templates:** The core of the deployment resides in `mlcluster.template` (for existing VPCs) and `mlcluster-vpc.template` (for new VPCs). These templates define and provision the necessary AWS resources:
+    *   EC2 instances for MarkLogic nodes
+    *   EBS volumes for data storage
+    *   VPCs, Subnets, and Security Groups for networking, including optional creation of a new VPC with public/private subnets, internet gateway and NAT gateway.
+    *   IAM Roles for granting permissions
+    *   DynamoDB table (`MarkLogicDDBTable`) for cluster state management and node coordination
+    *   Auto Scaling Groups (Single & Multi-Zone) for instance management
+    *   Application Load Balancer (ALB) & Target Groups (Multi-Zone) for distributing traffic in multi-AZ deployments.
+    *   Custom Resources backed by Lambda functions.
+
+*   **Lambda Functions:** These provide custom logic to extend CloudFormation's capabilities:
+    *   `managedeni.py`: Creates, tags, attaches, and detaches Elastic Network Interfaces (ENIs) to ensure each MarkLogic instance has a dedicated network interface, crucial for clustering.  Deployed via `templates/ml-managedeni.template`.
+    *   `nodemanager.py`: Responds to Auto Scaling Group lifecycle events (specifically `EC2_INSTANCE_LAUNCHING`), attaching available ENIs to newly launched instances for proper cluster integration.  Deployed via `templates/ml-nodemanager.template`.
+    *   `utils.py`: Provides utility functions for the other Lambda functions, such as network interface retrieval and CloudFormation response generation.
+
+*   **Dynamic Configuration:** Extensive parameterization within the CloudFormation templates allows for customization of instance types, volume sizes, licensing models (BYOL, Essential Enterprise, Pay-as-you-go), number of availability zones, and network configurations. License management is handled via AMI mappings based on region and license type.
+
+*   **Multi-AZ Support:** Deployments can span multiple Availability Zones (AZs) for increased resilience, achieved through resource creation in each AZ and the ALB.
+
+*   **Logging:** Optional integration with SNS for event logging.
+
+**Architecture Insights:**
+
+*   **Modular Design:** The architecture leverages nested CloudFormation stacks (via the `CloudFormation::Stack` resource) for modularity and separation of concerns, particularly for ENI management.
+
+*   **Event-Driven Architecture:** The `nodemanager.py` Lambda function exemplifies an event-driven model, reacting to Auto Scaling Group lifecycle events.
+
+*   **Custom Resources:** The use of Lambda-backed custom resources (e.g., `Custom::ManagedEni`) enables handling of MarkLogic-specific logic not natively supported by CloudFormation.
+
+*   **State Management:** The DynamoDB table is central for maintaining cluster state and coordinating node operations.
+
+**Design Patterns:**
+
+*   **Infrastructure-as-Code (IaC):**  The entire deployment is defined and managed through CloudFormation templates.
+
+*   **Microservices:**  Lambda functions encapsulate specific functionalities (ENI management, node lifecycle handling).
+
+*   **Event-Driven Architecture (EDA):** Demonstrated by `nodemanager.py`.
+
+*   **Custom Resource Pattern:** Extends CloudFormation capabilities using Lambda-backed resources.
+
+**Important Files:**
+
+*   **`mlcluster.template` / `mlcluster-vpc.template`:** Main CloudFormation templates.
+*   **`lambda/managedeni.py`, `lambda/nodemanager.py`, `lambda/utils.py`:** Core Lambda function code.
+*   **`templates/ml-nodemanager.template`, `templates/ml-managedeni.template`, `templates/ml-vpc.template`:** Templates for deploying related resources
+*   **`README.md`:** Provides instructions for setup and customization.
+*   **`LICENSE.TXT`:** Apache 2.0 License.
+
+In conclusion, this solution provides a robust and flexible framework for deploying and managing MarkLogic clusters on AWS, leveraging the power of CloudFormation, Lambda functions, and other AWS services to automate the deployment process and provide a scalable and resilient architecture. The modular design, event-driven components, and extensive parameterization make it adaptable to various environments and requirements.
+
+
+
+IMPORTANT - RETRY ATTEMPT:
+A previous PlantUML generation failed with the following error:
+```
+issue raw.githubusercontent.com java.util.concurrent.ExecutionException: java.io.IOException: HTTP error 404 with 404: Not Found
+Error line 8 in file: zeroShot_claude_plantumlcode/marklogic_cloud-enablement-aws.puml
+Some diagram description contains errors
+
+```
+
+The problematic code was:
+```plantuml
+@startuml
+!define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v14.0/dist
+!include AWSPuml/AWSCommon.puml
+!include AWSPuml/Compute/EC2.puml
+!include AWSPuml/Storage/SimpleStorageService.puml
+!include AWSPuml/Database/DynamoDB.puml
+!include AWSPuml/Compute/Lambda.puml
+!include AWSPuml/NetworkingContentDelivery/VPC.puml
+!include AWSPuml/NetworkingContentDelivery/ElasticLoadBalancing.puml
+!include AWSPuml/ManagementGovernance/CloudFormation.puml
+!include AWSPuml/Compute/AutoScaling.puml
+
+title MarkLogic Cloud Enablement on AWS - Component Diagram\n(Deployment & Performance Focus)
+
+package "CloudFormation Deployment Layer" {
+    component [mlcluster.template\n(Existing VPC)] as MainTemplate
+    component [mlcluster-vpc.template\n(New VPC)] as VPCTemplate
+    component [ml-nodemanager.template] as NodeMgrTemplate
+    component [ml-managedeni.template] as ENITemplate
+    component [ml-vpc.template] as VPCSubTemplate
+}
+
+package "Network Infrastructure" {
+    component [VPC] as VPC
+    component [Public Subnets] as PublicSubnet
+    component [Private Subnets] as PrivateSubnet
+    component [Internet Gateway] as IGW
+    component [NAT Gateway] as NAT
+    component [Security Groups] as SG
+    component [Elastic Network Interfaces\n(ENI Pool)] as ENI
+}
+
+package "Compute Layer" {
+    component [MarkLogic EC2 Instances\n(Multi-AZ)] as EC2Nodes
+    component [Auto Scaling Group\n(Single Zone)] as ASGSingle
+    component [Auto Scaling Group\n(Multi Zone)] as ASGMulti
+}
+
+package "Load Balancing Layer" {
+    component [Application Load Balancer\n(ALB)] as ALB
+    component [Target Groups\n(Multi-AZ)] as TargetGroups
+}
+
+package "Storage Layer" {
+    component [EBS Volumes\n(Data Storage)] as EBS
+}
+
+package "State Management" {
+    database [DynamoDB Table\n(MarkLogicDDBTable)\nCluster State & Coordination] as DDB
+}
+
+package "Lambda Functions Layer" {
+    component [managedeni.py\nENI Management] as ManagedENI
+    component [nodemanager.py\nLifecycle Management] as NodeManager
+    component [utils.py\nUtility Functions] as Utils
+}
+
+package "IAM & Security" {
+    component [IAM Roles] as IAM
+}
+
+package "Event Management" {
+    component [Auto Scaling Events\n(EC2_INSTANCE_LAUNCHING)] as ASGEvents
+    component [SNS Logging\n(Optional)] as SNS
+}
+
+package "License Management" {
+    component [AMI Mappings\n(Region & License Type)] as AMI
+}
+
+' Deployment relationships
+MainTemplate --> VPC : deploys to\nexisting
+VPCTemplate --> VPCSubTemplate : creates new
+VPCSubTemplate --> VPC : provisions
+MainTemplate --> ENITemplate : nested stack
+MainTemplate --> NodeMgrTemplate : nested stack
+VPCTemplate --> ENITemplate : nested stack
+VPCTemplate --> NodeMgrTemplate : nested stack
+
+' Infrastructure provisioning
+MainTemplate --> EC2Nodes : provisions
+MainTemplate --> EBS : creates
+MainTemplate --> DDB : creates
+MainTemplate --> ASGSingle : configures
+VPCTemplate --> ASGMulti : configures
+VPCTemplate --> ALB : creates\n(Multi-AZ)
+ALB --> TargetGroups : routes to
+
+' Network configuration
+VPC --> PublicSubnet : contains
+VPC --> PrivateSubnet : contains
+VPC --> IGW : connects
+PrivateSubnet --> NAT : uses
+VPC --> SG : defines
+VPC --> ENI : manages
+
+' Compute relationships
+ASGSingle --> EC2Nodes : manages\n(single AZ)
+ASGMulti --> EC2Nodes : manages\n(multi AZ)
+EC2Nodes --> ENI : attaches
+EC2Nodes --> EBS : mounts
+EC2Nodes --> PrivateSubnet : deployed in
+TargetGroups --> EC2Nodes : distributes\ntraffic
+
+' Performance relationships
+ALB --> EC2Nodes : load balances\n(performance)
+ASGMulti --> EC2Nodes : scales\n(performance)
+EC2Nodes --> DDB : reads/writes\nstate
+
+' Lambda deployment
+ENITemplate --> ManagedENI : deploys
+NodeMgrTemplate --> NodeManager : deploys
+ManagedENI --> Utils : uses
+NodeManager --> Utils : uses
+
+' Lambda operations
+ManagedENI --> ENI : creates/tags/\nattaches/detaches
+NodeManager --> ENI : attaches to\nnew instances
+ASGEvents --> NodeManager : triggers
+NodeManager --> EC2Nodes : configures
+
+' State and coordination
+EC2Nodes --> DDB : cluster\ncoordination
+NodeManager --> DDB : queries state
+ManagedENI --> DDB : updates state
+
+' Security
+IAM --> EC2Nodes : grants permissions
+IAM --> ManagedENI : grants permissions
+IAM --> NodeManager : grants permissions
+
+' License management
+AMI --> EC2Nodes : provides\nlicensed images
+
+' Logging
+ASGEvents --> SNS : notifies\n(optional)
+NodeManager --> SNS : logs events\n(optional)
+
+note right of DDB
+  Critical for cluster
+  state management and
+  node coordination
+end note
+
+note right of ENI
+  Dedicated network
+  interfaces for each
+  MarkLogic node ensure
+  proper clustering
+end note
+
+note right of ALB
+  Multi-AZ traffic distribution
+  for high availability and
+  performance
+end note
+
+note left of ASGMulti
+  Automatic scaling across
+  multiple AZs for resilience
+  and performance optimization
+end note
+
+note bottom of EC2Nodes
+  Parameterized instance types
+  allow performance tuning
+  (BYOL, Essential Enterprise,
+  Pay-as-you-go)
+end note
+
+@enduml
+
+```
+
+Please analyze the error, identify the issue, and generate corrected PlantUML code that compiles successfully.
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment, performance
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/marklogic_cloud-enablement-aws.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

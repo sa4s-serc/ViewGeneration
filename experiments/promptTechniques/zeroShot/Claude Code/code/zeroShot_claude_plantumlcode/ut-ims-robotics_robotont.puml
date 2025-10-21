@@ -1,0 +1,159 @@
+@startuml
+!define COMPONENT_BG_COLOR #E8F5E9
+!define INTERFACE_COLOR #4CAF50
+
+skinparam component {
+  BackgroundColor COMPONENT_BG_COLOR
+  BorderColor #2E7D32
+  ArrowColor #1B5E20
+}
+
+skinparam interface {
+  BackgroundColor INTERFACE_COLOR
+  BorderColor #2E7D32
+}
+
+title Robotont ROS System - Component Architecture
+
+package "robotont_driver" {
+  component "Serial Communication" as SerialComm
+  component "Hardware Interface" as HWInterface
+  component "Odometry Calculator" as OdomCalc
+  component "ROS Driver Node" as DriverNode
+
+  DriverNode --> SerialComm
+  DriverNode --> HWInterface
+  DriverNode --> OdomCalc
+}
+
+package "robotont_teleop" {
+  component "Joystick Teleop Node" as JoyTeleop
+  component "Gazebo Joystick Teleop" as GazeboJoyTeleop
+  component "Keyboard Teleop Node" as KeyboardTeleop
+  component "Timer Safety Mechanism" as SafetyTimer
+
+  JoyTeleop --> SafetyTimer
+  GazeboJoyTeleop --> SafetyTimer
+}
+
+package "robotont_description" {
+  component "URDF Models" as URDF
+  component "Robot Meshes" as Meshes
+  component "Materials" as Materials
+
+  URDF --> Meshes
+  URDF --> Materials
+}
+
+package "robotont_sensors" {
+  component "LaserScan Processor" as LaserProc
+  component "Distance Calculator" as DistCalc
+
+  LaserProc --> DistCalc
+}
+
+package "robotont_training" {
+  component "Training Exercises" as Training
+  component "AR Tag Tracking" as ARTrack
+}
+
+package "External ROS Components" {
+  component "Gazebo Simulator" as Gazebo
+  component "Navigation Stack" as NavStack
+  component "Cartographer SLAM" as Cartographer
+  component "Hector Mapping" as Hector
+  component "RTAB-Map" as RTABMap
+  component "TF Transform Library" as TF
+  component "ROS Parameter Server" as ParamServer
+  component "ar_track_alvar" as ARAlvar
+}
+
+interface "ROS Topics" as ROSTopics
+interface "cmd_vel" as CmdVel
+interface "odom" as Odom
+interface "scan" as Scan
+interface "LaserScanSplit" as ScanSplit
+interface "tf" as TFInterface
+interface "/joy" as Joy
+
+' Hardware connections
+[Physical Robotont Robot] as Robot
+[Joystick Controller] as Joystick
+[Realsense D435 Camera] as Camera
+
+' Driver connections
+DriverNode --> Robot : "Serial Port"
+DriverNode ..> Odom : "publishes"
+DriverNode ..> TFInterface : "publishes"
+DriverNode <.. CmdVel : "subscribes"
+ParamServer --> DriverNode : "robotont_params.yaml"
+
+' Teleop connections
+Joystick --> Joy
+JoyTeleop <.. Joy : "subscribes"
+KeyboardTeleop --> CmdVel : "publishes"
+JoyTeleop --> CmdVel : "publishes"
+GazeboJoyTeleop <.. Joy : "subscribes"
+GazeboJoyTeleop --> CmdVel : "publishes"
+
+' Description connections
+URDF --> Gazebo : "robot model"
+URDF --> NavStack : "robot model"
+
+' Sensor processing
+Robot --> Scan : "laser data"
+Camera --> ROSTopics : "camera data"
+LaserProc <.. Scan : "subscribes"
+LaserProc ..> ScanSplit : "publishes"
+
+' SLAM and Mapping
+Scan --> Cartographer : "input"
+Scan --> Hector : "input"
+Scan --> RTABMap : "input"
+Camera --> RTABMap : "input"
+Cartographer --> TF : "map transforms"
+Hector --> TF : "map transforms"
+RTABMap --> TF : "map transforms"
+
+' Navigation
+NavStack <.. Odom : "subscribes"
+NavStack <.. Scan : "subscribes"
+NavStack ..> CmdVel : "publishes"
+NavStack <.. TF : "subscribes"
+ParamServer --> NavStack : "costmap & planner config"
+
+' Training and AR tracking
+Training --> ROSTopics : "various topics"
+ARAlvar <.. Camera : "image input"
+ARTrack --> ARAlvar : "uses"
+
+' Simulation
+Gazebo ..> Odom : "publishes"
+Gazebo ..> Scan : "publishes"
+Gazebo <.. CmdVel : "subscribes"
+GazeboJoyTeleop --> Gazebo : "controls"
+
+note right of DriverNode
+  Hardware Abstraction Layer (HAL)
+  Manages serial communication,
+  odometry calculation, and
+  hardware interface
+end note
+
+note right of SafetyTimer
+  Deadman's switch mechanism
+  Stops robot on input loss
+end note
+
+note bottom of TF
+  Manages coordinate frame
+  transformations for sensor
+  fusion and localization
+end note
+
+note left of NavStack
+  Autonomous path planning
+  with costmaps and local planner
+end note
+
+@enduml

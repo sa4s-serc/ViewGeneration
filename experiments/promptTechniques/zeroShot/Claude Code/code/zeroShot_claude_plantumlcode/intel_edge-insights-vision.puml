@@ -1,0 +1,134 @@
+@startuml
+!define RECTANGLE_COMPONENT
+skinparam componentStyle rectangle
+
+title Edge Insights for Vision (EIV) - System Architecture
+
+package "Installation & Setup Layer" {
+    [eiv_install.sh] as install
+    [eiv_setup.py] as setup
+    [eiv_callbacks.sh] as callbacks
+}
+
+package "Hardware Support" {
+    [Graphics Driver Manager] as gpu_driver
+    [MIPI Camera Support] as mipi
+    component "ADL Scripts" {
+        [adl_kernel_build.sh] as adl_kernel
+        [adl_ipu_install.sh] as adl_ipu
+    }
+}
+
+package "OpenVINO Environment" {
+    [OpenVINO Toolkit] as openvino
+    [Jupyter Notebooks] as jupyter
+    [launch_notebooks.sh] as launch
+}
+
+package "Container Platform" {
+    [Docker Engine] as docker
+    [Docker Images] as images
+    [OpenVINO Container] as container
+}
+
+package "External Dependencies" {
+    [System Libraries] as syslibs
+    [Python Packages] as pypackages
+    [Intel Graphics Drivers] as intel_drivers
+}
+
+package "Configuration & Docs" {
+    [requirements.txt] as requirements
+    [README.md] as readme
+    [Documentation] as docs
+}
+
+package "Target Hardware" {
+    [Intel CPU] as cpu
+    [Intel iGPU] as igpu
+    [Intel dGPU] as dgpu
+    [MIPI Camera] as camera
+}
+
+' Installation Flow
+install --> setup : executes
+install --> callbacks : calls functions
+setup --> callbacks : orchestrates tasks
+
+' Callback relationships
+callbacks --> gpu_driver : installs
+callbacks --> docker : configures
+callbacks --> images : manages
+callbacks --> openvino : sets up
+callbacks --> syslibs : installs
+
+' Graphics and Hardware Support
+gpu_driver --> intel_drivers : installs
+gpu_driver --> igpu : enables
+gpu_driver --> dgpu : enables
+
+' MIPI Camera Support (Alder Lake N)
+mipi --> adl_kernel : requires
+mipi --> adl_ipu : requires
+adl_kernel --> cpu : custom kernel
+adl_ipu --> camera : enables
+
+' OpenVINO Setup
+openvino --> jupyter : includes
+launch --> jupyter : starts
+launch --> container : runs in
+
+' Docker Integration
+docker --> images : pulls/builds
+images --> container : creates
+container --> openvino : encapsulates
+container --> jupyter : hosts
+
+' Dependencies
+setup --> requirements : reads
+setup --> pypackages : installs
+callbacks --> syslibs : manages
+
+' Hardware Utilization
+openvino --> cpu : inference
+openvino --> igpu : GPU acceleration
+openvino --> dgpu : GPU acceleration
+container --> cpu : runs on
+container --> igpu : uses
+container --> dgpu : uses
+
+' Configuration
+setup ..> readme : references
+setup ..> docs : references
+callbacks ..> docs : follows
+
+' Platform Detection
+setup --> cpu : detects platform
+callbacks --> igpu : checks presence
+callbacks --> dgpu : checks presence
+
+note right of install
+  Primary entry point
+  Orchestrates installation
+end note
+
+note right of callbacks
+  Modular functions:
+  - System checks
+  - Dependency installation
+  - Docker management
+  - Inference testing
+end note
+
+note right of container
+  Provides isolated
+  environment for
+  OpenVINO applications
+end note
+
+note bottom of mipi
+  Specific to Intel
+  Alder Lake N series
+end note
+
+@enduml

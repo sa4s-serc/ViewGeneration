@@ -1,0 +1,190 @@
+@startuml
+title Hasses SSE Server - Deployment and Data Flow Sequence Diagram
+
+actor "Web Client" as Client
+participant "Web Server\n(Apache/Nginx)" as WebServer
+participant "FIFO/TCP\nInterface" as Interface
+participant "hasses.c\n(Main Event Loop)" as Main
+participant "epoll\nEvent Handler" as Epoll
+participant "cio.c/h\n(I/O Layer)" as CIO
+participant "chat.c/h\n(SSE Protocol)" as Chat
+participant "cdata.c/h\n(Client Manager)" as CData
+participant "OpenSSL\n(if enabled)" as SSL
+database "hasses.conf\n(Configuration)" as Config
+
+== Server Initialization ==
+Main -> Config: Load configuration
+activate Main
+Config --> Main: Settings (port, SSL, CORS, etc.)
+Main -> Main: Parse command-line arguments
+Main -> Main: Daemonize (if configured)
+Main -> CIO: Initialize I/O layer
+activate CIO
+alt SSL Enabled
+    CIO -> SSL: Initialize SSL context
+    activate SSL
+    SSL --> CIO: SSL context ready
+end
+CIO --> Main: I/O layer ready
+Main -> Epoll: Create epoll instance
+activate Epoll
+Epoll --> Main: epoll fd
+Main -> Main: Create listening socket
+Main -> Epoll: Register listening socket
+Main -> Interface: Create FIFO/TCP interface
+activate Interface
+Interface --> Main: Interface ready
+Main -> Epoll: Register FIFO/TCP socket
+Main -> CData: Initialize client data structures
+activate CData
+CData --> Main: Client manager ready
+deactivate Main
+
+== Client Connection (SSE Handshake) ==
+Client -> WebServer: HTTP GET /sse?token=ABC
+activate Client
+activate WebServer
+WebServer -> Main: Forward connection
+activate Main
+Main -> Epoll: Wait for events
+Epoll --> Main: New connection event
+Main -> CIO: Accept connection
+CIO -> CIO: Create socket
+alt SSL Enabled
+    CIO -> SSL: SSL_accept()
+    SSL --> CIO: Encrypted connection
+end
+CIO --> Main: Client socket fd
+Main -> Epoll: Register client socket (EPOLLIN)
+Main -> CIO: Read HTTP request
+CIO -> CIO: Read from socket (non-blocking)
+alt SSL Enabled
+    CIO -> SSL: SSL_read()
+    SSL --> CIO: Decrypted data
+end
+CIO --> Main: HTTP request data
+Main -> Chat: Parse HTTP request
+activate Chat
+Chat -> Chat: Extract subscription token
+Chat -> Chat: Validate SSE request
+Chat --> Main: Subscription token & parameters
+Main -> CData: Add client
+CData -> CData: Store client (token, socket, state)
+CData --> Main: Client registered
+Main -> Chat: Generate SSE handshake response
+Chat -> Chat: Build HTTP headers\n(Content-Type: text/event-stream\nCache-Control: no-cache\nAccess-Control-Allow-Origin)
+Chat --> Main: SSE handshake response
+Main -> CIO: Send handshake response
+CIO -> CIO: Write to socket (non-blocking)
+alt SSL Enabled
+    CIO -> SSL: SSL_write()
+    SSL --> CIO: Encrypted write
+end
+CIO --> Main: Response sent
+Main -> Epoll: Modify client socket (EPOLLIN)
+deactivate Main
+WebServer --> Client: SSE connection established
+deactivate WebServer
+
+== Message Publishing Flow ==
+WebServer -> Interface: Send message via FIFO/TCP\n"token:ABC|message:Hello"
+activate WebServer
+Interface -> Main: Notify message received
+activate Main
+Main -> Epoll: Wait for events
+Epoll --> Main: FIFO/TCP readable event
+Main -> Interface: Read message data
+Interface --> Main: Raw message
+Main -> Chat: Parse message
+Chat -> Chat: Extract token & message content
+Chat --> Main: Parsed message (token, content)
+Main -> CData: Query clients by token
+CData -> CData: Lookup clients subscribed to token
+CData --> Main: List of target clients
+Main -> Chat: Encode message to SSE format
+Chat -> Chat: Format as SSE\n"data: Hello\n\n"
+Chat --> Main: SSE formatted message
+loop For each target client
+    Main -> CIO: Write message to client socket
+    CIO -> CIO: Non-blocking write
+    alt SSL Enabled
+        CIO -> SSL: SSL_write()
+        SSL --> CIO: Encrypted message
+    end
+    CIO --> Main: Write status
+    alt Write would block
+        Main -> Epoll: Modify socket (EPOLLOUT)
+        Main -> CIO: Set low_write callback
+        Note right of CIO: Queue message for later
+    end
+end
+deactivate Main
+deactivate WebServer
+Interface --> Client: SSE message delivered
+deactivate Client
+
+== Status Query ==
+WebServer -> Interface: Send status command via FIFO/TCP
+activate WebServer
+Interface -> Main: Status query event
+activate Main
+Main -> Epoll: Wait for events
+Epoll --> Main: FIFO/TCP readable event
+Main -> Interface: Read status command
+Interface --> Main: "STATUS" command
+Main -> CData: Get client statistics
+CData --> Main: Connected clients count
+Main -> Main: Gather statistics\n(uptime, connections, etc.)
+Main -> Interface: Send status response
+Interface --> WebServer: Status data (JSON/text)
+deactivate Main
+deactivate WebServer
+
+== Client Disconnection ==
+Client -> Client: Close connection
+activate Client
+Client --> Main: Connection closed
+activate Main
+Main -> Epoll: Wait for events
+Epoll --> Main: Client socket closed event (EPOLLHUP/EPOLLERR)
+Main -> CIO: Detect disconnection
+CIO --> Main: Connection closed
+Main -> CData: Remove client
+CData -> CData: Delete client record
+CData --> Main: Client removed
+Main -> Epoll: Unregister socket
+Main -> CIO: Close socket
+alt SSL Enabled
+    CIO -> SSL: SSL_shutdown()
+    SSL --> CIO: SSL closed
+end
+CIO -> CIO: Close socket fd
+CIO --> Main: Socket closed
+deactivate Main
+deactivate Client
+
+== Server Shutdown ==
+Main -> Main: Receive shutdown signal
+activate Main
+Main -> CData: Cleanup all clients
+activate CData
+CData -> CData: Close all connections
+CData --> Main: Clients cleaned
+deactivate CData
+Main -> Interface: Close FIFO/TCP interface
+Interface -> Interface: Cleanup resources
+Interface --> Main: Interface closed
+deactivate Interface
+Main -> Epoll: Close epoll instance
+Epoll --> Main: epoll closed
+deactivate Epoll
+Main -> CIO: Cleanup I/O layer
+CIO -> SSL: Cleanup SSL context
+SSL --> CIO: SSL cleaned
+deactivate SSL
+CIO --> Main: I/O cleaned
+deactivate CIO
+Main -> Main: Exit
+deactivate Main
+
+@enduml

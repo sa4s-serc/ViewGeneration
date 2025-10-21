@@ -1,0 +1,153 @@
+@startuml
+title Java Web Application - Control Flow Sequence Diagram
+
+actor User
+participant "Browser/Client" as Browser
+participant "Frontend\n(HTML/CSS/jQuery)" as Frontend
+participant "Front Controller\n(Servlet)" as FrontController
+participant "Spring Boot\nController" as Controller
+participant "Business Logic\n(Service Layer)" as Service
+participant "Security\n(Shiro/OAuth2)" as Security
+participant "Dubbo Registry" as Registry
+participant "Dubbo RPC\n(Remote Service)" as DubboRPC
+participant "Data Access\n(DAO)" as DAO
+participant "Redis Cache" as Redis
+participant "MySQL Database" as MySQL
+participant "External API\n(Baidu Translate)" as ExternalAPI
+
+== User Request ==
+User -> Browser: Access Web Application
+Browser -> Frontend: Load Page
+
+== Authentication Flow ==
+Frontend -> FrontController: HTTP Request
+activate FrontController
+FrontController -> Security: Authenticate User
+activate Security
+Security -> Redis: Check Session
+activate Redis
+Redis --> Security: Session Data
+deactivate Redis
+Security --> FrontController: Authentication Result
+deactivate Security
+
+alt Authentication Failed
+    FrontController --> Browser: Redirect to Login
+    Browser --> User: Show Login Page
+else Authentication Successful
+    FrontController -> Controller: Forward Request
+    activate Controller
+
+    == Business Logic Processing ==
+    Controller -> Service: Process Business Logic
+    activate Service
+
+    alt Check Cache First
+        Service -> Redis: Query Cache
+        activate Redis
+        Redis --> Service: Cached Data (if exists)
+        deactivate Redis
+    end
+
+    alt Cache Miss or Direct Database Query
+        Service -> DAO: Database Operation
+        activate DAO
+        DAO -> MySQL: Execute SQL Query
+        activate MySQL
+        MySQL --> DAO: Query Result
+        deactivate MySQL
+        DAO --> Service: Entity Objects
+        deactivate DAO
+
+        Service -> Redis: Update Cache
+        activate Redis
+        Redis --> Service: Cache Updated
+        deactivate Redis
+    end
+
+    == Distributed Service Call (Dubbo) ==
+    alt Remote Service Required
+        Service -> Registry: Lookup Service
+        activate Registry
+        Registry --> Service: Service Provider List
+        deactivate Registry
+
+        Service -> DubboRPC: Remote Procedure Call
+        activate DubboRPC
+        DubboRPC -> DubboRPC: Load Balancing
+        DubboRPC -> DubboRPC: Serialization
+        DubboRPC -> DubboRPC: Execute Remote Method
+        DubboRPC --> Service: RPC Response
+        deactivate DubboRPC
+    end
+
+    == External API Integration ==
+    alt Translation Required
+        Service -> ExternalAPI: API Request\n(Baidu Translate)
+        activate ExternalAPI
+        ExternalAPI --> Service: Translation Result
+        deactivate ExternalAPI
+    end
+
+    Service --> Controller: Business Result
+    deactivate Service
+
+    == Response Rendering ==
+    Controller -> Controller: Prepare Model
+    Controller --> FrontController: Model and View
+    deactivate Controller
+
+    FrontController -> FrontController: Process JSP/View
+    FrontController --> Browser: HTTP Response\n(HTML/JSON)
+    deactivate FrontController
+end
+
+== Client-Side Processing ==
+Browser -> Frontend: Render Response
+activate Frontend
+Frontend -> Frontend: DOM Manipulation\n(jQuery)
+
+alt AJAX Request
+    Frontend -> FrontController: AJAX Call
+    activate FrontController
+    FrontController -> Controller: Process AJAX
+    activate Controller
+    Controller -> Service: Execute Operation
+    activate Service
+    Service -> DAO: Database Update
+    activate DAO
+    DAO -> MySQL: Execute Update
+    activate MySQL
+    MySQL --> DAO: Update Result
+    deactivate MySQL
+    DAO --> Service: Success/Failure
+    deactivate DAO
+    Service --> Controller: Operation Result
+    deactivate Service
+    Controller --> FrontController: JSON Response
+    deactivate Controller
+    FrontController --> Frontend: JSON Data
+    deactivate FrontController
+    Frontend -> Frontend: Update UI Dynamically
+end
+
+Frontend --> Browser: Display Result
+deactivate Frontend
+Browser --> User: Show Page Content
+
+== Session Management ==
+note over FrontController, Redis
+Session data is stored in Redis
+for distributed session management
+and fast access
+end note
+
+== Service Discovery Flow ==
+note over Registry, DubboRPC
+Dubbo services register themselves
+with Registry on startup.
+Consumers discover and cache
+provider locations.
+end note
+
+@enduml

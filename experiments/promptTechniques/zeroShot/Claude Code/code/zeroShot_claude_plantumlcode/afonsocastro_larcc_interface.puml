@@ -1,0 +1,165 @@
+@startuml
+!define COMPONENT_STYLE rectangle
+
+skinparam component {
+    BackgroundColor<<external>> LightBlue
+    BackgroundColor<<hardware>> LightGreen
+    BackgroundColor<<core>> LightYellow
+    BackgroundColor<<visualization>> LightPink
+}
+
+package "ROS Core Infrastructure" {
+    component "ROS Master" as ros_master <<core>>
+}
+
+package "Hardware Layer" {
+    component "UR10e Robot Controller" as ur10e_controller <<hardware>>
+    component "ROBOTIQ 2F-140 Gripper" as gripper <<hardware>>
+    component "RealSense RGB-D Camera" as realsense <<hardware>>
+
+    ur10e_controller -down-> gripper : RS485
+}
+
+package "Robot Driver Layer" {
+    component "ur_robot_driver" as ur_driver <<core>>
+    component "External Control URCap" as urcap <<core>>
+    component "realsense2_camera" as realsense_driver <<core>>
+
+    urcap -down-> ur10e_controller : External Control
+    ur_driver -down-> urcap : ROS Interface
+    realsense_driver -down-> realsense : Camera Driver
+}
+
+package "Kinematics Layer" {
+    component "ur_kinematics" as ur_kinematics <<core>> {
+        component "IK Solver (C++)" as ik_solver
+        component "FK Solver (C++)" as fk_solver
+        component "Python Wrapper (Boost.Python)" as python_wrapper
+        component "UR3 Kinematics Library" as ur3_lib
+        component "UR5 Kinematics Library" as ur5_lib
+        component "UR10 Kinematics Library" as ur10_lib
+    }
+
+    ik_solver -down-> ur10_lib : Uses UR10_PARAMS
+    fk_solver -down-> ur10_lib : Uses UR10_PARAMS
+    python_wrapper -down-> ik_solver
+    python_wrapper -down-> fk_solver
+}
+
+package "Motion Planning Layer" {
+    component "MoveIt! Framework" as moveit <<core>>
+    component "ur10e_moveit_config" as moveit_config <<core>>
+    component "MoveIt! IK Plugin" as moveit_plugin <<core>>
+
+    moveit_config -down-> moveit : Configuration
+    moveit_plugin -down-> ur_kinematics : Analytical IK/FK
+    moveit -right-> moveit_plugin : Uses
+}
+
+package "Robot Description Layer" {
+    component "larcc_cell_description" as cell_desc <<core>> {
+        component "URDF Models" as urdf
+        component "Xacro Models" as xacro
+        component "Work Cell Layout" as layout
+    }
+
+    component "ur_description" as ur_desc <<core>> {
+        component "3D Mesh Files (.dae)" as mesh_files
+        component "Visual Geometry" as visual_geom
+        component "Material Library" as materials
+    }
+
+    xacro -down-> urdf : Generates
+    layout -right-> ur_desc : References
+    visual_geom -down-> mesh_files : Uses
+    visual_geom -down-> materials : Uses
+}
+
+package "Sensor Processing Layer" {
+    component "Point Cloud Processing" as pointcloud <<core>>
+    component "RGB-D Object Tracking" as tracking <<core>>
+    component "Image Processing" as image_proc <<core>>
+
+    tracking -down-> pointcloud : Uses
+    tracking -down-> image_proc : Uses
+}
+
+package "Visualization Layer" {
+    component "RViz" as rviz <<visualization>>
+    component "RViz Configurations" as rviz_config <<visualization>>
+
+    rviz_config -down-> rviz : Configures
+}
+
+package "Configuration Layer" {
+    component "Launch Files" as launch <<core>>
+    component "definitions.py" as definitions <<core>>
+    component "RealSense Launch" as realsense_launch <<core>>
+}
+
+' Hardware to Driver connections
+ur_driver -down-> ur10e_controller : Control Commands
+realsense_driver -down-> realsense : Image/Depth Data
+
+' ROS Master connections
+ros_master -down-> ur_driver : ROS Topics/Services
+ros_master -down-> realsense_driver : ROS Topics/Services
+ros_master -down-> moveit : ROS Topics/Services
+ros_master -down-> rviz : ROS Topics/Services
+
+' Motion Planning connections
+moveit -down-> ur_driver : Trajectory Commands
+moveit -down-> cell_desc : Robot Model
+moveit -down-> ur_desc : Robot Description
+
+' Sensor Processing connections
+realsense_driver -down-> pointcloud : Point Cloud Data
+realsense_driver -down-> tracking : RGB-D Data
+pointcloud -down-> moveit : Obstacle Detection
+
+' Visualization connections
+rviz -down-> cell_desc : Visualize Work Cell
+rviz -down-> ur_desc : Visualize Robot
+rviz -down-> pointcloud : Visualize Point Cloud
+rviz -down-> moveit : Visualize Planning
+
+' Configuration connections
+launch -down-> realsense_driver : Launch
+launch -down-> ur_driver : Launch
+launch -down-> moveit : Launch
+launch -down-> rviz : Launch
+definitions -down-> launch : Project Directories
+realsense_launch -down-> realsense_driver : Configure
+
+' Inter-layer dependencies
+moveit_config -down-> ur_kinematics : IK/FK Solver Config
+
+note right of ur_kinematics
+  Analytical IK/FK Solvers
+  - Faster than numerical methods
+  - Compiled for UR3/UR5/UR10
+  - Python bindings via Boost
+end note
+
+note right of cell_desc
+  LARCC Work Cell Definition
+  - Robot position
+  - Tables and gantries
+  - Sensor configurations
+end note
+
+note right of moveit
+  Motion Planning Framework
+  - Path planning
+  - Collision avoidance
+  - Trajectory execution
+end note
+
+note left of realsense
+  RGB-D Camera
+  - Point cloud capture
+  - Object tracking
+  - Environment sensing
+end note
+
+@enduml

@@ -1,0 +1,168 @@
+@startuml
+skinparam component {
+    BackgroundColor<<security>> LightYellow
+    BackgroundColor<<external>> LightGray
+    BackgroundColor<<critical>> Pink
+    BorderColor<<critical>> Red
+    BorderColor<<security>> Orange
+}
+
+title SquatM3gator - Security-Focused Component Architecture
+
+package "Client Layer" {
+    [Web Browser] as Browser
+    component "UI Components" as UI {
+        [Input Validation] <<security>>
+        [Session Handler] <<security>>
+        [Authentication UI] <<security>>
+    }
+}
+
+package "API Gateway Layer" {
+    component "Flask Application" as Flask {
+        [API Endpoints]
+        [Input Sanitizer] <<security>>
+        [Rate Limiter] <<security>>
+        [CORS Handler] <<security>>
+    }
+    component "WebSocket Server" as SocketIO {
+        [Socket.IO Handler]
+        [Connection Validator] <<security>>
+        [Event Authenticator] <<security>>
+    }
+}
+
+package "Security Layer" <<security>> {
+    [API Key Manager] <<critical>>
+    [Credentials Store] <<critical>>
+    [Session Manager] <<security>>
+    [Access Control] <<security>>
+}
+
+package "Processing Layer" {
+    component "Message Queue" as Redis {
+        [Job Queue]
+        [Session Store] <<security>>
+        [Connection Auth] <<security>>
+    }
+
+    component "Worker Process" as Worker {
+        [Job Consumer]
+        [Attack Modules]
+        [Result Validator] <<security>>
+    }
+}
+
+package "Domain Analysis Modules" {
+    [HomoglyphAttack]
+    [Flipper]
+    [RemoveOneLetter]
+    [TldSelector]
+}
+
+package "External Services Layer" {
+    component "GoDaddy API Client" as GoDaddy <<external>> {
+        [API Key Validator] <<critical>>
+        [SSL/TLS Handler] <<security>>
+        [Response Validator] <<security>>
+    }
+
+    component "WHOIS Service" as Whoiser <<external>> {
+        [Query Sanitizer] <<security>>
+        [Response Parser]
+    }
+}
+
+package "Configuration Layer" {
+    component "Config Manager" as ConfigMgr <<critical>> {
+    }
+    database "config.py" as ConfigDB
+}
+
+Browser --> UI : HTTPS
+UI --> Flask : REST API
+UI --> SocketIO : WebSocket
+
+Flask --> [Input Sanitizer]
+Flask --> [Rate Limiter]
+Flask --> [CORS Handler]
+SocketIO --> [Connection Validator]
+SocketIO --> [Event Authenticator]
+
+[Input Sanitizer] --> [Access Control]
+[Rate Limiter] ..> [Session Manager]
+[Connection Validator] ..> [Session Manager]
+[API Key Manager] --> [Credentials Store]
+[Access Control] ..> [Session Manager]
+
+Flask --> Redis
+Redis --> [Session Store]
+[Connection Auth] ..> [Session Manager]
+
+Redis --> Worker
+Worker --> [Attack Modules]
+[Attack Modules] --> [HomoglyphAttack]
+[Attack Modules] --> [Flipper]
+[Attack Modules] --> [RemoveOneLetter]
+[Attack Modules] --> [TldSelector]
+
+Worker --> GoDaddy
+Worker --> Whoiser
+[API Key Validator] ..> [API Key Manager]
+[SSL/TLS Handler] ..> GoDaddy
+[Query Sanitizer] ..> Whoiser
+
+GoDaddy --> [Response Validator]
+Whoiser --> [Response Validator]
+[Response Validator] --> Worker
+Worker --> SocketIO
+SocketIO --> Browser
+
+ConfigMgr --> ConfigDB
+ConfigMgr ..> [Credentials Store]
+ConfigMgr ..> Flask
+ConfigMgr ..> Worker
+
+note right of [API Key Manager]
+  Critical Security Component
+  - Manages GoDaddy API credentials
+  - Must protect keys from exposure
+  - Requires secure storage
+end note
+
+note right of [Input Sanitizer]
+  Input Validation
+  - Prevents injection attacks
+  - Validates domain names
+  - Sanitizes user input
+end note
+
+note right of [Rate Limiter]
+  Rate Limiting
+  - Prevents API abuse
+  - Protects GoDaddy API quota
+  - Mitigates DoS attacks
+end note
+
+note bottom of Redis
+  Session Security
+  - Secure session storage
+  - Authentication required
+  - Connection encryption
+end note
+
+note right of [SSL/TLS Handler]
+  External Communication
+  - Encrypted connections
+  - Certificate validation
+  - Secure API calls
+end note
+
+legend right
+  |= Color |= Meaning |
+  | <back:LightYellow>security</back> | Security-focused component |
+  | <back:Pink>critical</back> | Critical security component |
+  | <back:LightGray>external</back> | External service dependency |
+endlegend
+
+@enduml

@@ -1,0 +1,149 @@
+@startuml
+!define COMPONENT_STYLE rectangle
+
+skinparam component {
+  BackgroundColor<<core>> LightBlue
+  BackgroundColor<<config>> LightGreen
+  BackgroundColor<<interface>> LightYellow
+  BackgroundColor<<method>> LightCoral
+  BackgroundColor<<filter>> LightPink
+  BackgroundColor<<decorator>> LightSalmon
+  BackgroundColor<<tie>> LightGray
+}
+
+package "CLI Layer" {
+  [SeatAllocatorLauncher] <<interface>>
+}
+
+package "Configuration Layer" {
+  [ProcessorConfig] <<config>>
+  [XML Configuration Files] <<config>>
+  [Command Line Arguments] <<config>>
+}
+
+package "Core Processing Layer" {
+  [SeatAllocatorProcessor] <<core>>
+  [SeatAllocatorResolver] <<core>>
+  [SeatAllocatorDefaultResolver] <<core>>
+}
+
+package "Data Model" {
+  [Tally] <<core>>
+  [Candidate] <<core>>
+  [Result] <<core>>
+}
+
+package "Seat Allocation Methods" {
+  [SeatAllocationMethod] <<method>>
+  [LargestRemainderMethod] <<method>>
+  [HighestAveragesMethod] <<method>>
+  [MajorityMethod] <<method>>
+  [Hare] <<method>>
+  [Droop] <<method>>
+  [DHondt] <<method>>
+  [SainteLague] <<method>>
+  [HuntingtonHill] <<method>>
+}
+
+package "Tally Filters" {
+  [TallyFilter] <<filter>>
+  [RemoveCandidatesBelowThreshold] <<filter>>
+}
+
+package "Result Decorators" {
+  [ResultDecorator] <<decorator>>
+  [AddSuffixDecorator] <<decorator>>
+}
+
+package "Tie Breakers" {
+  [TieBreaker] <<tie>>
+  [RandomTieBreaker] <<tie>>
+  [MinorityTieBreaker] <<tie>>
+  [InteractiveTieBreaker] <<tie>>
+}
+
+package "Serialization Layer" {
+  [JAXB Serializer] <<config>>
+}
+
+' Control Flow Dependencies
+[SeatAllocatorLauncher] --> [Command Line Arguments] : 1. Parse
+[SeatAllocatorLauncher] --> [XML Configuration Files] : 1. Load
+[Command Line Arguments] --> [ProcessorConfig] : 2. Create/Update
+[XML Configuration Files] --> [JAXB Serializer] : 2. Deserialize
+[JAXB Serializer] --> [ProcessorConfig] : 3. Produce
+
+[SeatAllocatorLauncher] --> [Tally] : 4. Load from XML
+[SeatAllocatorLauncher] --> [SeatAllocatorProcessor] : 5. Initialize
+
+[SeatAllocatorProcessor] --> [ProcessorConfig] : 6. Read Configuration
+[SeatAllocatorProcessor] --> [SeatAllocatorResolver] : 7. Request Components
+[SeatAllocatorResolver] ..> [SeatAllocatorDefaultResolver] : implements
+
+[SeatAllocatorDefaultResolver] --> [TallyFilter] : 8a. Resolve by Name
+[SeatAllocatorDefaultResolver] --> [SeatAllocationMethod] : 8b. Resolve by Name
+[SeatAllocatorDefaultResolver] --> [ResultDecorator] : 8c. Resolve by Name
+[SeatAllocatorDefaultResolver] --> [TieBreaker] : 8d. Resolve by Name
+
+[SeatAllocatorProcessor] --> [TallyFilter] : 9. Apply Filters
+[TallyFilter] --> [Tally] : 10. Filter Candidates
+[TallyFilter] ..> [RemoveCandidatesBelowThreshold] : implements
+
+[SeatAllocatorProcessor] --> [SeatAllocationMethod] : 11. Execute Allocation
+[SeatAllocationMethod] --> [Tally] : 12. Process
+[SeatAllocationMethod] --> [Candidate] : 13. Allocate Seats
+[SeatAllocationMethod] --> [TieBreaker] : 14. Resolve Ties (if needed)
+
+[SeatAllocationMethod] ..> [LargestRemainderMethod] : implements
+[SeatAllocationMethod] ..> [HighestAveragesMethod] : implements
+[SeatAllocationMethod] ..> [MajorityMethod] : implements
+
+[LargestRemainderMethod] ..> [Hare] : extends
+[LargestRemainderMethod] ..> [Droop] : extends
+[HighestAveragesMethod] ..> [DHondt] : extends
+[HighestAveragesMethod] ..> [SainteLague] : extends
+[SeatAllocationMethod] ..> [HuntingtonHill] : implements
+
+[TieBreaker] ..> [RandomTieBreaker] : implements
+[TieBreaker] ..> [MinorityTieBreaker] : implements
+[TieBreaker] ..> [InteractiveTieBreaker] : implements
+
+[SeatAllocationMethod] --> [Result] : 15. Generate
+
+[SeatAllocatorProcessor] --> [ResultDecorator] : 16. Apply Decorators
+[ResultDecorator] --> [Result] : 17. Modify
+[ResultDecorator] ..> [AddSuffixDecorator] : implements
+
+[SeatAllocatorProcessor] --> [Result] : 18. Return Final Result
+[SeatAllocatorLauncher] --> [Result] : 19. Output
+
+note right of [SeatAllocatorProcessor]
+  Control Flow Orchestrator:
+  1. Load configuration
+  2. Resolve components via Resolver
+  3. Apply tally filters
+  4. Execute allocation method
+  5. Handle tie-breaking
+  6. Apply result decorators
+  7. Return final result
+end note
+
+note right of [SeatAllocatorResolver]
+  Factory Pattern:
+  Dynamically resolves components
+  by their string names
+end note
+
+note bottom of [SeatAllocationMethod]
+  Strategy Pattern:
+  Runtime selection of
+  allocation algorithm
+end note
+
+note bottom of [ResultDecorator]
+  Decorator Pattern:
+  Enhances result without
+  modifying structure
+end note
+
+@enduml

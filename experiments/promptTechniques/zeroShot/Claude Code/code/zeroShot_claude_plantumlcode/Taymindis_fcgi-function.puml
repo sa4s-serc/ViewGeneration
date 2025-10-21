@@ -1,0 +1,93 @@
+@startuml
+!define COMPONENT_STYLE rectangle
+
+skinparam component {
+    BackgroundColor<<external>> LightBlue
+    BackgroundColor<<core>> LightGreen
+    BackgroundColor<<handler>> LightYellow
+    BackgroundColor<<config>> LightCoral
+}
+
+title FastCGI Function Handler Framework - Control Flow Architecture
+
+component "Web Server\n(Nginx/Apache)" as WebServer <<external>>
+component "fcgiapp Library" as FCGILib <<external>>
+
+package "ffunc Framework" {
+    component "Main Entry Point\n(ffunc.c::main)" as MainEntry <<core>>
+    component "Socket Handler\n(hook_socket)" as SocketHandler <<core>>
+    component "Request Handler\n(handle_request)" as RequestHandler <<core>>
+    component "Thread Pool Manager\n(ffunc_thread_worker)" as ThreadPool <<core>>
+    component "Function Mapper\n(ffunc_init)" as FunctionMapper <<core>>
+    component "Memory Pool Manager\n(ffunc_create_pool,\nffunc_destroy_pool)" as MemoryPool <<core>>
+    component "Configuration\n(ffunc_config_t)" as Config <<config>>
+    component "API Interface\n(ffunc.h)" as API <<core>>
+}
+
+package "User Application" {
+    component "User Main\n(ffunc_main)" as UserMain <<handler>>
+    component "Handler Functions\n(getProfile, postProfile,\npostError)" as HandlerFunctions <<handler>>
+    component "Function Mapping\nDefinitions" as FunctionDefs <<config>>
+}
+
+WebServer -down-> FCGILib : "HTTP Request"
+FCGILib -down-> SocketHandler : "FastCGI Protocol"
+
+MainEntry -down-> UserMain : "Invoke user init"
+UserMain -down-> Config : "Configure server"
+UserMain -down-> FunctionDefs : "Define mappings"
+
+MainEntry -down-> FunctionMapper : "Initialize mappings"
+FunctionMapper -left-> FunctionDefs : "Read mappings"
+FunctionMapper -down-> HandlerFunctions : "Register handlers"
+
+MainEntry -down-> SocketHandler : "Start listening"
+SocketHandler -down-> ThreadPool : "Spawn threads"
+
+ThreadPool -down-> RequestHandler : "Process request"
+RequestHandler -left-> FCGILib : "Read FastCGI data"
+RequestHandler -down-> FunctionMapper : "Lookup FN_HANDLER"
+RequestHandler -down-> MemoryPool : "Allocate memory"
+
+FunctionMapper -down-> HandlerFunctions : "Route to handler"
+HandlerFunctions -up-> RequestHandler : "Return response"
+
+RequestHandler -up-> FCGILib : "Write response"
+FCGILib -up-> WebServer : "HTTP Response"
+
+RequestHandler -right-> MemoryPool : "Deallocate memory"
+
+API -[hidden]down-> MainEntry
+Config -[hidden]down-> FunctionMapper
+
+note right of RequestHandler
+  Control Flow Steps:
+  1. Extract FN_HANDLER parameter
+  2. Parse query parameters
+  3. Read request body
+  4. Lookup handler function
+  5. Execute handler
+  6. Write HTTP response
+  7. Clean up resources
+end note
+
+note left of ThreadPool
+  Multi-threaded concurrency
+  Configured max threads
+  Worker thread pool
+end note
+
+note bottom of FunctionMapper
+  Strategy Pattern:
+  Maps string identifiers
+  to function pointers
+end note
+
+note top of MemoryPool
+  Object Pool Pattern:
+  Per-request memory allocation
+  Prevents memory leaks
+  Efficient resource management
+end note
+
+@enduml

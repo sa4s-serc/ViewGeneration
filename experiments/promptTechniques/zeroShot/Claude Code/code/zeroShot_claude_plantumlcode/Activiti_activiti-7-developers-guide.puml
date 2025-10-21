@@ -1,0 +1,193 @@
+@startuml
+!define RECTANGLE_BACKGROUND_COLOR #E8F5E9
+!define CONTAINER_BACKGROUND_COLOR #FFF3E0
+!define DATABASE_BACKGROUND_COLOR #E3F2FD
+
+title Activiti 7 Cloud - Deployment Architecture
+
+package "Kubernetes Cluster" {
+
+    package "Ingress Layer" {
+        component "Spring Cloud Gateway" as gateway #90CAF9
+    }
+
+    package "Identity & Security" {
+        component "Keycloak SSO" as keycloak #FFE082
+        database "Identity DB" as identitydb #BBDEFB
+    }
+
+    package "Core Services" {
+        component "Runtime Bundle 1" as rb1 #81C784
+        component "Runtime Bundle 2" as rb2 #81C784
+        component "Runtime Bundle N" as rbn #81C784
+
+        database "Process DB 1" as db1 #BBDEFB
+        database "Process DB 2" as db2 #BBDEFB
+        database "Process DB N" as dbn #BBDEFB
+    }
+
+    package "Integration Services" {
+        component "Cloud Connector 1" as conn1 #A5D6A7
+        component "Cloud Connector 2" as conn2 #A5D6A7
+        component "Cloud Connector N" as connn #A5D6A7
+    }
+
+    package "Data Services" {
+        component "Query Service" as query #64B5F6
+        database "Query DB" as querydb #BBDEFB
+
+        component "Audit Service" as audit #7986CB
+        database "Audit DB" as auditdb #BBDEFB
+
+        component "Notification Service" as notification #4DB6AC
+    }
+
+    package "Message Broker" {
+        queue "Spring Cloud Stream\n(RabbitMQ/Kafka)" as messagebus #FFB74D
+    }
+
+    package "Client Applications" {
+        component "BPMN Modeling App" as modelingapp #BA68C8
+        component "Process Workspace" as workspace #BA68C8
+    }
+}
+
+package "CI/CD Platform" {
+    component "Jenkins X" as jenkinsx #9575CD
+    storage "Git Repository" as gitrepo #CE93D8
+    storage "Helm Charts" as helmcharts #CE93D8
+}
+
+cloud "External Systems" {
+    component "External Service 1" as ext1 #BDBDBD
+    component "External Service 2" as ext2 #BDBDBD
+    component "External Service N" as extn #BDBDBD
+}
+
+actor "End User" as user
+actor "Process Designer" as designer
+actor "DevOps" as devops
+
+' User interactions
+user --> gateway : HTTPS
+designer --> modelingapp : HTTPS
+devops --> jenkinsx : Deploy/Manage
+
+' Gateway routing
+gateway --> keycloak : Authentication
+gateway --> rb1 : Route requests
+gateway --> rb2 : Route requests
+gateway --> rbn : Route requests
+gateway --> query : Route requests
+gateway --> notification : Route requests
+gateway --> modelingapp : Route requests
+gateway --> workspace : Route requests
+
+' Runtime Bundle connections
+rb1 --> db1 : Persist state
+rb2 --> db2 : Persist state
+rbn --> dbn : Persist state
+rb1 --> messagebus : Publish events
+rb2 --> messagebus : Publish events
+rbn --> messagebus : Publish events
+rb1 ..> keycloak : Validate tokens
+rb2 ..> keycloak : Validate tokens
+rbn ..> keycloak : Validate tokens
+
+' Connector interactions
+conn1 --> messagebus : Subscribe/Publish
+conn2 --> messagebus : Subscribe/Publish
+connn --> messagebus : Subscribe/Publish
+conn1 --> ext1 : Integrate
+conn2 --> ext2 : Integrate
+connn --> extn : Integrate
+conn1 ..> keycloak : Validate tokens
+conn2 ..> keycloak : Validate tokens
+connn ..> keycloak : Validate tokens
+
+' Query Service
+query --> messagebus : Subscribe events
+query --> querydb : Aggregate data
+query ..> keycloak : Validate tokens
+
+' Audit Service
+audit --> messagebus : Subscribe events
+audit --> auditdb : Persist audit logs
+audit ..> keycloak : Validate tokens
+
+' Notification Service
+notification --> messagebus : Subscribe events
+notification ..> keycloak : Validate tokens
+notification ..> user : WebSocket/GraphQL
+
+' Identity management
+keycloak --> identitydb : User data
+
+' CI/CD flow
+jenkinsx --> gitrepo : Pull configuration
+jenkinsx --> helmcharts : Use charts
+jenkinsx ..> gateway : Deploy to cluster
+helmcharts ..> rb1 : Deploy
+helmcharts ..> rb2 : Deploy
+helmcharts ..> rbn : Deploy
+helmcharts ..> query : Deploy
+helmcharts ..> audit : Deploy
+helmcharts ..> notification : Deploy
+helmcharts ..> conn1 : Deploy
+helmcharts ..> conn2 : Deploy
+helmcharts ..> connn : Deploy
+helmcharts ..> gateway : Deploy
+helmcharts ..> keycloak : Deploy
+helmcharts ..> modelingapp : Deploy
+helmcharts ..> workspace : Deploy
+
+' Modeling app
+modelingapp --> gitrepo : Export BPMN
+
+note right of rb1
+  Stateless, horizontally
+  scalable process engine
+  instances
+end note
+
+note right of messagebus
+  Event-driven communication
+  using Spring Cloud Stream
+  (RabbitMQ or Kafka)
+end note
+
+note right of keycloak
+  Centralized authentication
+  and authorization
+  (SSO)
+end note
+
+note bottom of jenkinsx
+  GitOps approach:
+  Infrastructure as Code
+  Automated deployments
+  Version controlled
+end note
+
+note left of query
+  Read-only access to
+  aggregated process data
+end note
+
+note left of audit
+  Event persistence for
+  compliance and auditing
+end note
+
+legend right
+  |= Component Type |= Description |
+  | Runtime Bundle | Core process execution engine |
+  | Cloud Connector | External system integration |
+  | Data Services | Query, Audit, Notification |
+  | Gateway | API Gateway and routing |
+  | Keycloak | Identity and access management |
+  | Message Bus | Asynchronous event streaming |
+  | CI/CD | Deployment automation |
+endlegend
+
+@enduml

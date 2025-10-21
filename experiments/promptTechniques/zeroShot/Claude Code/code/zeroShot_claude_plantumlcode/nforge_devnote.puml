@@ -1,0 +1,137 @@
+@startuml
+skinparam componentStyle rectangle
+
+package "Client-Side" {
+    component [Web Browser] as Browser
+    component [jQuery] as jQuery
+    component [Bootstrap UI] as Bootstrap
+    component [CodeMirror 2 Editor] as CodeMirror
+    component [Socket.IO Client] as SocketIOClient
+
+    package "Client Scripts" {
+        component [Markdown Preview] as Preview
+        component [Showdown Renderer] as Showdown
+        component [Syntax Highlighter] as Highlight
+        component [File Upload] as FileUpload
+        component [Draft Manager] as Draft
+        component [Form Validation] as Validation
+        component [Key Navigation] as KeyNavi
+        component [Mail Config Helper] as MailHelper
+    }
+}
+
+package "Server-Side (Node.js)" {
+    component [Express App] as Express
+    component [Socket.IO Server] as SocketIOServer
+    component [Routes Handler] as Routes
+
+    package "Application Modules" {
+        component [Wiki App] as WikiApp
+        component [User App] as UserApp
+        component [File App] as FileApp
+        component [Admin App] as AdminApp
+    }
+
+    package "Middleware" {
+        component [Session Manager] as Session
+        component [Cookie Handler] as Cookie
+        component [Message Passing] as Message
+        component [Localization (i18n)] as i18n
+    }
+
+    package "Core Libraries" {
+        component [Git FS] as GitFS
+        component [User Management] as Users
+        component [Renderer] as Renderer
+        component [File Utils] as FileUtils
+        component [Graph Utils] as Graph
+        component [Delta Utils] as Delta
+    }
+}
+
+package "Data Layer" {
+    database [Git Repository] as GitRepo
+    component [Config Manager] as Config
+    component [Locales (en/ko)] as Locales
+}
+
+package "View Layer" {
+    component [Jade Templates] as JadeTemplates
+}
+
+package "Testing Framework" {
+    component [Mocha Tests] as Mocha
+    component [Test Runner] as TestRunner
+    component [Travis CI] as Travis
+}
+
+package "Utilities" {
+    component [Underscore.js] as Underscore
+    component [Async.js] as Async
+    component [Polyfills] as Polyfills
+}
+
+Browser --> jQuery
+Browser --> Bootstrap
+Browser --> CodeMirror
+Browser --> SocketIOClient
+Browser --> Preview
+Browser --> FileUpload
+Browser --> Draft
+Browser --> Validation
+Browser --> KeyNavi
+
+Preview --> Showdown
+Preview --> Highlight
+CodeMirror --> Highlight
+
+jQuery --> Express : HTTP Requests
+SocketIOClient --> SocketIOServer : Real-time Updates
+
+Express --> Routes
+Express --> Session
+Express --> Cookie
+Express --> Message
+Express --> i18n
+Express --> SocketIOServer
+
+Routes --> WikiApp
+Routes --> UserApp
+Routes --> FileApp
+Routes --> AdminApp
+
+WikiApp --> GitFS
+WikiApp --> Renderer
+UserApp --> Users
+FileApp --> FileUtils
+AdminApp --> i18n
+
+GitFS --> GitRepo : Version Control
+Users --> GitRepo : User Data
+FileUtils --> GitRepo : File Storage
+
+Renderer --> Underscore
+WikiApp --> Graph
+WikiApp --> Delta
+
+Routes --> JadeTemplates : Render Views
+JadeTemplates --> Browser : HTML Response
+
+Config --> Express : Configuration
+Locales --> i18n : Translations
+
+Mocha --> TestRunner
+Travis --> TestRunner
+TestRunner --> WikiApp : Test
+TestRunner --> GitFS : Test
+TestRunner --> Users : Test
+
+Express --> Async : Async Operations
+WikiApp --> Async
+UserApp --> Async
+
+Browser --> Polyfills : Browser Compatibility
+
+MailHelper --> AdminApp : Email Config
+
+@enduml

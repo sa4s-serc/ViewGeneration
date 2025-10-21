@@ -1,0 +1,98 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: marklogic_cloud-enablement-aws
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** deployment, performance
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+Here's a consolidated report based on the provided summaries, prioritizing key aspects and ensuring a logical flow:
+
+**MarkLogic Cloud Enablement on AWS: Architecture and Functionality Overview**
+
+This code represents an infrastructure-as-code solution for deploying and managing a MarkLogic cluster on AWS, primarily through CloudFormation templates and Lambda functions. The goal is to automate the setup, network interface management, and node lifecycle events within the cluster.
+
+**Key Functionalities and Components:**
+
+*   **CloudFormation Templates:** The core of the deployment resides in `mlcluster.template` (for existing VPCs) and `mlcluster-vpc.template` (for new VPCs). These templates define and provision the necessary AWS resources:
+    *   EC2 instances for MarkLogic nodes
+    *   EBS volumes for data storage
+    *   VPCs, Subnets, and Security Groups for networking, including optional creation of a new VPC with public/private subnets, internet gateway and NAT gateway.
+    *   IAM Roles for granting permissions
+    *   DynamoDB table (`MarkLogicDDBTable`) for cluster state management and node coordination
+    *   Auto Scaling Groups (Single & Multi-Zone) for instance management
+    *   Application Load Balancer (ALB) & Target Groups (Multi-Zone) for distributing traffic in multi-AZ deployments.
+    *   Custom Resources backed by Lambda functions.
+
+*   **Lambda Functions:** These provide custom logic to extend CloudFormation's capabilities:
+    *   `managedeni.py`: Creates, tags, attaches, and detaches Elastic Network Interfaces (ENIs) to ensure each MarkLogic instance has a dedicated network interface, crucial for clustering.  Deployed via `templates/ml-managedeni.template`.
+    *   `nodemanager.py`: Responds to Auto Scaling Group lifecycle events (specifically `EC2_INSTANCE_LAUNCHING`), attaching available ENIs to newly launched instances for proper cluster integration.  Deployed via `templates/ml-nodemanager.template`.
+    *   `utils.py`: Provides utility functions for the other Lambda functions, such as network interface retrieval and CloudFormation response generation.
+
+*   **Dynamic Configuration:** Extensive parameterization within the CloudFormation templates allows for customization of instance types, volume sizes, licensing models (BYOL, Essential Enterprise, Pay-as-you-go), number of availability zones, and network configurations. License management is handled via AMI mappings based on region and license type.
+
+*   **Multi-AZ Support:** Deployments can span multiple Availability Zones (AZs) for increased resilience, achieved through resource creation in each AZ and the ALB.
+
+*   **Logging:** Optional integration with SNS for event logging.
+
+**Architecture Insights:**
+
+*   **Modular Design:** The architecture leverages nested CloudFormation stacks (via the `CloudFormation::Stack` resource) for modularity and separation of concerns, particularly for ENI management.
+
+*   **Event-Driven Architecture:** The `nodemanager.py` Lambda function exemplifies an event-driven model, reacting to Auto Scaling Group lifecycle events.
+
+*   **Custom Resources:** The use of Lambda-backed custom resources (e.g., `Custom::ManagedEni`) enables handling of MarkLogic-specific logic not natively supported by CloudFormation.
+
+*   **State Management:** The DynamoDB table is central for maintaining cluster state and coordinating node operations.
+
+**Design Patterns:**
+
+*   **Infrastructure-as-Code (IaC):**  The entire deployment is defined and managed through CloudFormation templates.
+
+*   **Microservices:**  Lambda functions encapsulate specific functionalities (ENI management, node lifecycle handling).
+
+*   **Event-Driven Architecture (EDA):** Demonstrated by `nodemanager.py`.
+
+*   **Custom Resource Pattern:** Extends CloudFormation capabilities using Lambda-backed resources.
+
+**Important Files:**
+
+*   **`mlcluster.template` / `mlcluster-vpc.template`:** Main CloudFormation templates.
+*   **`lambda/managedeni.py`, `lambda/nodemanager.py`, `lambda/utils.py`:** Core Lambda function code.
+*   **`templates/ml-nodemanager.template`, `templates/ml-managedeni.template`, `templates/ml-vpc.template`:** Templates for deploying related resources
+*   **`README.md`:** Provides instructions for setup and customization.
+*   **`LICENSE.TXT`:** Apache 2.0 License.
+
+In conclusion, this solution provides a robust and flexible framework for deploying and managing MarkLogic clusters on AWS, leveraging the power of CloudFormation, Lambda functions, and other AWS services to automate the deployment process and provide a scalable and resilient architecture. The modular design, event-driven components, and extensive parameterization make it adaptable to various environments and requirements.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment, performance
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/marklogic_cloud-enablement-aws.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

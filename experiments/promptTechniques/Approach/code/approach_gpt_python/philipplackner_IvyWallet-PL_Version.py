@@ -1,0 +1,52 @@
+from graphviz import Digraph
+
+# Initialize the Digraph
+dot = Digraph(comment='Ivy Wallet Architecture')
+
+# Define nodes for each module/component
+dot.node('A', 'Accounts Module')
+dot.node('T', 'Transactions Module')
+dot.node('C', 'Categories Module')
+dot.node('S', 'Synchronization Module')
+dot.node('B', 'Backup/Restore Module')
+dot.node('E', 'Exchange Rates Module')
+dot.node('F', 'Formula Module')
+dot.node('UI', 'UI Design System')
+dot.node('N', 'Navigation Module')
+dot.node('FS', 'File System')
+dot.node('Ntf', 'Notifications')
+dot.node('D', 'Dependency Injection (Hilt)')
+dot.node('R', 'Reactive Programming (Kotlin Flows)')
+dot.node('MV', 'MVVM Architectural Pattern')
+
+# Define edges for interactions/relationships
+dot.edge('A', 'T', 'CRUD Operations')
+dot.edge('A', 'C', 'CRUD Operations')
+dot.edge('A', 'S', 'Data Sync')
+dot.edge('T', 'C', 'Use Categories')
+dot.edge('T', 'S', 'Data Sync')
+dot.edge('T', 'B', 'Backup/Restore')
+dot.edge('C', 'S', 'Data Sync')
+dot.edge('S', 'B', 'Sync with Backup')
+dot.edge('E', 'T', 'Exchange Rates Management')
+dot.edge('F', 'T', 'Formula Execution')
+dot.edge('UI', 'A', 'UI Components')
+dot.edge('UI', 'T', 'UI Components')
+dot.edge('UI', 'C', 'UI Components')
+dot.edge('UI', 'N', 'Navigation')
+dot.edge('UI', 'FS', 'File Operations')
+dot.edge('UI', 'Ntf', 'Manage Notifications')
+dot.edge('D', 'A', 'Dependency Injection')
+dot.edge('D', 'T', 'Dependency Injection')
+dot.edge('D', 'C', 'Dependency Injection')
+dot.edge('D', 'S', 'Dependency Injection')
+dot.edge('D', 'B', 'Dependency Injection')
+dot.edge('D', 'E', 'Dependency Injection')
+dot.edge('D', 'F', 'Dependency Injection')
+dot.edge('R', 'T', 'Reactive Data Streams')
+dot.edge('R', 'S', 'Reactive Data Streams')
+dot.edge('R', 'E', 'Reactive Data Streams')
+dot.edge('MV', 'UI', 'Manage State')
+
+# Render the diagram
+dot.render('ivy_wallet_architecture', format='png', cleanup=True)

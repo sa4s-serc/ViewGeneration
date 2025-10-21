@@ -1,0 +1,180 @@
+@startuml
+!define RECTANGLE class
+
+skinparam component {
+  BackgroundColor<<UI>> LightBlue
+  BackgroundColor<<Core>> LightGreen
+  BackgroundColor<<Infrastructure>> LightYellow
+  BackgroundColor<<External>> LightGray
+}
+
+package "Presentation Layer" {
+  component [index.tsx\nEntry Point] as Entry <<UI>>
+  component [App.tsx\nRouter] as Router <<UI>>
+  component [UI Components] as UIComp <<UI>>
+  component [WithNotificationError\nHOC] as ErrorHOC <<UI>>
+
+  package "Feature Components" {
+    component [Article Components] as ArticleUI <<UI>>
+    component [Email Components] as EmailUI <<UI>>
+    component [Auth Components] as AuthUI <<UI>>
+    component [RichTextEditor] as RTE <<UI>>
+  }
+}
+
+package "Core Layer (Hexagonal Architecture)" {
+  package "Articles Domain" {
+    component [Articles Slice] as ArticlesSlice <<Core>>
+    component [Articles Use Cases] as ArticlesUC <<Core>>
+    component [Articles Entities] as ArticlesEntity <<Core>>
+    component [Articles Selectors] as ArticlesSelector <<Core>>
+    interface "IArticlesPort" as ArticlesPort
+  }
+
+  package "Authentication Domain" {
+    component [Auth Slice] as AuthSlice <<Core>>
+    component [Auth Use Cases] as AuthUC <<Core>>
+    component [Auth Entities] as AuthEntity <<Core>>
+    component [Auth Selectors] as AuthSelector <<Core>>
+    interface "IAuthPort" as AuthPort
+  }
+
+  package "Emails Domain" {
+    component [Emails Slice] as EmailsSlice <<Core>>
+    component [Emails Use Cases] as EmailsUC <<Core>>
+    component [Emails Entities] as EmailsEntity <<Core>>
+    component [Emails Selectors] as EmailsSelector <<Core>>
+    interface "IEmailsPort" as EmailsPort
+  }
+
+  component [Redux Store\n(State Management)] as Store <<Core>>
+  component [Thunk Middleware] as Thunk <<Core>>
+}
+
+package "Infrastructure Layer" {
+  package "Adapters" {
+    component [RestAuthService] as RestAuth <<Infrastructure>>
+    component [RestArticlesService] as RestArticles <<Infrastructure>>
+    component [RestEmailsService] as RestEmails <<Infrastructure>>
+    component [LocalStorageService] as LocalStorage <<Infrastructure>>
+    component [InMemoryAuthService] as InMemAuth <<Infrastructure>>
+    component [InMemoryArticlesService] as InMemArticles <<Infrastructure>>
+    component [InMemoryEmailsService] as InMemEmails <<Infrastructure>>
+  }
+}
+
+package "External Systems" {
+  component [REST API\nBackend] as API <<External>>
+  component [Browser Storage\nLocal Storage] as BrowserStorage <<External>>
+  component [Plate Library\n@udecode/plate] as PlateLib <<External>>
+}
+
+package "Utilities" {
+  component [Environment Config\nchoose-app-mode] as EnvConfig <<Infrastructure>>
+  component [Date Formatter\nmoment] as DateFormatter <<Infrastructure>>
+  component [Code Blocks\nreact-code-blocks] as CodeBlocks <<Infrastructure>>
+}
+
+' Entry and Routing Connections
+Entry --> Router : renders
+Entry --> Store : provides
+Entry --> LocalStorage : initial login
+
+Router --> ArticleUI : routes to
+Router --> EmailUI : routes to
+Router --> AuthUI : routes to
+Router --> ErrorHOC : wraps routes
+
+' UI to Core Connections
+ArticleUI --> Store : dispatch/select
+EmailUI --> Store : dispatch/select
+AuthUI --> Store : dispatch/select
+RTE --> PlateLib : uses
+ArticleUI --> RTE : contains
+
+UIComp --> ArticleUI : used by
+UIComp --> EmailUI : used by
+UIComp --> AuthUI : used by
+
+ErrorHOC --> Store : select errors
+
+' Store Connections
+Store --> ArticlesSlice : manages
+Store --> AuthSlice : manages
+Store --> EmailsSlice : manages
+Store --> Thunk : middleware
+
+' Slice to Use Case Connections
+ArticlesSlice --> ArticlesUC : invokes
+AuthSlice --> AuthUC : invokes
+EmailsSlice --> EmailsUC : invokes
+
+Thunk --> ArticlesUC : injects services
+Thunk --> AuthUC : injects services
+Thunk --> EmailsUC : injects services
+
+' Use Cases to Entities
+ArticlesUC --> ArticlesEntity : uses
+AuthUC --> AuthEntity : uses
+EmailsUC --> EmailsEntity : uses
+
+' Selectors
+ArticlesSelector --> Store : reads state
+AuthSelector --> Store : reads state
+EmailsSelector --> Store : reads state
+
+ArticleUI --> ArticlesSelector : uses
+EmailUI --> EmailsSelector : uses
+AuthUI --> AuthSelector : uses
+
+' Port Definitions
+ArticlesUC ..> ArticlesPort : requires
+AuthUC ..> AuthPort : requires
+EmailsUC ..> EmailsPort : requires
+
+' Port Implementations
+RestArticles ..|> ArticlesPort : implements
+InMemArticles ..|> ArticlesPort : implements
+
+RestAuth ..|> AuthPort : implements
+InMemAuth ..|> AuthPort : implements
+
+RestEmails ..|> EmailsPort : implements
+InMemEmails ..|> EmailsPort : implements
+
+' Service Selection via Environment
+EnvConfig --> RestAuth : selects
+EnvConfig --> RestArticles : selects
+EnvConfig --> RestEmails : selects
+EnvConfig --> InMemAuth : selects
+EnvConfig --> InMemArticles : selects
+EnvConfig --> InMemEmails : selects
+
+' Infrastructure to External
+RestAuth --> API : HTTP requests
+RestArticles --> API : HTTP requests
+RestEmails --> API : HTTP requests
+LocalStorage --> BrowserStorage : stores tokens
+
+' Utility Connections
+ArticleUI --> DateFormatter : formats dates
+ArticleUI --> CodeBlocks : renders code
+
+note right of Store
+  Centralized state management
+  using Redux Toolkit with
+  dependency injection
+end note
+
+note right of ArticlesPort
+  Hexagonal Architecture:
+  Ports define interfaces,
+  Adapters implement them
+end note
+
+note bottom of EnvConfig
+  Environment-based service
+  selection (REST vs InMemory)
+end note
+
+@enduml

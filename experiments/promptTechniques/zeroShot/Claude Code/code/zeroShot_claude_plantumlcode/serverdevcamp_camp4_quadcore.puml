@@ -1,0 +1,112 @@
+@startuml
+!define RECTANGLE class
+
+skinparam component {
+  BackgroundColor<<frontend>> LightBlue
+  BackgroundColor<<gateway>> LightGreen
+  BackgroundColor<<service>> LightYellow
+  BackgroundColor<<datastore>> LightGray
+  BackgroundColor<<external>> Pink
+}
+
+package "Client Layer" {
+  [React Frontend] <<frontend>> as Frontend
+}
+
+package "API Layer" {
+  [API Gateway\n(Spring Cloud Gateway)] <<gateway>> as APIGateway
+}
+
+package "Authentication Layer" {
+  [AuthFront\n(BFF)] <<service>> as AuthFront
+  [AuthServer\n(JWT Auth)] <<service>> as AuthServer
+}
+
+package "Application Services" {
+  [UserActivity\n(Follow/Feed)] <<service>> as UserActivity
+  [DataSending\n(WebSocket)] <<service>> as DataSending
+}
+
+package "Data Pipeline Layer" {
+  [DataPipeline\n(Ingestion)] <<service>> as DataPipeline
+  [DataProcessing\n(Spark Analytics)] <<service>> as DataProcessing
+}
+
+package "Data Stores" {
+  database "Redis\n(Refresh Tokens\n& Socket Tokens)" as Redis <<datastore>>
+  database "Cassandra\n(Tweets & Analytics)" as Cassandra <<datastore>>
+  database "MongoDB\n(User Data)" as MongoDB <<datastore>>
+}
+
+package "External Services" {
+  [Twitter API] <<external>> as TwitterAPI
+  [Email Service] <<external>> as EmailService
+}
+
+package "Message Broker" {
+  queue "Kafka\n(Event Stream)" as Kafka <<datastore>>
+}
+
+' Data Flow: Authentication
+Frontend --> APIGateway : 1. User Requests\n(HTTP/WebSocket)
+APIGateway --> AuthFront : 2. Auth Requests
+AuthFront --> AuthServer : 3. Login/Register/Refresh
+AuthServer --> Redis : 4. Store/Validate\nRefresh Tokens
+AuthServer --> MongoDB : 5. User CRUD
+AuthServer --> EmailService : 6. Verification Emails
+AuthServer --> AuthFront : 7. JWT Tokens
+AuthFront --> APIGateway : 8. Auth Response
+APIGateway --> Frontend : 9. JWT + User Data
+
+' Data Flow: Twitter Data Ingestion
+TwitterAPI --> DataPipeline : 10. Real-time\nTweet Stream
+DataPipeline --> Kafka : 11. Publish\nTweet Events
+
+' Data Flow: Data Processing
+Kafka --> DataProcessing : 12. Consume\nTweet Events
+DataProcessing --> Cassandra : 13. Process &\nStore Analytics
+DataProcessing --> Cassandra : 14. Identify Trends\n& Hashtags
+
+' Data Flow: User Activity
+APIGateway --> UserActivity : 15. Follow/Unfollow\nRequests
+UserActivity --> Cassandra : 16. Update User\nActivity Feed
+UserActivity --> APIGateway : 17. Feed Data
+
+' Data Flow: Real-time Data Delivery
+APIGateway --> DataSending : 18. WebSocket\nConnection Request
+DataSending --> Redis : 19. Set Socket Token
+DataSending --> Cassandra : 20. Query Tweets\n& Analytics
+Cassandra --> DataSending : 21. Trending Data\n& Hashtags
+DataSending --> APIGateway : 22. Push Real-time\nUpdates (WebSocket)
+APIGateway --> Frontend : 23. Stream Data\n(Infinite Scroll)
+
+' Additional Data Flows
+Cassandra --> DataProcessing : 24. Read for\nSpark Analysis
+
+note right of APIGateway
+  - JWT Validation
+  - Request Routing
+  - Authorization
+end note
+
+note right of Kafka
+  - Event Buffer
+  - Asynchronous
+    Communication
+end note
+
+note right of DataProcessing
+  - Spark Processing
+  - Trend Analysis
+  - Popular Tweets
+  - Hashtag Rankings
+end note
+
+note right of Cassandra
+  - Scalable NoSQL
+  - Tweet Storage
+  - Analytics Data
+  - User Feeds
+end note
+
+@enduml

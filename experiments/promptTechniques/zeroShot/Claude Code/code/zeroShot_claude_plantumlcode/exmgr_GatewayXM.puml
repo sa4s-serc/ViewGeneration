@@ -1,0 +1,128 @@
+@startuml
+!define RECTANGLE_COMPONENT
+
+title GatewayXM IoT Gateway - Component Architecture
+
+skinparam componentStyle rectangle
+skinparam component {
+    BackgroundColor<<Gateway>> LightBlue
+    BackgroundColor<<Cloud>> LightGreen
+    BackgroundColor<<Device>> LightYellow
+    BackgroundColor<<Infrastructure>> LightGray
+}
+
+package "IoT Devices" {
+    component [ModBus Smart Meters] <<Device>> as modbus
+    component [ESP8266/ESP32 Sensor Nodes] <<Device>> as sensors
+
+    package "Sensor Node Firmware" {
+        component [Arduino Firmware] as firmware
+        component [Mesh Network Module] as mesh
+        component [OTA Update Client] as sensor_ota
+    }
+
+    sensors -down-> firmware
+    firmware -down-> mesh
+    firmware -down-> sensor_ota
+}
+
+package "GatewayXM (Raspberry Pi)" <<Gateway>> {
+
+    package "Resin.io/Balena Platform" <<Infrastructure>> {
+        component [Container Orchestration] as balena
+        component [OTA Update Manager] as gateway_ota
+    }
+
+    package "Eclipse Kura/OSGi Runtime" {
+        component [Kura Framework] as kura
+
+        package "Kura Bundles (OSGi)" {
+            component [ModBus Driver Bundle] as modbus_bundle
+            component [Thingsboard Integration Bundle] as tb_bundle
+            component [Asset Service] as asset_service
+            component [MQTT Client Service] as mqtt_client
+        }
+
+        kura -down-> modbus_bundle
+        kura -down-> tb_bundle
+        kura -down-> asset_service
+        kura -down-> mqtt_client
+
+        tb_bundle ..> asset_service : <<uses>>
+        tb_bundle ..> mqtt_client : <<uses>>
+    }
+
+    package "Agile Stack" {
+        component [Artemis MQTT Broker] as artemis
+        component [Data Aggregation] as aggregation
+    }
+
+    balena -down-> kura : manages
+    balena -down-> artemis : manages
+}
+
+package "Cloud Platform" <<Cloud>> {
+    component [Thingsboard IoT Platform] as thingsboard
+
+    package "Thingsboard Services" {
+        component [Data Storage] as storage
+        component [Visualization Dashboard] as dashboard
+        component [Analytics Engine] as analytics
+    }
+
+    thingsboard -down-> storage
+    thingsboard -down-> dashboard
+    thingsboard -down-> analytics
+}
+
+' Device to Gateway connections
+modbus -right--> modbus_bundle : ModBus Protocol
+sensors --> artemis : MQTT Publish\n(Telemetry Data)
+
+' Internal Gateway connections
+artemis --> tb_bundle : MQTT Subscribe
+modbus_bundle --> aggregation : Data Flow
+aggregation --> tb_bundle : Aggregated Data
+
+' Gateway to Cloud connections
+tb_bundle --> thingsboard : MQTT/HTTP\n(Forward Data)
+
+' OTA Update flows
+gateway_ota ..> kura : Update Gateway\nSoftware
+gateway_ota ..> artemis : Update Services
+sensor_ota ..> gateway_ota : Request\nFirmware Updates
+
+interface "ModBus Interface" as modbus_if
+interface "MQTT Interface" as mqtt_if
+interface "Thingsboard API" as tb_api
+interface "OSGi Service Interface" as osgi_if
+
+modbus - modbus_if
+artemis - mqtt_if
+thingsboard - tb_api
+asset_service - osgi_if
+
+note right of sensors
+  Mesh network topology
+  for redundancy and
+  extended range
+end note
+
+note left of kura
+  Modular OSGi-based
+  architecture with
+  dependency injection
+end note
+
+note bottom of artemis
+  Publish-Subscribe
+  pattern for async
+  communication
+end note
+
+note right of thingsboard
+  Centralized data storage,
+  visualization, and analysis
+end note
+
+@enduml

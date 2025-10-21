@@ -1,0 +1,77 @@
+@startuml
+!define RECTANGLE class
+
+participant "COS Trigger" as Trigger
+participant "handler.js" as Handler
+participant "COS Receiver\nBucket" as ReceiverBucket
+participant "Decompression\nModule" as Decompress
+participant "Parser/Transformer" as Parser
+participant "IBM Log Analysis\nAPI" as LogAnalysis
+participant "COS Archive\nBucket" as ArchiveBucket
+
+activate Trigger
+Trigger -> Handler: Flow log file written event
+activate Handler
+
+Handler -> ReceiverBucket: Retrieve compressed flow log
+activate ReceiverBucket
+ReceiverBucket --> Handler: Compressed log file
+deactivate ReceiverBucket
+
+Handler -> Decompress: Decompress log file
+activate Decompress
+Decompress --> Handler: Decompressed JSON data
+deactivate Decompress
+
+Handler -> Parser: Parse JSON data
+activate Parser
+Parser -> Parser: Extract relevant information
+Parser -> Parser: Transform data format
+Parser -> Parser: Add metadata
+Parser --> Handler: Transformed log entries
+deactivate Parser
+
+Handler -> LogAnalysis: Forward processed logs
+activate LogAnalysis
+
+alt Success
+    LogAnalysis --> Handler: Success response
+    deactivate LogAnalysis
+
+    Handler -> ArchiveBucket: Copy processed logs
+    activate ArchiveBucket
+    ArchiveBucket --> Handler: Copy confirmation
+    deactivate ArchiveBucket
+
+    Handler -> ReceiverBucket: Delete original log file
+    activate ReceiverBucket
+    ReceiverBucket --> Handler: Deletion confirmation
+    deactivate ReceiverBucket
+
+else Transient Error
+    LogAnalysis --> Handler: Error response
+    deactivate LogAnalysis
+
+    Handler -> Handler: Apply retry pattern
+
+    Handler -> LogAnalysis: Retry forward logs
+    activate LogAnalysis
+    LogAnalysis --> Handler: Success response
+    deactivate LogAnalysis
+
+    Handler -> ArchiveBucket: Copy processed logs
+    activate ArchiveBucket
+    ArchiveBucket --> Handler: Copy confirmation
+    deactivate ArchiveBucket
+
+    Handler -> ReceiverBucket: Delete original log file
+    activate ReceiverBucket
+    ReceiverBucket --> Handler: Deletion confirmation
+    deactivate ReceiverBucket
+end
+
+Handler --> Trigger: Processing complete
+deactivate Handler
+deactivate Trigger
+
+@enduml

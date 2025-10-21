@@ -1,0 +1,145 @@
+@startuml
+!define COMPONENT_STYLE rectangle
+
+skinparam component {
+    BackgroundColor<<core>> LightBlue
+    BackgroundColor<<rendering>> LightGreen
+    BackgroundColor<<robotic>> LightYellow
+    BackgroundColor<<data>> LightPink
+}
+
+package "3D Rendering and Visualization" {
+    [Three.js Core] <<rendering>> as ThreeJS
+    [WebGL Renderer] <<rendering>> as WebGL
+    [Potree Point Cloud] <<rendering>> as Potree
+    [Shader System] <<rendering>> as Shaders
+    [Camera Controllers] <<rendering>> as Cameras
+    [Scene Graph Manager] <<rendering>> as SceneGraph
+    [Material System] <<rendering>> as Materials
+    [LOD Handler] <<rendering>> as LOD
+}
+
+package "Robotic Control and Sensing" {
+    [Robot Controller] <<robotic>> as Robot
+    [Command Handler] <<robotic>> as Commands
+    [Sensor Manager] <<robotic>> as Sensors
+    [LIDAR Sensor] <<robotic>> as LIDAR
+    [Kinect Sensor] <<robotic>> as Kinect
+    [Sharp Distance] <<robotic>> as Sharp
+    [Gyroscope] <<robotic>> as Gyro
+    [Odometer] <<robotic>> as Odometer
+}
+
+package "Data Processing" {
+    [Point Cloud Processor] <<data>> as PCProcessor
+    [ICP Algorithm] <<data>> as ICP
+    [LAS/LAZ Decoder] <<data>> as Decoder
+    [CZML Data Source] <<data>> as CZML
+    [Coordinate Transformer] <<data>> as CoordTransform
+    [Data Buffer] <<data>> as DataBuffer
+}
+
+package "External Systems" {
+    [ROS] <<core>> as ROS
+    [Web Workers] <<core>> as Workers
+}
+
+package "UI Components" {
+    [jQuery UI] <<core>> as jQueryUI
+    [React Components] <<core>> as React
+}
+
+package "Utilities" {
+    [bluebird.js Promises] <<core>> as Promises
+    [lodash utilities] <<core>> as Lodash
+    [matplotlib visualization] <<core>> as Matplotlib
+}
+
+' Three.js and WebGL connections
+ThreeJS --> WebGL : renders via
+ThreeJS --> SceneGraph : manages
+ThreeJS --> Materials : uses
+ThreeJS --> Cameras : controls view
+SceneGraph --> LOD : manages
+Materials --> Shaders : uses
+Shaders --> WebGL : compiled by
+
+' Potree connections
+Potree --> ThreeJS : integrates with
+Potree --> Materials : uses PointCloudMaterial
+Potree --> LOD : implements
+Potree --> PCProcessor : receives data from
+
+' Data processing connections
+Decoder --> Workers : decompresses via
+Decoder --> PCProcessor : feeds data to
+PCProcessor --> Potree : converts for
+PCProcessor --> CoordTransform : transforms via
+CoordTransform --> ICP : used by
+
+' ROS and Sensor connections
+ROS --> Sensors : publishes topics to
+Sensors --> LIDAR : manages
+Sensors --> Kinect : manages
+Sensors --> Sharp : manages
+Sensors --> Gyro : manages
+Sensors --> Odometer : manages
+LIDAR --> DataBuffer : streams to
+Kinect --> DataBuffer : streams to
+Sharp --> DataBuffer : streams to
+Gyro --> DataBuffer : streams to
+Odometer --> DataBuffer : streams to
+
+' Robot control connections
+Robot --> Commands : executes
+Commands --> ROS : publishes to
+DataBuffer --> PCProcessor : feeds to
+DataBuffer --> Matplotlib : visualized by
+
+' CZML connections
+CZML --> SceneGraph : populates
+CZML --> Materials : configures
+
+' UI connections
+React --> ThreeJS : controls
+jQueryUI --> ThreeJS : controls
+React --> Robot : sends commands to
+jQueryUI --> Cameras : configures
+
+' Utility connections
+Promises --> Decoder : manages async
+Promises --> CZML : handles loading
+Lodash --> PCProcessor : utilities for
+Lodash --> CZML : utilities for
+
+' Point cloud to visualization
+PCProcessor --> Potree : formatted data
+ICP --> PCProcessor : registered clouds
+Kinect --> CoordTransform : optical coordinates
+
+' Bidirectional connections for event handling
+ThreeJS <--> React : event notifications
+Robot <--> Sensors : control & feedback
+Cameras <--> jQueryUI : interactive control
+
+note right of ROS
+  Central communication hub
+  for robotic components
+end note
+
+note right of ThreeJS
+  Core rendering engine
+  manages 3D scene
+end note
+
+note right of Potree
+  Specialized for large
+  point cloud rendering
+end note
+
+note bottom of PCProcessor
+  Converts sensor data
+  to Potree format
+end note
+
+@enduml

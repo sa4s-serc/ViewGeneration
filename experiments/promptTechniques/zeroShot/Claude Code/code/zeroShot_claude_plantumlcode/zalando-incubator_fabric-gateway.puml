@@ -1,0 +1,126 @@
+@startuml
+title Fabric Gateway - API Gateway Request Processing Control Flow
+
+actor User
+participant "Kubernetes API" as K8s
+participant "Fabric Gateway\nOperator" as Operator
+participant "GatewayWebhookRoutes" as Webhook
+participant "IngressDerivationChain" as DerivationChain
+participant "StackSetOperations" as StackSet
+participant "Skipper\nAPI Gateway" as Skipper
+participant "Authentication\n(IAM Service)" as IAM
+participant "Backend Service" as Backend
+
+== Gateway Configuration Phase ==
+
+User -> K8s: Create/Update FabricGateway CRD
+activate K8s
+
+K8s -> Webhook: Validation Webhook Request
+activate Webhook
+Webhook -> Webhook: Validate FabricGateway Resource
+alt Invalid Resource
+    Webhook --> K8s: Reject (Validation Error)
+    K8s --> User: Resource Rejected
+else Valid Resource
+    Webhook --> K8s: Accept
+    deactivate Webhook
+
+    K8s -> Operator: Synchronization Webhook Request
+    activate Operator
+
+    Operator -> DerivationChain: Derive Ingress from FabricGateway
+    activate DerivationChain
+
+    DerivationChain -> DerivationChain: Apply Authentication Policy
+    DerivationChain -> DerivationChain: Apply Authorization Policy
+    DerivationChain -> DerivationChain: Apply Rate Limiting Policy
+    DerivationChain -> DerivationChain: Apply CORS Policy
+    DerivationChain -> DerivationChain: Generate Skipper Routes
+
+    DerivationChain -> StackSet: Discover Backend Services
+    activate StackSet
+    StackSet -> K8s: Query StackSet Resources
+    K8s --> StackSet: Service Endpoints
+    StackSet --> DerivationChain: Service Discovery Info
+    deactivate StackSet
+
+    DerivationChain --> Operator: Derived Ingress Specification
+    deactivate DerivationChain
+
+    Operator -> K8s: Create/Update Ingress Resource\n(Zero-Downtime)
+    K8s --> Operator: Ingress Created/Updated
+
+    Operator --> K8s: Sync Complete
+    deactivate Operator
+
+    K8s --> User: FabricGateway Resource Applied
+end
+deactivate K8s
+
+== Runtime Request Processing Phase ==
+
+User -> Skipper: HTTP API Request
+activate Skipper
+
+Skipper -> Skipper: Route Matching\n(Based on Ingress Rules)
+
+Skipper -> IAM: Authenticate Token\n(Service/Employee Token)
+activate IAM
+alt Invalid Token
+    IAM --> Skipper: Authentication Failed
+    Skipper --> User: 401 Unauthorized
+else Valid Token
+    IAM --> Skipper: Authentication Success + Scopes
+    deactivate IAM
+
+    Skipper -> Skipper: Authorize Request\n(Check Scopes)
+    alt Insufficient Scopes
+        Skipper --> User: 403 Forbidden
+    else Authorized
+        Skipper -> Skipper: Apply Rate Limiting
+        alt Rate Limit Exceeded
+            Skipper --> User: 429 Too Many Requests
+        else Within Limits
+            Skipper -> Skipper: Apply CORS Headers
+            Skipper -> Skipper: Apply Dynamic Filters
+
+            Skipper -> Backend: Forward Request
+            activate Backend
+            Backend -> Backend: Process Request
+            Backend --> Skipper: Response
+            deactivate Backend
+
+            Skipper -> Skipper: Apply Response Filters
+            Skipper --> User: HTTP Response
+        end
+    end
+end
+deactivate Skipper
+
+== Service Discovery Update Phase ==
+
+StackSet -> K8s: StackSet Resource Updated
+activate K8s
+K8s -> Operator: Watch Event Triggered
+activate Operator
+
+Operator -> StackSet: Detect Service Changes
+activate StackSet
+StackSet -> StackSet: Identify New/Updated Services
+StackSet --> Operator: Updated Service Info
+deactivate StackSet
+
+Operator -> DerivationChain: Re-derive Ingress
+activate DerivationChain
+DerivationChain -> DerivationChain: Update Backend Endpoints
+DerivationChain --> Operator: Updated Ingress Spec
+deactivate DerivationChain
+
+Operator -> K8s: Update Ingress\n(Zero-Downtime Transition)
+K8s --> Operator: Update Complete
+Operator --> K8s: Reconciliation Complete
+deactivate Operator
+deactivate K8s
+
+@enduml

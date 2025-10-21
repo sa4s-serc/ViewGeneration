@@ -1,0 +1,141 @@
+@startuml
+!define RECTANGLE class
+
+title Remarks System - Deployment and Control Flow Sequence Diagram
+
+actor User
+participant "Chrome Extension\n(popup.html/record.js)" as Extension
+participant "Deno Deploy\n(Serverless Platform)" as Deploy
+participant "Web Server\n(server.ts)" as Server
+participant "Handler Layer" as Handler
+participant "homePage.jsx" as HomePage
+participant "remarks.ts" as RemarksHandler
+participant "quotes.ts" as QuotesHandler
+participant "tripPage.jsx" as TripPage
+participant "queryFauna.ts\n(Data Access)" as QueryFauna
+database "FaunaDB\n(GraphQL API)" as FaunaDB
+participant "GitPress Blog\n(RSS Feed)" as GitPress
+
+== Extension Deployment Flow ==
+User -> Extension: Install Chrome Extension
+activate Extension
+Extension -> Extension: Load popup.html\nLoad popup.css\nInitialize record.js
+deactivate Extension
+
+== Server Deployment Flow ==
+Deploy -> Server: Deploy server.ts to Deno Deploy
+activate Server
+Server -> Server: Initialize sift router\nLoad environment variables\n(FAUNA_SECRET)
+Server -> Handler: Register route handlers
+activate Handler
+Handler -> HomePage: Register / route
+Handler -> RemarksHandler: Register /remarks route
+Handler -> QuotesHandler: Register /quotes route
+Handler -> TripPage: Register /trip route
+deactivate Handler
+deactivate Server
+
+== User Creates Remark (Control Flow) ==
+User -> Extension: Click meeting type button
+activate Extension
+Extension -> Server: POST /remarks\n(Remark data)
+activate Server
+Server -> RemarksHandler: Handle POST request
+activate RemarksHandler
+RemarksHandler -> QueryFauna: queryFauna(createRemarkMutation)
+activate QueryFauna
+QueryFauna -> FaunaDB: GraphQL Mutation\n(Create Remark)\nAuthentication: FAUNA_SECRET
+activate FaunaDB
+FaunaDB -> FaunaDB: Store remark data
+FaunaDB --> QueryFauna: Mutation response
+deactivate FaunaDB
+QueryFauna --> RemarksHandler: Success/Error
+deactivate QueryFauna
+RemarksHandler --> Server: Response
+deactivate RemarksHandler
+Server --> Extension: HTTP Response\n(mode: no-cors)
+deactivate Server
+Extension --> User: Feedback
+deactivate Extension
+
+== User Views Homepage (Control Flow) ==
+User -> Server: GET /
+activate Server
+Server -> HomePage: Handle GET request
+activate HomePage
+HomePage -> QueryFauna: queryFauna(getTotalRemarksQuery)
+activate QueryFauna
+QueryFauna -> FaunaDB: GraphQL Query\n(Count Remarks)\nAuthentication: FAUNA_SECRET
+activate FaunaDB
+FaunaDB --> QueryFauna: Total count
+deactivate FaunaDB
+QueryFauna --> HomePage: Remarks count
+deactivate QueryFauna
+HomePage -> QueryFauna: queryFauna(getRemarksQuery)
+activate QueryFauna
+QueryFauna -> FaunaDB: GraphQL Query\n(Fetch Recent Remarks)\nAuthentication: FAUNA_SECRET
+activate FaunaDB
+FaunaDB --> QueryFauna: Remarks list
+deactivate FaunaDB
+QueryFauna --> HomePage: Remarks data
+deactivate QueryFauna
+HomePage -> HomePage: Render JSX\n(Format timestamps)
+HomePage --> Server: HTML response
+deactivate HomePage
+Server --> User: Display homepage\n(Count + Remarks list)
+deactivate Server
+
+== User Creates Quote (Control Flow) ==
+User -> Server: POST /quotes\n(Quote data)
+activate Server
+Server -> QuotesHandler: Handle POST request
+activate QuotesHandler
+QuotesHandler -> QueryFauna: queryFauna(createQuoteMutation)
+activate QueryFauna
+QueryFauna -> FaunaDB: GraphQL Mutation\n(Create Quote)\nAuthentication: FAUNA_SECRET
+activate FaunaDB
+FaunaDB -> FaunaDB: Store quote data
+FaunaDB --> QueryFauna: Mutation response
+deactivate FaunaDB
+QueryFauna --> QuotesHandler: Success/Error
+deactivate QueryFauna
+QuotesHandler --> Server: Response
+deactivate QuotesHandler
+Server --> User: HTTP Response
+deactivate Server
+
+== User Views Travelogue (Control Flow) ==
+User -> Server: GET /trip
+activate Server
+Server -> TripPage: Handle GET request
+activate TripPage
+TripPage -> GitPress: Fetch RSS feed\n(HTTP Request)
+activate GitPress
+GitPress --> TripPage: RSS XML data
+deactivate GitPress
+TripPage -> TripPage: Parse RSS feed\nRender JSX with entries
+TripPage --> Server: HTML response
+deactivate TripPage
+Server --> User: Display travelogue page
+deactivate Server
+
+== Error Handling Flow ==
+User -> Server: Request to any endpoint
+activate Server
+Server -> Handler: Route request
+activate Handler
+Handler -> QueryFauna: queryFauna(GraphQL operation)
+activate QueryFauna
+QueryFauna -> FaunaDB: GraphQL Request
+activate FaunaDB
+FaunaDB --> QueryFauna: Error response
+deactivate FaunaDB
+QueryFauna -> QueryFauna: Handle error\nLog error details
+QueryFauna --> Handler: Error object
+deactivate QueryFauna
+Handler --> Server: Error response
+deactivate Handler
+Server --> User: HTTP Error\n(Status code + message)
+deactivate Server
+
+@enduml

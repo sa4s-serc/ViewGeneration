@@ -1,0 +1,176 @@
+@startuml
+title Knowledge Graph Visualization System - Control Flow
+
+actor User
+participant "Web Browser" as Browser
+participant "Express Router" as Router
+participant "Controller" as Controller
+participant "Search Engine" as Search
+participant "Elasticsearch" as ES
+participant "CayleyGraph" as Cayley
+participant "Model" as Model
+participant "Sigma.js\n(WebGL/Canvas)" as Sigma
+participant "Redux Store" as Redux
+participant "ForceAtlas2\nWeb Worker" as Worker
+participant "A* Pathfinding" as AStar
+participant "Noverlap Plugin" as Noverlap
+
+User -> Browser: Enter search keywords
+activate Browser
+
+Browser -> Router: HTTP GET /search?keywords
+activate Router
+
+Router -> Controller: handleSearch(keywords)
+activate Controller
+
+Controller -> Search: extractRDFData(keywords)
+activate Search
+
+Search -> ES: query(keywords)
+activate ES
+ES --> Search: RDF results
+deactivate ES
+
+Search -> Cayley: fetchGraphData(keywords)
+activate Cayley
+Cayley --> Search: graph relationships
+deactivate Cayley
+
+Search --> Controller: processed RDF data
+deactivate Search
+
+Controller -> Model: transformToGraphModel(data)
+activate Model
+Model --> Controller: graph nodes & edges
+deactivate Model
+
+Controller -> Redux: dispatch(updateGraphData)
+activate Redux
+Redux -> Redux: reducer processes state
+Redux --> Controller: new state
+deactivate Redux
+
+Controller --> Router: graph data JSON
+deactivate Controller
+
+Router --> Browser: JSON response
+deactivate Router
+
+Browser -> Sigma: initialize(config)
+activate Sigma
+
+Sigma -> Sigma: detect WebGL support
+alt WebGL supported
+    Sigma -> Sigma: use WebGL renderer
+else WebGL not supported
+    Sigma -> Sigma: use Canvas renderer
+end
+
+Sigma -> Redux: subscribe(stateChanges)
+activate Redux
+Redux --> Sigma: graph data
+deactivate Redux
+
+Sigma -> Worker: startForceAtlas2(graph)
+activate Worker
+Worker -> Worker: calculate node positions
+Worker --> Sigma: position updates
+deactivate Worker
+
+Sigma -> Noverlap: preventNodeOverlap()
+activate Noverlap
+Noverlap -> Noverlap: adjust positions
+Noverlap --> Sigma: optimized layout
+deactivate Noverlap
+
+Sigma --> Browser: render graph
+deactivate Sigma
+
+Browser --> User: display visualization
+deactivate Browser
+
+User -> Browser: click on node A
+activate Browser
+
+Browser -> Sigma: nodeClickEvent(nodeA)
+activate Sigma
+
+Sigma -> Redux: dispatch(selectNode)
+activate Redux
+Redux --> Sigma: selected node state
+deactivate Redux
+
+Sigma --> Browser: highlight node
+deactivate Sigma
+
+Browser --> User: show node details
+deactivate Browser
+
+User -> Browser: request path to node B
+activate Browser
+
+Browser -> Controller: findPath(nodeA, nodeB)
+activate Controller
+
+Controller -> AStar: calculatePath(nodeA, nodeB, graph)
+activate AStar
+
+AStar -> Model: getNeighbors(node)
+activate Model
+Model --> AStar: neighbor nodes
+deactivate Model
+
+AStar -> AStar: A* algorithm execution
+AStar --> Controller: shortest path
+deactivate AStar
+
+Controller -> Redux: dispatch(updatePath)
+activate Redux
+Redux --> Controller: path state updated
+deactivate Redux
+
+Controller --> Browser: path data
+deactivate Controller
+
+Browser -> Sigma: highlightPath(nodes)
+activate Sigma
+Sigma --> Browser: render highlighted path
+deactivate Sigma
+
+Browser --> User: display path
+deactivate Browser
+
+User -> Browser: interact with UI component\n(Modal/Dropdown)
+activate Browser
+
+Browser -> Browser: Materialize component\nevent delegation
+
+Browser -> Redux: dispatch(uiAction)
+activate Redux
+Redux -> Redux: update UI state
+Redux --> Browser: new UI state
+deactivate Redux
+
+Browser --> User: update UI component
+deactivate Browser
+
+User -> Browser: apply graph filter
+activate Browser
+
+Browser -> Sigma: applyFilter(criteria)
+activate Sigma
+
+Sigma -> Redux: getState()
+activate Redux
+Redux --> Sigma: current graph data
+deactivate Redux
+
+Sigma -> Sigma: filter nodes/edges
+Sigma --> Browser: re-render filtered graph
+deactivate Sigma
+
+Browser --> User: show filtered results
+deactivate Browser
+
+@enduml

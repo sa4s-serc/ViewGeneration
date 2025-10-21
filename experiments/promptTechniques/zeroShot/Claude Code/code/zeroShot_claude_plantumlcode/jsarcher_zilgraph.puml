@@ -1,0 +1,109 @@
+@startuml
+
+skinparam component {
+    BackgroundColor<<external>> LightBlue
+    BackgroundColor<<storage>> LightYellow
+    BackgroundColor<<processing>> LightGreen
+    BackgroundColor<<frontend>> LightCoral
+    BackgroundColor<<proxy>> LightGray
+}
+
+title Zilgraph Component Diagram - Deployment and Data Flow
+
+package "External Services" {
+    component [Zilliqa Blockchain] <<external>>
+    component [Local Zil Seed Node API] <<external>>
+}
+
+package "Data Acquisition Layer" {
+    component [Zilcrawler] <<processing>> as Crawler
+    component [Crawler Manager] <<processing>> as CrawlerMgr
+    component [Zilswap Interaction] <<processing>> as ZilswapInt
+}
+
+package "Data Storage Layer" {
+    database "Elasticsearch" <<storage>> as ES
+    database "MongoDB" <<storage>> as Mongo
+}
+
+package "Data Processing Layer" {
+    component [Data Collector] <<processing>> as DataCollector
+    component [Aggregator Classes] <<processing>> as Aggregators
+}
+
+package "Frontend Layer" {
+    component [Bokeh Server] <<frontend>> as Bokeh
+    component [Liquidity Distribution Chart] <<frontend>> as PieChart
+    component [Token Details Table] <<frontend>> as TokenTable
+    component [Dashboard Main] <<frontend>> as DashMain
+    component [Kibana Dashboard] <<frontend>> as Kibana
+}
+
+package "Web Server Layer" {
+    component [Nginx Reverse Proxy] <<proxy>> as Nginx
+}
+
+package "Client Layer" {
+    component [Web Browser] <<frontend>> as Browser
+}
+
+package "Future Components" {
+    component [Zilgraph Oracle] <<external>> as Oracle
+}
+
+[Zilliqa Blockchain] --> Crawler : Fetch Transaction Data\n(via pyzil)
+[Local Zil Seed Node API] --> Crawler : API Calls
+CrawlerMgr --> Crawler : Initiates & Manages
+ZilswapInt --> [Zilliqa Blockchain] : Query Swap Rates,\nLiquidity, APY
+
+Crawler --> ES : Store Raw\nTransaction Data
+
+DataCollector --> ES : Query & Aggregate\nLiquidity Data
+Aggregators --> ES : Query Raw Data
+DataCollector --> Mongo : Store Aggregated\nData
+Aggregators --> Mongo : Store Processed\nData
+
+Bokeh --> Mongo : Retrieve Aggregated\nData
+PieChart --> Bokeh : Renders in
+TokenTable --> Bokeh : Renders in
+DashMain --> Bokeh : Configures
+Kibana --> ES : Query for\nAnalytics Dashboards
+
+Nginx --> Bokeh : Reverse Proxy\n(SSL Termination)
+Nginx --> Kibana : Reverse Proxy\n(SSL Termination)
+
+Browser --> Nginx : HTTPS Requests
+Nginx --> Browser : HTTPS Responses
+
+Aggregators ..> Oracle : Future: Provide\nAggregated Data
+Oracle ..> [Zilliqa Blockchain] : Future: On-Chain\nData Access
+
+note right of Nginx
+    SSL/TLS Termination
+    HTTP to HTTPS Redirect
+    Load Balancing
+    Security Enhancement
+end note
+
+note right of ES
+    Functions as Data Lake
+    - Flexible Querying
+    - Advanced Aggregations
+    - Raw Data Storage
+end note
+
+note right of Mongo
+    Functions as Data Warehouse
+    - Optimized for Dashboard Access
+    - Fast Read Performance
+    - Aggregated Data Only
+end note
+
+note left of Bokeh
+    Interactive Visualizations
+    - Donut Charts (Liquidity)
+    - Tables (Token Details)
+    - Custom CSS Styling
+end note
+
+@enduml

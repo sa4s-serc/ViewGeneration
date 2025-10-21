@@ -1,0 +1,201 @@
+@startuml
+title Bytom Server - Performance & Deployment Sequence Diagram
+
+actor "Node Operator" as Operator
+participant "bytomd CLI" as CLI
+participant "gRPC API\nApiService" as API
+participant "Access Token\nManager" as Auth
+participant "Protocol\nReactor" as Protocol
+participant "P2P Network\nLayer" as P2P
+participant "Block Sync\nnetsync" as Sync
+participant "TxPool" as TxPool
+participant "Mining Engine\n(Tensority)" as Mining
+participant "Bytom VM" as VM
+participant "Blockchain\nCore" as Blockchain
+participant "State Manager\nUTXO" as State
+database "LevelDB\n(dbm.DB)" as DB
+participant "Remote Peer\nNode" as Peer
+
+== Node Deployment & Initialization ==
+Operator -> CLI: Start bytomd node
+activate CLI
+CLI -> API: Initialize gRPC Server
+activate API
+API -> Auth: Setup Access Token Auth
+activate Auth
+Auth --> API: Auth Ready
+deactivate Auth
+
+CLI -> Protocol: Initialize Protocol Reactor
+activate Protocol
+Protocol -> Blockchain: Load Blockchain State
+activate Blockchain
+Blockchain -> DB: Query Latest Block
+activate DB
+DB --> Blockchain: Block Data
+deactivate DB
+Blockchain --> Protocol: State Loaded
+deactivate Blockchain
+
+CLI -> P2P: Start P2P Network Layer
+activate P2P
+P2P -> P2P: Initialize SecretConnection
+P2P --> CLI: P2P Ready
+deactivate P2P
+
+CLI -> TxPool: Initialize Transaction Pool
+activate TxPool
+TxPool -> DB: Load Pending Transactions
+activate DB
+DB --> TxPool: Transaction Data
+deactivate DB
+TxPool --> CLI: TxPool Ready
+deactivate TxPool
+
+CLI -> Mining: Initialize Mining Engine
+activate Mining
+Mining --> CLI: Mining Ready
+deactivate Mining
+
+CLI --> Operator: Node Deployed & Running
+deactivate CLI
+
+== Performance: Block Synchronization ==
+Peer -> P2P: BlockRequest Message
+activate P2P
+P2P -> Protocol: Route BlockRequest
+activate Protocol
+Protocol -> Sync: Handle Block Sync
+activate Sync
+Sync -> Blockchain: Get Block at Height
+activate Blockchain
+Blockchain -> DB: Query Block Data (Optimized)
+activate DB
+DB --> Blockchain: Block Data
+deactivate DB
+Blockchain --> Sync: Block Retrieved
+deactivate Blockchain
+Sync -> Protocol: BlockResponse
+deactivate Sync
+Protocol -> P2P: Send BlockResponse
+deactivate Protocol
+P2P -> Peer: BlockResponse Message
+deactivate P2P
+
+== Performance: Transaction Processing ==
+Operator -> API: Submit Transaction (gRPC)
+activate API
+API -> Auth: Validate Access Token
+activate Auth
+Auth --> API: Token Valid
+deactivate Auth
+
+API -> TxPool: Add Transaction
+activate TxPool
+TxPool -> TxPool: Check Double-Spend (Fast)
+TxPool -> VM: Validate Transaction Script
+activate VM
+VM -> VM: Execute Opcodes (Optimized)
+VM -> VM: Check Gas Consumption
+VM --> TxPool: Validation Result
+deactivate VM
+
+TxPool -> State: Verify UTXO Availability
+activate State
+State -> DB: Query UTXO Set (Indexed)
+activate DB
+DB --> State: UTXO Data
+deactivate DB
+State --> TxPool: UTXO Valid
+deactivate State
+
+TxPool -> Protocol: Broadcast TransactionNotify
+activate Protocol
+Protocol -> P2P: Route to Peers
+activate P2P
+P2P -> Peer: TransactionNotify Message
+deactivate P2P
+deactivate Protocol
+
+TxPool --> API: Transaction Accepted
+deactivate TxPool
+API --> Operator: Transaction Confirmed
+deactivate API
+
+== Performance: Mining & Block Creation ==
+Mining -> Mining: CPU Mining Loop (Tensority PoW)
+activate Mining
+Mining -> TxPool: Get Pending Transactions
+activate TxPool
+TxPool --> Mining: Transaction List (Workspace Pool)
+deactivate TxPool
+
+Mining -> Mining: Create Block Template
+Mining -> Mining: Calculate Tensority Hash (BLAS Optimized)
+Mining -> Mining: Find Valid Nonce
+
+Mining -> Protocol: Submit Block
+activate Protocol
+Protocol -> Blockchain: Validate Block
+activate Blockchain
+Blockchain -> Blockchain: Verify Consensus Rules
+Blockchain -> State: Update UTXO Set
+activate State
+State -> DB: Batch Write Updates (Performance)
+activate DB
+DB --> State: Write Complete
+deactivate DB
+State --> Blockchain: State Updated
+deactivate State
+
+Blockchain -> DB: Persist Block
+activate DB
+DB --> Blockchain: Block Stored
+deactivate DB
+Blockchain --> Protocol: Block Accepted
+deactivate Blockchain
+
+Protocol -> P2P: Broadcast Block
+activate P2P
+P2P -> Peer: BlockResponse Message
+deactivate P2P
+Protocol --> Mining: Block Confirmed
+deactivate Protocol
+deactivate Mining
+
+== Performance: Peer Discovery & Connection ==
+P2P -> Peer: Peer Discovery Request
+activate P2P
+activate Peer
+Peer --> P2P: Peer List
+P2P -> P2P: Establish SecretConnection (NaCl)
+P2P -> Protocol: Register New Peer
+activate Protocol
+Protocol -> Protocol: Start Reactor Event Loop
+Protocol --> P2P: Peer Registered
+deactivate Protocol
+deactivate P2P
+deactivate Peer
+
+== Deployment: Health Check & Monitoring ==
+Operator -> API: Query Node Status (gRPC)
+activate API
+API -> Protocol: Get Sync Status
+activate Protocol
+Protocol --> API: Current Height & Sync State
+deactivate Protocol
+
+API -> TxPool: Get Pool Statistics
+activate TxPool
+TxPool --> API: Pending Tx Count
+deactivate TxPool
+
+API -> Mining: Get Mining Stats
+activate Mining
+Mining --> API: Hash Rate & Block Count
+deactivate Mining
+
+API --> Operator: Node Health Report
+deactivate API
+
+@enduml

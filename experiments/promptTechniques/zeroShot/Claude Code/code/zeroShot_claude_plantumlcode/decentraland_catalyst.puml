@@ -1,0 +1,153 @@
+@startuml
+!define RECTANGLE class
+
+skinparam component {
+  BackgroundColor<<external>> LightBlue
+  BackgroundColor<<storage>> LightGreen
+  BackgroundColor<<core>> LightYellow
+}
+
+package "Catalyst Content Server" {
+  component "Server\n(Express.js)" as Server <<core>>
+  component "Environment\nConfiguration" as Environment <<core>>
+
+  package "API Layer" {
+    component "Content API v2" as ContentAPI <<core>>
+    component "Profiles API" as ProfilesAPI <<core>>
+    component "Collections API" as CollectionsAPI <<core>>
+    component "Images API" as ImagesAPI <<core>>
+  }
+
+  package "Core Services" {
+    component "Deployment\nManager" as DeploymentMgr <<core>>
+    component "Entity Parser\n& Validator" as EntityParser <<core>>
+    component "Active Entity\nManager" as ActiveEntityMgr <<core>>
+    component "Synchronization\nService" as SyncService <<core>>
+    component "Snapshots\nManager" as SnapshotsMgr <<core>>
+    component "Content\nRetrieval" as ContentRetrieval <<core>>
+  }
+
+  package "Validation & Security" {
+    component "Authentication\nValidator" as AuthValidator <<core>>
+    component "Authorization\nChecker" as AuthzChecker <<core>>
+    component "Protocol\nValidator" as ProtocolValidator <<core>>
+    component "Rate Limiter" as RateLimiter <<core>>
+  }
+
+  package "Data Access" {
+    component "Database\nQueries" as DBQueries <<core>>
+    component "LRU Cache" as Cache <<core>>
+    component "Bloom Filter" as BloomFilter <<core>>
+  }
+
+  package "Background Services" {
+    component "Garbage\nCollector" as GarbageCollector <<core>>
+    component "Migration\nManager" as MigrationMgr <<core>>
+  }
+}
+
+package "External Services" {
+  component "The Graph\n(Subgraph)" as TheGraph <<external>>
+  component "Third-Party\nResolvers" as ThirdParty <<external>>
+  component "Blockchain\n(Ethereum)" as Blockchain <<external>>
+  component "Decentraland DAO" as DAO <<external>>
+  component "Other Catalyst\nServers" as OtherCatalysts <<external>>
+}
+
+package "Storage Layer" {
+  database "PostgreSQL\nDatabase" as PostgreSQL <<storage>>
+  storage "Content Storage\n(File System)" as ContentStorage <<storage>>
+}
+
+package "Monitoring" {
+  component "Metrics\nCollector" as Metrics <<core>>
+}
+
+Server --> Environment : configures
+Server --> ContentAPI : routes
+Server --> ProfilesAPI : routes
+Server --> CollectionsAPI : routes
+Server --> ImagesAPI : routes
+
+ContentAPI --> ContentRetrieval : uses
+ContentAPI --> ActiveEntityMgr : queries
+ProfilesAPI --> TheGraph : resolves ENS/ownership
+ProfilesAPI --> ActiveEntityMgr : queries
+CollectionsAPI --> TheGraph : queries collections
+ImagesAPI --> ContentStorage : resizes content
+
+DeploymentMgr --> EntityParser : validates
+DeploymentMgr --> AuthValidator : authenticates
+DeploymentMgr --> AuthzChecker : authorizes
+DeploymentMgr --> ProtocolValidator : validates protocol
+DeploymentMgr --> RateLimiter : enforces limits
+DeploymentMgr --> DBQueries : persists
+DeploymentMgr --> ContentStorage : stores files
+DeploymentMgr --> ActiveEntityMgr : updates
+
+EntityParser --> ProtocolValidator : uses
+AuthzChecker --> TheGraph : checks ownership
+AuthzChecker --> Blockchain : verifies on-chain
+
+ActiveEntityMgr --> DBQueries : queries
+ActiveEntityMgr --> Cache : caches results
+ActiveEntityMgr --> BloomFilter : checks existence
+
+ContentRetrieval --> DBQueries : queries entities
+ContentRetrieval --> ContentStorage : retrieves files
+ContentRetrieval --> Cache : uses
+ContentRetrieval --> ThirdParty : fetches third-party
+
+SyncService --> SnapshotsMgr : generates/processes
+SyncService --> OtherCatalysts : syncs state
+SyncService --> DAO : syncs with DAO
+SyncService --> DBQueries : updates
+SnapshotsMgr --> DBQueries : queries
+SnapshotsMgr --> ContentStorage : stores snapshots
+
+DBQueries --> PostgreSQL : executes queries
+GarbageCollector --> ContentStorage : removes unused
+GarbageCollector --> DBQueries : queries
+MigrationMgr --> PostgreSQL : applies migrations
+
+Server --> Metrics : reports
+
+interface "REST API" as RESTAPI
+RESTAPI - Server
+
+interface "GraphQL" as GraphQLAPI
+GraphQLAPI - TheGraph
+
+interface "RPC" as RPCInterface
+RPCInterface - Blockchain
+
+interface "HTTP API" as ThirdPartyAPI
+ThirdPartyAPI - ThirdParty
+
+interface "Sync Protocol" as SyncProtocol
+SyncProtocol - OtherCatalysts
+SyncProtocol - DAO
+
+note right of DeploymentMgr
+  Handles entity deployment
+  with validation pipeline:
+  1. Authentication
+  2. Authorization
+  3. Protocol validation
+  4. Rate limiting
+  5. Storage & persistence
+end note
+
+note right of SyncService
+  Ensures consistency across
+  Catalyst network through
+  snapshot-based synchronization
+end note
+
+note bottom of ActiveEntityMgr
+  Uses Bloom Filter to minimize
+  database lookups for
+  non-existent entities
+end note
+
+@enduml

@@ -1,0 +1,95 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: anvasquezre_sabiduria_asegurada_experiments
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** deployment, connectivity
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+Here's a merged and refined analysis of the Policy Guru Chatbot repository:
+
+**Policy Guru Chatbot Experiments: Repository Analysis**
+
+This report analyzes the codebase for the Policy Guru Chatbot, an application designed to answer insurance policy questions via an interactive interface. The project aims to provide users with easy access to policy information and related news, leveraging a microservices-oriented architecture (with caveats) centered around a Qdrant vector database and a Chainlit front-end.
+
+**Key Functionalities and Components:**
+
+The chatbot provides:
+
+*   **Chatbot Interface:** An interactive chat interface built with Chainlit, allowing users to ask questions and receive answers.
+*   **Policy Information Retrieval:** Utilizes a Qdrant vector database to store and retrieve insurance policy information using semantic similarity, enabling content-based question answering.
+*   **Web Search:** Integrates Google Search to provide users with news and current events relevant to insurance policies.
+*   **Agent-Based Question Answering:** Employs a Langchain agent to orchestrate the question-answering process, selecting between policy search, web search, or greeting tools.
+*   **Data Pre-processing Pipeline:** Handles the process of downloading insurance policy PDFs, splitting them into chunks, generating embeddings, and loading them into the Qdrant database. PDF documents are downloaded from S3.
+*   **Feedback Mechanism:** Collects user feedback (positive/negative) on chatbot responses.
+
+**Files and Their Roles:**
+
+*   **`LICENSE`**: Standard MIT license.
+*   **`README.md`**: Project overview, features, installation instructions, and folder architecture.
+*   **`docker-compose.yml`**: Defines and orchestrates the application's services using Docker: Qdrant, the data preloader, and the chatbot application.
+*   **`env_template`**: Template for environment variables (API keys, database connections).
+*   **`app/app.py`**: Chainlit front-end code for user interaction and response display.
+*   **`app/agent_utils.py`**: Defines the custom Langchain agent, tools, prompt templates, and functions for question answering.
+*   **`app/data_utils.py`**: Handles the connection to the Qdrant database, embedding loading, and feedback saving.
+*   **`app/text_templates.py`**: Contains prompt templates for the Langchain agent, defining response structures and instructions.
+*   **`app/config.py`**: Stores configuration variables (model names, API keys, database connection details) for the application.
+*   **`data_preloader/main.py`**: Entry point for the data preloader microservice.
+*   **`data_preloader/document_utils.py`**: Functions for loading, splitting, and indexing PDF documents.
+*   **`data_preloader/data_utils.py`**: Manages interactions with the S3 bucket for downloading policy documents.
+*   **`data_preloader/config.py`**: Configuration variables for the data preloader.
+*   **`data_preloader/health_check.py`**: Provides a health check endpoint.
+
+**Architectural Insights:**
+
+*   **Microservices (ish):** The application adopts a microservice architecture, deploying the chatbot application (`app`), data preloader (`data_preloader`), and Qdrant database (`qdrant`) in separate containers for potential independent scaling and deployment. Docker Compose manages these services.
+*   **Vector Database:** Qdrant serves as the core data store, enabling semantic search for policy information.
+*   **Langchain Integration:** Langchain is leveraged to build the agent, tools, and prompt templates, providing a framework for question-answering orchestration.
+*   **Data Pre-processing Pipeline:** The data preloader service downloads PDFs from S3, splits them into chunks, generates embeddings, and loads them into Qdrant.
+* **Loose Coupling (Potential Issue):** While the architecture *intends* loose coupling, the reliance on shared volumes (e.g., `./data_preloader/dataset:/data_preloader/dataset`) might introduce dependencies, complicating independent deployment and updates. Inter-service communication requires further analysis.
+
+**Notable Design Patterns:**
+
+*   **Chain of Responsibility:** The Langchain agent uses tools (Policy Search, Web Search, Greeting) based on the input question.
+*   **Factory Pattern:** The `get_llm()` function acts as a factory for creating configured `ChatOpenAI` instances.
+*   **Strategy Pattern:** The configurability of embedding models suggests a Strategy pattern.
+*   **Singleton (Potential):** Database connections *may* be implemented as singletons.
+
+**Areas for Improvement and Security Considerations:**
+
+*   **Security:** The `env_template` reveals the potential storage of API keys and S3 credentials, which poses a security risk. Secrets management is critical.
+*   **Error Handling:** The `try...except` blocks in `data_preloader/main.py` only print exceptions. More robust error handling and logging are needed.
+*   **Microservice Architecture:** Shared volumes in `docker-compose.yml`, particularly for datasets, may hinder independent deployment and scalability. The update frequency and service coupling to the volume structure need investigation.
+* **Healthcheck Implementation:** The `healthcheck.py` has a long sleep time.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment, connectivity
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/anvasquezre_sabiduria_asegurada_experiments.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

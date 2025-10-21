@@ -1,0 +1,71 @@
+@startuml
+title Serverless Computing for IoT - Data Flow Sequence Diagram
+
+actor "IoT Device" as IoT
+participant "RabbitMQ\n(AMQP/MQTT Broker)" as Broker
+participant "Nuclio\n(Serverless Platform)" as Nuclio
+participant "Producer Function\n(Event Generator)" as Producer
+participant "Consumer Function\n(Event Processor)" as Consumer
+participant "Logger" as Logger
+
+== AMQP Data Flow ==
+
+IoT -> Broker: Send temperature data\n(AMQP protocol)
+activate Broker
+
+Broker -> Nuclio: Trigger event
+activate Nuclio
+
+Nuclio -> Producer: Deploy and invoke\namqpevent function
+activate Producer
+
+Producer -> Broker: Publish temperature event\nto AMQP queue
+deactivate Producer
+
+Broker -> Nuclio: Queue message available
+Nuclio -> Consumer: Deploy and invoke\namqpconsume function
+activate Consumer
+
+Consumer -> Broker: Consume message from queue
+Broker --> Consumer: Temperature data
+deactivate Broker
+
+Consumer -> Consumer: Process temperature data
+Consumer -> Logger: Forward processed data
+activate Logger
+Logger -> Logger: Log to console
+deactivate Logger
+deactivate Consumer
+deactivate Nuclio
+
+== MQTT Data Flow ==
+
+IoT -> Broker: Publish temperature data\n(MQTT protocol)
+activate Broker
+
+Broker -> Nuclio: Trigger event
+activate Nuclio
+
+Nuclio -> Producer: Deploy and invoke\nmqttrandomevent function
+activate Producer
+
+Producer -> Broker: Publish random temperature\nto MQTT topic
+deactivate Producer
+
+Broker -> Nuclio: Topic message available
+Nuclio -> Consumer: Deploy and invoke\nmqttconsume function
+activate Consumer
+
+Consumer -> Broker: Subscribe and consume\nfrom MQTT topic
+Broker --> Consumer: Temperature data
+deactivate Broker
+
+Consumer -> Consumer: Process temperature data
+Consumer -> Logger: Forward processed data
+activate Logger
+Logger -> Logger: Log to console
+deactivate Logger
+deactivate Consumer
+deactivate Nuclio
+
+@enduml

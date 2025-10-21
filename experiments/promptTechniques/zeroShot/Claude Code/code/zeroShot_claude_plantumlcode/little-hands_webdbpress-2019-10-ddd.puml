@@ -1,0 +1,139 @@
+@startuml
+!define RECTANGLE component
+
+skinparam component {
+    BackgroundColor<<domain>> LightYellow
+    BackgroundColor<<application>> LightBlue
+    BackgroundColor<<infrastructure>> LightGray
+    BackgroundColor<<shared>> LightGreen
+}
+
+package "Onion Architecture" {
+
+    package "Domain Layer (Core)" <<domain>> {
+        component "ScreeningV1" as sv1 <<domain>>
+        component "ScreeningV2" as sv2 <<domain>>
+        component "ScreeningV3" as sv3 <<domain>>
+        component "ScreeningV4" as sv4 <<domain>>
+
+        component "InterviewV1" as iv1 <<domain>>
+        component "InterviewV2" as iv2 <<domain>>
+        component "InterviewV3" as iv3 <<domain>>
+        component "InterviewV4" as iv4 <<domain>>
+
+        component "ScreeningStatusV1" as ss1 <<domain>>
+        component "ScreeningStatusV2" as ss2 <<domain>>
+        component "ScreeningStatusV3" as ss3 <<domain>>
+        component "ScreeningStatusV4" as ss4 <<domain>>
+
+        component "Value Objects" as vo <<domain>> {
+            component "EmailAddress" as email
+            component "ScreeningId" as sid
+        }
+
+        component "Interviews" as interviews <<domain>>
+        component "ScreeningStepResult" as ssr <<domain>>
+    }
+
+    package "Application Layer" <<application>> {
+        component "ScreeningApplicationServiceV1" as sas1 <<application>>
+        component "ScreeningApplicationServiceV2" as sas2 <<application>>
+        component "ScreeningApplicationServiceV3" as sas3 <<application>>
+        component "ScreeningApplicationServiceV4" as sas4 <<application>>
+    }
+
+    package "Infrastructure Layer" <<infrastructure>> {
+        package "Data Access" {
+            component "ScreeningRepository" as repo <<infrastructure>>
+            component "ScreeningJdbcRepository" as jdbcRepo <<infrastructure>>
+            component "ScreeningDao" as dao <<infrastructure>>
+            component "InterviewDao" as idao <<infrastructure>>
+        }
+
+        component "Database" as db <<infrastructure>>
+    }
+
+    package "Shared Components" <<shared>> {
+        component "ApplicationException" as appEx <<shared>>
+        component "Const" as const <<shared>>
+    }
+
+    component "DddSampleApplication" as mainApp
+}
+
+' Application Service Dependencies
+sas1 --> sv1 : orchestrates
+sas2 --> sv2 : orchestrates
+sas3 --> sv3 : orchestrates
+sas4 --> sv4 : orchestrates
+
+sas1 --> repo : uses
+sas2 --> repo : uses
+sas3 --> repo : uses
+sas4 --> repo : uses
+
+' Domain Model Relationships
+sv1 --> iv1 : contains
+sv2 --> iv2 : contains
+sv3 --> iv3 : contains
+sv4 --> iv4 : contains
+
+sv1 --> ss1 : uses
+sv2 --> ss2 : uses
+sv3 --> ss3 : uses
+sv4 --> ss4 : uses
+
+sv3 --> vo : uses
+sv4 --> vo : uses
+
+sv4 --> interviews : contains
+sv4 --> ssr : uses
+
+' Repository Pattern
+repo <|.. jdbcRepo : implements
+jdbcRepo --> dao : uses
+jdbcRepo --> idao : uses
+
+' Data Access
+dao --> db : persists to
+idao --> db : persists to
+
+' Shared Dependencies
+sas1 --> appEx : throws
+sas2 --> appEx : throws
+sas3 --> appEx : throws
+sas4 --> appEx : throws
+
+' Main Application
+mainApp --> sas1 : initializes
+mainApp --> sas2 : initializes
+mainApp --> sas3 : initializes
+mainApp --> sas4 : initializes
+
+note right of "Domain Layer (Core)"
+  Core business logic
+  Rich domain models
+  Factory Methods
+  Value Objects (v3, v4)
+  State management via Enums
+end note
+
+note right of "Application Layer"
+  Entry points
+  Orchestration
+  Use case coordination
+end note
+
+note right of "Infrastructure Layer"
+  Data persistence
+  Repository implementation
+  DAO pattern
+end note
+
+note bottom of vo
+  Immutable objects
+  Data validation
+  Introduced in v3/v4
+end note
+
+@enduml

@@ -1,0 +1,98 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: RunnersHi_RunnersHi_Server
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** data_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## RunnersHi Backend Server Analysis Report
+
+This report analyzes the backend server for the "RunnersHi" application, focusing on its functionality, architecture, and design patterns. The server provides real-time matching of runners, tracks running data, and displays leaderboards, utilizing a Model-View-Controller (MVC) architectural pattern and Socket.IO for real-time communication. A MySQL database stores user, game, and running data, with JWT authentication and custom middleware for error handling and response formatting.
+
+**Key Functionalities and Components:**
+
+*   **User Management:** Comprehensive user management including registration, login, profile management (nickname, gender, level, image, visibility), and password recovery using `bcrypt` for password hashing.
+*   **Real-time Matching:** Employs Socket.IO to match runners based on level, desired running time, and gender preference, using a matching algorithm to find opponents within existing or new rooms.
+*   **Running Data Tracking:** Stores detailed running data including distance, time, coordinates (latitude/longitude), results (win/lose/escape), timestamps, and calculated pace.
+*   **Leaderboards (Ranking):** Generates rankings for top runners, winners, and losers based on monthly data, providing accessible API endpoints.
+*   **Badges:** Implements a badge system rewarding achievements such as first win, number of wins, fastest pace, and longest distance.
+*   **API Endpoints:** Exposes a RESTful API for user management, ranking, and record retrieval, adhering to clear separation of concerns.
+*   **Authentication:** Secures the application using JWT (JSON Web Tokens) for user authentication.
+*   **Error & Response Handling:** Custom middleware handles errors and formats successful responses, ensuring consistent communication with the client.
+*   **Database Interaction:** Leverages `promise-mysql` to interact with a MySQL database, with connection details configured in `config/DBConfig.json`.
+
+**Important Files and Their Roles:**
+
+*   `README.md`: Project overview, features, API documentation links, ERD diagram, and dependencies.
+*   `app.js`: Main application entry point. Sets up the Express server, middleware (logger, JSON parsing, cookie parsing, static file serving), defines Socket.IO connections, initializes routes, and configures error and response handlers.
+*   `runners_server/middleware/auth.js`: Authentication middleware (implementation likely within `controllers/authController.js`).
+*   `runners_server/models/*`: Data models for database interaction:
+    *   `authModel.js`: Authentication-related database operations, including token verification.
+    *   `userModel.js`: User-related database operations (registration, login, profile management).
+    *   `recordModel.js`: Storing and retrieving running records.
+    *   `matchingModel.js`: Matching runners and storing running data.
+    *   `pool.js`: Manages the MySQL connection pool.
+    *   `rankingModel.js`: Database queries for generating leaderboards.
+*   `runners_server/controllers/*`: Controllers handling requests and interacting with models:
+    *   `userController.js`: User-related API requests.
+    *   `rankingController.js`: Leaderboards and user profiles.
+    *   `authController.js`: Authentication logic.
+    *   `recordController.js`: Running records.
+    *   `matchingController.js`: (Potentially incomplete/unnecessary)
+*   `runners_server/routes/*`: API routes:
+    *   `user.js`: User management routes.
+    *   `ranking.js`: Leaderboard routes.
+    *   `record.js`: Running record routes.
+    *   `index.js`: Includes other route files.
+*   `runners_server/modules/socket.js`: Socket.IO logic for real-time matching and communication (joining rooms, count-downs, sending data, winner determination).
+*   `runners_server/handlers/*`: Middleware for error and response management:
+    *   `ErrorHandler.js`: Handles errors and sends responses.
+    *   `responseHandler.js`: Formats successful responses.
+
+**Architectural Insights:**
+
+*   **MVC (Model-View-Controller):** Strong adherence to the MVC pattern for organization and separation of concerns.
+*   **RESTful API:** API design follows RESTful principles for resource management.
+*   **Real-time Communication:** Core functionality relies on Socket.IO for runner matching and in-run data updates.
+*   **Middleware Pattern:** Extensive use of middleware for authentication, logging, error handling, and response formatting.
+*   **Modularity:** Well-organized modules (models, controllers, routes) promote maintainability and scalability.
+
+**Notable Design Patterns:**
+
+*   **Middleware Pattern:** Utilizing Express.js middleware for modular request and response handling.
+*   **Connection Pool:**  `promise-mysql` manages a connection pool for improved database performance.
+*   **Singleton (Potential):**  `app.io` socket instance might be a singleton if accessed globally.
+*   **Factory Pattern (Potential):** Route loading in `routes/index.js` may resemble a factory pattern.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: data_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/RunnersHi_RunnersHi_Server.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

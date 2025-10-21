@@ -1,0 +1,74 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: duanfuxiang0_MysqlMigrationTool
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** control_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## Incremental Data Migration Tool Analysis
+
+This report analyzes an incremental data migration tool designed to transfer data from a MySQL database using binlog parsing. The tool leverages the `go-mysql` library to capture and interpret database changes and subsequently applies those changes to a new database.
+
+**Core Functionality:**
+
+The tool's primary function is to perform near real-time data replication from a source MySQL database to a destination database. This is achieved through the following key components:
+
+*   **Binlog Capture and Parsing:** The tool connects to the MySQL server, listens for binlog events using `go-mysql/canal`, and parses the binlog stream to extract row-level changes (inserts, updates, deletes). The `canal.RowsEvent` is utilized to apply these row-based changes.
+*   **Data Type Handling:** A `BinlogParser` handles diverse MySQL data types (bool, string, int, time, Null types) and converts them to their corresponding Go types. This ensures accurate data translation during migration.
+*   **Data Mapping:** Reflection is employed to dynamically map binlog row data to Go structs (e.g., `User`, `Email`, `Mobile`). The `parseTagSetting` function extracts column names from struct tags to facilitate this mapping.
+*   **Database Operations:** For each data model (`User`, `Email`, `Mobile`), `InsertToNew`, `UpdateToNew`, and `DeleteFromNew` methods are implemented. These methods execute the necessary SQL queries to apply changes to the target database.
+*   **Error Handling:** A `defer...recover()` block within the `OnRow` function prevents panics from halting the process and prints stack traces for debugging.
+
+**Key Files and Their Roles:**
+
+*   **`incremental_data_migration.go`:** The central file for the incremental migration. It initializes the binlog listener (`canal.Canal`), defines the `BinlogParser` struct and its methods for parsing binlog row events. It also defines the `RowEventHandler` struct, which implements the `canal.EventHandler` interface. This handler processes each binlog event and applies changes to the target database. The `main` function initiates the binlog listener.
+*   **`full_data_migration.go`:** Implements a full data migration (snapshot) from the source database to the target database.
+*   **`core/dao.go`:** Defines the data models (e.g., `User`, `Email`, `Mobile`) as Go structs. It also includes database connection setup, helper functions for type conversions (e.g., `NullTime2DateFmt`, `NullBytes2PtrBytes`), and the `InsertToNew`, `UpdateToNew`, and `DeleteFromNew` methods for each model.
+*   **`core/conf.go`:** Intended for configuration purposes, but is currently empty. This is a key area for future improvement.
+*   **`README.md`:** Contains an overview of the tool, its architecture, and usage instructions.
+
+**Architecture and Design Patterns:**
+
+*   **Event-Driven Architecture:** The system utilizes an event-driven architecture. Binlog events trigger the `RowEventHandler` to process and propagate changes.
+*   **Layered Structure:** The separation of concerns is evident through a layered structure. Binlog capture and parsing (in `incremental_data_migration.go`) are distinct from data access logic (in `core/dao.go`).
+*   **Data Transfer Object (DTO) Pattern:** The `User`, `Email`, and `Mobile` structs serve as DTOs, encapsulating data transferred between the binlog parser and database operations.
+*   **Observer Pattern:** The `canal.Canal` and `canal.EventHandler` interface implement a variation of the observer pattern. The `Canal` acts as the subject, and the `RowEventHandler` acts as the observer, receiving notifications (binlog events) for each subject.
+*   **Reflection:** The `BinlogParser` dynamically maps binlog data to Go structs using reflection, enhancing code generality and accommodating different table structures without manual field mapping.
+
+**Potential Improvements:**
+
+*   **Centralized Configuration:** Migrate database credentials and connection details to `core/conf.go` for better manageability.
+*   **Genericity through Interfaces:** Enhance code reusability by using interfaces for data models. This would allow the system to handle different data types from the binlog parser beyond just `User`, `Email`, and `Mobile`, requiring a more generic handler than the current implementation.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: control_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/duanfuxiang0_MysqlMigrationTool.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

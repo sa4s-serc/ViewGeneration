@@ -1,0 +1,95 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: andrempmattos_harsh-payload
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** scheduling
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## HARSH Payload Repository Analysis: A Consolidated Report
+
+This report consolidates the analysis of various code chunks from a GitHub repository focused on a "HARSH Payload" project, likely a radiation-hardened system for CubeSat applications, implemented on a Microsemi SmartFusion2 FPGA. The project encompasses both hardware and software/firmware components, exhibiting a layered architecture with an emphasis on modularity and configurability.
+
+**I. Overview**
+
+The repository centers around an FPGA-based System-on-Chip (SoC) design using the Microsemi SmartFusion2 family. Key elements include peripheral drivers, real-time operating system (FreeRTOS), experiment algorithms (primarily memory testing), on-board computer (OBC) communication, and hardware implementation details. The design utilizes a layered architecture with a hardware abstraction layer (HAL), driver layer, and application layer, promoting code reusability and maintainability.
+
+**II. Software/Firmware Components**
+
+*   **Real-Time Operating System (FreeRTOS):** FreeRTOS manages tasks, resources, and scheduling. Task management, queueing mechanisms, and timer functionalities form its core. It employs priority-based scheduling, interrupt-driven design, and supports both static and dynamic memory allocation. Event groups, mutexes and semaphores are implemented using queues.
+*   **Peripheral Drivers (Bare-Metal):** Drivers provide low-level hardware control for peripherals: GPIO, UART, SPI, RTC, PDMA, Watchdog Timer, Timer, CAN, NVM (eNVM), and I2C. These drivers are designed for bare-metal environments and often use interrupts for asynchronous event handling. Many drivers are dependent on Libero tools configurations.
+*   **System Services Driver:** This suite facilitates system-level functions such as reading system information, cryptography (AES, SHA256, HMAC), random number generation, Flash*Freeze, Zeroization, in-system programming (ISP), and digest checks. Communication with the system controller is managed by COMBLK.
+*   **Experiment Algorithms:** Implements memory testing algorithms, including static loop, dynamic loop, and stress tests, along with data structures for experiment logging. Also implements latch-up detection and handling.
+*   **OBC Communication (FSP):** The FloripaSat Protocol (FSP) is implemented for sending and receiving data and commands to/from the OBC. FSP decoding logic uses a state machine for packet processing.
+*    **Raspberry Pi Software Wrapper**: A software interface is implemented in C for Raspberry Pi, enabling experiment control and interfacing with the device.
+    *   Raspberry Pi-specific wrapper, abstracting GPIO and SPI functionalities using the bcm2835 library.
+
+**III. Hardware Components and Architecture**
+
+*   **FPGA Fabric:** The primary computational resource is the SmartFusion2 FPGA. The design utilizes DirectCore IP blocks from Microsemi for key functionalities (AXI, AHB, memory controller, reset). It relies on ODB++ formated output data.
+*   **AXI/AHB Interconnect:** AXI and AHB-Lite bus architectures are employed for inter-component communication. A COREAHBLTOAXI bridge connects AHB-Lite and AXI domains. The interconnect's behavior is defined by parameterization. The design is configurable using generics and generate statements. Components like `axi_feedthrough`, `axi_interconnect_ntom`, and address channel logic make up the interconnect. A key feature is high-granularity memory management.
+*   **Memory Subsystem:** The system incorporates both embedded SRAM (ESRAM) and external DDR SDRAM. Configuration settings define the address mapping, sizes, and buffering for these memories. CORESDR_AXI is used as an AXI based SDRAM controller.
+*   **Clocking and Reset:** Clock generation relies on oscillators (FABOSC, OSC) and Clock Conditioning Circuits (CCC). The design demonstrates attention to multiple clock domains, utilizing reset domain crossing (RDC) handling. A `CoreResetP` controller handles reset generation and distribution. The code is designed to handle clock domain crossings between different clock domains.
+*   **Peripheral Interfaces:** Interfaces include GPIO, UART, SPI, I2C, CAN, and USB, enabling communication with external devices. I/O multiplexing (IOMUX) configures pin assignments.
+*   **Power Management:** Design includes overvoltage/overcurrent protection, noise filtering, and noise reduction features.
+
+**IV. Design Patterns**
+
+*   **Hierarchical Design:** The system is decomposed into smaller, manageable modules.
+*   **Bus-Based Architecture:** Relies on standardized buses (AXI, AHB) for modularity and interoperability.
+*   **Data-Driven Design:** The UI is driven by data, allowing for easy modification and adaptation of the layout and appearance.
+*   **Component-Based Design:** Leverages pre-verified IP cores for common functionalities and uses code objects to represent different components.
+*   **Configuration-Driven Design:** Configuration files and TCL scripts parameterize the FPGA build process.
+*   **Constraint-Driven Design:** SDC and PDC files guide the place and route tools.
+*   **Hardware Abstraction Layer (HAL):** The rasp_wrapper provides an abstraction layer for Raspberry Pi-specific hardware functionalities, enabling portability.
+*    **Gated Logic**: Includes gated signals on slave interfaces to enable slave selections and operations.
+
+**V. Synthesis and Implementation**
+
+*   The project targets a Microsemi SmartFusion2 FPGA.
+*   The Synplify Pro tool is used for logic synthesis. TCL scripts automate the synthesis flow.
+*   The system incorporates BFM driven simulation for verification and makes use of command and event lists.
+*   Resource utilization reports provide insights into the hardware footprint of the design and report warnings about unconnected parts, and ROM implementation issues.
+*   Timing constraints, especially for clock signals, are critical for meeting performance requirements.
+
+**VI. Key Concerns and Potential Issues**
+
+*   Numerous warnings about unused and undriven signals require thorough investigation to avoid wasted resources or incorrect behavior.
+*   Timing violations and the need to resolve combinational loops indicate timing closure challenges.
+*   Potential simulation mismatches and floating signals may require improved code initialization and simulation testing.
+
+**Conclusion**
+
+The HARSH payload repository showcases a complex and modular FPGA-based system design, combining hardware and software elements to achieve a specific payload function. Attention to detail is reflected in clock domain management, memory subsystem integration, and security features. Addressing the identified warnings and potential issues is essential for ensuring the performance and reliability of the final implementation.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: scheduling
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/andrempmattos_harsh-payload.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

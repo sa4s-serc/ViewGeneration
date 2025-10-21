@@ -1,0 +1,183 @@
+@startuml
+title Turing Platform - ML Experiment Deployment and Execution Control Flow
+
+actor User
+participant "Python SDK" as SDK
+participant "API Server" as API
+participant "Router Manager" as RouterMgr
+participant "Experiment Engine" as ExpEngine
+participant "Ensembler Manager" as EnsemblerMgr
+participant "Kubernetes Cluster" as K8s
+participant "Batch Job Manager" as BatchMgr
+participant "Spark on K8s" as Spark
+participant "Logger Service" as Logger
+participant "Alert Manager" as Alert
+participant "GitLab (GitOps)" as GitLab
+database "BigQuery/Kafka" as Storage
+participant "Prometheus" as Prometheus
+participant "Jaeger" as Jaeger
+
+== Router Creation and Deployment ==
+User -> SDK: Create router configuration
+activate SDK
+SDK -> API: POST /routers (HTTP/JSON or UPI/gRPC config)
+activate API
+API -> RouterMgr: Create router instance
+activate RouterMgr
+RouterMgr -> RouterMgr: Validate configuration
+RouterMgr -> K8s: Generate Kubernetes specs (Builder Pattern)
+activate K8s
+K8s -> K8s: Create router deployment
+K8s --> RouterMgr: Deployment created
+deactivate K8s
+RouterMgr --> API: Router created
+deactivate RouterMgr
+API --> SDK: Router ID and status
+deactivate API
+SDK --> User: Router details
+deactivate SDK
+
+== Experiment Engine Setup ==
+User -> SDK: Configure experiment (A/B test)
+activate SDK
+SDK -> API: POST /experiments
+activate API
+API -> ExpEngine: Register experiment runner
+activate ExpEngine
+ExpEngine -> ExpEngine: Load engine plugin (Factory Pattern)
+ExpEngine -> ExpEngine: Initialize runner (Standard/Custom/Planout/Optimizely)
+ExpEngine --> API: Experiment engine ready
+deactivate ExpEngine
+API --> SDK: Experiment configured
+deactivate API
+SDK --> User: Experiment ID
+deactivate SDK
+
+== Ensembler Deployment ==
+User -> SDK: Deploy ensembler (PyFunc/Docker/Standard)
+activate SDK
+SDK -> API: POST /ensemblers
+activate API
+API -> EnsemblerMgr: Create ensembler
+activate EnsemblerMgr
+EnsemblerMgr -> EnsemblerMgr: Select ensembler type (Strategy Pattern)
+EnsemblerMgr -> K8s: Deploy ensembler service
+activate K8s
+K8s -> K8s: Create ensembler pods
+K8s --> EnsemblerMgr: Service deployed
+deactivate K8s
+EnsemblerMgr --> API: Ensembler ready
+deactivate EnsemblerMgr
+API --> SDK: Ensembler endpoint
+deactivate API
+SDK --> User: Deployment successful
+deactivate SDK
+
+== Runtime Request Flow ==
+User -> RouterMgr: Incoming prediction request
+activate RouterMgr
+RouterMgr -> ExpEngine: Get experiment assignment
+activate ExpEngine
+ExpEngine -> ExpEngine: Evaluate experiment logic
+ExpEngine --> RouterMgr: Route decision (treatment variant)
+deactivate ExpEngine
+RouterMgr -> RouterMgr: Route to model endpoint(s)
+RouterMgr -> EnsemblerMgr: Send model predictions
+activate EnsemblerMgr
+EnsemblerMgr -> EnsemblerMgr: Combine predictions (Strategy Pattern)
+EnsemblerMgr --> RouterMgr: Ensembled result
+deactivate EnsemblerMgr
+RouterMgr -> Logger: Log result (async)
+activate Logger
+Logger -> Logger: Serialize to protobuf
+Logger -> Storage: Write to BigQuery/Kafka/Fluentd
+activate Storage
+Storage --> Logger: Logged
+deactivate Storage
+deactivate Logger
+RouterMgr -> Jaeger: Send trace data
+activate Jaeger
+Jaeger --> RouterMgr: Trace recorded
+deactivate Jaeger
+RouterMgr --> User: Prediction response
+deactivate RouterMgr
+
+== Batch Ensembling Job ==
+User -> SDK: Submit batch job
+activate SDK
+SDK -> API: POST /batch-jobs
+activate API
+API -> BatchMgr: Create batch job
+activate BatchMgr
+BatchMgr -> BatchMgr: Parse job configuration (YAML)
+BatchMgr -> Spark: Submit Spark application
+activate Spark
+Spark -> K8s: Create Spark driver/executor pods
+activate K8s
+K8s --> Spark: Pods running
+deactivate K8s
+Spark -> Spark: Execute batch ensembling
+Spark -> Storage: Write results
+activate Storage
+Storage --> Spark: Write complete
+deactivate Storage
+Spark --> BatchMgr: Job completed
+deactivate Spark
+BatchMgr -> API: Update job status
+API -> API: Trigger webhook (event-driven)
+API --> SDK: Job status
+deactivate API
+deactivate BatchMgr
+SDK --> User: Job result
+deactivate SDK
+
+== Alert Configuration ==
+User -> SDK: Configure alert rule
+activate SDK
+SDK -> API: POST /alerts
+activate API
+API -> Alert: Create alert configuration
+activate Alert
+Alert -> GitLab: Commit alert rule (GitOps)
+activate GitLab
+GitLab -> GitLab: Store configuration as code
+GitLab --> Alert: Rule committed
+deactivate GitLab
+Alert -> Prometheus: Register alert rule
+activate Prometheus
+Prometheus --> Alert: Rule active
+deactivate Prometheus
+Alert --> API: Alert configured
+deactivate Alert
+API --> SDK: Alert ID
+deactivate API
+SDK --> User: Alert active
+deactivate SDK
+
+== Monitoring and Logs ==
+User -> SDK: Get pod logs
+activate SDK
+SDK -> API: GET /logs
+activate API
+API -> K8s: Retrieve pod logs
+activate K8s
+K8s --> API: Log stream
+deactivate K8s
+API --> SDK: Logs
+deactivate API
+SDK --> User: Display logs
+deactivate SDK
+
+Prometheus -> RouterMgr: Scrape metrics
+activate Prometheus
+activate RouterMgr
+RouterMgr --> Prometheus: Metrics data
+deactivate RouterMgr
+Prometheus -> Alert: Evaluate alert rules
+activate Alert
+Alert -> Alert: Check thresholds
+Alert -> User: Send alert notification
+deactivate Alert
+deactivate Prometheus
+
+@enduml

@@ -1,0 +1,146 @@
+@startuml
+title RSS Lambda - Control Flow Sequence Diagram
+
+participant "CloudWatch Event\n(Schedule)" as CWE
+participant "rsscrawl\nLambda" as Crawl
+participant "S3 Bucket" as S3
+participant "feeds.txt" as Feeds
+participant "Step Function\n(rssblog)" as SF
+participant "rssgetfeed\nLambda" as GetFeed
+participant "RSS Feed\nSource" as RSS
+participant "readability-lxml\nLibrary" as ReadLib
+participant "AWS Comprehend" as Comprehend
+participant "DynamoDB\nTable" as DDB
+participant "SES" as SES
+participant "Algolia\nSearch Index" as Algolia
+participant "AppSync\nGraphQL API" as AppSync
+participant "Client" as Client
+participant "pagecount\nLambda" as PageCount
+
+== RSS Feed Monitoring and Processing ==
+
+CWE -> Crawl: Trigger (scheduled)
+activate Crawl
+
+Crawl -> S3: Check existing data
+activate S3
+S3 --> Crawl: Return existing data
+deactivate S3
+
+Crawl -> Feeds: Retrieve RSS feed URLs
+activate Feeds
+Feeds --> Crawl: Feed URL list
+deactivate Feeds
+
+Crawl -> SF: Start execution\n(feed URLs)
+activate SF
+deactivate Crawl
+
+SF -> SF: Map state (fan-out)\nfor each feed URL
+
+loop For each RSS feed URL
+    SF -> GetFeed: Invoke\n(feed URL)
+    activate GetFeed
+
+    GetFeed -> RSS: HTTP GET RSS feed
+    activate RSS
+    RSS --> GetFeed: RSS XML content
+    deactivate RSS
+
+    GetFeed -> GetFeed: Parse RSS feed\n(feedparser)
+
+    loop For each blog post in feed
+        GetFeed -> GetFeed: Extract metadata\n(title, link, date)
+
+        GetFeed -> GetFeed: Fetch blog post URL
+
+        GetFeed -> ReadLib: Extract main content\nfrom HTML
+        activate ReadLib
+        ReadLib --> GetFeed: Clean text content
+        deactivate ReadLib
+
+        GetFeed -> Comprehend: Entity recognition\non content
+        activate Comprehend
+        Comprehend --> GetFeed: Entities and tags
+        deactivate Comprehend
+
+        GetFeed -> DDB: PutItem\n(blog post data)
+        activate DDB
+        DDB --> GetFeed: Success
+        deactivate DDB
+
+        alt SendEmails = true
+            GetFeed -> SES: Send email notification\n(new post alert)
+            activate SES
+            SES --> GetFeed: Email sent
+            deactivate SES
+        end
+
+        alt EnableAlgolia = true
+            GetFeed -> Algolia: Index blog post\n(search data)
+            activate Algolia
+            Algolia --> GetFeed: Indexed successfully
+            deactivate Algolia
+        end
+    end
+
+    GetFeed --> SF: Processing complete\nfor feed
+    deactivate GetFeed
+end
+
+SF -> SF: Fan-in results\nfrom all feeds
+
+alt StorePublicS3 = true
+    SF -> S3: PutObject\n(public JSON file)
+    activate S3
+    S3 --> SF: Stored successfully
+    deactivate S3
+end
+
+SF --> CWE: Execution complete
+deactivate SF
+
+== Data Access via AppSync (Optional) ==
+
+alt CreateAppSync = true
+    Client -> AppSync: GraphQL query\n(read blog posts)
+    activate Client
+    activate AppSync
+
+    AppSync -> AppSync: Execute VTL resolver
+
+    AppSync -> DDB: Query/Scan\n(blog posts)
+    activate DDB
+    DDB --> AppSync: Blog post data
+    deactivate DDB
+
+    AppSync --> Client: GraphQL response\n(blog posts)
+    deactivate AppSync
+    deactivate Client
+end
+
+== Manual Article Count Tracking ==
+
+note right of PageCount
+Manual invocation only
+end note
+
+CWE -> PageCount: Manual invoke
+activate PageCount
+
+PageCount -> DDB: Scan table\n(all blogs)
+activate DDB
+DDB --> PageCount: All blog data
+deactivate DDB
+
+PageCount -> PageCount: Calculate article counts\nper blog source
+
+PageCount -> DDB: UpdateItem\n(store counts)
+activate DDB
+DDB --> PageCount: Success
+deactivate DDB
+
+PageCount --> CWE: Complete
+deactivate PageCount
+
+@enduml

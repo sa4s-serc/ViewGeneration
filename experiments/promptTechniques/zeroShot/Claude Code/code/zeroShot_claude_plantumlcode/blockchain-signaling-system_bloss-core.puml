@@ -1,0 +1,145 @@
+@startuml
+title BloSS Core - Security-Focused Sequence Diagram\nAttack Detection, Reporting, and Mitigation Flow
+
+actor "Network Traffic" as Traffic
+participant "Stalk Controller" as Stalk
+participant "Flow Statistics\nManager" as FlowStats
+participant "Hosts Manager" as Hosts
+participant "BloSS Manager" as BloSS
+participant "Pollen Encryption" as Encryption
+participant "Pollen DataStore\n(IPFS)" as IPFS
+participant "Pollen Blockchain" as Blockchain
+participant "InfluxDB" as InfluxDB
+participant "Ethereum\nSmart Contract" as Contract
+participant "Other AS\n(Autonomous System)" as OtherAS
+
+== Network Monitoring and Threat Detection ==
+Traffic -> Stalk: Network packets
+activate Stalk
+Stalk -> FlowStats: Collect flow statistics
+activate FlowStats
+FlowStats -> InfluxDB: Store traffic stats
+activate InfluxDB
+InfluxDB --> FlowStats: Confirm storage
+deactivate InfluxDB
+FlowStats --> Stalk: Statistics collected
+deactivate FlowStats
+
+Stalk -> Stalk: Analyze Rx/Tx traffic\nagainst thresholds
+Stalk -> Hosts: Check host status
+activate Hosts
+Hosts --> Stalk: Host information
+deactivate Hosts
+
+alt Traffic exceeds threshold
+    Stalk -> Hosts: Mark host as attacker
+    activate Hosts
+    Hosts --> Stalk: Attacker marked
+    deactivate Hosts
+    Stalk -> Stalk: Block attacker traffic
+    note right: Apply mitigation rules\nto drop malicious packets
+end
+
+deactivate Stalk
+
+== Secure Attack Reporting ==
+Stalk -> BloSS: Report attack via REST API
+activate BloSS
+BloSS -> Encryption: Load RSA public key
+activate Encryption
+Encryption -> Encryption: Read public_key.pem
+Encryption --> BloSS: Public key loaded
+deactivate Encryption
+
+BloSS -> Encryption: Encrypt attack report\nwith RSA public key
+activate Encryption
+Encryption -> Encryption: Apply RSA encryption
+Encryption --> BloSS: Encrypted report
+deactivate Encryption
+
+BloSS -> IPFS: Store encrypted report
+activate IPFS
+IPFS --> BloSS: IPFS hash
+deactivate IPFS
+
+BloSS -> Encryption: Load private key
+activate Encryption
+Encryption -> Encryption: Read private_key.pem
+note right: Security concern:\nPrivate key stored on disk\nNeeds HSM/secure enclave
+Encryption --> BloSS: Private key loaded
+deactivate Encryption
+
+BloSS -> Blockchain: Submit attack report transaction
+activate Blockchain
+Blockchain -> Blockchain: Sign transaction\nwith private key
+Blockchain -> Contract: Call report_attack()\nwith IPFS hash
+activate Contract
+Contract -> Contract: Validate caller identity
+Contract -> Contract: Store attack report\non blockchain
+Contract --> Blockchain: Transaction receipt
+deactivate Contract
+Blockchain --> BloSS: Attack reported
+deactivate Blockchain
+
+deactivate BloSS
+
+== Attack Information Retrieval and Decryption ==
+OtherAS -> Blockchain: Query attack reports
+activate Blockchain
+Blockchain -> Contract: Get attack reports
+activate Contract
+Contract --> Blockchain: Attack report hashes
+deactivate Contract
+Blockchain --> OtherAS: IPFS hashes
+deactivate Blockchain
+
+OtherAS -> IPFS: Retrieve encrypted report
+activate IPFS
+IPFS --> OtherAS: Encrypted attack data
+deactivate IPFS
+
+OtherAS -> Encryption: Decrypt with private key
+activate Encryption
+Encryption -> Encryption: Apply RSA decryption
+note right: Each AS must have\ncorresponding private key
+Encryption --> OtherAS: Decrypted attack report
+deactivate Encryption
+
+OtherAS -> OtherAS: Analyze attack patterns
+OtherAS -> OtherAS: Apply mitigation rules
+
+== Mitigation Request Handling ==
+OtherAS -> BloSS: Request mitigation via REST API
+activate BloSS
+BloSS -> BloSS: Authenticate request
+note right: API authentication required\nto prevent unauthorized mitigation
+BloSS -> Stalk: Forward mitigation request
+activate Stalk
+Stalk -> Hosts: Update attacker status
+activate Hosts
+Hosts --> Stalk: Status updated
+deactivate Hosts
+Stalk -> Stalk: Apply blocking rules
+Stalk --> BloSS: Mitigation applied
+deactivate Stalk
+BloSS -> Blockchain: Mark attack as blocked
+activate Blockchain
+Blockchain -> Contract: Update attack status
+activate Contract
+Contract -> Contract: Record mitigation action
+Contract --> Blockchain: Status updated
+deactivate Contract
+Blockchain --> BloSS: Confirmation
+deactivate Blockchain
+BloSS --> OtherAS: Mitigation confirmed
+deactivate BloSS
+
+== Security Monitoring ==
+BloSS -> InfluxDB: Query traffic patterns
+activate InfluxDB
+InfluxDB --> BloSS: Historical data
+deactivate InfluxDB
+BloSS -> BloSS: Monitor for anomalies
+note right: Continuous security monitoring\nand threat assessment
+
+@enduml

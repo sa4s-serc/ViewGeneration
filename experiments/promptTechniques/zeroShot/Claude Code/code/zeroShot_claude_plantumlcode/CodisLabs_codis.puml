@@ -1,0 +1,196 @@
+@startuml
+!define RECTANGLE_COMPONENT
+
+title Codis Deployment Architecture
+
+skinparam component {
+    BackgroundColor<<proxy>> LightBlue
+    BackgroundColor<<redis>> LightCoral
+    BackgroundColor<<coordinator>> LightGreen
+    BackgroundColor<<client>> LightYellow
+    BackgroundColor<<monitoring>> LightGray
+    BackgroundColor<<sentinel>> Orange
+}
+
+package "Client Layer" {
+    [Client Application] as ClientApp <<client>>
+    [Hiredis Library] as Hiredis <<client>>
+    [Redigo Library] as Redigo <<client>>
+}
+
+package "Proxy Layer" {
+    [Codis Proxy 1] as Proxy1 <<proxy>>
+    [Codis Proxy 2] as Proxy2 <<proxy>>
+    [Codis Proxy N] as ProxyN <<proxy>>
+
+    component "Proxy Components" as ProxyComp {
+        [Connection Pool] as ConnPool
+        [Slot Routing] as SlotRoute
+        [Request Handler] as ReqHandler
+    }
+}
+
+package "Coordination Layer" {
+    [Codis Dashboard] as Dashboard <<coordinator>>
+    [ZooKeeper/Etcd] as ZK <<coordinator>>
+    [Codis FE] as CodisFE <<coordinator>>
+}
+
+package "Redis Cluster Layer" {
+    package "Group 1" {
+        [Redis Master 1] as RedisMaster1 <<redis>>
+        [Redis Slave 1a] as RedisSlave1a <<redis>>
+        [Redis Slave 1b] as RedisSlave1b <<redis>>
+    }
+
+    package "Group 2" {
+        [Redis Master 2] as RedisMaster2 <<redis>>
+        [Redis Slave 2a] as RedisSlave2a <<redis>>
+    }
+
+    package "Group N" {
+        [Redis Master N] as RedisMasterN <<redis>>
+        [Redis Slave Na] as RedisSlaveNa <<redis>>
+    }
+}
+
+package "High Availability Layer" {
+    [Redis Sentinel 1] as Sentinel1 <<sentinel>>
+    [Redis Sentinel 2] as Sentinel2 <<sentinel>>
+    [Redis Sentinel 3] as Sentinel3 <<sentinel>>
+}
+
+package "Monitoring & Metrics" {
+    [StatsD] as StatsD <<monitoring>>
+    [InfluxDB] as InfluxDB <<monitoring>>
+    [Metrics Collector] as MetricsCol <<monitoring>>
+}
+
+package "Persistence Layer" {
+    database "RDB Snapshots" as RDB {
+        [RDB File 1]
+        [RDB File 2]
+        [RDB File N]
+    }
+
+    database "AOF Logs" as AOF {
+        [AOF File 1]
+        [AOF File 2]
+        [AOF File N]
+    }
+}
+
+package "Core Libraries" {
+    [jemalloc] as Jemalloc
+    [Lua Scripting Engine] as Lua
+    [ae Event Loop] as EventLoop
+    [zmalloc] as Zmalloc
+    [rio Stream] as Rio
+}
+
+' Client connections
+ClientApp --> Hiredis
+ClientApp --> Redigo
+Hiredis --> Proxy1
+Hiredis --> Proxy2
+Redigo --> Proxy1
+Redigo --> ProxyN
+
+' Proxy internal components
+Proxy1 ..> ProxyComp
+Proxy2 ..> ProxyComp
+ProxyN ..> ProxyComp
+
+' Proxy to Redis connections
+Proxy1 --> ConnPool
+ConnPool --> RedisMaster1
+ConnPool --> RedisMaster2
+ConnPool --> RedisMasterN
+
+Proxy2 --> RedisMaster1
+Proxy2 --> RedisMaster2
+ProxyN --> RedisMasterN
+
+' Coordination
+Dashboard --> ZK
+CodisFE --> Dashboard
+Proxy1 --> ZK
+Proxy2 --> ZK
+ProxyN --> ZK
+Dashboard --> Proxy1 : manage
+Dashboard --> Proxy2 : manage
+Dashboard --> ProxyN : manage
+
+' Redis replication
+RedisMaster1 --> RedisSlave1a : replicate
+RedisMaster1 --> RedisSlave1b : replicate
+RedisMaster2 --> RedisSlave2a : replicate
+RedisMasterN --> RedisSlaveNa : replicate
+
+' Sentinel monitoring
+Sentinel1 --> RedisMaster1 : monitor
+Sentinel1 --> RedisMaster2 : monitor
+Sentinel1 --> RedisMasterN : monitor
+Sentinel2 --> RedisMaster1 : monitor
+Sentinel2 --> RedisMaster2 : monitor
+Sentinel3 --> RedisMasterN : monitor
+
+Sentinel1 <--> Sentinel2 : gossip
+Sentinel2 <--> Sentinel3 : gossip
+Sentinel1 <--> Sentinel3 : gossip
+
+' Persistence
+RedisMaster1 --> RDB : snapshot
+RedisMaster2 --> RDB : snapshot
+RedisMasterN --> RDB : snapshot
+RedisMaster1 --> AOF : write log
+RedisMaster2 --> AOF : write log
+RedisMasterN --> AOF : write log
+
+' Monitoring
+Proxy1 --> MetricsCol : metrics
+Proxy2 --> MetricsCol : metrics
+RedisMaster1 --> MetricsCol : metrics
+RedisMaster2 --> MetricsCol : metrics
+MetricsCol --> StatsD
+MetricsCol --> InfluxDB
+
+' Core library usage
+RedisMaster1 ..> Jemalloc : uses
+RedisMaster1 ..> Lua : uses
+RedisMaster1 ..> EventLoop : uses
+RedisMaster1 ..> Zmalloc : uses
+RedisMaster1 ..> Rio : uses
+
+Proxy1 ..> Jemalloc : uses
+Proxy1 ..> EventLoop : uses
+
+note right of ProxyComp
+  Proxy provides:
+  - Connection pooling
+  - Slot-based routing
+  - Transparent failover
+  - Load balancing
+end note
+
+note right of ZK
+  Stores cluster metadata:
+  - Proxy configurations
+  - Slot mappings
+  - Server group info
+end note
+
+note bottom of "Redis Cluster Layer"
+  Data sharded across groups
+  using consistent hashing
+  with 1024 slots
+end note
+
+note right of Sentinel1
+  Provides high availability:
+  - Automatic failover
+  - Health monitoring
+  - Configuration updates
+end note
+
+@enduml

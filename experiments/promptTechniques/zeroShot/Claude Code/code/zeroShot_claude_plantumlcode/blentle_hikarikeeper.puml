@@ -1,0 +1,161 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam backgroundColor white
+skinparam component {
+    BackgroundColor<<client>> #C8E6C9
+    BackgroundColor<<server>> #E1F5FF
+    BackgroundColor<<storage>> #FFE0B2
+}
+
+title HikariKeeper - Distributed Coordination Service\nDeployment and Connectivity Architecture
+
+package "Client Applications" {
+    component "Spring Boot Application" as SpringApp <<client>>
+    component "Custom Client Application" as CustomApp <<client>>
+}
+
+package "HikariKeeper Client Module" {
+    component "HikariClientFactory" as ClientFactory
+    component "HikariClient API" as ClientAPI
+    component "DefaultHikariClient" as DefaultClient
+
+    ClientFactory --> ClientAPI : creates
+    ClientAPI <|-- DefaultClient : implements
+}
+
+package "Service Discovery Layer" {
+    component "DiscoveryClient" as Discovery
+    component "ServiceInstance Registry" as ServiceRegistry
+
+    Discovery --> ServiceRegistry : queries
+}
+
+package "HikariKeeper Cluster" {
+
+    package "Server Node 1" {
+        component "HikariKeeperServer 1" as Server1 <<server>>
+        component "BootstrapServer 1" as Bootstrap1 <<server>>
+        component "Raft Node 1" as Rnode1 <<server>>
+        component "Leader Role" as Leader1 <<server>>
+        component "RPC Handler 1" as RPC1 <<server>>
+        database "RocksDB Storage 1" as DB1 <<storage>>
+        component "RaftLog 1" as Log1 <<server>>
+
+        Server1 --> Bootstrap1 : initializes
+        Server1 --> Rnode1 : manages
+        Rnode1 --> Leader1 : current role
+        Rnode1 --> RPC1 : handles requests
+        Rnode1 --> Log1 : manages
+        Log1 --> DB1 : persists
+    }
+
+    package "Server Node 2" {
+        component "HikariKeeperServer 2" as Server2 <<server>>
+        component "BootstrapServer 2" as Bootstrap2 <<server>>
+        component "Raft Node 2" as Rnode2 <<server>>
+        component "Follower Role" as Follower2 <<server>>
+        component "RPC Handler 2" as RPC2 <<server>>
+        database "RocksDB Storage 2" as DB2 <<storage>>
+        component "RaftLog 2" as Log2 <<server>>
+
+        Server2 --> Bootstrap2 : initializes
+        Server2 --> Rnode2 : manages
+        Rnode2 --> Follower2 : current role
+        Rnode2 --> RPC2 : handles requests
+        Rnode2 --> Log2 : manages
+        Log2 --> DB2 : persists
+    }
+
+    package "Server Node 3" {
+        component "HikariKeeperServer 3" as Server3 <<server>>
+        component "BootstrapServer 3" as Bootstrap3 <<server>>
+        component "Raft Node 3" as Rnode3 <<server>>
+        component "Follower Role" as Follower3 <<server>>
+        component "RPC Handler 3" as RPC3 <<server>>
+        database "RocksDB Storage 3" as DB3 <<storage>>
+        component "RaftLog 3" as Log3 <<server>>
+
+        Server3 --> Bootstrap3 : initializes
+        Server3 --> Rnode3 : manages
+        Rnode3 --> Follower3 : current role
+        Rnode3 --> RPC3 : handles requests
+        Rnode3 --> Log3 : manages
+        Log3 --> DB3 : persists
+    }
+}
+
+package "Raft Consensus Protocol" {
+    component "RequestVote RPC" as RequestVote
+    component "AppendEntries RPC" as AppendEntries
+    component "Log Replication" as LogReplication
+
+    RequestVote ..> AppendEntries : consensus coordination
+    AppendEntries ..> LogReplication : replicates
+}
+
+package "Persistence Layer" {
+    component "RnodeRepository" as NodeRepo
+    component "FileRnodeRepo" as FileRepo
+    component "MemRnodeRepo" as MemRepo
+
+    NodeRepo <|-- FileRepo : implements
+    NodeRepo <|-- MemRepo : implements
+}
+
+SpringApp --> Discovery : discovers services
+CustomApp --> Discovery : discovers services
+
+SpringApp --> ClientFactory : uses starter
+CustomApp --> ClientAPI : direct API
+
+DefaultClient --> Server1 : TCP/RPC connection
+DefaultClient --> Server2 : TCP/RPC connection
+DefaultClient --> Server3 : TCP/RPC connection
+
+Discovery --> Server1 : registers/queries
+Discovery --> Server2 : registers/queries
+Discovery --> Server3 : registers/queries
+
+Rnode1 ..> Rnode2 : RequestVote\nAppendEntries
+Rnode1 ..> Rnode3 : RequestVote\nAppendEntries
+Rnode2 ..> Rnode1 : RequestVote\nAppendEntries
+Rnode2 ..> Rnode3 : RequestVote\nAppendEntries
+Rnode3 ..> Rnode1 : RequestVote\nAppendEntries
+Rnode3 ..> Rnode2 : RequestVote\nAppendEntries
+
+RPC1 --> RequestVote : processes
+RPC1 --> AppendEntries : processes
+RPC2 --> RequestVote : processes
+RPC2 --> AppendEntries : processes
+RPC3 --> RequestVote : processes
+RPC3 --> AppendEntries : processes
+
+Leader1 --> LogReplication : initiates
+LogReplication --> Log2 : replicates to
+LogReplication --> Log3 : replicates to
+
+Rnode1 --> NodeRepo : persists state
+Rnode2 --> NodeRepo : persists state
+Rnode3 --> NodeRepo : persists state
+
+note right of Rnode1
+  Raft Consensus ensures:
+  - Leader Election
+  - Strong Consistency
+  - Fault Tolerance
+  - Log Replication
+end note
+
+note bottom of Discovery
+  Service Discovery enables
+  dynamic cluster topology
+  and client connection
+end note
+
+note left of DefaultClient
+  Client connects to any node
+  Requests forwarded to leader
+  if necessary
+end note
+
+@enduml

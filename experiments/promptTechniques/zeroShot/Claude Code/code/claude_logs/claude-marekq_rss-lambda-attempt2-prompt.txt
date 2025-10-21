@@ -1,0 +1,252 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: marekq_rss-lambda
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** control_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## Analysis of GitHub Repository: marekq_rss-lambda
+
+This report analyzes the `marekq_rss-lambda` GitHub repository, which defines an AWS Serverless application designed to monitor RSS feeds, extract content from blog posts, and provide notifications and data access. It utilizes a combination of Lambda functions, DynamoDB, S3, Step Functions, and optionally, AppSync and Algolia.
+
+**Key Functionalities and Components:**
+
+*   **RSS Feed Monitoring:** Periodically retrieves and parses RSS feeds from a predefined list of sources (configured in `feeds.txt`).
+*   **Content Extraction:** Extracts the main content of blog posts using the `readability-lxml` library.
+*   **Data Storage:** Stores extracted blog post data (title, content, metadata) in a DynamoDB table.
+*   **Notifications:** Sends email notifications via SES when new blog posts are found (optional, controlled by `SendEmails` parameter in `template.yaml`).
+*   **Data Access:** Provides read-only access to blog post data via a GraphQL API powered by AppSync (optional, enabled with `CreateAppSync` parameter). Resolvers for the AppSync API are defined in the `graphql/*` directory, using VTL.
+*   **Search Indexing:** Optionally indexes blog posts using Algolia for search functionality (controlled by `EnableAlgolia`, `AlgoliaApp`, `AlgoliaApikey`, `AlgoliaIndex` parameters).
+*   **Public S3 Storage:** Optionally stores a JSON object of blog posts as a public S3 file (`StorePublicS3` parameter).
+*   **Entity Recognition:** Uses AWS Comprehend to perform entity recognition on the extracted blog post content, generating tags.
+*   **Article Count Tracking:** The `lambda-pagecount/*` function retrieves and stores the total article count for each blog in DynamoDB. This function is invoked manually.
+
+**Important Files and Their Roles:**
+
+*   **`template.yaml`:** The SAM (Serverless Application Model) template that defines the AWS infrastructure. It includes definitions for Lambda functions, DynamoDB table, S3 bucket, IAM roles, Step Function, and AppSync API. Key parameters for enabling/disabling features include: `SourceEmail`, `DestEmail`, `SendEmails`, `StorePublicS3`, `CreateAppSync`, `EnableAlgolia`, `AlgoliaApp`, `AlgoliaApikey`, `AlgoliaIndex`.
+*   **`LICENSE`:** Contains the MIT-0 license information.
+*   **`Makefile`:** Provides commands for building and deploying the application using SAM CLI (`make build`, `make init`, `make deploy`).
+*   **`readme.md`:** Describes the application, its features, installation instructions, and roadmap. Includes architectural diagrams and screenshots.
+*   **`algolia/dump_ddb.py`:** Python script to dump DynamoDB data to a CSV file for bulk import to Algolia.
+*   **`lambda-pagecount/*`:** Source code for the `pagecount` Lambda function.
+*   **`lambda-getfeed/*`:** Source code for the `rssgetfeed` Lambda function, responsible for retrieving RSS feeds, extracting content, and storing data in DynamoDB. This function interacts with `readability-lxml`, AWS Comprehend, and SES.
+*   **`lambda-layer/*`:** Contains the `requirements.txt` file for the Lambda Layer that bundles Python dependencies like `requests`, `BeautifulSoup4`, `feedparser`, and `aws-lambda-powertools`.
+*   **`lambda-crawl/*`:** Source code for the `rsscrawl` Lambda function. This function retrieves the RSS feeds, checks S3 for existing data, and kicks off the Step Function.
+*   **`statemachine/*`:** Contains the definition of the Step Function in JSON format (`rssblog.asl.json`).
+*    **`feeds.txt`:** Contains the list of RSS feed URLs to monitor.
+
+**Architectural Insights:**
+
+*   **Serverless Architecture:** The application is designed as a serverless application, reducing operational overhead and allowing for scalability.
+*   **Event-Driven:** The Step Function is triggered by a CloudWatch Event (schedule), making the application event-driven.
+*   **Microservices:** The individual Lambda functions (e.g., `rssgetfeed`, `rsscrawl`, `pagecount`) are designed as microservices, each responsible for a specific task.
+*   **Data Transformation Pipeline:** The application implements a data transformation pipeline: RSS feed -> content extraction -> data enrichment (Comprehend) -> storage (DynamoDB) -> API access (AppSync) -> Search Indexing (Algolia) -> Public S3 Storage (JSON).
+*   **State Machine Orchestration:** A Step Function coordinates the overall workflow of retrieving feeds and processing blog posts.
+
+**Notable Design Patterns:**
+
+*   **Fan-Out/Fan-In:** The Step Function likely uses a "Map" state to fan out processing of individual RSS feeds to multiple concurrent `rssgetfeed` Lambda function invocations.
+*   **Dependency Injection:** The Lambda functions rely on environment variables for configuration (e.g., DynamoDB table name, Algolia API keys).
+*   **Data Lake/Data Warehouse:** DynamoDB acts as a data store for the extracted blog post information. S3 acts as a data lake for public consumption of JSON-based blog data.
+*   **Lambda Layers:** Uses Lambda Layers to manage dependencies, improving deployment size and speed.
+*   **External Configuration:**  RSS feed URLs are stored in the `feeds.txt` file, allowing for easy modification of the monitored sources.
+
+
+
+IMPORTANT - RETRY ATTEMPT:
+A previous PlantUML generation failed with the following error:
+```
+issue raw.githubusercontent.com java.util.concurrent.ExecutionException: java.io.IOException: HTTP error 404 with 404: Not Found
+Error line 9 in file: zeroShot_claude_plantumlcode/marekq_rss-lambda.puml
+Some diagram description contains errors
+
+```
+
+The problematic code was:
+```plantuml
+@startuml
+!define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v14.0/dist
+!include AWSPuml/AWSCommon.puml
+!include AWSPuml/ApplicationIntegration/StepFunctions.puml
+!include AWSPuml/Compute/Lambda.puml
+!include AWSPuml/Database/DynamoDB.puml
+!include AWSPuml/Storage/SimpleStorageService.puml
+!include AWSPuml/MachineLearning/Comprehend.puml
+!include AWSPuml/ApplicationIntegration/SimpleEmailService.puml
+!include AWSPuml/AppIntegration/AppSync.puml
+
+title RSS Lambda - Control Flow Sequence Diagram
+
+actor "CloudWatch Event\n(Schedule)" as CWE
+participant "rsscrawl\nLambda" as Crawl
+participant "S3 Bucket" as S3
+participant "Step Function\n(rssblog)" as SF
+participant "rssgetfeed\nLambda" as GetFeed
+participant "RSS Feed\nSource" as RSS
+participant "readability-lxml\nLibrary" as ReadLib
+participant "AWS Comprehend" as Comprehend
+participant "DynamoDB\nTable" as DDB
+participant "SES" as SES
+participant "AppSync\nGraphQL API" as AppSync
+participant "Algolia\nSearch Index" as Algolia
+participant "Client\n(Query)" as Client
+
+== RSS Feed Monitoring and Processing ==
+
+CWE -> Crawl: Trigger (scheduled)
+activate Crawl
+
+Crawl -> S3: Check existing data
+activate S3
+S3 --> Crawl: Return existing data
+deactivate S3
+
+Crawl -> Crawl: Retrieve feeds.txt
+Crawl -> SF: Start execution\n(feed URLs)
+activate SF
+deactivate Crawl
+
+SF -> SF: Map state (fan-out)\nfor each feed URL
+
+loop For each RSS feed URL
+    SF -> GetFeed: Invoke\n(feed URL)
+    activate GetFeed
+
+    GetFeed -> RSS: Retrieve RSS feed
+    activate RSS
+    RSS --> GetFeed: RSS XML content
+    deactivate RSS
+
+    GetFeed -> GetFeed: Parse RSS feed\n(feedparser)
+
+    loop For each blog post
+        GetFeed -> GetFeed: Extract metadata\n(title, link, date)
+
+        GetFeed -> ReadLib: Extract main content
+        activate ReadLib
+        ReadLib --> GetFeed: Clean content
+        deactivate ReadLib
+
+        GetFeed -> Comprehend: Perform entity recognition
+        activate Comprehend
+        Comprehend --> GetFeed: Entities and tags
+        deactivate Comprehend
+
+        GetFeed -> DDB: Store blog post data\n(title, content, metadata, tags)
+        activate DDB
+        DDB --> GetFeed: Success
+        deactivate DDB
+
+        alt SendEmails enabled
+            GetFeed -> SES: Send email notification
+            activate SES
+            SES --> GetFeed: Email sent
+            deactivate SES
+        end
+
+        alt EnableAlgolia enabled
+            GetFeed -> Algolia: Index blog post
+            activate Algolia
+            Algolia --> GetFeed: Indexed
+            deactivate Algolia
+        end
+    end
+
+    GetFeed --> SF: Processing complete
+    deactivate GetFeed
+end
+
+SF -> SF: Fan-in results
+
+alt StorePublicS3 enabled
+    SF -> S3: Store JSON object\n(public file)
+    activate S3
+    S3 --> SF: Stored
+    deactivate S3
+end
+
+SF --> CWE: Execution complete
+deactivate SF
+
+== Data Access via AppSync ==
+
+alt CreateAppSync enabled
+    Client -> AppSync: GraphQL query\n(read blog posts)
+    activate AppSync
+    activate Client
+
+    AppSync -> AppSync: Execute VTL resolver
+
+    AppSync -> DDB: Query blog posts
+    activate DDB
+    DDB --> AppSync: Return data
+    deactivate DDB
+
+    AppSync --> Client: GraphQL response
+    deactivate AppSync
+    deactivate Client
+end
+
+== Manual Article Count Tracking ==
+
+note over Crawl
+Manual invocation
+end note
+
+actor "Manual Trigger" as Manual
+participant "pagecount\nLambda" as PageCount
+
+Manual -> PageCount: Invoke manually
+activate PageCount
+
+PageCount -> DDB: Retrieve article counts\nper blog
+activate DDB
+DDB --> PageCount: Article data
+deactivate DDB
+
+PageCount -> PageCount: Calculate total counts
+
+PageCount -> DDB: Store article count\nmetadata
+activate DDB
+DDB --> PageCount: Success
+deactivate DDB
+
+PageCount --> Manual: Complete
+deactivate PageCount
+
+@enduml
+
+```
+
+Please analyze the error, identify the issue, and generate corrected PlantUML code that compiles successfully.
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: control_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/marekq_rss-lambda.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

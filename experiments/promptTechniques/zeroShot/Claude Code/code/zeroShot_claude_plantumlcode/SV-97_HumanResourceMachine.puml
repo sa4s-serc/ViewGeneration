@@ -1,0 +1,147 @@
+@startuml
+!define COMPONENT_COLOR #lightblue
+!define INTERFACE_COLOR #yellow
+
+package "HRM Virtual Machine System" {
+
+    package "Python Prototype Implementation" {
+        component [Tokenizer\n(fancy_translator.py)] as PyTokenizer COMPONENT_COLOR
+        component [Translator/Assembler\n(fancy_translator.py)] as PyTranslator COMPONENT_COLOR
+        component [Bytecode Disassembler\n(fancy_translator.py)] as PyDisassembler COMPONENT_COLOR
+        component [Virtual Machine\n(vm.py)] as PyVM COMPONENT_COLOR
+
+        interface "Assembly Code" as PyAsmIn
+        interface "Tokens" as PyTokens
+        interface "Intermediate Representation" as PyIR
+        interface "Bytecode" as PyBytecode
+        interface "Disassembled Code" as PyDisasm
+
+        PyAsmIn --> PyTokenizer
+        PyTokenizer --> PyTokens
+        PyTokens --> PyTranslator
+        PyTranslator --> PyIR
+        PyIR --> PyTranslator
+        PyTranslator --> PyBytecode
+        PyBytecode --> PyVM
+        PyBytecode --> PyDisassembler
+        PyDisassembler --> PyDisasm
+    }
+
+    package "Rust Production Implementation" {
+        component [Tokenizer\n(tokenizer.rs)] as RustTokenizer COMPONENT_COLOR
+        component [Translator/Assembler\n(translator.rs)] as RustTranslator COMPONENT_COLOR
+        component [Bytecode Assembler\n(bytecode.rs)] as RustBytecodeAsm COMPONENT_COLOR
+        component [Bytecode Disassembler\n(bytecode.rs)] as RustDisassembler COMPONENT_COLOR
+        component [Virtual Machine\n(vm.rs)] as RustVM COMPONENT_COLOR
+        component [Logger] as RustLogger COMPONENT_COLOR
+        component [Main Orchestrator\n(main.rs)] as RustMain COMPONENT_COLOR
+
+        interface "Assembly Code" as RustAsmIn
+        interface "Tokens" as RustTokens
+        interface "Bytecode" as RustBytecode
+        interface "Disassembled Code" as RustDisasm
+        interface "Execution Output" as RustOutput
+        interface "Log Messages" as LogInterface
+
+        RustAsmIn --> RustMain
+        RustMain --> RustTokenizer
+        RustTokenizer --> RustTokens
+        RustTokens --> RustTranslator
+        RustTranslator --> RustBytecodeAsm
+        RustBytecodeAsm --> RustBytecode
+        RustBytecode --> RustVM
+        RustBytecode --> RustDisassembler
+        RustDisassembler --> RustDisasm
+        RustVM --> RustOutput
+        RustLogger --> LogInterface
+        RustMain ..> RustLogger : uses
+        RustVM ..> RustLogger : uses
+    }
+
+    package "VM Core Components" {
+        component [Accumulator] as Accumulator COMPONENT_COLOR
+        component [Memory Registers] as Memory COMPONENT_COLOR
+        component [Instruction Pointer] as IP COMPONENT_COLOR
+        component [Inbox/Outbox Handler] as IO COMPONENT_COLOR
+        component [Command Dispatcher\n(Function Pointers)] as Dispatcher COMPONENT_COLOR
+
+        RustVM *-- Accumulator
+        RustVM *-- Memory
+        RustVM *-- IP
+        RustVM *-- IO
+        RustVM *-- Dispatcher
+
+        PyVM *-- Accumulator
+        PyVM *-- Memory
+        PyVM *-- IP
+        PyVM *-- IO
+    }
+
+    package "Instruction Set" {
+        component [Inbox/Outbox] as IOInst COMPONENT_COLOR
+        component [Memory Operations\n(Copy, Add, Sub, Bump)] as MemInst COMPONENT_COLOR
+        component [Jump Operations\n(Conditional & Unconditional)] as JumpInst COMPONENT_COLOR
+
+        Dispatcher --> IOInst
+        Dispatcher --> MemInst
+        Dispatcher --> JumpInst
+    }
+
+    package "Data Structures" {
+        component [Instruction Enum] as InstEnum COMPONENT_COLOR
+        component [Operand Types] as OperandTypes COMPONENT_COLOR
+        component [Label Resolution Table] as LabelTable COMPONENT_COLOR
+
+        RustTranslator ..> InstEnum : uses
+        RustTranslator ..> OperandTypes : uses
+        RustTranslator ..> LabelTable : uses
+        PyTranslator ..> LabelTable : uses
+    }
+}
+
+package "External I/O" {
+    component [Assembly Source Files\n(.hrm)] as SourceFiles COMPONENT_COLOR
+    component [Bytecode Files\n(.hrmc)] as BytecodeFiles COMPONENT_COLOR
+    component [Translated Output Files\n(.hrm)] as OutputFiles COMPONENT_COLOR
+
+    SourceFiles --> RustAsmIn
+    SourceFiles --> PyAsmIn
+    RustBytecode --> BytecodeFiles
+    PyBytecode --> BytecodeFiles
+    RustDisasm --> OutputFiles
+    PyDisasm --> OutputFiles
+}
+
+note right of RustMain
+  Main orchestrator coordinates:
+  - Tokenization
+  - Translation/Assembly
+  - Disassembly
+  - VM Execution
+end note
+
+note bottom of Dispatcher
+  Command Pattern:
+  Uses function pointers
+  for instruction dispatch
+end note
+
+note top of RustTokenizer
+  State Machine Pattern:
+  Transitions states based
+  on input characters
+end note
+
+note left of PyTranslator
+  Python version creates
+  intermediate representation
+  before bytecode generation
+end note
+
+note right of RustTranslator
+  Rust version directly
+  assembles to bytecode
+  without intermediate step
+end note
+
+@enduml

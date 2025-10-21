@@ -1,0 +1,193 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam component {
+  BackgroundColor<<platform>> LightSkyBlue
+  BackgroundColor<<common>> LightGreen
+  BackgroundColor<<utility>> LightYellow
+}
+
+package "ZWT Framework" {
+
+  package "Common Layer" <<common>> {
+
+    package "Core Components" {
+      [ZwtComponent] as comp
+      [ZwtContainer] as container
+      [ZwtFrame] as frame
+      [ZwtPanel] as panel
+      [ZwtLabel] as label
+      [ZwtButton] as button
+    }
+
+    package "Graphics & Input" {
+      [ZwtGraphics] as graphics
+      [ZwtKeyboard] as keyboard
+      [Event Handler] as events
+    }
+
+    package "Layout Management" {
+      [ZwtLayout] as layout
+      [BorderLayout] as border
+      [FlowLayout] as flow
+      [GridLayout] as grid
+    }
+
+    package "Menus" {
+      [ZwtMenu] as menu
+      [ZwtMenuItem] as menuitem
+      [ZwtMenuContainer] as menucontainer
+    }
+
+    package "Styling" {
+      [ZwtColor] as color
+      [ZwtFont] as font
+    }
+
+    package "Backgrounds" {
+      [ZwtFloor] as floor
+      [ZwtTransparentFloor] as transfloor
+      [ZwtRoundFloor] as roundfloor
+    }
+
+    package "Utility" <<utility>> {
+      [ZwtDrawing] as drawing
+    }
+
+    package "Listeners" {
+      [ZwtButtonListener] as btnlistener
+      [ZwtFrameListener] as framelistener
+      [ZwtMenuListener] as menulistener
+      [ZwtMenuItemListener] as menuitemlistener
+    }
+  }
+
+  package "Platform-Specific Layer" {
+
+    package "Java SE Implementation" <<platform>> {
+      [SE Frame Impl] as seframe
+      [SE Graphics Impl] as segraphics
+      [SE Keyboard Impl] as sekeyboard
+      [SE Components] as secomp
+    }
+
+    package "Java ME Implementation" <<platform>> {
+      [ME Frame Impl] as meframe
+      [ME Graphics Impl] as megraphics
+      [ME Keyboard Impl] as mekeyboard
+      [ME Components] as mecomp
+    }
+
+    package "Android Implementation" <<platform>> {
+      [Android Frame Impl] as androidframe
+      [Android Graphics Impl] as androidgraphics
+      [Android Keyboard Impl] as androidkeyboard
+      [Android Components] as androidcomp
+      [NokiaCompactKeyboard] as nokiakb
+    }
+  }
+}
+
+package "External Platform Libraries" {
+  [Java AWT/Swing] as javase
+  [Java ME LCDUI] as javame
+  [Android UI Framework] as android
+}
+
+' Core Component relationships
+comp <|-- container
+container <|-- frame
+container <|-- panel
+comp <|-- label
+comp <|-- button
+
+comp --> graphics : uses
+comp --> color : uses
+comp --> font : uses
+
+container --> layout : uses
+layout <|-- border
+layout <|-- flow
+layout <|-- grid
+
+frame --> events : handles
+frame --> framelistener : notifies
+button --> btnlistener : notifies
+
+menu --> menucontainer : implements
+menu --> menulistener : notifies
+menuitem --> menulistener : notifies
+menuitem --> menuitemlistener : notifies
+menu --> menuitem : contains
+
+floor <|-- transfloor
+floor <|-- roundfloor
+panel --> floor : uses
+
+graphics --> drawing : uses
+
+' Platform-specific relationships
+frame <.. seframe : implements
+graphics <.. segraphics : implements
+keyboard <.. sekeyboard : implements
+comp <.. secomp : implements
+
+frame <.. meframe : implements
+graphics <.. megraphics : implements
+keyboard <.. mekeyboard : implements
+comp <.. mecomp : implements
+
+frame <.. androidframe : implements
+graphics <.. androidgraphics : implements
+keyboard <.. androidkeyboard : implements
+comp <.. androidcomp : implements
+androidkeyboard <|-- nokiakb
+
+' Platform library dependencies
+seframe --> javase
+segraphics --> javase
+secomp --> javase
+
+meframe --> javame
+megraphics --> javame
+mecomp --> javame
+
+androidframe --> android
+androidgraphics --> android
+androidcomp --> android
+
+note right of comp
+  Abstract base class
+  defining common properties
+  and paint() method
+end note
+
+note right of frame
+  Root container for
+  application UI
+end note
+
+note right of graphics
+  Bridge pattern:
+  Decouples API from
+  platform-specific
+  implementations
+end note
+
+note right of menu
+  Composite pattern:
+  Manages menu items
+  and submenus
+end note
+
+note right of layout
+  Strategy pattern:
+  Different layout
+  algorithms
+end note
+
+note right of nokiakb
+  Singleton pattern:
+  Single keyboard instance
+end note
+
+@enduml

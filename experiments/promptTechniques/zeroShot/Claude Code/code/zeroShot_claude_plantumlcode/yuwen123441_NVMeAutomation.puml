@@ -1,0 +1,113 @@
+@startuml
+!define COMPONENT_STYLE rectangle
+
+skinparam component {
+    BackgroundColor<<test>> LightYellow
+    BackgroundColor<<logic>> LightBlue
+    BackgroundColor<<driver>> LightGreen
+    BackgroundColor<<system>> LightGray
+}
+
+package "Test Layer" {
+    [Admin Test Cases] <<test>>
+    [I/O Test Cases] <<test>>
+    [Test Suite (nosetests)] <<test>>
+}
+
+package "Logic Layer" {
+    [NVMe Logic Library] <<logic>>
+    component "High-level Abstractions" <<logic>> {
+        [Admin Operations]
+        [I/O Operations]
+        [Buffer Management Interface]
+    }
+}
+
+package "Driver Layer" {
+    component "Python Driver Wrapper" <<driver>> {
+        [nvme.py]
+        [ctypes FFI Interface]
+    }
+
+    component "Data Structures" <<driver>> {
+        [NVMe Commands DTO]
+        [Queue Structures DTO]
+        [Log Pages DTO]
+        [Identify Structures]
+    }
+
+    component "Utilities" <<driver>> {
+        [Buffer Class]
+    }
+}
+
+package "C Library Layer" {
+    component "Dynamic Library" <<driver>> {
+        [nvme-ioctl.so]
+        [nvme-ioctl.c]
+        [nvme.h]
+    }
+}
+
+package "System Layer" {
+    [Linux Kernel] <<system>>
+    [NVMe Driver (ioctl)] <<system>>
+    [NVMe SSD Device] <<system>>
+}
+
+' Test Layer Dependencies
+[Test Suite (nosetests)] --> [Admin Test Cases]
+[Test Suite (nosetests)] --> [I/O Test Cases]
+[Admin Test Cases] --> [NVMe Logic Library]
+[I/O Test Cases] --> [NVMe Logic Library]
+
+' Logic Layer Dependencies
+[NVMe Logic Library] --> [Admin Operations]
+[NVMe Logic Library] --> [I/O Operations]
+[NVMe Logic Library] --> [Buffer Management Interface]
+[Admin Operations] --> [nvme.py]
+[I/O Operations] --> [nvme.py]
+[Buffer Management Interface] --> [Buffer Class]
+
+' Driver Layer Dependencies
+[nvme.py] --> [ctypes FFI Interface]
+[ctypes FFI Interface] --> [nvme-ioctl.so]
+[nvme.py] --> [NVMe Commands DTO]
+[nvme.py] --> [Queue Structures DTO]
+[nvme.py] --> [Log Pages DTO]
+[nvme.py] --> [Identify Structures]
+[Buffer Class] --> [nvme.py]
+
+' C Library Dependencies
+[nvme-ioctl.so] --> [nvme-ioctl.c]
+[nvme-ioctl.c] --> [nvme.h]
+[nvme-ioctl.so] --> [NVMe Driver (ioctl)]
+
+' System Layer Dependencies
+[NVMe Driver (ioctl)] --> [Linux Kernel]
+[Linux Kernel] --> [NVMe SSD Device]
+
+note right of [ctypes FFI Interface]
+    FFI Pattern: Python interacts
+    with C library using ctypes
+end note
+
+note right of [Data Structures]
+    DTO Pattern: Transfer data
+    between layers following
+    NVMe specification
+end note
+
+note bottom of "Logic Layer"
+    Abstraction Layer:
+    Provides high-level Python
+    interfaces for test development
+end note
+
+note bottom of "C Library Layer"
+    Low-level ioctl Interface:
+    Direct interaction with
+    kernel driver
+end note
+
+@enduml

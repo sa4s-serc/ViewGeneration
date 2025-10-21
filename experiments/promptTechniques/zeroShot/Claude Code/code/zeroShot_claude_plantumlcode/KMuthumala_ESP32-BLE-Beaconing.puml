@@ -1,0 +1,149 @@
+@startuml
+title ESP32 BLE Beacon Scanner - Connectivity Sequence Diagram
+
+actor "BLE Beacons" as Beacons
+participant "ESP32\nMain Loop" as ESP32
+participant "WiFi Module" as WiFi
+participant "BLE Scanner" as BLE
+participant "MQTT Client" as MQTT
+participant "MQTT Broker" as Broker
+participant "Subscribed\nApplications" as Apps
+
+== System Initialization ==
+ESP32 -> ESP32: setup()
+activate ESP32
+ESP32 -> WiFi: setup_wifi()
+activate WiFi
+WiFi -> WiFi: Connect to WiFi network
+WiFi --> ESP32: Connection established
+deactivate WiFi
+
+ESP32 -> MQTT: Initialize MQTT client
+activate MQTT
+MQTT -> Broker: Connect to broker
+activate Broker
+Broker --> MQTT: Connection acknowledged
+deactivate Broker
+MQTT --> ESP32: MQTT ready
+deactivate MQTT
+
+ESP32 -> BLE: Initialize BLE scanner
+activate BLE
+BLE -> BLE: BLEDevice::getScan()
+BLE --> ESP32: Scanner ready
+deactivate BLE
+deactivate ESP32
+
+== Main Operation Loop ==
+loop Continuous Operation
+    ESP32 -> ESP32: loop()
+    activate ESP32
+
+    alt WiFi Connection Check
+        ESP32 -> WiFi: Check connection status
+        activate WiFi
+        alt WiFi Disconnected
+            WiFi --> ESP32: Disconnected
+            ESP32 -> WiFi: setup_wifi()
+            WiFi -> WiFi: Reconnect to network
+            WiFi --> ESP32: Reconnected
+        else WiFi Connected
+            WiFi --> ESP32: Connected
+        end
+        deactivate WiFi
+    end
+
+    alt MQTT Connection Check
+        ESP32 -> MQTT: Check connection status
+        activate MQTT
+        alt MQTT Disconnected
+            MQTT --> ESP32: Disconnected
+            ESP32 -> MQTT: reconnectWifi()
+            MQTT -> Broker: Reconnect attempt
+            activate Broker
+            Broker --> MQTT: Connection restored
+            deactivate Broker
+            MQTT -> Broker: Subscribe to command topic
+            activate Broker
+            Broker --> MQTT: Subscription confirmed
+            deactivate Broker
+        else MQTT Connected
+            MQTT --> ESP32: Connected
+        end
+        deactivate MQTT
+    end
+
+    == BLE Scanning Phase ==
+    ESP32 -> BLE: scan_ble()
+    activate BLE
+    BLE -> Beacons: Start BLE scan
+    activate Beacons
+    Beacons --> BLE: Beacon advertisements\n(MAC address, RSSI)
+    deactivate Beacons
+    BLE -> BLE: Extract MAC addresses\nand RSSI values
+    BLE -> BLE: Format data as JSON
+    BLE --> ESP32: JSON payload ready
+    deactivate BLE
+
+    == Data Transmission Phase ==
+    ESP32 -> MQTT: Publish JSON to topic
+    activate MQTT
+    MQTT -> Broker: PUBLISH message
+    activate Broker
+    Broker -> Apps: Forward to subscribers
+    activate Apps
+    Apps --> Broker: Message received
+    deactivate Apps
+    Broker --> MQTT: Publish acknowledged
+    deactivate Broker
+    deactivate MQTT
+
+    == Command Reception (if available) ==
+    opt Incoming Command
+        Broker -> MQTT: PUBLISH on subscribed topic
+        activate MQTT
+        activate Broker
+        MQTT -> ESP32: callback() triggered
+        activate ESP32
+        ESP32 -> ESP32: Process command
+        ESP32 --> MQTT: Command handled
+        deactivate ESP32
+        deactivate Broker
+        deactivate MQTT
+    end
+
+    deactivate ESP32
+    ESP32 -> ESP32: Delay before next scan
+end
+
+== Connection Loss Scenario ==
+opt Connection Lost
+    WiFi -> ESP32: Connection lost event
+    activate ESP32
+    ESP32 -> WiFi: setup_wifi()
+    activate WiFi
+    WiFi -> WiFi: Attempt reconnection
+    alt Reconnection Successful
+        WiFi --> ESP32: Reconnected
+    else Reconnection Failed
+        WiFi --> ESP32: Failed (retry later)
+    end
+    deactivate WiFi
+
+    ESP32 -> MQTT: reconnectWifi()
+    activate MQTT
+    MQTT -> Broker: Connect attempt
+    activate Broker
+    alt Connection Successful
+        Broker --> MQTT: Connected
+        MQTT -> Broker: Resubscribe to topics
+        Broker --> MQTT: Subscription confirmed
+    else Connection Failed
+        Broker --> MQTT: Failed (retry later)
+    end
+    deactivate Broker
+    deactivate MQTT
+    deactivate ESP32
+end
+
+@enduml

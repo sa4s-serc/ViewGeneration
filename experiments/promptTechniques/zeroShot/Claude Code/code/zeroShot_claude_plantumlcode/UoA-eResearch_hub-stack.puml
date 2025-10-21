@@ -1,0 +1,71 @@
+@startuml
+title ResearchHub Deployment Sequence Diagram
+
+actor Developer
+participant "Git Repository" as Git
+participant "Jenkins CI/CD" as Jenkins
+participant "Terraform" as TF
+participant "AWS S3" as S3
+participant "AWS CloudFront" as CF
+participant "AWS ECR" as ECR
+participant "AWS ECS" as ECS
+participant "AWS Lambda" as Lambda
+participant "AWS Elasticsearch" as ES
+participant "Contentful CMS" as Contentful
+
+== Code Push and CI/CD Trigger ==
+Developer -> Git: Push code to branch\n(sandbox/dev/test/prod)
+Git -> Jenkins: Trigger pipeline based on branch
+
+== Infrastructure Deployment ==
+Jenkins -> TF: Execute Terraform plan
+TF -> TF: Load environment-specific\ntfvars file
+TF -> S3: Create/Update S3 buckets
+TF -> CF: Create/Update CloudFront distributions
+TF -> ECR: Create/Update ECR repositories
+TF -> ECS: Create/Update ECS clusters
+TF -> ES: Create/Update Elasticsearch instance
+TF -> Lambda: Create/Update Lambda functions
+TF -> Jenkins: Infrastructure deployment complete
+
+== Frontend Deployment (research-hub-web) ==
+Jenkins -> Jenkins: Build Angular application
+Jenkins -> Jenkins: Run tests (Cypress E2E)
+Jenkins -> S3: Upload static assets\n(HTML, CSS, JS)
+S3 -> CF: Invalidate CloudFront cache
+CF -> Jenkins: Frontend deployment complete
+
+== GraphQL API Deployment (cer-graphql) ==
+Jenkins -> Jenkins: Build Docker image\nfor GraphQL server
+Jenkins -> ECR: Push Docker image
+ECR -> Jenkins: Image push complete
+Jenkins -> ECS: Update ECS service\nwith new image
+ECS -> ECR: Pull latest image
+ECS -> ECS: Deploy container\n(Apollo GraphQL server)
+ECS -> Contentful: Establish connection\nfor schema proxy
+ECS -> Jenkins: GraphQL API deployment complete
+
+== Search Proxy Deployment (hub-search-proxy) ==
+Jenkins -> Jenkins: Package Lambda function\n(Serverless Framework)
+Jenkins -> Lambda: Deploy serverless.yml\nand handler.js
+Lambda -> ES: Configure connection\nto Elasticsearch
+Lambda -> Jenkins: Search proxy deployment complete
+
+== Post-Deployment Configuration ==
+Jenkins -> Lambda: Trigger bulk upload\n(Cron/HTTP event)
+Lambda -> Contentful: Fetch all content
+Contentful -> Lambda: Return content data
+Lambda -> ES: Bulk index content
+ES -> Lambda: Indexing complete
+Lambda -> Jenkins: Search index initialized
+
+== Verification ==
+Jenkins -> CF: Health check frontend
+CF -> Jenkins: Frontend healthy
+Jenkins -> ECS: Health check GraphQL API
+ECS -> Jenkins: API healthy
+Jenkins -> Lambda: Test search functionality
+Lambda -> Jenkins: Search operational
+Jenkins -> Developer: Deployment successful
+
+@enduml

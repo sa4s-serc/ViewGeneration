@@ -1,0 +1,152 @@
+@startuml
+!define RECTANGLE rectangle
+!define COMPONENT component
+
+skinparam component {
+  BackgroundColor LightBlue
+  BorderColor Black
+  ArrowColor Black
+}
+
+skinparam rectangle {
+  BackgroundColor LightGray
+  BorderColor Black
+}
+
+title OKE A1 Cluster - Deployment, Connectivity and Performance Architecture
+
+package "Oracle Cloud Infrastructure (OCI)" {
+
+  package "Virtual Cloud Network (VCN)" {
+
+    component "Internet Gateway (IGW)" as IGW
+    component "NAT Gateway (NGW)" as NGW
+    component "Service Gateway (SGW)" as SGW
+
+    rectangle "Public Subnet - API" as PublicAPISubnet {
+      component "Kubernetes API Endpoint" as K8sAPI
+    }
+
+    rectangle "Public Subnet - LB" as PublicLBSubnet {
+      component "Load Balancer" as LB
+    }
+
+    rectangle "Private Subnet - Workers" as PrivateSubnet {
+
+      package "OKE Cluster" {
+
+        component "Control Plane" as ControlPlane
+
+        package "Node Pool (VM.Standard.A1.Flex)" as NodePool {
+          component "Worker Node 1\n(Ampere A1\nOCPU/Memory)" as Worker1
+          component "Worker Node 2\n(Ampere A1\nOCPU/Memory)" as Worker2
+          component "Worker Node N\n(Ampere A1\nOCPU/Memory)" as WorkerN
+        }
+      }
+    }
+
+    component "Route Tables" as RouteTables
+    component "Security Lists" as SecurityLists
+  }
+
+  component "OCI Services" as OCIServices
+}
+
+package "Kubernetes Workloads" {
+  component "Nginx Deployment" as NginxDeploy
+  component "Nginx Pods" as NginxPods
+  component "LoadBalancer Service" as K8sLBService
+}
+
+package "Management Layer" {
+  component "Terraform IaC" as Terraform
+  component "kubeconfig" as Kubeconfig
+  component "kubectl" as Kubectl
+  component "setup_nginx.sh" as SetupScript
+}
+
+actor "External Users" as Users
+actor "Administrator" as Admin
+
+' Terraform provisions infrastructure
+Terraform ..> IGW : provisions
+Terraform ..> NGW : provisions
+Terraform ..> SGW : provisions
+Terraform ..> PublicAPISubnet : provisions
+Terraform ..> PublicLBSubnet : provisions
+Terraform ..> PrivateSubnet : provisions
+Terraform ..> ControlPlane : provisions
+Terraform ..> NodePool : provisions
+Terraform ..> RouteTables : configures
+Terraform ..> SecurityLists : configures
+Terraform ..> Kubeconfig : retrieves
+
+' Connectivity - External access
+Users --> LB : HTTP/HTTPS traffic
+LB --> K8sLBService : routes to service
+K8sLBService --> NginxPods : load balances
+
+' Connectivity - Management
+Admin --> K8sAPI : kubectl commands
+Kubectl --> K8sAPI : uses kubeconfig
+SetupScript --> K8sAPI : deploys manifests
+
+' Connectivity - Internal cluster
+ControlPlane <--> K8sAPI : cluster management
+ControlPlane <--> Worker1 : orchestration
+ControlPlane <--> Worker2 : orchestration
+ControlPlane <--> WorkerN : orchestration
+
+' Deployment relationships
+Worker1 --> NginxDeploy : hosts
+Worker2 --> NginxDeploy : hosts
+WorkerN --> NginxDeploy : hosts
+NginxDeploy --> NginxPods : manages
+
+' Network routing and security
+RouteTables --> PublicAPISubnet : routes traffic
+RouteTables --> PublicLBSubnet : routes traffic
+RouteTables --> PrivateSubnet : routes traffic
+SecurityLists --> PublicAPISubnet : enforces rules
+SecurityLists --> PublicLBSubnet : enforces rules
+SecurityLists --> PrivateSubnet : enforces rules
+
+' Internet connectivity
+Worker1 --> NGW : outbound internet\n(private)
+Worker2 --> NGW : outbound internet\n(private)
+WorkerN --> NGW : outbound internet\n(private)
+NGW --> IGW : routes to internet
+LB <--> IGW : public access
+K8sAPI <--> IGW : public access
+
+' OCI Services integration
+Worker1 --> SGW : secure OCI\nservices access
+Worker2 --> SGW : secure OCI\nservices access
+WorkerN --> SGW : secure OCI\nservices access
+SGW --> OCIServices : private connection
+
+' Performance optimization notes
+note right of NodePool
+  Ampere A1 Flex Shapes
+  - Cost-effective ARM architecture
+  - Configurable OCPU and Memory
+  - Regional availability
+  - High availability across nodes
+end note
+
+note right of LB
+  LoadBalancer Service
+  - External traffic distribution
+  - High availability
+  - Auto-scaling support
+end note
+
+note bottom of PrivateSubnet
+  Security Design
+  - Workers in private subnet
+  - NAT for outbound access
+  - Security lists enforce rules
+  - Service Gateway for OCI services
+end note
+
+@enduml

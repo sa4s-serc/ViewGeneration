@@ -1,0 +1,125 @@
+@startuml
+!define COMPONENT_STYLE true
+
+skinparam component {
+    BackgroundColor<<external>> LightBlue
+    BackgroundColor<<transport>> LightGreen
+    BackgroundColor<<processor>> LightYellow
+    BackgroundColor<<common>> LightGray
+}
+
+package "External Systems" {
+    [HTTP Client] as HTTPClient <<external>>
+    [RocketMQ Cluster] as RocketMQ <<external>>
+    [Consumer HTTP Endpoint] as ConsumerEndpoint <<external>>
+}
+
+package "Transport Layer" <<transport>> {
+    [Netty Server] as NettyServer
+    [RequestDecoder] as Decoder
+    [RequestValidator] as Validator
+    [ResponseEncoder] as Encoder
+    [NettyConnectionManageHandler] as ConnManager
+    [GatewayLoggingHandler] as Logger
+    [HttpClients Factory] as HttpFactory
+}
+
+package "Processor Layer" <<processor>> {
+    [ProduceMessageProcessor] as ProduceProcessor
+    [ProducerManager] as ProdManager
+    [ConsumerManager] as ConsManager
+    [HttpMessageListenerConcurrently] as HttpListener
+    [HttpExecutor] as HttpExec
+    [SubscriptionChangeWatcher] as SubWatcher
+}
+
+package "Common Layer" <<common>> {
+    [Service Base] as ServiceBase
+    [Subscription Data] as SubData
+    [MessageProduceRequest] as MsgRequest
+}
+
+package "Configuration" {
+    [Spring Context] as Spring
+    [gateway.properties] as Props
+    [spring.xml] as SpringXML
+}
+
+' HTTP Client Connectivity
+HTTPClient -down-> NettyServer : HTTP Request
+
+' Netty Pipeline Connectivity
+NettyServer -down-> Decoder : Raw Request
+Decoder -down-> Validator : Decoded Request
+Validator -down-> ProduceProcessor : Validated Request
+ProduceProcessor -up-> Encoder : Response
+Encoder -up-> NettyServer : Encoded Response
+NettyServer --> ConnManager : Channel Lifecycle
+NettyServer --> Logger : Logging
+
+' Producer Flow Connectivity
+ProduceProcessor -down-> MsgRequest : Creates
+ProduceProcessor -down-> ProdManager : Manage Producers
+ProdManager -down-> RocketMQ : Send Messages
+
+' Consumer Flow Connectivity
+RocketMQ -up-> ConsManager : Pull Messages
+ConsManager -up-> HttpListener : Message Event
+HttpListener -up-> HttpExec : Execute Callback
+HttpExec -up-> HttpFactory : Get HTTP Client
+HttpFactory -up-> ConsumerEndpoint : HTTP POST
+
+' Subscription Management Connectivity
+SubWatcher -down-> SubData : Monitor Changes
+SubWatcher -down-> ProdManager : Update Producers
+SubWatcher -down-> ConsManager : Update Consumers
+SubData --> RocketMQ : Topic Subscriptions
+
+' Configuration Connectivity
+Spring -down-> NettyServer : Initialize
+Spring -down-> ProduceProcessor : Initialize
+Spring -down-> ProdManager : Initialize
+Spring -down-> ConsManager : Initialize
+Spring -down-> SubWatcher : Initialize
+SpringXML --> Spring : Bean Definitions
+Props --> Spring : Configuration Properties
+
+' Common Layer Dependencies
+ProdManager --|> ServiceBase : Extends
+ConsManager --|> ServiceBase : Extends
+SubWatcher --|> ServiceBase : Extends
+
+' Bidirectional Gateway Connectivity
+NettyServer -[hidden]- RocketMQ
+HTTPClient -[#red,bold]-> NettyServer : <color:red><b>HTTP In</b></color>
+NettyServer -[#red,bold]-> HTTPClient : <color:red><b>HTTP Out</b></color>
+ProdManager -[#blue,bold]-> RocketMQ : <color:blue><b>Produce</b></color>
+RocketMQ -[#green,bold]-> ConsManager : <color:green><b>Consume</b></color>
+HttpExec -[#orange,bold]-> ConsumerEndpoint : <color:orange><b>Callback</b></color>
+
+note right of NettyServer
+  Main entry point for HTTP requests
+  Netty-based async I/O
+end note
+
+note right of ProdManager
+  Manages RocketMQ producers
+  Idle producer monitoring
+end note
+
+note right of ConsManager
+  Manages RocketMQ consumers
+  HTTP callback configuration
+end note
+
+note bottom of HttpFactory
+  Connection pooling for
+  HTTP callback requests
+end note
+
+note top of SubWatcher
+  Dynamic subscription management
+  Updates producers/consumers
+end note
+
+@enduml

@@ -1,0 +1,88 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: TestHaters_ctflow
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** general
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## CTFLOW: Codeless End-to-End Testing Tool - Analysis Report
+
+This report summarizes the architecture, key functionalities, and components of CTFLOW, a codeless end-to-end testing tool implemented as a VS Code extension. CTFLOW allows users to visually create Cypress test scripts using a drag-and-drop UI, eliminating the need to write code directly.
+
+**Core Functionality & Key Components:**
+
+CTFLOW centers around codeless test generation. Users interact with a React-based webview UI (`dnd-ui` directory) within VS Code to construct test flows visually. The VS Code extension (`src` directory) hosts the webview and facilitates communication with Cypress for test execution. Real-time collaboration capabilities are suggested by the integration of Firebase and potentially WebSockets, although the extent of this feature requires further investigation.
+
+**Key Features:**
+
+*   **Codeless Test Generation:** Visually create Cypress test scripts via a drag-and-drop interface.
+*   **VS Code Extension:** Seamless integration with the VS Code development environment.
+*   **React-based Webview UI:** Intuitive UI built with React for visual test flow creation.
+*   **Cypress Integration:** Leverages Cypress as the underlying testing engine for executing generated test code.
+*   **Real-time Collaboration (Potential):** Possible support for real-time collaboration using Firebase/WebSockets.
+*   **Customizable Nodes:** Supports both default and custom nodes, enabling users to extend functionality.
+*   **Persistence and Import/Export:** Test flows are stored in `.ctflow` files (YAML format) with import/export capabilities for custom node configurations.
+*   **Testing Support**: Active testing indicated by Code Climate integration.
+
+**Architecture:**
+
+CTFLOW employs a multi-process architecture, utilizing the VS Code extension framework. The extension and webview run in separate processes, communicating via the VS Code API. The React-based UI follows a component-based structure for modularity and maintainability. The visual test flow is represented as a graph, facilitating traversal and compilation into executable code.
+
+**Important Files & Their Roles:**
+
+*   **`LICENSE` & `dnd-ui/LICENSE`:** MIT license, denoting the open-source nature of the project.
+*   **`README.md`:** Provides a user guide, architecture overview, and tech stack information (VSCode, React, Vite). Includes instructions for local and Codespaces execution. An architectural diagram illustrates the interaction between the Webview UI, Compiler, and Cypress.
+*   **`src/extension.ts`:** The main entry point for the VS Code extension, registering commands and the `CtFlowEditorProvider` for custom editor functionality.
+*   **`dnd-ui/src/index.tsx`:** Entry point for the React webview UI, rendering the main `App` component.
+*   **`dnd-ui/src/App.tsx`:** Root React component, setting up providers (React Flow, global state) and potentially fetching initial UI data via `InitGlobalState`.
+*   **`dnd-ui/src/pages/Flow.tsx`:** Contains the core React Flow implementation: visual editor, node/edge handling, and component rendering.
+*   **`dnd-ui/src/components/*`:** React components for rendering UI elements, including `NodeMenuPanel` (adding nodes), `CompilePanel` (compiling to Cypress), `HelperLine.tsx` (visual alignment), and `CustomNodes` (managing custom nodes).
+*   **`dnd-ui/src/nodes/*`:** Defines node types within the visual editor: `AnyNode.tsx` (dynamically renders nodes based on `componentType`), `CTFlowRecorderNode.tsx` (records/replays actions, potentially using Firebase), and `CustomNodeRender.tsx` (renders user-defined custom nodes). Older node files appear to be undergoing refactoring.
+*   **`dnd-ui/src/utilities/*`:** Utility functions, including `vscode.ts` (VS Code API wrapper), `getUri.ts` (URI construction), and `helperLines.ts` (node layout and alignment).
+*   **`dnd-ui/src/compilers/*`:** Contains logic for compiling the visual flow into Cypress code. `index.ts` orchestrates the compilation process, delegating to specific node compilers within the `cypress/*` directory (e.g., `ButtonNodeCompiler`, `VisitPageNodeCompiler`). `helpers/graph.ts` provides a `Graph` class for representing the flow as a graph.
+*   **`dnd-ui/bun.lockb`:** Lockfile for Bun, the JavaScript runtime.
+*   **`dnd-ui/webpack.config.js`:** Webpack configuration for bundling the webview UI.
+
+**Design Patterns:**
+
+*   **Model-View-Controller (MVC) / Model-View-Update (MVU):** While not strictly adhering to these patterns, the project separates concerns between data, UI, and logic.
+*   **Factory Pattern:** Node types are handled via a form of node factory.
+*   **Dependency Injection/Strategy Pattern (Compiler):** The `Compiler` class uses `findCompiler` to dynamically select the appropriate node compiler.
+
+**Points to Note:**
+
+*   **.DS_Store Files:** Presence indicates macOS development and suggests the need for exclusion from version control.
+*   **Refactoring Efforts:** Ongoing refactoring simplifies node architecture, particularly with the introduction of the `AnyNode` component. Further cleanup of legacy code is likely required.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: general
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/TestHaters_ctflow.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

@@ -1,0 +1,169 @@
+@startuml
+title Scrumlr.io - Control Flow Sequence Diagram
+
+actor User
+participant "Frontend\n(React/Redux)" as Frontend
+participant "API Router\n(router.go)" as Router
+participant "Auth Middleware\n(auth.go)" as Auth
+participant "API Handler" as Handler
+participant "Service Layer\n(boards/notes/users)" as Service
+participant "Database\n(bun ORM)" as Database
+participant "Realtime\n(NATS/Redis)" as Realtime
+participant "WebSocket\nConnection" as WebSocket
+
+== User Authentication ==
+User -> Frontend: Navigate to board
+Frontend -> Router: GET /api/boards/{id}
+Router -> Auth: Authenticate request
+Auth -> Auth: Validate token/session
+Auth -> Router: Authentication result
+Router -> Handler: Forward authenticated request
+Handler -> Service: GetBoard(boardID)
+Service -> Database: Query board data
+Database -> Service: Return board
+Service -> Handler: Board DTO
+Handler -> Router: HTTP Response (Board data)
+Router -> Frontend: Board JSON
+Frontend -> Frontend: Redux: Update board state
+Frontend -> User: Display board
+
+== Establish WebSocket Connection ==
+Frontend -> WebSocket: Connect to /boards/{id}/listen
+WebSocket -> Auth: Authenticate WebSocket
+Auth -> WebSocket: Connection authorized
+WebSocket -> Realtime: Subscribe to board events
+Realtime -> WebSocket: Subscription confirmed
+WebSocket -> Frontend: Connection established
+
+== Create Note ==
+User -> Frontend: Create new note
+Frontend -> Frontend: Redux: Dispatch createNote action
+Frontend -> Router: POST /api/boards/{id}/notes
+Router -> Auth: Verify authorization
+Auth -> Router: Authorized
+Router -> Handler: CreateNote handler
+Handler -> Service: CreateNote(boardID, noteData)
+Service -> Database: Insert note record
+Database -> Service: Note created
+Service -> Realtime: Publish NOTE_CREATED event
+Service -> Handler: Note DTO
+Handler -> Router: HTTP 201 Created
+Router -> Frontend: Note JSON
+Frontend -> Frontend: Redux: Add note to state
+Frontend -> User: Display new note
+
+== Real-time Update Propagation ==
+Realtime -> WebSocket: NOTE_CREATED event
+WebSocket -> WebSocket: Filter event for board
+WebSocket -> Frontend: Push event data
+Frontend -> Frontend: Redux: Update state
+Frontend -> User: Update UI (other users see note)
+
+== Vote on Note ==
+User -> Frontend: Click vote on note
+Frontend -> Frontend: Redux: Dispatch vote action
+Frontend -> Router: POST /api/boards/{id}/votes
+Router -> Auth: Verify authorization
+Auth -> Router: Authorized
+Router -> Handler: CreateVote handler
+Handler -> Service: CreateVote(noteID, userID)
+Service -> Database: Insert vote record
+Database -> Service: Vote created
+Service -> Realtime: Publish VOTE_CREATED event
+Service -> Handler: Vote DTO
+Handler -> Router: HTTP 201 Created
+Router -> Frontend: Vote JSON
+Frontend -> Frontend: Redux: Update vote state
+Frontend -> User: Update vote count
+
+Realtime -> WebSocket: VOTE_CREATED event
+WebSocket -> Frontend: Push vote event
+Frontend -> Frontend: Redux: Update state
+Frontend -> User: Sync vote count
+
+== Update Note (Stack/Edit) ==
+User -> Frontend: Edit note content
+Frontend -> Frontend: Redux: Dispatch updateNote
+Frontend -> Router: PUT /api/boards/{id}/notes/{noteId}
+Router -> Auth: Verify authorization
+Auth -> Router: Authorized
+Router -> Handler: UpdateNote handler
+Handler -> Service: UpdateNote(noteID, updates)
+Service -> Database: Update note record
+Database -> Service: Note updated
+Service -> Realtime: Publish NOTE_UPDATED event
+Service -> Handler: Updated note DTO
+Handler -> Router: HTTP 200 OK
+Router -> Frontend: Updated note JSON
+Frontend -> Frontend: Redux: Update note state
+Frontend -> User: Display updated note
+
+Realtime -> WebSocket: NOTE_UPDATED event
+WebSocket -> Frontend: Push update event
+Frontend -> Frontend: Redux: Sync state
+Frontend -> User: Reflect changes
+
+== User Session Management ==
+Frontend -> Router: POST /api/boards/{id}/sessions
+Router -> Auth: Verify authorization
+Auth -> Router: Authorized
+Router -> Handler: CreateSession handler
+Handler -> Service: CreateSession(boardID, userID)
+Service -> Database: Insert session record
+Database -> Service: Session created
+Service -> Realtime: Publish SESSION_JOINED event
+Service -> Handler: Session DTO
+Handler -> Router: HTTP 201 Created
+Router -> Frontend: Session JSON
+Frontend -> Frontend: Redux: Add user session
+
+Realtime -> WebSocket: SESSION_JOINED event
+WebSocket -> Frontend: Push session event
+Frontend -> Frontend: Redux: Update users state
+Frontend -> User: Show user joined
+
+== Export Board Data ==
+User -> Frontend: Request board export
+Frontend -> Router: GET /api/boards/{id}/export?format=json
+Router -> Auth: Verify authorization
+Auth -> Router: Authorized
+Router -> Handler: ExportBoard handler
+Handler -> Service: ExportBoard(boardID, format)
+Service -> Database: Query all board data
+Database -> Service: Board, columns, notes, votes
+Service -> Service: Transform to export format
+Service -> Handler: Export data
+Handler -> Router: HTTP 200 with file
+Router -> Frontend: Download response
+Frontend -> User: Download file
+
+== Delete Note ==
+User -> Frontend: Delete note
+Frontend -> Frontend: Redux: Dispatch deleteNote
+Frontend -> Router: DELETE /api/boards/{id}/notes/{noteId}
+Router -> Auth: Verify authorization
+Auth -> Router: Authorized
+Router -> Handler: DeleteNote handler
+Handler -> Service: DeleteNote(noteID)
+Service -> Database: Delete note record
+Database -> Service: Note deleted
+Service -> Realtime: Publish NOTE_DELETED event
+Service -> Handler: Success response
+Handler -> Router: HTTP 204 No Content
+Router -> Frontend: Success
+Frontend -> Frontend: Redux: Remove note
+Frontend -> User: Note removed from UI
+
+Realtime -> WebSocket: NOTE_DELETED event
+WebSocket -> Frontend: Push delete event
+Frontend -> Frontend: Redux: Sync deletion
+Frontend -> User: Update UI
+
+== WebSocket Disconnect ==
+User -> Frontend: Leave board/close tab
+Frontend -> WebSocket: Close connection
+WebSocket -> Realtime: Unsubscribe from events
+Realtime -> WebSocket: Unsubscribed
+WebSocket -> Frontend: Connection closed
+
+@enduml

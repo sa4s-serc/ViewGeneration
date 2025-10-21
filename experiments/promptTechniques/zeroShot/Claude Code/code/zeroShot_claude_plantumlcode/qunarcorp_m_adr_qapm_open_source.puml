@@ -1,0 +1,201 @@
+@startuml
+title QAPM - Android Performance Monitoring Control Flow
+
+actor Developer
+participant "Build System" as Build
+participant "QBuildPlugin" as Plugin
+participant "AspectJAppTransform" as Transform
+participant "Android App" as App
+participant "QAPM" as QAPM
+participant "QAPMConfig" as Config
+participant "QConfigManager" as ConfigMgr
+participant "TracePlugin" as TracePlugin
+participant "ApplicationLifeObserver" as LifecycleObs
+participant "WatchMan" as WatchMan
+participant "BatteryTracer" as Battery
+participant "CpuTracer" as CPU
+participant "MemoryTracer" as Memory
+participant "FPSTracer" as FPS
+participant "NetworkInstrumentation" as NetInstr
+participant "Storage" as Storage
+participant "NetworkSender" as Sender
+participant "Backend Server" as Server
+
+== Build Time: AOP Injection ==
+Developer -> Build: Start build process
+Build -> Plugin: Apply QBuildPlugin
+activate Plugin
+Plugin -> Plugin: Add extensions
+Plugin -> Plugin: Register transform
+Plugin -> Transform: Execute transform
+activate Transform
+Transform -> Transform: Intercept class compilation
+Transform -> Transform: Inject QAPM monitoring code via ASM
+Transform -> Build: Return instrumented classes
+deactivate Transform
+deactivate Plugin
+Build -> Developer: Build complete
+
+== Runtime: Initialization ==
+App -> QAPM: Initialize QAPM
+activate QAPM
+QAPM -> Config: Load QAPMConfig (Builder pattern)
+activate Config
+Config -> ConfigMgr: Register configuration
+activate ConfigMgr
+ConfigMgr --> Config: Configuration stored
+deactivate ConfigMgr
+Config --> QAPM: Configuration ready
+deactivate Config
+QAPM -> LifecycleObs: Register ApplicationLifeObserver
+activate LifecycleObs
+LifecycleObs --> QAPM: Observer registered
+deactivate LifecycleObs
+QAPM -> TracePlugin: Initialize TracePlugin
+activate TracePlugin
+TracePlugin -> Battery: Initialize BatteryTracer (Singleton)
+activate Battery
+Battery --> TracePlugin: Tracer ready
+deactivate Battery
+TracePlugin -> CPU: Initialize CpuTracer (Singleton)
+activate CPU
+CPU --> TracePlugin: Tracer ready
+deactivate CPU
+TracePlugin -> Memory: Initialize MemoryTracer (Singleton)
+activate Memory
+Memory --> TracePlugin: Tracer ready
+deactivate Memory
+TracePlugin -> FPS: Initialize FPSTracer
+activate FPS
+FPS --> TracePlugin: Tracer ready
+deactivate FPS
+TracePlugin --> QAPM: All tracers initialized
+deactivate TracePlugin
+QAPM -> Storage: Initialize Storage (Singleton)
+activate Storage
+Storage --> QAPM: Storage ready
+deactivate Storage
+QAPM --> App: QAPM initialized
+deactivate QAPM
+
+== Runtime: Activity Lifecycle Monitoring ==
+App -> LifecycleObs: Activity created
+activate LifecycleObs
+LifecycleObs -> WatchMan: onActivityCreated
+activate WatchMan
+WatchMan -> TracePlugin: Start lifecycle tracing
+activate TracePlugin
+TracePlugin -> Battery: startTrace()
+activate Battery
+Battery -> Battery: Begin battery monitoring
+deactivate Battery
+TracePlugin -> CPU: startTrace()
+activate CPU
+CPU -> CPU: Begin CPU monitoring
+deactivate CPU
+TracePlugin -> Memory: startTrace()
+activate Memory
+Memory -> Memory: Begin memory monitoring
+deactivate Memory
+TracePlugin -> FPS: startTrace()
+activate FPS
+FPS -> FPS: Begin FPS monitoring
+deactivate FPS
+deactivate TracePlugin
+deactivate WatchMan
+deactivate LifecycleObs
+
+== Runtime: Network Request Monitoring ==
+App -> NetInstr: Make HTTP request
+activate NetInstr
+NetInstr -> NetInstr: Intercept request
+NetInstr -> NetInstr: Instrument HTTP call
+NetInstr -> NetInstr: Collect network metrics
+NetInstr -> Storage: Store network data
+activate Storage
+Storage -> Storage: Persist data locally
+deactivate Storage
+NetInstr --> App: Return response
+deactivate NetInstr
+
+== Runtime: Performance Data Collection ==
+Battery -> Battery: Collect battery metrics
+Battery -> Storage: Store battery data
+activate Storage
+Storage --> Battery: Data stored
+deactivate Storage
+
+CPU -> CPU: Collect CPU metrics
+CPU -> Storage: Store CPU data
+activate Storage
+Storage --> CPU: Data stored
+deactivate Storage
+
+Memory -> Memory: Collect memory metrics
+Memory -> Storage: Store memory data
+activate Storage
+Storage --> Memory: Data stored
+deactivate Storage
+
+FPS -> FPS: Collect frame rate metrics
+FPS -> Storage: Store FPS data
+activate Storage
+Storage --> FPS: Data stored
+deactivate Storage
+
+== Runtime: Data Reporting ==
+Storage -> Sender: Retrieve collected data
+activate Sender
+Sender -> Sender: Prepare data payload
+Sender -> Server: Send performance data
+activate Server
+Server -> Server: Process metrics
+Server --> Sender: Acknowledgment
+deactivate Server
+Sender -> Storage: Mark data as sent
+deactivate Sender
+
+== Runtime: Activity Lifecycle Stop ==
+App -> LifecycleObs: Activity destroyed
+activate LifecycleObs
+LifecycleObs -> WatchMan: onActivityDestroyed
+activate WatchMan
+WatchMan -> TracePlugin: Stop lifecycle tracing
+activate TracePlugin
+TracePlugin -> Battery: stopTrace()
+activate Battery
+Battery -> Battery: Stop battery monitoring
+Battery -> Storage: Store final battery data
+activate Storage
+Storage --> Battery: Data stored
+deactivate Storage
+deactivate Battery
+TracePlugin -> CPU: stopTrace()
+activate CPU
+CPU -> CPU: Stop CPU monitoring
+CPU -> Storage: Store final CPU data
+activate Storage
+Storage --> CPU: Data stored
+deactivate Storage
+deactivate CPU
+TracePlugin -> Memory: stopTrace()
+activate Memory
+Memory -> Memory: Stop memory monitoring
+Memory -> Storage: Store final memory data
+activate Storage
+Storage --> Memory: Data stored
+deactivate Storage
+deactivate Memory
+TracePlugin -> FPS: stopTrace()
+activate FPS
+FPS -> FPS: Stop FPS monitoring
+FPS -> Storage: Store final FPS data
+activate Storage
+Storage --> FPS: Data stored
+deactivate Storage
+deactivate FPS
+deactivate TracePlugin
+deactivate WatchMan
+deactivate LifecycleObs
+
+@enduml

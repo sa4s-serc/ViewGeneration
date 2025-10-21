@@ -1,0 +1,161 @@
+@startuml
+!define RECTANGLE class
+
+skinparam component {
+    BackgroundColor<<backend>> LightBlue
+    BackgroundColor<<agent>> LightGreen
+    BackgroundColor<<app>> LightYellow
+    BackgroundColor<<infra>> LightGray
+    BackgroundColor<<automation>> LightPink
+}
+
+package "Instana Backend Deployment" {
+    [stanctl CLI] <<backend>>
+    [Manual Installation] <<backend>>
+    [Ansible Playbook] <<backend>>
+    [Instana Backend Server] <<backend>>
+}
+
+package "Kubernetes Infrastructure (V3)" {
+    [kubeadm Bootstrap] <<infra>>
+    [Kubernetes Control Plane] <<infra>>
+    [Kubernetes Worker Nodes] <<infra>>
+    [Local Path Provisioner] <<infra>>
+
+    package "Deployed Applications" {
+        [Robot Shop Microservices] <<app>>
+        [Python Applications] <<app>>
+        [Node.js Applications] <<app>>
+    }
+
+    [Instana K8s Agent DaemonSet] <<agent>>
+}
+
+package "VM-Based Infrastructure (V1/V2)" {
+    [Kind Cluster] <<infra>>
+    [Footloose VMs] <<infra>>
+    [Instana VM Agents] <<agent>>
+    [manage-to Host] <<infra>>
+}
+
+package "Docker Infrastructure" {
+    [Docker Engine] <<infra>>
+    [Robot Shop on Docker Compose] <<app>>
+    [Instana Docker Agent] <<agent>>
+}
+
+package "Automation Scripts" {
+    [bootstrap-k8s.sh] <<automation>>
+    [prepare-join-k8s.sh] <<automation>>
+    [utils.sh] <<automation>>
+    [rhel.sh] <<automation>>
+    [ubuntu.sh] <<automation>>
+}
+
+package "Configuration Assets" {
+    [Kubernetes Manifests (YAML)] <<automation>>
+    [Agent Configuration Files] <<automation>>
+    [StatsD Configuration] <<automation>>
+    [Environment Variables] <<automation>>
+}
+
+package "Monitoring Components" {
+    [Application Monitoring] <<backend>>
+    [Infrastructure Monitoring] <<backend>>
+    [Website Monitoring] <<backend>>
+    [Event Management] <<backend>>
+    [SLO Monitoring] <<backend>>
+    [Custom Metrics] <<backend>>
+    [OpenTelemetry Integration] <<backend>>
+}
+
+' Backend Installation Relationships
+[stanctl CLI] --> [Instana Backend Server] : deploys
+[Manual Installation] --> [Instana Backend Server] : installs
+[Ansible Playbook] --> [Instana Backend Server] : provisions
+
+' Kubernetes Deployment Relationships
+[bootstrap-k8s.sh] --> [kubeadm Bootstrap] : executes
+[prepare-join-k8s.sh] --> [kubeadm Bootstrap] : configures
+[kubeadm Bootstrap] --> [Kubernetes Control Plane] : initializes
+[kubeadm Bootstrap] --> [Kubernetes Worker Nodes] : joins
+[utils.sh] --> [bootstrap-k8s.sh] : provides utilities
+[rhel.sh] --> [bootstrap-k8s.sh] : OS-specific config
+[ubuntu.sh] --> [bootstrap-k8s.sh] : OS-specific config
+
+[Kubernetes Manifests (YAML)] --> [Local Path Provisioner] : deploys
+[Kubernetes Manifests (YAML)] --> [Robot Shop Microservices] : deploys
+[Kubernetes Manifests (YAML)] --> [Python Applications] : deploys
+[Kubernetes Manifests (YAML)] --> [Node.js Applications] : deploys
+[Kubernetes Manifests (YAML)] --> [Instana K8s Agent DaemonSet] : deploys
+
+[Local Path Provisioner] ..> [Kubernetes Control Plane] : storage provisioning
+[Robot Shop Microservices] ..> [Kubernetes Worker Nodes] : runs on
+[Python Applications] ..> [Kubernetes Worker Nodes] : runs on
+[Node.js Applications] ..> [Kubernetes Worker Nodes] : runs on
+[Instana K8s Agent DaemonSet] ..> [Kubernetes Worker Nodes] : monitors
+
+' VM Infrastructure Relationships
+[Footloose VMs] --> [manage-to Host] : managed by
+[Kind Cluster] --> [Footloose VMs] : runs on
+[Instana VM Agents] --> [Footloose VMs] : installed on
+[Instana VM Agents] --> [manage-to Host] : installed on
+
+' Docker Infrastructure Relationships
+[Robot Shop on Docker Compose] --> [Docker Engine] : deployed on
+[Instana Docker Agent] --> [Docker Engine] : monitors
+[Instana Docker Agent] --> [Robot Shop on Docker Compose] : monitors
+
+' Agent Configuration Relationships
+[Agent Configuration Files] --> [Instana K8s Agent DaemonSet] : configures
+[Agent Configuration Files] --> [Instana VM Agents] : configures
+[Agent Configuration Files] --> [Instana Docker Agent] : configures
+[StatsD Configuration] --> [Instana K8s Agent DaemonSet] : custom metrics
+[Environment Variables] --> [Robot Shop Microservices] : configures
+[Environment Variables] --> [Python Applications] : configures
+[Environment Variables] --> [Node.js Applications] : configures
+
+' Agent to Backend Relationships
+[Instana K8s Agent DaemonSet] --> [Instana Backend Server] : sends telemetry
+[Instana VM Agents] --> [Instana Backend Server] : sends telemetry
+[Instana Docker Agent] --> [Instana Backend Server] : sends telemetry
+
+' Monitoring Components Relationships
+[Instana Backend Server] --> [Application Monitoring] : provides
+[Instana Backend Server] --> [Infrastructure Monitoring] : provides
+[Instana Backend Server] --> [Website Monitoring] : provides
+[Instana Backend Server] --> [Event Management] : provides
+[Instana Backend Server] --> [SLO Monitoring] : provides
+[Instana Backend Server] --> [Custom Metrics] : provides
+[Instana Backend Server] --> [OpenTelemetry Integration] : provides
+
+[Application Monitoring] ..> [Robot Shop Microservices] : monitors
+[Application Monitoring] ..> [Python Applications] : monitors
+[Application Monitoring] ..> [Node.js Applications] : monitors
+[Infrastructure Monitoring] ..> [Kubernetes Worker Nodes] : monitors
+[Infrastructure Monitoring] ..> [Footloose VMs] : monitors
+[Infrastructure Monitoring] ..> [Docker Engine] : monitors
+
+note right of [Instana Backend Server]
+  Central APM platform deployed via:
+  - stanctl CLI
+  - Manual installation
+  - Ansible automation
+end note
+
+note bottom of "Kubernetes Infrastructure (V3)"
+  V3 Architecture: Dynamic Kubeadm-bootstrapped
+  Kubernetes environment (current evolution)
+end note
+
+note bottom of "VM-Based Infrastructure (V1/V2)"
+  V1/V2 Architecture: Legacy VM-based
+  labs using Kind and Footloose
+end note
+
+note top of "Automation Scripts"
+  Infrastructure as Code (IaC) approach
+  for automated deployment and configuration
+end note
+
+@enduml

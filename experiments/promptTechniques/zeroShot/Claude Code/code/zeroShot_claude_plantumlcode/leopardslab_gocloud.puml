@@ -1,0 +1,337 @@
+@startuml
+!define RECTANGLE component
+
+skinparam component {
+    BackgroundColor<<core>> LightBlue
+    BackgroundColor<<provider>> LightGreen
+    BackgroundColor<<service>> LightYellow
+    BackgroundColor<<auth>> LightPink
+}
+
+package "gocloud Core" {
+    component "Gocloud Interface" as GocloudIF <<core>>
+    component "CloudProvider Factory" as Factory <<core>>
+    component "gocloudinterface" as CommonIF <<core>> {
+        component "commonInterface"
+        component "extendedInterface"
+    }
+}
+
+package "Authentication Layer" <<auth>> {
+    component "AWS Auth" as AWSAuth
+    component "Google Auth" as GoogleAuth
+    component "AliCloud Auth" as AliAuth
+    component "DigitalOcean Auth" as DOAuth
+    component "Azure Auth" as AzureAuth
+    component "OpenStack Auth" as OpenStackAuth
+    component "Rackspace Auth" as RackspaceAuth
+    component "Vultr Auth" as VultrAuth
+}
+
+package "Cloud Provider Implementations" {
+    package "AWS Provider" <<provider>> {
+        component "AWS Compute" as AWSCompute
+        component "AWS Storage" as AWSStorage
+        component "AWS Container" as AWSContainer
+        component "AWS DNS" as AWSDNS
+        component "AWS LoadBalancer" as AWSLb
+        component "AWS Serverless" as AWSServerless
+        component "AWS Database" as AWSDatabase
+        component "AWS ML" as AWSML
+        component "AWS Analytics" as AWSAnalytics
+        component "AWS Notification" as AWSSNS
+        component "AWS Stream" as AWSKinesis
+    }
+
+    package "Google Cloud Provider" <<provider>> {
+        component "Google Compute" as GoogleCompute
+        component "Google Storage" as GoogleStorage
+        component "Google Container" as GoogleContainer
+        component "Google DNS" as GoogleDNS
+        component "Google LoadBalancer" as GoogleLb
+        component "Google Serverless" as GoogleServerless
+        component "Google Database" as GoogleDatabase
+        component "Google ML" as GoogleML
+        component "Google Analytics" as GoogleAnalytics
+        component "Google Notification" as GooglePubSub
+        component "Google Stream" as GoogleDataflow
+    }
+
+    package "AliCloud Provider" <<provider>> {
+        component "Ali Compute" as AliCompute
+        component "Ali Storage" as AliStorage
+        component "Ali Container" as AliContainer
+        component "Ali DNS" as AliDNS
+        component "Ali LoadBalancer" as AliLb
+    }
+
+    package "DigitalOcean Provider" <<provider>> {
+        component "DO Compute" as DOCompute
+        component "DO Storage" as DOStorage
+        component "DO Container" as DOContainer
+        component "DO DNS" as DODNS
+        component "DO LoadBalancer" as DOLb
+    }
+
+    package "Azure Provider" <<provider>> {
+        component "Azure Compute" as AzureCompute
+        component "Azure Storage" as AzureStorage
+        component "Azure Container" as AzureContainer
+        component "Azure DNS" as AzureDNS
+        component "Azure LoadBalancer" as AzureLb
+    }
+
+    package "OpenStack Provider" <<provider>> {
+        component "OpenStack Compute" as OSCompute
+        component "OpenStack Storage" as OSStorage
+        component "OpenStack DNS" as OSDNS
+        component "OpenStack LoadBalancer" as OSLb
+    }
+
+    package "Rackspace Provider" <<provider>> {
+        component "Rackspace Compute" as RSCompute
+        component "Rackspace Storage" as RSStorage
+    }
+
+    package "Vultr Provider" <<provider>> {
+        component "Vultr Compute" as VultrCompute
+        component "Vultr Storage" as VultrStorage
+        component "Vultr DNS" as VultrDNS
+        component "Vultr BareMetal" as VultrBM
+    }
+}
+
+package "External Cloud APIs" {
+    interface "AWS API" as AWSAPI
+    interface "Google Cloud API" as GoogleAPI
+    interface "AliCloud API" as AliAPI
+    interface "DigitalOcean API" as DOAPI
+    interface "Azure API" as AzureAPI
+    interface "OpenStack API" as OSAPI
+    interface "Rackspace API" as RSAPI
+    interface "Vultr API" as VultrAPI
+}
+
+' Core connections
+Factory --> GocloudIF : creates
+GocloudIF --> CommonIF : implements
+
+' AWS Provider connections
+Factory --> AWSCompute : creates
+Factory --> AWSStorage : creates
+Factory --> AWSContainer : creates
+AWSCompute ..|> CommonIF
+AWSStorage ..|> CommonIF
+AWSContainer ..|> CommonIF
+AWSDNS ..|> CommonIF
+AWSLb ..|> CommonIF
+AWSServerless ..|> CommonIF
+AWSDatabase ..|> CommonIF
+AWSML ..|> CommonIF
+AWSAnalytics ..|> CommonIF
+AWSSNS ..|> CommonIF
+AWSKinesis ..|> CommonIF
+
+AWSCompute --> AWSAuth : uses
+AWSStorage --> AWSAuth : uses
+AWSContainer --> AWSAuth : uses
+AWSDNS --> AWSAuth : uses
+AWSLb --> AWSAuth : uses
+AWSServerless --> AWSAuth : uses
+AWSDatabase --> AWSAuth : uses
+AWSML --> AWSAuth : uses
+AWSAnalytics --> AWSAuth : uses
+AWSSNS --> AWSAuth : uses
+AWSKinesis --> AWSAuth : uses
+
+AWSCompute --> AWSAPI : calls
+AWSStorage --> AWSAPI : calls
+AWSContainer --> AWSAPI : calls
+AWSDNS --> AWSAPI : calls
+AWSLb --> AWSAPI : calls
+AWSServerless --> AWSAPI : calls
+AWSDatabase --> AWSAPI : calls
+AWSML --> AWSAPI : calls
+AWSAnalytics --> AWSAPI : calls
+AWSSNS --> AWSAPI : calls
+AWSKinesis --> AWSAPI : calls
+
+' Google Provider connections
+Factory --> GoogleCompute : creates
+Factory --> GoogleStorage : creates
+Factory --> GoogleContainer : creates
+GoogleCompute ..|> CommonIF
+GoogleStorage ..|> CommonIF
+GoogleContainer ..|> CommonIF
+GoogleDNS ..|> CommonIF
+GoogleLb ..|> CommonIF
+GoogleServerless ..|> CommonIF
+GoogleDatabase ..|> CommonIF
+GoogleML ..|> CommonIF
+GoogleAnalytics ..|> CommonIF
+GooglePubSub ..|> CommonIF
+GoogleDataflow ..|> CommonIF
+
+GoogleCompute --> GoogleAuth : uses
+GoogleStorage --> GoogleAuth : uses
+GoogleContainer --> GoogleAuth : uses
+GoogleDNS --> GoogleAuth : uses
+GoogleLb --> GoogleAuth : uses
+GoogleServerless --> GoogleAuth : uses
+GoogleDatabase --> GoogleAuth : uses
+GoogleML --> GoogleAuth : uses
+GoogleAnalytics --> GoogleAuth : uses
+GooglePubSub --> GoogleAuth : uses
+GoogleDataflow --> GoogleAuth : uses
+
+GoogleCompute --> GoogleAPI : calls
+GoogleStorage --> GoogleAPI : calls
+GoogleContainer --> GoogleAPI : calls
+GoogleDNS --> GoogleAPI : calls
+GoogleLb --> GoogleAPI : calls
+GoogleServerless --> GoogleAPI : calls
+GoogleDatabase --> GoogleAPI : calls
+GoogleML --> GoogleAPI : calls
+GoogleAnalytics --> GoogleAPI : calls
+GooglePubSub --> GoogleAPI : calls
+GoogleDataflow --> GoogleAPI : calls
+
+' AliCloud Provider connections
+Factory --> AliCompute : creates
+Factory --> AliStorage : creates
+Factory --> AliContainer : creates
+AliCompute ..|> CommonIF
+AliStorage ..|> CommonIF
+AliContainer ..|> CommonIF
+AliDNS ..|> CommonIF
+AliLb ..|> CommonIF
+
+AliCompute --> AliAuth : uses
+AliStorage --> AliAuth : uses
+AliContainer --> AliAuth : uses
+AliDNS --> AliAuth : uses
+AliLb --> AliAuth : uses
+
+AliCompute --> AliAPI : calls
+AliStorage --> AliAPI : calls
+AliContainer --> AliAPI : calls
+AliDNS --> AliAPI : calls
+AliLb --> AliAPI : calls
+
+' DigitalOcean Provider connections
+Factory --> DOCompute : creates
+Factory --> DOStorage : creates
+Factory --> DOContainer : creates
+DOCompute ..|> CommonIF
+DOStorage ..|> CommonIF
+DOContainer ..|> CommonIF
+DODNS ..|> CommonIF
+DOLb ..|> CommonIF
+
+DOCompute --> DOAuth : uses
+DOStorage --> DOAuth : uses
+DOContainer --> DOAuth : uses
+DODNS --> DOAuth : uses
+DOLb --> DOAuth : uses
+
+DOCompute --> DOAPI : calls
+DOStorage --> DOAPI : calls
+DOContainer --> DOAPI : calls
+DODNS --> DOAPI : calls
+DOLb --> DOAPI : calls
+
+' Azure Provider connections
+Factory --> AzureCompute : creates
+Factory --> AzureStorage : creates
+Factory --> AzureContainer : creates
+AzureCompute ..|> CommonIF
+AzureStorage ..|> CommonIF
+AzureContainer ..|> CommonIF
+AzureDNS ..|> CommonIF
+AzureLb ..|> CommonIF
+
+AzureCompute --> AzureAuth : uses
+AzureStorage --> AzureAuth : uses
+AzureContainer --> AzureAuth : uses
+AzureDNS --> AzureAuth : uses
+AzureLb --> AzureAuth : uses
+
+AzureCompute --> AzureAPI : calls
+AzureStorage --> AzureAPI : calls
+AzureContainer --> AzureAPI : calls
+AzureDNS --> AzureAPI : calls
+AzureLb --> AzureAPI : calls
+
+' OpenStack Provider connections
+Factory --> OSCompute : creates
+Factory --> OSStorage : creates
+OSCompute ..|> CommonIF
+OSStorage ..|> CommonIF
+OSDNS ..|> CommonIF
+OSLb ..|> CommonIF
+
+OSCompute --> OpenStackAuth : uses
+OSStorage --> OpenStackAuth : uses
+OSDNS --> OpenStackAuth : uses
+OSLb --> OpenStackAuth : uses
+
+OSCompute --> OSAPI : calls
+OSStorage --> OSAPI : calls
+OSDNS --> OSAPI : calls
+OSLb --> OSAPI : calls
+
+' Rackspace Provider connections
+Factory --> RSCompute : creates
+Factory --> RSStorage : creates
+RSCompute ..|> CommonIF
+RSStorage ..|> CommonIF
+
+RSCompute --> RackspaceAuth : uses
+RSStorage --> RackspaceAuth : uses
+
+RSCompute --> RSAPI : calls
+RSStorage --> RSAPI : calls
+
+' Vultr Provider connections
+Factory --> VultrCompute : creates
+Factory --> VultrStorage : creates
+VultrCompute ..|> CommonIF
+VultrStorage ..|> CommonIF
+VultrDNS ..|> CommonIF
+VultrBM ..|> CommonIF
+
+VultrCompute --> VultrAuth : uses
+VultrStorage --> VultrAuth : uses
+VultrDNS --> VultrAuth : uses
+VultrBM --> VultrAuth : uses
+
+VultrCompute --> VultrAPI : calls
+VultrStorage --> VultrAPI : calls
+VultrDNS --> VultrAPI : calls
+VultrBM --> VultrAPI : calls
+
+note top of Factory
+  Factory Pattern: Creates provider
+  instances based on specified type.
+  Enables runtime provider selection.
+end note
+
+note bottom of CommonIF
+  Strategy Pattern: Common interfaces
+  allow interchangeable cloud providers
+  with consistent API across all platforms.
+end note
+
+note right of "Authentication Layer"
+  Authentication layer handles
+  credentials and request signing
+  for each cloud provider.
+end note
+
+note bottom of "External Cloud APIs"
+  Provider implementations connect
+  to external cloud APIs through
+  HTTP/HTTPS requests.
+end note
+
+@enduml

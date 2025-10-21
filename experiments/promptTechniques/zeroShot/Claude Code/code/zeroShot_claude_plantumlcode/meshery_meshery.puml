@@ -1,0 +1,168 @@
+@startuml
+!define COMPONENT_COLOR #4A90E2
+!define ADAPTER_COLOR #50C878
+!define INTERFACE_COLOR #FF6B6B
+!define PROVIDER_COLOR #FFD700
+
+title Meshery Deployment Architecture - Component Diagram
+
+skinparam component {
+    BackgroundColor COMPONENT_COLOR
+    BorderColor #2E5C8A
+    FontSize 12
+}
+
+skinparam interface {
+    BackgroundColor INTERFACE_COLOR
+    BorderColor #CC5555
+}
+
+package "Client Layer" {
+    component [mesheryctl CLI] as CLI
+    component [Meshery UI] as UI
+}
+
+package "Core Meshery Platform" {
+    component [Meshery Server] as Server
+    component [GraphQL API] as GraphQL
+    component [REST API] as REST
+    component [MeshKit Library] as MeshKit
+    database "Database" as DB
+
+    package "Provider System" {
+        component [Default Local Provider] as LocalProvider
+        component [Remote Provider] as RemoteProvider
+    }
+}
+
+package "Kubernetes Cluster" {
+    component [Meshery Operator] as Operator
+    component [MeshSync Controller] as MeshSync
+    component [Event Broker NATS] as Broker
+    component [Kubernetes Resources] as K8sResources
+}
+
+package "Service Mesh Adapters" {
+    component [Istio Adapter] as IstioAdapter
+    component [Linkerd Adapter] as LinkerdAdapter
+    component [Consul Adapter] as ConsulAdapter
+    component [Kuma Adapter] as KumaAdapter
+    component [NGINX SM Adapter] as NGINXAdapter
+    component [AWS App Mesh Adapter] as AWSAdapter
+}
+
+package "External Services" {
+    component [Istio] as IstioMesh
+    component [Linkerd] as LinkerdMesh
+    component [Consul] as ConsulMesh
+    component [Other Service Meshes] as OtherMeshes
+    component [Prometheus] as Prom
+    component [Grafana] as Graf
+    component [Meshery Cloud] as Cloud
+}
+
+interface "gRPC" as gRPC1
+interface "gRPC" as gRPC2
+interface "gRPC" as gRPC3
+interface "gRPC" as gRPC4
+interface "gRPC" as gRPC5
+interface "gRPC" as gRPC6
+interface "GraphQL API" as GQLInterface
+interface "HTTP/REST" as HTTPInterface
+interface "WebSocket" as WSInterface
+interface "K8s API" as K8sAPI
+
+CLI --> HTTPInterface
+CLI --> GQLInterface
+UI --> GQLInterface
+UI --> WSInterface
+
+HTTPInterface --> REST
+GQLInterface --> GraphQL
+WSInterface --> GraphQL
+
+REST --> Server
+GraphQL --> Server
+
+Server --> DB
+Server --> MeshKit
+Server --> LocalProvider
+Server --> RemoteProvider
+
+RemoteProvider ..> Cloud : authenticate/persist
+
+Server --> gRPC1
+Server --> gRPC2
+Server --> gRPC3
+Server --> gRPC4
+Server --> gRPC5
+Server --> gRPC6
+
+gRPC1 --> IstioAdapter
+gRPC2 --> LinkerdAdapter
+gRPC3 --> ConsulAdapter
+gRPC4 --> KumaAdapter
+gRPC5 --> NGINXAdapter
+gRPC6 --> AWSAdapter
+
+IstioAdapter --> IstioMesh
+LinkerdAdapter --> LinkerdMesh
+ConsulAdapter --> ConsulMesh
+KumaAdapter --> OtherMeshes
+NGINXAdapter --> OtherMeshes
+AWSAdapter --> OtherMeshes
+
+Server --> K8sAPI
+K8sAPI --> Operator
+
+Operator --> MeshSync
+Operator --> Broker
+
+MeshSync --> K8sResources : discover/sync
+MeshSync --> Broker : publish events
+
+Broker --> Server : event subscription
+
+IstioAdapter ..> Prom : collect metrics
+IstioAdapter ..> Graf : visualize
+Server ..> Prom : query metrics
+Server ..> Graf : dashboards
+
+note right of Server
+  Core component handling:
+  - Configuration loading
+  - API management
+  - Adapter orchestration
+  - Database auto-migration
+  - gRPC communication
+end note
+
+note right of MeshSync
+  Custom Kubernetes controller:
+  - Tiered discovery
+  - Continuous synchronization
+  - Composite fingerprinting
+  - State management
+end note
+
+note bottom of IstioAdapter
+  Adapters provide vendor-neutral
+  interface for service mesh
+  management via gRPC protocol
+end note
+
+note bottom of Broker
+  NATS message broker enables
+  event-driven communication
+  between components
+end note
+
+note top of RemoteProvider
+  Extension points for:
+  - Authentication
+  - Authorization
+  - Data persistence
+  - Enhanced visualization
+end note
+
+@enduml

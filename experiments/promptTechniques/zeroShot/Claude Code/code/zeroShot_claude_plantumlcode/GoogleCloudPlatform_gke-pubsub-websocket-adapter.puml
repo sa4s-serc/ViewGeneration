@@ -1,0 +1,134 @@
+@startuml
+!theme plain
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+
+title GKE Pub/Sub WebSocket Adapter - Connectivity Flow
+
+actor "Web Client" as Client
+participant "Ingress/Load Balancer" as Ingress
+participant "websocketd\n(WebSocket Server)" as WebSocketD
+participant "Ephemeral POSIX\nStorage\n(Memory-mapped FS)" as Storage
+participant "pulltop\n(Pub/Sub Subscriber)" as PullTop
+participant "Google Cloud\nPub/Sub" as PubSub
+participant "Cron Job" as Cron
+database "Workload Identity" as WorkloadID
+
+== Initialization ==
+PullTop -> WorkloadID: Authenticate using Workload Identity
+activate PullTop
+activate WorkloadID
+WorkloadID --> PullTop: Authentication Token
+deactivate WorkloadID
+
+PullTop -> PubSub: Create/Connect to Subscription
+activate PubSub
+PubSub --> PullTop: Subscription Established
+deactivate PullTop
+
+WebSocketD -> Storage: Initialize shared storage mount
+activate WebSocketD
+activate Storage
+Storage --> WebSocketD: Storage ready
+deactivate WebSocketD
+
+== Message Publishing and Pulling ==
+PubSub -> PubSub: Messages published to topic
+activate PubSub
+
+PullTop -> PubSub: Pull messages from subscription
+activate PullTop
+PubSub --> PullTop: Return messages batch
+deactivate PubSub
+
+PullTop -> Storage: Write messages to JSON file
+activate Storage
+Storage --> PullTop: Write complete
+deactivate PullTop
+deactivate Storage
+
+== WebSocket Client Connection ==
+Client -> Ingress: Connect via WebSocket (ws://)
+activate Client
+activate Ingress
+Ingress -> WebSocketD: Forward WebSocket connection
+activate WebSocketD
+WebSocketD --> Ingress: WebSocket handshake complete
+Ingress --> Client: Connection established
+
+== Real-time Message Streaming ==
+loop Continuous message flow
+    PullTop -> PubSub: Pull new messages
+    activate PullTop
+    activate PubSub
+    PubSub --> PullTop: Message batch
+    deactivate PubSub
+
+    PullTop -> Storage: Append messages to JSON
+    activate Storage
+    Storage --> PullTop: Write acknowledged
+    deactivate PullTop
+    deactivate Storage
+
+    WebSocketD -> Storage: Read new messages from JSON
+    activate WebSocketD
+    activate Storage
+    Storage --> WebSocketD: Return messages
+    deactivate Storage
+
+    WebSocketD -> Client: Push messages via WebSocket
+    Client --> WebSocketD: ACK
+    deactivate WebSocketD
+end
+
+== File Rotation (Scheduled) ==
+Cron -> Cron: Trigger scheduled job
+activate Cron
+Cron -> Storage: Rotate JSON output file
+activate Storage
+Storage --> Cron: Rotation complete
+deactivate Storage
+deactivate Cron
+
+== New Client Connection (Using Buffer) ==
+Client -> Ingress: New client connects
+activate Client
+activate Ingress
+Ingress -> WebSocketD: Forward connection
+activate WebSocketD
+WebSocketD --> Ingress: Handshake complete
+Ingress --> Client: Connected
+
+WebSocketD -> Storage: Read recent messages from buffer
+activate Storage
+Storage --> WebSocketD: Return buffered messages
+deactivate Storage
+
+WebSocketD -> Client: Send buffered messages
+Client --> WebSocketD: ACK
+deactivate WebSocketD
+deactivate Ingress
+
+loop Continue streaming
+    WebSocketD -> Storage: Read new messages
+    activate WebSocketD
+    activate Storage
+    Storage --> WebSocketD: New messages
+    deactivate Storage
+
+    WebSocketD -> Client: Push new messages
+    Client --> WebSocketD: ACK
+    deactivate WebSocketD
+end
+
+== Client Disconnection ==
+Client -> WebSocketD: Close WebSocket connection
+activate Client
+activate WebSocketD
+WebSocketD --> Client: Connection closed
+deactivate WebSocketD
+deactivate Client
+deactivate Ingress
+deactivate Client
+
+@enduml

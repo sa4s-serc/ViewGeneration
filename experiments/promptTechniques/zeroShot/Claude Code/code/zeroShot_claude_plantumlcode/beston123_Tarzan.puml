@@ -1,0 +1,160 @@
+@startuml
+!define COMPONENT_COLOR #LightBlue
+!define INTERFACE_COLOR #LightGreen
+!define EXTERNAL_COLOR #LightGray
+
+skinparam component {
+  BackgroundColor COMPONENT_COLOR
+  BorderColor Black
+}
+
+skinparam interface {
+  BackgroundColor INTERFACE_COLOR
+  BorderColor Black
+}
+
+title Tarzan Distributed Transaction System - Control Flow Architecture
+
+package "Client Layer" {
+  component [Tarzan Client] as Client
+  component [Example Application] as Example
+}
+
+package "RPC Communication Layer" {
+  component [RPC Framework\n(Netty-based)] as RPC
+  interface "RpcClient" as RpcClientIf
+  interface "RpcServer" as RpcServerIf
+  interface "InvokeCallback" as CallbackIf
+}
+
+package "Server Layer" {
+  component [Server Controller] as ServerController
+  component [Config Manager] as ConfigManager
+  component [Scheduled Service Manager] as ScheduledManager
+  component [Message Resend Service] as ResendService
+  component [Transaction Checker] as TransactionChecker
+  component [Server Startup] as ServerStartup
+}
+
+package "MQ Integration Layer" {
+  component [MQ Message Handler\nFactory] as MQFactory
+  component [RocketMQ Message\nNotifier] as RocketMQNotifier
+  component [RocketMQ Transaction\nChecker] as RocketMQChecker
+  component [Message Validator] as MessageValidator
+}
+
+package "Registry Layer" {
+  component [Zookeeper Registry] as Registry
+  interface "ServerRegistry" as ServerRegIf
+  interface "Discovery" as DiscoveryIf
+  interface "Address" as AddressIf
+}
+
+package "Storage Layer" {
+  component [RocketMQ Store Service] as StoreService
+  component [MyBatis Mappers\n(DAOs)] as Mappers
+  database "MySQL Database\n(Sharding JDBC)" as MySQL
+  component [ToSendMessage] as ToSend
+  component [MessageConsume] as MsgConsume
+  component [ToCheckMessage] as ToCheck
+  component [MessageAggregatePlan] as MsgPlan
+}
+
+package "Cluster Layer" {
+  component [Load Balance Factory] as LBFactory
+  component [Load Balance Strategy] as LBStrategy
+}
+
+package "Common Layer" {
+  component [Common Utilities] as Common
+  component [Constants & Enums] as Constants
+  component [Result Factory] as ResultFactory
+}
+
+component [Redis\nDistributed Lock] as Redis <<External System>> #LightGray
+component [RocketMQ Broker] as RocketMQ <<External System>> #LightGray
+component [Zookeeper] as Zookeeper <<External System>> #LightGray
+
+' Control Flow Relationships
+
+' Client to Server via RPC
+Example --> Client : uses
+Client --> RpcClientIf : send message
+RpcClientIf --> RPC : transmit
+RPC --> RpcServerIf : receive
+RpcServerIf --> ServerController : route request
+
+' Server Control Flow
+ServerStartup --> ConfigManager : initialize
+ServerStartup --> ScheduledManager : start scheduled tasks
+ServerStartup --> Registry : register server
+ScheduledManager --> ResendService : manages
+ScheduledManager --> TransactionChecker : manages
+ServerController --> MQFactory : delegate message handling
+ServerController --> StoreService : persist transaction state
+
+' Registry Control Flow
+Registry --> ServerRegIf : register
+Registry --> DiscoveryIf : discover services
+Registry <--> Zookeeper : service discovery
+
+' Scheduled Tasks Control Flow
+ResendService --> Redis : acquire lock
+TransactionChecker --> Redis : acquire lock
+ResendService --> StoreService : query pending messages
+TransactionChecker --> StoreService : query messages to check
+ResendService --> RocketMQNotifier : resend failed messages
+TransactionChecker --> RocketMQChecker : check transaction status
+
+' MQ Layer Control Flow
+MQFactory --> RocketMQNotifier : create notifier
+MQFactory --> MessageValidator : validate message
+RocketMQNotifier --> RocketMQ : send message
+RocketMQChecker --> RocketMQ : query transaction status
+RocketMQNotifier --> StoreService : update message status
+RocketMQChecker --> StoreService : update transaction status
+
+' Storage Layer Control Flow
+StoreService --> Mappers : query/persist
+Mappers --> MySQL : JDBC operations
+StoreService --> ToSend : manage entities
+StoreService --> MsgConsume : manage entities
+StoreService --> ToCheck : manage entities
+StoreService --> MsgPlan : manage entities
+
+' Clustering Control Flow
+ServerController --> LBFactory : get load balancer
+LBFactory --> LBStrategy : create strategy
+LBStrategy --> DiscoveryIf : discover available servers
+
+' Common Layer Dependencies
+ServerController ..> ResultFactory : use
+ServerController ..> Common : use
+MQFactory ..> Constants : use
+StoreService ..> Common : use
+
+' RPC Internal relationships
+RPC --> RpcClientIf : exposes
+RPC --> RpcServerIf : exposes
+RPC --> CallbackIf : exposes
+
+' Registry Internal relationships
+Registry --> ServerRegIf : implements
+Registry --> DiscoveryIf : implements
+Registry --> AddressIf : implements
+
+legend right
+  Control Flow Paths:
+  1. Client Request → RPC → Server Controller → MQ Handler → Message Broker
+  2. Scheduled Tasks → Distributed Lock → Query Store → Process → Update Store
+  3. Transaction Check → Status Query → Update Transaction State
+  4. Service Discovery → Registry → Load Balance → Route Request
+
+  External Systems:
+  - RocketMQ: Message Broker
+  - Zookeeper: Service Registry
+  - Redis: Distributed Locking
+  - MySQL: Persistent Storage
+endlegend
+
+@enduml

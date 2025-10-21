@@ -1,0 +1,284 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: allegroai_clearml-agent
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** deployment
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+Here's a merged summary of the ClearML Agent repository analysis, focusing on core aspects and avoiding repetition:
+
+**Overview**
+
+The ClearML Agent is designed for MLOps/LLMOps task scheduling and execution, dynamic cluster management, experiment orchestration, and virtual environment management. It integrates with Kubernetes and SLURM (optional) and provides experiment tracking through the ClearML UI. Docker containerization is a core feature for reproducible environments. The agent supports multiple operating modes, including daemon, services, and Kubernetes glue mode.
+
+**Key Functionalities**
+
+*   **Task Execution and Orchestration:** The agent pulls tasks from queues, sets up execution environments (venv, conda, poetry, uv, Docker), runs tasks, and manages task termination. It supports experiment automation through pipelines. It handles task execution, manages Python dependencies, and reports task status.
+*   **Resource Management:** It monitors CPU, memory, disk, and GPU utilization (including dynamic/fractional GPU allocation) and reports these statistics to the ClearML backend. It also supports uptime/downtime scheduling based on time and queue tags.
+*   **Experiment Tracking and Monitoring:** Integrated with the ClearML UI for experiment tracking and monitoring.
+*   **Character Encoding Detection & Text Parsing:** Utilizes `chardet` and `pyparsing` for text parsing and encoding detection, crucial for handling diverse data inputs and formats, managing parse results and defining Parser Elements for parsing operations.
+*   **YAML Parsing/Serialization:** Implements a full-fledged YAML parser for parsing/serializing its configuration parameters, that also preserves formatting and comments. This is enabled by libraries such as `ruamel.yaml`.
+
+**Core Components**
+
+*   **ClearML Agent:** The core execution agent, responsible for pulling tasks, setting up the environment, executing the task, and reporting results.
+*   **ClearML Server:** Manages experiments and queues (requires separate installation).
+*   **ResourceMonitor:** Collects and reports system resource usage.
+*   **RequirementsManager:** Manages Python package dependencies using various package managers (pip, conda, poetry, uv).
+*   **Docker Integration:** Handles Docker image builds, command construction, execution, and management, including `on_abort` callbacks.
+*   **K8s/SLURM Integration:** Allows the agent to run on Kubernetes or submit jobs to SLURM.
+*   **Configuration System:** Uses HOCON for configuration, allowing overrides with environment variables.
+
+**Architectural Insights**
+
+*   **Modular Design:** The agent exhibits a modular architecture for easy integration with resource management systems (Kubernetes, SLURM) and package managers.
+*   **Configuration-Driven:** Customization via HOCON files and environment variables.
+*   **Prober-based Design (chardet):** Each character encoding has its own prober for analyzing input data.
+*   **Pipeline Architecture (ruamel.yaml):** Employs a pipeline architecture for YAML processing: Reader -> Scanner -> Parser -> Composer -> Constructor (loading) and Representer -> Serializer -> Emitter (dumping).
+*   **Service-Oriented Architecture (API):**  Backend API is structured around distinct services for tasks, models, events, and workers, promoting modularity and separation of concerns.
+*   **State Machines & Frequency Analysis (chardet):** Detects character encodings through a combination of statistical and rule-based techniques.
+
+**Key Design Patterns**
+
+*   **Singleton:** The `Config` class and sometimes the `Worker` class ensures a single instance.
+*   **Facade:** The `K8sIntegration` class simplifies interaction with Kubernetes.
+*   **Strategy:** Different algorithms for token signing/verification, and package managers are selected based on configuration. Character Set Probers and  `ParseAction` strategies.
+*   **Template Method:** High-level task execution is defined, with specific steps delegated.
+*   **Observer:** The `TaskStopSignal` class observes task status and triggers `on_abort` callbacks.
+*   **Composite:** Composite patterns are used to combine charset probers (`CharSetGroupProber`, `MBCSGroupProber`) and `ParserElement` components within `pyparsing`.
+*   **Visitor:** The constructor and representer classes use the Visitor pattern to handle different YAML tags or data types.
+*   **Factory:** `_TzOffsetFactory` and `_TzStrFactory` caches timezone instances; functions like `field`, `pset`, and `pvector` creates objects based on parameters. Also the main YAML class which composes all modules.
+*   **Immutable Data Structures:** Uses `pyrsistent` data structures in various libraries (pyparsing) for predictable and thread-safe behaviour.
+*   **Wrapper Pattern:** Used for Python NVML interaction.
+*   **Data Transfer Object (DTO):**  Data model classes serve as DTOs.
+
+**API and Backend Communication**
+
+*   **API Services:** Utilizes a service-oriented architecture exposing the API services in terms of `tasks`, `models`, `events`, `debug`, `workers`, `auth` and `queues`.
+*   **Session Management:** Manages API requests, responses, authentication tokens, and defines data models. The `Session` class handles authentication, URL construction, and request retries.
+*   **Data Modeling & Validation:** Employs a structured approach to data modelling with schema-driven validation and leverages the `DataModel` class and `SchemaProperty` decorator.
+
+This combined summary highlights the ClearML Agent's comprehensive functionality, modular architecture, and strategic use of design patterns to achieve its goals of efficient task execution, resource management, and seamless integration with the ClearML platform.
+
+
+
+IMPORTANT - RETRY ATTEMPT:
+A previous PlantUML generation failed with the following error:
+```
+Error line 9 in file: zeroShot_claude_plantumlcode/allegroai_clearml-agent.puml
+Some diagram description contains errors
+
+```
+
+The problematic code was:
+```plantuml
+@startuml
+!define RECTANGLE_COMPONENT
+skinparam componentStyle rectangle
+skinparam linetype ortho
+
+title ClearML Agent - Deployment Architecture
+
+package "ClearML Backend" {
+    component [ClearML Server] as Server {
+        interface "API Services" as API
+        [Task Queue Manager]
+        [Experiment Tracker]
+        [Model Registry]
+        [Authentication Service]
+    }
+
+    database "ClearML Storage" as Storage {
+        [Task Metadata]
+        [Model Artifacts]
+        [Metrics & Logs]
+    }
+}
+
+package "Execution Environment Layer" {
+
+    node "Physical/VM Host" {
+        component [ClearML Agent] as Agent {
+            [Worker]
+            [Task Executor]
+            [Environment Manager]
+            [ResourceMonitor]
+            [RequirementsManager]
+            [Config System]
+        }
+
+        component [Docker Runtime] as Docker {
+            [Container Manager]
+            [Image Registry]
+        }
+
+        component [Python Environment] as PyEnv {
+            [venv]
+            [conda]
+            [poetry]
+            [uv]
+        }
+    }
+
+    node "Kubernetes Cluster" as K8s {
+        component [K8s Integration] as K8sInt {
+            [K8s Glue Mode]
+            [Pod Manager]
+            [Resource Scheduler]
+        }
+
+        component [ClearML Agent Pods] as AgentPods {
+            [Agent Pod 1]
+            [Agent Pod 2]
+            [Agent Pod N]
+        }
+    }
+
+    node "SLURM Cluster" as SLURM {
+        component [SLURM Integration] as SLURMInt {
+            [Job Submitter]
+            [Queue Manager]
+        }
+
+        component [Compute Nodes] as ComputeNodes {
+            [Node 1]
+            [Node 2]
+            [Node N]
+        }
+    }
+}
+
+package "Infrastructure Services" {
+    component [GPU Resources] as GPU {
+        [NVML Wrapper]
+        [GPU Allocator]
+        [Dynamic GPU Manager]
+    }
+
+    component [System Resources] as SysRes {
+        [CPU Monitor]
+        [Memory Monitor]
+        [Disk Monitor]
+    }
+
+    component [Configuration Store] as ConfigStore {
+        [HOCON Files]
+        [Environment Variables]
+    }
+}
+
+package "External Integrations" {
+    interface "ClearML UI" as UI
+    [Package Repositories] as PkgRepo
+    [Docker Registry] as DockerReg
+    [Git Repositories] as GitRepo
+}
+
+' Connections - ClearML Agent to Backend
+Agent --> API : Pull Tasks\nReport Status
+API --> Agent : Task Definitions\nCommands
+Server --> Storage : Store/Retrieve
+
+' Connections - Agent Internal
+[Worker] --> [Task Executor]
+[Task Executor] --> [Environment Manager]
+[Environment Manager] --> [RequirementsManager]
+[ResourceMonitor] --> [Task Executor] : Resource Stats
+[Config System] --> Agent : Configuration
+
+' Connections - Environment Management
+Agent --> Docker : Create Containers\nManage Images
+Agent --> PyEnv : Setup Virtual Env
+[Environment Manager] --> Docker
+[Environment Manager] --> PyEnv
+
+' Connections - Kubernetes Deployment
+K8sInt --> API : Pull Tasks
+K8sInt --> AgentPods : Deploy & Manage
+AgentPods --> API : Execute Tasks\nReport Results
+AgentPods --> Docker : Use Container Runtime
+
+' Connections - SLURM Deployment
+SLURMInt --> API : Pull Tasks
+SLURMInt --> ComputeNodes : Submit Jobs
+ComputeNodes --> API : Execute Tasks\nReport Results
+
+' Connections - Resource Management
+Agent --> GPU : Allocate GPUs
+Agent --> SysRes : Monitor Resources
+GPU --> [ResourceMonitor]
+SysRes --> [ResourceMonitor]
+K8sInt --> GPU
+K8sInt --> SysRes
+
+' Connections - Configuration
+ConfigStore --> Agent : Load Config
+ConfigStore --> K8sInt : Load Config
+ConfigStore --> SLURMInt : Load Config
+
+' Connections - External Services
+[RequirementsManager] --> PkgRepo : Download Packages
+Docker --> DockerReg : Pull/Push Images
+[Task Executor] --> GitRepo : Clone Code
+Server --> UI : Web Interface
+
+' Notes
+note right of Agent
+  Main execution agent running
+  in daemon or services mode.
+  Supports multiple package managers
+  and virtual environment types.
+end note
+
+note right of K8sInt
+  Kubernetes integration for
+  cloud-native deployment.
+  Manages agent pods dynamically.
+end note
+
+note right of SLURMInt
+  Optional SLURM integration
+  for HPC cluster deployment.
+end note
+
+note bottom of GPU
+  Supports dynamic and fractional
+  GPU allocation per task.
+end note
+
+@enduml
+
+```
+
+Please analyze the error, identify the issue, and generate corrected PlantUML code that compiles successfully.
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/allegroai_clearml-agent.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

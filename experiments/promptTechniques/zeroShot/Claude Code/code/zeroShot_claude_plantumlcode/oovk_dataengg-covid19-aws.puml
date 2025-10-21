@@ -1,0 +1,200 @@
+@startuml
+!define AWSPUML https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v14.0/dist
+skinparam BoxPadding 10
+skinparam ParticipantPadding 20
+skinparam SequenceMessageAlign center
+
+actor User
+participant "Jupyter Notebook\n(covid19_project.ipynb)" as Jupyter
+participant "boto3\n(AWS SDK)" as boto3
+participant "AWS Athena" as Athena
+participant "S3 Data Lake\n(Raw Data)" as S3Raw
+participant "Pandas\nDataFrames" as Pandas
+participant "S3 Bucket\n(Transformed Data)" as S3Transform
+participant "redshift_connector" as RedshiftConn
+database "Amazon Redshift\n(Data Warehouse)" as Redshift
+
+title COVID-19 Data Engineering ETL Pipeline - Data Flow
+
+== Extraction Phase ==
+User -> Jupyter: Execute ETL Pipeline
+activate Jupyter
+
+Jupyter -> boto3: Initialize AWS Connection
+activate boto3
+boto3 --> Jupyter: Connection Established
+deactivate boto3
+
+Jupyter -> Athena: Query enigma_jhud dataset
+activate Athena
+Athena -> S3Raw: Retrieve raw data
+activate S3Raw
+S3Raw --> Athena: Return data
+deactivate S3Raw
+Athena --> Jupyter: Query results
+deactivate Athena
+
+Jupyter -> Athena: Query nytimes_data_in_usa_us_county
+activate Athena
+Athena -> S3Raw: Retrieve raw data
+activate S3Raw
+S3Raw --> Athena: Return data
+deactivate S3Raw
+Athena --> Jupyter: Query results
+deactivate Athena
+
+Jupyter -> Athena: Query rearc_usa_hospital_beds
+activate Athena
+Athena -> S3Raw: Retrieve raw data
+activate S3Raw
+S3Raw --> Athena: Return data
+deactivate S3Raw
+Athena --> Jupyter: Query results
+deactivate Athena
+
+Jupyter -> Athena: Query additional datasets
+activate Athena
+Athena -> S3Raw: Retrieve raw data
+activate S3Raw
+S3Raw --> Athena: Return data
+deactivate S3Raw
+Athena --> Jupyter: Query results
+deactivate Athena
+
+== Transformation Phase ==
+Jupyter -> Pandas: Load query results into DataFrames
+activate Pandas
+Pandas --> Jupyter: DataFrames created
+deactivate Pandas
+
+Jupyter -> Pandas: Data type conversions (dates)
+activate Pandas
+Pandas --> Jupyter: Converted DataFrames
+deactivate Pandas
+
+Jupyter -> Pandas: Merge datasets
+activate Pandas
+Pandas --> Jupyter: Merged DataFrames
+deactivate Pandas
+
+Jupyter -> Pandas: Feature engineering\n(year, month, day_of_week)
+activate Pandas
+Pandas --> Jupyter: Enhanced DataFrames
+deactivate Pandas
+
+== Data Modeling Phase ==
+Jupyter -> Pandas: Create dimRegion dimension table
+activate Pandas
+Pandas --> Jupyter: dimRegion DataFrame
+deactivate Pandas
+
+Jupyter -> Pandas: Create dimHospital dimension table
+activate Pandas
+Pandas --> Jupyter: dimHospital DataFrame
+deactivate Pandas
+
+Jupyter -> Pandas: Create dimDate dimension table
+activate Pandas
+Pandas --> Jupyter: dimDate DataFrame
+deactivate Pandas
+
+Jupyter -> Pandas: Create factCovid fact table\n(join dimensions)
+activate Pandas
+Pandas --> Jupyter: factCovid DataFrame
+deactivate Pandas
+
+== Load Phase ==
+Jupyter -> boto3: Save dimRegion to S3 as CSV
+activate boto3
+boto3 -> S3Transform: Upload dimRegion.csv
+activate S3Transform
+S3Transform --> boto3: Upload confirmed
+deactivate S3Transform
+boto3 --> Jupyter: Upload successful
+deactivate boto3
+
+Jupyter -> boto3: Save dimHospital to S3 as CSV
+activate boto3
+boto3 -> S3Transform: Upload dimHospital.csv
+activate S3Transform
+S3Transform --> boto3: Upload confirmed
+deactivate S3Transform
+boto3 --> Jupyter: Upload successful
+deactivate boto3
+
+Jupyter -> boto3: Save dimDate to S3 as CSV
+activate boto3
+boto3 -> S3Transform: Upload dimDate.csv
+activate S3Transform
+S3Transform --> boto3: Upload confirmed
+deactivate S3Transform
+boto3 --> Jupyter: Upload successful
+deactivate boto3
+
+Jupyter -> boto3: Save factCovid to S3 as CSV
+activate boto3
+boto3 -> S3Transform: Upload factCovid.csv
+activate S3Transform
+S3Transform --> boto3: Upload confirmed
+deactivate S3Transform
+boto3 --> Jupyter: Upload successful
+deactivate boto3
+
+Jupyter -> RedshiftConn: Connect to Redshift
+activate RedshiftConn
+RedshiftConn --> Jupyter: Connection established
+deactivate RedshiftConn
+
+Jupyter -> RedshiftConn: CREATE TABLE dimRegion
+activate RedshiftConn
+RedshiftConn -> Redshift: Execute DDL
+activate Redshift
+Redshift --> RedshiftConn: Table created
+deactivate Redshift
+RedshiftConn --> Jupyter: Success
+deactivate RedshiftConn
+
+Jupyter -> RedshiftConn: CREATE TABLE dimHospital
+activate RedshiftConn
+RedshiftConn -> Redshift: Execute DDL
+activate Redshift
+Redshift --> RedshiftConn: Table created
+deactivate Redshift
+RedshiftConn --> Jupyter: Success
+deactivate RedshiftConn
+
+Jupyter -> RedshiftConn: CREATE TABLE dimDate
+activate RedshiftConn
+RedshiftConn -> Redshift: Execute DDL
+activate Redshift
+Redshift --> RedshiftConn: Table created
+deactivate Redshift
+RedshiftConn --> Jupyter: Success
+deactivate RedshiftConn
+
+Jupyter -> RedshiftConn: CREATE TABLE factCovid
+activate RedshiftConn
+RedshiftConn -> Redshift: Execute DDL
+activate Redshift
+Redshift --> RedshiftConn: Table created
+deactivate Redshift
+RedshiftConn --> Jupyter: Success
+deactivate RedshiftConn
+
+Jupyter -> RedshiftConn: COPY data from S3 to Redshift tables
+activate RedshiftConn
+RedshiftConn -> S3Transform: Retrieve CSV files
+activate S3Transform
+S3Transform --> RedshiftConn: CSV data
+deactivate S3Transform
+RedshiftConn -> Redshift: Load dimension and fact tables
+activate Redshift
+Redshift --> RedshiftConn: Data loaded
+deactivate Redshift
+RedshiftConn --> Jupyter: Load complete
+deactivate RedshiftConn
+
+Jupyter --> User: ETL Pipeline Complete
+deactivate Jupyter
+
+@enduml

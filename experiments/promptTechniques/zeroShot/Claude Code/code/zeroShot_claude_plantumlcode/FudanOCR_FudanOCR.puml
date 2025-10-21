@@ -1,0 +1,269 @@
+@startuml
+!define COMPONENT_BGCOLOR #LightBlue
+!define INTERFACE_BGCOLOR #LightGreen
+
+skinparam component {
+  BackgroundColor COMPONENT_BGCOLOR
+  BorderColor Black
+}
+
+skinparam interface {
+  BackgroundColor INTERFACE_BGCOLOR
+  BorderColor Black
+}
+
+title FudanOCR System Architecture - Component Diagram
+
+package "Entry Point" {
+  [main.py] as MainEntry
+}
+
+package "Configuration Management" {
+  [YAML Configs] as YAMLConfigs
+  interface "Config Interface" as IConfig
+  YAMLConfigs -up- IConfig
+}
+
+package "Core Training Engine" {
+  [Training Engine] as TrainingEngine
+  [Trainer Base Class] as TrainerBase
+  interface "Training Interface" as ITraining
+  TrainingEngine -- ITraining
+  TrainerBase .up.|> ITraining
+}
+
+package "Model Registry & Factory" {
+  [Registry Pattern] as Registry
+  [Model Factory] as ModelFactory
+  interface "Model Creation Interface" as IModelFactory
+  Registry -- IModelFactory
+  ModelFactory -- IModelFactory
+}
+
+package "Text Detection Models" {
+  [EAST] as EAST
+  [AdvancedEAST] as AdvancedEAST
+  [PSENet] as PSENet
+  [PixelLink] as PixelLink
+  [TextSnake] as TextSnake
+  [LSN] as LSN
+  [RRPN] as RRPN
+  interface "Detection Interface" as IDetection
+  EAST -up- IDetection
+  AdvancedEAST -up- IDetection
+  PSENet -up- IDetection
+  PixelLink -up- IDetection
+  TextSnake -up- IDetection
+  LSN -up- IDetection
+  RRPN -up- IDetection
+}
+
+package "Text Recognition Models" {
+  [CRNN] as CRNN
+  [MORAN] as MORAN
+  [MORAN_V2] as MORANV2
+  [GRCNN] as GRCNN
+  [DAN] as DAN
+  [HARN] as HARN
+  [SAR] as SAR
+  [RARE] as RARE
+  [CAPSOCR] as CAPSOCR
+  interface "Recognition Interface" as IRecognition
+  CRNN -up- IRecognition
+  MORAN -up- IRecognition
+  MORANV2 -up- IRecognition
+  GRCNN -up- IRecognition
+  DAN -up- IRecognition
+  HARN -up- IRecognition
+  SAR -up- IRecognition
+  RARE -up- IRecognition
+  CAPSOCR -up- IRecognition
+}
+
+package "Super-Resolution" {
+  [DocumentSR Model] as DocSR
+  interface "SR Interface" as ISR
+  DocSR -- ISR
+}
+
+package "Data Management" {
+  [Data Loaders] as DataLoaders
+  [Data Augmentation] as DataAug
+  [Preprocessing Pipeline] as Preprocessing
+  [LMDB Dataset Creator] as LMDBCreator
+  [Dataset Definitions] as DatasetDef
+  interface "Data Interface" as IData
+  DataLoaders -- IData
+  DataAug -- IData
+  Preprocessing -- IData
+  LMDBCreator -- IData
+  DatasetDef -- IData
+}
+
+package "Dataset Support" {
+  [ICDAR Dataset] as ICDAR
+  [CTW1500 Dataset] as CTW1500
+  [TotalText Dataset] as TotalText
+  [ArT Dataset] as ArT
+  [LSVT Dataset] as LSVT
+  [SynthText Dataset] as SynthText
+  [VOC Dataset] as VOC
+  [COCO Dataset] as COCO
+  interface "Dataset Interface" as IDataset
+  ICDAR -up- IDataset
+  CTW1500 -up- IDataset
+  TotalText -up- IDataset
+  ArT -up- IDataset
+  LSVT -up- IDataset
+  SynthText -up- IDataset
+  VOC -up- IDataset
+  COCO -up- IDataset
+}
+
+package "Backbone Networks" {
+  [FPN] as FPN
+  [Feature Extractors] as FeatureExtractors
+  interface "Backbone Interface" as IBackbone
+  FPN -- IBackbone
+  FeatureExtractors -- IBackbone
+}
+
+package "ROI Operations" {
+  [ROIAlign] as ROIAlign
+  [RROIAlign] as RROIAlign
+  [ROIPool] as ROIPool
+  [ROI Heads] as ROIHeads
+  interface "ROI Interface" as IROI
+  ROIAlign -- IROI
+  RROIAlign -- IROI
+  ROIPool -- IROI
+  ROIHeads -- IROI
+}
+
+package "Post-Processing" {
+  [NMS CPU] as NMSCPU
+  [NMS CUDA] as NMSCUDA
+  [Confidence Filter] as ConfFilter
+  [Geometric Constraints] as GeoConstraints
+  interface "Post-Processing Interface" as IPostProc
+  NMSCPU -- IPostProc
+  NMSCUDA -- IPostProc
+  ConfFilter -- IPostProc
+  GeoConstraints -- IPostProc
+}
+
+package "Custom Operations & Layers" {
+  [Custom Loss Functions] as CustomLoss
+  [FrozenBatchNorm2d] as FrozenBN
+  [PSE Python Impl] as PSEPython
+  [CUDA Operations] as CUDAOps
+  [Cython Operations] as CythonOps
+  interface "Custom Ops Interface" as ICustomOps
+  CustomLoss -- ICustomOps
+  FrozenBN -- ICustomOps
+  PSEPython -- ICustomOps
+  CUDAOps -- ICustomOps
+  CythonOps -- ICustomOps
+}
+
+package "Evaluation Metrics" {
+  [Precision/Recall/F-measure] as PRF
+  [Levenshtein Distance] as Levenshtein
+  [Accuracy] as Accuracy
+  [Polygon IoU] as PolyIoU
+  interface "Evaluation Interface" as IEval
+  PRF -- IEval
+  Levenshtein -- IEval
+  Accuracy -- IEval
+  PolyIoU -- IEval
+}
+
+package "Deep Learning Frameworks" {
+  [TensorFlow] as TF
+  [PyTorch] as PyTorch
+  interface "Framework Interface" as IFramework
+  TF -- IFramework
+  PyTorch -- IFramework
+}
+
+package "Training Scripts" {
+  [EAST Training] as EASTTrain
+  [PSENet Training] as PSENetTrain
+  [HARN Training] as HARNTrain
+  interface "Training Script Interface" as ITrainScript
+  EASTTrain -- ITrainScript
+  PSENetTrain -- ITrainScript
+  HARNTrain -- ITrainScript
+}
+
+' Main connections
+MainEntry ..> IConfig : uses
+MainEntry ..> ITraining : initiates
+MainEntry ..> ITrainScript : executes
+
+YAMLConfigs ..> TrainingEngine : configures
+TrainingEngine ..> IModelFactory : creates models
+TrainingEngine ..> IData : loads data
+TrainingEngine ..> IEval : evaluates
+TrainingEngine ..> IFramework : uses
+
+ModelFactory ..> IDetection : creates
+ModelFactory ..> IRecognition : creates
+ModelFactory ..> ISR : creates
+
+IDetection ..> IBackbone : uses
+IDetection ..> IROI : uses
+IDetection ..> ICustomOps : uses
+
+IRecognition ..> IBackbone : uses
+IRecognition ..> ICustomOps : uses
+
+DataLoaders ..> IDataset : loads
+DataAug ..> IData : transforms
+Preprocessing ..> IData : processes
+
+IDetection ..> IPostProc : uses
+IRecognition ..> IPostProc : uses
+
+ITrainScript ..> IConfig : reads
+ITrainScript ..> ITraining : uses
+ITrainScript ..> IModelFactory : uses
+
+ROIHeads ..> ICustomOps : uses
+FPN ..> IBackbone : implements
+
+NMSCPU ..> CythonOps : optimized by
+NMSCUDA ..> CUDAOps : optimized by
+ROIAlign ..> CUDAOps : implemented by
+RROIAlign ..> CUDAOps : implemented by
+
+note right of Registry
+  Registry Pattern enables
+  flexible component management
+  and interchangeability
+end note
+
+note right of TrainerBase
+  Template Method Pattern
+  with configurable pretreatment
+  and posttreatment methods
+end note
+
+note right of DataAug
+  Composite Pattern for
+  building augmentation pipelines
+  using imgaug and torchvision
+end note
+
+note bottom of RRPN
+  Specialized for handling
+  rotated text detection
+end note
+
+note bottom of FPN
+  Feature Pyramid Network
+  extensively used across
+  detection models
+end note
+
+@enduml

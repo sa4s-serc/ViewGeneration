@@ -1,0 +1,102 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: zeropaper_visual-fiha
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** general
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## Visual Fiha: Project Overview Report
+
+Visual Fiha is a live-coding VJing environment integrated within Visual Studio Code. It provides a comprehensive toolset for creating and performing visual effects synchronized with audio, leveraging the flexibility and power of VS Code. Key features include multi-display support, audio analysis, MIDI input handling, and hot-reloading of code changes for rapid iteration. The environment supports both 2D (Canvas2DLayer) and 3D (ThreeJSLayer) rendering, managed through a plugin-based layer system.
+
+**Key Functionalities:**
+
+*   Live-coding VJing environment within Visual Studio Code.
+*   Multi-display support with synchronized rendering.
+*   Audio analysis and MIDI input handling.
+*   2D canvas and ThreeJS based 3D rendering.
+*   Asset management and hot-reloading of code changes.
+*   Project scaffolding and configuration through `fiha.json`.
+
+**Architectural Overview:**
+
+Visual Fiha employs a multi-process architecture to ensure responsiveness and concurrency. The core extension interacts with webviews (UI panels within VS Code) and display workers to offload rendering tasks. Communication between these components is facilitated by a message-passing system (using the `Com` module), enabling loose coupling and modularity. State management is centralized using Redux, promoting predictable data flow and simplifying debugging. The extension relies heavily on dependency injection pattern for contributions to the VS Code environment through `context.subscriptions.push()`.
+
+**Key Components:**
+
+*   **VFExtension (src/extension/VFExtension.ts):** The central orchestrator, managing the web server, application state, user commands, and webviews.
+*   **WebServer (src/extension/WebServer.ts):** Serves the display and capture pages, manages socket connections for real-time updates, and broadcasts application state changes.
+*   **DisplayWorker (src/display/DisplayWorker.ts):** Responsible for rendering layers in a separate web worker, preventing UI blocking and enabling parallel processing. It manages the canvas and script execution within a sandboxed environment.
+*   **Layers (src/layers):** Abstract rendering logic, providing a foundation for different rendering contexts. Currently supports `Canvas2DLayer` and `ThreeJSLayer`. Layer creation is abstracted by the updateState method and leverages a Factory pattern.
+*   **ScriptRunner (src/utils/ScriptRunner.ts):** Compiles and executes JavaScript code within a sandboxed environment for layer manipulation.
+*   **Scriptable (src/utils/Scriptable.ts):** Manages scriptable contexts with setup and animation scripts, cache, and data sharing within a layer.
+*   **Redux Store (src/extension/store.ts, src/webviews/store.ts):** Manages application state using Redux, ensuring a single source of truth.
+*   **Webviews (src/webviews):** Provide graphical user interfaces for interacting with the VJing environment, including AudioView, ControlView, DisplaysView, and TimelineView.
+*   **Capture (src/capture):** React components for audio and MIDI input capture served as a web page.
+*   **Com (src/utils/com.ts):** Handles communication between different parts of the application using message passing, supporting event-driven architecture.
+*   **commands (src/extension/commands):** Collection of VS Code commands exposed to the user, implementing the Command pattern.
+
+**Design Patterns & Utility Approach:**
+
+The project employs several design patterns to enhance code maintainability and flexibility:
+
+*   **Module Pattern:** Used for encapsulating and exporting functionalities (e.g., `src/utils/mathTools.ts`, `src/utils/miscTools.ts`).
+*   **Observer Pattern:** `vscode.EventEmitter` instances are used for publishing events to listeners (e.g., `WebServer`'s `onDisplaysChange`, `onSocketConnection`).
+*   **Service Locator Pattern:** Utility tools are being registered as constants and are available throughout the application.
+
+**Key Files & Their Roles:**
+
+*   **LICENSE:** Specifies the MIT License.
+*   **CHANGELOG.md:** Tracks changes and version history.
+*   **README.md:** Provides an overview of the project, features, and installation instructions.
+*   **.vscodeignore:** Specifies files to exclude from VS Code operations.
+*   **.nvmrc:** Defines the required Node.js version.
+*   **commitlint.config.js:** Configures commit message conventions.
+*   **vitest.config.ts:** Configures the Vitest testing framework.
+*   **.husky/:** Contains git hooks for linting and commit message validation.
+*   **__mocks__/vscode.ts:** Mock implementation of the VS Code API for testing.
+*   **types/mic.d.ts:** Type declarations for the `mic` package.
+*   **demo-project/:** A demo project showcasing Visual Fiha's capabilities.
+*   **scripts-dts/:** Type declaration files for script contexts.
+*   **media/:** Contains CSS stylesheets and images for webviews.
+*   **src/types.ts:** Defines TypeScript interfaces and types.
+*   **src/capture/:** React components for capturing audio and MIDI input.
+*   **src/extension/:** Contains the core VS Code extension logic.
+*   **src/layers/:** Defines the rendering layers.
+*   **src/utils/:** Provides utility functions for scripting, asset management, communication, and math.
+*   **src/webviews/:** Contains the React components for the extension's webviews.
+
+In summary, Visual Fiha is a well-structured and modular project that leverages a multi-process architecture, a robust communication system, and a plugin-based layer system to provide a powerful and flexible live-coding VJing environment within Visual Studio Code.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: general
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/zeropaper_visual-fiha.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

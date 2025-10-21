@@ -1,0 +1,98 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: CodisLabs_codis
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** deployment
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+```
+## Codis and Redis Repository Analysis Report
+
+This report synthesizes analyses of a GitHub repository, focusing on Codis (a proxy-based Redis cluster solution), the Redis in-memory data structure store, and related components such as hiredis, Lua, and jemalloc. The analysis covers core functionalities, data structures, architectural insights, and design patterns.
+
+**I. Core Data Management & Functionality**
+
+*   **Data Structures**: Redis utilizes diverse, optimized data structures: Simple Dynamic Strings (SDS), Hash Tables (Dictionaries), Doubly Linked Lists, Skip Lists (for sorted sets), Integer Sets (IntSets), and Ziplists (compact lists). Quicklists provide a hybrid approach, balancing memory efficiency and performance. Codis extends Redis, adding support for slots.
+*   **Database Operations:** Core database operations such as key lookup, addition, deletion, expiry management, and database flushing are central. The `db.c` file implements these core primitives. Commands like DEL, EXISTS, SELECT, RANDOMKEY, KEYS, EXPIRE, TTL, and PERSIST provide user-level control. Incremental iteration via SCAN offers performance guarantees for large datasets.
+*   **Commands & Processing:** Redis employs a command pattern, where each command is encapsulated.  The server utilizes an event loop to efficiently handle incoming client connections. Commands such as SET, GET, LPUSH, SADD, ZADD, HSET, and geospatial commands (GEOADD, GEORADIUS) are fundamental. Unsupported Redis commands are documented for Codis.
+*   **Data Serialization**: RDB (Redis Database) snapshots and AOF (Append-Only File) are employed for persistence. RDB enables efficient point-in-time backups, while AOF logs every write operation. The system uses LZF compression to reduce persistence file sizes.
+
+**II. Concurrency & Scalability**
+
+*   **Event-Driven Architecture:** Redis' core operates using an event loop (managed by `ae` library), enabling it to handle concurrent client connections with efficiency. This approach involves setting up file events to receive and handle client requests, and send information to different slaves.
+*   **Single-Threaded Model:** Redis is primarily single-threaded, minimizing locking overhead.  Asynchronous operations (AOF rewriting, client output buffering, lazy object release) are performed in separate threads or processes using a background I/O (BIO) system to avoid blocking the main server.
+*   **Cluster Management:** Redis Cluster uses a gossip protocol for node discovery and configuration dissemination. It distributes keys across multiple nodes using a consistent hashing algorithm, with data sharded across multiple Redis instances, managed by slots. A Redis trib (redis-trib.rb) ruby script manages Redis Clusters.
+*   **Connection Pooling:** Both the Lua scripts and various components make use of connection pooling to keep connections from being opened, closed, and re-opened too many times.
+
+**III. Architectural Components**
+
+*   **Core Redis Components**:
+    * `server.h`: A central header file including most data structures, configurations, and includes.
+    *   `ae`: Is an event loop.
+    *   `zmalloc`: The custom memory allocator.
+    *   `rio`: IO stream abstraction.
+    *   `Networking.c`, `config.c`, etc: handle networking and configurations of the database
+
+**IV. Extensibility & Integrations**
+
+*   **Lua Scripting:** Redis enables server-side scripting with Lua, allowing developers to extend functionalities and execute complex logic. Lua scripts are sandboxed and have access to Redis commands. A significant portion of tests cover integration with Lua scripting and make sure commands are replicated correctly and safely.
+*   **Client Libraries:** Libraries such as `hiredis` and `redigo` enable programs to access and interact with the server.
+*   **Dependency Management:**  Repositories are typically managed with a `deps` directory.
+*   **Sentinel High Availability:** Redis Sentinel monitors Redis instances, performing automatic failover, and notifying clients of topology changes. Sentinel configuration is typically managed through a `sentinel.conf` file.
+*   **Monitoring and Telemetry:** The code features built-in latency monitoring and slow log functionalities and uses libraries such as StatsD and InfluxDB for metrics reporting.
+
+**V. Memory Management & Allocators**
+
+*   **Memory Allocation**: Redis is designed with memory usage in mind, especially important to control with max memory.
+*   **Jemalloc:** A central feature in Codis, used for memory allocation due to its performance and other characteristics. This allocator can be tuned for various settings. Jemalloc has a comprehensive test framework to verify functionalities.
+*   **Thread Cache:** Utilizes multiple threads to reduce the load and latency.
+
+**VI. Error Handling and Testing**
+
+*   **Testing Framework:** Implements Tcl (Tool Command Language) scripts to unit test the components of the system. A Tcl-based testing framework, extensive assertion functions, and helper scripts provide a robust environment for validating behavior.
+*  **Error Handling:** Handles exceptions and error codes, including memory errors.
+
+**VII. External Libraries and Modules**
+
+* Autoconf and Makefile configuration files ensure portability across platforms.
+
+**VIII. Design Patterns**
+
+*   **Command Pattern:** Redis commands are encapsulated as functions, allowing dynamic dispatch and extensibility.
+*   **Event-Driven Architecture:** The core design leverages an event loop for efficient non-blocking I/O and asynchronous handling.
+*   **Observer Pattern:**  Sentinel acts as an observer of Redis instances.
+*   **Strategy Pattern:**  Different maxmemory eviction policies, data structure encodings (ziplist vs. hashtable)
+*  **Proxy Pattern:** The Codis proxy acts as an intermediary between clients and Redis servers, providing load balancing, load balancing, and transparent data migration.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/CodisLabs_codis.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

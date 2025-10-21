@@ -1,0 +1,143 @@
+@startuml
+!define RECTANGLE class
+
+skinparam component {
+    BackgroundColor<<GUI>> LightBlue
+    BackgroundColor<<Core>> LightGreen
+    BackgroundColor<<Compiler>> LightYellow
+    BackgroundColor<<Tool>> LightCoral
+    BackgroundColor<<Storage>> LightGray
+    BackgroundColor<<Execution>> Wheat
+}
+
+package "GUI Layer" {
+    [Web Interface] <<GUI>> as WebUI
+    [JavaScript/jQuery] <<GUI>> as JS
+    [CodeMirror Integration] <<GUI>> as CM
+    [Jinja2 Templates] <<GUI>> as Jinja
+}
+
+package "Core Control Flow" {
+    [Compar Facade] <<Core>> as Compar
+    [Parameter Generator] <<Core>> as ParamGen
+    [Combination Validator] <<Core>> as CombValidator
+    [Code Instrumentor] <<Core>> as Instrumentor
+    [Runtime Analyzer] <<Core>> as RuntimeAnalyzer
+    [Output Validator] <<Core>> as OutputValidator
+}
+
+package "Compiler Abstraction Layer" {
+    [Compiler (Abstract)] <<Compiler>> as CompilerAbs
+    [GCC Compiler] <<Compiler>> as GCC
+    [ICC Compiler] <<Compiler>> as ICC
+    [Cetus Compiler] <<Compiler>> as Cetus
+    [Autopar Compiler] <<Compiler>> as Autopar
+    [Par4All Compiler] <<Compiler>> as Par4All
+    [Dummy Compiler] <<Compiler>> as Dummy
+}
+
+package "Parallelization Tools" {
+    [Cetus Tool] <<Tool>> as CetusTool
+    [Autopar Tool] <<Tool>> as AutoparTool
+    [Par4All Tool] <<Tool>> as Par4AllTool
+}
+
+package "Execution Layer" {
+    [Slurm Job Manager] <<Execution>> as Slurm
+    [Subprocess Handler] <<Execution>> as SubProc
+    [Code Formatter] <<Execution>> as Formatter
+}
+
+package "Storage Layer" {
+    [MongoDB Database] <<Storage>> as MongoDB
+    [Configuration Files] <<Storage>> as Config
+}
+
+' Control Flow: User Interaction
+WebUI --> JS : user actions
+JS --> CM : code editing
+Jinja --> WebUI : render templates
+
+' Control Flow: Main Process Orchestration
+JS --> Compar : initiate parallelization
+Compar --> Config : load configuration
+Compar --> ParamGen : request parameter combinations
+ParamGen --> CombValidator : validate combinations
+CombValidator --> Compar : validated parameters
+
+' Control Flow: Compilation Phase
+Compar --> CompilerAbs : select and invoke compiler
+CompilerAbs <|-- GCC : implements
+CompilerAbs <|-- ICC : implements
+CompilerAbs <|-- Cetus : implements
+CompilerAbs <|-- Autopar : implements
+CompilerAbs <|-- Par4All : implements
+CompilerAbs <|-- Dummy : implements
+
+' Control Flow: Parallelization
+Compar --> CetusTool : apply parallelization
+Compar --> AutoparTool : apply parallelization
+Compar --> Par4AllTool : apply parallelization
+CetusTool --> Instrumentor : parallelized code
+AutoparTool --> Instrumentor : parallelized code
+Par4AllTool --> Instrumentor : parallelized code
+
+' Control Flow: Code Instrumentation
+Compar --> Instrumentor : instrument code with timers
+Instrumentor --> Formatter : format instrumented code
+Formatter --> SubProc : execute clang-format
+
+' Control Flow: Compilation Execution
+GCC --> SubProc : compile command
+ICC --> SubProc : compile command
+Cetus --> SubProc : compile command
+Autopar --> SubProc : compile command
+Par4All --> SubProc : compile command
+Dummy --> SubProc : compile command
+
+' Control Flow: Job Execution
+Compar --> Slurm : submit jobs
+Slurm --> SubProc : execute on cluster
+SubProc --> RuntimeAnalyzer : execution results
+
+' Control Flow: Analysis and Validation
+RuntimeAnalyzer --> OutputValidator : validate output
+OutputValidator --> SubProc : run validation scripts
+OutputValidator --> Compar : validation results
+RuntimeAnalyzer --> Compar : performance metrics
+
+' Control Flow: Storage
+Compar --> MongoDB : store combinations
+Compar --> MongoDB : store results
+RuntimeAnalyzer --> MongoDB : store performance data
+MongoDB --> Compar : retrieve data
+
+' Control Flow: Results Display
+Compar --> JS : analysis complete
+JS --> WebUI : update display
+
+note right of Compar
+    Central orchestrator managing:
+    1. Parameter generation
+    2. Compiler selection
+    3. Parallelization
+    4. Instrumentation
+    5. Execution
+    6. Analysis
+    7. Storage
+end note
+
+note right of CompilerAbs
+    Template Method pattern:
+    Abstract compile() method
+    implemented by concrete
+    compiler classes
+end note
+
+note bottom of Slurm
+    Asynchronous job submission
+    for parallel execution on
+    cluster nodes
+end note
+
+@enduml

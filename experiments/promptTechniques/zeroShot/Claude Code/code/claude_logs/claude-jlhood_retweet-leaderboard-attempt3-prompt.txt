@@ -1,0 +1,98 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: jlhood_retweet-leaderboard
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** control_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+Here's a consolidated report based on the provided analysis:
+
+**Report: `jlhood_retweet-leaderboard` Repository Analysis**
+
+This report analyzes the `jlhood_retweet-leaderboard` repository, a serverless application designed to maintain a Twitter user leaderboard based on retweet counts. The application processes tweets, updates a DynamoDB table, and exposes the leaderboard via an API. It leverages AWS Lambda, DynamoDB, API Gateway, Serverless Application Repository, and Dagger for dependency injection.
+
+**Functionality and Components:**
+
+The core functionalities include:
+
+*   **Tweet Processing:** Ingests tweets (JSON strings), extracts username, retweet count, and favorite count, filters out native retweets, and requires at least one retweet.
+*   **Leaderboard Management:** Stores and updates retweet counts in a DynamoDB table, prioritizing retweet count for sorting, with favorite count as a tie-breaker.
+*   **API Endpoint:** A REST API serves leaderboard data, allowing an optional `limit` parameter to control the number of results.
+*   **Serverless Deployment:** Deployed using AWS Lambda, DynamoDB, and API Gateway, managed via an AWS SAM template.
+
+**Key Files and Their Roles:**
+
+*   **`LICENSE`:** Specifies the MIT license.
+*   **`pom.xml`:** Maven build file defining dependencies (AWS SDK, Dagger, Lombok, Guava, Gson), build plugins (compiler, shade, jacoco, coveralls), and configuration. Uses `maven-shade-plugin` for a fat JAR for Lambda and `log4j2CacheTransformer` for Log4j 2 performance.
+*   **`README.md`:** Provides an application overview, architecture, installation instructions (dependent on `aws-serverless-twitter-event-source`), and UI configuration.
+*   **`app.template.yml`:** AWS SAM template defining Lambda functions (`TweetProcessor`, `GetLeaderboard`), the API Gateway endpoint, and the DynamoDB table (`Leaderboard`). Specifies resource properties, policies for DynamoDB access, and environment variables.
+*   **`ui/leaderboard.html`:** Simple HTML page displaying the leaderboard, fetching data from the API Gateway. Requires configuring the `ENDPOINT` constant.
+*   **`src/main/java/com/jlhood/retweetcounter/*`:** Contains core Java code.
+    *   `TweetProcessor.java`: Processes tweets, filters them, converts them to `RetweetCount` objects, and updates the leaderboard.
+    *   `Leaderboard.java`: Manages leaderboard data in DynamoDB, loading, updating, and retrieving retweet counts.
+    *   `LeaderboardRecord.java`: Represents a record in DynamoDB, storing retweet counts as a map. Uses Lombok `@Builder` for object construction.
+    *   `RetweetCount.java`: Data class for retweet and favorite counts.
+    *   `Tweet.java`: Parses tweet JSON, extracting relevant information.
+    *   `RetweetCountComparator.java`: Comparator for sorting `RetweetCount` objects by retweet count (descending) then favorite count (descending). Implements the Strategy Pattern.
+        *   `RetweetCountsMapConverter.java`: Converts the Map of RetweetCounts to and from a String for storage in DynamoDB implementing the DynamoDBTypeConverter.
+*   **`src/main/java/com/jlhood/retweetcounter/lambda/*`:** Lambda handler classes.
+    *   `TweetProcessorHandler.java`: Lambda handler for `TweetProcessor`, receiving tweet JSON and passing it to `TweetProcessor`.
+    *   `GetLeaderboardHandler.java`: Lambda handler for `GetLeaderboard`, retrieving leaderboard data from DynamoDB and returning it as JSON.
+*   **`src/main/java/com/jlhood/retweetcounter/dagger/*`:** Dagger DI configuration.
+    *   `AppModule.java`: Dagger module for bindings.
+    *   `AppComponent.java`: Dagger component interface.
+    *   `Env.java`: Helper to fetch environment variables.
+*   **`src/main/resources/log4j2.xml`:** Log4j 2 configuration for logging, including LambdaAppender.
+
+**Architectural Insights:**
+
+*   **Event-Driven:** `aws-serverless-twitter-event-source` triggers the `TweetProcessor` Lambda.
+*   **Microservices-like:** `TweetProcessor` and `GetLeaderboard` are separate Lambdas with distinct functions.
+*   **Serverless:** Uses serverless technologies.
+*   **Stateless:** Lambda functions are stateless; data is persisted in DynamoDB.
+
+**Design Patterns:**
+
+*   **Dependency Injection (Dagger):** Dagger used for dependency injection to improve testability.
+*   **Builder Pattern:** `LeaderboardRecord` uses the Builder pattern (via Lombok's `@Builder`).
+*   **Strategy Pattern (Comparator):** `RetweetCountComparator` allows flexible sorting.
+*   **Type Conversion:** `RetweetCountsMapConverter` implements `DynamoDBTypeConverter`
+
+**Further Considerations:**
+
+*   **Error Handling:** The code lacks explicit error handling and should be improved for production use.
+*   **Security:** UI code requires input validation to prevent XSS.
+*   **Testing:** Missing comprehensive unit and integration tests. Though the directory structure indicates that testing was planned, no actual tests were found.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: control_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/jlhood_retweet-leaderboard.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

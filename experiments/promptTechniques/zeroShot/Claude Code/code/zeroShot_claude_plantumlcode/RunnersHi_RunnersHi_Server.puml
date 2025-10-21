@@ -1,0 +1,161 @@
+@startuml
+title RunnersHi Server - Data Flow Sequence Diagram
+
+actor User
+participant "Client App" as Client
+participant "Express Server" as Express
+participant "Auth Middleware" as Auth
+participant "Socket.IO" as Socket
+participant "User Controller" as UserCtrl
+participant "Matching Controller" as MatchCtrl
+participant "Record Controller" as RecordCtrl
+participant "Ranking Controller" as RankCtrl
+participant "User Model" as UserModel
+participant "Matching Model" as MatchModel
+participant "Record Model" as RecordModel
+participant "Ranking Model" as RankModel
+participant "MySQL Database" as DB
+participant "Response Handler" as Response
+participant "Error Handler" as Error
+
+== User Registration & Authentication ==
+User -> Client: Register/Login Request
+Client -> Express: POST /user/register
+Express -> UserCtrl: handleRegistration()
+UserCtrl -> UserModel: createUser(userData)
+UserModel -> DB: INSERT INTO users
+DB --> UserModel: User Created
+UserModel --> UserCtrl: User Data
+UserCtrl -> Response: formatSuccess(userData)
+Response --> Express: Success Response
+Express --> Client: 200 OK + User Data
+Client --> User: Registration Success
+
+Client -> Express: POST /user/login
+Express -> UserCtrl: handleLogin()
+UserCtrl -> UserModel: authenticateUser(credentials)
+UserModel -> DB: SELECT * FROM users WHERE email
+DB --> UserModel: User Record
+UserModel -> UserModel: bcrypt.compare(password)
+UserModel --> UserCtrl: Authentication Result
+UserCtrl -> UserCtrl: generateJWT()
+UserCtrl -> Response: formatSuccess(token, userData)
+Response --> Express: Success Response + JWT
+Express --> Client: 200 OK + JWT Token
+Client --> User: Login Success
+
+== Real-time Matching Flow ==
+User -> Client: Request Match
+Client -> Socket: emit('join', {level, time, gender})
+Socket -> Socket: matchingAlgorithm()
+Socket -> MatchModel: findAvailableRoom(criteria)
+MatchModel -> DB: SELECT * FROM rooms WHERE criteria
+DB --> MatchModel: Available Rooms
+MatchModel --> Socket: Room Data
+
+alt Room Found
+    Socket -> Socket: joinExistingRoom(roomId)
+    Socket -> MatchModel: updateRoomStatus(roomId)
+    MatchModel -> DB: UPDATE rooms SET players
+    DB --> MatchModel: Room Updated
+    Socket -> Client: emit('matched', roomData)
+    Socket -> Client: emit('countdown_start')
+else No Room Available
+    Socket -> MatchModel: createNewRoom(criteria)
+    MatchModel -> DB: INSERT INTO rooms
+    DB --> MatchModel: New Room Created
+    Socket -> Socket: joinNewRoom(roomId)
+    Socket -> Client: emit('waiting', roomData)
+end
+
+Client --> User: Match Status Update
+
+== Running Data Tracking ==
+User -> Client: Start Running
+Client -> Socket: emit('run_start', {roomId, userId})
+Socket -> MatchModel: updateRunStatus(roomId)
+MatchModel -> DB: UPDATE rooms SET status='running'
+
+loop During Run
+    User -> Client: Location Update
+    Client -> Socket: emit('location_data', {lat, lng, distance, time})
+    Socket -> Socket: validateRunData()
+    Socket -> MatchModel: storeRunningData(runData)
+    MatchModel -> DB: INSERT INTO running_data
+    DB --> MatchModel: Data Stored
+    Socket -> Socket: broadcast to room
+    Socket -> Client: emit('opponent_data', opponentData)
+    Client --> User: Update Running Status
+end
+
+User -> Client: Finish Running
+Client -> Socket: emit('run_complete', {finalData})
+Socket -> Socket: determineWinner()
+Socket -> MatchModel: updateRunResults(results)
+MatchModel -> DB: UPDATE running_data SET result
+MatchModel -> DB: UPDATE users SET wins/losses
+DB --> MatchModel: Results Updated
+Socket -> Client: emit('run_result', {winner, stats})
+Client --> User: Display Results
+
+== Record Retrieval ==
+User -> Client: View My Records
+Client -> Express: GET /record/user/:userId
+Express -> Auth: verifyToken(jwt)
+Auth -> Auth: jwt.verify()
+Auth --> Express: Token Valid
+Express -> RecordCtrl: getUserRecords(userId)
+RecordCtrl -> RecordModel: fetchUserRecords(userId)
+RecordModel -> DB: SELECT * FROM running_data WHERE userId
+DB --> RecordModel: Running Records
+RecordModel --> RecordCtrl: Records Data
+RecordCtrl -> RecordCtrl: calculatePace()
+RecordCtrl -> RecordCtrl: checkBadges()
+RecordCtrl -> Response: formatSuccess(records)
+Response --> Express: Success Response
+Express --> Client: 200 OK + Records
+Client --> User: Display Records
+
+== Ranking/Leaderboard Flow ==
+User -> Client: View Leaderboard
+Client -> Express: GET /ranking/top
+Express -> Auth: verifyToken(jwt)
+Auth --> Express: Token Valid
+Express -> RankCtrl: getTopRanking()
+RankCtrl -> RankModel: fetchTopRunners(month)
+RankModel -> DB: SELECT users, COUNT wins, distances
+RankModel -> DB: ORDER BY wins DESC, distance DESC
+DB --> RankModel: Top Runners Data
+RankModel --> RankCtrl: Ranking Data
+RankCtrl -> Response: formatSuccess(ranking)
+Response --> Express: Success Response
+Express --> Client: 200 OK + Leaderboard
+Client --> User: Display Leaderboard
+
+Client -> Express: GET /ranking/winners
+Express -> Auth: verifyToken(jwt)
+Auth --> Express: Token Valid
+Express -> RankCtrl: getWinners()
+RankCtrl -> RankModel: fetchWinners(month)
+RankModel -> DB: SELECT * FROM running_data WHERE result='win'
+DB --> RankModel: Winners Data
+RankModel --> RankCtrl: Winners List
+RankCtrl -> Response: formatSuccess(winners)
+Response --> Express: Success Response
+Express --> Client: 200 OK + Winners
+Client --> User: Display Winners
+
+== Error Handling ==
+Client -> Express: Invalid Request
+Express -> UserCtrl: processRequest()
+UserCtrl -> UserModel: performOperation()
+UserModel -> DB: Query with Error
+DB --> UserModel: SQL Error
+UserModel --> UserCtrl: Error Thrown
+UserCtrl -> Error: handleError(error)
+Error -> Error: formatErrorResponse()
+Error --> Express: Error Response
+Express --> Client: 4xx/5xx Error
+Client --> User: Display Error Message
+
+@enduml

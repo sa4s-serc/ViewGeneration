@@ -1,0 +1,123 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: inovex_scrumlr.io
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** control_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## Scrumlr.io Repository Analysis Report
+
+This report provides an overview of the `scrumlr.io` repository, focusing on its key functionalities, components, architecture, and design patterns. The application is a collaborative Scrum board platform built with a layered architecture, separating concerns between the backend (Go), frontend (TypeScript/React), and infrastructure.
+
+**I. Core Functionality:**
+
+`Scrumlr.io` provides the following core features:
+
+*   **Scrum Board Management:** Creating, reading, updating, and deleting Scrum boards. Supports board templates with predefined columns.
+*   **User Authentication:** User authentication through various providers (Google, GitHub, Microsoft, Azure AD, Apple, OIDC, and anonymous).
+*   **Real-time Collaboration:** Real-time updates via WebSockets and `nats.io`/Redis for synchronized user experiences.
+*   **Note Management:** Creating, reading, updating, deleting, and stacking notes on the board.
+*   **Voting and Reactions:** Users can vote on notes and add reactions.
+*   **User Session Management:** Tracking user sessions within boards, managing roles, connection status, and session requests.
+*   **Customization:** Theming options and customizable settings for user profiles, board appearance and feature flags.
+*   **Data Export:** Exporting board data to JSON, CSV, and Markdown formats.
+*   **Feedback:**  Providing an avenue for user feedback.
+*   **Documentation:** A documentation website built with Astro.
+
+**II. Key Components & File Roles:**
+
+The codebase is structured into several key components:
+
+*   **Backend (Go):**
+    *   `server/src/main.go`: Server application entry point.
+    *   `server/src/database/database.go`: Defines the database interaction layer using `bun` ORM, abstracting data access.
+    *   `server/src/realtime/nats.go`, `server/src/realtime/redis.go`: Implement real-time communication using NATS and Redis.
+    *   `server/src/auth/auth.go`: Implements authentication and authorization logic.
+    *   `server/src/database/*`: Defines data models and database interactions for entities like users, boards, and notes.
+    *   `server/src/common/dto/*`: Defines Data Transfer Objects (DTOs) for API communication.
+    *   `server/src/api/*`: Contains handlers for HTTP API endpoints, managing requests, authentication, service calls, and responses.
+    *   `server/src/services/*`: Defines interfaces and implementations for core business logic (boards, notes, users, etc.).
+    *   `server/src/api/router.go`: Defines API routes and middleware.
+    *   `server/src/api/boards_listen_on_board.go`: Handles WebSocket connections for boards and filters real-time events.
+    *    `server/src/logger/logger.go`: Configures and provides access to a global logger instance.
+*   **Frontend (TypeScript/React):**
+    *   `src/components/Board/Board.tsx`: Renders the main Scrum board layout.
+    *   `src/components/Column/Column.tsx`: Represents a single column on the board.
+    *   `src/components/Note/Note.tsx`: Displays individual notes with author, votes, and reactions.
+    *   `src/components/SettingsDialog/SettingsDialog.tsx`: Manages the settings dialog and its sections.
+    *   `src/components/BoardUsers/BoardUsers.tsx`: Displays board users and their presence.
+    *   `src/components/Infobar/Infobar.tsx`: Renders the information bar with timers, votes, etc.
+    *   `src/components/*`: Implementation of all react components.
+    *   `src/routes/*`: Implementation of react-router routes, such as `BoardGuard`, `LoginBoard`, `Homepage`, etc.
+    *   `src/config.ts`: Client-side configuration settings.
+    *   `store/store.ts`: Configures the Redux store, combines reducers, and sets up middleware.
+    *   `store/features/*`: Feature-based modules containing actions, reducers, thunks, and types.
+*   **Infrastructure:**
+    *   `Dockerfile`, `docker-compose.yml`: Define how to containerize and run the server and other services using Docker.
+    *   `deployment/docker/docker-compose.yml`: Defines services like backend, frontend, database and NATS.
+    *   `.github/workflows/*`: CI/CD workflow definitions.
+    *   `docs/*`: Astro configuration and documentation.
+
+**III. Architectural Insights:**
+
+*   **Layered Architecture:** Clear separation of concerns between presentation (API/React Components), business logic (services), and data access (database).
+*   **Event-Driven Architecture (EDA):**  WebSockets and real-time packages enable an event-driven approach for propagating changes.
+*   **Microservice Tendencies:** Distinct containers for backend, frontend, database, and messaging suggest a move towards modularity.
+*   **Redux for State Management:** Redux manages application state, promoting data consistency.
+*   **Feature-Based Organization:** The Redux store and other components are organized into feature-based modules.
+
+**IV. Notable Design Patterns:**
+
+*   **Repository:** The `Database` struct acts as a repository, abstracting data access.
+*   **Data Transfer Object (DTO):** DTOs are used for data exchange between API and services.
+*   **Strategy:** The `realtime` package uses a strategy pattern for different real-time implementations.
+*   **Factory:** The `New...` functions serve as factory methods.
+*   **Middleware:** Used for authentication, authorization, and logging in the API layer.
+*   **Observer:** Real-time updates utilize the observer pattern.
+*   **Action/Reducer Pattern:** Core Redux pattern for managing state changes.
+*   **Thunk Pattern:** Used to handle asynchronous operations in Redux.
+*   **Presentational and Container Components:** Separates presentational and logic aspects of components.
+*   **Custom Hooks:** The application utilizes custom hooks extensively to encapsulate and reuse logic.
+*   **Higher-Order Components (HOCs):** Some components like the DndContext and the Sortable component works as Higher-Order Components.
+*   **Atomic Design Principles:** Some of the components style structure indicates a usage of Atomic Design Principles.
+
+**V. Areas for Further Investigation:**
+
+*   Further abstraction of theming logic.
+*   Centralized tooltip functionality.
+*   Increased test coverage.
+
+This report provides a comprehensive overview of the scrumlr.io repository, highlighting its key components, functionality, architecture, and design patterns, paving the way for deeper exploration and understanding of its intricacies.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: control_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/inovex_scrumlr.io.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

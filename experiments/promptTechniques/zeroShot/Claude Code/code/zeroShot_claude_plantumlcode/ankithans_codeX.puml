@@ -1,0 +1,100 @@
+@startuml
+!define RECTANGLE class
+
+skinparam component {
+    BackgroundColor<<frontend>> LightBlue
+    BackgroundColor<<backend>> LightGreen
+    BackgroundColor<<external>> LightYellow
+    BackgroundColor<<database>> LightCoral
+}
+
+package "Frontend (ReactJS)" <<frontend>> {
+    component [App.js] as App
+    component [Navbar] as Navbar
+    component [PseudoCode] as PseudoCode
+    component [Warnings] as WarningsUI
+    component [Compile] as CompileUI
+    component [Monaco Editor] as Editor
+
+    App --> Navbar
+    App --> PseudoCode
+    App --> WarningsUI
+    App --> CompileUI
+    App --> Editor
+}
+
+package "Backend (FastAPI)" <<backend>> {
+    component [API Gateway\n(app.py)] as APIGateway
+
+    package "Routes" {
+        component [compile.py] as CompileRoute
+        component [convertPseudo.py] as PseudoRoute
+        component [warnings.py] as WarningsRoute
+        component [translatePseudo.py] as TranslateRoute
+        component [shareCode.py] as ShareRoute
+        component [flowchart.py] as FlowchartRoute
+    }
+
+    package "Services" {
+        component [pylint.py] as PylintService
+        component [pseudo_code.py] as PseudoService
+        component [hackerearth_compile.py] as HackerEarthService
+        component [translate.py] as TranslateService
+        component [flowchart.py] as FlowchartService
+    }
+
+    APIGateway --> CompileRoute
+    APIGateway --> PseudoRoute
+    APIGateway --> WarningsRoute
+    APIGateway --> TranslateRoute
+    APIGateway --> ShareRoute
+    APIGateway --> FlowchartRoute
+
+    CompileRoute --> HackerEarthService
+    PseudoRoute --> PseudoService
+    WarningsRoute --> PylintService
+    TranslateRoute --> TranslateService
+    ShareRoute ..> PseudoService
+    FlowchartRoute --> FlowchartService
+}
+
+database "SQLite Database" <<database>> {
+    component [Shared Code Storage] as Database
+}
+
+cloud "External Services" <<external>> {
+    component [HackerEarth API] as HackerEarth
+    component [Google Translate API] as GoogleTranslate
+    component [Pylint Engine] as Pylint
+}
+
+Navbar --> APIGateway : "Share Code\n(POST /share)"
+CompileUI --> APIGateway : "Compile & Execute\n(POST /compile)"
+PseudoCode --> APIGateway : "Generate Pseudocode\n(POST /pseudo)"
+PseudoCode --> APIGateway : "Translate Pseudocode\n(POST /translate)"
+PseudoCode --> APIGateway : "Generate Flowchart\n(POST /flowchart)"
+WarningsUI --> APIGateway : "Get Warnings\n(POST /warnings)"
+Navbar --> APIGateway : "Retrieve Shared Code\n(GET /share/{id})"
+
+ShareRoute --> Database : "CRUD Operations"
+HackerEarthService --> HackerEarth : "Compile & Execute Code"
+TranslateRoute --> GoogleTranslate : "Translate Text"
+PylintService --> Pylint : "Analyze Code"
+
+note right of APIGateway
+    Acts as central routing point
+    Handles CORS and middleware
+    Routes requests to appropriate endpoints
+end note
+
+note right of Database
+    Stores shared code snippets
+    with unique URLs
+end note
+
+note bottom of "External Services"
+    Third-party services integrated
+    for core functionalities
+end note
+
+@enduml

@@ -1,0 +1,108 @@
+@startuml
+!define RECTANGLE rectangle
+!define COMPONENT component
+
+title Auditor Framework - Deployment Architecture
+
+package "Client Application Layer" {
+    [Client Application] as ClientApp
+    [Spring Boot Starter] as SpringStarter
+    component "Auditor Client Library" as ClientLib {
+        [Auditor API] as AuditorAPI
+        [Event Generator] as EventGen
+    }
+}
+
+package "Infrastructure Layer" {
+    node "Kafka Cluster" {
+        queue "Audit Events Topic" as KafkaTopic
+    }
+
+    node "Elasticsearch Cluster" {
+        database "Audit Events Index" as ESIndex
+    }
+}
+
+package "Auditor Application Server" {
+    node "Application Container" {
+        component "Application.kt" as AppMain {
+            [Main Entry Point] as MainEntry
+        }
+
+        component "Consumer Service" as ConsumerService {
+            [Event Consumer Service] as EventConsumer
+            [Kafka Subscriber] as KafkaSubscriber
+        }
+
+        component "Repository Service" as RepoService {
+            [Audit Event Repository Service] as AuditRepo
+            [Elasticsearch Client] as ESClient
+        }
+
+        component "Core Module" as CoreModule {
+            [Audit Event Mapper] as EventMapper
+            [Audit Event DTO Mapper] as DTOMapper
+            [JSON Object Mapper] as JsonMapper
+        }
+
+        component "Filter Module" as FilterModule {
+            [Audit Event Element Filter] as EventFilter
+            [Inclusion Filter] as InclusionFilter
+            [Exclusion Filter] as ExclusionFilter
+        }
+    }
+}
+
+package "Configuration & Specs" {
+    [OpenAPI Specifications] as OpenAPISpecs
+    [Configuration Properties] as ConfigProps
+}
+
+ClientApp --> ClientLib : uses
+SpringStarter --> ClientLib : integrates
+AuditorAPI --> EventGen : generates events
+EventGen --> KafkaTopic : publishes audit events\n(asynchronous)
+
+MainEntry --> EventConsumer : initializes
+KafkaSubscriber --> KafkaTopic : subscribes to\naudit events
+EventConsumer --> KafkaSubscriber : consumes via
+EventConsumer --> EventFilter : filters events
+EventFilter --> InclusionFilter : uses
+EventFilter --> ExclusionFilter : uses
+EventConsumer --> EventMapper : maps events
+EventMapper --> DTOMapper : transforms
+DTOMapper --> JsonMapper : serializes
+
+EventConsumer --> AuditRepo : persists filtered events
+AuditRepo --> ESClient : stores via
+ESClient --> ESIndex : writes to
+
+OpenAPISpecs --> CoreModule : generates code for
+ConfigProps --> ConsumerService : configures
+ConfigProps --> RepoService : configures
+
+note right of KafkaTopic
+  Event Streaming
+  Eventual Consistency
+  High Throughput
+end note
+
+note right of ESIndex
+  Data Storage
+  Indexing & Querying
+  Audit Analysis
+end note
+
+note bottom of ClientLib
+  Non-blocking
+  Reactive (Project Reactor)
+  Decoupled from business logic
+end note
+
+note bottom of ConsumerService
+  Asynchronous Processing
+  Template Method Pattern
+  Retry Logic
+end note
+
+@enduml

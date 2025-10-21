@@ -1,0 +1,100 @@
+@startuml
+title Modern Data Architecture - Deployment Sequence
+
+actor "DevOps Engineer" as DevOps
+participant "Docker Compose" as DC
+participant "PostgreSQL\nContainer" as PG
+participant "pgAdmin\nContainer" as PGADMIN
+participant "Nginx\nContainer" as NGINX
+participant "Airbyte\nContainer" as AIRBYTE
+participant "DBT\nContainer" as DBT
+participant "Superset\nContainer" as SUPERSET
+database "PostgreSQL\nData Volume" as PGVOL
+database "pgAdmin\nData Volume" as ADMINVOL
+
+DevOps -> DC: docker-compose up -f Postgres-DWH/docker-compose.yml
+activate DC
+
+DC -> PGVOL: Create/Mount Volume
+activate PGVOL
+PGVOL --> DC: Volume Ready
+deactivate PGVOL
+
+DC -> PG: Deploy PostgreSQL Container
+activate PG
+PG -> PGVOL: Mount Data Volume
+PG -> PG: Initialize Database
+PG --> DC: PostgreSQL Running
+deactivate PG
+
+DC -> ADMINVOL: Create/Mount Volume
+activate ADMINVOL
+ADMINVOL --> DC: Volume Ready
+deactivate ADMINVOL
+
+DC -> PGADMIN: Deploy pgAdmin Container
+activate PGADMIN
+PGADMIN -> ADMINVOL: Mount Data Volume
+PGADMIN -> PGADMIN: Initialize pgAdmin
+PGADMIN --> DC: pgAdmin Running
+deactivate PGADMIN
+
+DC --> DevOps: PostgreSQL & pgAdmin Deployed
+deactivate DC
+
+DevOps -> DC: docker-compose up -f Postgres-DWH/docker-compose-nginx.yml
+activate DC
+
+DC -> NGINX: Build & Deploy Nginx Container
+activate NGINX
+NGINX -> NGINX: Load nginx.conf
+NGINX -> PGADMIN: Configure Reverse Proxy
+NGINX --> DC: Nginx Running
+deactivate NGINX
+
+DC --> DevOps: Nginx Proxy Deployed
+deactivate DC
+
+DevOps -> DC: Deploy Airbyte (via submodule)
+activate DC
+DC -> AIRBYTE: Deploy Airbyte Container
+activate AIRBYTE
+AIRBYTE -> AIRBYTE: Initialize Airbyte Services
+AIRBYTE -> PG: Configure Connection
+AIRBYTE --> DC: Airbyte Running
+deactivate AIRBYTE
+DC --> DevOps: Airbyte Deployed
+deactivate DC
+
+DevOps -> DC: Deploy DBT (via submodule)
+activate DC
+DC -> DBT: Deploy DBT Container
+activate DBT
+DBT -> DBT: Load DBT Project Configuration
+DBT -> PG: Configure Target Connection
+DBT --> DC: DBT Running
+deactivate DBT
+DC --> DevOps: DBT Deployed
+deactivate DC
+
+DevOps -> DC: Deploy Superset (via submodule)
+activate DC
+DC -> SUPERSET: Deploy Superset Container
+activate SUPERSET
+SUPERSET -> SUPERSET: Initialize Superset Services
+SUPERSET -> PG: Configure Database Connection
+SUPERSET --> DC: Superset Running
+deactivate SUPERSET
+DC --> DevOps: Superset Deployed
+deactivate DC
+
+DevOps -> DevOps: Verify All Services Running
+
+note right of DevOps
+  Alternative deployment option:
+  Python script (Source/script.py)
+  can be used for direct CSV loading
+  into PostgreSQL using .env configuration
+end note
+
+@enduml

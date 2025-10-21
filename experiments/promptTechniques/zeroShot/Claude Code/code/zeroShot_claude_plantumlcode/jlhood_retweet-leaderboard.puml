@@ -1,0 +1,117 @@
+@startuml
+!define AWSPUML https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v14.0/dist
+skinparam BoxPadding 10
+skinparam ParticipantPadding 20
+skinparam SequenceMessageAlign center
+
+title Retweet Leaderboard - Control Flow
+
+actor "Twitter User" as User
+participant "Twitter Event Source\n(aws-serverless-twitter-event-source)" as TwitterSource
+participant "TweetProcessorHandler\n(Lambda)" as TweetHandler
+participant "TweetProcessor" as Processor
+participant "Tweet" as TweetParser
+participant "RetweetCountComparator" as Comparator
+participant "Leaderboard" as LeaderboardLogic
+participant "DynamoDB\n(Leaderboard Table)" as DynamoDB
+participant "API Gateway" as APIGateway
+participant "GetLeaderboardHandler\n(Lambda)" as GetHandler
+participant "Web Browser\n(UI)" as Browser
+
+== Tweet Processing Flow ==
+
+User -> TwitterSource: Post/Retweet
+activate TwitterSource
+TwitterSource -> TweetHandler: Trigger with tweet JSON
+activate TweetHandler
+
+TweetHandler -> Processor: handleRequest(tweetJson)
+activate Processor
+
+Processor -> TweetParser: fromJson(tweetJson)
+activate TweetParser
+TweetParser -> TweetParser: Parse JSON\nExtract username,\nretweetCount, favoriteCount
+TweetParser --> Processor: Tweet object
+deactivate TweetParser
+
+Processor -> Processor: Filter:\n- Exclude native retweets\n- Require retweetCount >= 1
+
+alt Valid Tweet
+    Processor -> Processor: Convert to RetweetCount object
+
+    Processor -> LeaderboardLogic: update(username, retweetCount)
+    activate LeaderboardLogic
+
+    LeaderboardLogic -> DynamoDB: Load current LeaderboardRecord
+    activate DynamoDB
+    DynamoDB --> LeaderboardLogic: LeaderboardRecord with retweetCounts map
+    deactivate DynamoDB
+
+    LeaderboardLogic -> LeaderboardLogic: Update retweetCounts map\nfor username
+
+    LeaderboardLogic -> Comparator: sort(retweetCounts)
+    activate Comparator
+    Comparator -> Comparator: Sort by retweetCount DESC,\nthen favoriteCount DESC
+    Comparator --> LeaderboardLogic: Sorted retweetCounts
+    deactivate Comparator
+
+    LeaderboardLogic -> DynamoDB: Save updated LeaderboardRecord
+    activate DynamoDB
+    DynamoDB --> LeaderboardLogic: Success
+    deactivate DynamoDB
+
+    LeaderboardLogic --> Processor: Update complete
+    deactivate LeaderboardLogic
+
+    Processor --> TweetHandler: Success
+else Invalid Tweet
+    Processor --> TweetHandler: Filtered out
+end
+
+deactivate Processor
+TweetHandler --> TwitterSource: Processing complete
+deactivate TweetHandler
+deactivate TwitterSource
+
+== Leaderboard Retrieval Flow ==
+
+Browser -> APIGateway: GET /leaderboard?limit=N
+activate Browser
+activate APIGateway
+
+APIGateway -> GetHandler: Invoke with query params
+activate GetHandler
+
+GetHandler -> LeaderboardLogic: getLeaderboard(limit)
+activate LeaderboardLogic
+
+LeaderboardLogic -> DynamoDB: Load LeaderboardRecord
+activate DynamoDB
+DynamoDB --> LeaderboardLogic: LeaderboardRecord with retweetCounts map
+deactivate DynamoDB
+
+LeaderboardLogic -> LeaderboardLogic: Convert retweetCounts map\nusing RetweetCountsMapConverter
+
+LeaderboardLogic -> Comparator: sort(retweetCounts)
+activate Comparator
+Comparator -> Comparator: Sort by retweetCount DESC,\nthen favoriteCount DESC
+Comparator --> LeaderboardLogic: Sorted retweetCounts
+deactivate Comparator
+
+LeaderboardLogic -> LeaderboardLogic: Apply limit (if specified)
+
+LeaderboardLogic --> GetHandler: List of RetweetCount objects
+deactivate LeaderboardLogic
+
+GetHandler -> GetHandler: Convert to JSON response
+
+GetHandler --> APIGateway: JSON response with leaderboard data
+deactivate GetHandler
+
+APIGateway --> Browser: HTTP 200 with JSON
+deactivate APIGateway
+
+Browser -> Browser: Display leaderboard in HTML
+deactivate Browser
+
+@enduml

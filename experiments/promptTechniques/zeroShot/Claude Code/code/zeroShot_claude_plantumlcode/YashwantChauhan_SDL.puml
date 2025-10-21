@@ -1,0 +1,125 @@
+@startuml
+!define RECTANGLE class
+
+title Intrusion Detection System - Control Flow Sequence Diagram
+
+actor User
+participant "Web Browser" as Browser
+participant "Django URL Dispatcher" as URLDispatcher
+participant "Authentication View" as AuthView
+participant "User Model" as UserModel
+participant "Dashboard View" as DashboardView
+participant "File Upload Handler" as FileHandler
+participant "ML Classifier\n(Random Forest)" as MLClassifier
+participant "Scaler" as Scaler
+participant "Result Model" as ResultModel
+participant "History Model" as HistoryModel
+participant "Recommendation Model" as RecommendationModel
+participant "Template Engine" as TemplateEngine
+database "SQLite Database" as DB
+
+== User Registration ==
+User -> Browser: Access signup page
+Browser -> URLDispatcher: GET /signup
+URLDispatcher -> AuthView: route to signup view
+AuthView -> TemplateEngine: render signup template
+TemplateEngine -> Browser: signup form
+Browser -> User: display form
+
+User -> Browser: submit registration data
+Browser -> URLDispatcher: POST /signup
+URLDispatcher -> AuthView: route to signup view
+AuthView -> AuthView: validate form data
+AuthView -> UserModel: create new user
+UserModel -> DB: INSERT user record
+DB -> UserModel: confirm creation
+UserModel -> AuthView: user created
+AuthView -> Browser: redirect to login
+Browser -> User: show login page
+
+== User Login ==
+User -> Browser: enter credentials
+Browser -> URLDispatcher: POST /login
+URLDispatcher -> AuthView: route to login view
+AuthView -> UserModel: authenticate user
+UserModel -> DB: SELECT user by credentials
+DB -> UserModel: user data
+UserModel -> AuthView: authentication result
+AuthView -> AuthView: create session
+AuthView -> DB: store session data
+AuthView -> Browser: redirect to dashboard
+Browser -> User: show dashboard
+
+== Traffic Analysis - File Upload ==
+User -> Browser: access dashboard
+Browser -> URLDispatcher: GET /dashboard
+URLDispatcher -> DashboardView: route to dashboard view
+DashboardView -> DashboardView: check authentication
+DashboardView -> TemplateEngine: render dashboard template
+TemplateEngine -> Browser: dashboard with upload form
+Browser -> User: display upload interface
+
+User -> Browser: select traffic capture file
+Browser -> URLDispatcher: POST /dashboard/upload
+URLDispatcher -> DashboardView: route to upload handler
+DashboardView -> DashboardView: check authentication
+DashboardView -> FileHandler: process uploaded file
+FileHandler -> FileHandler: parse traffic data
+FileHandler -> FileHandler: extract features
+
+== Machine Learning Classification ==
+FileHandler -> Scaler: scale feature values
+Scaler -> Scaler: normalize data
+Scaler -> FileHandler: scaled features
+FileHandler -> MLClassifier: classify traffic data
+MLClassifier -> MLClassifier: predict attack type
+MLClassifier -> FileHandler: classification result
+
+== Store Results ==
+FileHandler -> ResultModel: create result record
+ResultModel -> DB: INSERT detection result
+DB -> ResultModel: confirm insert
+ResultModel -> FileHandler: result saved
+
+FileHandler -> RecommendationModel: get recommendation for attack
+RecommendationModel -> DB: SELECT recommendation by attack type
+DB -> RecommendationModel: recommendation data
+RecommendationModel -> FileHandler: recommendation
+
+FileHandler -> HistoryModel: create history entry
+HistoryModel -> HistoryModel: associate with user (Foreign Key)
+HistoryModel -> DB: INSERT history record
+DB -> HistoryModel: confirm insert
+HistoryModel -> FileHandler: history saved
+
+== Display Results ==
+FileHandler -> DashboardView: return analysis results
+DashboardView -> TemplateEngine: render results template
+TemplateEngine -> TemplateEngine: format attack type
+TemplateEngine -> TemplateEngine: format recommendation
+TemplateEngine -> Browser: results page
+Browser -> User: display detection results
+
+== View History ==
+User -> Browser: request history
+Browser -> URLDispatcher: GET /history
+URLDispatcher -> DashboardView: route to history view
+DashboardView -> DashboardView: check authentication
+DashboardView -> HistoryModel: get user history
+HistoryModel -> DB: SELECT history WHERE user_id
+DB -> HistoryModel: history records
+HistoryModel -> DashboardView: user history data
+DashboardView -> TemplateEngine: render history template
+TemplateEngine -> Browser: history page
+Browser -> User: display past detections
+
+== User Logout ==
+User -> Browser: click logout
+Browser -> URLDispatcher: POST /logout
+URLDispatcher -> AuthView: route to logout view
+AuthView -> AuthView: clear session
+AuthView -> DB: delete session data
+AuthView -> Browser: redirect to home
+Browser -> User: show home page
+
+@enduml

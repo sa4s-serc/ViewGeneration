@@ -1,0 +1,91 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: kzh_noob
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** deployment
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+**Report: Analysis of the "noob" Code Execution Platform**
+
+This report analyzes the architecture and functionality of the "noob" platform, a distributed microservice system designed for executing user-submitted code in a sandboxed environment. The platform is intended for Kubernetes deployment, focusing on scalability and robustness for code judging.
+
+**Core Functionality and Architecture:**
+
+The platform's core revolves around receiving user-submitted code, executing it in a controlled environment (likely Docker containers), and evaluating its output against predefined test cases. It adopts a microservice architecture, broken down into several key services:
+
+*   **Auth:** Manages user authentication (login, registration, logout) and authorization.
+*   **Frontend:** Provides the user interface (web pages) for platform interaction.  It uses static assets (CSS, JavaScript) and HTML templates using Go's `html/template` package and the Gin web framework.
+*   **Problems:** Manages problem definitions, including problem name, description, and input/output test cases.
+*   **Submissions:** Receives user submissions, schedules them for execution, and provides real-time feedback to users via WebSockets.
+*   **Executor:** Executes code submissions within a sandboxed environment using Docker.  This likely involves a Docker-in-Docker configuration for isolating the execution environment.
+
+**Infrastructure and Technologies:**
+
+*   **Kubernetes:**  The target deployment environment, leveraging its scaling, orchestration, and resilience features. A Helm chart in the `chart/` directory defines the deployment configuration.
+*   **RabbitMQ:** Used as a message queue for asynchronous communication between services. The "Submissions" service publishes messages upon receiving a new submission, and the "Executor" consumes them, publishing results back to RabbitMQ.
+*   **MongoDB:** Employed for persistent storage of user accounts, problem definitions, and potentially submission results. The `pkg/database` package handles interaction with MongoDB.
+*   **Redis:** Used for storing session data for logged-in users, enabling stateless services. The `pkg/sessions` package manages the Redis interaction.
+*   **Jaeger:**  Implements distributed tracing for monitoring and debugging requests across microservices. The `pkg/tracing` package facilitates Jaeger integration.
+
+**Communication and Data Flow:**
+
+Microservices communicate asynchronously via RabbitMQ. When a new submission arrives, the "Submissions" service publishes a message, consumed by the "Executor." Results are published back, and the "Submissions" service relays them to the client via WebSockets.  The microservices are designed to be stateless, relying on Redis for sessions and MongoDB for persistence.  An API gateway (potentially implemented with Nginx ingress in Kubernetes) is implied, routing requests based on URL paths (e.g., `/auth/*`, `/problems/*`).
+
+**Key Files and Their Roles:**
+
+*   **`go.mod` and `go.sum`:** Manage Go dependencies.
+*   **`LICENSE`:**  MIT License.
+*   **`README.md`:** Project overview and instructions.
+*   **`docker-compose.yml`:** Defines services for local development using Docker Compose.
+*   **`cmd/<service>/Dockerfile`:** Dockerfiles for building container images for each microservice, based on a `golang:alpine` base image.
+*   **`cmd/<service>/main.go`:** Entry point for each microservice, defining routes and logic.
+*   **`chart/*`:** Helm chart for Kubernetes deployment.
+*   **`pkg/database/*`:** Handles MongoDB interaction.
+*   **`pkg/message/*`:** Handles RabbitMQ interaction.
+*   **`pkg/sessions/*`:** Manages user sessions using Redis.
+*   **`pkg/model/*`:** Defines data structures used throughout the application.
+*   **`pkg/tracing/*`:** Integrates Jaeger for distributed tracing.
+
+**Design Patterns:**
+
+*   **Microservices:** Promotes modularity, scalability, and independent deployments.
+*   **Message Queue:** Decouples services and enables asynchronous processing.
+*   **Repository Pattern:** Abstracts data access logic in `pkg/database`.
+*   **Middleware (Gin):** Used for session management, authentication, and authorization.
+
+**Potential Considerations:**
+
+*   **Docker-in-Docker Complexity:** The `executor` service using Docker-in-Docker adds complexity and potential security considerations.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/kzh_noob.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

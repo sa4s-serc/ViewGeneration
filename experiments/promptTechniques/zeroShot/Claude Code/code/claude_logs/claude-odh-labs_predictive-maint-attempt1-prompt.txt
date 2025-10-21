@@ -1,0 +1,101 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: odh-labs_predictive-maint
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** deployment
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+Here's a merged and structured report based on the provided summaries, focusing on key aspects of the GitHub repository:
+
+**Predictive Maintenance System Analysis Report**
+
+This report summarizes the analysis of a GitHub repository focused on building and deploying a predictive maintenance system, likely on Red Hat OpenShift. The system leverages a microservices architecture and incorporates key technologies for data streaming, model serving, and object storage.
+
+**Key Functionalities and Components:**
+
+*   **Image Classification Model Training:** The system focuses on training and deploying a machine learning model for image classification, specifically for scene change detection in surveillance cameras.
+*   **Data Streaming with Kafka:** Kafka acts as a central message bus, facilitating asynchronous communication and data streaming between components like edge devices/image capture and the consumer application. Images from the webcam are streamed to Kafka.
+*   **Model Deployment via Seldon Core:** Seldon Core provides a standardized way to deploy, manage, and monitor machine learning models in a Kubernetes environment. It offers features like autoscaling, A/B testing, and traffic management, and it exposes the AI model as a REST API.
+*   **Object Storage with MinIO:** MinIO provides object storage, simulating a data lake where insights (object counts) and model artifacts are stored. It stores inference results and facilitates near real-time dashboard updates.
+*   **Consumer Application:** A consumer application (`image-predictor-consumer`) subscribes to a Kafka topic, performs inference using the deployed model, and stores results in MinIO. It also pulls images from Kafka and stores results.
+*   **Data Visualization:** Includes a simple web interface for visualizing prediction results stored in MinIO, and a web application (using Node.js) for capturing images from a webcam and displaying the object detection results in near real-time.
+*   **OpenShift Deployment Automation:** Includes a Python script (`ocp_deploy.py`) to automate the process of building a Docker image, deploying the model using Seldon, and exposing it through an OpenShift route. This utilizes OpenShift client (`oc`) and `kubectl` (implicitly).
+*   **Data Loading and Preprocessing:** Scripts load data from directories and preprocess images, including resizing and data augmentation.
+*   **Model Building and Training:** Code builds a deep learning model (TensorFlow/Keras), trains it, and tracks training using MLflow.
+*   **Inference and Prediction:** Scripts make predictions with the deployed model, and evaluate performance using metrics like confusion matrix and precision-recall curves.
+*   **Multi-Cloud Support:** Instructions for setting up the inference pipeline span multiple cloud providers using Skupper for secure inter-cluster communication.
+
+**Important Files and Their Roles:**
+
+*   **`README.md`:** Describes the overall lab, goals, technical architecture, and instructions.
+*   **`deploy/kafka.yaml`:** Defines the Kubernetes resources for deploying a Kafka cluster using the Strimzi Kafka Operator.
+*   **`deploy/kafka.sh`:** Automates Kafka setup using Red Hat OpenShift Application Services (RHOAS) CLI.
+*   **`deploy/Seldon-Deployment.yaml`:** Defines the `SeldonDeployment` resource for deploying and managing the model.
+*   **`deploy/consumer-deployment.yaml`:** Defines the Kubernetes Deployment for the consumer application.
+*   **`deploy/minio-full.yaml`:** Defines Kubernetes resources for deploying a MinIO instance.
+*   **`deploy/show_data.html`:** Provides a web interface for visualizing prediction results.
+*   **`training/deploy/Predictor.py`:** Contains the `Predictor` class that loads the trained model and provides a `predict_raw` method for performing inference.
+*   **`training/deploy/ocp_deploy.py`:** Automates model deployment using the OpenShift client (`oc`).
+*   **`training/deploy/Dockerfile`:** Defines the Docker image for the Seldon model server.
+*   **`training/notebooks/Scene_change_detection_solution.ipynb`:** A Jupyter Notebook that guides model development, training, evaluation, and deployment.
+*   **`training/src/dataloading/read_dataset.py`:** Contains functions for reading the image dataset.
+*   **`training/src/features/data_preprocessing.py`:** Implements image data preprocessing functions.
+*   **`training/src/visualization/visualize.py`:** Visualizes the dataset and evaluates model performance.
+*   **`training/src/modules/build_model.py`:** Defines the deep learning model architecture.
+*   **`training/src/modules/train_model.py`:** Trains the model, sets up MLflow, and defines model checkpoints.
+*   **`training/src/modules/predict_model.py`:** Loads the trained model and makes predictions.
+*   **`event-consumer/*`:** Code for the consumer application.
+*   **`event-producer-js/*`:** Code for the image capture/producer application.
+*   **`setup/*`:** Scripts and configurations for setting up the OpenShift environment.
+
+**Architectural Insights:**
+
+*   **Microservices Architecture:** The system is broken down into separate microservices: data producer, Kafka, consumer, model serving (Seldon), and MinIO.
+*   **Event-Driven Architecture:** Kafka facilitates asynchronous communication.
+*   **Cloud-Native Deployment:** The use of Kubernetes/OpenShift for deploying the application components indicates a cloud-native architecture.
+*   **MLOps Practices:** The repository incorporates MLOps practices with MLflow for experiment tracking and model management.
+*   **Infrastructure as Code (IaC):** Kubernetes manifests (YAML files) and shell scripts automate infrastructure and application deployment.
+
+**Notable Design Patterns:**
+
+*   **Operator Pattern:** The Strimzi Kafka Operator automates Kafka cluster management.
+*   **Publisher-Subscriber:** The event producer publishes images to Kafka, and the consumer subscribes.
+*   **Model Serving:** The use of Seldon to expose the AI model as a REST API.
+*   **Microservice:** Separating different components of the application as independent services with own functionalities.
+
+**Modularity and Extensibility:**
+
+The design demonstrates modularity: separate deployments for Kafka, MinIO, and the consumer application allow for independent scaling and updates. Well-defined interfaces (Kafka, Seldon Core) provide clear communication pathways. The use of Jinja2 templates allows parameterization of the deployment process.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/odh-labs_predictive-maint.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

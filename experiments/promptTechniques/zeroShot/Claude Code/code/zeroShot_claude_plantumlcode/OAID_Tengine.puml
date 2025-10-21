@@ -1,0 +1,213 @@
+@startuml
+!define COMPONENT_COLOR #E8F5E9
+!define INTERFACE_COLOR #FFF9C4
+!define DEVICE_COLOR #E3F2FD
+
+skinparam component {
+    BackgroundColor COMPONENT_COLOR
+    BorderColor #2E7D32
+    ArrowColor #1976D2
+}
+
+skinparam interface {
+    BackgroundColor INTERFACE_COLOR
+    BorderColor #F57F17
+}
+
+package "Tengine Lite Framework" {
+
+    package "Model Conversion Layer" {
+        component [ONNX Converter] as onnx
+        component [Caffe Converter] as caffe
+        component [TensorFlow Converter] as tf
+        component [MXNet Converter] as mxnet
+        component [TFLite Converter] as tflite
+        component [Darknet Converter] as darknet
+        component [NCNN Converter] as ncnn
+
+        interface "TM2 Format" as tm2
+    }
+
+    package "Core Inference Engine" {
+        component [Graph Representation] as graph
+        component [Tensor Management] as tensors
+        component [Node Management] as nodes
+        component [Subgraph Management] as subgraphs
+
+        component [Operator Library] as oplib
+        interface "Operator Prototypes" as opproto
+        component [Convolution] as conv
+        component [ReLU] as relu
+        component [Pooling] as pool
+        component [Softmax] as softmax
+        component [GEMM] as gemm
+
+        component [Model Loader] as loader
+        component [Execution Engine] as executor
+        component [Shape Inference] as shape
+        component [Memory Manager] as memory
+    }
+
+    package "Device Abstraction Layer" {
+        interface "Device Interface" as devif
+
+        package "CPU Backend" {
+            component [Reference C] as refc
+            component [ARM NEON] as neon
+            component [x86 SSE/AVX] as sse
+        }
+
+        package "GPU Backend" {
+            component [Vulkan Backend] as vulkan
+            component [OpenCL Backend] as opencl
+            component [Shader Manager] as shader
+            component [Auto-tuning] as autotune
+        }
+
+        package "NPU Backend" {
+            component [OpenDLA] as opendla
+            component [TIM-VX] as timvx
+            component [ACL] as acl
+        }
+    }
+
+    package "Optimization Layer" {
+        component [Quantization Engine] as quant
+        component [Data Packing] as packing
+        component [Code Generator] as codegen
+        component [Graph Optimizer] as graphopt
+    }
+
+    package "Testing Framework" {
+        component [Operator Tests] as optest
+        component [Model Tests] as modeltest
+        component [Backend Tests] as backendtest
+        component [Reference Data Manager] as refdata
+    }
+
+    package "External Interfaces" {
+        component [Python Bindings] as python
+        component [C API] as capi
+        component [Online Reporting] as reporting
+    }
+
+    package "Utilities" {
+        component [Image Processing] as imgproc
+        component [Letterboxing] as letterbox
+        component [Scaling] as scaling
+        component [Format Conversion] as fmtconv
+        component [Build System] as cmake
+        component [Toolchain Configs] as toolchain
+    }
+}
+
+' Model Conversion relationships
+onnx --> tm2
+caffe --> tm2
+tf --> tm2
+mxnet --> tm2
+tflite --> tm2
+darknet --> tm2
+ncnn --> tm2
+
+' Core Engine relationships
+tm2 --> loader
+loader --> graph
+graph --> tensors
+graph --> nodes
+graph --> subgraphs
+graph --> oplib
+graph --> executor
+oplib --> executor
+executor --> devif
+shape --> graph
+memory --> executor
+
+' Operator Library internal
+opproto --> conv
+opproto --> relu
+opproto --> pool
+opproto --> softmax
+opproto --> gemm
+oplib --> opproto
+
+' Device Abstraction relationships
+devif <|.. refc
+devif <|.. neon
+devif <|.. sse
+devif <|.. vulkan
+devif <|.. opencl
+devif <|.. opendla
+devif <|.. timvx
+devif <|.. acl
+
+shader --> vulkan
+shader --> opencl
+autotune --> opencl
+
+' Optimization relationships
+quant --> executor
+packing --> executor
+graphopt --> graph
+codegen --> vulkan
+codegen --> opencl
+
+' Testing relationships
+optest --> oplib
+modeltest --> executor
+backendtest --> devif
+refdata --> optest
+refdata --> modeltest
+
+' External Interface relationships
+python --> capi
+capi --> loader
+capi --> executor
+reporting --> executor
+
+' Utilities relationships
+imgproc --> letterbox
+imgproc --> scaling
+imgproc --> fmtconv
+imgproc --> executor
+cmake --> refc
+cmake --> neon
+cmake --> sse
+cmake --> vulkan
+cmake --> opencl
+toolchain --> cmake
+
+' Memory management relationships
+memory --> refc
+memory --> neon
+memory --> sse
+memory --> vulkan
+memory --> opencl
+
+note right of devif
+  Plugin-based design enables
+  heterogeneous computing across
+  different hardware backends
+end note
+
+note bottom of graph
+  TM2 format provides optimized
+  serialization for efficient
+  model loading and execution
+end note
+
+note left of quant
+  Optimization techniques:
+  - Quantization
+  - Data packing (SIMD)
+  - Auto-tuning
+  - Shader code generation
+end note
+
+note right of python
+  Python bindings bridge to
+  underlying C API using
+  Bridge Pattern
+end note
+
+@enduml

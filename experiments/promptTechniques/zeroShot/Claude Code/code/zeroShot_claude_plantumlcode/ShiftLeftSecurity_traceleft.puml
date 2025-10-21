@@ -1,0 +1,213 @@
+@startuml
+title TraceLeft System - Deployment and Control Flow
+
+actor User
+participant "CLI Interface\n(Cobra)" as CLI
+participant "Command Processor" as CMD
+participant "gotext Tool" as Gotext
+participant "Text Processing\nLayer" as TextProc
+participant "Unicode Normalizer\n(norm)" as Norm
+participant "Collation Engine\n(collate)" as Collate
+participant "IDNA Processor" as IDNA
+participant "eBPF Manager\n(gobpf)" as eBPF
+participant "System Call\nInterface" as SysCall
+participant "Unix/Windows\nAPI Layer" as OS
+participant "Kernel" as Kernel
+participant "YAML Config\nProcessor" as YAML
+participant "LRU Cache" as Cache
+participant "File System\nWatcher" as FSWatch
+
+== System Initialization ==
+User -> CLI: Execute traceleft command
+activate CLI
+CLI -> CMD: Parse command and flags
+activate CMD
+CMD -> YAML: Load configuration
+activate YAML
+YAML --> CMD: Return config data
+deactivate YAML
+CMD -> Cache: Initialize LRU cache
+activate Cache
+Cache --> CMD: Cache ready
+deactivate Cache
+
+== eBPF Program Deployment ==
+CMD -> eBPF: Load eBPF program
+activate eBPF
+eBPF -> SysCall: Request BPF filesystem access
+activate SysCall
+SysCall -> OS: System call (bpf)
+activate OS
+OS -> Kernel: Load eBPF program
+activate Kernel
+Kernel --> OS: Program loaded
+deactivate Kernel
+OS --> SysCall: Success
+deactivate OS
+SysCall --> eBPF: Program handle
+deactivate SysCall
+eBPF -> eBPF: Attach to kprobes/tracepoints
+eBPF --> CMD: eBPF ready
+deactivate eBPF
+
+== File System Monitoring Setup ==
+CMD -> FSWatch: Initialize file watcher
+activate FSWatch
+FSWatch -> OS: Register inotify/ReadDirectoryChangesW
+activate OS
+OS --> FSWatch: Watch descriptor
+deactivate OS
+FSWatch --> CMD: Watcher active
+deactivate FSWatch
+
+== Text Processing Pipeline ==
+User -> CLI: Input internationalized text
+CLI -> CMD: Process text command
+CMD -> Gotext: Extract translatable strings
+activate Gotext
+Gotext -> TextProc: Analyze text structure
+activate TextProc
+TextProc -> Norm: Normalize Unicode (NFC/NFD)
+activate Norm
+Norm -> Norm: Lookup sparse trie tables
+Norm -> Norm: Apply combining classes
+Norm --> TextProc: Normalized text
+deactivate Norm
+
+TextProc -> IDNA: Process domain names
+activate IDNA
+IDNA -> IDNA: Map Unicode to ASCII (UTS #46)
+IDNA -> IDNA: Validate Bidi rules
+IDNA -> IDNA: Trie-based rune lookup
+IDNA --> TextProc: Processed domains
+deactivate IDNA
+
+TextProc -> Collate: Sort/compare strings
+activate Collate
+Collate -> Collate: Load CLDR tables
+Collate -> Collate: Apply locale rules
+Collate -> Collate: Sparse trie compression
+Collate --> TextProc: Sorted results
+deactivate Collate
+
+TextProc --> Gotext: Processed text
+deactivate TextProc
+Gotext -> Gotext: Generate message packages
+Gotext --> CMD: Localized output
+deactivate Gotext
+
+== Runtime Tracing and Monitoring ==
+CMD -> eBPF: Start event collection
+activate eBPF
+loop Continuous Monitoring
+    Kernel -> eBPF: Kernel event (kprobe/tracepoint)
+    activate Kernel
+    eBPF -> Cache: Check event cache
+    activate Cache
+    Cache --> eBPF: Cache hit/miss
+    deactivate Cache
+
+    alt Cache miss
+        eBPF -> TextProc: Process event data
+        activate TextProc
+        TextProc -> Norm: Normalize event strings
+        activate Norm
+        Norm --> TextProc: Normalized data
+        deactivate Norm
+        TextProc --> eBPF: Processed event
+        deactivate TextProc
+        eBPF -> Cache: Store in cache
+        activate Cache
+        Cache --> eBPF: Cached
+        deactivate Cache
+    end
+
+    eBPF --> CMD: Event data
+    deactivate Kernel
+end
+deactivate eBPF
+
+== File System Event Handling ==
+FSWatch -> CMD: File change detected
+activate FSWatch
+activate CMD
+CMD -> YAML: Reload configuration
+activate YAML
+YAML --> CMD: Updated config
+deactivate YAML
+CMD -> eBPF: Reconfigure eBPF programs
+activate eBPF
+eBPF -> SysCall: Update program
+activate SysCall
+SysCall -> OS: System call
+activate OS
+OS -> Kernel: Update filters
+activate Kernel
+Kernel --> OS: Updated
+deactivate Kernel
+OS --> SysCall: Success
+deactivate OS
+SysCall --> eBPF: Updated
+deactivate SysCall
+eBPF --> CMD: Reconfigured
+deactivate eBPF
+CMD --> FSWatch: Handled
+deactivate CMD
+deactivate FSWatch
+
+== Output Generation ==
+CMD -> CLI: Format trace output
+CLI -> TextProc: Apply locale formatting
+activate TextProc
+TextProc -> Collate: Sort trace entries
+activate Collate
+Collate --> TextProc: Sorted entries
+deactivate Collate
+TextProc --> CLI: Formatted output
+deactivate TextProc
+CLI --> User: Display results
+deactivate CMD
+deactivate CLI
+
+== System Cleanup ==
+User -> CLI: Terminate command
+activate CLI
+CLI -> CMD: Shutdown signal
+activate CMD
+CMD -> eBPF: Detach eBPF programs
+activate eBPF
+eBPF -> SysCall: Close BPF handles
+activate SysCall
+SysCall -> OS: Release resources
+activate OS
+OS -> Kernel: Unload programs
+activate Kernel
+Kernel --> OS: Unloaded
+deactivate Kernel
+OS --> SysCall: Released
+deactivate OS
+SysCall --> eBPF: Closed
+deactivate SysCall
+eBPF --> CMD: Detached
+deactivate eBPF
+
+CMD -> FSWatch: Stop file watcher
+activate FSWatch
+FSWatch -> OS: Unregister watches
+activate OS
+OS --> FSWatch: Stopped
+deactivate OS
+FSWatch --> CMD: Stopped
+deactivate FSWatch
+
+CMD -> Cache: Cleanup cache
+activate Cache
+Cache --> CMD: Cleared
+deactivate Cache
+
+CMD --> CLI: Cleanup complete
+deactivate CMD
+CLI --> User: Exit
+deactivate CLI
+
+@enduml

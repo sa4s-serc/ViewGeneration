@@ -1,0 +1,134 @@
+@startuml
+!define COMPONENT_BG_COLOR #E1F5FE
+!define PACKAGE_BG_COLOR #F5F5F5
+
+skinparam component {
+  BackgroundColor COMPONENT_BG_COLOR
+  BorderColor #0277BD
+  ArrowColor #424242
+}
+
+skinparam package {
+  BackgroundColor PACKAGE_BG_COLOR
+  BorderColor #9E9E9E
+}
+
+package "Presentation Layer" {
+  [MainActivity] as main
+  [MainPresenter] as presenter
+  [RibotsAdapter] as adapter
+}
+
+package "Application Layer" {
+  [BaseApplication] as app
+}
+
+package "Data Layer" {
+  [DataManager] as dm
+  [SyncService] as sync
+
+  package "Local Data" {
+    [DatabaseHelper] as db
+    [PreferencesHelper] as prefs
+  }
+
+  package "Remote Data" {
+    [RibotsService] as api
+  }
+
+  package "Event Bus" {
+    [RxEventBus] as eventbus
+  }
+}
+
+package "Domain Layer" {
+  [Ribot Model] as ribot
+  [Profile Model] as profile
+  [Name Model] as name
+}
+
+package "Infrastructure" {
+  component "Dagger 2\n(Dependency Injection)" as dagger
+  component "RxJava 2\n(Reactive Programming)" as rxjava
+  component "Retrofit\n(HTTP Client)" as retrofit
+  component "SqlBrite\n(Reactive Database)" as sqlbrite
+  component "Timber\n(Logging)" as timber
+  component "Crashlytics\n(Crash Reporting)" as crashlytics
+}
+
+package "External Services" {
+  database "SQLite Database" as sqlite
+  cloud "Ribot API" as remote_api
+}
+
+' Presentation Layer Relationships
+main --> presenter : uses
+main --> adapter : uses
+presenter --> dm : requests data
+adapter --> ribot : displays
+
+' Application Layer Relationships
+app --> dagger : initializes
+app --> timber : initializes
+app --> crashlytics : initializes
+
+' Data Manager Relationships
+dm --> db : reads/writes
+dm --> prefs : reads/writes
+dm --> api : fetches data
+dm --> eventbus : publishes events
+dm --> rxjava : uses
+dm --> ribot : manages
+dm --> profile : manages
+dm --> name : manages
+
+' Sync Service Relationships
+sync --> dm : triggers sync
+sync --> rxjava : uses
+
+' Local Data Relationships
+db --> sqlbrite : uses
+db --> sqlite : persists to
+
+' Remote Data Relationships
+api --> retrofit : uses
+api --> remote_api : calls
+
+' Dependency Injection
+dagger ..> dm : provides
+dagger ..> db : provides
+dagger ..> prefs : provides
+dagger ..> api : provides
+dagger ..> eventbus : provides
+dagger ..> presenter : provides
+
+' Infrastructure Dependencies
+rxjava ..> presenter : enables async
+rxjava ..> dm : enables reactive streams
+sqlbrite ..> db : reactive queries
+retrofit ..> api : HTTP operations
+
+note right of main
+  MVP Pattern:
+  - View (MainActivity)
+  - Presenter (MainPresenter)
+  - Model (DataManager)
+end note
+
+note right of dm
+  Singleton pattern
+  Central data coordination
+end note
+
+note bottom of dagger
+  Provides dependency injection
+  for loose coupling and
+  testability
+end note
+
+note right of ribot
+  AutoValue pattern
+  for immutable models
+end note
+
+@enduml

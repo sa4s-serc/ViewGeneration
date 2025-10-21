@@ -1,0 +1,110 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: Fenkey_irma
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** general
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## IRMA (Efficient Web Service Framework) Analysis Report
+
+This report consolidates analyses of the IRMA (Efficient Web Service Framework) project, focusing on its core functionalities, components, architecture, and design patterns. IRMA is designed for performance, flexible deployment, and seamless integration with the Mono runtime and FastCGI. It comprises a C-based multi-threading engine (`irmacall`) and a C# framework (`irmakit`) for building web applications.
+
+**Core Functionalities and Components:**
+
+*   **`irmacall` Core Engine (C):** This multi-threaded engine is the heart of IRMA, responsible for launching and scheduling web applications built using `irmakit`. It handles HTTP interactions via FastCGI. Key features include:
+    *   **Request Handling:** Parses GET and POST parameters (including form data and file uploads), manages request headers.
+    *   **HTTP Client (Fetcher):** A built-in HTTP client (using `curl`) supporting GET, POST, PUT, and DELETE methods for external requests.
+    *   **Key-Value Storage Abstraction:** Provides an abstract interface (`kvstore_t`) for interacting with key-value stores (Memcached and Redis) for caching session data and other information.
+    *   **Logging:** A configurable logging system with levels (debug, event, warn, error, fatal, tc) and hourly/daily log file rotation.
+    *   **SMTP Support:** Enables sending emails.
+    *   **Cryptography:** Implements cryptographic functions via OpenSSL (`DES`, `AES`, `RSA`) for secure communication.
+    *   **Fuse (Circuit Breaker):** Detects failures and temporarily stops requests to prevent cascading failures.
+    *   **Buffer Management:** Efficient buffer pool for managing memory allocations.
+    *   **Asynchronous DNS Resolution:** Uses `c-ares` for non-blocking DNS requests.
+*   **`irmakit` Framework (C#):** A C# framework for building web applications scheduled by `irmacall`.  `irmakit` provides a structured environment with features such as:
+    *   **Configuration System:** Uses JSON configuration files loaded via the `Config` class. Allows extension for loading configuration from databases/APIs.
+    *   **Session Management:** Provides session management capabilities with support for different storage engines (Memcached, Redis), session expiration, cookie management, and remote session invalidation.
+    *   **Request and Response Handling:**  Utilizes `IRequest` and `IResponse` interfaces to encapsulate HTTP request and response data.
+    *   **Attribute-Driven Routing:** Employs attributes (e.g., `[RestApi]`, `[LoginCheck]`, `[ParamsCheck]`, `[Ref]`) for declarative request routing and validation.
+    *   **Template Engine Integration:** Supports NVelocity template engine with a plugin system for managing template location, encoding, and modification time.
+    *   **Utilities:** A collection of utility classes for encryption (`Aes`, `Des`, `Rsa`), QR code generation (`QRCoder`), IP address range checking (`Cidr`), HTTP requests (`Fetcher`), and more.
+    *   **Code Generation:** Includes a code generator (`AppGenerator.cs`) for easily creating new projects.
+
+**Important Files and Their Roles:**
+
+*   **`LICENSE`:** GNU General Public License Version 3.
+*   **`Configure`:** Shell script to configure the build process, creating `config.in` and `config.h`.
+*   **`Makefile`:** Defines the build process for `irmacall` and `irmakit`.
+*   **`README.md` & `README.zh-CN.md`:** High-level overview, architecture, and instructions.
+*   **`irmacall/*` (C files):** Implement core engine functionalities (logging, parameter parsing, SMTP, HTTP client, key-value store, service logic, wrapper functions). Notably:
+    *   `service.c`: Core service logic including thread management and FastCGI interaction.
+*   **`irmacall/irma-launch`:** Shell script to launch IRMA applications.
+*   **`irmacall/mono/*`:** C# sources implementing cross-platform parts of the IRMA core and the C/C# interop.
+*   **`irmakit/Web/Service.cs`:** Base class for services, handling request dispatching, error handling, and initialization.
+*   **`irmakit/AppSample/*`:** Templates for sample web applications showcasing IRMAKit features. Contains handlers for various functionalities (REST APIs, static content, authentication, Memcached interaction, encryption, and proxying). Includes the SampleService, which initializes application resources.
+*   **`irmakit/Configure/Config.cs`:** Parses the configuration file.
+*   **`irmakit/Store/*`: **Implementation of Key-Value stores for session management (Memcached, Redis).
+
+**Architectural Insights:**
+
+*   **Multi-Process/Multi-Threaded:** Handles requests concurrently using multiple processes and threads per process.
+*   **FastCGI:** Utilizes FastCGI for efficient communication with web servers.
+*   **Component-Based Design:** IRMAKit employs a component-based architecture with well-defined interfaces.
+*   **Plugin System:** Allows for customizable integration of template engines and database-backed templates.
+*   **Static Linking (default):** Compiled statically by default, minimizing dependencies.
+*   **Cross-Platform with Mono:** Leverages Mono for C# code execution on Linux.
+*   **Configuration-Driven:** Heavily influenced by configuration files.
+*   **Explicit Memory Management:**  `irmacall` uses explicit memory management, with a buffer pool to improve efficiency.
+
+**Design Patterns:**
+
+*   **Abstraction:** The `kvstore_t` structure provides a common interface for different key-value store implementations.
+*   **Singleton:** Components in `service.c` are often treated as singletons.
+*   **Template Method:**  The `service_run` function and worker thread management follow the Template Method pattern. The `Service` class in `irmakit` also utilizes this pattern.
+*   **Strategy:**  Different logging strategies and `IKeyValueStore` implementations (Memcached, Redis) demonstrate the Strategy pattern.
+*   **Factory:** Used in Key-Value store where the choice of engine can be determined at runtime.
+*   **Decorator:** The `MemcachedStoreWrapper` can act as a decorator to add functionality to `IKeyValueStore` implementations.
+*   **Dependency Injection:**  The `IContext` interface in IRMAKit may support dependency injection.
+*   **Proxy**: Allows applications to request other applications within the framework.
+
+**Important Considerations:**
+
+*   **Configuration Consistency:** Ensure consistent interpretation of configuration settings across components.
+*   **Error Handling:** Maintain a consistent error handling strategy.
+*   **Memory Management:** Properly manage memory allocated across components.
+*   **Build Process Coordination:** Ensure proper coordination of the build process.
+
+This report provides a comprehensive overview of the IRMA framework. Its design prioritizes performance, security, and extensibility through component-based architecture and the application of various design patterns.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: general
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/Fenkey_irma.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

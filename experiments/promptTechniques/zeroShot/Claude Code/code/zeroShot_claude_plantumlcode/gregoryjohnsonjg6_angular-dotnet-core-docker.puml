@@ -1,0 +1,265 @@
+@startuml
+title Contact Management Application - Deployment and Control Flow
+
+actor User
+participant "Browser" as Browser
+participant "NGINX\nLoad Balancer" as NGINX
+participant "Angular Frontend\n(SSR)" as Frontend
+participant "ASP.NET Core\nWeb API" as API
+participant "MediatR\nCQRS Handler" as MediatR
+participant "Application\nLayer" as Application
+participant "Repository\nPattern" as Repository
+participant "Entity Framework\nCore" as EF
+participant "PostgreSQL\nDatabase" as DB
+participant "Identity\nService" as Identity
+
+== System Startup & Deployment ==
+activate DB
+note over DB: Container starts\nfrom PostgreSQL image
+DB -> DB: Initialize database
+
+activate API
+note over API: Container starts\nfrom Api/Dockerfile
+API -> DB: Run EF Core Migrations
+activate DB
+DB --> API: Migration completed
+deactivate DB
+
+API -> API: Initialize services\n(DI Container)
+API -> Identity: Setup ASP.NET\nCore Identity
+activate Identity
+Identity --> API: Identity configured
+deactivate Identity
+
+activate Frontend
+note over Frontend: Container starts\nfrom frontend/Dockerfile
+Frontend -> Frontend: Build Angular app\nwith SSR
+
+activate NGINX
+note over NGINX: Container starts\nfrom loadbalancer/Dockerfile
+NGINX -> NGINX: Load configuration\nAPI Gateway setup
+
+== User Registration Flow ==
+User -> Browser: Access registration page
+Browser -> NGINX: GET /register
+NGINX -> Frontend: Route request
+activate Frontend
+Frontend --> Browser: Registration form
+deactivate Frontend
+
+User -> Browser: Submit registration
+Browser -> NGINX: POST /api/auth/register
+NGINX -> API: Forward request
+activate API
+API -> MediatR: Send RegisterCommand
+activate MediatR
+MediatR -> Application: Handle command
+activate Application
+Application -> Identity: Create user account
+activate Identity
+Identity -> Repository: Persist user
+activate Repository
+Repository -> EF: Save entity
+activate EF
+EF -> DB: INSERT user
+activate DB
+DB --> EF: Success
+deactivate DB
+EF --> Repository: User created
+deactivate EF
+Repository --> Identity: Success
+deactivate Repository
+Identity --> Application: User registered
+deactivate Identity
+Application --> MediatR: Registration result
+deactivate Application
+MediatR --> API: Success response
+deactivate MediatR
+API --> NGINX: 201 Created + JWT
+deactivate API
+NGINX --> Browser: Registration success
+Browser -> User: Show success message
+
+== User Login Flow ==
+User -> Browser: Access login page
+Browser -> NGINX: GET /login
+NGINX -> Frontend: Route request
+activate Frontend
+Frontend --> Browser: Login form
+deactivate Frontend
+
+User -> Browser: Submit credentials
+Browser -> NGINX: POST /api/auth/login
+NGINX -> API: Forward request
+activate API
+API -> MediatR: Send LoginCommand
+activate MediatR
+MediatR -> Application: Handle command
+activate Application
+Application -> Identity: Validate credentials
+activate Identity
+Identity -> Repository: Query user
+activate Repository
+Repository -> EF: Find user
+activate EF
+EF -> DB: SELECT user
+activate DB
+DB --> EF: User data
+deactivate DB
+EF --> Repository: User entity
+deactivate EF
+Repository --> Identity: User found
+deactivate Repository
+Identity -> Identity: Generate JWT token
+Identity --> Application: Token + user info
+deactivate Identity
+Application --> MediatR: Login result
+deactivate Application
+MediatR --> API: Success with JWT
+deactivate MediatR
+API --> NGINX: 200 OK + JWT
+deactivate API
+NGINX --> Browser: Login success
+Browser -> Browser: Store JWT token
+Browser -> User: Redirect to dashboard
+
+== Contact Management Flow ==
+User -> Browser: View contacts
+Browser -> NGINX: GET /contacts\n(Authorization: Bearer JWT)
+NGINX -> Frontend: Route request
+activate Frontend
+Frontend -> NGINX: GET /api/contacts
+NGINX -> API: Forward with JWT
+activate API
+API -> API: Validate JWT
+API -> MediatR: Send GetContactsQuery
+activate MediatR
+MediatR -> Application: Handle query
+activate Application
+Application -> Repository: Get all contacts
+activate Repository
+Repository -> EF: Query contacts
+activate EF
+EF -> DB: SELECT * FROM contacts
+activate DB
+DB --> EF: Contact records
+deactivate DB
+EF --> Repository: Contact entities
+deactivate EF
+Repository --> Application: Contact list
+deactivate Repository
+Application --> MediatR: Contact DTOs
+deactivate Application
+MediatR --> API: Contact data
+deactivate MediatR
+API --> NGINX: 200 OK + JSON
+deactivate API
+NGINX --> Frontend: Contact data
+Frontend --> Browser: Rendered contacts
+deactivate Frontend
+Browser -> User: Display contacts
+
+== Create Contact Flow ==
+User -> Browser: Create new contact
+Browser -> NGINX: POST /api/contacts\n(Authorization: Bearer JWT)
+NGINX -> API: Forward request
+activate API
+API -> API: Validate JWT\nCheck authorization
+API -> MediatR: Send CreateContactCommand
+activate MediatR
+MediatR -> Application: Handle command
+activate Application
+Application -> Application: Validate business rules
+Application -> Repository: Add contact
+activate Repository
+Repository -> EF: Add entity
+activate EF
+EF -> DB: INSERT contact
+activate DB
+DB --> EF: Contact created
+deactivate DB
+EF --> Repository: Success
+deactivate EF
+Repository --> Application: Contact entity
+deactivate Repository
+Application --> MediatR: Contact DTO
+deactivate Application
+MediatR --> API: Success response
+deactivate MediatR
+API --> NGINX: 201 Created
+deactivate API
+NGINX -> Frontend: Forward response
+activate Frontend
+Frontend --> Browser: Update UI
+deactivate Frontend
+Browser -> User: Show new contact
+
+== Update Contact Flow ==
+User -> Browser: Update contact
+Browser -> NGINX: PUT /api/contacts/{id}\n(Authorization: Bearer JWT)
+NGINX -> API: Forward request
+activate API
+API -> API: Validate JWT
+API -> MediatR: Send UpdateContactCommand
+activate MediatR
+MediatR -> Application: Handle command
+activate Application
+Application -> Repository: Update contact
+activate Repository
+Repository -> EF: Update entity
+activate EF
+EF -> DB: UPDATE contact
+activate DB
+DB --> EF: Success
+deactivate DB
+EF --> Repository: Updated entity
+deactivate EF
+Repository --> Application: Success
+deactivate Repository
+Application --> MediatR: Updated DTO
+deactivate Application
+MediatR --> API: Success response
+deactivate MediatR
+API --> NGINX: 200 OK
+deactivate API
+NGINX -> Frontend: Forward response
+activate Frontend
+Frontend --> Browser: Update UI
+deactivate Frontend
+Browser -> User: Show updated contact
+
+== Delete Contact Flow ==
+User -> Browser: Delete contact
+Browser -> NGINX: DELETE /api/contacts/{id}\n(Authorization: Bearer JWT)
+NGINX -> API: Forward request
+activate API
+API -> API: Validate JWT\nCheck permissions
+API -> MediatR: Send DeleteContactCommand
+activate MediatR
+MediatR -> Application: Handle command
+activate Application
+Application -> Repository: Delete contact
+activate Repository
+Repository -> EF: Remove entity
+activate EF
+EF -> DB: DELETE contact
+activate DB
+DB --> EF: Success
+deactivate DB
+EF --> Repository: Success
+deactivate EF
+Repository --> Application: Success
+deactivate Repository
+Application --> MediatR: Success result
+deactivate Application
+MediatR --> API: 204 No Content
+deactivate MediatR
+API --> NGINX: 204 No Content
+deactivate API
+NGINX -> Frontend: Forward response
+activate Frontend
+Frontend --> Browser: Update UI
+deactivate Frontend
+Browser -> User: Remove from display
+
+@enduml

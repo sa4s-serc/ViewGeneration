@@ -1,0 +1,190 @@
+@startuml
+title Archifiltre - File System Loading, Processing and Export Data Flow
+
+actor User
+participant "Electron Main\nProcess" as Main
+participant "Renderer Process\n(React UI)" as Renderer
+participant "Redux Store" as Redux
+participant "AsyncWorker\n(Child Process)" as Worker
+participant "File System" as FS
+participant "VFS\n(Virtual File System)" as VFS
+participant "Exporter\nModules" as Exporter
+participant "Sentry\n(Error Logging)" as Sentry
+participant "Matomo\n(Analytics)" as Matomo
+
+User -> Renderer: Load File System
+activate Renderer
+Renderer -> Redux: Dispatch Load Action
+activate Redux
+Redux -> Main: Request File System Load
+activate Main
+
+Main -> FS: Read File System Structure
+activate FS
+FS --> Main: File System Data
+deactivate FS
+
+Main -> Worker: Create AsyncWorker\n(Hash Calculation)
+activate Worker
+Worker -> FS: Calculate MD5 Hashes
+activate FS
+FS --> Worker: Hash Results
+deactivate FS
+Worker --> Main: Hash Computation Complete
+deactivate Worker
+
+Main -> VFS: Build Virtual File System
+activate VFS
+VFS -> VFS: Structure Data\n(paths, sizes, dates, hashes)
+VFS -> VFS: Detect Duplicates
+VFS -> VFS: Identify File Types
+VFS --> Main: VFS Data
+deactivate VFS
+
+Main --> Redux: Update State with VFS Data
+deactivate Main
+Redux --> Renderer: State Updated
+deactivate Redux
+Renderer --> User: Display File System Tree
+deactivate Renderer
+
+User -> Renderer: Add Metadata\n(aliases, comments, tags)
+activate Renderer
+Renderer -> Redux: Dispatch Metadata Action
+activate Redux
+Redux -> Redux: Update Metadata State
+Redux --> Renderer: State Updated
+deactivate Redux
+Renderer --> User: Show Updated Metadata
+deactivate Renderer
+
+User -> Renderer: Select Export Format\n(CSV/Excel/RESIP/METS/JSON)
+activate Renderer
+Renderer -> Redux: Dispatch Export Action (Thunk)
+activate Redux
+
+alt CSV/Excel Export
+    Redux -> Exporter: Export to CSV/Excel
+    activate Exporter
+    Exporter -> VFS: Get File System Data
+    activate VFS
+    VFS --> Exporter: VFS Data
+    deactivate VFS
+    Exporter -> Exporter: Format Data\n(tree visualization, deletion candidates)
+    Exporter -> FS: Write CSV/Excel File
+    activate FS
+    FS --> Exporter: File Written
+    deactivate FS
+    Exporter --> Redux: Export Complete
+    deactivate Exporter
+else RESIP Export (Resource Intensive)
+    Redux -> Main: Request RESIP Export
+    activate Main
+    Main -> Worker: Create AsyncWorker\n(RESIP Export)
+    activate Worker
+    Worker -> VFS: Get Metadata
+    activate VFS
+    VFS --> Worker: VFS + Metadata
+    deactivate VFS
+    Worker -> Worker: Generate RESIP Format
+    Worker -> FS: Write RESIP Files
+    activate FS
+    FS --> Worker: Files Written
+    deactivate FS
+    Worker --> Main: RESIP Export Complete
+    deactivate Worker
+    Main --> Redux: Export Status Update
+    deactivate Main
+else DOCX Audit Report
+    Redux -> Exporter: Generate Audit Report
+    activate Exporter
+    Exporter -> VFS: Get Analytics Data
+    activate VFS
+    VFS --> Exporter: File Statistics
+    deactivate VFS
+    Exporter -> Exporter: Generate Charts
+    Exporter -> Exporter: Apply Template Method Pattern
+    Exporter -> FS: Write DOCX File
+    activate FS
+    FS --> Exporter: File Written
+    deactivate FS
+    Exporter --> Redux: Report Generated
+    deactivate Exporter
+else JSON Export
+    Redux -> Exporter: Export to JSON
+    activate Exporter
+    Exporter -> VFS: Get File System Data
+    activate VFS
+    VFS --> Exporter: VFS Data
+    deactivate VFS
+    Exporter -> Exporter: Serialize to JSON
+    Exporter -> FS: Write JSON File
+    activate FS
+    FS --> Exporter: File Written
+    deactivate FS
+    Exporter --> Redux: Export Complete
+    deactivate Exporter
+end
+
+Redux --> Renderer: Export Status Updated
+deactivate Redux
+Renderer --> User: Show Export Success
+deactivate Renderer
+
+User -> Renderer: Generate Deletion Script
+activate Renderer
+Renderer -> Redux: Dispatch Deletion Script Action
+activate Redux
+Redux -> Exporter: Generate Deletion Script\n(Strategy Pattern)
+activate Exporter
+
+alt Windows Platform
+    Exporter -> Exporter: Generate Windows Script
+    Exporter -> FS: Write .bat File
+    activate FS
+    FS --> Exporter: Script Written
+    deactivate FS
+else Unix Platform
+    Exporter -> Exporter: Generate Unix Script
+    Exporter -> FS: Write .sh File
+    activate FS
+    FS --> Exporter: Script Written
+    deactivate FS
+end
+
+Exporter --> Redux: Script Generated
+deactivate Exporter
+Redux --> Renderer: State Updated
+deactivate Redux
+Renderer --> User: Show Script Location
+deactivate Renderer
+
+note over Renderer, Sentry
+    Error Tracking
+end note
+
+Renderer -> Sentry: Log Errors (if any)
+activate Sentry
+Sentry --> Renderer: Error Logged
+deactivate Sentry
+
+note over Renderer, Matomo
+    Usage Analytics
+end note
+
+Renderer -> Matomo: Track User Actions
+activate Matomo
+Matomo --> Renderer: Analytics Tracked
+deactivate Matomo
+
+User -> Renderer: Undo/Redo Action
+activate Renderer
+Renderer -> Redux: Dispatch Undo/Redo
+activate Redux
+Redux -> Redux: Apply Undoable Enhancer
+Redux --> Renderer: State Restored
+deactivate Redux
+Renderer --> User: UI Updated
+deactivate Renderer
+
+@enduml

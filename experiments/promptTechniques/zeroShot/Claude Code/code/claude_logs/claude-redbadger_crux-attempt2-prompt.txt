@@ -1,0 +1,284 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: redbadger_crux
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** connectivity, control_flow
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## Crux Repository Analysis Report
+
+This report provides a consolidated analysis of a Crux cross-platform development framework repository, covering the core framework (`crux_core`), key utilities (`crux_http`, `crux_time`), examples, and architectural principles. Crux enables building applications with shared business logic in Rust that can be deployed across iOS, Android, and the web, separating the application's core logic from platform-specific UI details.
+
+**I. Core Framework (`crux_core`)**
+
+The `crux_core` crate is the foundation of the Crux architecture, defining the interfaces and mechanisms for building cross-platform applications.
+
+*   **`App` Trait:** The central trait defining the application's core logic. It specifies types for events, models, view models, capabilities, and effects, and defines `update` (handles events, mutates the model, requests effects) and `view` (provides the current UI state).
+*   **`Core` Struct:** Manages application state, capabilities, and the execution of side effects. An instance of `Core` is the entry point for running a Crux application.
+*   **`Effect` Trait:** Represents side effects requested by the Core, executed by the Shell. Enables inter-process communication through the FFI boundary.
+*   **Capabilities:** Interfaces for requesting side effects (HTTP calls, rendering, key-value store operations) from the Shell. Capabilities are side-effect free and define how the Core communicates its intentions.
+*   **`Command`:** Encapsulates requests for side effects, replacing direct capability method calls. Commands are built using Capability APIs to describe async processes. The core method is `request_from_shell()` to produce an `Effect`.
+*   **`Bridge` Struct:** Facilitates communication between the Rust Core and platform-specific Shells (Swift, Kotlin, TypeScript) through serialization and deserialization.
+*   **Testing Support:** `AppTester` for unit testing and `Update` for effect inspection, along with an `assert_effect` macro.
+*   **Type Generation:** Generates foreign language types (Swift, Java, TypeScript) using `serde-generate` and `serde-reflection`, ensuring type safety across the FFI boundary. Managed by `crux` CLI.
+*   **CLI (`crux`):**  Codegens foreign types and identifies `crux_core::App` implementations to start type discovery.
+
+**II. Key Utilities**
+
+*   **`crux_http`:** Enables the Crux Core to make HTTP requests.
+    *   **`Http` Capability:** Interface for initiating HTTP requests.
+    *   **`RequestBuilder`:** Builder pattern for constructing HTTP requests, allowing setting method, URL, headers, body, query parameters, and middleware. Returns a `crux_core::command::RequestBuilder`.
+    *   **`Request` and `Response`:** Data structures representing HTTP requests and responses. `Response` offers methods for handling the body (bytes, string, JSON).
+    *   **`Middleware`:** Supports request and response modification (e.g., redirect).
+    *   **`Client`**: Executes the HTTP requests.
+
+*   **`crux_time`:** Provides access to the current time and timer functionality.
+    *   **`Time` Capability:** The main interface for requesting the current time or setting up timers.
+    *   **`TimeRequest` and `TimeResponse`:** Enums defining requests the Core makes to the Shell (e.g., `Now`, `NotifyAt`, `NotifyAfter`, `Clear`) and Shell responses.
+    *   **`TimerId`:** Unique identifier for timers.
+    *   **`TimerFuture`**: Future implementation to await timer events.
+
+**III. Architectural Principles & Design Patterns**
+
+*   **Ports and Adapters (Hexagonal Architecture):** Separates the application core (business logic) from platform-specific details (Shell). This separation promotes testability and reusability. UI shells act as adapters translating platform events to core events, and view models into UI.
+*   **Message-Based Communication:** Core-Shell communication uses serialized messages, maintaining platform independence.
+*   **Managed Side Effects:** Side effects are captured as values (Effects) and executed by the Shell, enabling pure computational tasks in the Core and high-level user journey tests. The Core is isolated for security and testability.
+*   **Event Sourcing:** The application state is updated in response to events.
+*   **Model-View-Update (MVU):** Heavily influenced by Elm, emphasizes event-driven updates to a pure model, with side effects managed separately. Core manages the Model and Update logic and Shell renders view based on the view model.
+*   **Capability Pattern:** Defines how to request side effects.
+*   **Command Pattern:** Encapsulates requests as objects (Commands), enabling queuing, logging, and other operations. HTTP requests and Time requests are also encapsulated as Commands.
+*   **Builder Pattern:** Extensively used by Capabilities to create `Command`s with a fluent API (e.g., `RequestBuilder`).
+*   **Asynchronous Programming (futures):** `async`/`await` facilitates efficient and concurrent code.
+*   **Frontend-Backend separation:**  UI shells are distinctly separated from the core application logic residing in the `shared` crate.
+
+**IV. Example Applications**
+
+Examples showcase the framework's capabilities and usage. A common example is the "Counter" application, demonstrating:
+
+*   **Core Counter Logic:** Managing the counter state, handling increment/decrement events, and triggering side effects.
+*   **Multi-Platform UI Shells:** Implementations in Kotlin (Android), Swift (iOS), and TypeScript/React (Web), adapting to platform-specific UI paradigms. Platforms include Android, iOS, NextJS, Leptos, Yew, Dioxus, and Tauri.
+*   **Persistence:** Leveraging KeyValue capability for storing data using localStorage (web) or shared preferences (Android).
+*   **Real-time updates:** Using Server-Sent Events (SSE) to sync counters.
+*   **HTTP Client (crux\_http):** Used to persist and retrieve counter values from a remote API.
+
+**V. Key Files & Their Roles**
+
+*   **`src/lib.rs` (crux_core):** Defines `App` trait, `Core` struct, and core components.
+*   **`src/bridge/mod.rs` (crux_core):** Defines the `Bridge` struct and FFI communication logic.
+*   **`src/capability/mod.rs` (crux_core):** Defines `Capability`, `Operation`, `WithContext`, and `CapabilityContext`.
+*   **`src/command/mod.rs` (crux_core):** Defines `Command`, `NotificationBuilder`, `StreamBuilder`, `RequestBuilder`.
+*   **`src/typegen.rs` (crux_core):** Implements type generation for Swift, Java, and TypeScript.
+*   **`src/testing.rs` (crux_core):** Offers testing utilities like `AppTester`.
+*   **`src/lib.rs` (crux_http/crux_time):** Defines main capability interfaces and related functions.
+*   **`shared/src/lib.rs` (examples):** Contains the core business logic and defines the interface between the core and the platform-specific shells.
+*   **`shared/src/app.rs` (examples):** Defines the application's events, model, view model, and update logic.
+*   **`shared_types/build.rs` (examples):** Generates foreign types.
+*   **Platform-Specific Core files (examples):**  Bridge the Rust core with each respective UI platform.
+
+**VI. Testing**
+
+Emphasis is placed on unit testing the pure core logic, isolating side effects using Capabilities and Commands. This allows for rapid testing of application behavior without mocks. The `Command` API facilitates inspection of effects and events emitted by the Core. `crux_http` includes a `testing` module with a `FakeShell`.
+
+**VII. Conclusion**
+
+The Crux framework provides a solid foundation for building cross-platform applications with a shared core and platform-specific UIs. Its architectural patterns and clear separation of concerns lead to testable, maintainable, and reusable code. The utilities and examples demonstrate the practical application of the framework and its capabilities.
+
+
+
+IMPORTANT - RETRY ATTEMPT:
+A previous PlantUML generation failed with the following error:
+```
+Error line 13 in file: zeroShot_claude_plantumlcode/redbadger_crux.puml
+Some diagram description contains errors
+
+```
+
+The problematic code was:
+```plantuml
+@startuml
+!define RECTANGLE class
+
+skinparam component {
+    BackgroundColor<<core>> LightBlue
+    BackgroundColor<<shell>> LightGreen
+    BackgroundColor<<capability>> LightYellow
+    BackgroundColor<<utility>> LightCoral
+}
+
+package "Crux Core" {
+    component "App Trait" as App <<core>> {
+        + update(Event)
+        + view() : ViewModel
+    }
+
+    component "Core" as Core <<core>> {
+        + state management
+        + capability execution
+        + side effect handling
+    }
+
+    component "Bridge" as Bridge <<core>> {
+        + serialize/deserialize
+        + FFI communication
+    }
+
+    component "Command" as Command <<core>> {
+        + request_from_shell()
+        + encapsulate requests
+    }
+
+    component "Effect Trait" as Effect <<core>> {
+        + side effect representation
+    }
+}
+
+package "Capabilities" {
+    component "Capability Interface" as Capability <<capability>> {
+        + WithContext
+        + CapabilityContext
+    }
+
+    component "Http Capability" as HttpCap <<capability>> {
+        + RequestBuilder
+        + get/post/put/delete
+    }
+
+    component "Time Capability" as TimeCap <<capability>> {
+        + now()
+        + notify_at()
+        + notify_after()
+    }
+
+    component "Render Capability" as RenderCap <<capability>> {
+        + render()
+    }
+
+    component "KeyValue Capability" as KVCap <<capability>> {
+        + read/write
+    }
+}
+
+package "Shell Adapters" {
+    component "iOS Shell (Swift)" as iOSShell <<shell>>
+    component "Android Shell (Kotlin)" as AndroidShell <<shell>>
+    component "Web Shell (TypeScript)" as WebShell <<shell>>
+}
+
+package "Platform Services" {
+    component "HTTP Client" as HTTPClient <<utility>>
+    component "Timer Service" as TimerService <<utility>>
+    component "UI Renderer" as UIRenderer <<utility>>
+    component "Storage Service" as Storage <<utility>>
+}
+
+package "Type Generation" {
+    component "Type Generator" as TypeGen <<utility>> {
+        + serde-generate
+        + serde-reflection
+    }
+
+    component "CLI Tool" as CLI <<utility>> {
+        + codegen
+        + type discovery
+    }
+}
+
+App -down-> Core : implements
+Core -down-> Bridge : uses
+Core -right-> Command : creates
+Command -right-> Effect : produces
+
+Core -down-> Capability : manages
+Capability <|-- HttpCap
+Capability <|-- TimeCap
+Capability <|-- RenderCap
+Capability <|-- KVCap
+
+HttpCap -down-> Command : builds
+TimeCap -down-> Command : builds
+RenderCap -down-> Command : builds
+KVCap -down-> Command : builds
+
+Bridge <-down-> iOSShell : serialized messages
+Bridge <-down-> AndroidShell : serialized messages
+Bridge <-down-> WebShell : serialized messages
+
+iOSShell -down-> UIRenderer : platform UI
+AndroidShell -down-> UIRenderer : platform UI
+WebShell -down-> UIRenderer : platform UI
+
+iOSShell -down-> HTTPClient : execute HTTP
+AndroidShell -down-> HTTPClient : execute HTTP
+WebShell -down-> HTTPClient : execute HTTP
+
+iOSShell -down-> TimerService : timer operations
+AndroidShell -down-> TimerService : timer operations
+WebShell -down-> TimerService : timer operations
+
+iOSShell -down-> Storage : persist data
+AndroidShell -down-> Storage : persist data
+WebShell -down-> Storage : persist data
+
+TypeGen -up-> Bridge : generates types
+CLI -right-> TypeGen : triggers
+
+note right of Core
+  Event-driven architecture
+  Model-View-Update pattern
+  Manages application state
+end note
+
+note right of Bridge
+  FFI boundary
+  Type-safe serialization
+  Cross-platform messaging
+end note
+
+note bottom of Capability
+  Ports & Adapters pattern
+  Side-effect free interfaces
+  Defines Shell interactions
+end note
+
+note left of iOSShell
+  Platform-specific adapters
+  Execute side effects
+  Render view models
+end note
+
+@enduml
+
+```
+
+Please analyze the error, identify the issue, and generate corrected PlantUML code that compiles successfully.
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: connectivity, control_flow
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/redbadger_crux.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

@@ -1,0 +1,121 @@
+@startuml
+!define RECTANGLE class
+
+participant "User" as User
+participant "Browser" as Browser
+participant "AppHeader\nComponent" as AppHeader
+participant "ProductCard\nComponent" as ProductCard
+participant "Next.js\nPage" as Page
+participant "Redux Store\n(cart.slice)" as Redux
+participant "Next.js\nAPI Routes" as API
+participant "clicks.service.js" as ClickService
+participant "DataStax Driver" as Driver
+database "DSE/Cassandra\nDatabase" as Database
+
+== User Authentication Flow ==
+User -> Browser: Access application
+Browser -> Page: Load page
+Page -> API: GET /api/auth/[...nextauth]
+API -> API: NextAuth processes authentication
+API --> Page: Return auth session
+Page -> AppHeader: Render with auth state
+AppHeader --> User: Show sign-in/sign-out option
+
+User -> AppHeader: Click sign-in
+AppHeader -> API: POST /api/auth/[...nextauth]
+API -> API: Create simplified customer ID
+API --> AppHeader: Return session with customer ID
+AppHeader --> User: Display signed-in state
+
+== Page Browsing Tracking Flow ==
+User -> Browser: Navigate to category page
+Browser -> Page: GET /category/[category]
+activate Page
+Page -> Page: getServerSideProps() executes
+Page -> ClickService: trackPageBrowsing(customerId, category)
+activate ClickService
+ClickService -> ClickService: Check environment variables
+ClickService -> Driver: Connect to database
+activate Driver
+Driver -> Database: Establish connection
+Database --> Driver: Connection established
+Driver --> ClickService: Client ready
+ClickService -> Driver: Execute INSERT query
+Driver -> Database: INSERT INTO clickstream\n(customer_id, page, timestamp)
+Database --> Driver: Acknowledgment
+Driver --> ClickService: Query result
+deactivate Driver
+ClickService --> Page: Tracking complete
+deactivate ClickService
+Page -> API: GET /api/products/[category]
+API -> API: Filter products by category
+API --> Page: Return product data
+Page --> Browser: Render category page with products
+deactivate Page
+Browser --> User: Display category page
+
+== Add to Cart Flow ==
+User -> ProductCard: Click "Add to Cart"
+ProductCard -> Redux: dispatch(addToCart(product))
+activate Redux
+Redux -> Redux: Update cart state
+Redux -> API: POST /api/products (node-fetch)
+activate API
+API -> API: Parse request body
+API -> ClickService: addToCart(customerId, productId, timestamp)
+activate ClickService
+ClickService -> Driver: Connect to database
+activate Driver
+Driver -> Database: Establish connection
+Database --> Driver: Connection established
+Driver --> ClickService: Client ready
+ClickService -> Driver: Execute INSERT query
+Driver -> Database: INSERT INTO clickstream\n(customer_id, product_id,\nadd_to_cart_timestamp)
+Database --> Driver: Acknowledgment
+Driver --> ClickService: Query result
+deactivate Driver
+ClickService --> API: Insert complete
+deactivate ClickService
+API --> Redux: Success response
+deactivate API
+Redux --> ProductCard: Cart updated
+deactivate Redux
+ProductCard --> User: Update cart badge
+
+== View Cart Flow ==
+User -> AppHeader: Click cart icon
+AppHeader -> Browser: Navigate to /cart
+Browser -> Page: Load cart page
+Page -> Redux: Select cart state
+Redux --> Page: Return cart items
+Page --> Browser: Render cart with items
+Browser --> User: Display cart contents
+
+== View Clickstream History Flow ==
+User -> Browser: Navigate to /history
+Browser -> Page: GET /history
+activate Page
+Page -> Page: getServerSideProps() executes
+Page -> API: GET /api/history?customerId=[id]
+activate API
+API -> ClickService: getActivity(customerId)
+activate ClickService
+ClickService -> Driver: Connect to database
+activate Driver
+Driver -> Database: Establish connection
+Database --> Driver: Connection established
+Driver --> ClickService: Client ready
+ClickService -> Driver: Execute SELECT query
+Driver -> Database: SELECT * FROM clickstream\nWHERE customer_id = ?
+Database --> Driver: Return rows
+Driver --> ClickService: Query results
+deactivate Driver
+ClickService --> API: Return activity data
+deactivate ClickService
+API --> Page: Return clickstream history
+deactivate API
+Page --> Browser: Render history page
+deactivate Page
+Browser --> User: Display clickstream events
+
+@enduml

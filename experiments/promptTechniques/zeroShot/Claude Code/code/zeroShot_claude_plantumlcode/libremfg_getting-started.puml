@@ -1,0 +1,134 @@
+@startuml
+!define CONTAINER_BG #E1F5FE
+!define DATABASE_BG #FFF9C4
+!define UI_BG #F3E5F5
+!define GATEWAY_BG #E8F5E9
+
+title Libre Core/Platform - Deployment Architecture
+
+package "Docker Compose Environment" {
+
+  package "Database Layer" <<CONTAINER_BG>> {
+    database "Dgraph\n(Primary Database)" as dgraph <<DATABASE_BG>>
+    database "InfluxDB\n(Time Series)" as influxdb <<DATABASE_BG>>
+  }
+
+  package "Message Broker Layer" <<CONTAINER_BG>> {
+    component "EMQX\n(MQTT Broker)" as emqx {
+      port "MQTT" as mqtt_port
+    }
+  }
+
+  package "Microservice Layer" <<CONTAINER_BG>> {
+    component "Libre Core\n(Demo/Getting Started)" as libre_core
+
+    component "GraphQL PubSub\n(Event Service)" as graphql_pubsub {
+      port "GraphQL" as pubsub_port
+    }
+
+    component "Libre Gateway\n(GraphQL Federation)" as libre_gateway {
+      port "Unified API" as gateway_port
+    }
+
+    component "Workflow Engine" as workflow_engine {
+      port "Workflow API" as workflow_port
+    }
+
+    component "PackML Simulator" as packml_sim
+  }
+
+  package "Presentation Layer" <<CONTAINER_BG>> {
+    component "Libre Admin UI\n(Web Interface)" as admin_ui <<UI_BG>> {
+      port "HTTP" as admin_http
+    }
+
+    component "Grafana\n(Visualization)" as grafana <<UI_BG>> {
+      port "HTTP" as grafana_http
+    }
+  }
+
+  package "Grafana Plugins" <<CONTAINER_BG>> {
+    component "Pareto Chart Panel" as pareto_plugin {
+      component "ParetoPanel.tsx" as pareto_panel
+      component "BarGraph.tsx" as bar_graph
+      component "BrushComponent.tsx" as brush
+      component "TooltipComponent.tsx" as tooltip
+      component "PanelDataController" as data_controller
+      component "GraphQLAnnotationsQueryCtrl" as annotations
+    }
+
+    component "MultiStat Panel" as multistat_plugin {
+      component "module.js" as multistat_module
+      component "d3.js renderer" as d3_renderer
+    }
+  }
+}
+
+package "Edge Agents" <<CONTAINER_BG>> {
+  component "Data Provider\n(MQTT Client)" as mqtt_provider
+  component "Data Provider\n(OPC-UA Client)" as opcua_provider
+}
+
+' Database Layer Relationships
+libre_gateway --> dgraph : queries via\nGraphQL
+workflow_engine --> dgraph : stores workflows
+graphql_pubsub --> dgraph : publishes events
+grafana --> influxdb : queries time\nseries data
+
+' MQTT Broker Relationships
+mqtt_provider --> emqx : publishes\ndata
+packml_sim --> emqx : publishes\nsimulated data
+emqx --> graphql_pubsub : event\nnotifications
+
+' Microservice Layer Relationships
+libre_gateway ..> graphql_pubsub : federates
+libre_gateway ..> workflow_engine : federates
+libre_gateway ..> libre_core : federates
+libre_core --> dgraph : core operations
+
+' Presentation Layer Relationships
+admin_ui --> libre_gateway : GraphQL API\ncalls
+grafana --> libre_gateway : annotations via\nGraphQL
+
+' Plugin Relationships
+grafana ..> pareto_plugin : loads
+grafana ..> multistat_plugin : loads
+pareto_panel --> data_controller : transforms data
+bar_graph --> brush : interactive zoom
+bar_graph --> tooltip : displays info
+pareto_panel --> annotations : event markers
+multistat_module --> d3_renderer : renders charts
+
+' Edge Agent Relationships
+opcua_provider --> libre_gateway : optional integration
+
+' Service Discovery
+note right of libre_gateway
+  Service Discovery:
+  - Container name resolution
+  - GraphQL Federation via
+    supergraph.yaml
+end note
+
+note bottom of grafana
+  Configuration:
+  - grafana.ini
+  - Plugin directory
+  - InfluxDB datasource
+end note
+
+note top of emqx
+  Event-Driven Communication:
+  - Tracks MQTT connections
+  - Message routing
+end note
+
+legend right
+  |= Color |= Description |
+  | <back:#E1F5FE>   </back> | Docker Container |
+  | <back:#FFF9C4>   </back> | Database |
+  | <back:#F3E5F5>   </back> | UI Component |
+  | <back:#E8F5E9>   </back> | API Gateway |
+endlegend
+
+@enduml

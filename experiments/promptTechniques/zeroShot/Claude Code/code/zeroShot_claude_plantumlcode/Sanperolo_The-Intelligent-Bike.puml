@@ -1,0 +1,153 @@
+@startuml
+title The Intelligent Bike - Deployment Sequence Diagram
+
+actor Developer
+participant "Local Dev\nEnvironment" as DevEnv
+participant "Git Repository" as Git
+participant "Heroku Platform" as Heroku
+participant "Heroku Buildpack" as Buildpack
+participant "PostgreSQL\nDatabase" as PostgresDB
+participant "MQTT Broker" as MQTT
+participant "Django Backend\n(WSGI)" as Django
+participant "Node.js Server\n(Angular)" as NodeServer
+participant "Hardware\n(Raspberry Pi)" as Hardware
+
+== Development Phase ==
+Developer -> DevEnv: Develop backend\n(Django + SQLite)
+activate DevEnv
+DevEnv -> DevEnv: Run manage.py\nmigrate
+DevEnv -> DevEnv: Test with SQLite
+deactivate DevEnv
+
+Developer -> DevEnv: Develop frontend\n(Angular)
+activate DevEnv
+DevEnv -> DevEnv: ng serve
+DevEnv -> DevEnv: Test locally
+deactivate DevEnv
+
+Developer -> DevEnv: Develop hardware\nscripts (Python)
+activate DevEnv
+DevEnv -> DevEnv: Test MQTT\npublish/subscribe
+deactivate DevEnv
+
+== Backend Deployment ==
+Developer -> Git: Push backend code
+activate Git
+Git -> Heroku: Trigger deployment
+deactivate Git
+
+activate Heroku
+Heroku -> Buildpack: Detect Python app
+activate Buildpack
+Buildpack -> Buildpack: Read requirements.txt
+Buildpack -> Buildpack: Install dependencies\n(Django, DRF, MQTT)
+Buildpack --> Heroku: Build complete
+deactivate Buildpack
+
+Heroku -> Heroku: Read Procfile
+Heroku -> PostgresDB: Provision PostgreSQL\naddon
+activate PostgresDB
+PostgresDB --> Heroku: Database credentials
+deactivate PostgresDB
+
+Heroku -> Django: Run migrations
+activate Django
+Django -> PostgresDB: CREATE TABLE sensors
+activate PostgresDB
+PostgresDB --> Django: Tables created
+deactivate PostgresDB
+
+Heroku -> Django: Start WSGI server\n(gunicorn)
+Django -> Django: Load settings.py
+Django -> PostgresDB: Connect to database
+activate PostgresDB
+PostgresDB --> Django: Connection established
+deactivate PostgresDB
+
+Django -> MQTT: Subscribe to topics
+activate MQTT
+MQTT --> Django: Subscription confirmed
+Django --> Heroku: Backend running
+deactivate Django
+deactivate Heroku
+
+== Frontend Deployment ==
+Developer -> Git: Push frontend code
+activate Git
+Git -> Heroku: Trigger deployment
+deactivate Git
+
+activate Heroku
+Heroku -> Buildpack: Detect Node.js app
+activate Buildpack
+Buildpack -> Buildpack: Read package.json
+Buildpack -> Buildpack: npm install
+Buildpack -> Buildpack: ng build --prod
+Buildpack --> Heroku: Build complete
+deactivate Buildpack
+
+Heroku -> Heroku: Read Procfile
+Heroku -> NodeServer: Start Node.js server
+activate NodeServer
+NodeServer -> NodeServer: Load server.js
+NodeServer -> NodeServer: Serve static files
+NodeServer --> Heroku: Frontend running
+deactivate NodeServer
+deactivate Heroku
+
+== Hardware Deployment ==
+Developer -> Hardware: Deploy Python scripts
+activate Hardware
+Hardware -> Hardware: Install dependencies\n(DHT22, GPIO libs)
+Hardware -> Hardware: Configure sensors
+Hardware -> MQTT: Connect to broker
+MQTT --> Hardware: Connection established
+Hardware -> Hardware: Start main.py
+Hardware --> Developer: Hardware deployed
+deactivate Hardware
+
+== Runtime Verification ==
+Developer -> NodeServer: Access dashboard URL
+activate NodeServer
+NodeServer --> Developer: Serve Angular app
+deactivate NodeServer
+
+Developer -> Django: Test API endpoints
+activate Django
+Django -> PostgresDB: Query sensor data
+activate PostgresDB
+PostgresDB --> Django: Return data
+deactivate PostgresDB
+Django --> Developer: JSON response
+deactivate Django
+
+Hardware -> Hardware: Read sensors
+activate Hardware
+Hardware -> MQTT: Publish sensor data
+deactivate Hardware
+
+activate MQTT
+MQTT -> Django: Forward message
+deactivate MQTT
+
+activate Django
+Django -> PostgresDB: INSERT sensor values
+activate PostgresDB
+PostgresDB --> Django: Data stored
+deactivate PostgresDB
+deactivate Django
+
+Developer -> NodeServer: Refresh dashboard
+activate NodeServer
+NodeServer -> Django: GET /api/sensors
+activate Django
+Django -> PostgresDB: SELECT sensor values
+activate PostgresDB
+PostgresDB --> Django: Latest data
+deactivate PostgresDB
+Django --> NodeServer: JSON response
+deactivate Django
+NodeServer --> Developer: Display sensor data
+deactivate NodeServer
+
+@enduml

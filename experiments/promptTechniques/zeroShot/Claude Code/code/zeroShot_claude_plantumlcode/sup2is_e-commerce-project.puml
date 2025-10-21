@@ -1,0 +1,187 @@
+@startuml
+!define RECTANGLE_COMPONENT
+
+skinparam component {
+    BackgroundColor<<service>> LightBlue
+    BackgroundColor<<infrastructure>> LightGreen
+    BackgroundColor<<database>> LightYellow
+    BackgroundColor<<cache>> LightCoral
+    BackgroundColor<<messaging>> LightSalmon
+    BackgroundColor<<monitoring>> Plum
+}
+
+package "External Clients" {
+    [Web Client] as WebClient
+    [Mobile Client] as MobileClient
+}
+
+package "API Gateway Layer" {
+    component "API Gateway\n(Netflix Zuul)" as APIGateway <<service>> {
+        [JWT Authentication Filter]
+        [Request Routing]
+        [Authorization]
+    }
+}
+
+package "Service Discovery" {
+    component "Eureka Server\n(Service Registry)" as EurekaServer <<infrastructure>>
+}
+
+package "Configuration Management" {
+    component "Config Server\n(Spring Cloud Config)" as ConfigServer <<infrastructure>>
+}
+
+package "Core Microservices" {
+    component "Authentication Service" as AuthService <<service>> {
+        [JWT Token Generation]
+        [User Authentication]
+    }
+
+    component "Member Service" as MemberService <<service>> {
+        [User Management]
+        [Profile Management]
+        [Member Repository]
+    }
+
+    component "Product Service" as ProductService <<service>> {
+        [Product Catalog]
+        [Inventory Management]
+        [Product Search]
+        [Kafka Consumer]
+        [Product Repository]
+    }
+
+    component "Order Service" as OrderService <<service>> {
+        [Order Processing]
+        [Order Management]
+        [Product Service Client\n(Feign)]
+        [Order Repository]
+    }
+}
+
+package "Data Persistence Layer" {
+    database "Member DB\n(MySQL/H2)" as MemberDB <<database>>
+    database "Product DB\n(MySQL/H2)" as ProductDB <<database>>
+    database "Order DB\n(MySQL/H2)" as OrderDB <<database>>
+}
+
+package "Caching Layer" {
+    database "Redis Cache" as Redis <<cache>> {
+        [Member Cache]
+        [Product Stock Cache]
+    }
+}
+
+package "Message Broker" {
+    component "Apache Kafka" as Kafka <<messaging>> {
+        [Inventory Update Topic]
+        [Invalidation Topic]
+    }
+}
+
+package "Monitoring & Tracing" {
+    component "Zipkin Server" as Zipkin <<monitoring>>
+    component "Sleuth\n(Distributed Tracing)" as Sleuth <<monitoring>>
+}
+
+package "Container Orchestration" {
+    component "Docker Compose" as DockerCompose <<infrastructure>> {
+        [Service Containers]
+        [Network Configuration]
+    }
+}
+
+' External Client Connections
+WebClient --> APIGateway : HTTPS
+MobileClient --> APIGateway : HTTPS
+
+' API Gateway Connections
+APIGateway --> AuthService : Authenticate
+APIGateway --> MemberService : Route Requests
+APIGateway --> ProductService : Route Requests
+APIGateway --> OrderService : Route Requests
+APIGateway --> EurekaServer : Service Lookup
+
+' Service Registry Connections
+AuthService --> EurekaServer : Register/Heartbeat
+MemberService --> EurekaServer : Register/Heartbeat
+ProductService --> EurekaServer : Register/Heartbeat
+OrderService --> EurekaServer : Register/Heartbeat
+APIGateway --> EurekaServer : Register/Heartbeat
+
+' Configuration Management Connections
+AuthService --> ConfigServer : Fetch Config
+MemberService --> ConfigServer : Fetch Config
+ProductService --> ConfigServer : Fetch Config
+OrderService --> ConfigServer : Fetch Config
+APIGateway --> ConfigServer : Fetch Config
+
+' Inter-Service Communication
+OrderService --> ProductService : Feign Client\n(REST API)
+
+' Database Connections
+MemberService --> MemberDB : JPA/JDBC
+ProductService --> ProductDB : JPA/JDBC
+OrderService --> OrderDB : JPA/JDBC
+
+' Redis Caching Connections
+MemberService --> Redis : Cache Member Data
+ProductService --> Redis : Cache Product Stock
+
+' Kafka Messaging Connections
+ProductService --> Kafka : Publish Events
+ProductService --> Kafka : Consume Events
+
+' Monitoring Connections
+AuthService --> Zipkin : Send Traces
+MemberService --> Zipkin : Send Traces
+ProductService --> Zipkin : Send Traces
+OrderService --> Zipkin : Send Traces
+APIGateway --> Zipkin : Send Traces
+
+AuthService ..> Sleuth : Use
+MemberService ..> Sleuth : Use
+ProductService ..> Sleuth : Use
+OrderService ..> Sleuth : Use
+APIGateway ..> Sleuth : Use
+
+' Docker Deployment
+DockerCompose ..> APIGateway : Deploy
+DockerCompose ..> AuthService : Deploy
+DockerCompose ..> MemberService : Deploy
+DockerCompose ..> ProductService : Deploy
+DockerCompose ..> OrderService : Deploy
+DockerCompose ..> EurekaServer : Deploy
+DockerCompose ..> ConfigServer : Deploy
+DockerCompose ..> Redis : Deploy
+DockerCompose ..> Kafka : Deploy
+DockerCompose ..> Zipkin : Deploy
+DockerCompose ..> MemberDB : Deploy
+DockerCompose ..> ProductDB : Deploy
+DockerCompose ..> OrderDB : Deploy
+
+note right of APIGateway
+  Entry point for all client requests
+  Handles JWT validation and routing
+  Implements Gateway Pattern
+end note
+
+note right of EurekaServer
+  Service Registry Pattern
+  Enables dynamic service discovery
+  All services register here
+end note
+
+note right of Kafka
+  Asynchronous Communication
+  Inventory updates
+  Event-driven architecture
+end note
+
+note bottom of DockerCompose
+  Container Orchestration
+  All services deployed as containers
+  Network configuration managed
+end note
+
+@enduml

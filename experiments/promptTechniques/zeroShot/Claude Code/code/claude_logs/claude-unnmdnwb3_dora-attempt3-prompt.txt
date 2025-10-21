@@ -1,0 +1,88 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: unnmdnwb3_dora
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** deployment, control_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## DORA Metrics Automation Tool Report
+
+This report summarizes the architecture and functionality of a tool designed for automated DORA metrics calculation. The tool integrates with DevOps platforms like GitLab and Prometheus, providing a REST API for accessing and managing metrics. It is designed for Kubernetes deployment and employs several common design patterns.
+
+**Core Functionality:**
+
+The primary function of this application is the automated calculation of DORA metrics (Deployment Frequency, Lead Time for Changes, Change Failure Rate, and Mean Time to Restore). This involves:
+
+*   Fetching data from GitLab (Version Control, CI/CD) via its API, including organizations, repositories, pull requests, commits, and pipeline runs.
+*   Integrating with Prometheus to track alerts used for calculating Mean Time To Restore (MTTR).
+*   Aggregating raw data (commits, pipeline runs, incidents) into daily summaries.
+*   Calculating deployment frequency, lead time for changes, mean time to restore, and change failure rate based on the aggregated data.
+*   Responding to Prometheus alerts to inform Mean Time to Restore metrics calculation.
+
+**Architecture and Key Components:**
+
+The application adopts a microservice-oriented approach with clear separation of concerns. It features a RESTful API for managing integrations, dataflows, and retrieving calculated DORA metrics. Key components include:
+
+*   **Backend API:**  Built using the Gin-Gonic framework, providing endpoints for managing integrations, dataflows, and retrieving metrics.
+*   **Data Persistence:** MongoDB is used for storing data related to integrations, dataflows, incidents, pipeline runs, commits, and calculated metrics.
+*   **GitLab Connector:**  A client (`internal/connectors/gitlab/client.go`) that fetches data from GitLab via its API, authenticating with a bearer token.
+*   **Prometheus Connector:**  A client (`internal/connectors/prometheus/client.go`) that queries alert data from Prometheus for MTTR calculations.
+*   **MongoDB Service:**  A service (`internal/database/mongodb/service.go`) that handles connecting to MongoDB and performing CRUD operations on collections.
+*   **Data Models:** Go structs defined in `internal/models/*` representing entities such as integrations, dataflows, repositories, pipelines, deployments, commits, and calculated metrics.
+*   **API Router & Handlers:** The `internal/api/router.go` sets up the Gin-Gonic router and defines API endpoints, while `internal/api/handler/*` implements the handlers for those endpoints.
+*   **Metrics Calculation Services:** Implemented in `internal/services/metrics/*`, this package houses the core metrics calculation logic, utilizing DAOs and utility functions.
+
+**Deployment and Configuration:**
+
+The application is designed for containerized deployments:
+
+*   **Dockerization:** A `Dockerfile` defines the Docker image, built on a Go Alpine base image, and exposing port 8080.
+*   **Docker Compose:**  A `docker-compose.yml` file defines a multi-container application, including the `dora` backend, MongoDB, and Prometheus. Prometheus is configured to scrape metrics from the `dora` service.
+*   **Kubernetes Deployment:** Helm charts in the `deployments/dora` directory facilitate deployment and management within a Kubernetes environment. These charts include templates for deployments, services, and configuration maps, and leverage the bitnami/mongodb Helm chart as a dependency.
+*   **Configuration:** Configuration is managed through environment variables (e.g., database connection details, API keys), enabling flexibility and ease of deployment. `.test.env` and `.env` files provide environment variables for different environments.
+
+**Notable Design Patterns:**
+
+The application employs several common design patterns:
+
+*   **Data Access Object (DAO):** The `internal/daos` package encapsulates data access logic, providing an abstraction layer for the MongoDB database.
+*   **Service Layer:** The `internal/services` package implements the business logic for calculating metrics and interacting with external services.
+*   **Dependency Injection:** The use of `os.Getenv` to retrieve environment variables for configuration is a form of dependency injection.
+*   **Metrics Collection Middleware:** Gin router middleware collects Prometheus metrics for HTTP requests and API calls.
+
+**Future Considerations:**
+
+The `internal/services/trigger` package suggests a design for event-driven processing, potentially enabling more real-time metrics calculation in the future, reacting to events like new commits, pipeline runs, and alerts.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment, control_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/unnmdnwb3_dora.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

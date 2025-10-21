@@ -1,0 +1,102 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: becloudway_serverless-data-pipeline
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** control_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## Serverless Data Pipeline - Traffic Analysis: Comprehensive Overview
+
+This report provides a comprehensive analysis of a serverless data pipeline designed to analyze near real-time traffic data from Flanders, Belgium. The pipeline ingests XML data, transforms it into JSON, filters relevant information based on location IDs, performs real-time analytics to detect traffic jams and speed differentials, triggers alerts, and visualizes the data. The infrastructure is primarily defined as Infrastructure as Code (IaC) using the Serverless Framework.
+
+**Key Functionalities:**
+
+*   **Data Ingestion:** Retrieves XML traffic data from a public API.
+*   **Data Transformation:** Converts XML data to JSON format.
+*   **Data Filtering:** Filters traffic data based on predefined location IDs.
+*   **Real-time Analytics:** Processes data to detect traffic jams and calculate speed differentials. Kinesis Data Analytics handles the SQL code for this processing.
+*   **Data Streaming:** Uses Kinesis Firehose to stream data to S3 for storage and Kinesis Streams for real-time processing.
+*   **Data Storage:** Stores processed data in DynamoDB tables (`RealTimeAnalyticsPerPointTable`, `TrafficJamAlertsTable`). Raw data is stored in S3. S3 buckets have versioning enabled.
+*   **Alerting:** Triggers alerts via Slack and a Flask API upon traffic jam detection or clearance. Alerts are stored in the `TrafficJamAlertsTable` DynamoDB table.
+*   **Data Forwarding:** Forwards data to Power BI for visualization. Current traffic conditions are also exposed through a REST endpoint.
+
+**Important Files and Their Roles:**
+
+*   **`serverless.yml`:** Core Serverless Framework configuration, defining services, functions, triggers, resources (AWS infrastructure), plugins, and environment variables (including sensitive information like Lumigo token and Slack Webhook stored as SSM parameters).
+*   **`README.md`:** Project overview, architecture, data sources, deployment instructions, and data/vehicle class descriptions.
+*   **`resources/firehose.yml`:** Defines Kinesis Firehose delivery streams for storing traffic events and analytics in S3, including buffering, compression, and IAM roles.
+*   **`resources/kinesis.yml`:** Defines the Kinesis stream used for real-time traffic data processing.
+*   **`resources/sqs.yml`:** Defines SQS queues for dead-letter handling of failed processing for analytics, PowerBI forwarding, and traffic alerts.
+*   **`resources/s3.yml`:** Defines S3 buckets for XML, JSON, analytics, and configuration data.
+*   **`resources/dynamodb.yml`:** Defines DynamoDB tables for analytics results and traffic jam alerts.
+*   **`resources/analytics.yml`:** Defines the Kinesis Data Analytics application, specifying SQL code for real-time analytics, input/output streams, and a reference dataset (measurement locations) from S3.
+*   **`src/RetrieveXMLTrafficData/handler.py`:** Lambda function to retrieve XML traffic data from the API and store it in S3.
+*   **`src/TransformTrafficDataToJson/handler.py`:** Lambda triggered by S3 XML object creation, converting XML to JSON and storing in S3.
+*   **`src/PublishTrafficData/handler.py`:** Lambda triggered by S3 JSON object creation, transforming and cleaning the JSON data, flattening nested structures, and publishing events to Kinesis Firehose.
+*   **`src/StreamProcessor/handler.py`:** Lambda function that processes the data stream coming from the Kinesis Data Stream to filter data.
+*   **`src/StoreAnalyticsResultsPerPoint/handler.py`:** Lambda function that stores the analytics results in DynamoDB.
+*   **`src/AlertSaver/handler.py`:** Lambda function that listens to DynamoDB streams and adds new alert indicators.
+*   **`src/AlertSender/handler.py`:** Lambda function that listens to DynamoDB streams and sends notifications about traffic jams.
+*   **`src/CurrentSituation/handler.py`:** Lambda function providing a REST endpoint for retrieving current traffic conditions from DynamoDB.
+*   **`src/CurrentAlerts/handler.py`:** Lambda function providing a REST endpoint for retrieving current alerts from DynamoDB.
+*   **`src/PowerBiForwarder/handler.py`:** Lambda function to forwards kinesis data to PowerBI streaming dataset.
+*    **`scripts/reference_data/generate_reference_and_geojson.py`:** Script to download the measurement location configuration data, convert it to CSV and GeoJSON formats.
+*   **`src/integration_tests/tests.py`:** Integration tests to check the whole process of reading traffic data and alerting if needed.
+
+**Architectural Insights:**
+
+*   **Event-Driven Architecture:** The pipeline leverages events (S3 object creation, Kinesis data streams, DynamoDB streams) to trigger Lambda functions, enabling a reactive and loosely coupled system.
+*   **Microservices:** Lambda functions promote a microservice architecture, where each function performs a specific task.
+*   **Data Lake:** S3 serves as a data lake, storing both raw and processed data.
+*   **Real-time Processing:** Kinesis Data Analytics facilitates real-time traffic data analysis.
+*   **IaC:** Infrastructure as Code is used to deploy the application (excluding the Kinesis Data Analytics application itself).
+
+**Notable Design Patterns:**
+
+*   **Data Transformation Pipeline:** A classic pipeline pattern for data ingestion, transformation, filtering, enrichment, and storage.
+*   **Fan-Out:** Data from S3 is processed by multiple Lambda functions (TransformTrafficDataToJson, PublishTrafficData).
+*   **Dead Letter Queue:** SQS queues provide a mechanism for handling and retrying failed events.
+*   **Filter Pattern:** The StreamProcessor function filters the data.
+*   **Observer Pattern:** Stream based lambdas listen to streams and trigger alert events.
+
+**Important Considerations:**
+
+*   **Error Handling:** While basic error handling exists, robust error handling and retry mechanisms are crucial for production environments.
+*   **Scalability:** Serverless architecture enables automatic scaling of Lambda functions. DynamnoDB throughput might require adjustment based on data volume and query patterns.
+*   **Monitoring:** CloudWatch Logging Options in Firehose and Lumigo tracing are used for monitoring performance and identifying issues.
+*   **Security:** IAM roles grant Lambda functions necessary permissions.
+*   **Cost Optimization:** Optimize Lambda function memory allocation and timeout settings and Kinesis Data Analytics configuration for efficiency.
+*   **Data Schema Evolution:** The Kinesis Data Analytics SQL code and DynamoDB schema should be updated as the traffic data schema evolves.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: control_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/becloudway_serverless-data-pipeline.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

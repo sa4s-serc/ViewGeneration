@@ -1,0 +1,153 @@
+@startuml
+skinparam rectangle {
+    BackgroundColor<<core>> #LightYellow
+    BackgroundColor<<adapter>> #LightBlue
+    BackgroundColor<<port>> #LightGreen
+    BackgroundColor<<external>> #LightGray
+}
+
+title Todo Management System - Hexagonal Architecture
+
+package "Core Business Logic" <<core>> {
+    component [Business\nLogic] as BusinessLogic
+    component [Todo\nModel] as TodoModel
+    component [Status & Priority\nEnums] as Enums
+}
+
+package "Adapters Layer" <<adapter>> {
+    component [Todo\nAdapter] as TodoAdapter
+    component [Todo Adapter\nFactory] as TodoAdapterFactory
+}
+
+package "Ports Layer" <<port>> {
+    package "HTTP Port" {
+        component [Express\nHTTP Server] as ExpressServer
+        component [Controllers] as Controllers
+        interface "REST API" as RESTAPI
+    }
+
+    package "AWS Lambda Port" {
+        component [Lambda\nHandler] as LambdaHandler
+        interface "Lambda Event" as LambdaEvent
+    }
+
+    package "AWS DynamoDB Port" {
+        component [DynamoDB\nRepository] as DynamoDBRepo
+        interface "Repository\nInterface" as RepoInterface
+    }
+
+    package "AWS SQS Port" {
+        component [SQS\nHandler] as SQSHandler
+        interface "SQS Interface" as SQSInterface
+    }
+
+    package "Logger Port" {
+        component [Pino\nLogger] as PinoLogger
+        interface "Logger Interface" as LoggerInterface
+    }
+}
+
+package "Utilities" <<core>> {
+    component [Maybe\nMonad] as MaybeMonad
+    component [Custom\nError Handler] as ErrorHandler
+    component [Joi\nValidation] as JoiValidation
+    component [Configuration] as Config
+}
+
+package "External Systems" <<external>> {
+    database "Amazon\nDynamoDB" as DynamoDB
+    queue "Amazon\nSQS" as SQS
+    cloud "AWS\nLambda" as Lambda
+    component "HTTP\nClients" as HTTPClients
+}
+
+package "Local Development" <<external>> {
+    component [LocalStack] as LocalStack
+    component [Terraform\nIaC] as Terraform
+}
+
+package "Testing & CI/CD" <<external>> {
+    component [Jest\nTests] as Jest
+    component [Stryker\nMutation Testing] as Stryker
+    component [CircleCI] as CircleCI
+}
+
+package "Deployment" <<external>> {
+    component [Serverless\nFramework] as ServerlessFramework
+}
+
+BusinessLogic --> TodoModel : uses
+BusinessLogic --> Enums : uses
+BusinessLogic ..> MaybeMonad : uses
+BusinessLogic ..> ErrorHandler : uses
+
+TodoAdapter --> BusinessLogic : orchestrates
+TodoAdapterFactory ..> TodoAdapter : creates
+TodoAdapter --> RepoInterface : uses
+
+ExpressServer --> Controllers : routes to
+Controllers --> TodoAdapter : calls
+Controllers ..> JoiValidation : validates with
+Controllers ..> LoggerInterface : logs via
+ExpressServer - RESTAPI
+HTTPClients --> RESTAPI : consumes
+
+LambdaHandler --> TodoAdapter : invokes
+LambdaHandler ..> LoggerInterface : logs via
+Lambda --> LambdaEvent
+LambdaEvent - LambdaHandler
+
+DynamoDBRepo ..|> RepoInterface : implements
+DynamoDBRepo --> DynamoDB : reads/writes
+TodoAdapter --> DynamoDBRepo : uses
+
+SQSHandler ..|> SQSInterface : implements
+SQSHandler --> SQS : sends/receives
+TodoAdapter ..> SQSHandler : uses
+
+PinoLogger ..|> LoggerInterface : implements
+Controllers --> PinoLogger : uses
+LambdaHandler --> PinoLogger : uses
+TodoAdapter --> PinoLogger : uses
+
+Config ..> ExpressServer : configures
+Config ..> DynamoDBRepo : configures
+Config ..> SQSHandler : configures
+Config ..> LambdaHandler : configures
+
+LocalStack ..> DynamoDB : simulates
+LocalStack ..> SQS : simulates
+LocalStack ..> Lambda : simulates
+Terraform --> LocalStack : provisions
+
+Jest ..> BusinessLogic : tests
+Jest ..> TodoAdapter : tests
+Jest ..> Controllers : tests
+Stryker ..> Jest : analyzes
+CircleCI ..> Jest : runs
+CircleCI ..> Stryker : runs
+
+ServerlessFramework --> Lambda : deploys to
+ServerlessFramework --> DynamoDB : configures
+ServerlessFramework --> SQS : configures
+
+note right of BusinessLogic
+  Core business logic is isolated
+  from external dependencies,
+  following hexagonal architecture
+  principles
+end note
+
+note bottom of TodoAdapter
+  Adapters translate between
+  business logic and ports,
+  implementing dependency injection
+end note
+
+note bottom of DynamoDBRepo
+  Repository pattern abstracts
+  data access, could evolve
+  to Strategy pattern
+end note
+
+@enduml

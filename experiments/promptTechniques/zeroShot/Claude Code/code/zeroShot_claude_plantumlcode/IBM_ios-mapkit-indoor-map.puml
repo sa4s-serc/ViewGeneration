@@ -1,0 +1,164 @@
+@startuml
+title Indoor Map with Heatmap - Control Flow Sequence Diagram
+
+actor User
+participant "ViewController" as VC
+participant "FloorplanOverlay" as FO
+participant "FloorplanOverlayRenderer" as FOR
+participant "CoordinateConverter" as CC
+participant "VisibleMapRegionDelegate" as VMRD
+participant "MapKit" as MK
+participant "Backend API\n(Node.js/Express)" as API
+participant "MongoDB" as DB
+participant "CustomPolygons" as CP
+
+== Application Initialization ==
+User -> VC: Launch Application
+activate VC
+VC -> MK: Initialize MKMapView
+activate MK
+VC -> VMRD: Set as map delegate
+activate VMRD
+VC -> API: GET /floorplan.pdf
+activate API
+API -> DB: Query map data
+activate DB
+DB --> API: Return map data
+deactivate DB
+API -> API: Generate PDF floorplan
+API --> VC: Return PDF floorplan
+deactivate API
+VC -> FO: Create FloorplanOverlay(pdf)
+activate FO
+FO -> FO: Load PDF document
+FO -> CC: Initialize coordinate conversion
+activate CC
+CC -> CC: Setup GeoAnchor pairs
+CC --> FO: Conversion ready
+deactivate CC
+FO --> VC: Overlay created
+deactivate FO
+VC -> MK: Add overlay to map
+MK -> FOR: Create renderer for overlay
+activate FOR
+FOR --> MK: Renderer ready
+deactivate FOR
+MK --> VC: Map initialized
+deactivate MK
+deactivate VC
+
+== Fetch and Display Heatmap Data ==
+User -> VC: View map
+activate VC
+VC -> API: GET /trigger-events
+activate API
+API -> DB: Query trigger events
+activate DB
+DB --> API: Return event data
+deactivate DB
+API --> VC: Return trigger events
+deactivate API
+VC -> VC: Process event data
+VC -> CP: Create heatmap polygons/circles
+activate CP
+CP --> VC: Return overlays
+deactivate CP
+VC -> MK: Add heatmap overlays
+activate MK
+MK -> FOR: Render overlays
+activate FOR
+FOR -> FO: Get PDF coordinate bounds
+activate FO
+FO -> CC: Convert coordinates
+activate CC
+CC --> FO: Return geographic coords
+deactivate CC
+FO --> FOR: Return bounds
+deactivate FO
+FOR -> FOR: Draw PDF floorplan
+FOR -> FOR: Draw heatmap overlay
+FOR --> MK: Rendering complete
+deactivate FOR
+MK --> VC: Display updated
+deactivate MK
+deactivate VC
+
+== User Interaction - Map Navigation ==
+User -> VC: Pan/Zoom map
+activate VC
+VC -> VMRD: Map region changed
+activate VMRD
+VMRD -> FO: Get floorplan bounds
+activate FO
+FO --> VMRD: Return bounds
+deactivate FO
+VMRD -> VMRD: Check if within bounds
+alt Outside bounds
+    VMRD -> MK: Restrict camera position
+    activate MK
+    MK --> VMRD: Camera adjusted
+    deactivate MK
+else Within bounds
+    VMRD -> MK: Allow movement
+    activate MK
+    MK --> VMRD: Movement allowed
+    deactivate MK
+end
+VMRD --> VC: Region update handled
+deactivate VMRD
+deactivate VC
+
+== Trigger Event (User Generated) ==
+User -> VC: Trigger event at location
+activate VC
+VC -> VC: Get current location
+VC -> API: POST /trigger-events\n(location, timestamp)
+activate API
+API -> DB: Insert trigger event
+activate DB
+DB --> API: Event stored
+deactivate DB
+API --> VC: Event created
+deactivate API
+VC -> VC: Refresh heatmap data
+VC -> API: GET /trigger-events
+activate API
+API -> DB: Query updated events
+activate DB
+DB --> API: Return events
+deactivate DB
+API --> VC: Return updated events
+deactivate API
+VC -> CP: Update heatmap overlays
+activate CP
+CP --> VC: Updated overlays
+deactivate CP
+VC -> MK: Refresh map overlays
+activate MK
+MK -> FOR: Re-render
+activate FOR
+FOR --> MK: Rendering complete
+deactivate FOR
+MK --> VC: Display updated
+deactivate MK
+deactivate VC
+
+== Backend Data Management ==
+participant "random.js\n(Simulator)" as SIM
+SIM -> API: POST /trigger-events\n(simulated data)
+activate API
+API -> DB: Insert simulated events
+activate DB
+DB --> API: Events stored
+deactivate DB
+API --> SIM: Events created
+deactivate API
+
+== Coordinate Conversion ==
+VC -> CC: Convert PDF to Geographic
+activate CC
+CC -> CC: Apply transformation\nusing GeoAnchor pairs
+CC --> VC: Return lat/long coordinates
+deactivate CC
+
+@enduml

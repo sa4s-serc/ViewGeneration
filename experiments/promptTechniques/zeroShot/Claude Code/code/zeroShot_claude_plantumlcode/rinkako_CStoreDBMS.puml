@@ -1,0 +1,122 @@
+@startuml
+!define COMPONENT_STYLE rectangle
+
+skinparam component {
+    BackgroundColor<<DBInterface>> LightBlue
+    BackgroundColor<<DBCompiler>> LightGreen
+    BackgroundColor<<DBEngine>> LightYellow
+    BorderColor Black
+    ArrowColor Black
+}
+
+package "DBInterface Layer" <<DBInterface>> {
+    component [DBController] as ctrl
+    component [DBConnectionPool] as pool
+}
+
+package "DBCompiler Layer" <<DBCompiler>> {
+    component [LexicalAnalyzer] as lexer
+    component [ISyntaxParser] as parser
+    component [Pile] as pile
+    component [CSDatabase] as csdb
+    component [DBBridge] as bridge
+}
+
+package "DBEngine Layer" <<DBEngine>> {
+    component [FileManager] as filemgr
+    component [TableManager] as tablemgr
+    component [DBAllocator] as allocator
+    component [DBLock] as lock
+    component [DBTransaction] as transaction
+}
+
+package "Core Infrastructure" {
+    component [DBObject] as dbobject
+    component [DBCommonUtils] as utils
+    component [DBTable] as dbtable
+}
+
+package "External Storage" {
+    database "Column Files\n(RLE Compressed)" as colfiles
+    database "Table Metadata" as metadata
+}
+
+' DBInterface Layer relationships
+ctrl --> pool : manages
+pool --> bridge : creates connections
+
+' DBCompiler Layer relationships
+bridge --> lexer : tokenizes query
+lexer --> parser : token stream
+parser --> pile : syntax tree
+pile --> csdb : intermediate code
+bridge --> csdb : executes query
+
+' CSDatabase to DBEngine relationships
+csdb --> filemgr : file operations
+csdb --> tablemgr : table operations
+csdb --> transaction : transaction control
+
+' DBEngine internal relationships
+filemgr --> allocator : memory allocation
+tablemgr --> allocator : memory allocation
+tablemgr --> lock : concurrency control
+tablemgr --> dbtable : manages
+transaction --> lock : lock management
+
+' Storage relationships
+filemgr --> colfiles : read/write\nexternal sort\nRLE compression
+tablemgr --> metadata : save/load context
+
+' Infrastructure relationships
+dbobject <|.. ctrl : extends
+dbobject <|.. filemgr : extends
+dbobject <|.. tablemgr : extends
+dbobject <|.. allocator : extends
+dbobject <|.. pool : extends
+dbobject <|.. bridge : extends
+dbobject <|.. csdb : extends
+
+' Utility relationships
+lexer ..> utils : string operations
+parser ..> utils : string operations
+pile ..> utils : string operations
+
+' Singleton pattern indicators
+note right of filemgr
+  Singleton
+  Manages I/O, sorting,
+  compression, joins
+end note
+
+note right of tablemgr
+  Singleton
+  Manages tables,
+  metadata, locks
+end note
+
+note right of allocator
+  Singleton
+  Custom memory
+  allocator
+end note
+
+note right of pool
+  Singleton
+  Connection pool
+  for concurrency
+end note
+
+note top of csdb
+  Core execution engine
+  Interprets intermediate
+  code units
+end note
+
+note bottom of colfiles
+  Columnar Storage
+  Run-Length Encoding
+  External Sort Support
+end note
+
+@enduml

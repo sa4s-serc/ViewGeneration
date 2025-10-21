@@ -1,0 +1,168 @@
+@startuml
+title MarkLogic Cloud Enablement on AWS - Component Diagram\n(Deployment & Performance Focus)
+
+skinparam componentStyle rectangle
+skinparam component {
+    BackgroundColor<<cloudformation>> LightBlue
+    BackgroundColor<<network>> LightGreen
+    BackgroundColor<<compute>> Orange
+    BackgroundColor<<storage>> Yellow
+    BackgroundColor<<lambda>> Purple
+    BackgroundColor<<database>> Pink
+    BackgroundColor<<security>> Red
+}
+
+package "CloudFormation Deployment Layer" <<cloudformation>> {
+    component "mlcluster.template\n(Existing VPC)" as MainTemplate <<cloudformation>>
+    component "mlcluster-vpc.template\n(New VPC)" as VPCTemplate <<cloudformation>>
+    component "ml-nodemanager.template" as NodeMgrTemplate <<cloudformation>>
+    component "ml-managedeni.template" as ENITemplate <<cloudformation>>
+    component "ml-vpc.template" as VPCSubTemplate <<cloudformation>>
+}
+
+package "Network Infrastructure" <<network>> {
+    component "VPC" as VPC <<network>>
+    component "Public Subnets" as PublicSubnet <<network>>
+    component "Private Subnets" as PrivateSubnet <<network>>
+    component "Internet Gateway" as IGW <<network>>
+    component "NAT Gateway" as NAT <<network>>
+    component "Security Groups" as SG <<network>>
+    component "Elastic Network Interfaces\n(ENI Pool)" as ENI <<network>>
+}
+
+package "Compute Layer" <<compute>> {
+    component "MarkLogic EC2 Instances\n(Multi-AZ)" as EC2Nodes <<compute>>
+    component "Auto Scaling Group\n(Single Zone)" as ASGSingle <<compute>>
+    component "Auto Scaling Group\n(Multi Zone)" as ASGMulti <<compute>>
+}
+
+package "Load Balancing Layer" <<network>> {
+    component "Application Load Balancer\n(ALB)" as ALB <<network>>
+    component "Target Groups\n(Multi-AZ)" as TargetGroups <<network>>
+}
+
+package "Storage Layer" <<storage>> {
+    component "EBS Volumes\n(Data Storage)" as EBS <<storage>>
+}
+
+package "State Management" <<database>> {
+    database "DynamoDB Table\n(MarkLogicDDBTable)\nCluster State & Coordination" as DDB <<database>>
+}
+
+package "Lambda Functions Layer" <<lambda>> {
+    component "managedeni.py\nENI Management" as ManagedENI <<lambda>>
+    component "nodemanager.py\nLifecycle Management" as NodeManager <<lambda>>
+    component "utils.py\nUtility Functions" as Utils <<lambda>>
+}
+
+package "IAM & Security" <<security>> {
+    component "IAM Roles" as IAM <<security>>
+}
+
+package "Event Management" {
+    component "Auto Scaling Events\n(EC2_INSTANCE_LAUNCHING)" as ASGEvents
+    component "SNS Logging\n(Optional)" as SNS
+}
+
+package "License Management" {
+    component "AMI Mappings\n(Region & License Type)" as AMI
+}
+
+MainTemplate ..> VPC : deploys to\nexisting
+VPCTemplate ..> VPCSubTemplate : creates new
+VPCSubTemplate ..> VPC : provisions
+MainTemplate ..> ENITemplate : nested stack
+MainTemplate ..> NodeMgrTemplate : nested stack
+VPCTemplate ..> ENITemplate : nested stack
+VPCTemplate ..> NodeMgrTemplate : nested stack
+
+MainTemplate ..> EC2Nodes : provisions
+MainTemplate ..> EBS : creates
+MainTemplate ..> DDB : creates
+MainTemplate ..> ASGSingle : configures
+VPCTemplate ..> ASGMulti : configures
+VPCTemplate ..> ALB : creates\n(Multi-AZ)
+ALB --> TargetGroups : routes to
+
+VPC *-- PublicSubnet : contains
+VPC *-- PrivateSubnet : contains
+VPC --> IGW : connects
+PrivateSubnet --> NAT : uses
+VPC --> SG : defines
+VPC --> ENI : manages
+
+ASGSingle --> EC2Nodes : manages\n(single AZ)
+ASGMulti --> EC2Nodes : manages\n(multi AZ)
+EC2Nodes --> ENI : attaches
+EC2Nodes --> EBS : mounts
+EC2Nodes --> PrivateSubnet : deployed in
+TargetGroups --> EC2Nodes : distributes\ntraffic
+
+ALB ==> EC2Nodes : load balances\n(performance)
+ASGMulti ==> EC2Nodes : scales\n(performance)
+EC2Nodes --> DDB : reads/writes\nstate
+
+ENITemplate ..> ManagedENI : deploys
+NodeMgrTemplate ..> NodeManager : deploys
+ManagedENI ..> Utils : uses
+NodeManager ..> Utils : uses
+
+ManagedENI --> ENI : creates/tags/\nattaches/detaches
+NodeManager --> ENI : attaches to\nnew instances
+ASGEvents --> NodeManager : triggers
+NodeManager --> EC2Nodes : configures
+
+EC2Nodes --> DDB : cluster\ncoordination
+NodeManager --> DDB : queries state
+ManagedENI --> DDB : updates state
+
+IAM --> EC2Nodes : grants permissions
+IAM --> ManagedENI : grants permissions
+IAM --> NodeManager : grants permissions
+
+AMI --> EC2Nodes : provides\nlicensed images
+
+ASGEvents ..> SNS : notifies\n(optional)
+NodeManager ..> SNS : logs events\n(optional)
+
+note right of DDB
+  Critical for cluster
+  state management and
+  node coordination
+end note
+
+note right of ENI
+  Dedicated network
+  interfaces for each
+  MarkLogic node ensure
+  proper clustering
+end note
+
+note right of ALB
+  Multi-AZ traffic distribution
+  for high availability and
+  performance
+end note
+
+note left of ASGMulti
+  Automatic scaling across
+  multiple AZs for resilience
+  and performance optimization
+end note
+
+note bottom of EC2Nodes
+  Parameterized instance types
+  allow performance tuning
+  (BYOL, Essential Enterprise,
+  Pay-as-you-go)
+end note
+
+legend right
+  |= Line Type |= Meaning |
+  | Dotted | Deployment/Configuration |
+  | Solid | Runtime Dependency |
+  | Bold | Performance Critical |
+  | Composition | Containment |
+endlegend
+
+@enduml

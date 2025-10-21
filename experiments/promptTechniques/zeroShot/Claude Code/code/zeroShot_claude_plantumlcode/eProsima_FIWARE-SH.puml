@@ -1,0 +1,105 @@
+@startuml
+title FIWARE System Handle - Connectivity and Message Flow
+
+actor "Integration Service" as IS
+participant "SystemHandle" as SH
+participant "Publisher" as PUB
+participant "Subscriber" as SUB
+participant "NGSIV2Connector" as CONN
+participant "Listener" as LIST
+participant "FIWARE Context Broker" as FCB
+
+== Initialization ==
+IS -> SH: configure(YAML config)
+activate SH
+SH -> CONN: create(host, port)
+activate CONN
+SH -> LIST: create(port)
+activate LIST
+LIST -> LIST: start async listening (asio)
+SH -> SH: register types
+SH --> IS: configuration complete
+deactivate SH
+
+== Publishing Data to FIWARE ==
+IS -> SH: create publisher(topic)
+activate SH
+SH -> PUB: create(topic, connector)
+activate PUB
+SH --> IS: publisher created
+deactivate SH
+
+IS -> PUB: publish(xtypes data)
+activate PUB
+PUB -> PUB: convert xtypes to JSON
+PUB -> CONN: update_entity(JSON data)
+activate CONN
+CONN -> FCB: HTTP POST/PATCH\n(NGSIv2 API)
+activate FCB
+FCB --> CONN: response
+deactivate FCB
+CONN --> PUB: success/failure
+deactivate CONN
+PUB --> IS: publish complete
+deactivate PUB
+
+== Subscribing to FIWARE Data ==
+IS -> SH: create subscriber(topic)
+activate SH
+SH -> SUB: create(topic, connector, callback)
+activate SUB
+SH --> IS: subscriber created
+deactivate SH
+
+SUB -> CONN: register_subscription(topic, callback_url)
+activate CONN
+CONN -> FCB: HTTP POST /v2/subscriptions\n(with notification URL)
+activate FCB
+FCB --> CONN: subscription ID
+deactivate FCB
+CONN --> SUB: subscription registered
+deactivate CONN
+deactivate SUB
+
+== Receiving Data from FIWARE ==
+FCB -> LIST: HTTP POST notification\n(async connection)
+activate FCB
+activate LIST
+LIST -> LIST: accept connection (asio)
+LIST -> CONN: forward notification(JSON data)
+activate CONN
+CONN -> CONN: convert JSON to xtypes
+CONN -> SUB: callback(xtypes data)
+activate SUB
+SUB -> IS: deliver data
+activate IS
+IS --> SUB: data received
+deactivate IS
+deactivate SUB
+CONN --> LIST: processing complete
+deactivate CONN
+LIST --> FCB: HTTP 200 OK
+deactivate LIST
+deactivate FCB
+
+== Cleanup ==
+IS -> SH: shutdown
+activate SH
+SH -> SUB: unregister
+activate SUB
+SUB -> CONN: unregister_subscription(subscription_id)
+activate CONN
+CONN -> FCB: HTTP DELETE /v2/subscriptions/{id}
+activate FCB
+FCB --> CONN: deleted
+deactivate FCB
+CONN --> SUB: unregistered
+deactivate CONN
+deactivate SUB
+SH -> LIST: stop listening
+deactivate LIST
+SH --> IS: shutdown complete
+deactivate SH
+deactivate CONN
+
+@enduml

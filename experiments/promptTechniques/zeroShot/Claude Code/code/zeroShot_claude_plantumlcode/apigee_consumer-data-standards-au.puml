@@ -1,0 +1,172 @@
+@startuml
+!define RECTANGLE component
+
+skinparam component {
+    BackgroundColor<<external>> LightBlue
+    BackgroundColor<<apigee>> LightGreen
+    BackgroundColor<<sharedflow>> LightYellow
+    BackgroundColor<<service>> LightCoral
+}
+
+package "External Systems" {
+    [OIDC Provider] as oidc <<external>>
+    [CDR Register] as register <<external>>
+    [Banking Backend Systems] as backend <<external>>
+    [Client Applications] as clients <<external>>
+}
+
+package "Apigee API Management Platform" {
+
+    package "API Proxies" {
+        [CDS Banking - Get Products] as products <<apigee>>
+        [CDS Banking - Get Accounts] as accounts <<apigee>>
+        [CDS Banking - Get Transactions] as transactions <<apigee>>
+        [Discovery API] as discovery <<apigee>>
+        [OIDC Proxy] as oidcproxy <<apigee>>
+        [Consent Management (ConsentMgmtWithKVM)] as consent <<apigee>>
+        [Dynamic Client Registration] as dcr <<apigee>>
+        [Admin - Metadata Update] as adminmeta <<apigee>>
+        [Admin - Get Metrics] as adminmetrics <<apigee>>
+    }
+
+    package "Shared Flows" {
+        [Request Header Checking] as headercheck <<sharedflow>>
+        [Pagination] as pagination <<sharedflow>>
+        [Traffic Threshold] as traffic <<sharedflow>>
+        [JWT Verification] as jwtverify <<sharedflow>>
+        [Request Parameter Validation] as paramvalid <<sharedflow>>
+    }
+
+    package "Hosted Targets" {
+        [Mock OIDC Provider\n(node-oidc-provider)] as mockoidc <<apigee>>
+    }
+
+    package "Data Stores" {
+        database "Key Value Maps (KVM)" as kvm {
+            [Consent Data]
+            [Configuration Data]
+            [Token Data]
+        }
+
+        database "Mock Data Store" as mockdata {
+            [Mock Accounts]
+            [Mock Products]
+            [Mock Transactions]
+        }
+    }
+}
+
+package "Google Cloud Platform" {
+    [Metrics Service\n(App Engine)] as metricsvc <<service>>
+    database "Cloud Datastore" as datastore <<service>>
+    [Apigee Analytics API] as analytics <<service>>
+}
+
+' Client connections
+clients --> products : HTTPS/REST
+clients --> accounts : HTTPS/REST
+clients --> transactions : HTTPS/REST
+clients --> discovery : HTTPS/REST
+clients --> oidcproxy : HTTPS/OIDC
+clients --> dcr : HTTPS/REST
+
+' CDR Register connections
+register --> adminmeta : HTTPS/REST
+register --> adminmetrics : HTTPS/REST
+register ..> dcr : SSA Validation
+
+' API Proxy to Shared Flow connections
+products ..> headercheck : includes
+products ..> pagination : includes
+products ..> traffic : includes
+products ..> jwtverify : includes
+products ..> paramvalid : includes
+
+accounts ..> headercheck : includes
+accounts ..> pagination : includes
+accounts ..> traffic : includes
+accounts ..> jwtverify : includes
+accounts ..> paramvalid : includes
+
+transactions ..> headercheck : includes
+transactions ..> pagination : includes
+transactions ..> traffic : includes
+transactions ..> jwtverify : includes
+transactions ..> paramvalid : includes
+
+discovery ..> headercheck : includes
+discovery ..> traffic : includes
+
+' OIDC Proxy connections
+oidcproxy --> oidc : HTTPS/OIDC\n(mTLS + HoK)
+oidcproxy --> mockoidc : Internal\n(Development)
+oidcproxy --> consent : Service Callout
+oidcproxy ..> jwtverify : includes
+oidcproxy --> kvm : Token Management
+
+' Consent Management connections
+consent --> kvm : Read/Write\nConsent State
+consent ..> headercheck : includes
+consent ..> jwtverify : includes
+
+' API Proxies to KVM
+products --> kvm : Configuration
+accounts --> kvm : Configuration
+transactions --> kvm : Configuration
+dcr --> kvm : Client Data
+
+' Mock Data connections
+products --> mockdata : Read Mock Data
+accounts --> mockdata : Read Mock Data
+transactions --> mockdata : Read Mock Data
+
+' API Proxies to Backend (for non-mock)
+products ..> backend : HTTPS/REST\n(Production)
+accounts ..> backend : HTTPS/REST\n(Production)
+transactions ..> backend : HTTPS/REST\n(Production)
+
+' Metrics Service connections
+metricsvc --> analytics : Query Metrics
+metricsvc --> datastore : Store/Retrieve Config
+adminmetrics --> metricsvc : HTTPS/REST
+products --> analytics : Log Analytics
+accounts --> analytics : Log Analytics
+transactions --> analytics : Log Analytics
+oidcproxy --> analytics : Log Analytics
+
+' DCR connections
+dcr --> kvm : Client Registration
+
+note right of oidcproxy
+  - OAuth 2.0 / OIDC flows
+  - mTLS + HoK verification
+  - Token replacement (opaque)
+  - PAR support
+  - Private Key JWT auth
+end note
+
+note right of consent
+  - Consent CRUD operations
+  - XSLT-based UI rendering
+  - Consent caching
+  - Replay attack prevention
+end note
+
+note bottom of kvm
+  Centralized configuration
+  and state management
+end note
+
+note right of metricsvc
+  - Performance metrics
+  - SLO monitoring
+  - Multiple parser strategies
+end note
+
+note left of mockoidc
+  Node.js application
+  running on Apigee
+  Hosted Targets
+end note
+
+@enduml

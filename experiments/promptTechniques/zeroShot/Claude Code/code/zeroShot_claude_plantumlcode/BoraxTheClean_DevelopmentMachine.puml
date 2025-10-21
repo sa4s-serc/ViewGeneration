@@ -1,0 +1,110 @@
+@startuml
+title Security-Focused Sequence Diagram: Development Machine Deployment
+
+actor Developer
+participant "GitHub Actions" as GHA
+participant "AWS OIDC/Credentials" as Auth
+participant "CloudFormation" as CF
+participant "IAM Service" as IAM
+participant "EC2 Service" as EC2
+participant "Security Group" as SG
+participant "EC2 Instance" as Instance
+participant "CloudWatch" as CW
+
+Developer -> GHA: Push code/trigger workflow
+activate GHA
+
+GHA -> Auth: Request AWS credentials
+activate Auth
+note right of Auth: Security Risk: Broad credentials\nShould use OIDC provider
+Auth --> GHA: Return AWS credentials
+deactivate Auth
+
+GHA -> CF: Deploy CloudFormation stack
+activate CF
+
+CF -> IAM: Create IAM Role
+activate IAM
+note right of IAM: Security Risk: AdministratorAccess policy\nViolates least privilege principle
+IAM --> CF: Role created with AdministratorAccess
+deactivate IAM
+
+CF -> IAM: Create Instance Profile
+activate IAM
+IAM -> IAM: Attach AdministratorAccess role
+IAM --> CF: Instance Profile created
+deactivate IAM
+
+CF -> SG: Create Security Group
+activate SG
+note right of SG: Security Risk: SSH from 0.0.0.0/0\nShould restrict to trusted IPs
+SG -> SG: Allow SSH (port 22) from 0.0.0.0/0
+SG --> CF: Security Group configured
+deactivate SG
+
+CF -> EC2: Launch EC2 instance
+activate EC2
+EC2 -> Instance: Create instance with parameters
+activate Instance
+
+EC2 -> Instance: Attach Instance Profile (AdministratorAccess)
+note right of Instance: Instance has full AWS account access\nMajor security vulnerability
+
+EC2 -> Instance: Apply Security Group rules
+Instance --> EC2: Instance launched
+deactivate Instance
+EC2 --> CF: Instance created
+deactivate EC2
+
+CF -> CW: Create CloudWatch Alarm
+activate CW
+note right of CW: Inactivity alarm for cost optimization\nStops instance after 1 hour idle
+CW --> CF: Alarm configured
+deactivate CW
+
+CF --> GHA: Stack deployed successfully
+deactivate CF
+
+GHA --> Developer: Deployment complete
+deactivate GHA
+
+== Instance Access Phase ==
+
+Developer -> Instance: SSH connection attempt
+activate Instance
+Instance -> SG: Validate incoming connection
+activate SG
+SG -> SG: Check source IP against rules (0.0.0.0/0)
+note right of SG: Any IP address accepted\nNo IP restriction enforcement
+SG --> Instance: Connection allowed
+deactivate SG
+
+Instance --> Developer: SSH access granted
+note left of Developer: Developer has shell access\nwith AdministratorAccess privileges
+
+Developer -> Instance: Execute AWS CLI commands
+Instance -> IAM: Use Instance Profile credentials
+activate IAM
+IAM -> IAM: Validate AdministratorAccess permissions
+IAM --> Instance: Full AWS permissions granted
+deactivate IAM
+Instance --> Developer: Command executed with admin rights
+
+deactivate Instance
+
+== Inactivity Monitoring ==
+
+CW -> Instance: Monitor CPU utilization
+activate CW
+activate Instance
+CW -> CW: Detect < 10% CPU for 1 hour
+CW -> EC2: Trigger stop instance action
+activate EC2
+EC2 -> Instance: Stop instance
+Instance --> EC2: Instance stopped
+deactivate Instance
+EC2 --> CW: Action completed
+deactivate EC2
+deactivate CW
+
+@enduml

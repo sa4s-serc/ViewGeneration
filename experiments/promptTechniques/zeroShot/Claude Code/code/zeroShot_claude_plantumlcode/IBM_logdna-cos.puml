@@ -1,0 +1,74 @@
+@startuml
+!define ACCENT #1E88E5
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+
+participant "COS Source Bucket" as COS
+participant "Cloud Functions\nTrigger" as Trigger
+participant "Serverless Function\n(handler.js)" as Handler
+participant "LogDNA API" as LogDNA
+participant "COS Archive Bucket" as Archive
+
+== Log File Upload Event ==
+COS -> Trigger: Object Created Event\n(New Log File)
+activate Trigger
+Trigger -> Handler: Trigger Function Execution
+activate Handler
+
+== Initialization ==
+Handler -> Handler: Initialize COS Client
+Handler -> Handler: Initialize LogDNA Client
+Handler -> Handler: Read Environment Variables\n(API Keys, Endpoints, Buckets)
+
+== Log Retrieval ==
+Handler -> COS: Download Zipped Log File
+activate COS
+COS --> Handler: Return Log File Data
+deactivate COS
+
+== Log Processing ==
+Handler -> Handler: Unzip Log File
+Handler -> Handler: Parse JSON Log Data
+Handler -> Handler: Format Logs for LogDNA
+Handler -> Handler: Split into Batches\n(5000 logs per batch)
+
+== Log Forwarding ==
+loop For Each Batch
+    Handler -> LogDNA: Send Log Batch\n(via HTTPS POST)
+    activate LogDNA
+    alt Success
+        LogDNA --> Handler: 200 OK
+        deactivate LogDNA
+    else API Error (Transient)
+        LogDNA --> Handler: Error Response
+        deactivate LogDNA
+        Handler -> Handler: Retry Logic
+        Handler -> LogDNA: Retry Send Log Batch
+        activate LogDNA
+        LogDNA --> Handler: 200 OK
+        deactivate LogDNA
+    else Permanent Failure
+        LogDNA --> Handler: Error Response
+        deactivate LogDNA
+        Handler -> Handler: Log Error
+    end
+end
+
+== Log Archiving ==
+Handler -> Archive: Copy Log File to Archive Bucket
+activate Archive
+Archive --> Handler: Upload Confirmation
+deactivate Archive
+
+Handler -> COS: Delete Original Log File
+activate COS
+COS --> Handler: Delete Confirmation
+deactivate COS
+
+== Completion ==
+Handler --> Trigger: Function Execution Complete
+deactivate Handler
+Trigger --> COS: Acknowledge Event Processed
+deactivate Trigger
+
+@enduml

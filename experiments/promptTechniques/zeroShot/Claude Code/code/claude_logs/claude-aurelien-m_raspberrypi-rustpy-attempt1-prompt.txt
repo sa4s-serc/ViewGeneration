@@ -1,0 +1,115 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: aurelien-m_raspberrypi-rustpy
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** deployment, data_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+Okay, here's a merged and refined analysis of the GitHub repository, focusing on key functionalities, components, important files, architectural insights, and design patterns, while removing redundancy and ensuring a logical flow.
+
+**Overall Project Summary**
+
+This repository implements a Raspberry Pi hardware control system, primarily focused on LED manipulation, using a combination of Rust, Python, and web technologies. The architecture leverages Rust for performance-critical hardware interaction and a web server, while Python is employed for higher-level control logic and bridging the gap between the Rust hardware interface and the web application. A web interface, built with Rust's Rocket framework, provides a graphical user interface (GUI) for configuration, control, and monitoring. Bluetooth communication is also part of the system.
+
+**Key Functionalities and Components:**
+
+*   **Hardware Control (LEDs):** The core function is controlling Raspberry Pi hardware components, with initial focus on LEDs. Users can select different LED display modes (demo, rainbow, cosmic radiation map) and adjust settings for each mode.
+*   **Rust Library (rpi\_python/raspberry\_pi\_lib):** Provides low-level hardware access. Uses the `rppal` crate for GPIO control, enabling functions like `blink_led`, `set_high`, and `send_pwm`.
+*   **Python Interface (RustPyLib/Lib/rpipy.py):** Acts as a bridge to the Rust library, allowing Python scripts to call Rust functions for hardware control. Uses `cpython` to create a Python extension module. Also handles some Python-specific tasks like getting the CPU temperature using OS commands.
+*   **Web Server (rpi\_web):** A Rust-based web server using the Rocket framework to provide a GUI for controlling the hardware. Includes user authentication and WebSocket handling for real-time interaction.
+*   **Bluetooth Communication:** The system includes bluetooth commmunication, but primarily used for Raspberry Pi system information. Actual LED control is achieved via serial communication.
+
+**Important Files and Their Roles:**
+
+*   **`RustPyLib/Cargo.toml`**: Defines dependencies (including `rppal`) and build configuration for the Rust library.
+*   **`RustPyLib/src/lib.rs`**: Contains the Rust code that directly interacts with the Raspberry Pi's GPIO pins. Exposed to Python via `py_module_initializer`.
+*   **`RustPyLib/Lib/rpipy.py`**: Python wrapper around the compiled Rust library (`libraspberrypylib.so`).
+*   **`RustPyLib/Makefile`**: Automates building the Rust library.
+*   **`WebServer/Cargo.toml`**: Lists dependencies for the web server, including `rocket`, `zmq`, `serde`, `tokio`, and `tungstenite`.
+*   **`WebServer/src/main.rs`**: The core logic for the Rocket web application, handling routing, user authentication, Bluetooth communication, and WebSocket handling.
+*   **`WebServer/users.txt`**: Stores usernames, hashed passwords, and roles for user authentication (Note: *insecure for production*).
+*   **`WebServer/static/`**: Contains static files for the web application (CSS, JavaScript, images). Key JavaScript libraries include `jQuery` and `bootstrap`.
+*   **`WebServer/templates/`**: Contains HTML templates using the Askama templating engine. Includes templates for login (`login.html`), logout (`logout.html`), main page (`index.html`), and mode-specific settings (`demo.html`, `rainbow.html`, `cosmic.html`).
+*   **`src/helper.rs`:** Contains helper modules:
+    *   `raspberry`: Raspberry Pi system information (CPU temperature) and bluetooth communication.
+    *   `script_controller`: Manages communication with the Python script, sending commands, receiving updates, and handling settings.
+    *   `websocket`: Handles WebSocket connections.
+    *   `passwords`: Password checking.
+    *   `led`: Implements LED manipulation functions.
+*   **`ScriptControl/`**: Contains Python scripts responsible for controlling the LEDs.
+    *   `demo_controller_app.py`: Main application for the python controller.
+    *   `scriptcontrol/__init__.py`: Initializes and controls the mode. Defines serial communication protocols.
+    *   `scriptcontrol/demo/`: Contains settings specific to the different controller modes, along with the `luminolib.py` library.
+        *   `cosmic.py`: Code for the cosmic radiation map mode.
+        *   `demo.py`: Code for the demo mode.
+        *   `luminolib.py`: The luminolib code for managing lights and other common functions.
+        *   `rainbow.py`: Code for the rainbow mode.
+        *   `rpipy.py`: Functions used to communicate with raspberry hardware.
+*   `Documentation/architecture.pdn`, `Documentation/Web Server Architecture.pdn`, `Documentation/Python Controller Architecture.pdn`: Diagrams illustrating the architecture.
+
+**Architectural Insights:**
+
+*   **Layered Architecture:**
+    *   *Hardware Layer (Rust):* Directly interacts with Raspberry Pi hardware.
+    *   *Abstraction Layer (Python):* Provides an interface for interacting with the hardware layer.
+    *   *Web Server Layer (Rust/Rocket):* Handles user interaction and controls the Python layer.
+*   **Polyglot Approach:** Rust for performance and low-level control; Python for rapid development and easier integration.
+*   **Asynchronous Operations:** Uses threads in Rust and asynchronous I/O for network connections in the web server to improve responsiveness.
+*   **Client-Server Model:** Web browsers act as clients, and the Rocket web server as the server. The Python script is a "worker" process.
+*   **Event-Driven Communication:** WebSocket communication enables real-time updates from the Python control script or Raspberry Pi to clients.
+
+**Notable Design Patterns:**
+
+*   **Adapter Pattern:** The Python library `rpipy.py` acts as an adapter, translating calls from Python into calls to the Rust library.
+*   **Facade Pattern:** The `rpipy.py` module provides a simplified interface to the more complex Rust hardware library.
+*   **Modularity:** Organized into separate modules (RustPyLib, WebServer, ScriptControl).
+*   **Model-View-Controller (MVC):** Loosely followed, with templates as the View, Rust structs as the Model, and handlers in `main.rs` as the Controller.
+*   **Singleton:** The `ServerState` struct with a mutex around `logged_in_user` limits the server to a single active user session.
+*   **Observer:** WebSocket implementation allows real-time updates to all connected clients.
+
+**Security Considerations:**
+
+*   Basic login functionality lacks robust security measures (password salting/hashing, input validation, protection against XSS attacks).
+*   Storing passwords in `WebServer/users.txt` is highly insecure.
+*   Hardcoded IP addresses and ports.
+*   Hardcoded key values and socket connections.
+*   Authentication issues and single user capability.
+
+**Areas for Improvement:**
+
+*   Comprehensive error handling, logging, and user-friendly error messages.
+*   Externalize configuration (IP addresses, ports) to a configuration file.
+*   Improve security measures (password hashing, input validation, XSS protection, use a database).
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment, data_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/aurelien-m_raspberrypi-rustpy.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

@@ -1,0 +1,180 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: ev2900_OpenSearch_Dashboard_Nginx_Proxy
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** deployment, connectivity
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## Report: ev2900_OpenSearch_Dashboard_Nginx_Proxy Repository Analysis
+
+This repository provides a solution for securely accessing an OpenSearch dashboard deployed in a private subnet via the public internet using an Nginx proxy server. The solution leverages Infrastructure as Code (IaC) through a CloudFormation template for automated deployment of the necessary AWS resources.
+
+**Functionality:**
+
+The core functionality is enabling secure public access to OpenSearch dashboards hosted within a private subnet. This is achieved by using Nginx as a reverse proxy to forward incoming HTTPS traffic to the OpenSearch dashboard, effectively hiding its internal location and providing a single point of entry. SSL/TLS is employed, utilizing self-signed certificates for encryption between the user and the Nginx proxy server.
+
+**Key Components & Files:**
+
+*   **`opensearch_nginx.yaml` (CloudFormation Template):** Automates the deployment of the entire infrastructure including:
+    *   VPC and Subnets (public and private)
+    *   Internet Gateway
+    *   Security Groups (controlling traffic between the EC2 instance and the OpenSearch domain)
+    *   OpenSearch Domain
+    *   IAM Role and Instance Profile
+    *   EC2 Instance (hosting the Nginx proxy)
+    *   Elastic IP
+    *   Route Table
+*   **`ngnix_config` (Nginx Configuration File):** Defines the proxy rules, SSL settings, and redirection logic. Users must replace placeholders like `<os_domain_url>` with their specific OpenSearch domain URL.
+*   **`README.md`:** Provides detailed instructions for deployment and configuration, covering: CloudFormation stack launch, Nginx installation and configuration, SSL certificate creation, OpenSearch dashboard access, and planned future improvements.
+*   **`.github/workflows/upload_s3.yml`:** A GitHub Actions workflow automating the upload of the CloudFormation template (`opensearch_nginx.yaml`) to an S3 bucket.
+*   **`Read_Me_Architecture/ReadMe_Architecture.drawio`:** A visual representation of the solution's architecture in Draw.io format.
+
+**Architecture:**
+
+The architecture utilizes a tiered approach: A private OpenSearch domain, an Nginx proxy server in a public subnet within the same VPC, and controlled traffic flow via Security Groups. The Nginx instance acts as a reverse proxy, centralizing access and enhancing security. Requests from the public internet are routed to the Nginx proxy, which then forwards them to the OpenSearch dashboard residing in the private subnet.
+
+**Design Patterns:**
+
+*   **Reverse Proxy:**  Nginx shields the internal infrastructure by acting as a reverse proxy.
+*   **Infrastructure as Code (IaC):** The CloudFormation template enables repeatable and automated deployments, facilitating infrastructure management.
+
+
+
+IMPORTANT - RETRY ATTEMPT:
+A previous PlantUML generation failed with the following error:
+```
+issue raw.githubusercontent.com java.util.concurrent.ExecutionException: java.io.IOException: HTTP error 404 with 404: Not Found
+Error line 4 in file: zeroShot_claude_plantumlcode/ev2900_OpenSearch_Dashboard_Nginx_Proxy.puml
+Some diagram description contains errors
+
+```
+
+The problematic code was:
+```plantuml
+@startuml
+!define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v14.0/dist
+!include AWSPuml/AWSCommon.puml
+!include AWSPuml/NetworkingContentDelivery/VPC.puml
+!include AWSPuml/NetworkingContentDelivery/InternetGateway.puml
+!include AWSPuml/Compute/EC2.puml
+!include AWSPuml/Analytics/OpenSearchService.puml
+!include AWSPuml/SecurityIdentityCompliance/IAMRole.puml
+!include AWSPuml/NetworkingContentDelivery/ElasticIPAddress.puml
+
+skinparam componentStyle rectangle
+
+package "Public Internet" {
+    actor "User" as user
+}
+
+package "AWS Cloud" {
+
+    package "VPC" {
+
+        package "Public Subnet" {
+            component "Elastic IP" as eip <<ElasticIPAddress>>
+            component "Internet Gateway" as igw <<InternetGateway>>
+
+            package "EC2 Instance" {
+                component "Nginx Proxy Server" as nginx <<EC2>>
+                component "SSL/TLS\n(Self-signed Certificate)" as ssl
+            }
+
+            component "Security Group\n(EC2)" as sg_ec2
+        }
+
+        package "Private Subnet" {
+            component "OpenSearch Domain" as opensearch <<OpenSearchService>>
+            component "OpenSearch Dashboard" as dashboard
+            component "Security Group\n(OpenSearch)" as sg_os
+        }
+
+        component "Route Table" as rt
+    }
+
+    component "IAM Role &\nInstance Profile" as iam <<IAMRole>>
+    component "S3 Bucket\n(CloudFormation Template)" as s3
+}
+
+' Relationships and connections
+user -down-> eip : HTTPS\n(443)
+eip -down-> nginx
+igw -down-> nginx : Routes traffic
+nginx -down-> ssl : Uses
+nginx -right-> dashboard : Reverse Proxy\nHTTPS
+nginx -down-> sg_ec2 : Protected by
+dashboard -up-> opensearch : Part of
+opensearch -up-> sg_os : Protected by
+sg_ec2 -right-> sg_os : Allows traffic to
+nginx -up-> iam : Assumes
+rt -down-> igw : Routes to
+s3 .down.> "VPC" : Deploys via\nCloudFormation
+
+note right of nginx
+  Acts as reverse proxy
+  Forwards requests to
+  OpenSearch Dashboard
+  in private subnet
+end note
+
+note right of opensearch
+  Deployed in private subnet
+  Not directly accessible
+  from public internet
+end note
+
+note top of ssl
+  Self-signed certificate
+  Encrypts traffic between
+  user and Nginx proxy
+end note
+
+note left of sg_ec2
+  Controls inbound traffic
+  to EC2 instance
+  Allows HTTPS (443)
+end note
+
+note right of sg_os
+  Controls traffic to
+  OpenSearch domain
+  Allows traffic from
+  EC2 security group
+end note
+
+@enduml
+
+```
+
+Please analyze the error, identify the issue, and generate corrected PlantUML code that compiles successfully.
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment, connectivity
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/ev2900_OpenSearch_Dashboard_Nginx_Proxy.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

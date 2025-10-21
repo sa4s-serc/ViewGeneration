@@ -1,0 +1,251 @@
+@startuml
+!define COMPONENT_COLOR #8BC34A
+!define INTERFACE_COLOR #2196F3
+!define EXTERNAL_COLOR #FF9800
+
+skinparam component {
+  BackgroundColor COMPONENT_COLOR
+  BorderColor #000000
+}
+
+skinparam interface {
+  BackgroundColor INTERFACE_COLOR
+  BorderColor #000000
+}
+
+package "DeFiBus Broker Deployment" {
+
+  package "Core Extension Layer" {
+    component "DeFiBrokerController" as controller {
+      [Central Controller]
+      [Component Lifecycle Manager]
+      [Broker Initialization]
+    }
+  }
+
+  package "Client Management Layer" {
+    component "DeFiProducerManager" as producerMgr {
+      [Producer Registry]
+      [Channel Tracker]
+    }
+
+    component "DeFiConsumerManager" as consumerMgr {
+      [Consumer Registry]
+      [Subscription Handler]
+      [Queue Resizing]
+    }
+
+    component "ClientRebalanceResultManager" as rebalanceMgr {
+      [Rebalance State]
+    }
+  }
+
+  package "Message Processing Layer" {
+    component "DeFiSendMessageProcessor" as sendProc {
+      [Message Router]
+      [Queue Selector]
+      [Depth Check]
+      [Redirection Logic]
+    }
+
+    component "DeFiPullMessageProcessor" as pullProc {
+      [Pull Handler]
+      [Access Control]
+    }
+
+    component "DeFiReplyMessageProcessor" as replyProc {
+      [Reply Forwarder]
+      [Request-Reply Handler]
+    }
+
+    component "DeFiAdminBrokerProcessor" as adminProc {
+      [Admin Operations]
+      [Topic Management]
+      [Stats Retrieval]
+    }
+  }
+
+  package "Queue Management Layer" {
+    component "ConsumeQueueManager" as queueMgr {
+      [Offset Tracker]
+      [Queue Isolation]
+      [Circuit Breaker]
+      [Depth Monitor]
+    }
+
+    component "AdjustQueueNumStrategy" as adjustStrategy {
+      [Dynamic Scaling]
+      [Queue Resizer]
+    }
+
+    component "QueueListeningMonitor" as queueMonitor {
+      [Active Queue Tracker]
+      [Offset Change Monitor]
+    }
+  }
+
+  package "Storage Layer" {
+    component "DeFiPluginMessageStore" as messageStore {
+      [Message Persistence]
+      [Cluster Info Injection]
+      [Offset Management]
+      [Stats Collection]
+    }
+  }
+
+  package "Configuration & Policy Layer" {
+    component "DeFiTopicConfigManager" as topicConfig {
+      [Topic Registry]
+      [Queue Depth Config]
+    }
+
+    component "MessageRedirectManager" as redirectMgr {
+      [IP-based Routing]
+      [Redirect Rules]
+    }
+
+    component "ConsumeQueueAccessLockManager" as lockMgr {
+      [Access Lock Control]
+      [Single Client Enforcement]
+    }
+  }
+
+  package "Client Communication Layer" {
+    component "DeFiBusBroker2Client" as broker2Client {
+      [Broker-to-Client Channel]
+      [Notification Handler]
+      [Topic Change Alerts]
+    }
+  }
+}
+
+package "Apache RocketMQ Core" as rocketmq {
+  component "BrokerController" as baseBroker
+  component "MessageStore" as baseStore
+  component "Network Layer" as network
+}
+
+package "External Clients" {
+  component "Producer Instances" as producers #FF9800 {
+    [Producer 1..N]
+  }
+
+  component "Consumer Instances" as consumers #FF9800 {
+    [Consumer 1..M]
+  }
+
+  component "Admin Clients" as admins #FF9800 {
+    [Admin Tools]
+  }
+}
+
+package "Infrastructure" {
+  component "IDC/Region Zones" as zones #FF9800 {
+    [Zone A]
+    [Zone B]
+    [Service Proximity]
+  }
+
+  database "Persistent Storage" as storage #FF9800
+}
+
+interface "Send Request" as ISend
+interface "Pull Request" as IPull
+interface "Reply Channel" as IReply
+interface "Admin API" as IAdmin
+interface "Producer Registration" as IProdReg
+interface "Consumer Registration" as IConsReg
+interface "Message Storage API" as IStore
+interface "Queue Management API" as IQueue
+interface "Notification Channel" as INotify
+
+controller --> baseBroker : extends
+messageStore --> baseStore : decorates
+controller --> network : uses
+
+producers --> ISend
+ISend --> sendProc
+
+consumers --> IPull
+IPull --> pullProc
+
+consumers --> IConsReg
+producers --> IProdReg
+
+IProdReg --> producerMgr
+IConsReg --> consumerMgr
+
+sendProc --> queueMgr : query depth/isolation
+pullProc --> lockMgr : check access
+sendProc --> redirectMgr : check redirect rules
+sendProc --> IStore
+IStore --> messageStore
+
+pullProc --> IStore
+replyProc --> IStore
+
+queueMgr --> IQueue
+IQueue --> adjustStrategy
+queueMonitor --> queueMgr
+
+consumerMgr --> adjustStrategy : trigger resize
+consumerMgr --> rebalanceMgr
+
+topicConfig --> sendProc : config
+topicConfig --> queueMgr : depth limits
+
+replyProc --> IReply
+IReply --> producers : synchronous reply
+
+admins --> IAdmin
+IAdmin --> adminProc
+
+adminProc --> topicConfig
+
+broker2Client --> INotify
+INotify --> consumers : topic changes
+INotify --> producers : notifications
+
+controller --> producerMgr : manages
+controller --> consumerMgr : manages
+controller --> sendProc : manages
+controller --> pullProc : manages
+controller --> replyProc : manages
+controller --> adminProc : manages
+controller --> queueMgr : manages
+controller --> messageStore : manages
+controller --> topicConfig : manages
+controller --> redirectMgr : manages
+controller --> lockMgr : manages
+controller --> broker2Client : manages
+
+messageStore --> storage : persists
+
+sendProc --> zones : service proximity routing
+zones ..> sendProc : latency optimization
+
+note right of controller
+  Central deployment unit that
+  extends RocketMQ broker with
+  DeFiBus capabilities
+end note
+
+note right of queueMgr
+  Singleton instance providing
+  fault tolerance through queue
+  isolation and circuit breaking
+end note
+
+note bottom of messageStore
+  Plugin-based decorator adding
+  cluster/broker info to messages
+  without modifying RocketMQ core
+end note
+
+note left of zones
+  Multi-IDC deployment supporting
+  service proximity for reduced
+  latency in message routing
+end note
+
+@enduml

@@ -1,0 +1,97 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: rubenbupe_proyectos-data
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** deployment, connectivity
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## Consolidated Repository Analysis Report: Roof Detection and Geospatial Application
+
+This report summarizes the key functionalities, components, architectural insights, and design patterns observed within the analyzed GitHub repository, focusing on a roof detection and related geospatial application. The application is structured as a multi-service system designed for Kubernetes deployment, likely on Google Cloud Platform (GCP).
+
+**I. Application Overview & Key Functionalities:**
+
+The repository encompasses a full-stack application with both frontend (Next.js) and backend (Python Flask API) components focused on:
+
+*   **Roof Detection:** The core functionality involves image analysis and segmentation, including semantic and instance segmentation, to identify buildings in images. Prediction can be performed either client-side or server-side.
+*   **Geospatial Search:** Users can search for locations via text queries, which are translated into latitude and longitude coordinates using the Positionstack API.
+*   **Location Tracking:** The application enables registration and potentially tracking of user locations.
+*   **Metrics Collection:** A dedicated Metrics API (Node.js) collects, processes, and exposes metrics related to image processing, search activity, and location data. This API is intended for use with Grafana for visualization and monitoring.
+*   **Certificate Management:** Leverages `cert-manager` for automated TLS certificate issuance and management using Let's Encrypt.
+
+**II. Architectural Overview:**
+
+*   **Microservices Architecture:** The application adopts a microservices approach with distinct frontend, API, and metrics services, facilitating independent scaling and deployment.
+*   **Message-Driven Architecture:** RabbitMQ is used for asynchronous communication between services. Events related to image processing and location data are published to RabbitMQ. The Metrics API acts as an observer, consuming these events for analysis and data storage, thereby decoupling services.
+*   **Cloud-Native Design:** The application is designed for deployment on cloud environments like GCP using Kubernetes, with specific configurations pointing to GKE.
+*   **Kubernetes Orchestration:** Kubernetes manages container deployment, scaling, and orchestration, including Deployments, Services, and HorizontalPodAutoscalers. The application relies on Nginx-ingress for managing external access.
+*   **GCP Specifics:** The deployment configuration leverages GCP services such as GKE and node selectors for a default-pool.
+*   **CRD-Based Extension:** `cert-manager` utilizes Kubernetes Custom Resource Definitions (CRDs) to extend the API for declarative certificate management.  CRDs define `Challenge`, `ClusterIssuer`, and `Issuer` resources.
+
+**III. Key Components and Technologies:**
+
+*   **Frontend (front/):** A Next.js application with React components for the user interface, handling photo uploads, map displays, and API reference. It utilizes TensorFlow.js for client-side image processing.
+*   **API (api/):** A Python Flask API providing endpoints for image segmentation, location registration, and search. It integrates OpenCV (`cv2`) for image processing and utilizes WebSocket communication for real-time image processing.
+*   **Metrics API (metrics/):** A Node.js based service collecting, processing, and exposing metrics, serving as a central point for data aggregated from other services via RabbitMQ.
+*   **Database:** MongoDB is used as the data store, with Mongoose models defining data structures. A StatefulSet is used to deploy MongoDB in the Kubernetes cluster.
+*   **RabbitMQ:** Facilitates asynchronous communication between services, enabling event-driven architecture.
+*   **Cert-manager:** Automates certificate management within Kubernetes, leveraging ACME protocol servers like Let's Encrypt.
+
+**IV. Notable Design Patterns:**
+
+*   **Operator Pattern:** `cert-manager` follows the Operator pattern by defining custom resources (CRDs) to manage certificates within the Kubernetes cluster.
+*   **Message Queue (RabbitMQ):** Decoupling of services through asynchronous communication.
+*   **Kubernetes Deployment:** Container orchestration for scalability and resilience.
+*   **Centralized Metric Collection:** The Metrics API as a central aggregation point.
+*   **Aggregator pattern**: Metric API uses MongoDB aggregation to get a summary of predictions and search results.
+*   **Observer pattern**: The Metrics API acts as an observer by consuming messages from RabbitMQ.
+*   **Configuration via Environment Variables:** Widespread use of environment variables for configuration management.
+*   **Factory Pattern:** Configuration loading logic (loading environment variables based on `NODE_ENV`).
+*   **Strategy Pattern:** Client-side vs. server-side prediction decision.
+*   **Extensible Solvers:** `cert-manager`'s design allows for the easy extension of DNS and HTTP challenge solvers.
+
+**V. Key Files and Their Roles:**
+
+*   **`deploy/`:** Contains Kubernetes deployment YAML files.
+*   **`api/`:** Contains the Python Flask API code.
+*   **`front/`:** Contains the Next.js frontend code.
+*   **`metrics/`:** Contains Metrics API (Node.js) code.
+*   **`common/`:** Contains code shared between the API and frontend, including Mongoose models and database connection setup.
+*   **`.github/workflows/deploy.yml`:** GitHub Actions workflow for CI/CD.
+
+**VI. Summary:**
+
+This repository provides a comprehensive foundation for a roof detection and geospatial application, highlighting a well-structured microservices architecture, event-driven communication, and automated certificate management within a Kubernetes environment. The architecture allows for scalability, resilience, and easier maintenance and updates.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment, connectivity
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/rubenbupe_proyectos-data.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

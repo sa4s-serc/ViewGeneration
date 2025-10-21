@@ -1,0 +1,178 @@
+@startuml
+
+skinparam component {
+    BackgroundColor<<frontend>> LightBlue
+    BackgroundColor<<blockchain>> LightGreen
+    BackgroundColor<<storage>> LightYellow
+    BackgroundColor<<library>> LightGray
+}
+
+package "Frontend Layer" {
+    component [React Application] as ReactApp <<frontend>>
+    component [App.js Router] as AppRouter <<frontend>>
+    component [Navbar] as Navbar <<frontend>>
+    component [Home] as Home <<frontend>>
+    component [Profile] as Profile <<frontend>>
+    component [Create] as Create <<frontend>>
+    component [Explore] as Explore <<frontend>>
+
+    component [Redux Store] as Redux <<frontend>>
+    component [accountSlice] as AccountSlice <<frontend>>
+    component [tokenSlice] as TokenSlice <<frontend>>
+
+    component [Web3.js] as Web3 <<library>>
+    component [MetaMask Wallet] as MetaMask <<frontend>>
+}
+
+package "Smart Contract Layer" {
+    component [LeeSeaNFT Contract] as NFTContract <<blockchain>>
+    interface "Mint" as IMint
+    interface "Manage" as IManage
+    interface "ERC-721" as IERC721
+
+    component [LeeSeaMarket Contract] as MarketContract <<blockchain>>
+    interface "Buy" as IBuy
+    interface "Sell" as ISell
+    interface "List" as IList
+
+    component [Utility Yul] as YulUtility <<blockchain>>
+    interface "ABI Encode/Decode" as IABIEncode
+    interface "Memory Management" as IMemory
+    interface "Validation" as IValidation
+}
+
+package "Blockchain Infrastructure" {
+    component [Ethereum Network] as Ethereum <<blockchain>>
+    component [Ropsten Testnet] as Ropsten <<blockchain>>
+    component [Ganache Local] as Ganache <<blockchain>>
+}
+
+package "Development Tools" {
+    component [Truffle Framework] as Truffle <<library>>
+    component [truffle-config.js] as TruffleConfig <<library>>
+    component [Migrations] as Migrations <<library>>
+}
+
+package "Configuration & ABI" {
+    component [ABI Definitions] as ABI <<frontend>>
+    component [NFT ABI Ganache] as NFTABIGanache <<frontend>>
+    component [Market ABI Ganache] as MarketABIGanache <<frontend>>
+    component [NFT ABI Ropsten] as NFTABIRopsten <<frontend>>
+    component [Global Variables] as GlobalVars <<frontend>>
+}
+
+package "External Storage" {
+    component [IPFS Metadata Storage] as IPFS <<storage>>
+}
+
+ReactApp --> AppRouter
+AppRouter --> Navbar
+AppRouter --> Home
+AppRouter --> Profile
+AppRouter --> Create
+AppRouter --> Explore
+
+Home --> Redux
+Profile --> Redux
+Create --> Redux
+Explore --> Redux
+
+Redux --> AccountSlice
+Redux --> TokenSlice
+
+AccountSlice --> Web3
+TokenSlice --> Web3
+
+ReactApp --> MetaMask
+
+Web3 --> ABI
+Web3 --> GlobalVars
+
+Web3 --> IMint
+Web3 --> IManage
+Web3 --> IERC721
+
+Web3 --> IBuy
+Web3 --> ISell
+Web3 --> IList
+
+IMint -- NFTContract
+IManage -- NFTContract
+IERC721 -- NFTContract
+
+IBuy -- MarketContract
+ISell -- MarketContract
+IList -- MarketContract
+
+NFTContract --> YulUtility
+MarketContract --> YulUtility
+
+MarketContract --> NFTContract
+
+NFTContract --> Ethereum
+MarketContract --> Ethereum
+
+Ethereum --> Ropsten
+Ethereum --> Ganache
+
+Truffle --> TruffleConfig
+Truffle --> Migrations
+Truffle --> NFTContract
+Truffle --> MarketContract
+
+Migrations --> Ethereum
+
+ABI --> NFTABIGanache
+ABI --> MarketABIGanache
+ABI --> NFTABIRopsten
+
+NFTABIGanache ..> NFTContract
+MarketABIGanache ..> MarketContract
+NFTABIRopsten ..> NFTContract
+
+Create --> IPFS
+NFTContract ..> IPFS
+
+YulUtility --> IABIEncode
+YulUtility --> IMemory
+YulUtility --> IValidation
+
+note right of ReactApp
+User interface components
+implementing routing via
+react-router-dom
+end note
+
+note right of Redux
+Centralized state management
+using createAsyncThunk for
+blockchain operations
+end note
+
+note right of NFTContract
+ERC-721 compliant
+Ownable pattern
+Minting & ownership
+end note
+
+note right of MarketContract
+Marketplace logic
+Buy, sell, list NFTs
+Integrates with NFT contract
+end note
+
+note right of YulUtility
+Low-level implementations:
+- Safe arithmetic
+- Data sanitization
+- Error handling
+- Memory operations
+end note
+
+note bottom of Ethereum
+Supports multiple networks:
+- Ropsten testnet
+- Ganache local dev
+end note
+
+@enduml

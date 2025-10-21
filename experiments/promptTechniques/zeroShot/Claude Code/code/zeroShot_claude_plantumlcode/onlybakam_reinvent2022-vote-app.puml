@@ -1,0 +1,74 @@
+@startuml
+!theme plain
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+
+actor User
+participant "Next.js UI\n(index.tsx)" as UI
+participant "AWS AppSync\n(GraphQL API)" as AppSync
+participant "publishToSNS\nResolver" as SNSResolver
+participant "saveToDynamodb\nResolver" as DynamoResolver
+participant "translateMessage\nResolver" as TranslateResolver
+participant "AWS SNS" as SNS
+participant "AWS DynamoDB" as DynamoDB
+participant "AWS Translate" as Translate
+
+== Initialization ==
+User -> UI: Load Application
+activate UI
+UI -> AppSync: Subscribe to OnPlusOne
+activate AppSync
+AppSync --> UI: Subscription Active
+UI -> AppSync: Query getTotals
+AppSync --> UI: Return Current Vote Counts
+deactivate AppSync
+deactivate UI
+
+== Vote Submission ==
+User -> UI: Select Country (BR/CM)\nand Message
+activate UI
+User -> UI: Click Vote Button
+UI -> AppSync: Mutation AddVote(VoteInput)
+activate AppSync
+
+AppSync -> SNSResolver: Pipeline Step 1:\nPublish Vote Event
+activate SNSResolver
+SNSResolver -> SNS: Publish Vote Message
+activate SNS
+SNS --> SNSResolver: Event Published
+deactivate SNS
+SNSResolver --> AppSync: Continue Pipeline
+deactivate SNSResolver
+
+AppSync -> DynamoResolver: Pipeline Step 2:\nSave Vote Data
+activate DynamoResolver
+DynamoResolver -> DynamoDB: PutItem(Vote)
+activate DynamoDB
+DynamoDB --> DynamoResolver: Vote Saved
+deactivate DynamoDB
+DynamoResolver --> AppSync: Continue Pipeline
+deactivate DynamoResolver
+
+AppSync -> TranslateResolver: Pipeline Step 3:\nTranslate Message
+activate TranslateResolver
+TranslateResolver -> Translate: Translate to English
+activate Translate
+Translate --> TranslateResolver: Translated Message
+deactivate Translate
+TranslateResolver --> AppSync: Return Vote with Translation
+deactivate TranslateResolver
+
+AppSync --> UI: AddVote Response (Vote)
+deactivate AppSync
+UI --> User: Display Vote Confirmation
+deactivate UI
+
+== Real-time Update Broadcast ==
+AppSync -> UI: OnPlusOne Subscription:\nNew Vote Event
+activate UI
+UI -> UI: Update Vote Count
+UI -> UI: Update Timeline
+UI --> User: Display Updated Results
+deactivate UI
+
+@enduml

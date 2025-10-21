@@ -1,0 +1,216 @@
+@startuml
+!define COMPONENT_BG_COLOR #E1F5FE
+!define INTERFACE_COLOR #B3E5FC
+
+skinparam component {
+    BackgroundColor COMPONENT_BG_COLOR
+    BorderColor #01579B
+    ArrowColor #0277BD
+}
+
+skinparam interface {
+    BackgroundColor INTERFACE_COLOR
+    BorderColor #0277BD
+}
+
+package "CLI Layer" {
+    [AsyncApiCmd] as CLI
+}
+
+package "Core Generation Layer" {
+    [AsyncApiToBallerinaGenerator] as A2BGen
+    [BallerinaToAsyncApiGenerator] as B2AGen
+
+    package "Code Generators" {
+        [TypeGenerator] as TypeGen
+        [ClientGenerator] as ClientGen
+        [ServiceGenerator] as ServiceGen
+        [AuthenticationGenerator] as AuthGen
+    }
+}
+
+package "Template Engine" {
+    [Template Processor] as TemplateProc
+    [Syntax Tree Builder] as SyntaxTree
+}
+
+package "Schema Processing" {
+    [Schema Parser] as SchemaParser
+    [Data Type Handler] as DataTypeHandler
+    component "Schema Composition\nHandler" as SchemaComp {
+        [allOf Handler]
+        [oneOf Handler]
+        [anyOf Handler]
+    }
+}
+
+package "Protocol Support" {
+    [WebSocket Handler] as WSHandler
+    [REST/HTTP Handler] as HTTPHandler
+    component "Message Dispatcher" as MsgDispatcher {
+        [Dispatcher Key Router]
+        [Stream Handler]
+    }
+}
+
+package "Authentication Layer" {
+    [API Key Auth] as APIKeyAuth
+    [HTTP Basic Auth] as BasicAuth
+    [Bearer Token Auth] as BearerAuth
+    [OAuth 2.0 Handler] as OAuth2
+    component "OAuth2 Flows" as OAuth2Flows {
+        [Client Credentials]
+        [Password Flow]
+        [Refresh Token]
+    }
+}
+
+package "Input Processing" {
+    [AsyncAPI Spec Reader] as AsyncAPIReader
+    [OpenAPI Spec Reader] as OpenAPIReader
+    [Ballerina Service Analyzer] as BalAnalyzer
+}
+
+package "Output Generation" {
+    [Ballerina Code Writer] as BalWriter
+    [AsyncAPI Spec Writer] as AsyncAPIWriter
+}
+
+package "Error Handling" {
+    [Connection Error Handler] as ConnError
+    [Data Binding Error Handler] as DataBindError
+    [Pipe Error Handler] as PipeError
+    [Validation Error Handler] as ValidError
+}
+
+package "External Dependencies" {
+    [xlibb/pipe Library] as PipeLib
+    [Ballerina WebSocket Module] as BalWebSocket
+    [Ballerina HTTP Module] as BalHTTP
+}
+
+package "Configuration" {
+    [AasClientConfig] as ClientConfig
+    [Project Configuration] as ProjectConfig
+    database "Ballerina.toml\nDependencies.toml" as ConfigFiles
+}
+
+interface "Command Interface" as ICmdInterface
+interface "IGenerator" as IGenerator
+interface "ISchemaHandler" as ISchemaHandler
+interface "IAuthProvider" as IAuthProvider
+interface "IErrorHandler" as IErrorHandler
+
+' CLI connections
+CLI -down-> ICmdInterface
+ICmdInterface -down-> A2BGen
+ICmdInterface -down-> B2AGen
+
+' Core generation connections
+A2BGen -down-> IGenerator
+B2AGen -down-> IGenerator
+IGenerator <-down- TypeGen
+IGenerator <-down- ClientGen
+IGenerator <-down- ServiceGen
+IGenerator <-down- AuthGen
+
+' Generator to template engine
+TypeGen -right-> TemplateProc
+ClientGen -right-> TemplateProc
+ServiceGen -right-> TemplateProc
+AuthGen -right-> TemplateProc
+TemplateProc -down-> SyntaxTree
+
+' Schema processing
+A2BGen -down-> SchemaParser
+SchemaParser -down-> ISchemaHandler
+ISchemaHandler <-down- DataTypeHandler
+ISchemaHandler <-down- SchemaComp
+DataTypeHandler -right-> TypeGen
+
+' Input processing
+A2BGen -left-> AsyncAPIReader
+A2BGen -left-> OpenAPIReader
+B2AGen -left-> BalAnalyzer
+
+' Output generation
+A2BGen -right-> BalWriter
+B2AGen -right-> AsyncAPIWriter
+
+' Protocol support
+ClientGen -down-> WSHandler
+ClientGen -down-> HTTPHandler
+WSHandler -down-> MsgDispatcher
+WSHandler -right-> BalWebSocket
+
+' Authentication
+AuthGen -down-> IAuthProvider
+IAuthProvider <-down- APIKeyAuth
+IAuthProvider <-down- BasicAuth
+IAuthProvider <-down- BearerAuth
+IAuthProvider <-down- OAuth2
+OAuth2 -down-> OAuth2Flows
+
+' Error handling
+WSHandler -down-> IErrorHandler
+HTTPHandler -down-> IErrorHandler
+IErrorHandler <-down- ConnError
+IErrorHandler <-down- DataBindError
+IErrorHandler <-down- PipeError
+IErrorHandler <-down- ValidError
+
+' External dependencies
+WSHandler -down-> PipeLib
+MsgDispatcher -down-> PipeLib
+HTTPHandler -right-> BalHTTP
+
+' Configuration
+ClientGen -down-> ClientConfig
+A2BGen -down-> ProjectConfig
+B2AGen -down-> ProjectConfig
+ProjectConfig -down-> ConfigFiles
+
+note right of CLI
+  Entry point: bal asyncapi command
+  Handles code generation and
+  specification export operations
+end note
+
+note right of A2BGen
+  Generates Ballerina code from
+  AsyncAPI/OpenAPI specifications
+  Supports data types, services,
+  and authentication
+end note
+
+note right of B2AGen
+  Reverse engineers AsyncAPI
+  definitions from Ballerina
+  service implementations
+end note
+
+note bottom of WSHandler
+  Primary protocol support
+  Asynchronous message handling
+  Stream-based communication
+end note
+
+note bottom of SchemaComp
+  Handles schema composition:
+  allOf, oneOf, anyOf
+  Supports nullability
+end note
+
+note bottom of OAuth2Flows
+  Supports multiple OAuth 2.0
+  grant types for flexible
+  authentication
+end note
+
+note bottom of PipeLib
+  Implements asynchronous
+  message queues for
+  WebSocket communication
+end note
+
+@enduml

@@ -1,0 +1,94 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: castle-finance_vault-transaction-indexer
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** control_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## Castle Finance Vault Transaction Indexer: Repository Analysis Report
+
+This report summarizes the architecture and functionality of the `castle-finance_vault-transaction-indexer` repository, which implements a transaction indexing and processing pipeline for Castle Labs vaults on the Solana blockchain using AWS CDK and TypeScript. The system aims to fetch, normalize, and store Solana transaction data in DynamoDB for subsequent analysis.
+
+**Core Functionality:**
+
+The indexer performs the following key functions:
+
+*   **Transaction Indexing:** Retrieves transaction IDs for specified vaults from the Solscan API.
+*   **Raw Transaction Storage:** Downloads raw transaction data (JSON format) from Solscan and stores it in a dedicated DynamoDB table.
+*   **Transaction Normalization:** Processes (normalizes) the raw transaction data and stores the resulting structured data in another DynamoDB table.
+
+**Architectural Overview:**
+
+The system adopts an event-driven, microservices-based architecture leveraging the following AWS services:
+
+*   **AWS CDK:** Defines and provisions the entire infrastructure as code (IaC), ensuring reproducibility and version control.
+*   **Lambda Functions:** Implement individual microservices responsible for specific tasks like fetching, normalizing, and indexing transactions.
+*   **DynamoDB:** Serves as the primary data store for both raw and normalized transaction data.
+*   **SNS/SQS:** Implements a queue-based system for managing transaction processing, providing load leveling and asynchronous processing. SNS facilitates fan-out of transaction hashes to multiple subscribers.
+*   **EventBridge (formerly CloudWatch Events):** Schedules periodic execution of the `index-transaction-ids` Lambda function, initiating the indexing process.
+
+**Key Components & File Breakdown:**
+
+*   **`index.ts` (Entry Point):** Defines the main CDK application, determines the deployment environment (production or staging) based on `GITHUB_REF_NAME`, and instantiates `VaultTransactionIndexerStack` for each configured vault, using `vault-core` for configuration retrieval.
+*   **`src/stack.ts` (CDK Stack Definition):** Contains the IaC logic for creating all required AWS resources: DynamoDB tables, SQS queues, SNS topics, and Lambda functions.
+*   **`src/lambdas/download-raw-transaction/lambda.ts`:** Consumes transaction hashes from SQS, fetches raw transaction data from Solscan, and stores it in the raw transactions DynamoDB table.
+*   **`src/lambdas/normalize-raw-transaction/lambda.ts`:** Triggered by DynamoDB stream events on the raw transactions table. Normalizes the raw transaction data and stores the processed data in the normalized transactions DynamoDB table.
+*   **`src/lambdas/index-transaction-ids/lambda.ts`:** Periodically fetches transaction IDs from Solscan and publishes them to an SNS topic, initiating the transaction processing pipeline.
+*   **`src/shared/`:** Contains shared modules:
+    *   `fetchJson.ts`: Functions for fetching JSON data.
+    *   `getEnv.ts`: Functions for retrieving environment variables.
+    *   `consts.ts`: Project constants.
+    *   `types.ts`: Type definitions.
+*   **`.github/workflows/cdk-deploy.yml`:** GitHub Actions workflow for CDK deployment (currently commented out).
+*   **`jest.config.js`:** Jest configuration.
+*   **`README.md`:** Project overview, architecture, prerequisites, and setup instructions.
+*   **`.github/dependabot.yml`:** Dependabot configuration for dependency updates.
+
+**Design Patterns & Considerations:**
+
+*   **Queue-based Load Leveling:** SNS/SQS buffer transaction hashes, preventing overload of the download and normalization Lambdas.
+*   **Fan-out Pattern:** The SNS topic distributes transaction hashes to the download Lambda.
+*   **Scheduled Task:** The `index-transaction-ids` Lambda is triggered by a scheduled event, implementing a scheduled task.
+*   **Data Transformation Pipeline:** Implements a pipeline where raw data is fetched, transformed, and stored.
+*   **Defensive Design:** Lambdas short-circuit on empty/invalid input, with comprehensive logging.
+*   **Error Handling:** Dead letter queues are implemented for SQS queue error handling.
+*   **Environment-based Configuration:** The system uses environment variables for configuration, supporting different environments (e.g., production, staging).
+
+**Notes for Integration:**
+
+*   Carefully consolidate environment variable configurations (especially `AWS_REGION` and `DATADOG_API_KEY`) with other repository components.
+*   Ensure consistent vault configurations (`MAINNET_VAULTS`, `DEVNET_STAGING_VAULTS`, `DEVNET_PARITY_VAULTS`) across different parts of the codebase.
+*   Verify correct building and packaging of the `transaction-indexer-lib` module, crucial for code sharing across lambdas.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: control_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/castle-finance_vault-transaction-indexer.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

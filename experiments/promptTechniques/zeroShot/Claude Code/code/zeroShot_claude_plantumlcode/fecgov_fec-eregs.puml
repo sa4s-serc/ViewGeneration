@@ -1,0 +1,112 @@
+@startuml
+title FEC eRegulations - Deployment and Data Flow Sequence Diagram
+
+actor Developer
+participant "tasks.py\n(Invoke Automation)" as Tasks
+participant "Cloud Foundry\n(cloud.gov)" as CF
+participant "Django Application\n(fec-eregs)" as Django
+participant "regulations-parser" as Parser
+participant "regulations-core\n(Data Service)" as Core
+participant "PostgreSQL\nDatabase" as DB
+participant "ElasticSearch" as ES
+participant "CMS\n(Content Management)" as CMS
+participant "API Service" as API
+actor "End User" as User
+
+== Deployment Phase ==
+
+Developer -> Tasks: invoke deploy
+activate Tasks
+
+Tasks -> Tasks: Git operations\n(GitPython)
+Tasks -> CF: cf login
+activate CF
+Tasks -> CF: cf target -s <space>
+Tasks -> CF: cf push -f manifest_*.yml
+CF -> CF: Parse manifest_*.yml\n(resources, routes, services)
+CF -> Django: Deploy application
+activate Django
+CF -> DB: Provision PostgreSQL service
+activate DB
+CF -> ES: Provision ElasticSearch service
+activate ES
+Tasks -> CF: Set network policies
+Tasks --> Developer: Deployment complete
+deactivate Tasks
+
+== Data Loading Phase ==
+
+Developer -> Parser: Execute load_regs scripts
+activate Parser
+Parser -> Parser: Parse FEC regulations\n(Custom preprocessors)
+Parser -> Core: POST parsed regulation data
+activate Core
+Core -> DB: Store regulation hierarchy\n(MPTT structure: lft, rght, tree_id)
+Core -> DB: Store version diffs\n(regcore_diff table)
+DB --> Core: Data stored
+Core --> Parser: Confirmation
+deactivate Core
+Parser -> ES: Index regulation content\n(keyword search)
+ES --> Parser: Indexed
+Parser --> Developer: Regulations loaded
+deactivate Parser
+
+== Runtime Data Flow ==
+
+User -> Django: HTTP Request\n(Browse regulations)
+activate Django
+
+Django -> Django: Process request\n(WSGI entry point)
+Django -> CMS: Fetch CMS content\n(FEC_CMS_URL)
+activate CMS
+CMS --> Django: Return content
+deactivate CMS
+
+Django -> Core: Request regulation data\n(REST API)
+activate Core
+Core -> DB: Query regulations\n(regcore_document MPTT)
+activate DB
+DB --> Core: Hierarchical data
+deactivate DB
+Core --> Django: Regulation structure
+deactivate Core
+
+Django -> Django: Render templates\n(Django templating)
+Django -> Django: Apply SCSS styling\n(Compiled CSS)
+Django --> User: HTML Response
+
+== User Search Flow ==
+
+User -> Django: Search request\n(keyword query)
+Django -> API: Forward search query\n(API_KEY, API_VERSION)
+activate API
+API -> ES: Execute search\n(keyword matching)
+ES --> API: Search results
+deactivate ES
+API --> Django: Formatted results
+deactivate API
+Django -> Core: Fetch detailed regulation data
+activate Core
+Core -> DB: Query specific regulations
+DB --> Core: Regulation details
+deactivate DB
+Core --> Django: Complete data
+deactivate Core
+Django --> User: Search results page
+
+== Version Diff Flow ==
+
+User -> Django: Compare regulation versions
+Django -> Core: Request version diff
+activate Core
+Core -> DB: Query regcore_diff table\n(serialized differences)
+DB --> Core: Diff data
+deactivate DB
+Core --> Django: Version differences
+Django -> Django: Render diff view\n(Template inheritance)
+Django --> User: Comparison view
+
+deactivate Django
+deactivate CF
+
+@enduml

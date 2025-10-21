@@ -1,0 +1,96 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: xydo1990_mlops_zoomcamp_homework
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** control_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## MLOps Project for LEGO Minifigure Classification: Repository Analysis
+
+This report summarizes the analysis of a GitHub repository focused on an MLOps project designed to classify LEGO minifigure images. The project leverages a comprehensive set of tools and techniques for experiment tracking, model deployment, data monitoring, and continuous integration/continuous deployment (CI/CD).
+
+**Core Functionality and Components:**
+
+The central functionality is **image classification** of LEGO minifigures. The project encompasses the entire model lifecycle, from initial data analysis and model training to deployment and continuous monitoring.
+
+Key components include:
+
+*   **Data Exploration:** Initial data analysis is performed using Jupyter Notebooks (`src/data_feeling.ipynb`).
+*   **Model Training:**  A Python script (`src/train_model.py`) trains an image classification model, integrated with MLflow for experiment tracking. Data is downloaded from Kaggle using `src/get_data.py`.
+*   **Experiment Tracking & Model Registry (MLflow):** MLflow tracks experiments, logs parameters and metrics, and manages model versions using its model registry. The models are promoted to production using `src/get_model_from_registry.jpynb`.
+*   **Model Deployment (Docker):**  Both batch and streaming prediction services are containerized using Docker for consistent and reproducible deployments (`prediction_service_batch/Dockerfile`, `prediction_service_stream/Dockerfile`, `mlflow/Dockerfile`).
+*   **Workflow Orchestration (Prefect):**  Prefect orchestrates the batch prediction pipeline (`src/batch_prefect_flow.py`), automating model inference on a schedule. A Prefect deployment is registered with `src/batch_prefect_deployment.py`.
+*   **Model Monitoring (Evidently):** Evidently is integrated for model performance monitoring and drift detection, with configuration files located in the `05-monitoring/` directory.
+*   **Batch and Stream Serving:** Provides batch (`prediction_service_batch/batch_docker.py`) and streaming (`prediction_service_stream/app.py`) endpoints for serving predictions. A Python script `prediction_service_stream/streaming_send_data.py` simulates streaming data to the service.
+*   **Testing:** Unit tests (`tests/unittests.py`) and integration tests (`tests/integration_test.py`, `tests/integration_test_cicd.sh`) ensure code quality and component interaction.
+*   **Code Quality:** Pre-commit hooks, linting (pylint), and code formatting (black) enforce coding standards.
+
+**Important Files and Roles:**
+
+*   **Configuration:**
+    *   `.pre-commit-config.yaml`: Pre-commit hook configuration.
+    *   `pyproject.toml`: Dependencies, linting, formatting, and testing configurations.
+    *   `sample.env`: Template for environment variables (database, AWS S3 credentials).
+    *   `Pipfile`: Python dependencies (Pipenv).
+    *   `nginx/mlflow.conf`, `nginx/nginx.conf`: Nginx configuration for reverse proxying to MLflow.
+    *   `05-monitoring/evidently_service/config.yaml`: Evidently service configuration.
+    *   `05-monitoring/evidently_service/config/prometheus.yml`, `05-monitoring/evidently_service/config/grafana_datasources.yaml`, `05-monitoring/evidently_service/config/grafana_dashboards.yaml`: Prometheus and Grafana configurations for monitoring.
+    *   `model/python_env.yaml`, `model/requirements.txt`, `model/conda.yaml`, `model/MLmodel`: Files to configure environment for fastai model training.
+*   **Deployment:**
+    *   `docker-compose.yml`: Docker Compose configuration for deploying the MLflow registry, MongoDB, Evidently service, batch prediction, and streaming prediction services.
+    *   `docker-compose-train.yml`: Docker Compose configuration for training (MLflow tracking server, training pipeline).
+    *   `prediction_service_stream/conda.yaml`: Conda environment definition for streaming prediction service.
+*   **Documentation & Automation:**
+    *   `README.md`: Project overview, installation, and usage.
+    *   `Makefile`: Commands for development tasks (tests, building Docker images).
+    *   `.github/workflows/.ci-tests.yml`: GitHub Actions workflow for CI tests.
+*   **Architecture:**
+    *   `images/architecture.drawio` & `images/architecture`: Visual representation of project architecture.
+
+**Architectural Insights:**
+
+*   **Microservices Architecture:** The project utilizes a microservices architecture, separating prediction logic from model registry and monitoring.
+*   **Cloud-Native Design:** The project is designed for cloud deployment, leveraging AWS S3 for artifact storage.
+*   **Orchestration and Automation:** Prefect automates the batch prediction workflow, and CI/CD pipelines automate testing and deployment.
+*   **Comprehensive Monitoring:** Evidently is used for monitoring both batch and real-time (streaming) predictions, detecting data drift and performance degradation.
+
+**Notable Design Patterns:**
+
+*   **Model Registry Pattern:** MLflow's model registry manages different model versions.
+*   **Containerization:** Docker provides portable and reproducible deployments.
+*   **Orchestration:** Prefect orchestrates the data pipeline.
+*   **Configuration via Environment Variables:** Securely manages sensitive information and deployment settings.
+*   **Dependency Injection:** Configuration flexibility achieved through argparse and environment variables.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: control_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/xydo1990_mlops_zoomcamp_homework.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

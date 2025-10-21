@@ -1,0 +1,311 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: decentraland_catalyst
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** deployment, connectivity
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## Decentraland Catalyst Content Server: Analysis Report
+
+This report summarizes the architecture, functionality, and design patterns of the Decentraland Catalyst content server, a critical component for content delivery and entity management within the Decentraland ecosystem. It combines insights from two separate analyses, avoiding redundancy and presenting a cohesive overview.
+
+**Summary:**
+
+The content server, a part of the Decentraland Catalyst Lambdas, is responsible for managing and serving Decentraland entities (scenes, profiles, wearables) and their associated content. It handles requests related to entities, content, and server status, interacting with The Graph, content storage, blockchain, and potentially third-party services. The system prioritizes data consistency and performance through caching, synchronization mechanisms, and validation processes. The architecture is designed to be modular and component-based, emphasizing separation of concerns.
+
+**Key Functionalities and Components:**
+
+*   **Entity and Content Retrieval:** Handles requests to fetch entities by ID, pointer, or content hash, including legacy content retrieval.
+*   **Content Deployment and Management:** Manages the deployment process, including validation, storage, and persistence of entities and their content. Resolves deployment conflicts and manages pointers. Supports deployments of new entities, overwrites and deletion.
+*   **Active Entity Management:** Determines and caches active entities for specific pointers, ensuring the latest deployments are served. Employs a Bloom Filter to minimize database access for non-existent entities.
+*   **Synchronization:** Synchronizes state between different Catalyst servers and the Decentraland DAO via snapshots, ensuring consistency across the network. The Snapshots Fetcher library is used for this purpose.
+*   **Third-Party Integration:** Supports retrieval of assets from third-party collections by querying The Graph and third-party resolvers.
+*   **Security and Validation:** Validates incoming deployments for authentication and authorization. This includes protocol-level and server-side validations, along with access permission checks using on-chain and subgraph data. Protects against various attack vectors.
+*   **Collections API:** Exposes access to Decentraland collections of wearables and emotes.
+*   **Garbage Collection:** Removes unused content files and stale profile data to optimize storage.
+*   **API Endpoints:** Exposes REST API endpoints for content retrieval, deployment, audit information, and server status.
+*   **Database Interaction:** Uses PostgreSQL for persistent storage of entity data, content mappings, and system properties. Manages connection pooling and query management.
+*   **Caching:** Leverages LRU caches to improve performance when retrieving active entities.
+*   **Rate Limiting:** Implements rate limiting for entity deployments to prevent abuse.
+*   **Metrics and Monitoring:** Utilizes metrics collection for monitoring server performance.
+*   **Content Resizing:** Provides an images API for resizing the content based on a CID and the size requested.
+*   **Migration:** Applies schema changes and data transformations to the database to evolve the data structure over time.
+
+**Important Files and Their Roles:**
+
+*   `lambdas/src/Server.ts`: Main server application setup, defines routes, and integrates components (using Express.js).
+*   `lambdas/src/Environment.ts`: Defines the application environment and configuration, including beans (services) and configurations, via environment variables.
+*   `lambdas/src/apis/profiles/*`: Handles profiles retrieval and management logic. Integrates with The Graph to resolve ownership of ENS names, wearables, and emotes.
+*   `lambdas/src/apis/content-v2/*`: Handles translation from pointer coordinates to contents from the content server.
+*   `lambdas/src/apis/collections/*`: Implements API for Collections and related methods.
+*   `lambdas/src/ports/the-graph/*`: Defines the port of communication with The Graph.
+*   `lambdas/src/ports/third-party/*`: Defines the port of communication with third-party providers.
+*   `lambdas/src/utils/*`: Utility classes for fetching data, managing time-refreshed data, building smart content clients, etc.
+*   `content/src/service.ts`: The main entry point for the content service. Sets up the router, starts components, and initiates synchronization.
+*   `content/src/components.ts`: Defines the components used by the content server, wiring them together to form the application.
+*   `content/src/types.ts`: Defines the core types and interfaces used throughout the content server.
+*   `content/src/logic/deployments.ts`: Core logic for deployment handling.
+*   `content/src/logic/entity-parser.ts`: Responsible for parsing and validating entity files.
+*   `content/src/logic/synchronization.ts`: Manages the synchronization process.
+*   `content/src/controller/routes.ts`: Defines the API routes and their corresponding handlers.
+*   `content/src/controller/handlers/*`: Implement the logic for individual API endpoints.
+*   `content/src/migrations/*`: Contains the database migration scripts.
+*   `content/src/ports/*`: Contains the different components used by the server.
+*   `content/src/service/validations/*`: Contains the validation logic for entities.
+*   `content/test/`: Includes unit and integration tests for the content server.
+*   `content/src/logic/snapshots.ts`: Manages the generation and processing of snapshots for synchronization.
+*   `content/src/logic/database-queries/*`: Contains queries to interact with the database.
+
+**Architectural Insights:**
+
+*   **Layered Architecture:** Separates concerns such as routing, business logic, data access, and external service integration.
+*   **Component-Based Design:** Promotes modularity, testability, and reusability.
+*   **Dependency Injection:** Components receive their dependencies through constructor injection.
+*   **Microservice Pattern:** The content server functions as a microservice within the Decentraland ecosystem.
+*   **Asynchronous Operations:** Heavily relies on asynchronous operations (Promises) for handling I/O-bound tasks and external service calls.
+*   **CQRS separation:** Some components implements CQRS separation with separated read and write models.
+
+**Notable Design Patterns:**
+
+*   **Factory Pattern:** Encapsulates the creation logic of certain components. Used for creating different checkers.
+*   **Data Access Object (DAO) / Repository Pattern:** Abstracts data access logic, especially when interacting with The Graph and the database.
+*   **Strategy Pattern:**  Allows different ownership checking or validation strategies to be used based on configuration or entity type.
+*   **Cache Aside:** Caching is used extensively to improve performance.
+*   **Data Holder (TimeRefreshedDataHolder):** Used to refresh data regularly and avoid outdated results.
+*   **Singleton Pattern:** Components like the logger and metrics may be implemented or managed as singletons.
+*   **Decorator Pattern:** The deployment pipeline is decorated with other components such as validation and rate limiting.
+
+**In Summary:**
+
+The Decentraland Catalyst content server is a crucial component for serving content and managing the state of the Decentraland world. It leverages a modular design, separation of concerns, and strategic caching to ensure efficiency and reliability. The code interacts with multiple external services, making it a core component of the Decentraland ecosystem. Its component-based architecture, dependency injection, and reliance on proven design patterns contribute to its maintainability and scalability.
+
+
+
+IMPORTANT - RETRY ATTEMPT:
+A previous PlantUML generation failed with the following error:
+```
+Error line 83 in file: zeroShot_claude_plantumlcode/decentraland_catalyst.puml
+Some diagram description contains errors
+
+```
+
+The problematic code was:
+```plantuml
+@startuml
+skinparam component {
+    BackgroundColor<<external>> LightBlue
+    BackgroundColor<<core>> LightGreen
+    BackgroundColor<<storage>> LightYellow
+    BackgroundColor<<api>> LightCoral
+    BorderColor Black
+}
+
+skinparam database {
+    BackgroundColor LightYellow
+}
+
+skinparam storage {
+    BackgroundColor LightYellow
+}
+
+package "Decentraland Catalyst Content Server" {
+
+    package "API Layer" <<api>> {
+        [Server Express] as Server
+        [Content API v2] as ContentAPI
+        [Profiles API] as ProfilesAPI
+        [Collections API] as CollectionsAPI
+        [Images API] as ImagesAPI
+    }
+
+    package "Controller Layer" {
+        [Route Handlers] as RouteHandlers
+        [Deployment Handler] as DeploymentHandler
+        [Entity Handler] as EntityHandler
+        [Status Handler] as StatusHandler
+    }
+
+    package "Business Logic Layer" <<core>> {
+        [Deployment Manager] as DeploymentLogic
+        [Entity Parser] as EntityParser
+        [Active Entity Manager] as ActiveEntityMgr
+        [Synchronization Manager] as SyncManager
+        [Garbage Collector] as GarbageCollector
+        [Snapshots Manager] as SnapshotsManager
+    }
+
+    package "Service Layer" {
+        [Validation Services] as ValidationServices
+        [Access Control] as AccessControl
+        [Rate Limiter] as RateLimiter
+        [Conflict Resolver] as ConflictResolver
+    }
+
+    package "Data Access Layer" {
+        [Database Queries] as DBQueries
+        [Content Storage Manager] as ContentStorage
+        [Cache Manager] as CacheManager
+        [Migration Manager] as MigrationManager
+    }
+
+    package "Integration Ports" {
+        [The Graph Port] as TheGraphPort
+        [Third Party Port] as ThirdPartyPort
+        [Blockchain Port] as BlockchainPort
+        [Snapshots Fetcher] as SnapshotsFetcher
+    }
+
+    package "Storage Layer" <<storage>> {
+        database "PostgreSQL" as PostgreSQL
+        storage "Content Files" as ContentFiles
+    }
+
+    [Environment Config] as Environment
+    [Metrics Monitor] as Metrics
+}
+
+package "External Systems" <<external>> {
+    [The Graph] as TheGraph
+    [Third Party Resolvers] as ThirdParty
+    [Blockchain] as Blockchain
+    [Other Catalysts] as OtherCatalysts
+    [Decentraland DAO] as DAO
+}
+
+package "Clients" <<external>> {
+    actor "Decentraland Clients" as Clients
+    actor "Deployment Tools" as DeploymentTools
+}
+
+Server --> RouteHandlers
+Server --> ContentAPI
+Server --> ProfilesAPI
+Server --> CollectionsAPI
+Server --> ImagesAPI
+
+RouteHandlers --> DeploymentHandler
+RouteHandlers --> EntityHandler
+RouteHandlers --> StatusHandler
+
+DeploymentHandler --> DeploymentLogic
+DeploymentHandler --> RateLimiter
+
+EntityHandler --> ActiveEntityMgr
+EntityHandler --> EntityParser
+
+DeploymentLogic --> EntityParser
+DeploymentLogic --> ValidationServices
+DeploymentLogic --> AccessControl
+DeploymentLogic --> ConflictResolver
+DeploymentLogic --> ContentStorage
+DeploymentLogic --> DBQueries
+
+ActiveEntityMgr --> CacheManager
+ActiveEntityMgr --> DBQueries
+
+SyncManager --> SnapshotsManager
+SyncManager --> SnapshotsFetcher
+SyncManager --> DBQueries
+
+ValidationServices --> TheGraphPort
+ValidationServices --> BlockchainPort
+
+AccessControl --> TheGraphPort
+AccessControl --> BlockchainPort
+
+ProfilesAPI --> TheGraphPort
+ProfilesAPI --> ActiveEntityMgr
+
+CollectionsAPI --> TheGraphPort
+CollectionsAPI --> ThirdPartyPort
+
+GarbageCollector --> ContentStorage
+GarbageCollector --> DBQueries
+
+TheGraphPort --> TheGraph
+ThirdPartyPort --> ThirdParty
+BlockchainPort --> Blockchain
+SnapshotsFetcher --> OtherCatalysts
+SnapshotsFetcher --> DAO
+
+DBQueries --> PostgreSQL
+ContentStorage --> ContentFiles
+CacheManager ..> PostgreSQL
+
+MigrationManager --> PostgreSQL
+
+Environment --> Server
+Environment --> DeploymentLogic
+Metrics <.. Server
+Metrics <.. DeploymentLogic
+
+Clients --> Server
+DeploymentTools --> Server
+
+OtherCatalysts ..> Server
+Server ..> OtherCatalysts
+
+note right of DeploymentLogic
+Deployment Flow:
+1. Receive deployment
+2. Rate limiting check
+3. Protocol validation
+4. Access control check
+5. Entity parsing
+6. Conflict resolution
+7. Content storage
+8. Database persistence
+9. Cache update
+end note
+
+note right of SyncManager
+Synchronization Process:
+- Periodic snapshot generation
+- Sync with other Catalysts
+- Sync with Decentraland DAO
+- Ensures network consistency
+end note
+
+note bottom of ActiveEntityMgr
+Performance Optimization:
+- Bloom Filter for checks
+- LRU Cache for entities
+- Minimizes DB access
+end note
+
+@enduml
+
+```
+
+Please analyze the error, identify the issue, and generate corrected PlantUML code that compiles successfully.
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment, connectivity
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/decentraland_catalyst.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

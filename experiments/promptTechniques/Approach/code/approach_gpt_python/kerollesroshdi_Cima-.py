@@ -1,0 +1,51 @@
+from graphviz import Digraph
+
+# Create a new directed graph
+dot = Digraph(comment='Cima+ iOS Application Architecture')
+
+# Define nodes for core architectural components
+dot.node('AppDelegate', 'AppDelegate.swift')
+dot.node('AppCoordinator', 'AppCoordinator.swift')
+dot.node('NowPlayingVC', 'NowPlayingVC')
+dot.node('TopRatedVC', 'TopRatedVC')
+dot.node('SearchVC', 'SearchVC')
+dot.node('MovieDetailsVC', 'MovieDetailsVC')
+dot.node('BrowseVM', 'BrowseVM')
+dot.node('SearchVM', 'SearchVM')
+dot.node('MovieDetailsVM', 'MovieDetailsVM')
+dot.node('MoviesRepository', 'MoviesRepository.swift')
+dot.node('RemoteMoviesDataSource', 'RemoteMoviesDataSource.swift')
+dot.node('MoviesService', 'MoviesService.swift')
+dot.node('StateView', 'StateView')
+dot.node('TextyTabBarController', 'TextyTabBar')
+dot.node('RxSwift', 'RxSwift Framework')
+dot.node('Moya', 'Moya Framework')
+
+# Define edges to represent interactions and data flow
+dot.edge('AppDelegate', 'AppCoordinator', label='Initializes')
+dot.edge('AppCoordinator', 'NowPlayingVC', label='Navigates to')
+dot.edge('AppCoordinator', 'TopRatedVC', label='Navigates to')
+dot.edge('AppCoordinator', 'SearchVC', label='Navigates to')
+dot.edge('AppCoordinator', 'MovieDetailsVC', label='Navigates to')
+dot.edge('NowPlayingVC', 'BrowseVM', label='Uses')
+dot.edge('TopRatedVC', 'BrowseVM', label='Uses')
+dot.edge('SearchVC', 'SearchVM', label='Uses')
+dot.edge('MovieDetailsVC', 'MovieDetailsVM', label='Uses')
+dot.edge('BrowseVM', 'MoviesRepository', label='Fetches Data')
+dot.edge('SearchVM', 'MoviesRepository', label='Fetches Data')
+dot.edge('MovieDetailsVM', 'MoviesRepository', label='Fetches Data')
+dot.edge('MoviesRepository', 'RemoteMoviesDataSource', label='Delegates to')
+dot.edge('RemoteMoviesDataSource', 'MoviesService', label='HTTP Requests')
+dot.edge('MoviesService', 'TMDB API', label='Interacts with', style='dashed')
+dot.edge('StateView', 'NowPlayingVC', label='Displayed in', style='dotted')
+dot.edge('StateView', 'TopRatedVC', label='Displayed in', style='dotted')
+dot.edge('StateView', 'SearchVC', label='Displayed in', style='dotted')
+dot.edge('StateView', 'MovieDetailsVC', label='Displayed in', style='dotted')
+dot.edge('TextyTabBarController', 'AppCoordinator', label='Configured by', style='dotted')
+dot.edge('RxSwift', 'BrowseVM', label='Reactive Programming')
+dot.edge('RxSwift', 'SearchVM', label='Reactive Programming')
+dot.edge('RxSwift', 'MovieDetailsVM', label='Reactive Programming')
+dot.edge('Moya', 'RemoteMoviesDataSource', label='Networking Layer')
+
+# Save and render the diagram
+dot.render('cima_plus_ios_application_architecture', format='png', cleanup=True)

@@ -1,0 +1,92 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: jkahn117_aws-news
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** general
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## AWS News Aggregator Repository Analysis
+
+This report summarizes the architecture and functionality of the `aws-news` repository, an "AWS News" aggregator application. The project leverages a serverless architecture on AWS, utilizing Infrastructure as Code (IaC) principles with CloudFormation and SAM (Serverless Application Model) for repeatable and version-controlled deployments. A core design goal focuses on efficient content delivery through caching and optimized images.
+
+**Functionality Overview:**
+
+The application aggregates news articles from various AWS blogs using RSS feeds. This involves:
+
+*   **News Ingestion:** Fetching and parsing RSS feeds.
+*   **Content Storage and Processing:** Storing article content in S3, processing images (resizing, format conversion to WebP/JPEG), and storing metadata in DynamoDB.
+*   **GraphQL API:** Exposing data via an AWS AppSync GraphQL API.
+*   **Caching:** Employing Amazon ElastiCache for Redis to cache articles and statistics, improving retrieval speed.
+*   **Frontend Delivery:** Serving content to the Next.js frontend via the AppSync API and CloudFront for CDN capabilities.
+*   **Analytics:** Capturing user interaction data with Amazon Pinpoint and streaming it to Kinesis Data Firehose for further processing and storage.
+
+**Architectural Highlights:**
+
+*   **Serverless Architecture:** The backend is primarily serverless, using Lambda functions and managed services to minimize operational overhead.
+*   **Microservices:** The backend is structured into logical components: ingestion, services, and analytics.
+*   **Event-Driven Design:** Amazon EventBridge facilitates inter-service communication. For instance, the `article_created` event triggers image processing.
+*   **Frontend as a Static Site:** The frontend is a static site hosted via Amplify Console, as indicated by `amplify.yml`.
+*   **Infrastructure as Code:** CloudFormation and SAM templates define the AWS infrastructure, ensuring consistency and manageability.
+
+**Key Components and Files:**
+
+*   **`Makefile`:** Automates deployment tasks using AWS CLI and SAM commands. Defines targets like `deploy`, `init`, and `delete`.
+*   **`amplify.yml`:** Configures AWS Amplify, defining build phases and frontend deployment settings.
+*   **`README.md`:** Provides a project overview, architecture description, and setup instructions.
+*   **`next/` directory:** Contains the Next.js frontend application code.
+*   **`backend/ingestion/template.yaml`:** SAM template for deploying ingestion services (Lambda functions, Step Functions, DynamoDB tables, EventBridge rules).
+*   **`backend/ingestion/process-blog/app.rb`:** Ruby Lambda function parsing RSS feeds and saving article content to S3 and metadata to DynamoDB.
+*   **`backend/ingestion/process-article-image/index.js`:** Node.js Lambda function processing article images and updating DynamoDB.
+*   **`backend/common/template.yaml`:** SAM template for common resources (EventBridge bus, ElastiCache cluster, network resources).
+*   **`backend/services/template.yaml`:** SAM template for the services layer (API Gateway endpoints, Lambda functions for content serving, ElastiCache integration).
+*   **`backend/services/cdn.yaml`:** CloudFormation template creating the CloudFront distribution.
+*   **`backend/analytics/template.yaml`:** SAM template for analytics infrastructure (Kinesis Firehose, Lambda functions, S3 buckets).
+*   **`amplify/backend/auth/awsnewsb9664fc2/awsnewsb9664fc2-cloudformation-template.yml`:** CloudFormation template for Cognito authentication.
+*   **`amplify/backend/api/awsnews/schema.graphql`:** Defines the GraphQL schema for the AppSync API.
+*   **`support/template.yaml`:** CloudFormation template setting up CI/CD support resources, including an ECR repository.
+*   **`support/Dockerfile`:** Defines the custom Docker build image used by Amplify Console.
+
+**Design Patterns:**
+
+*   **Backend for Frontend (BFF):** The `backend/services` component acts as a BFF, tailoring the API for the frontend application.
+*   **CQRS (Command Query Responsibility Segregation):** The separation between the ingestion process (writing to DynamoDB) and the frontend's read-optimized AppSync API with caching resembles a CQRS pattern.
+*   **Deployment Pipeline:** The custom build image in ECR suggests a CI/CD pipeline in place.
+
+**Key Considerations:**
+
+*   **SSM Parameter Store:** Likely used for managing configuration values between stacks.
+*   **Custom Docker Build Image:** Indicates specific runtime or tooling requirements.
+*   **Polyglot Backend:** Uses both Node.js and Ruby Lambda functions.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: general
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/jkahn117_aws-news.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

@@ -1,0 +1,43 @@
+@startuml
+title Serverless Chatbot - Control Flow Sequence Diagram
+
+actor User
+participant "IBM Cloud Functions" as CloudFunctions
+participant "Assistant Function\n(assistant.js)" as AssistantFunc
+participant "Watson Assistant" as Watson
+participant "MongoDB Function\n(mongodb.js)" as MongoFunc
+participant "MongoDB Database" as MongoDB
+
+User -> CloudFunctions: Send message
+activate CloudFunctions
+
+CloudFunctions -> AssistantFunc: Trigger function with user input
+activate AssistantFunc
+
+AssistantFunc -> Watson: Send user input\n(create/manage session)
+activate Watson
+
+Watson -> Watson: Process NLP\n(intent recognition,\nentity extraction,\ndialogue management)
+
+Watson --> AssistantFunc: Return response\n(output, intents, entities, context)
+deactivate Watson
+
+AssistantFunc --> CloudFunctions: Return Watson response
+deactivate AssistantFunc
+
+CloudFunctions -> MongoFunc: Trigger function with conversation data\n(input, output, intents, entities, context)
+activate MongoFunc
+
+MongoFunc -> MongoDB: Save conversation data
+activate MongoDB
+
+MongoDB --> MongoFunc: Acknowledge save
+deactivate MongoDB
+
+MongoFunc --> CloudFunctions: Confirm storage
+deactivate MongoFunc
+
+CloudFunctions --> User: Return chatbot response
+deactivate CloudFunctions
+
+@enduml

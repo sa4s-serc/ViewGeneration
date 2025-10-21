@@ -1,0 +1,91 @@
+@startuml
+title Iris IoT Framework - Deployment and Connectivity Flow
+
+actor "IoT Device" as Device
+participant "Dock\n(Protocol Listener)" as Dock
+participant "Dispatcher\n(Message Router)" as Dispatcher
+participant "Input Hook" as InputHook
+participant "Thread Pool" as ThreadPool
+participant "Handler\n(Data Processor)" as Handler
+participant "Output Hook" as OutputHook
+participant "Logger\n(Winston)" as Logger
+participant "Validator\n(Config)" as Validator
+
+== Initialization & Deployment ==
+activate Dispatcher
+Dispatcher -> Validator: Validate configurations
+activate Validator
+Validator --> Dispatcher: Configuration valid
+deactivate Validator
+
+Dispatcher -> Dock: Bootstrap and register
+activate Dock
+Dock -> Dock: Listen on port/protocol
+Dock --> Dispatcher: Dock registered
+deactivate Dock
+
+Dispatcher -> ThreadPool: Initialize thread pool
+activate ThreadPool
+ThreadPool --> Dispatcher: Pool ready
+deactivate ThreadPool
+
+Dispatcher -> Logger: Initialize logging
+activate Logger
+Logger --> Dispatcher: Logger ready
+deactivate Logger
+
+== Message Processing Flow ==
+Device -> Dock: Send IoT message\n(via network protocol)
+activate Dock
+Dock -> Dock: Parse message to\nJavaScript object
+Dock -> Logger: Log incoming message
+activate Logger
+deactivate Logger
+
+Dock -> Dispatcher: Forward parsed message
+activate Dispatcher
+Dispatcher -> Logger: Log message routing
+activate Logger
+deactivate Logger
+
+Dispatcher -> InputHook: Execute input hook
+activate InputHook
+InputHook -> InputHook: Custom logic\n(pre-processing)
+InputHook --> Dispatcher: Modified data
+deactivate InputHook
+
+Dispatcher -> ThreadPool: Submit flow job
+activate ThreadPool
+ThreadPool -> Handler: Execute in thread
+activate Handler
+Handler -> Handler: Process data
+Handler -> Logger: Log processing
+activate Logger
+deactivate Logger
+Handler --> ThreadPool: Processing result
+deactivate Handler
+ThreadPool --> Dispatcher: Job complete
+deactivate ThreadPool
+
+Dispatcher -> OutputHook: Execute output hook
+activate OutputHook
+OutputHook -> OutputHook: Custom logic\n(post-processing)
+OutputHook --> Dispatcher: Final response
+deactivate OutputHook
+
+Dispatcher --> Dock: Return response
+deactivate Dispatcher
+
+Dock -> Dock: Encode response\n(protocol format)
+Dock --> Device: Send response\n(via network)
+deactivate Dock
+
+== Hot Reload (Runtime) ==
+Dispatcher -> Dock: Hot reload trigger
+activate Dock
+Dock -> Dock: Swap implementation\n(dynamic reload)
+Dock --> Dispatcher: Reload complete
+deactivate Dock
+deactivate Dispatcher
+
+@enduml

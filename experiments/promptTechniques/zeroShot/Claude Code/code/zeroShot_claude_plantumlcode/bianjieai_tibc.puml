@@ -1,0 +1,176 @@
+@startuml
+!define COMPONENT_COLOR #E1F5FE
+!define CLIENT_COLOR #FFF9C4
+!define APP_COLOR #F0F4C3
+!define RELAYER_COLOR #FFE0B2
+
+skinparam component {
+    BackgroundColor COMPONENT_COLOR
+    BorderColor #01579B
+    ArrowColor #424242
+}
+
+skinparam interface {
+    BackgroundColor #FFFFFF
+    BorderColor #616161
+}
+
+package "TIBC Core Protocol" {
+    component "Host Environment\n(TICS-024)" as Host {
+        interface "Key/Value Store" as KVStore
+        interface "Module System" as ModuleSystem
+        interface "Event Logging" as EventLog
+    }
+
+    component "Client Semantics\n(TICS-002)" as ClientSemantics {
+        interface "IClientState" as IClientState
+        interface "IConsensusState" as IConsensusState
+        interface "IHeader" as IHeader
+    }
+
+    component "Port & Packet\nSemantics\n(TICS-004)" as PortPacket {
+        interface "Port Management" as PortMgmt
+        interface "Packet Handler" as PacketHandler
+    }
+
+    component "Packet Routing\n(TICS-026)" as Routing {
+        interface "Router Interface" as RouterInterface
+        interface "Routing Whitelist" as RoutingWhitelist
+    }
+}
+
+package "Client Implementations" <<CLIENT_COLOR>> {
+    component "Tendermint Client\n(TICS-007)" as TendermintClient
+    component "BSC Client\n(TICS-008)" as BSCClient
+    component "Ethereum Client\n(TICS-009)" as EthClient
+}
+
+package "Application Layer Protocols" <<APP_COLOR>> {
+    component "NFT Transfer\nApplication\n(TICS-030)" as NFTTransfer {
+        interface "NFT Packet Handler" as NFTHandler
+        interface "Escrow/Mint Logic" as NFTEscrow
+    }
+
+    component "Module Callback\nInterface" as ModuleCallback {
+        interface "onRecvPacket" as OnRecv
+        interface "onAcknowledgePacket" as OnAck
+        interface "onCleanPacket" as OnClean
+        interface "validatePacket" as OnValidate
+    }
+}
+
+package "Off-Chain Components" <<RELAYER_COLOR>> {
+    component "Relayer" as Relayer {
+        interface "Chain Scanner" as ChainScanner
+        interface "Datagram Constructor" as DatagramConstructor
+        interface "Transaction Executor" as TxExecutor
+    }
+}
+
+cloud "Blockchain A" as ChainA
+cloud "Blockchain B" as ChainB
+
+' Core protocol relationships
+Host -down-> KVStore
+Host -down-> ModuleSystem
+Host -down-> EventLog
+
+ClientSemantics -down-> IClientState
+ClientSemantics -down-> IConsensusState
+ClientSemantics -down-> IHeader
+
+PortPacket -down-> PortMgmt
+PortPacket -down-> PacketHandler
+
+Routing -down-> RouterInterface
+Routing -down-> RoutingWhitelist
+
+' Client implementations to core protocol
+TendermintClient .up.|> IClientState : implements
+TendermintClient .up.|> IConsensusState : implements
+TendermintClient .up.|> IHeader : implements
+
+BSCClient .up.|> IClientState : implements
+BSCClient .up.|> IConsensusState : implements
+BSCClient .up.|> IHeader : implements
+
+EthClient .up.|> IClientState : implements
+EthClient .up.|> IConsensusState : implements
+EthClient .up.|> IHeader : implements
+
+' Core protocol dependencies
+ClientSemantics --> Host : uses
+PortPacket --> Host : uses
+Routing --> Host : uses
+Routing --> PortPacket : routes to
+
+' Application layer to core protocol
+NFTTransfer --> PortPacket : uses
+NFTTransfer ..|> ModuleCallback : implements
+NFTTransfer -down-> NFTHandler
+NFTTransfer -down-> NFTEscrow
+
+ModuleCallback -down-> OnRecv
+ModuleCallback -down-> OnAck
+ModuleCallback -down-> OnClean
+ModuleCallback -down-> OnValidate
+
+Routing --> ModuleCallback : invokes
+
+' Relayer relationships
+Relayer -down-> ChainScanner
+Relayer -down-> DatagramConstructor
+Relayer -down-> TxExecutor
+
+Relayer ..> EventLog : monitors
+Relayer --> ChainA : scans/submits
+Relayer --> ChainB : scans/submits
+
+' Cross-chain verification
+TendermintClient --> ChainA : verifies state
+BSCClient --> ChainA : verifies state
+EthClient --> ChainA : verifies state
+
+TendermintClient --> ChainB : verifies state
+BSCClient --> ChainB : verifies state
+EthClient --> ChainB : verifies state
+
+' Chain connections to TIBC
+ChainA --> Host : implements
+ChainB --> Host : implements
+
+note right of Host
+  Minimal interface required
+  from host state machine
+  to support TIBC
+end note
+
+note right of ClientSemantics
+  Manages light client lifecycle:
+  - Creation
+  - Update
+  - Upgrade
+end note
+
+note right of Routing
+  Routes packets with
+  whitelist control for
+  hub chain scenarios
+end note
+
+note bottom of Relayer
+  Off-chain process responsible for:
+  - Scanning chain state
+  - Constructing datagrams
+  - Relaying packets
+  - Permissionless operation
+end note
+
+note right of NFTTransfer
+  Application protocol for
+  cross-chain NFT transfers
+  preserving uniqueness
+  and ownership
+end note
+
+@enduml

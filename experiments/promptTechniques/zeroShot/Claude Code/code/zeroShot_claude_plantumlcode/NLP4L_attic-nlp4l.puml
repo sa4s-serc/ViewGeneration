@@ -1,0 +1,221 @@
+@startuml
+skinparam component {
+  BackgroundColor #B3E5FC
+  BorderColor #01579B
+}
+
+skinparam interface {
+  BackgroundColor #FFE082
+  BorderColor #F57F17
+}
+
+skinparam package {
+  BackgroundColor #E8F5E9
+  BorderColor #2E7D32
+}
+
+title NLP4L Library - Component Architecture
+
+package "Core Layer" {
+  [Schema] as Schema
+  [Field] as Field
+  [FieldType] as FieldType
+  [SchemaLoader] as SchemaLoader
+  [Document] as Document
+
+  [IWriter] as IWriter
+  [IReader] as IReader
+  [RawReader] as RawReader
+  [ISearcher] as ISearcher
+
+  [TermDocs] as TermDocs
+  [Terms] as Terms
+  [Doc] as Doc
+  [PosAndOffset] as PosAndOffset
+}
+
+package "Text Analysis Layer" {
+  [Analyzer] as Analyzer
+  [AnalyzerBuilder] as AnalyzerBuilder
+  [Token] as Token
+  [BrownCorpusAnalyzer] as BrownCorpusAnalyzer
+
+  [Japanese Tokenizers] as JapaneseTokenizers
+  [Japanese Filters] as JapaneseFilters
+}
+
+package "NLP Algorithms Layer" {
+  [HmmModel] as HmmModel
+  [HmmTagger] as HmmTagger
+  [HmmTokenizer] as HmmTokenizer
+  [HmmTracer] as HmmTracer
+  [AbstractNode] as AbstractNode
+  [Node] as Node
+  [HmmModelIndexer] as HmmModelIndexer
+
+  [CollocationalAnalysisModel] as CollocationalAnalysisModel
+  [CollocationalAnalysisModelIndexer] as CollocationalAnalysisModelIndexer
+  [CollocationalAnalysisModelSchema] as CollocationalAnalysisModelSchema
+
+  [SimpleFST] as SimpleFST
+}
+
+package "Feature Processing Layer" {
+  [FeatureSelector] as FeatureSelector
+  [TermsExtractor] as TermsExtractor
+  [TermsExtractionProcessor] as TermsExtractionProcessor
+
+  [LoanWordsExtractor] as LoanWordsExtractor
+  [TransliterationModel] as TransliterationModel
+
+  [SynonymRecords] as SynonymRecords
+  [SynonymRecordsUnifier] as SynonymRecordsUnifier
+  [SynonymCommon] as SynonymCommon
+  [UnifySynonymRecordsProcessor] as UnifySynonymRecordsProcessor
+}
+
+package "Application Layer" {
+  [NLP4LILoop] as NLP4LILoop
+  [NLP4LMainGenericRunner] as NLP4LMainGenericRunner
+  [NLP4L] as NLP4L
+  [ZeppelinVisualizer] as ZeppelinVisualizer
+
+  [Corpora] as Corpora
+
+  [TFIDF] as TFIDF
+  [BuddyWordsFinder] as BuddyWordsFinder
+  [BuddyWordsFinderTermFilter] as BuddyWordsFinderTermFilter
+  [LRCompoundNounScorer] as LRCompoundNounScorer
+  [TermWeightFactory] as TermWeightFactory
+}
+
+package "External Dependencies" {
+  [Apache Lucene] as Lucene
+  [Spark MLlib] as Spark
+}
+
+interface "Index I/O" as IndexIO
+interface "Analysis API" as AnalysisAPI
+interface "Schema API" as SchemaAPI
+interface "NLP API" as NLPAPI
+interface "Feature API" as FeatureAPI
+interface "REPL Commands" as REPLCommands
+
+Schema -- SchemaAPI
+Field ..> Schema
+FieldType ..> Schema
+SchemaLoader ..> Schema
+Document ..> Field
+
+IWriter -- IndexIO
+IReader -- IndexIO
+RawReader -- IndexIO
+ISearcher -- IndexIO
+IWriter ..> Schema
+IReader ..> Schema
+
+TermDocs ..> IReader
+Terms ..> IReader
+Doc ..> IReader
+PosAndOffset ..> IReader
+
+Analyzer -- AnalysisAPI
+AnalyzerBuilder ..> Analyzer
+Token ..> Analyzer
+BrownCorpusAnalyzer ..> Analyzer
+Analyzer ..> Lucene
+
+JapaneseTokenizers ..> Analyzer
+JapaneseFilters ..> Analyzer
+
+HmmModel -- NLPAPI
+HmmTagger ..> HmmModel
+HmmTokenizer ..> HmmModel
+HmmTracer ..> HmmModel
+AbstractNode ..> HmmModel
+Node ..> AbstractNode
+HmmModelIndexer ..> HmmModel
+HmmModelIndexer ..> IWriter
+HmmModel ..> SimpleFST
+HmmTagger ..> Analyzer
+
+CollocationalAnalysisModel ..> IReader
+CollocationalAnalysisModelIndexer ..> IWriter
+CollocationalAnalysisModelIndexer ..> CollocationalAnalysisModel
+CollocationalAnalysisModelSchema ..> Schema
+
+SimpleFST ..> Lucene
+
+FeatureSelector -- FeatureAPI
+TermsExtractor ..> IReader
+TermsExtractor ..> TermDocs
+TermsExtractionProcessor ..> TermsExtractor
+FeatureSelector ..> Spark
+
+LoanWordsExtractor ..> IReader
+TransliterationModel ..> Analyzer
+
+SynonymRecords ..> IReader
+SynonymRecordsUnifier ..> SynonymRecords
+UnifySynonymRecordsProcessor ..> SynonymRecords
+SynonymCommon ..> TermDocs
+
+NLP4LILoop -- REPLCommands
+NLP4LMainGenericRunner ..> NLP4LILoop
+NLP4L ..> NLP4LILoop
+ZeppelinVisualizer ..> NLP4L
+NLP4LILoop ..> IReader
+NLP4LILoop ..> IWriter
+NLP4LILoop ..> Analyzer
+NLP4LILoop ..> HmmModel
+NLP4LILoop ..> FeatureSelector
+
+Corpora ..> IWriter
+
+TFIDF ..> TermDocs
+BuddyWordsFinder ..> IReader
+BuddyWordsFinderTermFilter ..> BuddyWordsFinder
+LRCompoundNounScorer ..> IReader
+TermWeightFactory ..> TFIDF
+
+IWriter ..> Lucene
+IReader ..> Lucene
+ISearcher ..> Lucene
+
+SchemaAPI ..> AnalysisAPI
+NLPAPI ..> AnalysisAPI
+FeatureAPI ..> SchemaAPI
+REPLCommands ..> NLPAPI
+REPLCommands ..> FeatureAPI
+
+note right of Lucene
+  External dependency:
+  Apache Lucene provides
+  core indexing and
+  search functionality
+end note
+
+note right of Spark
+  External dependency:
+  Spark MLlib for
+  machine learning tasks
+end note
+
+note top of NLP4L
+  Interactive shell for
+  exploring NLP4L
+  functionalities
+end note
+
+note top of Schema
+  Schema-driven processing
+  centralizes data definition
+end note
+
+note top of HmmModel
+  Implements Viterbi algorithm
+  for POS tagging and
+  tokenization
+end note
+
+@enduml

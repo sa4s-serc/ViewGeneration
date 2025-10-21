@@ -1,0 +1,78 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: GoogleCloudPlatform_gke-pubsub-websocket-adapter
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** connectivity
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## Analysis of gke-pubsub-websocket-adapter
+
+This report summarizes the architecture, core functionality, and key components of the `gke-pubsub-websocket-adapter` repository. It focuses on how the adapter bridges Google Cloud Pub/Sub messages to WebSocket clients for real-time data streaming to web applications, particularly within a Google Kubernetes Engine (GKE) environment.
+
+**Core Functionality and Architecture:**
+
+The primary function of the adapter is to bridge Google Cloud Pub/Sub messages to WebSocket clients, enabling real-time data streaming without direct client interaction with the Pub/Sub API. The adapter is designed for deployment on GKE, leveraging its autoscaling and load balancing capabilities. This deployment features a microservices architecture, comprising multiple containers, each with a specific purpose. The stateless design of the clusters simplifies scaling and management.
+
+The core components are:
+
+*   **`pulltop`:** A CLI tool for managing Pub/Sub subscriptions and pulling messages from topics.
+*   **`websocketd`:** A command-line tool that serves WebSocket clients, exposing Pub/Sub messages as a WebSocket endpoint.
+*   **Ephemeral POSIX Storage:** A memory-mapped filesystem provides temporary storage of recent messages within the container. This acts as a buffer for new clients and decouples WebSocket connections from the Pub/Sub subscription, improving responsiveness.
+*   **Cron Job:** A scheduled job rotates the output JSON file.
+
+The system leverages Workload Identity for secure authentication with Pub/Sub.
+
+**Key Files and Their Roles:**
+
+The repository uses several files for configuration, deployment, and documentation:
+
+*   **Documentation:** `README.md` provides a project overview, architecture details, requirements, and deployment instructions, using the NYC Taxi Rides public topic as an example. `CONTRIBUTING.md` outlines contribution guidelines, including the Contributor License Agreement and code review process. `LICENSE.txt` specifies the Apache 2.0 license.
+
+*   **Deployment and Configuration:**
+    *   `skaffold.yaml` defines the Skaffold configuration for building, tagging, and deploying the application's components (pulltop, websocketd, cron), specifying their contexts and deployment targets.
+    *   `kubernetes-manifests/` contains Kubernetes manifests for deployment: `deployment.yaml` (defines deployment details including resource limits, volume mounts, and environment variables for each container), `ingress.yaml` (configures Ingress), `service.yaml` (defines the service), `namespace.yaml` (defines the namespace), `configmap.yaml` (defines configuration data), `service-account.yaml` (defines the service account), `Kptfile` (defines `kpt` configuration), and `kpt/service-config.yaml` (defines KPT service names). `setters.yaml` contains configurable values (topic, image repo, project ID, service account) used by `kpt` to customize the manifests.
+
+*   **Dockerfiles:** `pulltop/Dockerfile`, `websocketd/Dockerfile`, and `cron/Dockerfile` define the Docker images for their respective components. The `websocketd/Dockerfile` builds `websocketd` from source.
+
+*   **Examples (taxirides-realtime/):** This directory provides example deployment configurations. It includes `cloudbuild.yaml` for Cloud Build deployment and `deploy.sh`, a shell script to enable required services and deploy the infrastructure. The `setup/` subdirectory contains Terraform configurations, including `main.tf` (defines infrastructure resources), `versions.tf` (provider versions), `gcs-backend.tf` (Terraform state backend), `cloudbuild.yaml` (Cloud Build for Terraform deployment), `destroy.yaml` (Cloud Build for Terraform destruction), and `variables.tf` (Terraform variables).
+
+**Design Patterns and Technologies:**
+
+*   **Publisher-Subscriber:** The core functionality relies on the Pub/Sub publisher-subscriber pattern.
+*   **Infrastructure as Code (IaC):** Terraform is used to define and provision the underlying infrastructure (GKE cluster, service accounts, IAM roles).
+*   **Deployment Pipeline:** Skaffold and Cloud Build provide an automated deployment pipeline.
+*   **Configuration Management:** `kpt` manages and customizes Kubernetes manifests.
+*   **Sidecar Pattern:** The combination of `pulltop` and `websocketd` within a pod resembles a sidecar pattern, where `pulltop` fetches data, and `websocketd` exposes it.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: connectivity
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/GoogleCloudPlatform_gke-pubsub-websocket-adapter.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

@@ -1,0 +1,248 @@
+@startuml
+!define COMPONENT_COLOR #LightBlue
+!define INTERFACE_COLOR #LightGreen
+!define EXTERNAL_COLOR #LightGray
+
+skinparam component {
+  BackgroundColor COMPONENT_COLOR
+  BorderColor Black
+}
+
+skinparam interface {
+  BackgroundColor INTERFACE_COLOR
+  BorderColor Black
+}
+
+package "IRMA Framework" {
+
+  package "irmacall (C Engine)" as IrmaCall {
+    component "Service Core" as ServiceCore {
+      [Thread Manager]
+      [FastCGI Handler]
+      [Request Dispatcher]
+    }
+
+    component "Request Handler" as RequestHandler {
+      [GET/POST Parser]
+      [Form Data Handler]
+      [File Upload Handler]
+      [Header Manager]
+    }
+
+    component "HTTP Client (Fetcher)" as HTTPClient {
+      [curl Integration]
+      [GET/POST/PUT/DELETE]
+    }
+
+    component "Key-Value Store" as KVStore {
+      [kvstore_t Interface]
+      [Memcached Client]
+      [Redis Client]
+    }
+
+    component "Logging System" as LogSystem {
+      [Log Levels]
+      [Log Rotation]
+      [File Writer]
+    }
+
+    component "Security" as Security {
+      [DES Crypto]
+      [AES Crypto]
+      [RSA Crypto]
+      [OpenSSL Integration]
+    }
+
+    component "SMTP Client" as SMTP
+
+    component "Circuit Breaker (Fuse)" as Fuse {
+      [Failure Detection]
+      [Request Control]
+    }
+
+    component "Buffer Management" as BufferMgmt {
+      [Buffer Pool]
+      [Memory Allocator]
+    }
+
+    component "DNS Resolver" as DNS {
+      [c-ares Integration]
+      [Async Resolution]
+    }
+  }
+
+  package "irmakit (C# Framework)" as IrmaKit {
+    component "Service Base" as ServiceBase {
+      [Service.cs]
+      [Request Dispatcher]
+      [Error Handler]
+      [Initialization]
+    }
+
+    component "Configuration System" as ConfigSystem {
+      [Config.cs]
+      [JSON Parser]
+      [Extension Points]
+    }
+
+    component "Session Management" as SessionMgmt {
+      [Session Manager]
+      [Cookie Handler]
+      [Session Expiration]
+      [Remote Invalidation]
+    }
+
+    component "Request/Response" as ReqResp {
+      [IRequest Interface]
+      [IResponse Interface]
+    }
+
+    component "Routing System" as Routing {
+      [RestApi Attribute]
+      [LoginCheck Attribute]
+      [ParamsCheck Attribute]
+      [Ref Attribute]
+    }
+
+    component "Template Engine" as TemplateEngine {
+      [NVelocity Integration]
+      [Plugin System]
+      [Template Locator]
+    }
+
+    component "Utilities" as Utils {
+      [Aes Utility]
+      [Des Utility]
+      [Rsa Utility]
+      [QRCoder]
+      [Cidr]
+      [Fetcher]
+    }
+
+    component "Code Generator" as CodeGen {
+      [AppGenerator.cs]
+      [Project Templates]
+    }
+
+    component "Store Implementations" as StoreImpl {
+      [IKeyValueStore]
+      [MemcachedStore]
+      [RedisStore]
+      [MemcachedStoreWrapper]
+    }
+  }
+
+  package "Mono Runtime" as MonoRuntime {
+    component "C# Runtime" as CSharpRuntime
+    component "C/C# Interop" as Interop {
+      [Wrapper Functions]
+      [Marshalling]
+    }
+  }
+
+  component "Application Layer" as AppLayer {
+    [Sample Service]
+    [REST API Handlers]
+    [Static Content Handlers]
+    [Authentication Handlers]
+    [Proxy Handlers]
+  }
+}
+
+package "External Systems" {
+  component "Web Server" as WebServer {
+    [Nginx/Apache]
+  }
+
+  database "Memcached" as Memcached
+  database "Redis" as RedisDB
+  component "SMTP Server" as SMTPServer
+  cloud "External APIs" as ExternalAPIs
+  component "DNS Server" as DNSServer
+}
+
+' Interfaces
+interface "FastCGI" as FastCGI
+interface "IKeyValueStore" as IKVStoreInterface
+interface "IRequest" as IRequestInterface
+interface "IResponse" as IResponseInterface
+interface "IContext" as IContextInterface
+
+' Relationships within irmacall
+ServiceCore --> RequestHandler : uses
+ServiceCore --> BufferMgmt : uses
+ServiceCore --> LogSystem : logs to
+ServiceCore --> Fuse : protected by
+RequestHandler --> BufferMgmt : allocates
+HTTPClient --> DNS : resolves with
+HTTPClient ..> ExternalAPIs : requests
+KVStore ..> Memcached : connects
+KVStore ..> RedisDB : connects
+Security --> LogSystem : logs to
+SMTP ..> SMTPServer : sends via
+
+' Relationships within irmakit
+ServiceBase --> ReqResp : processes
+ServiceBase --> Routing : uses
+ServiceBase --> SessionMgmt : manages
+ServiceBase --> ConfigSystem : configured by
+SessionMgmt --> StoreImpl : uses
+StoreImpl --> IKVStoreInterface : implements
+TemplateEngine --> ServiceBase : renders for
+Utils --> Security : delegates to
+AppLayer --> ServiceBase : extends
+
+' Cross-package relationships
+WebServer --> FastCGI
+FastCGI --> ServiceCore : communicates
+ServiceCore --> Interop : invokes
+Interop --> CSharpRuntime : executes
+CSharpRuntime --> ServiceBase : runs
+ServiceBase --> Interop : callbacks
+Interop --> KVStore : accesses
+Interop --> HTTPClient : accesses
+Interop --> SMTP : accesses
+Interop --> Security : accesses
+Interop --> LogSystem : accesses
+StoreImpl --> KVStore : delegates to
+DNS ..> DNSServer : queries
+
+' Application to framework
+AppLayer --> ReqResp : uses
+AppLayer --> Utils : uses
+AppLayer --> TemplateEngine : uses
+
+note right of IrmaCall
+  Multi-threaded C engine
+  - FastCGI communication
+  - Request/Response handling
+  - Built-in HTTP client
+  - KV store abstraction
+  - Logging & Security
+end note
+
+note right of IrmaKit
+  C# Framework
+  - Attribute-driven routing
+  - Session management
+  - Template integration
+  - Configuration system
+  - Utility libraries
+end note
+
+note bottom of MonoRuntime
+  Enables C# execution on Linux
+  Provides C/C# interoperability
+end note
+
+note top of Fuse
+  Circuit Breaker Pattern
+  Prevents cascading failures
+end note
+
+note bottom of StoreImpl
+  Strategy Pattern
+  Multiple storage backends
+end note
+
+@enduml

@@ -1,0 +1,136 @@
+@startuml
+
+title HTTP Proxy Service - Component Diagram
+
+package "proxy-server" {
+    component "HttpProxyServer" as server {
+        [Netty Server Bootstrap]
+        [Channel Pipeline]
+    }
+
+    component "Request Handler" {
+        [ClientToProxyHandler]
+        [ProxyToServerInboundHandler]
+    }
+
+    component "Filter System" {
+        [ProxyRequestFilter] <<interface>>
+        [ProxyResponseFilter] <<interface>>
+        [AttackRequestFilter]
+        [DefaultProxyResponseFilter]
+    }
+
+    component "Configuration Management" {
+        [EntitysManager] <<singleton>>
+        [ProxyEntity]
+    }
+
+    component "Exception Handling" {
+        [GlobalExceptionHandler] <<interceptor>>
+        [MsgTranslater]
+        [MsgCode]
+        [StandardResponse]
+    }
+
+    component "Networking" {
+        [EventLoopGroupManager] <<factory>>
+        [EventLoopGroup]
+        [ChannelHandler]
+    }
+}
+
+package "test-client" {
+    component "TestClientApp" {
+        [AsyncHttpClient]
+    }
+}
+
+package "test-server" {
+    component "TestServerMain" {
+        [Jersey Framework]
+        [Grizzly Server]
+    }
+
+    component "TestResource" {
+        [REST Endpoints]
+    }
+}
+
+package "proxy-sdk" {
+    component "SDK Components" {
+        [Client Libraries]
+    }
+}
+
+database "Configuration" {
+    [entitys.json]
+    [log4j2.xml]
+}
+
+cloud "Client Applications" as clients
+cloud "Backend Services" as backends
+
+' Relationships
+clients --> server : HTTP Requests
+server --> [Request Handler] : Process Request
+[Request Handler] --> [Filter System] : Apply Filters
+[Request Handler] --> [Configuration Management] : Lookup Routes
+[Configuration Management] --> [entitys.json] : Load Config
+[Request Handler] --> [Networking] : Forward Request
+[Networking] --> backends : Proxy Request
+backends --> [Networking] : Response
+[Networking] --> [Request Handler] : Handle Response
+[Request Handler] --> [Filter System] : Filter Response
+[Request Handler] --> clients : Send Response
+
+[ClientToProxyHandler] --> [ProxyRequestFilter] : Use
+[ProxyToServerInboundHandler] --> [ProxyResponseFilter] : Use
+[AttackRequestFilter] ..|> [ProxyRequestFilter] : implements
+[DefaultProxyResponseFilter] ..|> [ProxyResponseFilter] : implements
+
+[Channel Pipeline] --> [ClientToProxyHandler] : Contains
+[Channel Pipeline] --> [ProxyToServerInboundHandler] : Contains
+
+[EntitysManager] --> [ProxyEntity] : Manages
+[EntitysManager] --> [entitys.json] : Monitors & Reloads
+
+[Netty Server Bootstrap] --> [EventLoopGroupManager] : Uses
+[EventLoopGroupManager] --> [EventLoopGroup] : Creates
+[EventLoopGroup] --> [ChannelHandler] : Manages
+
+server --> [Exception Handling] : Uses
+[GlobalExceptionHandler] --> [MsgTranslater] : Uses
+[GlobalExceptionHandler] --> [MsgCode] : Uses
+[GlobalExceptionHandler] --> [StandardResponse] : Creates
+
+[TestClientApp] --> server : Test Requests
+[TestServerMain] --> [TestResource] : Contains
+server --> [TestServerMain] : Proxies to
+
+[log4j2.xml] --> server : Configures Logging
+
+note right of [EntitysManager]
+  Singleton pattern
+  Dynamic configuration reloading
+  Manages proxy routing rules
+end note
+
+note right of [Filter System]
+  Filter pattern
+  Extensible request/response processing
+  Security checks and logging
+end note
+
+note right of [Networking]
+  Event-driven architecture
+  Non-blocking I/O with Netty
+  Efficient concurrent handling
+end note
+
+note right of [GlobalExceptionHandler]
+  Interceptor pattern
+  Centralized error handling
+  Standardized error responses
+end note
+
+@enduml

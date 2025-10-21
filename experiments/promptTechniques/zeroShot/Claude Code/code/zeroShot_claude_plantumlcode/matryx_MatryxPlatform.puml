@@ -1,0 +1,139 @@
+@startuml
+!define COMPONENT_STYLE rectangle
+
+skinparam component {
+  BackgroundColor<<proxy>> LightBlue
+  BackgroundColor<<library>> LightGreen
+  BackgroundColor<<token>> LightYellow
+  BackgroundColor<<util>> LightGray
+  BorderColor Black
+}
+
+package "Smart Contract Layer" {
+  component "MatryxForwarder" <<proxy>> as Forwarder
+  component "MatryxPlatform" <<proxy>> as Platform {
+    port "Tournament Data" as TD
+    port "Commit Data" as CD
+    port "Submission Data" as SD
+  }
+  component "MatryxSystem" <<proxy>> as System
+
+  component "LibPlatform" <<library>> as LibPlatform
+  component "LibCommit" <<library>> as LibCommit
+  component "LibTournament" <<library>> as LibTournament
+
+  component "MatryxToken" <<token>> as Token
+
+  interface "Ownable" as IOwnable
+}
+
+package "JavaScript Interaction Layer" {
+  component "utils.js" <<util>> as Utils {
+    port "Contract Wrapper" as CW
+    port "Blockchain Interface" as BI
+  }
+  component "network.js" <<util>> as Network
+}
+
+package "Testing/Deployment Layer" {
+  component "test.js" as Test
+  component "benchmark.js" as Benchmark
+  component "leAutomatedPreload.js" as Preload
+  component "migrations/" as Migrations
+  component "generate-setup/" as Setup
+}
+
+package "Configuration" {
+  component "truffle-config.js" as TruffleConfig
+}
+
+package "Documentation Layer" {
+  component "docs/index.rst" as Docs
+  component "searchtools.js" as SearchTools
+}
+
+' Proxy Pattern Relationships
+Forwarder -down-> Platform : forwards calls
+Platform -down-> LibPlatform : delegatecall
+Platform -down-> LibCommit : delegatecall
+Platform -down-> LibTournament : delegatecall
+
+' System Management
+System -down-> LibPlatform : manages versions
+System -down-> LibCommit : manages versions
+System -down-> LibTournament : manages versions
+
+' Data Storage
+TD --( Platform
+CD --( Platform
+SD --( Platform
+
+' Token Integration
+Platform ..> Token : uses MTX
+LibPlatform ..> Token : transfers
+LibCommit ..> Token : fork compensation
+LibTournament ..> Token : prize distribution
+
+' Access Control
+IOwnable <.. Platform : implements
+IOwnable <.. System : implements
+
+' JavaScript Layer Interactions
+Utils -up-> Platform : interacts with
+Utils -up-> Token : interacts with
+Utils -up-> System : interacts with
+Network -up-> Utils : provides config
+
+' Testing and Deployment
+Test -up-> Utils : uses
+Benchmark -up-> Utils : uses
+Preload -up-> Utils : uses
+Migrations -up-> Utils : uses
+Setup -up-> Utils : uses
+
+' Configuration
+TruffleConfig -up-> Network : configures
+TruffleConfig -up-> Migrations : configures
+
+' Documentation
+SearchTools --( Docs : enhances
+
+note right of Platform
+  Central data storage for:
+  - Tournament state
+  - Commit chains
+  - Submission records
+  - User reputation
+end note
+
+note right of LibCommit
+  Core Logic:
+  - Commit creation
+  - Forking mechanism
+  - Parent linking
+  - Group collaboration
+end note
+
+note right of LibTournament
+  Core Logic:
+  - Tournament creation
+  - Submission management
+  - Winner selection
+  - Prize distribution
+end note
+
+note right of Token
+  MTX ERC20 Token:
+  - Platform currency
+  - Fork compensation
+  - Tournament rewards
+end note
+
+note bottom of Utils
+  Proxy wrapper for:
+  - Logging
+  - Nonce management
+  - Gas optimization
+end note
+
+@enduml

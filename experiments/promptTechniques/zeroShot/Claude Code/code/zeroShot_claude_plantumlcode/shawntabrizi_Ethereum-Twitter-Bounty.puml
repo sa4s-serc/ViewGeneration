@@ -1,0 +1,201 @@
+@startuml
+!define RECTANGLE class
+
+skinparam component {
+  BackgroundColor<<smart_contract>> LightYellow
+  BackgroundColor<<frontend>> LightBlue
+  BackgroundColor<<library>> LightGreen
+  BackgroundColor<<external>> LightGray
+  BorderColor Black
+  ArrowColor Black
+}
+
+package "Smart Contracts Layer" {
+  component "TwitterBounty.sol" as TB <<smart_contract>> {
+    [Bounty Management]
+    [Access Control]
+    [Circuit Breaker]
+    [Pull Payments]
+  }
+
+  component "TwitterOracle.sol" as TO <<smart_contract>> {
+    [Oracle Integration]
+    [Tweet Retrieval]
+    [Callback Handler]
+  }
+
+  interface "IOwnable" as IOwn
+  interface "IPausable" as IPause
+  interface "IMortal" as IMort
+
+  TB -up- IOwn
+  TB -up- IPause
+  TB -up- IMort
+}
+
+package "External Services" {
+  component "Provable (Oraclize)" as Oracle <<external>> {
+    [Twitter API Integration]
+    [Data Verification]
+  }
+
+  component "Ethereum Blockchain" as ETH <<external>> {
+    [State Storage]
+    [Transaction Processing]
+    [Event Emission]
+  }
+}
+
+package "Development & Testing" {
+  component "Truffle Framework" as Truffle <<library>> {
+    [Contract Compilation]
+    [Migration Scripts]
+    [Testing Suite]
+  }
+
+  component "truffle-config.js" as TConfig
+  component "2_deploy_contracts.js" as Deploy
+  component "Test Suites" as Tests {
+    [TestTwitterBounty.js]
+    [TestTwitterOracle.js]
+  }
+
+  Truffle ..> TConfig : uses
+  Truffle ..> Deploy : executes
+  Truffle ..> Tests : runs
+}
+
+package "Web3 Integration Layer" {
+  component "web3.js" as Web3 <<library>> {
+    [Provider Detection]
+    [Account Management]
+    [Transaction Signing]
+  }
+
+  component "TruffleContract" as TC <<library>> {
+    [Contract Abstraction]
+    [ABI Management]
+    [Method Calling]
+  }
+
+  component "TwitterBounty.json" as ABI {
+    [ABI Definition]
+    [Bytecode]
+    [Network Addresses]
+  }
+
+  TC ..> ABI : reads
+}
+
+package "Frontend Layer" {
+  component "index.html" as HTML <<frontend>> {
+    [UI Structure]
+    [Form Elements]
+    [Display Areas]
+  }
+
+  component "app.js" as AppJS <<frontend>> {
+    [Web3 Initialization]
+    [Contract Interaction]
+    [UI Updates]
+    [Event Listeners]
+  }
+
+  component "CSS/Bootstrap" as CSS <<frontend>> {
+    [Styling]
+    [Responsive Layout]
+  }
+
+  component "jQuery" as JQ <<library>>
+
+  HTML ..> CSS : styled by
+  HTML ..> AppJS : scripted by
+  AppJS ..> JQ : uses
+}
+
+package "Provider Layer" {
+  interface "Web3 Provider" as Provider
+
+  component "Injected Provider" as Injected {
+    [MetaMask]
+    [Browser Wallet]
+  }
+
+  component "Local Provider" as Local {
+    [Ganache]
+    [Local Node]
+  }
+
+  Injected .up.|> Provider
+  Local .up.|> Provider
+}
+
+' Smart Contract Relationships
+TB --> TO : calls oraclizeTweet()
+TO --> Oracle : requests tweet data
+Oracle --> TO : __callback()
+TB --> ETH : deploys to
+TO --> ETH : deploys to
+
+' Development Flow
+Truffle --> TB : compiles & deploys
+Truffle --> TO : compiles & deploys
+Deploy --> ETH : migration
+
+' Web3 Integration
+Web3 --> Provider : uses
+AppJS --> Web3 : initializes
+AppJS --> TC : creates instances
+TC --> TB : interacts with
+TC --> TO : interacts with
+
+' Frontend to Blockchain
+AppJS --> ETH : watches events
+AppJS --> TB : calls functions
+AppJS --> TO : monitors oracle
+
+' Data Flow
+ETH --> AppJS : event notifications
+TB --> AppJS : state updates
+Provider --> ETH : connects to
+
+' OpenZeppelin Integration
+note right of IOwn
+  OpenZeppelin Ownable
+  Role-based access control
+end note
+
+note right of IPause
+  OpenZeppelin Pausable
+  Circuit breaker pattern
+end note
+
+note right of IMort
+  OpenZeppelin Destructible
+  Contract lifecycle management
+end note
+
+note bottom of TB
+  Key Functions:
+  - createBounty()
+  - contribute()
+  - fulfillBounty()
+  - oraclizeTweet()
+  - changePayout()
+  - closeBounty()
+end note
+
+note bottom of TO
+  Key Functions:
+  - oraclizeTweet()
+  - __callback()
+  - setOracle()
+end note
+
+note top of AppJS
+  Event-Driven Architecture
+  Observer pattern for UI updates
+  Facade pattern via TruffleContract
+end note
+
+@enduml

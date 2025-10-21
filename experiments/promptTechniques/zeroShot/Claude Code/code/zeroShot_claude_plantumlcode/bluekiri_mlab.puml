@@ -1,0 +1,180 @@
+@startuml
+
+skinparam component {
+    BackgroundColor<<dashboard>> LightBlue
+    BackgroundColor<<worker>> LightGreen
+    BackgroundColor<<external>> LightGray
+    BorderColor Black
+    ArrowColor Black
+}
+
+skinparam database {
+    BackgroundColor LightYellow
+    BorderColor Black
+}
+
+skinparam package {
+    BackgroundColor White
+    BorderColor Black
+}
+
+package "MLAB Dashboard" <<dashboard>> {
+    component [Flask Application\n(app.py)] as FlaskApp
+    component [Flask-Admin Views] as FlaskAdmin
+    component [API Endpoints\n(api_dashboard.py)] as APIEndpoints
+    component [Flask-Security\n(Auth & LDAP)] as FlaskSecurity
+
+    package "Application Layer" {
+        component [Model Creation\nInteractor] as ModelCreation
+        component [Deployment\nOrchestration] as Deployment
+        component [User Messaging\nInteractor] as Messaging
+        component [Worker Status\nInteractor] as WorkerStatus
+
+        component [Worker Repository] as WorkerRepo
+        component [MLModel Repository] as MLModelRepo
+        component [Logs Repository] as LogsRepo
+        component [Messages Repository] as MessagesRepo
+
+        component [Configuration\n(config.py)] as DashConfig
+        component [Event Emitter] as EventEmitter
+    }
+
+    component [HTML Templates] as Templates
+    component [AdminLTE Theme] as AdminLTE
+    component [JavaScript\n(jQuery, Bootstrap)] as JavaScript
+    component [publisherview.js] as PublisherJS
+}
+
+package "Worker Service" <<worker>> {
+    component [MonitorController\n(Health Checks)] as MonitorCtrl
+    component [DummyModelController\n(Model Execution)] as ModelCtrl
+    component [Falcon Framework] as Falcon
+
+    package "Worker Application Layer" {
+        component [GetModel\nInteractor] as GetModel
+        component [ModelChangeListener] as ModelListener
+        component [SendMail\nInteractor] as SendMail
+
+        component [ModelRepository] as ModelRepoWorker
+        component [WorkerRepository] as WorkerRepoWorker
+
+        component [Worker Configuration] as WorkerConfig
+        component [Gunicorn] as Gunicorn
+    }
+
+    package "Domain Layer" {
+        component [Model Entity] as ModelEntity
+        component [UnpickleModelException] as Exceptions
+    }
+}
+
+database "MongoDB" as MongoDB {
+    component [ML Models\n(GridFS)] as MLModelsDB
+    component [Metadata] as Metadata
+    component [Logs] as LogsDB
+    component [Messages] as MessagesDB
+}
+
+database "ZooKeeper" as ZooKeeper {
+    component [Worker Registry] as WorkerRegistry
+    component [Model Configuration] as ModelConfig
+    component [Worker Status] as WorkerStatusZK
+}
+
+cloud "External Services" <<external>> {
+    component [Mail Server\n(SMTP)] as MailServer
+    component [LDAP Server] as LDAP
+}
+
+package "Docker Containerization" {
+    component [docker-compose.yml] as DockerCompose
+    component [Dashboard Dockerfile] as DashDockerfile
+    component [Worker Dockerfile] as WorkerDockerfile
+}
+
+FlaskApp --> FlaskAdmin : manages
+FlaskApp --> APIEndpoints : routes
+FlaskApp --> FlaskSecurity : authenticates
+FlaskAdmin --> ModelCreation : uses
+FlaskAdmin --> Deployment : uses
+FlaskAdmin --> Messaging : uses
+FlaskAdmin --> WorkerStatus : uses
+APIEndpoints --> ModelCreation : invokes
+APIEndpoints --> Deployment : invokes
+
+ModelCreation --> MLModelRepo : uses
+Deployment --> MLModelRepo : uses
+Deployment --> WorkerRepo : uses
+WorkerStatus --> WorkerRepo : uses
+Messaging --> MessagesRepo : uses
+
+PublisherJS --> APIEndpoints : AJAX requests
+Templates --> AdminLTE : styles
+Templates --> JavaScript : interactive
+DashConfig --> FlaskApp : configures
+
+MLModelRepo --> MongoDB : read/write
+LogsRepo --> MongoDB : store logs
+MessagesRepo --> MongoDB : store messages
+WorkerRepo --> ZooKeeper : monitor workers
+EventEmitter --> WorkerRepo : events
+FlaskSecurity --> LDAP : authenticate
+
+Falcon --> MonitorCtrl : handles
+Falcon --> ModelCtrl : handles
+ModelCtrl --> GetModel : invokes
+MonitorCtrl --> WorkerStatus : checks
+GetModel --> ModelRepoWorker : loads model
+GetModel --> WorkerRepoWorker : updates status
+GetModel --> SendMail : alerts on error
+ModelListener --> GetModel : triggers
+ModelListener --> ZooKeeper : subscribes
+GetModel --> ModelEntity : uses
+ModelRepoWorker --> Exceptions : throws
+Gunicorn --> Falcon : serves
+WorkerConfig --> GetModel : configures
+
+ModelRepoWorker --> MongoDB : load models\n(dill)
+WorkerRepoWorker --> ZooKeeper : register\nmonitor\nupdate
+SendMail --> MailServer : send alerts
+
+APIEndpoints ..> ZooKeeper : publish\nassignments
+Deployment ..> ZooKeeper : deploy models
+
+DockerCompose --> DashDockerfile : orchestrates
+DockerCompose --> WorkerDockerfile : orchestrates
+DashDockerfile ..> FlaskApp : containerizes
+WorkerDockerfile ..> Falcon : containerizes
+
+note right of MongoDB
+  Stores:
+  - ML Model binaries (pickled)
+  - Model metadata
+  - Application logs
+  - User messages
+end note
+
+note right of ZooKeeper
+  Coordinates:
+  - Worker registration
+  - Model assignments
+  - Real-time status updates
+  - Event-driven communication
+end note
+
+note bottom of "Domain Layer"
+  Hexagonal Architecture
+  (Ports & Adapters)
+  Domain entities isolated
+  Repositories as adapters
+end note
+
+note top of FlaskApp
+  Design Patterns:
+  - Repository Pattern
+  - Dependency Injection
+  - Observer Pattern
+  - Factory Pattern
+end note
+
+@enduml

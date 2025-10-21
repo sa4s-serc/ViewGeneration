@@ -1,0 +1,123 @@
+@startuml
+
+skinparam component {
+    BackgroundColor<<core>> LightBlue
+    BackgroundColor<<shell>> LightGreen
+    BackgroundColor<<capability>> LightYellow
+    BackgroundColor<<utility>> LightCoral
+}
+
+package "Crux Core" {
+    [App Trait] as App <<core>>
+    [Core] as Core <<core>>
+    [Bridge] as Bridge <<core>>
+    [Command] as Command <<core>>
+    [Effect Trait] as Effect <<core>>
+}
+
+package "Capabilities" {
+    [Capability Interface] as Capability <<capability>>
+    [Http Capability] as HttpCap <<capability>>
+    [Time Capability] as TimeCap <<capability>>
+    [Render Capability] as RenderCap <<capability>>
+    [KeyValue Capability] as KVCap <<capability>>
+}
+
+package "Shell Adapters" {
+    [iOS Shell (Swift)] as iOSShell <<shell>>
+    [Android Shell (Kotlin)] as AndroidShell <<shell>>
+    [Web Shell (TypeScript)] as WebShell <<shell>>
+}
+
+package "Platform Services" {
+    [HTTP Client] as HTTPClient <<utility>>
+    [Timer Service] as TimerService <<utility>>
+    [UI Renderer] as UIRenderer <<utility>>
+    [Storage Service] as Storage <<utility>>
+}
+
+package "Type Generation" {
+    [Type Generator] as TypeGen <<utility>>
+    [CLI Tool] as CLI <<utility>>
+}
+
+App --> Core : implements
+Core --> Bridge : uses
+Core --> Command : creates
+Command --> Effect : produces
+
+Core --> Capability : manages
+Capability <|-- HttpCap
+Capability <|-- TimeCap
+Capability <|-- RenderCap
+Capability <|-- KVCap
+
+HttpCap --> Command : builds
+TimeCap --> Command : builds
+RenderCap --> Command : builds
+KVCap --> Command : builds
+
+Bridge <--> iOSShell : serialized\nmessages
+Bridge <--> AndroidShell : serialized\nmessages
+Bridge <--> WebShell : serialized\nmessages
+
+iOSShell --> HTTPClient : execute HTTP
+AndroidShell --> HTTPClient : execute HTTP
+WebShell --> HTTPClient : execute HTTP
+
+iOSShell --> TimerService : timer ops
+AndroidShell --> TimerService : timer ops
+WebShell --> TimerService : timer ops
+
+iOSShell --> UIRenderer : render UI
+AndroidShell --> UIRenderer : render UI
+WebShell --> UIRenderer : render UI
+
+iOSShell --> Storage : persist
+AndroidShell --> Storage : persist
+WebShell --> Storage : persist
+
+HttpCap ..> HTTPClient : requests via Shell
+TimeCap ..> TimerService : requests via Shell
+RenderCap ..> UIRenderer : requests via Shell
+KVCap ..> Storage : requests via Shell
+
+TypeGen --> Bridge : generates types
+CLI --> TypeGen : triggers
+
+Effect --> Bridge : serialized as
+
+note right of Core
+Event-driven architecture
+Model-View-Update pattern
+Manages application state
+Executes side effects
+end note
+
+note right of Bridge
+FFI boundary
+Type-safe serialization
+Cross-platform messaging
+Message-based communication
+end note
+
+note bottom of Capability
+Ports & Adapters pattern
+Side-effect free interfaces
+Defines Shell interactions
+end note
+
+note left of iOSShell
+Platform-specific adapters
+Execute side effects
+Render view models
+Translate platform events
+end note
+
+note top of Command
+Encapsulates requests
+Built by Capabilities
+Queued and executed
+end note
+
+@enduml

@@ -1,0 +1,146 @@
+@startuml
+!define RECTANGLE class
+
+skinparam component {
+  BackgroundColor<<collector>> LightBlue
+  BackgroundColor<<filter>> LightGreen
+  BackgroundColor<<handler>> LightCoral
+  BackgroundColor<<core>> Wheat
+  BackgroundColor<<config>> LightGray
+  BackgroundColor<<data>> LightYellow
+}
+
+package "Configuration Layer" {
+  component [YAML Config Files] as YAMLConfig <<config>>
+  component [JSON Config Files] as JSONConfig <<config>>
+  component [Environment Variables] as EnvVars <<config>>
+  component [go-ucfg\nConfiguration Manager] as ConfigManager <<config>>
+}
+
+package "Core Framework" {
+  component [QFrame Core\nMicrokernel] as QFrameCore <<core>>
+  component [Plugin Manager] as PluginManager <<core>>
+  component [QChan\nBroadcast Channel] as QChan <<core>>
+}
+
+package "Data Structures" {
+  component [Metric] as MetricType <<data>>
+  component [ContainerStats] as ContainerStatsType <<data>>
+  component [QueuedMessage] as QueuedMsg <<data>>
+}
+
+package "Data Sources" {
+  component [File System] as FileSystem
+  component [TCP Port] as TCPPort
+  component [Docker Events\n(go-dockerclient)] as DockerEvents
+  component [Container Runtime] as ContainerRuntime
+}
+
+package "Collectors" {
+  component [File Collector] as FileCollector <<collector>>
+  component [TCP Collector] as TCPCollector <<collector>>
+  component [Docker Collector] as DockerCollector <<collector>>
+  component [System Metrics\nCollector] as SystemCollector <<collector>>
+}
+
+package "Filters" {
+  component [Grok Parser\n(vjeantet/grok)] as GrokFilter <<filter>>
+  component [Container Metadata\nEnricher] as MetadataFilter <<filter>>
+  component [Data Transformer] as TransformFilter <<filter>>
+}
+
+package "Handlers" {
+  component [Log Handler] as LogHandler <<handler>>
+  component [InfluxDB Handler] as InfluxHandler <<handler>>
+  component [Elasticsearch Handler] as ElasticsearchHandler <<handler>>
+}
+
+package "Output Destinations" {
+  database [InfluxDB] as InfluxDB
+  database [Elasticsearch] as Elasticsearch
+  component [Log Files] as LogFiles
+}
+
+package "System Layer" {
+  component [unix syscalls\n(golang.org/x/sys/unix)] as UnixSyscalls
+  component [System Call Wrappers] as SyscallWrappers
+  component [Platform Specific\nImplementations] as PlatformCode
+}
+
+YAMLConfig --> ConfigManager
+JSONConfig --> ConfigManager
+EnvVars --> ConfigManager
+ConfigManager --> QFrameCore : configure
+
+QFrameCore --> PluginManager : manage plugins
+PluginManager --> FileCollector : load
+PluginManager --> TCPCollector : load
+PluginManager --> DockerCollector : load
+PluginManager --> SystemCollector : load
+PluginManager --> GrokFilter : load
+PluginManager --> MetadataFilter : load
+PluginManager --> TransformFilter : load
+PluginManager --> LogHandler : load
+PluginManager --> InfluxHandler : load
+PluginManager --> ElasticsearchHandler : load
+
+FileSystem --> FileCollector : read data
+TCPPort --> TCPCollector : receive data
+DockerEvents --> DockerCollector : stream events
+ContainerRuntime --> SystemCollector : collect stats
+
+FileCollector --> QChan : publish
+TCPCollector --> QChan : publish
+DockerCollector --> QChan : publish
+SystemCollector --> QChan : publish
+
+QChan --> GrokFilter : broadcast
+QChan --> MetadataFilter : broadcast
+QChan --> TransformFilter : broadcast
+
+GrokFilter --> QChan : publish processed
+MetadataFilter --> QChan : publish enriched
+TransformFilter --> QChan : publish transformed
+
+QChan --> LogHandler : broadcast
+QChan --> InfluxHandler : broadcast
+QChan --> ElasticsearchHandler : broadcast
+
+LogHandler --> LogFiles : write
+InfluxHandler --> InfluxDB : send metrics
+ElasticsearchHandler --> Elasticsearch : index data
+
+FileCollector ..> MetricType : use
+TCPCollector ..> MetricType : use
+DockerCollector ..> ContainerStatsType : use
+SystemCollector ..> MetricType : use
+
+GrokFilter ..> MetricType : transform
+MetadataFilter ..> ContainerStatsType : enrich
+TransformFilter ..> MetricType : process
+
+QChan ..> QueuedMsg : manage
+
+SystemCollector --> UnixSyscalls : invoke
+UnixSyscalls --> SyscallWrappers : wrap
+SyscallWrappers --> PlatformCode : execute
+
+note right of QChan
+  Broadcast mechanism using
+  grafov/bcast for distributing
+  data to multiple consumers
+end note
+
+note bottom of QFrameCore
+  Pipeline flow:
+  Collectors -> Filters -> Handlers
+  Connected via QChan broadcast
+end note
+
+note left of ConfigManager
+  Hierarchical configuration
+  with variable expansion
+  and validation
+end note
+
+@enduml

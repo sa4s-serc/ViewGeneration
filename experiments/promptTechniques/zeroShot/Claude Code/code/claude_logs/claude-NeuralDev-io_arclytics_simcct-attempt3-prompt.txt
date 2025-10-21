@@ -1,0 +1,111 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: NeuralDev-io_arclytics_simcct
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** deployment
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## Arclytics SimCCT Repository Analysis: A Comprehensive Overview
+
+The Arclytics SimCCT repository outlines the infrastructure, configuration, and code for a scientific web application tool facilitating phase transformation calculations. Developed in collaboration with the Australian Nuclear Science and Technology Organisation (ANSTO), the application adopts a microservices architecture, containerized using Docker and orchestrated with Kubernetes. The repository encompasses both frontend and backend components, along with related infrastructure configurations.
+
+**Core Functionality and Components:**
+
+*   **SimCCT Service (Backend):** A Flask-based microservice responsible for user authentication/authorization via JWT, simulation configuration, data handling (MongoDB via `mongoengine` and `pymongo`), REST API endpoints for core simulation logic provided by the `arc_simulation` package, and logging (Fluentd via `arc_logging`). Flask Blueprints are used to organize components and resources. Redis is used for session management using `Flask-Redis`. Celery handles asynchronous tasks.
+*   **Client (Frontend):** A React-based web interface for user interaction, handling input, display, and interaction with backend services. It utilizes Redux for state management (persisted via `redux-persist`), `react-router-dom` for routing, and `react-plotly.js` for charting.
+*   **User Management Service:** Integrated within the SimCCT service, handling user registration, login, profile management, and admin functionalities (disabling/enabling users, etc.).
+*   **Data Persistence:** MongoDB serves as the primary database. Redis functions as an in-memory datastore for caching, session management, and Celery message queuing.
+*   **Analytics:** The `arclytics` microservice and various client-side API calls provides analytics for the application. Implements Elastic APM for performance monitoring.
+*   **Logging:** Fluentd is used for centralized logging, feeding into Elasticsearch and visualized via Kibana. A custom `AppLogger` and `arc_logging` library ensures standardized formatting.
+*   **API Documentation:** Swagger documents REST APIs.
+
+**Architectural Insights:**
+
+*   **Microservices Architecture:** The application implements a microservices approach, promoting modularity, scalability, and independent development. `simcct` forms a microservice.
+*   **Layered Architecture:** The backend employs a layered architecture (API, Services, Data Access, Models). The Frontend is built with elements and moleisms (component architecture)
+*   **Client-Server Model:** A clear separation exists between the client (frontend) and server (backend) components. The frontend interacts with the backend via REST APIs.
+*   **Container-Based Development:** Docker is central to the development workflow. Microservices are packaged as containers.
+*   **Infrastructure as Code:** Kubernetes YAML files manage infrastructure, enabling reproducible deployments and automated scaling.
+*   **Centralized Logging and Monitoring:** Fluentd, Elasticsearch, Kibana and Elastic APM facilitate centralized logging and monitoring.
+
+**Notable Design Patterns:**
+
+*   **Facade (via CLI Script):** `arc_cli.sh` acts as a facade, simplifying Docker and Kubernetes commands.
+*   **Configuration Externalization:** Environment variables configure the services, promoting flexibility.
+*   **Deployment Pipelines as Code:** `bitbucket-pipelines.yml` defines the deployment workflow, enabling automation.
+*   **Factory Pattern:** `create_app` creates Flask application instances, `make_celery` for Celery.
+*   **Middleware:** Authentication and authorization logic are implemented as middleware.
+*   **Abstract Adapter:** Isolation of Alloys service from the specific MongoDB implementation through `AlloyAbstract` and `MongoAlloys`.
+*   **Singleton:** The flask mongo client is a global singleton.
+*   **Redux Ducks:** Code uses the "ducks" pattern to organize Redux code.
+
+**Important Files and Their Roles:**
+
+*   **`LICENSE`:** MIT License.
+*   **`.yapf.cfg`:** `yapf` Python code formatter configuration.
+*   **`cloudbuild.yaml`:** Google Cloud Build configuration.
+*   **`env-spec.txt`, `env.yml`:** Anaconda environment dependencies.
+*   **`.gitmodules`:** Submodules (`arc_simulation`, `arclytics.io`).
+*   **`README.md`:** Project overview, setup instructions.
+*   **`docker-compose.yml`:** Docker Compose configuration for development.
+*   **`docker-compose-gke.yaml`:** Docker Compose configuration for GKE production.
+*   **`skaffold.yaml`:** Skaffold configuration for Kubernetes development.
+*   **`.gcloudignore`:** Files/directories excluded from Google Cloud deployments.
+*   **`arc_cli.sh`:** CLI script.
+*   **`bitbucket-pipelines.yml`:** Bitbucket CI/CD pipeline.
+*   **`kubernetes/*`:** Kubernetes configuration files.
+*   **`sim_api/models.py`:** Defines data models using `mongoengine`.
+*   **`sim_api/auth_service.py`:** Handles JWT encoding/decoding.
+*   **`sim_api/routes.py`:** Defines API routes.
+*   **`sim_api/resources/*`:** Flask-RESTful resources (API endpoints).
+*   **`sim_api/middleware.py`:** Authentication/authorization middleware.
+*   **`sim_api/schemas.py`:** Data validation schemas using `marshmallow`.
+*   **`arc_logging/*`:** Custom logging library.
+*   **`celery_runner.py`:** Factory pattern for setting up celery.
+*   **`manage.py`:** Flask-CLI for database operations, testing.
+*   **`Dockerfile*`:** Docker images for services.
+*   **`src/App.jsx`:** Main application component.
+*   **`src/state/store.js`:** Configures the Redux store.
+*   **`src/state/ducks/*`:** Redux ducks for state management.
+*   **`src/components/moleisms/routers/Route.jsx`:** Defines route components for access control.
+*   **`src/components/moleisms/charts/*`:** Chart components.
+*   **`src/components/elements/*`:** Reusable UI elements.
+*   **`src/api/*`:** API helper functions.
+*   **`services/jupyter/*`:** Jupyter service configuration.
+*   **`services/celery-worker/*`:** Celery service configuration.
+*   **`sim_api/email_service.py`:** Used for sending email for feedback and admin related actions.
+
+In summary, Arclytics SimCCT is a well-architected application leveraging modern development practices such as microservices, containerization, and a component-based frontend. It emphasizes API design, data validation, security, maintainability and testability. The architecture is suitable for scalability and extensibility and it ensures a consistent user experience across deployment environments through containerization.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/NeuralDev-io_arclytics_simcct.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

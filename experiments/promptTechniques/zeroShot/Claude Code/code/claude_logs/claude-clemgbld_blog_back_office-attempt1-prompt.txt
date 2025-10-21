@@ -1,0 +1,87 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: clemgbld_blog_back_office
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** connectivity
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## Analysis of the `clemgbld_blog_back_office` Repository
+
+This report analyzes the `clemgbld_blog_back_office` repository, a React-based admin panel designed for managing a blog. The application utilizes Redux for state management, React Router for navigation, and a rich text editor (Plate) for article creation and editing. Built with Typescript, the system prioritizes modularity, separation of concerns, and testability.
+
+**Key Functionalities:**
+
+The application provides comprehensive functionality for:
+
+*   **Article Management:** Enabling users to create, read, update, and delete blog articles, including features for topic categorization and controlling article visibility (hide/publish). A `RichTextEditor` component, implemented using the `@udecode/plate` library, provides a rich text editing experience.
+*   **Email Subscription Management:** Allowing administrators to retrieve and remove email subscribers.
+*   **Authentication:** Implementing user login and logout functionality with token-based authentication and persisting user sessions using local storage.
+*   **UI Theming:** Supporting switching between light and dark editor themes.
+*   **Search:** Filtering articles and emails based on user-defined search terms.
+*   **Notifications:** Displaying error messages via modals to provide feedback to the user.
+*   **Pagination:** Managing pagination of articles for improved user experience.
+
+**Architecture and Components:**
+
+The application's architecture emphasizes a separation of concerns, potentially adhering to a Hexagonal Architecture paradigm as indicated in the project's `README.md`. Core application logic (use cases, entities) is decoupled from infrastructure dependencies (API calls, storage) using ports and adapters. This structure enhances testability and maintainability.
+
+Key components and their roles include:
+
+*   **`src/index.tsx`:** The application's entry point, responsible for setting up the Redux store, rendering the main `App` component within Redux and Clock Context providers, and handling initial login from local storage.
+*   **`src/App.tsx`:** Defines the application's routing structure using React Router, establishing routes for authentication, the home screen, article creation, article updating, and email management. Protected routes are implemented to restrict access to authorized users.
+*   **`src/core/store.ts`:** Configures the Redux store using `configureStore` and `combineReducers`. Includes the root reducer and thunk middleware with injected services.
+*   **`src/core/articles`, `src/core/auth`, `src/core/emails`:** Dedicated directories for managing Redux slices, use cases, entities, ports, and selectors related to articles, authentication, and email subscriptions, respectively.
+*   **`src/app/UI`:** Contains reusable UI components such as `Title`, `Input`, `Button`, `Modal`, `Header`, and `Spinner`.
+*   **`src/infrastructure`:** Houses implementations of services that interact with external data sources (APIs, local storage). Includes `InMemory` services primarily for testing purposes.
+*   **`src/helper/choose-app-mode.ts`:** A utility function to conditionally execute code based on the application's environment, configured via `process.env.REACT_APP_ARG`.
+
+**Design Patterns:**
+
+Several key design patterns are employed:
+
+*   **Redux:** Centralized state management with reducers, actions, and selectors. Redux Toolkit (`createSlice`, `createAsyncThunk`) is used to streamline Redux development.
+*   **Dependency Injection:** Services (e.g., `authService`, `articlesService`) are injected into components and thunks, promoting modularity and testability.
+*   **Adapter:** Adapters (e.g., `RestAuthService`, `InMemoryAuthService`) adapt external service interfaces to the core application's needs.
+*   **Higher-Order Component (HOC):** The `WithNotificationError` component is a HOC that provides centralized error handling and notification functionality.
+*   **Currying:** Implemented in selectors like `selectArticlesBasedOnTopic`, `selectArticlesWithHideStatus`,  `selectSearchedEmails` and pagination functions like `selectArticlesOnPage` for code reusability and readability.
+*   **Builder:**  Employed in `src/core/articles/use-cases/builder/article-builder.ts` and `src/core/articles/use-cases/test-helper/sut-builder.ts` to facilitate the creation of complex objects in a structured manner.
+
+**Further Observations:**
+
+*   **Testing:** The repository demonstrates a strong commitment to testing, including numerous unit tests, especially for Redux slices, use cases, and selectors.
+*   **Environment Variables:** Environment variables (e.g., `process.env.REACT_APP_ARG`) are used to configure the application based on the environment.
+*   **Date Formatting:** The `moment` library is used for date formatting.
+*   **Code Blocks:** The `react-code-blocks` library is used to render code snippets.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: connectivity
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/clemgbld_blog_back_office.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

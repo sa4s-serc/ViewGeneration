@@ -1,0 +1,123 @@
+@startuml
+title MACPro Appian Connector - Control Flow Sequence Diagram
+
+actor Developer
+participant "GitHub Repository" as GitHub
+participant "GitHub Actions" as GHA
+participant "run Script" as Run
+participant "Serverless Framework" as Serverless
+participant "AWS CloudFormation" as CF
+participant "ECS Task" as ECS
+participant "Appian" as Appian
+participant "Kafka Connector" as Connector
+participant "BigMAC" as BigMAC
+participant "SSM Parameter Store" as SSM
+participant "Secrets Manager" as Secrets
+participant "CloudWatch" as CW
+participant "EventBridge" as EB
+participant "SNS Topic" as SNS
+participant "Security Hub" as SecHub
+participant "Jira" as Jira
+
+== Development Phase ==
+Developer -> GitHub: Push code changes
+activate GitHub
+GitHub -> GHA: Trigger CI/CD workflow
+activate GHA
+GHA -> GHA: Run pre-commit checks
+GHA -> GHA: Execute unit tests
+GHA -> GHA: Dependency review
+GHA -> GHA: Secret detection (detect-secrets)
+GHA -> GHA: CloudFormation static analysis (cfn-nag)
+deactivate GHA
+
+== Deployment Phase ==
+Developer -> Run: Execute ./run deploy
+activate Run
+Run -> Run: Compile TypeScript
+Run -> Run: Manage dependencies
+Run -> Serverless: Invoke deployment
+activate Serverless
+Serverless -> SSM: Fetch configuration parameters
+activate SSM
+SSM --> Serverless: Return parameters
+deactivate SSM
+Serverless -> Secrets: Fetch secrets
+activate Secrets
+Secrets --> Serverless: Return secrets
+deactivate Secrets
+Serverless -> CF: Deploy infrastructure
+activate CF
+CF -> ECS: Create/Update ECS tasks
+activate ECS
+CF -> SNS: Create/Update SNS topic
+CF -> EB: Create EventBridge rules
+CF --> Serverless: Deployment complete
+deactivate CF
+deactivate Serverless
+deactivate Run
+
+== Runtime Data Streaming Phase ==
+ECS -> Appian: Poll for data changes
+activate Appian
+Appian --> ECS: Return data changes
+deactivate Appian
+ECS -> Connector: Process data changes
+activate Connector
+Connector -> Connector: Transform data
+Connector -> BigMAC: Stream data to BigMAC
+activate BigMAC
+BigMAC --> Connector: Acknowledge receipt
+deactivate BigMAC
+deactivate Connector
+ECS -> CW: Send metrics and logs
+activate CW
+deactivate ECS
+
+== Monitoring and Alerting Phase ==
+CW -> EB: Trigger on threshold breach
+activate EB
+EB -> SNS: Publish alert notification
+activate SNS
+SNS -> Developer: Send notification (email/Slack)
+deactivate SNS
+deactivate EB
+
+== Failure Handling Phase ==
+ECS -> ECS: Task failure occurs
+activate ECS
+ECS -> CW: Log failure event
+CW -> EB: Trigger failure rule
+activate EB
+EB -> SNS: Publish failure alert
+activate SNS
+SNS -> Developer: Send alert notification
+deactivate SNS
+deactivate EB
+deactivate ECS
+
+== Security Monitoring Phase ==
+SecHub -> SecHub: Generate security findings
+activate SecHub
+SecHub -> GHA: Sync findings via workflow
+activate GHA
+GHA -> Jira: Create/Update Jira issues
+activate Jira
+Jira --> GHA: Issue created/updated
+deactivate Jira
+deactivate GHA
+deactivate SecHub
+
+== PR Integration Phase ==
+Developer -> GitHub: Create Pull Request
+activate GitHub
+GitHub -> GHA: Trigger PR workflow
+activate GHA
+GHA -> Jira: Create comment on Jira issue
+activate Jira
+Jira --> GHA: Comment added
+deactivate Jira
+deactivate GHA
+deactivate GitHub
+
+@enduml

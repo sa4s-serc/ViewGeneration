@@ -1,0 +1,93 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: dwt0317_Search_Adserver
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** control_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## Search Ad Server: Architecture and Components
+
+This report summarizes the architecture, components, and functionalities of a search ad server implemented in Java using Maven, Elasticsearch, Thrift, and MariaDB. The system is designed to handle user search queries, retrieve relevant advertisements, rank them based on predicted click-through rates, and log user interactions.
+
+**Key Functionalities:**
+
+The ad server provides the following core functionalities:
+
+*   **Search:** Processes user search queries, directing them to either the Bing Search API or a local Elasticsearch instance for initial result retrieval.
+*   **Ad Retrieval:**  Fetches relevant advertisements based on user queries, employing a broad matching strategy enhanced by query rewriting.
+*   **Ad Ranking:** Orders retrieved ads based on predicted click-through rates. This functionality is delegated to an external Thrift service.
+*   **Ad Delivery:** Presents ads to users, generating unique impression IDs and assigning positions for tracking. It also manages advertiser budgets, charging them when an ad is displayed.
+*   **Query Rewriting:**  Enhances search recall by rewriting user queries using word embeddings to broaden the search terms.
+*   **Logging:**  Records user search requests, ad impressions, and clicks for analysis and reporting using Log4j, directing the data to Flume.
+
+**Components:**
+
+The system comprises several key components:
+
+*   **Servlets (`/src/main/java/servlet/*Servlet.java`):** These act as front controllers, handling incoming HTTP requests (search, ad retrieval, ID generation, click tracking). `ESServlet` processes queries against the local Elasticsearch, while `BingServlet` interfaces with the Bing API.
+*   **Ad Retrieval (`/src/main/java/admanager/retrieval/AdRetrieval.java`, `*Matcher.java`):**  `AdRetrieval` orchestrates the ad retrieval process: query rewriting, candidate ad retrieval, ranking, and delivery. `*Matcher.java` defines the matching logic; the current implementation primarily uses broad matching.
+*   **Advertisement Entity (`/src/main/java/admanager/entity/Advertisement.java`):** Represents the data structure for an advertisement, including its type, keywords, code, and metadata.
+*   **Query Rewriting (`/src/main/java/querymanager/rewriting/RewritingHandler.java`, `/QueryRewriter.java`):** `RewritingHandler` manages communication with the external `QueryRewritingService` via Thrift. `QueryRewriter` implements the query rewriting logic.
+*   **Elasticsearch Integration (`/src/main/java/elasticsearch/es/ESHandler.java`):** `ESHandler` interacts with Elasticsearch to retrieve Douban book data and ad IDs based on keywords, storing previous searches in a LRU cache.
+*   **Database Interaction (`/src/main/java/database/DBPool.java`):** `DBPool` implements a database connection pool for interacting with the MariaDB database, used for retrieving ad information and managing advertiser budgets.
+*   **Configuration (`/src/main/java/global/Config.java`, `/src/main/resources/properties/*`):** `Config.java` holds global configuration variables. Property files store database connection details, Thrift service URLs, and logging configurations.
+*   **Initialization (`/src/main/java/global/InitListener.java`):** A servlet context listener that initializes the application upon deployment, including loading properties, connecting to Thrift services, and initializing the database connection pool.
+*   **Frontend (`/src/main/webapp/search/*`):** Contains the HTML, CSS, and Javascript files for the search interface.
+
+**Architecture:**
+
+The ad server employs the following architectural principles:
+
+*   **Service-Oriented Architecture (SOA):**  Leverages Thrift to delegate query rewriting and ad ranking to external services, promoting modularity and scalability.
+*   **Multi-Tier Architecture:** Consists of presentation (JSP/HTML), business logic (Servlets, Java classes), and data access (DBPool, database interaction) layers.
+*   **Configuration Driven:** Configuration values are loaded from property files, facilitating easier deployment and configuration changes.
+
+**Design Patterns:**
+
+The code utilizes several established design patterns:
+
+*   **Singleton:** `DBPool`, `RewritingHandler` ensure a single instance for resource management.
+*   **Factory Pattern:**  Thrift client classes use a factory to create new clients.
+*   **Data Transfer Object (DTO):** `Advertisement`, `Keyword`, and `DoubanBook` classes transfer data between layers.
+*   **Strategy Pattern (Potential):** While currently using mostly broad matching, the design allows for different matching strategies to be implemented as separate classes.
+*   **Front Controller:**  Servlets handle incoming requests and delegate to other components.
+*   **LRU Cache:** The `LRUCache` prevents unnecessary Elasticsearch searches by caching previous searches.
+
+**Important Files:**
+
+*   **`pom.xml`:** Defines project dependencies (Elasticsearch, FastJSON, Thrift, MariaDB connector, Flume) and Maven plugins.
+*   **`README.md`:** Provides a project overview, architecture, and module descriptions.
+*   **`/src/main/webapp/WEB-INF/web.xml`:** Defines servlets, servlet mappings, and listeners.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: control_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/dwt0317_Search_Adserver.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

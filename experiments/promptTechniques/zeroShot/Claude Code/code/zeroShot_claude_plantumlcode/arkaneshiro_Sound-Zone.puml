@@ -1,0 +1,200 @@
+@startuml
+skinparam component {
+  BackgroundColor<<frontend>> LightBlue
+  BackgroundColor<<backend>> LightGreen
+  BackgroundColor<<external>> LightYellow
+  BackgroundColor<<middleware>> LightCoral
+}
+
+title Sound-Zone Component Diagram - Control Flow
+
+package "Frontend Layer" {
+  component [App.js] as App <<frontend>>
+  component [Router] as Router <<frontend>>
+  component [NavBar.js] as NavBar <<frontend>>
+
+  package "Authentication Components" {
+    component [Home.js] as Home <<frontend>>
+    component [LoginForm.js] as LoginForm <<frontend>>
+    component [RegistrationForm.js] as RegistrationForm <<frontend>>
+    component [ProtectedRoute] as ProtectedRoute <<frontend>>
+    component [AuthRoute] as AuthRoute <<frontend>>
+  }
+
+  package "Content Components" {
+    component [Dashboard.js] as Dashboard <<frontend>>
+    component [Profile.js] as Profile <<frontend>>
+    component [SoundDetail.js] as SoundDetail <<frontend>>
+    component [Upload.js] as Upload <<frontend>>
+  }
+
+  package "Playback Components" {
+    component [Sound.js] as Sound <<frontend>>
+    component [SoundBar.js] as SoundBar <<frontend>>
+  }
+
+  component [Redux Store] as ReduxStore <<middleware>>
+
+  package "Redux Actions" {
+    component [User Actions] as UserActions <<middleware>>
+    component [Sound Actions] as SoundActions <<middleware>>
+    component [Profile Actions] as ProfileActions <<middleware>>
+  }
+
+  package "Redux Reducers" {
+    component [User Reducer] as UserReducer <<middleware>>
+    component [Sound Reducer] as SoundReducer <<middleware>>
+    component [Profile Reducer] as ProfileReducer <<middleware>>
+  }
+
+  component [Redux Thunk] as Thunk <<middleware>>
+}
+
+package "Backend Layer" {
+  component [API Server] as API <<backend>>
+  component [Authentication Service] as AuthService <<backend>>
+  component [Sound Service] as SoundService <<backend>>
+  component [User Service] as UserService <<backend>>
+  component [Follow Service] as FollowService <<backend>>
+}
+
+database "PostgreSQL" as DB <<backend>>
+
+cloud "External Services" {
+  component [Cloudinary API] as Cloudinary <<external>>
+}
+
+' Control Flow: User Authentication
+App --> Router : initiates routing
+Router --> Home : routes to landing
+Home --> LoginForm : renders form
+LoginForm --> UserActions : submit credentials
+UserActions --> Thunk : dispatch async action
+Thunk --> API : POST /login
+API --> AuthService : authenticate user
+AuthService --> DB : verify credentials
+DB --> AuthService : user data
+AuthService --> API : JWT token
+API --> Thunk : auth response
+Thunk --> UserReducer : dispatch success
+UserReducer --> ReduxStore : update auth state
+ReduxStore --> App : state change notification
+App --> ProtectedRoute : check auth status
+ProtectedRoute --> Dashboard : grant access
+
+' Control Flow: User Registration
+Home --> RegistrationForm : renders form
+RegistrationForm --> UserActions : submit new user
+UserActions --> Thunk : dispatch async action
+Thunk --> API : POST /register
+API --> AuthService : create user
+AuthService --> DB : insert user
+DB --> AuthService : user created
+AuthService --> API : JWT token
+API --> Thunk : registration response
+Thunk --> UserReducer : dispatch success
+UserReducer --> ReduxStore : update state
+
+' Control Flow: Sound Upload
+NavBar --> Router : navigate to upload
+Router --> ProtectedRoute : validate auth
+ProtectedRoute --> Upload : render component
+Upload --> Cloudinary : upload audio file
+Cloudinary --> Upload : media URL
+Upload --> SoundActions : create sound record
+SoundActions --> Thunk : dispatch async action
+Thunk --> API : POST /sounds
+API --> SoundService : save sound metadata
+SoundService --> DB : insert sound
+DB --> SoundService : sound created
+SoundService --> API : sound data
+API --> Thunk : response
+Thunk --> SoundReducer : dispatch success
+SoundReducer --> ReduxStore : update sounds state
+
+' Control Flow: Dashboard Feed
+Dashboard --> SoundActions : request followed sounds
+SoundActions --> Thunk : dispatch async action
+Thunk --> API : GET /dashboard
+API --> FollowService : get followed users
+FollowService --> DB : query relationships
+DB --> FollowService : user IDs
+FollowService --> SoundService : get sounds
+SoundService --> DB : query sounds
+DB --> SoundService : sound data
+SoundService --> API : feed data
+API --> Thunk : response
+Thunk --> SoundReducer : dispatch sounds
+SoundReducer --> ReduxStore : update state
+ReduxStore --> Dashboard : render feed
+Dashboard --> Sound : render sound items
+
+' Control Flow: Sound Playback
+Sound --> App : play request
+App --> SoundBar : update global player
+SoundBar --> Sound : playback control
+Sound --> Cloudinary : stream audio
+Cloudinary --> Sound : audio data
+
+' Control Flow: Profile View
+NavBar --> Router : navigate to profile
+Router --> Profile : render component
+Profile --> ProfileActions : request user data
+ProfileActions --> Thunk : dispatch async action
+Thunk --> API : GET /users/:id
+API --> UserService : get user profile
+UserService --> DB : query user
+DB --> UserService : user data
+UserService --> SoundService : get user sounds
+SoundService --> DB : query sounds
+DB --> SoundService : sound data
+SoundService --> UserService : sounds
+UserService --> API : profile data
+API --> Thunk : response
+Thunk --> ProfileReducer : dispatch profile
+ProfileReducer --> ReduxStore : update state
+ReduxStore --> Profile : render profile
+Profile --> Sound : render sounds
+
+' Control Flow: Follow User
+Profile --> ProfileActions : follow user
+ProfileActions --> Thunk : dispatch async action
+Thunk --> API : POST /follow
+API --> FollowService : create relationship
+FollowService --> DB : insert follow
+DB --> FollowService : relationship created
+FollowService --> API : success
+API --> Thunk : response
+Thunk --> ProfileReducer : dispatch update
+ProfileReducer --> ReduxStore : update state
+ReduxStore --> Profile : update UI
+
+' Control Flow: Search
+NavBar --> UserActions : search query
+UserActions --> Thunk : dispatch async action
+Thunk --> API : GET /search
+API --> UserService : search users
+UserService --> DB : query by username
+DB --> UserService : matching users
+UserService --> API : search results
+API --> Thunk : response
+Thunk --> UserReducer : dispatch results
+UserReducer --> ReduxStore : update state
+ReduxStore --> NavBar : display results
+
+' Control Flow: Sound Detail
+Router --> SoundDetail : route to sound
+SoundDetail --> SoundActions : request sound
+SoundActions --> Thunk : dispatch async action
+Thunk --> API : GET /sounds/:id
+API --> SoundService : get sound
+SoundService --> DB : query sound
+DB --> SoundService : sound data
+SoundService --> API : sound details
+API --> Thunk : response
+Thunk --> SoundReducer : dispatch sound
+SoundReducer --> ReduxStore : update state
+ReduxStore --> SoundDetail : render details
+SoundDetail --> Sound : render player
+
+@enduml

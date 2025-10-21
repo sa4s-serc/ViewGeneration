@@ -1,0 +1,273 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: beston123_Tarzan
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** control_flow
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+```text
+## Tarzan Distributed Transaction System Analysis
+
+This report summarizes the key functionalities, components, architectural insights, and design patterns observed in the Tarzan distributed transaction system, based on the provided code summaries. Tarzan implements a reliable distributed transaction system using a reliable eventing pattern, primarily targeting RocketMQ messages with potential extensions for Kafka.
+
+**Core Functionalities and Components:**
+
+Tarzan ensures reliable message delivery and transaction management in a distributed environment. Key components include:
+
+*   **Server:** Receives and proxies messages, manages configurations, and schedules tasks.
+*   **Client:** Sends messages and handles transaction lifecycle.
+*   **Registry:** Based on Zookeeper, provides service discovery and configuration management.
+*   **Message Broker:** RocketMQ serves as the primary message broker.
+
+The system incorporates scheduled tasks for transaction status checks and resending failed messages, ensuring eventual consistency. Distributed locks (via Redis) prevent concurrency issues during these scheduled tasks.
+
+**Modular Architecture & Key Modules:**
+
+Tarzan adopts a modular design, separating concerns into distinct modules, each with its own Maven `pom.xml` defining dependencies:
+
+*   **`tarzan-mq` & `tarzan-rocketmq`:** Handles RocketMQ integration, including message notification (`RocketMQMessageNotifier`), transaction status checks (`RocketMQTransactionChecker`), and message validation.
+*   **`tarzan-registry`:** Implements service discovery and registration using Zookeeper. Defines interfaces like `ServerRegistry`, `Address`, and `Discovery`.
+*   **`tarzan-server`:** The core server module, managing configuration, scheduled tasks, and request handling. Contains `ServerStartup`, `ConfigManager`, `ScheduledServiceManager`, `MessageResendService`, and `ServerController`.
+*   **`tarzan-rpc`:** Provides an RPC framework using Netty for remote communication. Defines interfaces for `RpcClient`, `RpcServer`, and `InvokeCallback`.
+*   **`tarzan-common`:** Contains common classes, utilities, constants, and enums used across the project.
+*   **`tarzan-store`:** The core data storage and management layer. Responsible for persisting and querying information about messages, transaction states, and message consumption results using Spring, MyBatis, Druid, MySQL Connector, Jedis, and Sharding JDBC. Key data models include `ToSendMessage`, `MessageConsume`, `ToCheckMessage`, and `MessageAggregatePlan`. Central service: `RocketMQStoreService`. The `*Query.java` files define the query parameters for database searches.
+*   **`tarzan-cluster`:** Defines clustering and load balancing strategies.
+*   **`tarzan-example`:** Demonstrates how to use the Tarzan client library.
+
+**Important Files and Their Roles:**
+
+*   **`CHANGELOG.md`:** Records notable changes, features, and bug fixes.
+*   **`README.md`:** Provides a high-level overview of Tarzan, its purpose, architecture, and documentation links.
+*   **`GUIDE.MD`:** Developer's guide with code examples.
+*   **`deploy.sh, deploy.bat`:** Scripts for building and deploying the application.
+*   **`assembly.xml`:** Defines how to package the application into a distributable format.
+*   **`bin/startup.sh, bin/shutdown.sh`:** Scripts for starting and stopping the server.
+*   **`tarzan-server/src/main/resources/META-INF/spring/tarzan-context.xml`:** Spring configuration file for the server module.
+*   **`tarzan-store/src/main/resources/META-INF/mybatis/*.xml`:** MyBatis XML configuration files.
+
+**Architectural Insights:**
+
+*   **Layered Architecture:**  The `tarzan-store` module exemplifies a layered architecture: Data Model, Data Access (DAOs using MyBatis), and Service layers.
+*   **Service Discovery:** Zookeeper handles service discovery and configuration management.
+*   **RPC Layer:** Netty-based RPC for communication between services.
+*   **Data Access:** MyBatis and Sharding JDBC are used for data access in `tarzan-store`.
+*   **Scheduled Tasks:** Ensure eventual consistency and reliability.
+*   **Distributed Locks:** Redis provides distributed locks for scheduled jobs.
+*   **Dependency Injection:** Spring manages dependencies (e.g., `@Resource` annotation), promoting loose coupling and testability.
+*   **Paging:** Implemented in `tarzan-store` to handle large datasets.
+
+**Notable Design Patterns:**
+
+*   **Factory Pattern:** Used for creating instances of various components (e.g., `MQMessageHandlerFactory`, `LoadBalanceFactory`, `ClientControllerFactory`, `Result.buildSucc()`, `Result.buildFail()`).
+*   **Template Method Pattern:** Found in `AbstractMQMessageNotifier` and `AbstractLoadBalance`.
+*   **Strategy Pattern:** Used for load balancing implementations.
+*   **Singleton Pattern:** Used for `IdGeneratorFactory` and `MQMessageHandlerFactory`.
+*   **Service Abstraction:** Interfaces like `Service`, `ScheduledService`, `Registry`, `Discovery` promote loose coupling.
+*   **DAO (Data Access Object):** The mappers in `tarzan-store` (`*Mapper`) serve as DAOs.
+*   **Distributed Lock:** Uses Redis for locking.
+
+**Error Handling:**
+
+The code employs `try-catch` blocks and `slf4j` logging for robust error handling. Errors are logged and wrapped into `Result.buildFail()` objects.
+
+
+
+IMPORTANT - RETRY ATTEMPT:
+A previous PlantUML generation failed with the following error:
+```
+Error line 24 in file: zeroShot_claude_plantumlcode/beston123_Tarzan.puml
+Some diagram description contains errors
+
+```
+
+The problematic code was:
+```plantuml
+@startuml
+!define COMPONENT_COLOR #LightBlue
+!define INTERFACE_COLOR #LightGreen
+!define EXTERNAL_COLOR #LightGray
+
+skinparam component {
+  BackgroundColor COMPONENT_COLOR
+  BorderColor Black
+}
+
+skinparam interface {
+  BackgroundColor INTERFACE_COLOR
+  BorderColor Black
+}
+
+title Tarzan Distributed Transaction System - Control Flow Architecture
+
+package "Client Layer" {
+  component [Tarzan Client] as Client
+  component [Example Application] as Example
+}
+
+package "RPC Communication Layer" {
+  component [RPC Framework\n(Netty-based)] as RPC {
+    interface "RpcClient" as RpcClientIf
+    interface "RpcServer" as RpcServerIf
+    interface "InvokeCallback" as CallbackIf
+  }
+}
+
+package "Server Layer" {
+  component [Server Controller] as ServerController
+  component [Config Manager] as ConfigManager
+  component [Scheduled Service Manager] as ScheduledManager {
+    component [Message Resend Service] as ResendService
+    component [Transaction Checker] as TransactionChecker
+  }
+  component [Server Startup] as ServerStartup
+}
+
+package "MQ Integration Layer" {
+  component [MQ Message Handler\nFactory] as MQFactory
+  component [RocketMQ Message\nNotifier] as RocketMQNotifier
+  component [RocketMQ Transaction\nChecker] as RocketMQChecker
+  component [Message Validator] as MessageValidator
+}
+
+package "Registry Layer" {
+  component [Zookeeper Registry] as Registry {
+    interface "ServerRegistry" as ServerRegIf
+    interface "Discovery" as DiscoveryIf
+    interface "Address" as AddressIf
+  }
+}
+
+package "Storage Layer" {
+  component [RocketMQ Store Service] as StoreService {
+    database "Data Models" as DataModels {
+      [ToSendMessage]
+      [MessageConsume]
+      [ToCheckMessage]
+      [MessageAggregatePlan]
+    }
+  }
+  component [MyBatis Mappers\n(DAOs)] as Mappers
+  database "MySQL Database\n(Sharding JDBC)" as MySQL
+}
+
+package "Cluster Layer" {
+  component [Load Balance Factory] as LBFactory
+  component [Load Balance Strategy] as LBStrategy
+}
+
+package "Common Layer" {
+  component [Common Utilities] as Common
+  component [Constants & Enums] as Constants
+  component [Result Factory] as ResultFactory
+}
+
+component [Redis\nDistributed Lock] as Redis <<External System>> #LightGray
+component [RocketMQ Broker] as RocketMQ <<External System>> #LightGray
+component [Zookeeper] as Zookeeper <<External System>> #LightGray
+
+' Control Flow Relationships
+
+' Client to Server via RPC
+Example --> Client : uses
+Client --> RpcClientIf : send message
+RpcClientIf --> RPC : transmit
+RPC --> RpcServerIf : receive
+RpcServerIf --> ServerController : route request
+
+' Server Control Flow
+ServerStartup --> ConfigManager : initialize
+ServerStartup --> ScheduledManager : start scheduled tasks
+ServerStartup --> Registry : register server
+ServerController --> MQFactory : delegate message handling
+ServerController --> StoreService : persist transaction state
+
+' Registry Control Flow
+Registry --> ServerRegIf : register
+Registry --> DiscoveryIf : discover services
+Registry <--> Zookeeper : service discovery
+
+' Scheduled Tasks Control Flow
+ScheduledManager --> ResendService : trigger periodically
+ScheduledManager --> TransactionChecker : trigger periodically
+ResendService --> Redis : acquire lock
+TransactionChecker --> Redis : acquire lock
+ResendService --> StoreService : query pending messages
+TransactionChecker --> StoreService : query messages to check
+ResendService --> RocketMQNotifier : resend failed messages
+TransactionChecker --> RocketMQChecker : check transaction status
+
+' MQ Layer Control Flow
+MQFactory --> RocketMQNotifier : create notifier
+MQFactory --> MessageValidator : validate message
+RocketMQNotifier --> RocketMQ : send message
+RocketMQChecker --> RocketMQ : query transaction status
+RocketMQNotifier --> StoreService : update message status
+RocketMQChecker --> StoreService : update transaction status
+
+' Storage Layer Control Flow
+StoreService --> Mappers : query/persist
+Mappers --> MySQL : JDBC operations
+StoreService --> DataModels : manage entities
+
+' Clustering Control Flow
+ServerController --> LBFactory : get load balancer
+LBFactory --> LBStrategy : create strategy
+LBStrategy --> DiscoveryIf : discover available servers
+
+' Common Layer Dependencies
+ServerController ..> ResultFactory : use
+ServerController ..> Common : use
+MQFactory ..> Constants : use
+StoreService ..> Common : use
+
+' Legend
+legend right
+  Control Flow Paths:
+  1. Client Request → RPC → Server Controller → MQ Handler → Message Broker
+  2. Scheduled Tasks → Distributed Lock → Query Store → Process → Update Store
+  3. Transaction Check → Status Query → Update Transaction State
+  4. Service Discovery → Registry → Load Balance → Route Request
+
+  External Systems:
+  - RocketMQ: Message Broker
+  - Zookeeper: Service Registry
+  - Redis: Distributed Locking
+  - MySQL: Persistent Storage
+endlegend
+
+@enduml
+
+```
+
+Please analyze the error, identify the issue, and generate corrected PlantUML code that compiles successfully.
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: control_flow
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/beston123_Tarzan.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

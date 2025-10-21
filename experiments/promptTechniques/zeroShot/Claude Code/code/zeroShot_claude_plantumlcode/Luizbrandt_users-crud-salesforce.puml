@@ -1,0 +1,157 @@
+@startuml
+!theme plain
+
+title Salesforce User CRUD System API - Control Flow
+
+actor Client
+participant "API Kit Router" as Router
+participant "Create User Flow" as CreateFlow
+participant "Read User Flow" as ReadFlow
+participant "Update User Flow" as UpdateFlow
+participant "Delete User Flow" as DeleteFlow
+participant "DataWeave Transformer" as DataWeave
+participant "Salesforce Connector" as SFConnector
+participant "Error Handler" as ErrorHandler
+database "Salesforce\n(Custom_User__c)" as Salesforce
+
+== Create User Operation ==
+Client -> Router: POST /users\n(User JSON)
+activate Router
+Router -> Router: Validate Request\n(RAML Spec)
+Router -> CreateFlow: Route to Create Flow
+activate CreateFlow
+CreateFlow -> DataWeave: Transform JSON to\nSalesforce Object
+activate DataWeave
+DataWeave --> CreateFlow: Transformed Data
+deactivate DataWeave
+CreateFlow -> SFConnector: Create Custom_User__c
+activate SFConnector
+SFConnector -> Salesforce: Insert Record
+activate Salesforce
+alt Success
+    Salesforce --> SFConnector: Record Created (ID)
+    deactivate Salesforce
+    SFConnector --> CreateFlow: Success Response
+    deactivate SFConnector
+    CreateFlow -> DataWeave: Transform Response to JSON
+    activate DataWeave
+    DataWeave --> CreateFlow: JSON Response
+    deactivate DataWeave
+    CreateFlow --> Router: 201 Created
+    deactivate CreateFlow
+    Router --> Client: User Created Response
+else Salesforce Error
+    Salesforce --> SFConnector: Error
+    SFConnector --> CreateFlow: Exception
+    CreateFlow -> ErrorHandler: Handle Exception
+    activate ErrorHandler
+    ErrorHandler --> CreateFlow: Error Response
+    deactivate ErrorHandler
+    CreateFlow --> Router: Error Response
+    Router --> Client: Error Response
+end
+deactivate Router
+
+== Read User Operation ==
+Client -> Router: GET /users/{id}
+activate Router
+Router -> Router: Validate Request
+Router -> ReadFlow: Route to Read Flow
+activate ReadFlow
+ReadFlow -> SFConnector: Query Custom_User__c by ID
+activate SFConnector
+SFConnector -> Salesforce: SELECT Query
+activate Salesforce
+alt User Found
+    Salesforce --> SFConnector: User Record
+    deactivate Salesforce
+    SFConnector --> ReadFlow: User Data
+    deactivate SFConnector
+    ReadFlow -> DataWeave: Transform to JSON
+    activate DataWeave
+    DataWeave --> ReadFlow: JSON Response
+    deactivate DataWeave
+    ReadFlow --> Router: 200 OK
+    deactivate ReadFlow
+    Router --> Client: User Data
+else User Not Found
+    Salesforce --> SFConnector: No Records
+    SFConnector --> ReadFlow: Empty Result
+    ReadFlow -> ErrorHandler: Handle Not Found
+    activate ErrorHandler
+    ErrorHandler --> ReadFlow: 404 Response
+    deactivate ErrorHandler
+    ReadFlow --> Router: 404 Not Found
+    Router --> Client: Not Found Error
+end
+deactivate Router
+
+== Update User Operation ==
+Client -> Router: PUT /users/{id}\n(Updated User JSON)
+activate Router
+Router -> Router: Validate Request\n(RAML Spec)
+Router -> UpdateFlow: Route to Update Flow
+activate UpdateFlow
+UpdateFlow -> DataWeave: Transform JSON to\nSalesforce Object
+activate DataWeave
+DataWeave --> UpdateFlow: Transformed Data
+deactivate DataWeave
+UpdateFlow -> SFConnector: Update Custom_User__c
+activate SFConnector
+SFConnector -> Salesforce: Update Record
+activate Salesforce
+alt Success
+    Salesforce --> SFConnector: Update Success
+    deactivate Salesforce
+    SFConnector --> UpdateFlow: Success Response
+    deactivate SFConnector
+    UpdateFlow -> DataWeave: Transform Response to JSON
+    activate DataWeave
+    DataWeave --> UpdateFlow: JSON Response
+    deactivate DataWeave
+    UpdateFlow --> Router: 200 OK
+    deactivate UpdateFlow
+    Router --> Client: Updated User Response
+else Update Failed
+    Salesforce --> SFConnector: Error
+    SFConnector --> UpdateFlow: Exception
+    UpdateFlow -> ErrorHandler: Handle Exception
+    activate ErrorHandler
+    ErrorHandler --> UpdateFlow: Error Response
+    deactivate ErrorHandler
+    UpdateFlow --> Router: Error Response
+    Router --> Client: Error Response
+end
+deactivate Router
+
+== Delete User Operation ==
+Client -> Router: DELETE /users/{id}
+activate Router
+Router -> Router: Validate Request
+Router -> DeleteFlow: Route to Delete Flow
+activate DeleteFlow
+DeleteFlow -> SFConnector: Delete Custom_User__c by ID
+activate SFConnector
+SFConnector -> Salesforce: Delete Record
+activate Salesforce
+alt Success
+    Salesforce --> SFConnector: Delete Success
+    deactivate Salesforce
+    SFConnector --> DeleteFlow: Success Response
+    deactivate SFConnector
+    DeleteFlow --> Router: 204 No Content
+    deactivate DeleteFlow
+    Router --> Client: Delete Successful
+else Delete Failed
+    Salesforce --> SFConnector: Error
+    SFConnector --> DeleteFlow: Exception
+    DeleteFlow -> ErrorHandler: Handle Exception
+    activate ErrorHandler
+    ErrorHandler --> DeleteFlow: Error Response
+    deactivate ErrorHandler
+    DeleteFlow --> Router: Error Response
+    Router --> Client: Error Response
+end
+deactivate Router
+
+@enduml
