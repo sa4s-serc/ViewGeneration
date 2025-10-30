@@ -1,37 +1,36 @@
 from graphviz import Digraph
 
-dot = Digraph(comment='Scantron Architecture', format='png')
-dot.attr(rankdir='LR', size='8,5')
+def generate_scantron_architecture_diagram():
+    dot = Digraph(comment='Scantron Project Architecture')
 
-# Define styles for different types of nodes
-styles = {
-    'console': {'shape': 'rectangle', 'style': 'filled', 'color': 'lightblue'},
-    'engine': {'shape': 'rectangle', 'style': 'filled', 'color': 'lightgreen'},
-    'rest_api': {'shape': 'ellipse', 'style': 'filled', 'color': 'lightcoral'},
-    'storage': {'shape': 'cylinder', 'style': 'filled', 'color': 'lightgrey'},
-    'email': {'shape': 'octagon', 'style': 'filled', 'color': 'lightyellow'},
-    'ansible': {'shape': 'parallelogram', 'style': 'filled', 'color': 'lightpink'},
-    'queue': {'shape': 'diamond', 'style': 'filled', 'color': 'lightgoldenrod1'},
-}
+    # Components
+    dot.node('Console', 'Console (Web Front-End)', shape='rectangle', style='filled', fillcolor='lightblue')
+    dot.node('Engines', 'Engines (Scanning Nodes)', shape='rectangle', style='filled', fillcolor='lightgreen')
+    dot.node('REST API', 'REST API', shape='rectangle', style='filled', fillcolor='lightyellow')
+    dot.node('NFS', 'NFS (Shared Storage)', shape='rectangle', style='filled', fillcolor='lightgrey')
+    dot.node('Scheduler', 'Scan Scheduler', shape='rectangle', style='filled', fillcolor='lightcoral')
+    dot.node('Results', 'Scan Results Processing', shape='rectangle', style='filled', fillcolor='lightpink')
+    dot.node('Email Alerts', 'Email Alerts', shape='rectangle', style='filled', fillcolor='lightgoldenrodyellow')
+    dot.node('Ansible', 'Ansible Automation', shape='rectangle', style='filled', fillcolor='lightcyan')
 
-# Nodes
-dot.node('Console', 'Console (Web Front-End)', **styles['console'])
-dot.node('API', 'REST API', **styles['rest_api'])
-dot.node('Engines', 'Engines (Scanning Nodes)', **styles['engine'])
-dot.node('NFS', 'Shared NFS Volume', **styles['storage'])
-dot.node('Email', 'Email Alerts', **styles['email'])
-dot.node('Ansible', 'Ansible Playbooks', **styles['ansible'])
-dot.node('Queue', 'Redis Queue', **styles['queue'])
+    # Connectors
+    dot.edge('Console', 'REST API', label='Communicates via')
+    dot.edge('REST API', 'Engines', label='Polls for jobs')
+    dot.edge('Engines', 'NFS', label='Stores results on')
+    dot.edge('NFS', 'Results', label='Accesses results from')
+    dot.edge('Scheduler', 'Console', label='Schedules scans using django-recurrence')
+    dot.edge('Results', 'Console', label='Processes results into CSV')
+    dot.edge('Scheduler', 'Engines', label='Distributes tasks')
+    dot.edge('Console', 'Email Alerts', label='Sends alerts upon completion/errors')
+    dot.edge('Ansible', 'Console', label='Deploys using playbooks')
+    dot.edge('Ansible', 'Engines', label='Deploys using playbooks')
 
-# Edges
-dot.edge('Console', 'API', label='Communicates through', arrowhead='vee')
-dot.edge('Engines', 'API', label='Polls for tasks', arrowhead='vee')
-dot.edge('Engines', 'NFS', label='Stores results', arrowhead='vee')
-dot.edge('NFS', 'Console', label='Processes results', arrowhead='vee')
-dot.edge('Console', 'Email', label='Sends alerts', arrowhead='vee')
-dot.edge('Ansible', 'Console', label='Deploys', arrowhead='vee')
-dot.edge('Ansible', 'Engines', label='Deploys', arrowhead='vee')
-dot.edge('Console', 'Queue', label='Queues tasks', arrowhead='vee')
+    # Additional annotations for non-functional requirements
+    with dot.subgraph() as s:
+        s.attr(rank='same')
+        s.node('REST API', style='dashed', label='REST API\n(Scalability & Fault Tolerance)')
 
-# Render the diagram
-dot.render('scantron_architecture', view=True)
+    # Render the diagram
+    dot.render('scantron_architecture_diagram', format='png', cleanup=True)
+
+generate_scantron_architecture_diagram()

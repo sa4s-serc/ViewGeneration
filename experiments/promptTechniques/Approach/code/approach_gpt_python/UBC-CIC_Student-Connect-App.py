@@ -1,63 +1,34 @@
-from diagrams import Diagram, Cluster, Edge
+from diagrams import Diagram
 from diagrams.aws.compute import Lambda
-from diagrams.aws.database import Dynamodb, Elasticache, S3
-from diagrams.aws.network import CloudFront
-from diagrams.aws.integration import SQS
+from diagrams.aws.database import Dynamodb, DynamodbStreams
+from diagrams.elastic.elasticsearch import Elasticsearch
 from diagrams.aws.security import Cognito
-from diagrams.onprem.client import Client
-from diagrams.onprem.network import Nginx
-from diagrams.onprem.iac import Ansible
+from diagrams.aws.mobile import Amplify
+from diagrams.aws.storage import S3
+from diagrams.elastic.elasticsearch import Kibana
+from diagrams.onprem.client import Users
+from diagrams.programming.framework import React
 
-with Diagram("Content Aggregation Platform Architecture", show=False, direction="TB"):
-    client = Client("User")
+with Diagram("Comprehensive Platform Architecture", show=False):
+    user_auth = Cognito("User Auth")
+    user = Users("End User")
 
-    with Cluster("Frontend"):
-        nginx = Nginx("Nginx")
-        pwa = Client("React PWA")
+    frontend = React("React PWA")
+    amplify = Amplify("AWS Amplify")
+    user >> user_auth >> frontend >> amplify
 
-    with Cluster("Backend"):
-        with Cluster("Authentication"):
-            cognito = Cognito("AWS Cognito")
+    backend = Lambda("Data Aggregation")
+    es_hasher = Lambda("ES Hasher")
+    stream_handler = Lambda("Stream Handler")
+    get_es_documents = Lambda("Get ES Documents")
 
-        with Cluster("Data Processing"):
-            with Cluster("Lambda Functions"):
-                lambdas = [
-                    Lambda("get_events_data"),
-                    Lambda("get_news_data"),
-                    Lambda("get_blogs_data"),
-                    Lambda("get_athletics_news"),
-                    Lambda("get_clubs_data"),
-                    Lambda("document_stream_handler"),
-                    Lambda("es_hasher"),
-                    Lambda("get_es_documents")
-                ]
+    frontend >> backend >> [Dynamodb("DynamoDB"), Elasticsearch("Elasticsearch")]
+    backend >> es_hasher >> Elasticsearch("Elasticsearch")
+    backend >> stream_handler >> DynamodbStreams("DynamoDB Streams")
+    backend >> get_es_documents >> Elasticsearch("Elasticsearch")
 
-            with Cluster("Data Storage"):
-                dynamodb = Dynamodb("DynamoDB")
-                elasticsearch = Elasticache("Elasticsearch")
-                s3 = S3("S3 Data Lake")
+    s3_bucket = S3("S3 Data Lake")
+    frontend >> s3_bucket
 
-            lambdas[0] >> Edge(label="store data") >> dynamodb
-            lambdas[1] >> Edge(label="store data") >> dynamodb
-            lambdas[2] >> Edge(label="store data") >> dynamodb
-            lambdas[3] >> Edge(label="store data") >> dynamodb
-            lambdas[4] >> Edge(label="store data") >> dynamodb
-
-            dynamodb >> Edge(label="stream updates") >> lambdas[5]
-            lambdas[5] >> Edge(label="update ES index") >> elasticsearch
-
-            lambdas[6] >> Edge(label="sync data") >> elasticsearch
-            lambdas[7] >> Edge(label="query documents") >> elasticsearch
-
-        cloudfront = CloudFront("CloudFront")
-        sqs = SQS("Data Queue")
-
-    ansible = Ansible("Infrastructure as Code")
-
-    client >> nginx >> pwa
-    pwa >> cognito
-    pwa >> cloudfront >> lambdas
-    lambdas >> sqs
-    dynamodb >> s3
-
-    ansible >> Edge(label="deploys") >> [nginx, lambdas, dynamodb, elasticsearch, s3, cognito]
+    kibana = Kibana("Kibana Admin Console")
+    Elasticsearch("Elasticsearch") >> kibana

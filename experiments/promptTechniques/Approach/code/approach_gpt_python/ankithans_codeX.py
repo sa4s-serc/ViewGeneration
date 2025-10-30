@@ -1,86 +1,56 @@
 from graphviz import Digraph
 
-# Create a Digraph object
-dot = Digraph(comment='CodeX Web Application Architecture', format='png')
+dot = Digraph(comment='CodeX Project Architecture')
 
-# Define styles
-styles = {
-    'graph': {
-        'fontsize': '12',
-        'fontname': 'Helvetica',
-    },
-    'nodes': {
-        'fontname': 'Helvetica',
-        'shape': 'rectangle',
-        'style': 'filled',
-        'fillcolor': '#CCCCFF',
-    },
-    'edges': {
-        'arrowhead': 'open',
-        'fontname': 'Helvetica',
-        'fontsize': '10',
-    }
-}
+# Frontend Components
+dot.node('ReactJS', 'ReactJS Frontend')
+dot.node('App.js', 'Main Application Component')
+dot.node('Navbar.js', 'Navbar')
+dot.node('PseudoCode.js', 'PseudoCode Component')
+dot.node('Warnings.js', 'Warnings Component')
+dot.node('Compile.js', 'Compile Component')
 
-def apply_styles(graph, styles):
-    graph.graph_attr.update(
-        ('graph' in styles and styles['graph']) or {}
-    )
-    graph.node_attr.update(
-        ('nodes' in styles and styles['nodes']) or {}
-    )
-    graph.edge_attr.update(
-        ('edges' in styles and styles['edges']) or {}
-    )
-    return graph
+# Backend Components
+dot.node('FastAPI', 'FastAPI Backend')
+dot.node('main.py', 'Main Entry Point')
+dot.node('app.py', 'API Gateway')
+dot.node('compile.py', 'Compile Endpoint')
+dot.node('convertPseudo.py', 'Convert to Pseudocode Endpoint')
+dot.node('warnings.py', 'Warnings Endpoint')
+dot.node('translatePseudo.py', 'Translate Pseudocode Endpoint')
+dot.node('shareCode.py', 'Share Code Endpoint')
+dot.node('flowchart.py', 'Flowchart Generation Endpoint')
 
-# Define nodes for frontend components
-dot.node('Frontend', 'Frontend (ReactJS)', fillcolor='#FFDD44')
-dot.node('App', 'App.js')
-dot.node('Navbar', 'Navbar.js')
-dot.node('PseudoCode', 'PseudoCode.js')
-dot.node('Warnings', 'Warnings.js')
-dot.node('Compile', 'Compile.js')
+# Services
+dot.node('pylint.py', 'Pylint Service')
+dot.node('pseudo_code.py', 'Pseudocode Conversion Service')
+dot.node('hackerearth_compile.py', 'HackerEarth Compile Service')
+dot.node('translate.py', 'Translation Logic Service')
+dot.node('flowchart_service.py', 'Flowchart Generation Service')
 
-# Define nodes for backend components
-dot.node('Backend', 'Backend (FastAPI)', fillcolor='#44FFDD')
-dot.node('Main', 'main.py')
-dot.node('AppInstance', 'app/app.py')
-dot.node('CompileRoute', 'compile.py')
-dot.node('ConvertPseudoRoute', 'convertPseudo.py')
-dot.node('WarningsRoute', 'warnings.py')
-dot.node('TranslatePseudoRoute', 'translatePseudo.py')
-dot.node('ShareCodeRoute', 'shareCode.py')
-dot.node('FlowchartRoute', 'flowchart.py')
+# Infrastructure Files
+dot.node('SQLite', 'SQLite Database')
 
-# Define nodes for services
-dot.node('PylintService', 'pylint.py', fillcolor='#DDFF44')
-dot.node('PseudoCodeService', 'pseudo_code.py', fillcolor='#DDFF44')
-dot.node('HackerEarthService', 'hackerearth_compile.py', fillcolor='#DDFF44')
-dot.node('TranslateService', 'translate.py', fillcolor='#DDFF44')
-dot.node('FlowchartService', 'flowchart.py', fillcolor='#DDFF44')
-
-# Define edges
-dot.edge('Frontend', 'Backend', label='REST API Calls')
-dot.edge('App', 'Navbar')
-dot.edge('App', 'PseudoCode')
-dot.edge('App', 'Warnings')
-dot.edge('App', 'Compile')
-dot.edge('Backend', 'AppInstance', label='API Gateway')
-dot.edge('AppInstance', 'CompileRoute', label='Route')
-dot.edge('AppInstance', 'ConvertPseudoRoute', label='Route')
-dot.edge('AppInstance', 'WarningsRoute', label='Route')
-dot.edge('AppInstance', 'TranslatePseudoRoute', label='Route')
-dot.edge('AppInstance', 'ShareCodeRoute', label='Route')
-dot.edge('AppInstance', 'FlowchartRoute', label='Route')
-dot.edge('CompileRoute', 'HackerEarthService', label='API Call')
-dot.edge('ConvertPseudoRoute', 'PseudoCodeService', label='Service Call')
-dot.edge('WarningsRoute', 'PylintService', label='Service Call')
-dot.edge('TranslatePseudoRoute', 'TranslateService', label='Service Call')
-dot.edge('FlowchartRoute', 'FlowchartService', label='Service Call')
-
-# Apply styles
-dot = apply_styles(dot, styles)
+# Connections
+dot.edge('ReactJS', 'App.js')
+dot.edge('App.js', 'Navbar.js')
+dot.edge('App.js', 'PseudoCode.js')
+dot.edge('App.js', 'Warnings.js')
+dot.edge('App.js', 'Compile.js')
+dot.edge('FastAPI', 'main.py')
+dot.edge('main.py', 'app.py')
+dot.edge('app.py', 'compile.py')
+dot.edge('app.py', 'convertPseudo.py')
+dot.edge('app.py', 'warnings.py')
+dot.edge('app.py', 'translatePseudo.py')
+dot.edge('app.py', 'shareCode.py')
+dot.edge('app.py', 'flowchart.py')
+dot.edge('compile.py', 'hackerearth_compile.py')
+dot.edge('convertPseudo.py', 'pseudo_code.py')
+dot.edge('warnings.py', 'pylint.py')
+dot.edge('translatePseudo.py', 'translate.py')
+dot.edge('flowchart.py', 'flowchart_service.py')
+dot.edge('shareCode.py', 'SQLite')
 
 # Render the diagram
-dot.render('codex_architecture')
+dot.render('codex_project_architecture', format='png', cleanup=True)

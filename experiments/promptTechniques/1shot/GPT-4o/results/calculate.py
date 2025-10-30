@@ -2,7 +2,7 @@ import csv
 import statistics
 
 # Path to your CSV file
-csv_file = "image_similarity_results.csv"
+csv_file = "oneShot_gpt_output_images_similarity_results.csv"
 
 # List of metric columns
 metric_keys = ["SSIM", "PSNR", "RMSE", "SAM", "SRE", "UIQ"]

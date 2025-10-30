@@ -16,7 +16,6 @@ def main():
         "missing_connectors_count",
         "correct_connectors_count"
     ]
-
     # Ensure numeric columns are correctly parsed (just in case)
     df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric, errors='coerce')
 

@@ -1,46 +1,64 @@
-from diagrams import Diagram, Cluster, Edge
-from diagrams.generic.blank import Blank
-from diagrams.onprem.client import User
+from diagrams import Diagram, Cluster
+from diagrams.programming.language import Java
+from diagrams.onprem.client import Client
+from diagrams.onprem.database import Mongodb, Postgresql, Mariadb
 from diagrams.onprem.compute import Server
-from diagrams.onprem.storage import LocalStorage
+from diagrams.onprem.network import Nginx
+from diagrams.onprem.iac import Ansible
+from diagrams.onprem.logging import Rsyslog
+from diagrams.onprem.monitoring import Grafana, Prometheus
+from diagrams.onprem.ci import Jenkins
+from diagrams.onprem.vcs import Git
+from diagrams.onprem.container import Docker
+from diagrams.onprem.queue import Kafka
 
-with Diagram("ARGAEL Architecture", show=False, direction="TB"):
+with Diagram("ARGAEL Architecture", direction="TB"):
 
-    user = User("User")
+    client = Client("User")
 
     with Cluster("ARGAEL Application"):
-        gui = Server("ArgaelForm.java")
-        io_manager = Server("IOManager.java")
-        data_manager = Server("DataManager.java")
-        report_formatter = Server("ReportFormatter.java")
-        init_params = Server("InitParams.java")
-        file_utils = Server("FileUtils.java")
-        string_utils = Server("StringUtils.java")
-        argument_model = Server("ArgumentModel.java")
-        selected_items = Server("SelectedItems.java")
+        java_app = Java("ARGAEL")
+        gui = Java("GUI")
+        io_manager = Java("IO Manager")
+        data_manager = Java("Data Manager")
+        report_formatter = Java("Report Formatter")
 
     with Cluster("Data Storage"):
-        jsonl_storage = LocalStorage("JSONL Files")
-        csv_storage = LocalStorage("CSV Files")
+        jsonl_storage = Mariadb("JSONL Data")
+        csv_storage = Postgresql("CSV Data")
+        html_storage = Mongodb("HTML Templates")
 
-    with Cluster("Configuration"):
-        params_json = LocalStorage("params.json")
-        users_txt = LocalStorage("users.txt")
-        html_templates = LocalStorage("HTML Templates")
+    with Cluster("Data Processing"):
+        argument_annotation = Java("Argument Annotation")
+        annotation_evaluation = Java("Annotation Evaluation")
+        argument_models = Java("Argument Models")
 
-    user >> gui
-    gui >> Edge(label="reads/writes") >> io_manager
-    io_manager >> Edge(label="manages") >> data_manager
-    data_manager >> Edge(label="formats") >> report_formatter
-    report_formatter >> Edge(label="uses") >> html_templates
+    client >> gui
+    gui >> java_app
+    java_app >> io_manager >> data_manager >> report_formatter
+    
+    io_manager >> jsonl_storage
+    io_manager >> csv_storage
+    report_formatter >> html_storage
 
-    init_params >> Edge(label="configures") >> params_json
-    gui >> Edge(label="views") >> jsonl_storage
-    gui >> Edge(label="exports") >> csv_storage
+    argument_annotation >> annotation_evaluation
+    argument_models >> annotation_evaluation
+    annotation_evaluation >> io_manager
 
-    io_manager >> file_utils
-    io_manager >> string_utils
-    io_manager >> argument_model
-    gui >> selected_items
+    # Additional components
+    vcs = Git("Version Control")
+    ci_cd = Jenkins("CI/CD")
+    monitoring = Prometheus("Monitoring")
+    logging = Rsyslog("Logging")
+    config_mgmt = Ansible("Config Management")
+    containerization = Docker("Containerization")
+    web_server = Nginx("Web Server")
+    event_queue = Kafka("Event Queue")
 
-    users_txt << Edge(label="manages") << data_manager
+    client >> web_server >> java_app
+    containerization >> java_app
+    config_mgmt >> java_app
+    monitoring >> java_app
+    logging >> java_app
+    vcs >> ci_cd >> java_app
+    event_queue >> java_app

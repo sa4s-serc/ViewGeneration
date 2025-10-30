@@ -1,72 +1,37 @@
-from diagrams import Diagram, Cluster, Edge
-from diagrams.onprem.client import User
-from diagrams.onprem.network import Nginx
-from diagrams.onprem.compute import Server
-from diagrams.onprem.queue import RabbitMQ
+from diagrams import Diagram, Cluster
+from diagrams.aws.compute import EC2
+from diagrams.aws.network import ELB, Route53
 from diagrams.onprem.inmemory import Redis
-from diagrams.onprem.database import Mongodb
-from diagrams.onprem.search import ElasticSearch
-from diagrams.programming.language import React
+from diagrams.onprem.queue import RabbitMQ
+from diagrams.elastic.elasticsearch import Elasticsearch
+from diagrams.azure.identity import ActiveDirectory
+from diagrams.programming.framework import React
 
-with Diagram("SmoresUnderflow Architecture", show=False, direction="TB"):
-    user = User("User")
-
-    with Cluster("Frontend"):
-        frontend = React("su-frontend")
-
-    with Cluster("API Gateway"):
-        nginx = Nginx("Nginx")
-
+with Diagram("SmoresUnderflow Architecture", show=False):
+    dns = Route53("DNS")
+    lb = ELB("Load Balancer")
+    
     with Cluster("Microservices"):
-        with Cluster("User Management"):
-            users_service = Server("su-users")
-            accounts_service = Server("su-accounts")
+        auth_service = ActiveDirectory("Auth Service")
+        user_service = EC2("User Service")
+        question_service = EC2("Question Service")
+        answer_service = EC2("Answer Service")
+        media_service = EC2("Media Service")
+        search_service = Elasticsearch("Search Service")
+        frontend = React("React Frontend")
+    
+    dns >> lb >> [auth_service, user_service, question_service, answer_service, media_service, search_service, frontend]
+    
+    with Cluster("Asynchronous Communication"):
+        mq = RabbitMQ("RabbitMQ")
+        user_service >> mq >> question_service
+        answer_service >> mq >> question_service
+    
+    with Cluster("Caching"):
+        cache = Redis("Redis")
+        user_service >> cache
+        question_service >> cache
+        answer_service >> cache
+        media_service >> cache
 
-        with Cluster("Q&A Handling"):
-            questions_service = Server("su-questions")
-            answers_service = Server("su-answers")
-            qu_questions_queue = RabbitMQ("qu-questions")
-            qu_answers_queue = RabbitMQ("qu-answers")
-            qu_delete_questions_queue = RabbitMQ("qu-delete-questions")
-
-        with Cluster("Search"):
-            search_service = Server("su-search")
-
-        with Cluster("Media Handling"):
-            media_service = Server("su-media")
-
-    with Cluster("Databases & Caching"):
-        redis_cache = Redis("Redis")
-        mongo_db = Mongodb("MongoDB")
-        es_db = ElasticSearch("ElasticSearch")
-
-    user >> frontend
-    frontend >> nginx
-
-    nginx >> Edge(label="JWT Auth") >> users_service
-    nginx >> accounts_service
-
-    nginx >> questions_service
-    nginx >> answers_service
-
-    questions_service >> qu_questions_queue
-    answers_service >> qu_answers_queue
-
-    qu_questions_queue >> mongo_db
-    qu_answers_queue >> mongo_db
-    qu_delete_questions_queue >> mongo_db
-
-    nginx >> search_service
-    search_service >> es_db
-
-    nginx >> media_service
-
-    users_service >> redis_cache
-    accounts_service >> redis_cache
-    questions_service >> redis_cache
-    answers_service >> redis_cache
-
-    users_service >> mongo_db
-    accounts_service >> mongo_db
-    questions_service >> mongo_db
-    answers_service >> mongo_db
+    dns >> frontend

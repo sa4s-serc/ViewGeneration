@@ -1,52 +1,36 @@
-from diagrams import Diagram, Cluster, Edge
-from diagrams.custom import Custom
-from diagrams.onprem.client import User
-from diagrams.onprem.compute import Server
-from diagrams.onprem.container import Docker
-from diagrams.onprem.network import Etcd
-from diagrams.onprem.queue import Kafka
-from diagrams.onprem.monitoring import Prometheus
-from diagrams.saas.monitoring import Grafana
-from diagrams.onprem.database import PostgreSQL
+from diagrams import Diagram, Cluster
 from diagrams.programming.language import Go
-from diagrams.generic.blank import Blank
+from diagrams.onprem.queue import Kafka
+from diagrams.elastic.elasticsearch import Logstash
+from diagrams.onprem.monitoring import Grafana
+from diagrams.k8s.compute import Pod
+from diagrams.k8s.network import Service
+from diagrams.onprem.database import PostgreSQL
+from diagrams.aws.mobile import APIGateway
 
-with Diagram("Go-Zero Framework Overview", show=False):
-    user = User("Client")
-
-    with Cluster("API Gateway"):
-        api_gateway = Go("API Gateway")
-        user >> Edge(label="HTTP Request") >> api_gateway
+with Diagram("Go-Zero Microservices Architecture", show=False):
+    api_gateway = APIGateway("API Gateway")
+    service_discovery = Service("Service Discovery")
+    load_balancer = Service("Load Balancer")
 
     with Cluster("Microservices"):
-        with Cluster("Service 1"):
-            svc1_api = Go("API Service")
-            svc1_logic = Go("Logic")
-            svc1_model = PostgreSQL("Database")
-            svc1_api >> Edge(label="calls") >> svc1_logic >> Edge(label="queries") >> svc1_model
+        service1 = Pod("Service 1")
+        service2 = Pod("Service 2")
+        service3 = Pod("Service 3")
 
-        with Cluster("Service 2"):
-            svc2_api = Go("RPC Service")
-            svc2_logic = Go("Logic")
-            svc2_model = PostgreSQL("Database")
-            svc2_api >> Edge(label="calls") >> svc2_logic >> Edge(label="queries") >> svc2_model
+    db = PostgreSQL("Database")
+    message_queue = Kafka("Message Queue")
+    log_aggregator = Logstash("Log Aggregator")
+    monitoring = Grafana("Monitoring")
 
-    api_gateway >> Edge(label="REST/RPC") >> [svc1_api, svc2_api]
-
-    with Cluster("Infrastructure"):
-        etcd = Etcd("Service Discovery")
-        kafka = Kafka("Message Queue")
-        prom = Prometheus("Metrics")
-        grafana = Grafana("Visualization")
-        docker = Docker("Containerization")
-
-        svc1_api >> Edge(label="discovers") >> etcd
-        svc2_api >> Edge(label="discovers") >> etcd
-
-        [svc1_api, svc2_api] >> Edge(label="produces") >> kafka
-        [svc1_api, svc2_api] >> Edge(label="monitored by") >> prom
-        prom >> grafana
-
-        [svc1_api, svc2_api] >> Edge(label="deployed on") >> docker
-
-    user << Edge(label="HTTP Response") << api_gateway
+    api_gateway >> load_balancer >> service_discovery
+    service_discovery >> service1
+    service_discovery >> service2
+    service_discovery >> service3
+    service1 >> db
+    service2 >> message_queue
+    service3 >> message_queue
+    service1 >> log_aggregator
+    service2 >> log_aggregator
+    service3 >> log_aggregator
+    log_aggregator >> monitoring

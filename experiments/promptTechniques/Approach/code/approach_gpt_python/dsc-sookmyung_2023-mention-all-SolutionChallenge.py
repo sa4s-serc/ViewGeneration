@@ -1,59 +1,48 @@
-from diagrams import Diagram, Cluster
-from diagrams.custom import Custom
-from diagrams.firebase.develop import Authentication, RealtimeDatabase
-from diagrams.gcp.compute import GKE
+from diagrams import Diagram, Cluster, Edge
+from diagrams.generic.os import Android, IOS
+from diagrams.programming.language import Java
+from diagrams.firebase.develop import Authentication
+from diagrams.firebase.grow import ABTesting
+from diagrams.gcp.ml import AIHub, AIPlatform, AIPlatformDataLabelingService
+from diagrams.aws.mobile import APIGateway
 from diagrams.gcp.storage import GCS
-from diagrams.gcp.devtools import ContainerRegistry
-from diagrams.gcp.ml import AIPlatform
-from diagrams.programming.language import Kotlin, Swift, Java
-from diagrams.onprem.client import User
-from diagrams.onprem.compute import Server
-from diagrams.google.maps import Maps
-from diagrams.firebase.gcp import Firestore
+from diagrams.gcp.compute import AppEngine
 
-with Diagram("CPR2U: Integrated CPR Education and Emergency Response System", show=False, direction="TB"):
-    user = User("User")
-    
+with Diagram("CPR2U: An Integrated CPR Education and Emergency Response System", show=False):
     with Cluster("Mobile Applications"):
-        android_app = Custom("Android App", "./path-to-android-icon.png")  # Custom icon path for Android
-        ios_app = Custom("iOS App", "./path-to-ios-icon.png")  # Custom icon path for iOS
-        
-        with Cluster("Android Modules"):
-            ml_kit = AIPlatform("ML Kit (TensorFlow Lite)")
-            firebase_auth = Authentication("Firebase Auth")
-            firebase_db = RealtimeDatabase("Firebase Realtime DB")
-            firebase_messaging = Firestore("Firebase Cloud Messaging")
-            google_maps_android = Maps("Google Maps API")
-        
-        with Cluster("iOS Modules"):
-            ios_ml = AIPlatform("TensorFlow Lite")
-            ios_maps = Maps("Google Maps API")
-    
-    with Cluster("Backend Services"):
-        server = Server("Spring Boot Backend")
-        auth_service = Java("AuthService.java")
-        education_service = Java("EducationProgressService.java")
-        dispatch_service = Java("DispatchService.java")
-        firebase_util = Java("FirebaseCloudMessageUtil.java")
-        address_service = Java("AddressService.java")
-    
-    user >> android_app >> [ml_kit, firebase_auth, firebase_db, firebase_messaging, google_maps_android]
-    user >> ios_app >> [ios_ml, ios_maps]
-    
-    android_app >> server
-    ios_app >> server
-    
-    with Cluster("Deployment"):
-        gke = GKE("Google Kubernetes Engine")
+        android_app = Android("Android Application (Kotlin)")
+        ios_app = IOS("iOS Application (Swift)")
+
+    with Cluster("Backend"):
+        spring_boot_backend = Java("Spring Boot Backend")
+        authentication = Authentication("JWT Tokens")
+        api_gateway = APIGateway("REST API Communication")
+        firebase_cloud_messaging = ABTesting("Firebase Cloud Messaging")
+
+    with Cluster("GCP Deployment"):
+        app_engine = AppEngine("Google Cloud App Engine")
+        ai_platform = AIPlatform("TensorFlow Lite")
+        ai_data_labeling = AIPlatformDataLabelingService("Data Labeling")
+        ai_hub = AIHub("AI Hub")
+
+    android_app >> Edge(label="Pose Estimation") >> ai_platform
+    ios_app >> Edge(label="Pose Estimation") >> ai_platform
+
+    android_app >> Edge(label="Firebase Integration") >> firebase_cloud_messaging
+    ios_app >> Edge(label="Firebase Integration") >> firebase_cloud_messaging
+
+    android_app >> Edge(label="Authentication") >> authentication
+    ios_app >> Edge(label="Authentication") >> authentication
+
+    spring_boot_backend >> Edge(label="API Communication") >> api_gateway
+    api_gateway >> Edge(label="Dispatch System") >> firebase_cloud_messaging
+
+    android_app >> Edge(label="Location Tracking") >> app_engine
+    ios_app >> Edge(label="Location Tracking") >> app_engine
+
+    app_engine >> Edge(label="Deployment") >> spring_boot_backend
+    spring_boot_backend >> Edge(label="Certification Progress") >> ai_data_labeling
+
+    with Cluster("Data Storage"):
         gcs = GCS("Google Cloud Storage")
-        container_registry = ContainerRegistry("Container Registry")
-        
-        server >> gke
-        server >> gcs
-        server >> container_registry
-    
-    server >> auth_service
-    server >> education_service
-    server >> dispatch_service
-    server >> firebase_util
-    server >> address_service
+        spring_boot_backend >> Edge(label="Stores Data") >> gcs

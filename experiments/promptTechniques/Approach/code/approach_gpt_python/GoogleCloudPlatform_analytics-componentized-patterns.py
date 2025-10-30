@@ -2,28 +2,31 @@ from graphviz import Digraph
 
 dot = Digraph(comment='Retail Analytics Componentized Patterns')
 
-# Nodes
-dot.node('A', 'Recommendation Systems', shape='box', style='filled', color='lightblue')
-dot.node('B', 'Predictive Modeling', shape='box', style='filled', color='lightgreen')
-dot.node('C', 'BigQuery ML', shape='box', style='filled', color='lightyellow')
-dot.node('D', 'Workflow Orchestration', shape='box', style='filled', color='lightcoral')
-dot.node('E', 'Serving Infrastructure', shape='box', style='filled', color='lightgray')
-dot.node('F', 'Feature Engineering', shape='box', style='filled', color='lightpink')
-dot.node('G', 'Data Handling', shape='box', style='filled', color='lightcyan')
-dot.node('H', 'Model Evaluation', shape='box', style='filled', color='wheat')
-dot.node('I', 'Marketing Activation', shape='box', style='filled', color='lemonchiffon')
-dot.node('J', 'Data Visualization', shape='box', style='filled', color='lavender')
+# Define nodes for key components
+dot.node('BQML', 'BigQuery ML')
+dot.node('KFP', 'Kubeflow Pipelines')
+dot.node('RS', 'Recommendation Systems')
+dot.node('PM', 'Predictive Modeling')
+dot.node('FE', 'Feature Engineering')
+dot.node('DH', 'Data Handling')
+dot.node('MI', 'Model Infrastructure')
+dot.node('ME', 'Model Evaluation')
+dot.node('MA', 'Marketing Activation')
+dot.node('DV', 'Data Visualization')
 
-# Edges
-dot.edge('A', 'C', 'Uses')
-dot.edge('B', 'C', 'Uses')
-dot.edge('C', 'D', 'Automates')
-dot.edge('C', 'E', 'Deploys to')
-dot.edge('F', 'C', 'Feeds into')
-dot.edge('G', 'C', 'Data Source')
-dot.edge('H', 'C', 'Evaluates')
-dot.edge('I', 'C', 'Activates')
-dot.edge('J', 'C', 'Visualizes')
+# Define edges for interactions
+dot.edge('BQML', 'RS', label='Trains & Deploys Models')
+dot.edge('BQML', 'PM', label='Trains & Deploys Models')
+dot.edge('BQML', 'FE', label='Feature Engineering')
+dot.edge('KFP', 'RS', label='Orchestrates Pipelines')
+dot.edge('KFP', 'PM', label='Orchestrates Pipelines')
+dot.edge('KFP', 'ME', label='CI/CD Integration')
+dot.edge('RS', 'MI', label='Serves Models')
+dot.edge('PM', 'MI', label='Serves Models')
+dot.edge('DH', 'BQML', label='Processes Data')
+dot.edge('DH', 'KFP', label='Processes Data')
+dot.edge('MI', 'DV', label='Visualizes Data')
+dot.edge('ME', 'MA', label='Activates Marketing')
 
-# Render
-dot.render('retail_analytics_componentized_patterns', view=True)
+# Render the diagram
+dot.render('retail_analytics_componentized_patterns', format='png', view=True)

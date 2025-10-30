@@ -1,52 +1,38 @@
-from diagrams import Cluster, Diagram, Edge
-from diagrams.onprem.compute import Server
-from diagrams.onprem.client import Client
+from diagrams import Diagram, Cluster, Edge
+from diagrams.aws.network import ELB
+from diagrams.aws.compute import EC2
+from diagrams.aws.database import RDS
+from diagrams.aws.storage import S3
+from diagrams.aws.general import Users
 from diagrams.onprem.network import Internet
-from diagrams.generic.os import Windows, Android
-from diagrams.generic.firewall import Firewall
-from diagrams.generic.compute import Rack as ELK
 
-with Diagram("Flare-On CTF Architecture", show=False, direction="TB"):
-    client = Client("User")
+with Diagram("Flare-On CTF Challenges Architecture", show=False):
+    internet = Internet("Internet")
 
     with Cluster("Malware Analysis"):
-        induct = Server("Induct (ELF Binary)")
-        udp_script = Server("udpp.py")
-        decrypt_script = Server("01_decrypt.py")
+        client = Users("User")
 
-        induct - Edge(label="UDP/IRC") - udp_script
-        induct >> decrypt_script
+        with Cluster("Malware System"):
+            elb = ELB("Load Balancer")
+            ec2 = EC2("Malware EC2")
+            rds = RDS("Malware RDS")
+            
+            elb >> Edge(label="UDP, IRC") >> ec2
+            ec2 >> Edge(label="encrypted data") >> rds
+
+        client >> Edge(label="access") >> elb
+        internet >> Edge(label="C2 communication") >> ec2
 
     with Cluster("SSHD Exploitation"):
-        sshd = Server("sshd")
-        liblzma = Server("liblzma")
-        custom_vm = Server("Custom VM")
-        server_script = Server("server.py")
+        sshd = EC2("SSHD Vulnerable Server")
+        core_dump = S3("Core Dump Storage")
+        
+        sshd >> Edge(label="write core dump") >> core_dump
 
-        sshd - Edge(label="Exploit") - liblzma
-        liblzma >> custom_vm
-        server_script >> sshd
+    with Cluster("Mobile App Reverse Engineering"):
+        android_app = EC2("Android App Server")
+        windows_mobile = EC2("Windows Mobile Server")
+        
+        android_app >> Edge(label="gesture data") >> windows_mobile
 
-    with Cluster("Mobile Application Reverse Engineering"):
-        android_app = Android("Android App")
-        windows_app = Windows("Windows Mobile App")
-
-        android_app - Edge(label="Gesture Handling") - windows_app
-
-    with Cluster("Network"):
-        internet = Internet("C2 Server")
-        firewall = Firewall("Firewall")
-
-        induct - Edge(label="C2 Communication") - internet
-        internet >> firewall
-
-    client >> induct
-    client >> sshd
-    client >> android_app
-    client >> windows_app
-
-    with Cluster("Cryptography"):
-        elk = ELK("ECC & ChaCha20")
-
-        elk << decrypt_script
-        elk << server_script
+    internet >> Edge(label="user access") >> client

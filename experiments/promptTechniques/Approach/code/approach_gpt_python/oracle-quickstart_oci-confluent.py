@@ -1,45 +1,26 @@
 from diagrams import Diagram, Cluster
-from diagrams.custom import Custom
-from diagrams.onprem.compute import Server
-from diagrams.onprem.network import Internet
-from diagrams.onprem.client import User
-from diagrams.oracle.compute import OciCompute
-from diagrams.generic.storage import Storage
+from diagrams.aws.compute import EC2
+from diagrams.oci.database import ADB
+from diagrams.onprem.network import Zookeeper
+from diagrams.onprem.queue import Kafka
 
-with Diagram("Confluent Platform on OCI", show=False, direction="TB"):
-    user = User("Client")
+with Diagram("Confluent Platform Deployment on OCI", show=False):
+    with Cluster("Oracle Cloud Infrastructure"):
+        oci_adb = ADB("Autonomous DB")
+        with Cluster("Confluent Platform"):
+            zookeeper = Zookeeper("Zookeeper")
+            kafka_broker = Kafka("Kafka Broker")
+            schema_registry = Kafka("Schema Registry")
+            rest_proxy = Kafka("REST Proxy")
+            connect = Kafka("Connect")
+            ksql = Kafka("KSQL")
+            control_center = Kafka("Control Center")
 
-    with Cluster("Oracle Cloud Infrastructure (OCI)"):
-        internet = Internet("Internet Gateway")
-        
-        with Cluster("Network Components"):
-            vcn = OciCompute("Virtual Cloud Network")
-            subnet = OciCompute("Subnets")
-            security_list = OciCompute("Security Lists")
+            zookeeper >> kafka_broker
+            kafka_broker >> schema_registry
+            kafka_broker >> rest_proxy
+            kafka_broker >> connect
+            kafka_broker >> ksql
+            kafka_broker >> control_center
 
-        with Cluster("Confluent Platform Deployment"):
-            zookeeper = Server("Zookeeper")
-            kafka_broker = Server("Kafka Broker")
-            schema_registry = Server("Schema Registry")
-            rest_proxy = Server("REST Proxy")
-            connect = Server("Kafka Connect")
-            ksql = Server("KSQL")
-            control_center = Server("Control Center")
-
-        with Cluster("OCI Services"):
-            object_storage = Storage("Oracle Object Storage")
-            adw = Storage("Autonomous Data Warehouse")
-            atp = Storage("Autonomous Transaction Processing")
-
-    user >> internet >> vcn >> subnet >> security_list
-    security_list >> zookeeper
-    security_list >> kafka_broker
-    security_list >> schema_registry
-    security_list >> rest_proxy
-    security_list >> connect
-    security_list >> ksql
-    security_list >> control_center
-
-    connect >> object_storage
-    connect >> adw
-    connect >> atp
+        oci_adb << connect

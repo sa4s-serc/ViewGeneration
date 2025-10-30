@@ -1,35 +1,47 @@
 from graphviz import Digraph
 
-dot = Digraph(comment='Open Roberta Lab EV3 Connector Architecture', format='png')
+dot = Digraph(comment='Open Roberta Lab EV3 Connector Architecture')
 
-# Define nodes
-dot.node('UI', 'UI Layer\n(Brickman UI)', shape='rectangle', style='filled', color='lightblue')
-dot.node('Service', 'Service Layer\n(roberta.lab.Service)', shape='rectangle', style='filled', color='lightgreen')
-dot.node('Network', 'Network Layer\n(roberta.lab.Connector)', shape='rectangle', style='filled', color='lightyellow')
-dot.node('Execution', 'Execution Layer\n(Connector)', shape='rectangle', style='filled', color='lightcoral')
-dot.node('HAL', 'HAL Layer\n(roberta.ev3.Hal)', shape='rectangle', style='filled', color='lightgrey')
-dot.node('ev3dev', 'ev3dev Layer\n(ev3dev.auto)', shape='rectangle', style='filled', color='lightpink')
+# Defining layers
+dot.attr('node', shape='box', style='filled', fillcolor='lightgrey')
+dot.node('UI', 'UI Layer: Brickman UI')
 
-dot.node('AbortHandler', 'AbortHandler\n(roberta.lab.AbortHandler)', shape='rectangle', style='filled', color='orange')
-dot.node('GfxMode', 'GfxMode\n(roberta.lab.GfxMode)', shape='rectangle', style='filled', color='orange')
+dot.attr('node', shape='box', style='filled', fillcolor='lightblue')
+dot.node('Service', 'Service Layer: roberta.lab.Service')
 
-# Define edges
-dot.edge('UI', 'Service', label='DBus Communication', dir='both')
-dot.edge('Service', 'Network', label='Manage Connection\nand Delegation', dir='both')
-dot.edge('Network', 'Execution', label='Code Download\nand Execution', dir='both')
-dot.edge('Execution', 'HAL', label='Hardware Abstraction', dir='both')
-dot.edge('HAL', 'ev3dev', label='Direct Interaction', dir='both')
+dot.attr('node', shape='box', style='filled', fillcolor='lightgreen')
+dot.node('Network', 'Network Layer: roberta.lab.Connector')
 
-dot.edge('Service', 'AbortHandler', label='Monitor Abort\nKey Presses')
-dot.edge('Service', 'GfxMode', label='Manage Graphics\nMode')
+dot.attr('node', shape='box', style='filled', fillcolor='lightyellow')
+dot.node('Execution', 'Execution Layer: Connector')
 
-# Add legend
-with dot.subgraph() as s:
-    s.attr(rank='min')
-    s.node('Legend', 'Legend', shape='plaintext')
-    s.node('Layer', 'Layer', shape='rectangle', style='filled')
-    s.node('Component', 'Component', shape='rectangle', style='filled', color='orange')
-    s.edge('Legend', 'Layer', label='Layers')
-    s.edge('Legend', 'Component', label='Components')
+dot.attr('node', shape='box', style='filled', fillcolor='lightcoral')
+dot.node('HAL', 'HAL Layer: roberta.ev3.Hal')
 
-dot.render('ev3_connector_architecture')
+dot.attr('node', shape='box', style='filled', fillcolor='lightpink')
+dot.node('ev3dev', 'ev3dev Layer')
+
+# Defining components
+dot.attr('node', shape='ellipse', style='filled', fillcolor='white')
+dot.node('ServiceObj', 'Service Object: DBus Interface')
+dot.node('ConnectorObj', 'Connector: HTTP Requests')
+dot.node('HalObj', 'Hal: EV3 Hardware Abstraction')
+dot.node('AbortHandler', 'AbortHandler: Program Abortion')
+dot.node('GfxMode', 'GfxMode: Graphics Management')
+
+# Edges between layers
+dot.edge('UI', 'Service', label='DBus Communication')
+dot.edge('Service', 'Network', label='Manage Connections')
+dot.edge('Network', 'Execution', label='Execute Code')
+dot.edge('Execution', 'HAL', label='Hardware Control')
+dot.edge('HAL', 'ev3dev', label='OS Interaction')
+
+# Edges between components
+dot.edge('Service', 'ServiceObj')
+dot.edge('Network', 'ConnectorObj')
+dot.edge('HAL', 'HalObj')
+dot.edge('Service', 'AbortHandler')
+dot.edge('Service', 'GfxMode')
+
+# Save and render
+dot.render('Open_Roberta_Lab_EV3_Connector_Architecture', format='png', cleanup=True)

@@ -1,21 +1,21 @@
-from diagrams import Diagram, Cluster, Edge
-from diagrams.custom import Custom
-from diagrams.ibm.analytics import Nlu
-from diagrams.onprem.monitoring import Grafana
-from diagrams.ibm.storage import Db2
+from diagrams import Diagram
+from diagrams.ibm.applications import ApiDeveloperPortal, AppServer, ActionableInsight
+from diagrams.ibm.analytics import DataIntegration
+from diagrams.ibm.data import DataServices
+from diagrams.ibm.infrastructure import MobileBackend
+from diagrams.onprem.database import PostgreSQL
+from diagrams.onprem.container import Docker
+from diagrams.onprem.network import Envoy
 
-with Diagram("Seller Quality Analysis Architecture", direction="LR"):
+with Diagram("Seller Quality Analysis Using Watson NLU", show=False):
+    postgres = PostgreSQL("Db2 Database")
+    nlu = ApiDeveloperPortal("Watson NLU")
+    notebook = AppServer("Jupyter Notebook")
+    dashboard = ActionableInsight("Embedded Dashboard Service")
 
-    db2 = Db2("Db2 Database")
-    watson_nlu = Nlu("Watson NLU")
-    jupyter = Custom("Jupyter Notebook", "https://jupyter.org/assets/homepage/main-logo.svg")
-    dashboard = Grafana("Embedded Dashboard")
-
-    with Cluster("Data Processing Pipeline"):
-        jupyter >> Edge(label="data extraction") >> db2
-        db2 >> Edge(label="data transformation") >> jupyter
-        jupyter >> Edge(label="sentiment analysis") >> watson_nlu
-        watson_nlu >> Edge(label="sentiment scores") >> jupyter
-        jupyter >> Edge(label="quality ratings") >> dashboard
-
-    dashboard << Edge(label="interactive visualization") << jupyter
+    postgres >> notebook >> nlu
+    nlu >> DataIntegration("Sentiment Analysis") >> DataServices("Data Processing Pipeline")
+    notebook >> DataIntegration("Seller Rating Calculation") >> DataServices("Visualization Dataset")
+    docker = Docker("Cloud Pak for Data or IBM Cloud")
+    notebook >> docker >> MobileBackend("Deployment Environment")
+    dashboard << Envoy("Interactive Visualization") << notebook

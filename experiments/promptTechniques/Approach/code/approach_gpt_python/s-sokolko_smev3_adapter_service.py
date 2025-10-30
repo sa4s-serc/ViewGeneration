@@ -1,48 +1,29 @@
-from plantuml import PlantUML
+from diagrams import Diagram
+from diagrams.onprem.client import Client
+from diagrams.onprem.network import Nginx
+from diagrams.onprem.compute import Server
+from diagrams.onprem.queue import Celery
+from diagrams.onprem.database import MongoDB
+from diagrams.onprem.inmemory import Redis
+from diagrams.onprem.monitoring import Grafana
+from diagrams.onprem.monitoring import Prometheus
 
-def generate_architecture_diagram():
-    diagram = """
-    @startuml
-    title SMEV3 Adapter Service Architecture
+with Diagram("SMEV3 Adapter Service Architecture", show=False):
+    client = Client("Client")
+    
+    api_gateway = Nginx("Sanic API Gateway")
+    query_processor = Celery("Query Processor")
+    database = MongoDB("MongoDB")
+    redis_cache = Redis("Redis Cache")
+    smev3_adapter = Server("SMEV3 Adapter")
+    xsd_loader = Server("XSD Schema Loader")
+    monitoring = Prometheus("Prometheus")
+    logging = Grafana("Grafana")
 
-    package "API Layer" {
-        class API_Handler {
-            smev_int/views.py
-        }
-    }
-
-    package "Business Logic" {
-        class Query_Processor {
-            smev_int/processors/query.py
-        }
-    }
-
-    package "Data Access" {
-        class Data_Access {
-            smev_int/models.py
-        }
-    }
-
-    package "SMEV3 Integration" {
-        class SMEV_Adapter {
-            smev_int/adapter.py
-        }
-    }
-
-    package "Schema Loading" {
-        class Schema_Loader {
-            smev_int/schema_loader/loader.py
-        }
-    }
-
-    API_Handler --> Query_Processor : REST API Request
-    Query_Processor --> SMEV_Adapter : SOAP Call
-    Query_Processor --> Data_Access : MongoDB Query
-    SMEV_Adapter --> Schema_Loader : Load XSD Schema
-
-    @enduml
-    """
-    with open("smev3_adapter_service_architecture.puml", "w") as f:
-        f.write(diagram)
-
-generate_architecture_diagram()
+    client >> api_gateway >> query_processor
+    query_processor >> database
+    query_processor >> redis_cache
+    query_processor >> smev3_adapter
+    query_processor >> xsd_loader
+    query_processor >> monitoring
+    query_processor >> logging

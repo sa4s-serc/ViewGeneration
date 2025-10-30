@@ -1,68 +1,49 @@
-from plantuml import PlantUML
+from diagrams import Diagram, Cluster, Edge
+from diagrams.onprem.queue import Kafka
+from diagrams.k8s.compute import Pod
+from diagrams.k8s.controlplane import API, APIServer
+from diagrams.k8s.network import Service
+from diagrams.aws.ml import Sagemaker
+from diagrams.onprem.iac import Terraform
+from diagrams.onprem.container import Docker
+from diagrams.onprem.monitoring import Prometheus
+from diagrams.onprem.monitoring import Grafana
 
-# Create a PlantUML diagram for the AWSLabs Benchmark AI system
-uml_code = """
-@startuml
+with Diagram("Benchmark AI System Overview", show=False, direction="TB"):
 
-title Benchmark AI System Architecture
+    with Cluster("Microservices Architecture"):
+        bff = Pod("bai-bff")
+        executor = Pod("executor")
+        watcher = Pod("watcher")
+        sm_executor = Sagemaker("sm-executor")
+        fetcher = Pod("fetcher")
+        fetcher_dispatcher = Service("fetcher-dispatcher")
+        cloudwatch = Prometheus("cloudwatch-exporter")
 
-package "Benchmark AI Microservices" {
-    [bai-bff] <<Microservice>> #LightBlue
-    [executor] <<Microservice>> #LightBlue
-    [watcher] <<Microservice>> #LightBlue
-    [sm-executor] <<Microservice>> #LightBlue
-    [fetcher] <<Microservice>> #LightBlue
-    [fetcher-dispatcher] <<Microservice>> #LightBlue
-    [cloudwatch-exporter] <<Microservice>> #LightBlue
-}
+    with Cluster("Metrics Components"):
+        pusher = Pod("metrics-pusher")
+        extractor = Pod("metrics-extractor")
+        client_lib = Docker("client-lib")
 
-package "Metrics Components" {
-    [metrics-pusher] <<Sidecar>> #LightGreen
-    [metrics-extractor] <<Sidecar>> #LightGreen
-    [client-lib] <<Library>> #LightGreen
-}
+    with Cluster("Infrastructure and Deployment"):
+        baictl = Terraform("baictl")
+        kubernetes_api = APIServer("Kubernetes API")
 
-package "Infrastructure and Deployment" {
-    [baictl] <<Tool>> #Orange
-    [Terraform] <<Tool>> #Orange
-    [Kubernetes] <<Platform>> #Orange
-    [Kafka] <<Messaging>> #Orange
-    [ZooKeeper] <<Service Coordination>> #Orange
-}
+    with Cluster("CI/CD Pipeline"):
+        codepipeline = API("AWS CodePipeline")
 
-node "AWS Cloud" {
-    [EKS Cluster] <<Kubernetes>> #LightYellow
-    [MSK Cluster] <<Kafka Cluster>> #LightYellow
-    [SageMaker] <<ML Platform>> #LightYellow
-    [S3] <<Storage>> #LightYellow
-    [DynamoDB] <<Database>> #LightYellow
-}
+    metrics_flow = Edge(label="metrics flow", style="dashed")
 
-[bai-bff] --> [executor] : Submits Jobs
-[executor] --> [watcher] : Job Status
-[watcher] --> [bai-bff] : Status Updates
-
-[fetcher-dispatcher] --> [fetcher] : Create Fetcher Jobs
-[fetcher] --> [S3] : Fetch Data
-[fetcher] --> [DynamoDB] : Metadata
-
-[sm-executor] --> [SageMaker] : Execute Jobs
-[cloudwatch-exporter] --> [AWS CloudWatch] : Export Metrics
-
-[metrics-pusher] --> [Kafka] : Push Metrics
-[metrics-extractor] --> [Kafka] : Extract Metrics
-[client-lib] --> [metrics-pusher] : Emit Metrics
-
-[baictl] --> [Terraform] : Manage Infrastructure
-[Terraform] --> [AWS Cloud] : Provision Resources
-[Kubernetes] --> [EKS Cluster] : Manage Pods
-[ZooKeeper] --> [fetcher-dispatcher] : Service Coordination
-
-@enduml
-"""
-
-# Create a PlantUML client
-server = PlantUML(url='http://www.plantuml.com/plantuml/uml/')
-
-# Generate and save the diagram
-server.processes(uml_code)
+    bff >> Edge(label="submit job") >> executor
+    executor >> Edge(label="execute on") >> kubernetes_api
+    executor >> Edge(label="execute on") >> sm_executor
+    watcher >> Edge(label="monitor jobs") >> executor
+    sm_executor >> Edge(label="manage SageMaker lifecycle") >> bff
+    fetcher_dispatcher >> Edge(label="dispatch fetcher jobs") >> fetcher
+    cloudwatch >> Edge(label="export metrics") >> pusher
+    pusher >> metrics_flow >> Kafka("Kafka")
+    extractor >> metrics_flow >> Kafka("Kafka")
+    client_lib >> metrics_flow >> Kafka("Kafka")
+    codepipeline >> Edge(label="trigger deployment") >> baictl
+    baictl >> Edge(label="manage infrastructure") >> kubernetes_api
+    Grafana("User Dashboard") << Edge(label="visualize metrics") << cloudwatch

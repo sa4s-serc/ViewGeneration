@@ -1,34 +1,26 @@
 from graphviz import Digraph
 
-# Initialize the diagram
-dot = Digraph(comment='GameServer4g Framework', format='png')
-dot.attr(rankdir='LR', size='10,10')
+dot = Digraph(comment='GameServer4g Architecture', format='png')
 
-# Define nodes with color coding for different services
-dot.node('Gate', 'Gate (Gateway)', shape='rect', style='filled', color='lightblue')
-dot.node('Hall', 'Hall Server', shape='rect', style='filled', color='lightgreen')
-dot.node('World', 'World Server', shape='rect', style='filled', color='lightcoral')
-dot.node('Resource', 'Resource Server', shape='rect', style='filled', color='lightgoldenrod')
-dot.node('API', 'API (Login/Charge)', shape='rect', style='filled', color='lightgrey')
-dot.node('Manager', 'Manager (HTTP Services)', shape='rect', style='filled', color='lightpink')
-dot.node('Zookeeper', 'ZooKeeper', shape='rect', style='filled', color='lightyellow')
+# Creating nodes for each component
+dot.node('Gate', 'Gate (Gateway)')
+dot.node('Hall', 'Hall Server')
+dot.node('World', 'World Server')
+dot.node('Resource', 'Resource Server')
+dot.node('API', 'API (Login/Charge)')
+dot.node('Manager', 'Manager (Admin Services)')
+dot.node('GameService', 'Game-service')
+dot.node('ZooKeeper', 'ZooKeeper')
 
-# Define clients and network components
-dot.node('Client', 'Client', shape='rect', style='filled', color='white')
-dot.node('gRPC', 'gRPC', shape='rect', style='filled', color='white')
-
-# Define edges with communication protocols
-dot.edge('Client', 'Gate', label='TCP', style='dashed')
-dot.edge('Gate', 'Hall', label='gRPC', style='dashed')
-dot.edge('Hall', 'World', label='gRPC', style='dashed')
-dot.edge('World', 'Resource', label='gRPC', style='dashed')
-dot.edge('Gate', 'Manager', label='HTTP', style='dashed')
-dot.edge('Gate', 'API', label='HTTP', style='dashed')
-
-# Service Discovery and Configuration
-dot.edge('Gate', 'Zookeeper', label='Service Discovery', style='dotted')
-dot.edge('Hall', 'Zookeeper', label='Service Discovery', style='dotted')
-dot.edge('World', 'Zookeeper', label='Service Discovery', style='dotted')
+# Creating edges to represent communication
+dot.edge('Gate', 'Hall', label='gRPC')
+dot.edge('Hall', 'World', label='gRPC')
+dot.edge('World', 'Hall', label='gRPC')
+dot.edge('Gate', 'ZooKeeper', label='Service Discovery')
+dot.edge('Hall', 'ZooKeeper', label='Service Discovery')
+dot.edge('World', 'ZooKeeper', label='Service Discovery')
+dot.edge('Gate', 'API', label='Custom TCP')
+dot.edge('Gate', 'Manager', label='HTTP')
 
 # Render the diagram
-dot.render('gameserver4g_framework_diagram')
+dot.render('gameserver4g_architecture')

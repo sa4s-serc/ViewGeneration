@@ -1,58 +1,60 @@
 from graphviz import Digraph
 
-dot = Digraph(comment='LectureLens Architecture', format='png')
+# Create a new directed graph
+dot = Digraph(comment='LectureLens Architecture')
 
-# Frontend Components
-dot.node('F', 'Frontend (React)', shape='box', style='filled', fillcolor='lightblue')
-dot.node('S', 'SyllabusSearch.jsx', shape='rectangle')
-dot.node('G', 'GlassCard.jsx', shape='rectangle')
-dot.node('L', 'LecturePage.jsx', shape='rectangle')
-dot.node('R', 'ReviewItem.jsx', shape='rectangle')
-dot.node('A', 'Auth.jsx', shape='rectangle')
-dot.node('RP', 'ReviewPost.jsx', shape='rectangle')
-dot.node('UQ', 'useQueryReviews.jsx', shape='rectangle')
-dot.node('UM', 'useMutateReview.jsx', shape='rectangle')
-dot.node('SI', 'store/index.jsx', shape='rectangle')
+# Add nodes for frontend, backend, and database
+dot.node('Frontend', 'React Frontend', shape='rectangle', style='filled', color='lightblue')
+dot.node('Backend', 'Go Backend', shape='rectangle', style='filled', color='lightcoral')
+dot.node('Database', 'PostgreSQL Database', shape='cylinder', style='filled', color='lightgrey')
 
-# Backend Components
-dot.node('B', 'Backend (Go)', shape='box', style='filled', fillcolor='lightyellow')
-dot.node('M', 'main.go', shape='rectangle')
-dot.node('RO', 'router/router.go', shape='rectangle')
-dot.node('C', 'controller/', shape='rectangle', style='dashed')
-dot.node('U', 'usecase/', shape='rectangle', style='dashed')
-dot.node('RE', 'repository/', shape='rectangle', style='dashed')
-dot.node('MO', 'model/', shape='rectangle', style='dashed')
-dot.node('DB', 'db/db.go', shape='rectangle')
-dot.node('MI', 'migrate/migrate.go', shape='rectangle')
+# Add nodes for key frontend components
+dot.node('App', 'App.jsx', shape='rectangle')
+dot.node('SyllabusSearch', 'SyllabusSearch.jsx', shape='rectangle')
+dot.node('GlassCard', 'GlassCard.jsx', shape='rectangle')
+dot.node('LecturePage', 'LecturePage.jsx', shape='rectangle')
+dot.node('ReviewItem', 'ReviewItem.jsx', shape='rectangle')
+dot.node('Auth', 'Auth.jsx', shape='rectangle')
+dot.node('ReviewPost', 'ReviewPost.jsx', shape='rectangle')
+dot.node('useQueryReviews', 'useQueryReviews.jsx', shape='rectangle')
+dot.node('useMutateReview', 'useMutateReview.jsx', shape='rectangle')
+dot.node('store', 'Zustand Store', shape='rectangle')
 
-# Database
-dot.node('D', 'PostgreSQL Database', shape='cylinder', style='filled', fillcolor='lightgrey')
+# Add nodes for key backend components
+dot.node('main', 'main.go', shape='rectangle')
+dot.node('router', 'router/router.go', shape='rectangle')
+dot.node('controller', 'controller/', shape='rectangle')
+dot.node('usecase', 'usecase/', shape='rectangle')
+dot.node('repository', 'repository/', shape='rectangle')
+dot.node('model', 'model/', shape='rectangle')
+dot.node('db', 'db/db.go', shape='rectangle')
+dot.node('migrate', 'migrate/migrate.go', shape='rectangle')
 
-# Connections - Frontend to Backend
-dot.edge('F', 'B', label='RESTful API', dir='both')
+# Add edges for frontend component interactions
+dot.edge('App', 'SyllabusSearch', label='Route')
+dot.edge('App', 'LecturePage', label='Route')
+dot.edge('LecturePage', 'GlassCard', label='Displays')
+dot.edge('LecturePage', 'ReviewItem', label='Displays')
+dot.edge('Auth', 'App', label='Integrates')
+dot.edge('ReviewPost', 'useMutateReview', label='Uses')
+dot.edge('LecturePage', 'useQueryReviews', label='Uses')
+dot.edge('store', 'ReviewPost', label='Manages State')
 
-# Frontend Internal Connections
-dot.edge('F', 'S', label='Uses')
-dot.edge('F', 'G', label='Uses')
-dot.edge('F', 'L', label='Uses')
-dot.edge('F', 'R', label='Uses')
-dot.edge('F', 'A', label='Uses')
-dot.edge('F', 'RP', label='Uses')
-dot.edge('F', 'UQ', label='Uses')
-dot.edge('F', 'UM', label='Uses')
-dot.edge('F', 'SI', label='Uses')
+# Add edges for backend component interactions
+dot.edge('main', 'router', label='Initializes')
+dot.edge('router', 'controller', label='Routes to')
+dot.edge('controller', 'usecase', label='Calls')
+dot.edge('usecase', 'repository', label='Accesses')
+dot.edge('repository', 'model', label='Defines')
+dot.edge('main', 'db', label='Connects')
+dot.edge('db', 'Database', label='Stores Data')
+dot.edge('main', 'migrate', label='Runs')
 
-# Backend Internal Connections
-dot.edge('B', 'M', label='Initializes')
-dot.edge('B', 'RO', label='Defines Routes')
-dot.edge('B', 'C', label='Request Logic')
-dot.edge('B', 'U', label='Business Logic')
-dot.edge('B', 'RE', label='Data Access')
-dot.edge('B', 'MO', label='Data Models')
-dot.edge('B', 'DB', label='DB Connection')
-dot.edge('B', 'MI', label='DB Migrations')
+# Add edges for frontend-backend interactions
+dot.edge('Frontend', 'Backend', label='REST API', dir='both')
 
-# Backend to Database
-dot.edge('B', 'D', label='GORM')
+# Add edge for backend-database interaction
+dot.edge('Backend', 'Database', label='Queries', dir='both')
 
-dot.render('lecturelens_architecture')
+# Render the graph to a file
+dot.render('lecturelens_architecture', format='png', cleanup=True)

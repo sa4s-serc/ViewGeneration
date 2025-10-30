@@ -1,74 +1,63 @@
-from plantuml import PlantUML
+from diagrams import Diagram, Cluster
+from diagrams.programming.language import JavaScript, Nodejs
+from diagrams.onprem.network import Nginx
+from diagrams.onprem.database import MongoDB
+from diagrams.onprem.monitoring import Prometheus
+from diagrams.onprem.ci import Jenkins
+from diagrams.firebase.develop import Functions
+from diagrams.firebase.grow import ABTesting
+from diagrams.elastic.elasticsearch import Elasticsearch
 
-def generate_architecture_diagram():
-    plantuml_code = """
-    @startuml
-    skinparam componentStyle rectangle
+with Diagram("Node.js/Express.js Learning Repository", show=False):
+    with Cluster("Asynchronous Programming & Promises"):
+        custom_promise = Functions("Custom $Promise Library")
+        jasmine_matchers = ABTesting("Custom Jasmine Matchers")
 
-    title Node.js/Express.js Learning Repository Architecture
+    with Cluster("Node.js Fundamentals"):
+        nodejs = Nodejs("Node.js")
+        express = Functions("Express.js")
+        nginx = Nginx("Nginx")
+        mongodb = MongoDB("MongoDB")
+        streams_buffers = Functions("Streams & Buffers")
 
-    package "Asynchronous Programming & Promises" {
-        [pledge.js] << (M, #FFAAAA) >> 
-        [custom.matchers.js] << (M, #FFAAAA) >>
-    }
+    with Cluster("Express.js Web Application Development"):
+        rest_apis = express
+        middleware = Functions("Middleware")
+        body_parser = Functions("Body-Parser")
+        static_files = Functions("Static Files")
 
-    package "Node.js Fundamentals" {
-        [server creation] << (M, #FFAAAA) >>
-        [request handling] << (M, #FFAAAA) >>
-        [event loops] << (M, #FFAAAA) >>
-        [modules] << (M, #FFAAAA) >>
-        [NPM management] << (M, #FFAAAA) >>
-        [streams and buffers] << (M, #FFAAAA) >>
-    }
+    with Cluster("Software Testing"):
+        unit_testing = Jenkins("Unit Testing")
+        integration_testing = Jenkins("Integration Testing")
+        end_to_end_testing = Jenkins("End-to-End Testing")
 
-    package "Express.js Web Application Development" {
-        [index.js] << (C, #AAFFAA) >>
-        [myapp/] << (C, #AAFFAA) >>
-        [server.js] << (C, #AAFFAA) >>
-        [routing] << (C, #AAFFAA) >>
-        [middleware] << (C, #AAFFAA) >>
-        [body-parser] << (C, #AAFFAA) >>
-    }
+    with Cluster("Important Files & Components"):
+        pledge_js = Functions("pledge.js")
+        custom_matchers_js = Functions("custom.matchers.js")
+        index_js = Functions("index.js")
+        myapp = Functions("myapp/")
+        server_js = Functions("server.js")
 
-    package "Software Testing" {
-        [index.spec.js] << (T, #AAAAFF) >>
-        [server.test.js] << (T, #AAAAFF) >>
-        [pledge.spec.ch*.html] << (T, #AAAAFF) >>
-    }
+    with Cluster("Architectural and Design Insights"):
+        modular_architecture = Elasticsearch("Modular Architecture")
+        layered_architecture = Elasticsearch("Layered Architecture")
+        middleware_pattern = Elasticsearch("Middleware Pattern")
+        event_driven = Elasticsearch("Event-Driven (Promises)")
+        tdd = Functions("Test-Driven Development (TDD)")
 
-    [pledge.js] -- [custom.matchers.js] : uses
-    [server creation] o-- [request handling] : supports
-    [request handling] o-- [event loops] : involves
-    [modules] o-- [NPM management] : aids
-    [streams and buffers] o-- [server creation] : enhances
+    prometheus = Prometheus("Prometheus")
+    modular_architecture >> prometheus
+    layered_architecture >> prometheus
+    middleware_pattern >> prometheus
+    event_driven >> prometheus
+    tdd >> prometheus
 
-    [index.js] --> [routing] : maps
-    [myapp/] --> [middleware] : processes
-    [server.js] --> [body-parser] : parses
-
-    [index.spec.js] --> [index.js] : tests
-    [server.test.js] --> [server.js] : tests
-
-    note right of [Express.js Web Application Development]
-    Layered Architecture:
-    - Routes
-    - Views
-    - Public
-    end note
-
-    note right of [Software Testing]
-    TDD Principles:
-    - Unit Testing
-    - Integration Testing
-    - End-to-End Testing
-    end note
-
-    @enduml
-    """
-
-    server = PlantUML(url='http://www.plantuml.com/plantuml/img/')
-    response = server.processes(plantuml_code.encode('utf-8'))
-    with open('architecture_diagram.png', 'wb') as f:
-        f.write(response)
-
-generate_architecture_diagram()
+    # Connecting the clusters
+    custom_promise >> jasmine_matchers
+    nodejs >> express
+    nodejs >> streams_buffers
+    express >> [nginx, mongodb]
+    rest_apis >> [middleware, body_parser, static_files]
+    unit_testing >> integration_testing >> end_to_end_testing
+    pledge_js >> custom_matchers_js
+    index_js >> myapp >> server_js

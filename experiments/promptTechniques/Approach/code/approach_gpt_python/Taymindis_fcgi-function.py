@@ -1,66 +1,33 @@
-from plantuml import PlantUML
+from diagrams import Diagram, Cluster, Edge
+from diagrams.onprem.network import Nginx, Apache
+from diagrams.onprem.compute import Server
+from diagrams.programming.language import C, Cpp
+from diagrams.onprem.container import Docker
+from diagrams.programming.flowchart import Decision, Action, Collate
 
-# Initialize plantuml diagram
-diagram = """
-@startuml
-
-title FastCGI Function Handler Framework Architecture
-
-package "Core Components" {
-    component [FastCGI Integration] <<C>>
-    component [Function Mapping] <<M>>
-    component [Request Handling] <<R>>
-    component [Multi-threading] <<T>>
-    component [Configuration] <<C>>
-}
-
-package "Key Files" {
-    component [ffunc.h] <<H>>
-    component [ffunc.c] <<C>>
-    component [CMakeLists.txt] <<B>>
-    component [profile_service.c/cpp] <<E>>
-    component [DockerExample/*] <<D>>
-    component [README.md] <<D>>
-}
-
-package "Design Patterns" {
-    component [FaaS Paradigm] <<F>>
-    component [Event-Driven] <<E>>
-    component [Memory Management] <<M>>
-    component [Strategy Pattern] <<S>>
-    component [Template Method Pattern] <<T>>
-    component [Platform Dependent] <<P>>
-}
-
-[FastCGI Integration] -right-> [Function Mapping]
-[Function Mapping] -right-> [Request Handling]
-[Request Handling] -right-> [Multi-threading]
-
-[ffunc.h] -right-> [ffunc.c]
-[ffunc.c] -right-> [CMakeLists.txt]
-[profile_service.c/cpp] -right-> [ffunc.h]
-[DockerExample/*] -right-> [ffunc.c]
-[README.md] -right-> [DockerExample/*]
-
-[Memory Management] -right-> [Strategy Pattern]
-[Strategy Pattern] -right-> [Template Method Pattern]
-[Template Method Pattern] -right-> [Platform Dependent]
-
-note left of [Configuration]
-  Defines server parameters such as socket port, backlog, 
-  max threads, and function mappings.
-end note
-
-note right of [README.md]
-  Contains building, configuration, and usage instructions.
-end note
-
-@enduml
-"""
-
-# Create a PlantUML object and compile the diagram
-plantuml = PlantUML(url='http://www.plantuml.com/plantuml/img/')
-try:
-    plantuml.processes(diagram)
-except Exception as e:
-    print(f"An error occurred: {e}")
+with Diagram("FastCGI Function Handler Framework", show=False):
+    web_servers = [Nginx("Nginx"), Apache("Apache")]
+    
+    with Cluster("FastCGI Middleware"):
+        fcgi = Server("FastCGI")
+        config = Collate("Function Mapping\n(ffunc_config_t)")
+        threading = Collate("Multi-threading")
+        
+    with Cluster("Application Logic"):
+        handler_c = C("C Function Handlers")
+        handler_cpp = Cpp("C++ Function Handlers")
+        
+    with Cluster("Deployment"):
+        docker = Docker("Docker")
+        cmake = Action("CMake")
+        
+    docs = Collate("README.md")
+    docker_files = Collate("DockerExample/*")
+    
+    web_servers >> Edge(label="HTTP requests") >> fcgi
+    fcgi >> Edge(label="Function mapping") >> config
+    fcgi >> Edge(label="Request handling") >> [handler_c, handler_cpp]
+    fcgi >> Edge(label="Thread management") >> threading
+    docker >> Edge(label="Deployment") >> fcgi
+    cmake >> Edge(label="Build") >> [handler_c, handler_cpp]
+    docs >> Edge(label="Instructions") >> docker_files

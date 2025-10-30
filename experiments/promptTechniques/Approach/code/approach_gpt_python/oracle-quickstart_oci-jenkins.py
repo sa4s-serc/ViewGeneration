@@ -1,38 +1,25 @@
-from diagrams import Diagram, Cluster, Edge
-from diagrams.oci.compute import Instance
-from diagrams.oci.network import VCN, Subnet, InternetGateway, NATGateway, LoadBalancer
-from diagrams.oci.security import Bastion
-from diagrams.oci.identity import Identity
+from diagrams import Diagram, Cluster
+from diagrams.onprem.ci import Jenkins
+from diagrams.oci.database import ADB
+from diagrams.oci.network import Vcn, LoadBalancerWhite, SecurityLists
+from diagrams.oci.compute import BM
+from diagrams.oci.connectivity import NATGatewayWhite
 
-with Diagram("Jenkins on OCI Deployment with Terraform", show=False, direction="TB"):
-    user = Identity("Jenkins Admin")
-
-    with Cluster("OCI Cloud"):
-        vcn = VCN("Virtual Cloud Network")
-        igw = InternetGateway("Internet Gateway")
-        nat_gw = NATGateway("NAT Gateway")
-
-        with Cluster("Subnets"):
-            controller_subnet = Subnet("Controller Subnet")
-            agent_subnet = Subnet("Agent Subnet")
-            bastion_subnet = Subnet("Bastion Subnet")
-            lb_subnet = Subnet("Load Balancer Subnet")
+with Diagram("Jenkins on OCI Deployment with Terraform", show=False):
+    with Cluster("OCI Infrastructure"):
+        vcn = Vcn("Virtual Cloud Network")
+        nat_gateway = NATGatewayWhite("NAT Gateway")
+        security_list = SecurityLists("Security List")
+        lb = LoadBalancerWhite("Load Balancer")
 
         with Cluster("Jenkins Cluster"):
-            controller = Instance("Jenkins Controller")
-            agents = [Instance("Jenkins Agent 1"),
-                      Instance("Jenkins Agent 2")]
+            controller = Jenkins("Jenkins Controller")
+            agents = [Jenkins("Agent 1"),
+                      Jenkins("Agent 2"),
+                      Jenkins("Agent 3")]
 
-        lb = LoadBalancer("OCI Load Balancer")
-        bastion = Bastion("Bastion Service")
+        db = ADB("Autonomous Database")
 
-    user >> Edge(label="SSH Access") >> bastion
-    bastion >> Edge(label="Secure Connection") >> controller
-    igw >> Edge(label="Public Network Access") >> vcn
-    nat_gw >> Edge(label="Outbound Access") >> vcn
-    vcn >> Edge(label="Network Flow") >> controller_subnet >> controller
-    vcn >> agent_subnet >> agents
-    vcn >> bastion_subnet >> bastion
-    vcn >> lb_subnet >> lb
-    lb >> Edge(label="Traffic Distribution") >> controller
-    controller >> Edge(label="Job Execution") >> agents
+    vcn >> nat_gateway >> lb >> controller >> agents
+    vcn >> security_list >> db
+    nat_gateway >> vcn

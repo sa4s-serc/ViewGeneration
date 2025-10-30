@@ -1,32 +1,75 @@
-from plantuml import PlantUML
+from diagrams import Diagram, Cluster, Edge
+from diagrams.programming.flowchart import PredefinedProcess, ManualInput
+from diagrams.onprem.database import PostgreSQL, MariaDB
+from diagrams.onprem.network import Apache, Nginx
+from diagrams.onprem.inmemory import Redis
+from diagrams.onprem.container import Docker
+from diagrams.onprem.workflow import Airflow
+from diagrams.onprem.queue import RabbitMQ
+from diagrams.onprem.monitoring import Grafana, Prometheus
+from diagrams.onprem.ci import Jenkins
 
-plantuml_code = """
-@startuml
-skinparam componentStyle rectangle
-skinparam backgroundColor #F3F3F3
-skinparam ArrowColor #66B2FF
-skinparam RectangleColor #LightBlue
+with Diagram("CodeIgniter and Doctrine ORM Architecture", show=False, direction="LR"):
 
-package "CodeIgniter Application" {
-    component "Controller" as Controller
-    component "Facade" as Facade
-    component "Business Logic" as BusinessLogic
-    component "DAO" as DAO
-    component "GenericDAO" as GenericDAO
-    component "FactoryBusiness" as FactoryBusiness
-    component "FactoryDAO" as FactoryDAO
-}
+    with Cluster("CodeIgniter Application"):
+        controller = PredefinedProcess("Controller")
+        facade = PredefinedProcess("Facade")
+        business_logic = PredefinedProcess("Business Logic")
+        dao = PredefinedProcess("DAO")
+        factory_business = PredefinedProcess("FactoryBusiness")
+        factory_dao = PredefinedProcess("FactoryDAO")
 
-Controller --> Facade : uses
-Facade --> BusinessLogic : calls
-BusinessLogic --> DAO : interacts
-FactoryBusiness -> BusinessLogic : creates
-FactoryDAO -> DAO : creates
+        controller >> facade >> business_logic >> dao
+        factory_business >> business_logic
+        factory_dao >> dao
 
-GenericDAO <|-- DAO : extends
+    with Cluster("Core Files"):
+        index_php = ManualInput("index.php")
+        config_files = [ManualInput("config.php"), ManualInput("autoload.php"), ManualInput("database.php")]
 
-@enduml
-"""
+    with Cluster("CodeIgniter Libraries"):
+        core_libraries = [
+            Apache("Input"),
+            Nginx("Security"),
+            Redis("Email"),
+            RabbitMQ("Session"),
+            Docker("Image_lib"),
+            Airflow("XMLRPC"),
+            Jenkins("Javascript"),
+            Grafana("Table"),
+            Prometheus("Upload"),
+        ]
 
-server = PlantUML(url='http://www.plantuml.com/plantuml/png/')
-server.processes(plantuml_code)
+    controller >> core_libraries
+
+    with Cluster("Doctrine ORM"):
+        platform_abstraction = PredefinedProcess("Platform Abstraction")
+        schema_management = PredefinedProcess("Schema Management")
+        annotation_parsing = PredefinedProcess("Annotation Parsing")
+        object_management = PredefinedProcess("Object Management")
+        querying = PredefinedProcess("Querying")
+        hydration = PredefinedProcess("Hydration")
+        unit_of_work = PredefinedProcess("Unit of Work")
+        caching = PredefinedProcess("Caching")
+
+        platform_abstraction >> schema_management >> annotation_parsing >> object_management >> querying >> hydration >> unit_of_work >> caching
+
+    with Cluster("Databases"):
+        db_postgresql = PostgreSQL("PostgreSQL")
+        db_mariadb = MariaDB("MariaDB")
+
+    doctrine_components = [
+        platform_abstraction,
+        schema_management,
+        annotation_parsing,
+        object_management,
+        querying,
+        hydration,
+        unit_of_work,
+        caching,
+    ]
+
+    doctrine_components >> Edge(color="brown") >> db_postgresql
+    doctrine_components >> Edge(color="brown") >> db_mariadb
+    controller >> Edge(color="blue") >> db_postgresql
+    controller >> Edge(color="blue") >> db_mariadb

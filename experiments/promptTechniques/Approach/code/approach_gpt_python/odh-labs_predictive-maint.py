@@ -1,37 +1,33 @@
-from diagrams import Diagram, Cluster, Edge
-from diagrams.custom import Custom
-from diagrams.onprem.client import User
+from diagrams import Diagram
 from diagrams.onprem.queue import Kafka
+from diagrams.onprem.client import Client
 from diagrams.onprem.compute import Server
-from diagrams.onprem.monitoring import Grafana
-from diagrams.onprem.storage import Minio
-from diagrams.onprem.ci import Github
+from diagrams.k8s.compute import Pod
+from diagrams.k8s.network import Ingress
+from diagrams.onprem.database import Mongodb
+from diagrams.onprem.storage import Ceph
+from diagrams.onprem.mlops import Mlflow
+from diagrams.k8s.controlplane import APIServer
+from diagrams.k8s.compute import Deployment
+from diagrams.gcp.ml import AIPlatform
+from diagrams.azure.web import AppServicePlans
 
 with Diagram("Predictive Maintenance System", show=False):
-    user = User("Web User")
+    client = Client("Webcam")
+    kafka = Kafka("Kafka")
+    consumer = Pod("Consumer Application")
+    seldon = AIPlatform("Seldon Core")
+    minio = Ceph("MinIO")
+    mongodb = Mongodb("DB")
+    mlflow = Mlflow("MLflow")
+    deployment = Deployment("OpenShift Deployment")
+    ingress = Ingress("Ingress")
+    api_server = APIServer("API Server")
+    webapp = AppServicePlans("Data Visualization")
 
-    with Cluster("Microservices Architecture"):
-        producer = Custom("Image Capture Producer", "./icons/camera.png")
-        consumer = Custom("Image Predictor Consumer", "./icons/consumer.png")
-        seldon_core = Custom("Seldon Model Server", "./icons/seldon.png")
-        minio = Minio("Object Storage")
-
-        with Cluster("Data Streaming"):
-            kafka = Kafka("Kafka")
-
-        with Cluster("Model Training & Deployment"):
-            github = Github("GitHub")
-            seldon = Custom("Seldon Core", "./icons/seldon.png")
-
-    user >> Edge(label="Captures Image") >> producer
-    producer >> Edge(label="Streams Images") >> kafka
-    kafka >> Edge(label="Pulls Images") >> consumer
-    consumer >> Edge(label="Inference Request") >> seldon_core
-    seldon_core >> Edge(label="Stores Results") >> minio
-    minio >> Edge(label="Displays Results") >> user
-
-    github >> Edge(label="Tracks Model") >> seldon
-    seldon >> Edge(label="Deploys Model") >> seldon_core
-
-    grafana = Grafana("Visualization Dashboard")
-    minio >> Edge(label="Updates Dashboard") >> grafana
+    client >> kafka >> consumer >> seldon >> minio
+    consumer >> minio
+    seldon >> mongodb
+    seldon >> mlflow
+    deployment >> ingress >> api_server
+    api_server >> webapp

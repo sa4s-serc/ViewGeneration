@@ -1,47 +1,41 @@
-import plantuml
+from diagrams import Diagram
+from diagrams.custom import Custom
+from diagrams.aws.storage import S3
+from diagrams.aws.compute import EC2
+from diagrams.aws.database import RDS
+from diagrams.aws.analytics import ElasticsearchService
+from diagrams.onprem.client import Client
+from diagrams.onprem.network import Nginx
+from diagrams.onprem.queue import Kafka
 
-diagram = """
-@startuml
+with Diagram("IBM Spectrum Scale Security Posture Monitoring System", show=False):
+    client = Client("User")
+    nginx = Nginx("Web Server")
+    client >> nginx
 
-skinparam componentStyle rectangle
-skinparam monochrome true
+    with Diagram("Spectrum Scale Cluster", direction="TB"):
+        collector = Custom("collector/security_posture.py", "./icons/python.png")
+        json_splitter = Custom("split_json_for_kibana.py", "./icons/python.png")
+        cronjob = Custom("cronjob.py", "./icons/python.png")
+        es_uploader = Custom("fetch_security_posture_and_upload_to_ES.sh", "./icons/bash.png")
 
-package "IBM Spectrum Scale Security Posture Monitoring System" {
+        collector >> json_splitter >> es_uploader >> ElasticsearchService("Elasticsearch")
+        cronjob >> collector
+
+    with Diagram("Configuration Files", direction="TB"):
+        conf1 = Custom("security-posture.conf", "./icons/conf.png")
+        conf2 = Custom("scale-clusters.conf", "./icons/conf.png")
     
-    component "collector/security_posture.py" as C1
-    component "split_json_for_kibana.py" as C2
-    component "fetch_security_posture_and_upload_to_ES.sh" as C3
-    component "cronjob.py" as C4
-    component "security-posture.conf" as C5
-    component "scale-clusters.conf" as C6
-    component "SecurityPostureArchitecture.xml" as C7
-    component "README.md" as C8
-    component "LICENSE" as C9
-    component "collector/__init__.py" as C10
+    cronjob << conf1
+    collector << conf2
 
-    C1 --> C2 : JSON Output
-    C2 --> C3 : Splitted JSON
-    C3 --> C5 : Reads Config
-    C3 --> C6 : Reads Config
-    C4 --> C3 : Trigger
-    C3 --> "Elasticsearch" : Upload JSON
-    C4 ..> C3 : Schedule
+    with Diagram("External Tools", direction="TB"):
+        ssh = Custom("SSH", "./icons/ssh.png")
+        scp = Custom("SCP", "./icons/scp.png")
+        curl = Custom("CURL", "./icons/curl.png")
+        mm_commands = Custom("mm commands", "./icons/commands.png")
 
-    database "Elasticsearch" {
-        [Kibana] --> [Dashboard]
-    }
-    
-    C5 ..> [Elasticsearch]
-    C6 ..> [IBM Spectrum Scale Cluster]
-    
-    [IBM Spectrum Scale Cluster] ..> C1 : "mm" commands
-    [Dashboard] ..> Kibana : Visualization
-
-}
-
-@enduml
-"""
-
-# Render the diagram
-with open('architecture_diagram.png', 'wb') as out_file:
-    plantuml.PlantUML(url='http://www.plantuml.com/plantuml/img/').processes(diagram, out_file=out_file)
+    collector >> ssh
+    es_uploader >> scp
+    es_uploader >> curl
+    collector >> mm_commands

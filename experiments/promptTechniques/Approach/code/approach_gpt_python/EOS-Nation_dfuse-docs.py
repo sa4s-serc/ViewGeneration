@@ -1,80 +1,28 @@
-from plantuml import PlantUML
+from diagrams import Diagram, Cluster
+from diagrams.onprem.queue import Kafka
+from diagrams.onprem.database import PostgreSQL
+from diagrams.onprem.network import Envoy
+from diagrams.onprem.compute import Server
+from diagrams.onprem.client import Client
 
-uml_code = """
-@startuml
-skinparam componentStyle rectangle
-skinparam nodesep 30
+with Diagram("dfuse-based System Architecture", show=False):
+    client = Client("User or System")
 
-package "dfuse-based System" {
+    with Cluster("Microservices"):
+        mindreader = Server("Mindreader")
+        relayer = Server("Relayer")
+        search = Server("Search")
+        dgraphql = Server("DGraphQL")
 
-  rectangle "mindreader" as MR
-  rectangle "relayer" as RL
-  rectangle "search" as SC
-  rectangle "dgraphql" as DG
-  
-  rectangle "GraphQL API" as GQL
-  rectangle "Data Indexing" as DI
-  rectangle "Streaming Data" as SD
-  rectangle "dfuseeos CLI" as CLI
-  rectangle "Authentication & Authorization" as AA
-  rectangle "nodeos Integration" as NI
-  rectangle "Data Storage" as DS
-  rectangle "Multi-Chain Support" as MCS
+    with Cluster("Data Storage"):
+        bigtable = PostgreSQL("BigTable")
+        tikv = PostgreSQL("TiKV")
+        badger = PostgreSQL("Badger")
 
-  database "BigTable" as BT
-  database "TiKV" as TIKV
-  database "Badger" as BD
-  
-  MR --> DI : data extraction
-  DI --> SC : data indexing
-  SC --> GQL : API serving
-  SC --> SD : data streaming
-  CLI --> GQL : API access
-  GQL --> AA : provides
-  GQL --> MCS : supports
-  GQL --> NI : integrates
-  MCS --> NI : interacts with
-  DI --> DS : stores data
-  DS --> BT : uses
-  DS --> TIKV : uses
-  DS --> BD : uses
-
-  note right of MR
-    Microservice Architecture:
-    - mindreader
-    - relayer
-    - search
-    - dgraphql
-  end note
-
-  note right of GQL
-    GraphQL API:
-    - flexible
-    - efficient
-    - real-time
-  end note
-
-  note right of DI
-    Data Indexing & Search:
-    - defined query language
-  end note
-
-  note right of SD
-    Streaming Data:
-    - real-time
-    - handles forks
-  end note
-
-  note right of DS
-    Hierarchical Storage:
-    - object stores
-    - databases
-  end note
-
-}
-
-@enduml
-"""
-
-server = PlantUML(url='http://www.plantuml.com/plantuml/img/')
-server.processes(uml_code)
+    client >> Envoy("gRPC") >> dgraphql
+    mindreader >> Kafka("Data Streaming") >> relayer
+    relayer >> search
+    search >> dgraphql
+    dgraphql >> bigtable
+    dgraphql >> tikv
+    dgraphql >> badger

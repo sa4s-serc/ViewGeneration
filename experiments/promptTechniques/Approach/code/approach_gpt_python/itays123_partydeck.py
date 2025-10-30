@@ -1,22 +1,31 @@
 from graphviz import Digraph
 
-dot = Digraph(comment='Partydeck Microservices Architecture', format='png')
+dot = Digraph(comment='Partydeck Microservices Architecture')
 
-# Components
+# Define nodes for microservices
 dot.node('P', 'Panel (React Frontend)', shape='rectangle', style='filled', fillcolor='lightblue')
 dot.node('S', 'Server (Java Backend)', shape='rectangle', style='filled', fillcolor='lightcoral')
 dot.node('G', 'Game (React Frontend)', shape='rectangle', style='filled', fillcolor='lightgreen')
 
-# Nodes
-dot.node('DB', 'Database', shape='cylinder', style='filled', fillcolor='lightgrey')
-dot.node('GCP', 'Google Cloud Platform', shape='rectangle', style='filled', fillcolor='lightyellow')
+# Define nodes for services and databases
+dot.node('Auth', 'User Authentication Service', shape='rectangle', style='filled', fillcolor='lightyellow')
+dot.node('WebSocket', 'WebSocket Communication', shape='rectangle', style='filled', fillcolor='lightgrey')
+dot.node('GameLogic', 'Game Logic Service', shape='rectangle', style='filled', fillcolor='lightgrey')
+dot.node('DB', 'Database', shape='cylinder', style='filled', fillcolor='orange')
 
-# Connectors
-dot.edge('P', 'S', label='REST API', arrowhead='normal', style='dashed')
-dot.edge('S', 'G', label='WebSocket', arrowhead='normal', style='dashed')
-dot.edge('S', 'DB', label='JDBC', arrowhead='normal', style='dashed')
-dot.edge('P', 'GCP', label='Deployed on', arrowhead='normal')
-dot.edge('S', 'GCP', label='Deployed on', arrowhead='normal')
-dot.edge('G', 'GCP', label='Deployed on', arrowhead='normal')
+# Define edges for communication
+dot.edge('P', 'Auth', label='REST API', style='dashed')
+dot.edge('P', 'S', label='REST API', style='dashed')
+dot.edge('S', 'WebSocket', label='WebSocket')
+dot.edge('WebSocket', 'G', label='WebSocket')
+dot.edge('S', 'GameLogic', label='Internal Call', style='dotted')
+dot.edge('S', 'DB', label='JDBC', style='dotted')
 
-dot.render('partydeck_architecture_diagram')
+# Add legend
+dot.node('Legend', 'Legend', shape='none', width='0', height='0', style='invis')
+dot.edge('Legend', 'P', label='Microservices', style='invis')
+dot.edge('Legend', 'Auth', label='Services', style='invis')
+dot.edge('Legend', 'DB', label='Database', style='invis')
+
+# Render the diagram
+dot.render('partydeck_architecture', format='png', cleanup=True)

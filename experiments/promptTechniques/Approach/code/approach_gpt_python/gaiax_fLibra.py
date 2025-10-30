@@ -1,45 +1,53 @@
-from diagrams import Diagram, Cluster, Edge
+from diagrams import Diagram, Cluster
+from diagrams.generic.os import Ubuntu
 from diagrams.programming.framework import Vue
-from diagrams.onprem.client import Client
-from diagrams.generic.storage import Storage
-from diagrams.onprem.compute import Server
-from diagrams.onprem.analytics import Elasticsearch as Elastic
-from diagrams.generic.blockchain import Blockchain
+from diagrams.programming.language import JavaScript, Python
+from diagrams.onprem.database import PostgreSQL
+from diagrams.onprem.inmemory import Redis
+from diagrams.elastic.elasticsearch import Elasticsearch
+from diagrams.firebase.develop import Firestore
+from diagrams.aws.blockchain import Blockchain
+from diagrams.saas.cdn import Cloudflare
 
-with Diagram("FLibra Marketplace Architecture", show=False, direction="LR"):
-    client = Client("User")
+with Diagram("FLibra Marketplace Architecture", show=False):
+    nuxtjs = Vue("Nuxt.js Frontend")
 
-    with Cluster("Frontend (Nuxt.js)"):
-        nuxt = Vue("Nuxt.js App")
-        nuxt - Edge(label="Vuex") - Vue("State Management")
+    with Cluster("Frontend"):
+        search_function = JavaScript("SearchFunction.vue")
+        item_list = JavaScript("ItemList.vue")
+        header_bar = JavaScript("HeaderBar.vue")
+        nuxtjs >> [search_function, item_list, header_bar]
 
     with Cluster("Blockchain Integration"):
         libra = Blockchain("Libra")
         ethereum = Blockchain("Ethereum")
-        smart_contracts = Server("Smart Contracts")
+        nuxtjs >> libra
+        nuxtjs >> ethereum
 
     with Cluster("Data Storage"):
-        firestore = Storage("Firestore")
-        ipfs = Storage("IPFS")
-        elasticsearch = Elastic("Elasticsearch")
+        firestore = Firestore("Firestore")
+        ipfs = Cloudflare("IPFS")
+        elasticsearch = Elasticsearch("Elasticsearch")
+        nuxtjs >> firestore
+        nuxtjs >> ipfs
+        nuxtjs >> elasticsearch
 
-    client >> nuxt
+    with Cluster("Backend Components"):
+        nodejs = JavaScript("Node.js")
+        with Cluster("Modules"):
+            search = Python("Search.js")
+            registration = Python("Registration.js")
+            delete_item = Python("DeleteItem.js")
+            nodejs >> [search, registration, delete_item]
+            firestore >> nodejs
+            elasticsearch >> nodejs
 
-    nuxt >> Edge(label="Libra Transactions") >> libra
-    nuxt >> Edge(label="Ethereum Interactions") >> ethereum
-    ethereum >> Edge(label="Deploy/Execute") >> smart_contracts
+    with Cluster("Database"):
+        postgresql = PostgreSQL("PostgreSQL")
+        redis = Redis("Redis")
+        nodejs >> postgresql
+        nodejs >> redis
 
-    nuxt >> Edge(label="Store/Retrieve Data") >> firestore
-    nuxt >> Edge(label="Upload/Download") >> ipfs
-
-    with Cluster("Elasticsearch Integration"):
-        app = Server("App.js")
-        search = Server("Search.js")
-        registration = Server("Registration.js")
-        delete_item = Server("DeleteItem.js")
-
-    nuxt >> Edge(label="Search") >> elasticsearch
-    app >> Edge(label="Sync with Firestore") >> elasticsearch
-    app >> [search, registration, delete_item]
-
-    firestore >> Edge(label="Real-time Sync") >> app
+    ubuntu = Ubuntu("Server")
+    nuxtjs >> ubuntu
+    nodejs >> ubuntu

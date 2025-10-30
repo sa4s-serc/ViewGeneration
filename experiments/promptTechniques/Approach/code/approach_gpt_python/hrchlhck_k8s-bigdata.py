@@ -1,37 +1,36 @@
-from diagrams import Diagram, Cluster, Node
-from diagrams.k8s.compute import Pod
-from diagrams.k8s.network import Service
-from diagrams.k8s.storage import PV
-from diagrams.onprem.analytics import Spark
-from diagrams.onprem.storage import HDFS
+from diagrams import Diagram
+from diagrams.k8s.compute import Pod, Deployment, StatefulSet
+from diagrams.k8s.network import Service, Ingress
+from diagrams.k8s.storage import PV, PVC
+from diagrams.onprem.analytics import Spark, Hadoop
+from diagrams.onprem.monitoring import Prometheus
+from diagrams.onprem.queue import Kafka
+from diagrams.onprem.network import Istio
 
-with Diagram("K8s Big Data Architecture", show=False, direction="TB"):
-    with Cluster("Kubernetes Cluster"):
-        with Cluster("Apache Hadoop"):
-            namenode = HDFS("NameNode")
-            datanode = [HDFS("DataNode1"),
-                        HDFS("DataNode2"),
-                        HDFS("DataNode3")]
-            
-        with Cluster("Apache Spark"):
-            spark_master = Spark("Spark Master")
-            spark_worker = [Spark("Spark Worker1"),
-                            Spark("Spark Worker2"),
-                            Spark("Spark Worker3")]
+with Diagram("Kubernetes Big Data Architecture", show=False):
+    ingress = Ingress("ingress")
+    service = Service("service")
 
-        with Cluster("HiBench Benchmark Suite"):
-            hibench = Node("HiBench")
+    spark_master = Spark("Spark Master")
+    spark_worker = Spark("Spark Worker")
+    hadoop_namenode = Hadoop("Hadoop NameNode")
+    hadoop_datanode = Hadoop("Hadoop DataNode")
+    kafka = Kafka("Kafka")
 
-        kubernetes_services = Service("K8s Services")
+    statefulset = StatefulSet("StatefulSet")
+    deployment = Deployment("Deployment")
 
-    with Cluster("Kubernetes Deployment"):
-        hadoop_pvc = PV("HDFS Storage")
-        k8s_pods = Pod("K8s Pods")
+    pv = PV("Persistent Volume")
+    pvc = PVC("Persistent Volume Claim")
 
-    hibench << spark_master
-    spark_master << spark_worker
-    spark_master >> namenode
-    namenode >> datanode
+    prometheus = Prometheus("Prometheus")
+    istio = Istio("Istio")
 
-    kubernetes_services << [namenode, spark_master, hibench]
-    k8s_pods << [hadoop_pvc, kubernetes_services]
+    ingress >> service >> [spark_master, hadoop_namenode]
+    spark_master >> spark_worker
+    hadoop_namenode >> hadoop_datanode
+    statefulset >> pvc >> pv
+    deployment >> service
+    [spark_master, hadoop_namenode] >> kafka
+    prometheus >> [spark_master, hadoop_namenode, kafka]
+    istio >> ingress

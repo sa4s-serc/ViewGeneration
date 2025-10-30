@@ -1,25 +1,35 @@
 from graphviz import Digraph
 
-# Create a new directed graph
-dot = Digraph(comment='ElPapi42 Deep Deblurring Architecture', format='png')
-dot.attr(rankdir='LR', size='8,5')
+dot = Digraph(comment='ElPapi42_deep-deblurring Architecture')
 
-# Define nodes for each component
-dot.node('Frontend', 'Frontend\n(Vue.js)', shape='rect', style='filled', fillcolor='lightblue')
-dot.node('Backend', 'Backend\n(Flask)', shape='rect', style='filled', fillcolor='lightgreen')
-dot.node('ModelServing', 'Model Serving\n(Tensorflow Serving)', shape='rect', style='filled', fillcolor='lightyellow')
+# Frontend
+dot.node('Frontend', 'Frontend (Vue.js)', shape='rect', style='filled', fillcolor='lightblue')
+
+# Backend
+dot.node('Backend', 'Backend (Flask)', shape='rect', style='filled', fillcolor='lightgreen')
+
+# Model Serving
+dot.node('ModelServing', 'Model Serving (TensorFlow Serving)', shape='rect', style='filled', fillcolor='lightyellow')
+
+# Model Repository
 dot.node('ModelRepo', 'Model Repository', shape='rect', style='filled', fillcolor='lightcoral')
-dot.node('DataStorage', 'Data Storage\n(Cloudinary)', shape='rect', style='filled', fillcolor='lightgrey')
-dot.node('Redis', 'Redis\n(Caching & Session)', shape='rect', style='filled', fillcolor='lightpink')
-dot.node('PostgreSQL', 'PostgreSQL\n(Database)', shape='rect', style='filled', fillcolor='lightcyan')
 
-# Define edges for interaction
-dot.edge('Frontend', 'Backend', label='REST API', arrowhead='vee')
-dot.edge('Backend', 'ModelServing', label='REST API', arrowhead='vee')
-dot.edge('Backend', 'ModelRepo', label='Access', arrowhead='vee')
-dot.edge('Backend', 'DataStorage', label='Assets', arrowhead='vee')
-dot.edge('Backend', 'Redis', label='Cache & Session', arrowhead='vee')
-dot.edge('Backend', 'PostgreSQL', label='Data', arrowhead='vee')
+# Data Storage
+dot.node('DataStorage', 'Data Storage (Cloudinary)', shape='rect', style='filled', fillcolor='lightgrey')
 
-# Save and render the graph
-dot.render('el_papi42_deep_deblurring_architecture', view=True)
+# Redis
+dot.node('Redis', 'Redis', shape='rect', style='filled', fillcolor='lightpink')
+
+# PostgreSQL
+dot.node('PostgreSQL', 'PostgreSQL', shape='rect', style='filled', fillcolor='lightgoldenrod')
+
+# Edges
+dot.edge('Frontend', 'Backend', label='REST API')
+dot.edge('Backend', 'ModelServing', label='gRPC')
+dot.edge('Backend', 'ModelRepo', label='REST API')
+dot.edge('Backend', 'DataStorage', label='HTTP')
+dot.edge('Backend', 'Redis', label='Caching')
+dot.edge('Backend', 'PostgreSQL', label='DB Access')
+
+# Render the graph
+dot.render('elpapi42_deep_deblurring_architecture', format='png', cleanup=True)

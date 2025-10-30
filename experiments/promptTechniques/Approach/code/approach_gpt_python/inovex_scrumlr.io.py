@@ -1,66 +1,36 @@
-from plantuml import PlantUML
+from diagrams import Diagram, Cluster
+from diagrams.aws.general import User
+from diagrams.onprem.database import PostgreSQL
+from diagrams.onprem.queue import Nats
+from diagrams.onprem.inmemory import Redis
+from diagrams.onprem.network import Nginx
+from diagrams.onprem.network import Envoy
+from diagrams.programming.framework import React
+from diagrams.programming.language import Go
 
-# Define PlantUML server
-server = PlantUML(url='http://www.plantuml.com/plantuml/uml/')
+with Diagram("Scrumlr.io Architecture", show=False, direction="TB"):
+    with Cluster("Frontend"):
+        client = User("Client")
+        react_app = React("React App")
 
-# UML diagram representation
-uml_code = """
-@startuml
-!define RECTANGLE
-!define ELLIPSE
+    with Cluster("Backend"):
+        go_app = Go("Go Server")
+        nginx = Nginx("Nginx")
+        envoy = Envoy("Envoy")
 
-package "scrumlr.io Architecture" {
-  RECTANGLE "Backend (Go)" {
-    RECTANGLE "Server" as Server
-    RECTANGLE "Database Layer" as DatabaseLayer
-    RECTANGLE "Realtime Communication" as RealtimeCommunication
-    RECTANGLE "Authentication" as Authentication
-    RECTANGLE "API Handlers" as APIHandlers
-    RECTANGLE "Business Logic" as BusinessLogic
-  }
+        client >> nginx >> envoy >> go_app
 
-  RECTANGLE "Frontend (TypeScript/React)" {
-    RECTANGLE "React Components" as ReactComponents
-    RECTANGLE "Redux Store" as ReduxStore
-    RECTANGLE "Routes" as Routes
-  }
+        with Cluster("Real-time Communication"):
+            nats = Nats("NATS")
+            redis = Redis("Redis")
 
-  RECTANGLE "Infrastructure" {
-    RECTANGLE "Docker Setup" as DockerSetup
-    RECTANGLE "CI/CD Workflows" as CICDWorkflows
-  }
+        go_app >> nats
+        go_app >> redis
 
-  ELLIPSE "External Services" {
-    ELLIPSE "Google Auth" as GoogleAuth
-    ELLIPSE "GitHub Auth" as GitHubAuth
-    ELLIPSE "Microsoft Auth" as MicrosoftAuth
-    ELLIPSE "NATS Messaging" as NATSMessaging
-    ELLIPSE "Redis" as Redis
-  }
-  
-  Server --> DatabaseLayer : "Bun ORM"
-  Server <--> RealtimeCommunication : "WebSockets"
-  Server --> Authentication : "Auth Logic"
-  Server --> APIHandlers : "HTTP Endpoints"
-  APIHandlers --> BusinessLogic : "Service Calls"
-  ReactComponents --> ReduxStore : "State Management"
-  ReactComponents <--> Routes : "Routing"
-  DockerSetup --> Server : "Containerization"
-  DockerSetup --> ReactComponents : "Containerization"
-  DockerSetup --> DatabaseLayer : "Containerization"
-  DockerSetup --> NATSMessaging : "Containerization"
-  DockerSetup --> Redis : "Containerization"
-  DockerSetup --> CICDWorkflows : "CI/CD"
-  
-  Authentication --> GoogleAuth : "OAuth"
-  Authentication --> GitHubAuth : "OAuth"
-  Authentication --> MicrosoftAuth : "OAuth"
-  RealtimeCommunication --> NATSMessaging : "Event Bus"
-  RealtimeCommunication --> Redis : "Sync"
-}
+    with Cluster("Database"):
+        db = PostgreSQL("PostgreSQL")
 
-@enduml
-"""
+    go_app >> db
 
-# Generate and save the diagram
-server.processes(uml_code, infile='scrumlr_architecture.uml', outfile='scrumlr_architecture.png')
+    client >> react_app
+    react_app >> nginx

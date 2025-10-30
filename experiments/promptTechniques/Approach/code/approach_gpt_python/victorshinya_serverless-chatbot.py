@@ -1,20 +1,29 @@
-from diagrams import Diagram, Cluster
-from diagrams.custom import Custom
-from diagrams.ibm.cloud import Functions as IBMCloudFunctions
-from diagrams.ibm.analytics import WatsonAssistant
-from diagrams.onprem.database import Mongodb
+from diagrams import Diagram
+from diagrams.ibm.applications import ActionableInsight
+from diagrams.ibm.applications import Annotate
+from diagrams.ibm.applications import Index
+from diagrams.ibm.applications import Microservice
+from diagrams.onprem.database import MongoDB
+from diagrams.ibm.general import IBMPublicCloud
+from diagrams.onprem.client import User
+from diagrams.onprem.network import Internet
 
 with Diagram("Serverless Chatbot Architecture", show=False):
-    user = Custom("User", "./user.png")  # Custom icon for User
+    user = User("User")
+    internet = Internet("Internet")
+    ibm_cloud = IBMPublicCloud("IBM Cloud")
 
-    with Cluster("IBM Cloud Functions"):
-        assistant_function = IBMCloudFunctions("assistant.js")
-        mongodb_function = IBMCloudFunctions("mongodb.js")
+    user >> internet >> ibm_cloud
 
-    assistant = WatsonAssistant("Watson Assistant")
-    mongodb = Mongodb("MongoDB")
+    ibm_cloud_actionable_insight = ActionableInsight("IBM Cloud Functions")
+    ibm_cloud_annotate = Annotate("Watson Assistant")
+    ibm_cloud_index = Index("MongoDB (Optional)")
+    ibm_cloud_microservice = Microservice("FaaS Architecture")
 
-    user >> assistant_function
-    assistant_function >> assistant
-    assistant_function >> mongodb_function
-    mongodb_function >> mongodb
+    ibm_cloud >> ibm_cloud_actionable_insight
+    ibm_cloud >> ibm_cloud_annotate
+    ibm_cloud >> ibm_cloud_index
+    ibm_cloud >> ibm_cloud_microservice
+
+    ibm_cloud_actionable_insight >> ibm_cloud_annotate
+    ibm_cloud_annotate >> ibm_cloud_index

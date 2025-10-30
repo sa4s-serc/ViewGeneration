@@ -1,54 +1,33 @@
-from plantuml import PlantUML
+from diagrams import Diagram, Cluster
+from diagrams.programming.framework import Flask
+from diagrams.onprem.client import Client
+from diagrams.onprem.network import Internet
+from diagrams.onprem.compute import Server
+from diagrams.onprem.database import PostgreSQL
+from diagrams.onprem.queue import RabbitMQ
+from diagrams.onprem.inmemory import Redis
+from diagrams.onprem.monitoring import Prometheus
+from diagrams.onprem.monitoring import Grafana
 
-diagram = """
-@startuml
-!define RECTANGLE(x) rectangle x
-!define COMPONENT(x) component x
+with Diagram("Zswag Architecture", show=False):
+    client = Client("Python/C++ Client")
+    internet = Internet("HTTP/REST")
+    with Cluster("Zserio Services"):
+        zserio_data = Server("Zserio Data Layer")
+        zserio_services = [Server(f"Zserio Service {i}") for i in range(1, 4)]
+    
+    with Cluster("Python Server (OAServer)"):
+        flask_server = Flask("Flask/Connexion")
+        redis = Redis("Cache")
+        queue = RabbitMQ("Queue")
+        db = PostgreSQL("Database")
+        prometheus = Prometheus("Monitoring")
+        grafana = Grafana("Dashboard")
 
-skinparam componentStyle rectangle
-skinparam legendBackgroundColor #f3f3f3
-skinparam legendBorderColor #000000
-
-package "zswag Project Analysis" {
-  RECTANGLE("OpenAPI Generation (zswag.gen)") {
-    COMPONENT("zswag.gen CLI Tool")
-  }
-
-  RECTANGLE("Python Server (OAServer)") {
-    COMPONENT("Flask/Connexion Server")
-    COMPONENT("Controller Modules")
-  }
-
-  RECTANGLE("Python Client (OAClient)") {
-    COMPONENT("Generic Python Client")
-  }
-
-  RECTANGLE("C++ Client (OAClient)") {
-    COMPONENT("zswagcl Library")
-    COMPONENT("pyzswagcl Python Bindings")
-  }
-
-  RECTANGLE("HTTP Client Library (httpcl)") {
-    COMPONENT("cpp-httplib Wrapper")
-  }
-}
-
-"zswag.gen CLI Tool" --> "Flask/Connexion Server" : Generates OpenAPI
-"Flask/Connexion Server" --> "Generic Python Client" : Hosts as OpenAPI
-"Generic Python Client" --> "zswagcl Library" : Interacts via REST
-"zswagcl Library" --> "cpp-httplib Wrapper" : Uses for HTTP
-
-legend
-  |= Component |= Description |
-  | zswag.gen CLI Tool | Generates OpenAPI YAML from Zserio |
-  | Flask/Connexion Server | Hosts Zserio services as OpenAPI |
-  | Generic Python Client | Interacts with Zserio services via REST |
-  | zswagcl Library | C++ library for OpenAPI client |
-  | cpp-httplib Wrapper | Provides HTTP communication |
-endlegend
-
-@enduml
-"""
-
-server = PlantUML(url='http://www.plantuml.com/plantuml/img/')
-server.processes(diagram)
+    client >> internet >> flask_server >> zserio_data
+    zserio_data >> zserio_services
+    flask_server >> redis
+    flask_server >> queue
+    flask_server >> db
+    flask_server >> prometheus
+    prometheus >> grafana

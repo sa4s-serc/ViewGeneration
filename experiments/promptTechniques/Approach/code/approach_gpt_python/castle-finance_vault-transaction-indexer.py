@@ -1,39 +1,31 @@
-from diagrams import Diagram, Cluster
+from diagrams import Diagram, Cluster, Edge
 from diagrams.aws.compute import Lambda
+from diagrams.aws.integration import SNS, SQS, Eventbridge
 from diagrams.aws.database import Dynamodb
-from diagrams.aws.integration import SQS, SNS
-from diagrams.aws.management import Eventbridge
-from diagrams.aws.general import Generic
+from diagrams.onprem.ci import GithubActions
 
-with Diagram("Castle Finance Vault Transaction Indexer Architecture", show=False, direction="TB"):
-    with Cluster("AWS Infrastructure"):
-        cdk = Generic("AWS CDK")
+with Diagram("Castle Finance Vault Transaction Indexer", show=False):
+    github = GithubActions("GitHub Actions")
 
-        index_lambda = Lambda("Index Transaction IDs")
-        download_lambda = Lambda("Download Raw Transaction")
-        normalize_lambda = Lambda("Normalize Raw Transaction")
+    with Cluster("Castle Finance Vault Transaction Indexer"):
+        sns = SNS("Transaction Hashes SNS")
+        sqs = SQS("Transaction Hashes SQS")
+        eventbridge = Eventbridge("EventBridge Scheduler")
 
-        raw_dynamodb = Dynamodb("Raw Transactions Table")
-        norm_dynamodb = Dynamodb("Normalized Transactions Table")
+        with Cluster("Lambda Functions"):
+            index_transaction_ids = Lambda("Index Transaction IDs")
+            download_raw_transaction = Lambda("Download Raw Transaction")
+            normalize_raw_transaction = Lambda("Normalize Raw Transaction")
 
-        sns_topic = SNS("Transaction Hashes Topic")
-        sqs_queue = SQS("Transaction Hashes Queue")
+        with Cluster("DynamoDB Tables"):
+            raw_transactions_db = Dynamodb("Raw Transactions")
+            normalized_transactions_db = Dynamodb("Normalized Transactions")
 
-        eventbridge = Eventbridge("Schedule Event")
-
-        eventbridge >> index_lambda
-        index_lambda >> sns_topic
-        sns_topic >> sqs_queue
-        sqs_queue >> download_lambda
-        download_lambda >> raw_dynamodb
-        raw_dynamodb >> normalize_lambda
-        normalize_lambda >> norm_dynamodb
-
-        cdk >> index_lambda
-        cdk >> download_lambda
-        cdk >> normalize_lambda
-        cdk >> raw_dynamodb
-        cdk >> norm_dynamodb
-        cdk >> sns_topic
-        cdk >> sqs_queue
-        cdk >> eventbridge
+    github >> Edge(label="CI/CD") >> index_transaction_ids
+    index_transaction_ids >> Edge(label="Publish IDs") >> sns
+    sns >> Edge(label="Fan-out") >> sqs
+    sqs >> Edge(label="Consume") >> download_raw_transaction
+    download_raw_transaction >> Edge(label="Store Raw Data") >> raw_transactions_db
+    raw_transactions_db >> Edge(label="Stream Event") >> normalize_raw_transaction
+    normalize_raw_transaction >> Edge(label="Store Normalized Data") >> normalized_transactions_db
+    eventbridge >> Edge(label="Trigger") >> index_transaction_ids

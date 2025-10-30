@@ -1,44 +1,29 @@
 from graphviz import Digraph
 
-# Create a Digraph object
+# Creating a new directed graph
 dot = Digraph(comment='FEC ERegulations Architecture')
 
-# Add nodes for core components
-dot.node('DjangoApp', 'Django Application', shape='rectangle', style='filled', fillcolor='lightblue')
-dot.node('DB', 'PostgreSQL Database', shape='cylinder', style='filled', fillcolor='lightgreen')
-dot.node('ES', 'ElasticSearch', shape='cylinder', style='filled', fillcolor='lightgreen')
-dot.node('CF', 'Cloud Foundry', shape='rectangle', style='filled', fillcolor='lightyellow')
-dot.node('API', 'External API', shape='rectangle', style='filled', fillcolor='lightgrey')
-dot.node('CMS', 'Content Management System', shape='rectangle', style='filled', fillcolor='lightgrey')
+# Adding nodes for the main components of the architecture
+dot.node('DjangoApp', 'Django Application', shape='rectangle', style='filled', color='lightblue')
+dot.node('PostgreSQL', 'PostgreSQL Database', shape='cylinder', style='filled', color='lightgreen')
+dot.node('ElasticSearch', 'ElasticSearch', shape='ellipse', style='filled', color='lightyellow')
+dot.node('CloudFoundry', 'Cloud Foundry', shape='rectangle', style='filled', color='lightgrey')
+dot.node('Frontend', 'Frontend Interface', shape='rectangle', style='filled', color='lightpink')
+dot.node('CMS', 'Content Management System', shape='rectangle', style='filled', color='lightcoral')
 
-# Add subcomponents
-dot.node('RegCore', 'Regulations Core', shape='ellipse', style='filled', fillcolor='lightcoral')
-dot.node('RegSite', 'Regulations Site', shape='ellipse', style='filled', fillcolor='lightcoral')
-dot.node('RegParser', 'Regulations Parser', shape='ellipse', style='filled', fillcolor='lightcoral')
-dot.node('ERegsExt', 'ERegs Extensions', shape='ellipse', style='filled', fillcolor='lightcoral')
+# Adding edges to represent communication paths and data flows
+dot.edge('DjangoApp', 'PostgreSQL', label='stores/retrieves data', dir='both')
+dot.edge('DjangoApp', 'ElasticSearch', label='search queries', dir='both')
+dot.edge('DjangoApp', 'CloudFoundry', label='deploys to', dir='forward')
+dot.edge('Frontend', 'DjangoApp', label='API calls', dir='forward')
+dot.edge('Frontend', 'CMS', label='fetches content from', dir='forward')
 
-# Connect components
-dot.edge('DjangoApp', 'DB', label='MPTT Structure')
-dot.edge('DjangoApp', 'ES', label='Keyword Search')
-dot.edge('DjangoApp', 'CF', label='Deployment')
-dot.edge('DjangoApp', 'API', label='Data Fetch')
-dot.edge('DjangoApp', 'CMS', label='Content Management')
-dot.edge('DjangoApp', 'RegCore', label='Data Model')
-dot.edge('DjangoApp', 'RegSite', label='UI Components')
-dot.edge('DjangoApp', 'RegParser', label='Parsing Logic')
-dot.edge('DjangoApp', 'ERegsExt', label='Custom Extensions')
+# Visualizing maintainability through color coding
+dot.attr('node', shape='note', color='black')
+dot.node('Maintainability', 'Maintainability: Modular & Extensible\nCloud-Native, Automated Deployment', shape='note')
 
-# Add legend
-dot.node('Legend', 'Legend', shape='plaintext')
-dot.node('Component', 'Component', shape='rectangle', style='filled', fillcolor='lightblue')
-dot.node('Database', 'Database', shape='cylinder', style='filled', fillcolor='lightgreen')
-dot.node('Service', 'Service', shape='rectangle', style='filled', fillcolor='lightgrey')
-dot.node('Subsystem', 'Subsystem', shape='ellipse', style='filled', fillcolor='lightcoral')
+# Adding a legend
+dot.node('Legend', 'Legend:\nRectangle: Component\nEllipse: Service\nCylinder: Database\nColor Coding: indicates different layers and responsibilities', shape='note')
 
-dot.edge('Legend', 'Component', style='invis')
-dot.edge('Legend', 'Database', style='invis')
-dot.edge('Legend', 'Service', style='invis')
-dot.edge('Legend', 'Subsystem', style='invis')
-
-# Render the diagram
-dot.render('fec_eregs_architecture', view=True)
+# Outputting the graph to a file
+dot.render('fec_eregs_architecture_diagram', format='png', cleanup=True)

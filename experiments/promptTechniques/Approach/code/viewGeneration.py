@@ -8,6 +8,9 @@ import tempfile
 client = OpenAI(api_key="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")
 
 def get_python_from_summary(view_details, error_message=None, python_library="diagrams", code=None):
+    with open("diagrams_import_reference.txt", "r") as f:
+        import_content = ",".join(line.strip() for line in f)
+
     system_prompt=f"""You are an expert Software Architect specializing in software architecture views and also you are proficient in python. Your task in the hand is generating a python code which represents a view given summary and other meta information.
     You are given architectural knowledge extracted from a software repository. This input includes a summary of the architecture and additional metadata fields that describe different aspects of the architectural view.
     Your task is to **generate valid Python code** that produces a diagram of the architecture described in the summary and metadata.The diagram should represent the architecture visually, incorporating components, connectors, styles, and metadata into the final structure.
@@ -34,6 +37,7 @@ def get_python_from_summary(view_details, error_message=None, python_library="di
 5.  **Clarity:** You are also specializing in creating clear diagrams in a 'box and arrows' style using Python syntax.
 6.  **Architectural Notation:** Use appropriate syntax given in the metadata and conventions to represent the architectural elements accurately **please use given python library {python_library} as only means of representation**.
 7.  Output must be only raw Python code, without any Markdown code fences (no python or ), without explanations, and without surrounding text. The response should begin directly with Python code and end with Python code.
+8.  If using 'diagrams' library, please use the imports given in this string {import_content}. Not any other. Please do not hallucinate any other imports.
 IMPORTANT NOTE : when using diagrams library, please refer the new documentation to look for the imports as your knowledge is not updated **https://diagrams.mingrammer.com/docs/nodes/**.
 PLEASE CHECK FOR THE IMPORTS NEW VERSION AND USE THEM. DO NOT USE THE OLD VERSION. PLEASE REFER TO THE NEW DOCUMENTATION.**https://diagrams.mingrammer.com/docs/nodes/**
 """
@@ -187,8 +191,8 @@ def main():
     output_dir = "approach_gpt_python_images"
     for entry in entries:
         required_keys = ["Repository Name", "summary", "Concern", "Behavior"]
-        if total>5:
-            break
+        # if total>1:
+        #     break
         if all(key in entry for key in required_keys):
             clean_repo_name = entry["Repository Name"].replace('/', '_').replace('\\', '_').rstrip('_')
             expected_output_path = os.path.join(output_dir, f"{clean_repo_name}.png")

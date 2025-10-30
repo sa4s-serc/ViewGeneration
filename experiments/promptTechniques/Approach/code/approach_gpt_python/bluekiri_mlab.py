@@ -1,64 +1,39 @@
 from graphviz import Digraph
 
-# Create a new directed graph
-dot = Digraph(comment='MLAB Architecture', format='png')
+def create_mlab_architecture_diagram():
+    dot = Digraph(comment='MLAB Architecture')
 
-# Dashboard Component
-dot.node('Dashboard', 'Dashboard (Flask)', shape='rectangle')
-dot.node('Core', 'Dashboard Core', shape='rectangle')
-dot.node('DAL', 'Data Access Layer', shape='rectangle')
-dot.node('Interactors', 'Interactors', shape='rectangle')
-dot.node('Monitoring', 'Real-time Monitoring', shape='rectangle')
-dot.node('API', 'API Endpoints', shape='rectangle')
-dot.node('Config', 'Configuration', shape='rectangle')
-dot.node('Frontend', 'Frontend', shape='rectangle')
-dot.node('ModelPub', 'Model Publication Control', shape='rectangle')
+    # Dashboard Components
+    dot.node('Dashboard', 'Flask Dashboard', shape='box', style='filled', color='lightblue')
+    dot.node('Repositories', 'Data Access Layer (Repositories)', shape='box')
+    dot.node('Interactors', 'Interactors (Use Cases)', shape='box')
+    dot.node('API', 'API Endpoints', shape='box')
+    dot.node('Frontend', 'Frontend (HTML/CSS/JS)', shape='box')
 
-# Worker Service Component
-dot.node('WorkerService', 'Worker Service', shape='rectangle')
-dot.node('ModelLoading', 'Model Loading and Management', shape='rectangle')
-dot.node('ZKIntegration', 'ZooKeeper Integration', shape='rectangle')
-dot.node('ErrorHandling', 'Error Handling and Alerting', shape='rectangle')
-dot.node('Logging', 'Logging', shape='rectangle')
-dot.node('HTTPAPI', 'HTTP API', shape='rectangle')
-dot.node('WorkerConfig', 'Configuration', shape='rectangle')
+    # Worker Service Components
+    dot.node('Worker', 'Worker Service', shape='box', style='filled', color='lightgreen')
+    dot.node('ModelRepo', 'Model Repository', shape='box')
+    dot.node('WorkerRepo', 'Worker Repository', shape='box')
+    dot.node('Zookeeper', 'ZooKeeper', shape='ellipse', style='filled', color='lightgrey')
+    dot.node('MongoDB', 'MongoDB', shape='cylinder', style='filled', color='lightgrey')
 
-# External Services
-dot.node('ZooKeeper', 'ZooKeeper', shape='ellipse')
-dot.node('MongoDB', 'MongoDB', shape='ellipse')
-dot.node('Docker', 'Docker', shape='ellipse')
+    # Communication and Interaction
+    dot.edge('Dashboard', 'Repositories', label='Data Access')
+    dot.edge('Dashboard', 'Interactors', label='Use Cases')
+    dot.edge('Dashboard', 'API', label='Expose Endpoints')
+    dot.edge('Dashboard', 'Frontend', label='UI Interaction')
+    dot.edge('Worker', 'ModelRepo', label='Model Management')
+    dot.edge('Worker', 'WorkerRepo', label='ZooKeeper Integration')
+    dot.edge('Zookeeper', 'Worker', label='Model Events')
+    dot.edge('MongoDB', 'ModelRepo', label='Model Data')
+    dot.edge('MongoDB', 'Dashboard', label='Logs/Messages')
 
-# Relationships and Communication
-dot.edges([
-    ('Dashboard', 'Core'),
-    ('Dashboard', 'DAL'),
-    ('Dashboard', 'Interactors'),
-    ('Dashboard', 'Monitoring'),
-    ('Dashboard', 'API'),
-    ('Dashboard', 'Config'),
-    ('Dashboard', 'Frontend'),
-    ('Dashboard', 'ModelPub'),
-    ('WorkerService', 'ModelLoading'),
-    ('WorkerService', 'ZKIntegration'),
-    ('WorkerService', 'ErrorHandling'),
-    ('WorkerService', 'Logging'),
-    ('WorkerService', 'HTTPAPI'),
-    ('WorkerService', 'WorkerConfig'),
-    ('Core', 'ZooKeeper'),
-    ('DAL', 'MongoDB'),
-    ('Interactors', 'ZooKeeper'),
-    ('Monitoring', 'ZooKeeper'),
-    ('API', 'MongoDB'),
-    ('ModelPub', 'MongoDB'),
-    ('ModelLoading', 'MongoDB'),
-    ('ZKIntegration', 'ZooKeeper'),
-    ('ErrorHandling', 'MongoDB'),
-    ('Logging', 'MongoDB'),
-    ('HTTPAPI', 'MongoDB'),
-    ('WorkerConfig', 'ZooKeeper'),
-    ('ZooKeeper', 'Docker'),
-    ('MongoDB', 'Docker')
-])
+    # Styles and Patterns
+    dot.attr(rankdir='LR', size='8,5')
+    dot.attr('node', shape='box', style='rounded')
 
-# Render the graph to a file
-dot.render('mlab_architecture')
+    return dot
+
+if __name__ == "__main__":
+    diagram = create_mlab_architecture_diagram()
+    diagram.render('mlab_architecture', format='png', cleanup=True)

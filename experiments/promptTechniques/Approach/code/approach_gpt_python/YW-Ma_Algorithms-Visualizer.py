@@ -1,60 +1,56 @@
 from graphviz import Digraph
 
-# Create a new directed graph
-dot = Digraph(comment='Algorithm Visualization Application Architecture')
+dot = Digraph(comment='Algorithm Visualization Application')
 
-# Define nodes for frontend components
-dot.node('F1', 'React Frontend')
-dot.node('F2', 'Map.js (Baidu Maps API)', shape='rectangle', style='filled', fillcolor='lightblue')
-dot.node('F3', 'GraphSVG.js', shape='rectangle', style='filled', fillcolor='lightblue')
-dot.node('F4', 'GraphTable.js', shape='rectangle', style='filled', fillcolor='lightblue')
-dot.node('F5', 'Sidebar.js', shape='rectangle', style='filled', fillcolor='lightblue')
-dot.node('F6', 'Panel.js', shape='rectangle', style='filled', fillcolor='lightblue')
-dot.node('F7', 'MainInterface.js', shape='rectangle', style='filled', fillcolor='lightblue')
-dot.node('F8', 'Reports.js', shape='rectangle', style='filled', fillcolor='lightblue')
-dot.node('F9', 'react-router-dom', shape='rectangle', style='filled', fillcolor='lightblue')
+# Frontend Components
+dot.node('A', 'React Frontend')
+dot.node('B', 'Map.js (Baidu Maps API)')
+dot.node('C', 'GraphSVG.js')
+dot.node('D', 'GraphTable.js')
+dot.node('E', 'Sidebar.js')
+dot.node('F', 'Panel.js')
+dot.node('G', 'BodyInfo.js')
+dot.node('H', 'HeadInfo.js')
+dot.node('I', 'MyRoute.js')
+dot.node('J', 'MainInterface.js')
+dot.node('K', 'Reports.js')
 
-# Define nodes for backend components
-dot.node('B1', 'Node.js Backend')
-dot.node('B2', 'Express.js', shape='rectangle', style='filled', fillcolor='lightcoral')
-dot.node('B3', 'C++ Executables\n(DFS, Dijkstra)', shape='rectangle', style='filled', fillcolor='lightcoral')
-dot.node('B4', 'MySQL Database', shape='cylinder', style='filled', fillcolor='lightcoral')
-dot.node('B5', 'express-mysql-session', shape='rectangle', style='filled', fillcolor='lightcoral')
-dot.node('B6', 'eventProxy.js', shape='rectangle', style='filled', fillcolor='lightcoral')
-dot.node('B7', 'cluster', shape='rectangle', style='filled', fillcolor='lightcoral')
+# Backend Components
+dot.node('L', 'Node.js Backend')
+dot.node('M', 'Express.js')
+dot.node('N', 'Algorithm Execution (C++ executables)')
+dot.node('O', 'MySQL Database')
+dot.node('P', 'eventProxy.js')
 
-# Define nodes for authentication components
-dot.node('A1', 'Authentication')
-dot.node('A2', 'Authorize.js', shape='rectangle', style='filled', fillcolor='lightyellow')
-dot.node('A3', 'User.js', shape='rectangle', style='filled', fillcolor='lightyellow')
+# Authentication
+dot.node('Q', 'Authentication')
+dot.node('R', 'Authorize.js')
+dot.node('S', 'User.js')
 
-# Define connections between components
-dot.edge('F1', 'F2')
-dot.edge('F1', 'F3')
-dot.edge('F1', 'F4')
-dot.edge('F1', 'F5')
-dot.edge('F1', 'F6')
-dot.edge('F6', 'F3')
-dot.edge('F6', 'F4')
-dot.edge('F1', 'F7')
-dot.edge('F1', 'F8')
-dot.edge('F1', 'F9')
-dot.edge('B1', 'B2')
-dot.edge('B1', 'B3')
-dot.edge('B1', 'B4')
-dot.edge('B4', 'B5')
-dot.edge('B1', 'B6')
-dot.edge('B1', 'B7')
-dot.edge('A1', 'A2')
-dot.edge('A1', 'A3')
-dot.edge('F1', 'B1', label='API Calls', style='dashed')
-dot.edge('F9', 'F7', label='Routing', style='dashed')
-dot.edge('B2', 'B3', label='External Process\nInvocation', style='dashed')
-dot.edge('B2', 'B4', label='Data Persistence', style='dashed')
-dot.edge('A2', 'A3', label='Middleware', style='dashed')
+# Relationships
+dot.edges(['AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI', 'AJ', 'AK'])
+dot.edges(['LM', 'LN', 'LO', 'LP'])
+dot.edge('Q', 'R')
+dot.edge('Q', 'S')
+dot.edge('S', 'O')
 
-# Define styles for the graph
-dot.attr(rankdir='LR', size='10,5')
+# Styling
+dot.attr('node', shape='rectangle')
+dot.attr('edge', arrowhead='normal')
 
-# Render the graph to a file
-dot.render('algorithm_visualization_architecture', view=True)
+# Client-Server Communication
+dot.edge('A', 'L', label='REST API', style='dashed')
+
+# Event-Driven Communication
+dot.edge('C', 'D', label='eventProxy.js', style='dotted')
+
+# Database Connection
+dot.edge('L', 'O', label='SQL Queries', style='dashed')
+
+# Legend
+dot.node('T', 'Legend', shape='plaintext')
+dot.edge('T', 'A', label='Frontend Components')
+dot.edge('T', 'L', label='Backend Components')
+dot.edge('T', 'Q', label='Authentication & Authorization')
+
+dot.render('algorithm_visualization_application', format='png', cleanup=True)

@@ -1,36 +1,38 @@
-from diagrams import Cluster, Diagram, Edge
-from diagrams.onprem.compute import Server
+from diagrams import Diagram, Cluster
+from diagrams.onprem.iac import Ansible
 from diagrams.onprem.container import Docker
-from diagrams.onprem.client import Client
-from diagrams.programming.framework import JupyterLab
+from diagrams.programming.language import Python
+from diagrams.programming.language import Bash
+from diagrams.onprem.vcs import Git
+from diagrams.onprem.ci import Jenkins
+from diagrams.onprem.network import Nginx
 
-with Diagram("Edge Insights for Vision (EIV) Architecture", show=False):
+with Diagram("Edge Insights for Vision Architecture", show=False):
+    git = Git("Repository")
+    ansible = Ansible("eiv_install.sh")
+    docker = Docker("Docker")
+    python = Python("eiv_setup.py")
+    bash = Bash("scripts/eiv_callbacks.sh")
+    jenkins = Jenkins("CI/CD")
+    nginx = Nginx("Web Server")
 
-    user = Client("User")
+    with Cluster("Core Functionality"):
+        install_script = ansible
+        setup_script = python
+        callback_script = bash
 
-    with Cluster("EIV Setup"):
-        install_script = Server("eiv_install.sh")
-        setup_script = Server("eiv_setup.py")
-        callbacks_script = Server("eiv_callbacks.sh")
-        launch_script = Server("launch_notebooks.sh")
-        adl_scripts = Server("adl_*.sh")
+    with Cluster("Documentation & Information"):
+        readme = Git("README.md")
+        docs = Git("docs/*")
 
-        install_script >> Edge(label="calls") >> setup_script
-        setup_script >> Edge(label="uses") >> callbacks_script
-        launch_script >> Edge(label="starts") >> JupyterLab("Jupyter Notebooks")
-        adl_scripts >> Edge(label="enables") >> Server("MIPI Camera Support")
+    with Cluster("Docker-Centric Deployment"):
+        container = docker
 
-    with Cluster("Docker Environment"):
-        docker = Docker("Docker")
-        docker_image = Docker("OpenVINO Image")
-        docker_image << Edge(label="managed by") << callbacks_script
-
-        docker >> Edge(label="runs") >> docker_image
-
-    with Cluster("Intel Hardware"):
-        cpu = Server("CPU")
-        igpu = Server("iGPU")
-        dgpu = Server("dGPU")
-
-    user >> Edge(label="initiates") >> install_script
-    docker_image >> Edge(label="executes on") >> [cpu, igpu, dgpu]
+    git >> [install_script, setup_script, callback_script, readme, docs]
+    install_script >> [setup_script, callback_script]
+    setup_script >> container
+    callback_script >> container
+    container >> nginx
+    [readme, docs] >> nginx
+    git >> jenkins
+    jenkins >> container

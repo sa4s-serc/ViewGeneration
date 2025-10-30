@@ -2,7 +2,7 @@ import csv
 import statistics
 
 # Path to your CSV file
-csv_file = "image_similarity_results.csv"
+csv_file = "oneShot_deepseek_output_images_similarity_results.csv"
 
 # List of metric columns
 metric_keys = ["SSIM", "PSNR", "RMSE", "SAM", "SRE", "UIQ"]
@@ -20,7 +20,7 @@ with open(csv_file, newline='') as f:
 
         # Otherwise, process the valid values
         for key in metric_keys:
-            val_str = row.get(key, "").strip()
+            val_str = (row.get(key) or "").strip()
             try:
                 val = float(val_str) if val_str.upper() != "NA" and val_str != "" else 0.0
             except ValueError:

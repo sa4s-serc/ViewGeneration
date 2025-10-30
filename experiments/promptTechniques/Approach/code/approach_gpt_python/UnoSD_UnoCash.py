@@ -1,39 +1,21 @@
-from diagrams import Diagram, Cluster, Edge
-from diagrams.azure.compute import FunctionApps
-from diagrams.azure.storage import BlobStorage, TableStorage
-from diagrams.azure.identity import ActiveDirectory
-from diagrams.azure.general import ResourceGroup
-from diagrams.azure.network import APIGateway
-from diagrams.azure.devops import Devops
-from diagrams.azure.web import AppServiceDomain
-from diagrams.onprem.client import Users
-from diagrams.onprem.client import Client
+from diagrams import Diagram
+from diagrams.azure.identity import ADB2C, ADIdentityProtection
+from diagrams.azure.compute import ACR, FunctionApps, KubernetesServices
+from diagrams.azure.integration import APIManagement
+from diagrams.azure.storage import BlobStorage, ArchiveStorage
+from diagrams.onprem.iac import Pulumi
 
-with Diagram("UnoCash Architecture", show=False, direction="TB"):
-    users = Users("Users")
+with Diagram("UnoCash Application Architecture", show=False):
+    api_mgmt = APIManagement("API Management")
+    blazor_frontend = KubernetesServices("Blazor Frontend")
+    azure_function = FunctionApps("Azure Functions")
+    identity_protection = ADIdentityProtection("AD Protection")
+    b2c = ADB2C("B2C")
+    blob_storage = BlobStorage("Blob Storage")
+    archive_storage = ArchiveStorage("Archive Storage")
+    pulumi = Pulumi("Pulumi")
 
-    with Cluster("Frontend"):
-        blazor = Client("Blazor SPA")
-        blazor - Edge(label="HTTP/S") - users
-
-    with Cluster("Backend"):
-        functions = FunctionApps("Azure Functions")
-        api_gateway = APIGateway("Azure API Management")
-        ad = ActiveDirectory("Azure AD")
-        table_storage = TableStorage("Azure Table Storage")
-        blob_storage = BlobStorage("Azure Blob Storage")
-
-        functions >> Edge(label="Secure Access") >> blob_storage
-        functions >> Edge(label="Read/Write") >> table_storage
-        functions >> Edge(label="Auth") >> ad
-        api_gateway >> Edge(label="Route & Policy") >> functions
-
-    with Cluster("Infrastructure"):
-        pulumi = Devops("Pulumi")
-        resource_group = ResourceGroup("Azure Resource Group")
-        dns = AppServiceDomain("DNS")
-
-        pulumi >> resource_group
-        resource_group >> [functions, blob_storage, table_storage, api_gateway, ad, dns]
-
-    blazor >> Edge(label="API Calls") >> api_gateway
+    blazor_frontend >> api_mgmt >> azure_function
+    azure_function >> [blob_storage, archive_storage]
+    blazor_frontend >> identity_protection >> b2c
+    pulumi >> [blazor_frontend, azure_function, api_mgmt]

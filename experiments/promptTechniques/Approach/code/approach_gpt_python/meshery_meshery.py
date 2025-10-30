@@ -1,37 +1,52 @@
 from graphviz import Digraph
 
-# Create a Digraph object
-dot = Digraph(comment='Meshery Architecture')
+def generate_meshery_architecture_diagram():
+    dot = Digraph('Meshery Architecture', node_attr={'shape': 'box', 'style': 'filled', 'fillcolor': 'lightgrey'})
 
-# Add nodes for key components
-dot.node('A', 'Meshery Server', shape='rectangle', style='filled', fillcolor='lightblue')
-dot.node('B', 'Meshery UI', shape='rectangle', style='filled', fillcolor='lightgreen')
-dot.node('C', 'mesheryctl (CLI)', shape='rectangle', style='filled', fillcolor='lightyellow')
-dot.node('D', 'Meshery Operator', shape='rectangle', style='filled', fillcolor='lightcoral')
-dot.node('E', 'Adapters', shape='rectangle', style='filled', fillcolor='lightgrey')
-dot.node('F', 'MeshSync', shape='rectangle', style='filled', fillcolor='lightpink')
-dot.node('G', 'GraphQL API', shape='rectangle', style='filled', fillcolor='lightcyan')
-dot.node('H', 'Event Broker', shape='rectangle', style='filled', fillcolor='lightgoldenrod')
+    # Core Components
+    dot.node('Meshery Server', 'Meshery Server', fillcolor='lightblue')
+    dot.node('Meshery UI', 'Meshery UI', fillcolor='lightblue')
+    dot.node('mesheryctl', 'mesheryctl (CLI)', fillcolor='lightblue')
+    dot.node('Meshery Operator', 'Meshery Operator', fillcolor='lightblue')
+    dot.node('MeshKit', 'MeshKit', fillcolor='lightblue')
+    dot.node('Event Broker', 'Event Broker (NATS)', fillcolor='lightblue')
+    
+    # Architecture Styles
+    dot.node('Adapters', 'Adapters', fillcolor='lightgreen')
+    dot.node('GraphQL API', 'GraphQL API', fillcolor='lightgreen')
+    dot.node('Providers', 'Providers', fillcolor='lightgreen')
+    dot.node('MeshSync', 'MeshSync', fillcolor='lightgreen')
+    
+    # Communication
+    dot.edge('Meshery Server', 'Adapters', label='gRPC')
+    dot.edge('Meshery Server', 'Meshery UI', label='GraphQL')
+    dot.edge('Meshery Server', 'mesheryctl', label='CLI Commands')
+    dot.edge('Meshery Server', 'Event Broker', label='Event Driven')
+    dot.edge('Meshery Operator', 'MeshSync', label='Kubernetes Sync')
+    
+    # Data Management
+    dot.node('Data Models', 'Data Models', fillcolor='lightcoral')
+    dot.node('Components', 'Components', fillcolor='lightcoral')
+    dot.node('Designs', 'Designs', fillcolor='lightcoral')
+    
+    # Relationships
+    dot.edge('Meshery Server', 'Data Models', label='Model Driven')
+    dot.edge('Data Models', 'Components', label='Configurable')
+    dot.edge('Components', 'Designs', label='Reusable')
+    
+    # Non-functional Requirements
+    dot.node('Scalability', 'Scalability', fillcolor='lightyellow')
+    dot.node('Extensibility', 'Extensibility', fillcolor='lightyellow')
+    dot.node('Performance', 'Performance', fillcolor='lightyellow')
+    
+    # Highlight Non-functional Aspects
+    dot.edge('Meshery Server', 'Scalability')
+    dot.edge('Meshery Server', 'Extensibility')
+    dot.edge('Meshery UI', 'Performance')
 
-# Add edges to represent communication
-dot.edge('A', 'B', label='gRPC')
-dot.edge('A', 'C', label='gRPC')
-dot.edge('A', 'D', label='gRPC')
-dot.edge('A', 'E', label='gRPC')
-dot.edge('A', 'F', label='gRPC')
-dot.edge('A', 'G', label='gRPC')
-dot.edge('A', 'H', label='NATS')
+    return dot
 
-# Add additional edges for communication
-dot.edge('B', 'G', label='GraphQL')
-dot.edge('C', 'A', label='Command Pattern')
-dot.edge('D', 'F', label='MeshSync Management')
-dot.edge('E', 'A', label='Adapter Pattern')
-dot.edge('F', 'A', label='State Sync')
-dot.edge('H', 'F', label='Event Notification')
-
-# Render the graph to a file
-dot.render('meshery_architecture_diagram', format='png', cleanup=True)
-
-# View the graph
-dot.view()
+# Generate and render the diagram
+diagram = generate_meshery_architecture_diagram()
+diagram.format = 'png'
+diagram.render('meshery_architecture_diagram', view=True)

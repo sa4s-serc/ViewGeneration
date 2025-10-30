@@ -1,41 +1,28 @@
-from diagrams import Diagram, Cluster
-from diagrams.azure.network import VirtualNetworks, Subnets
-from diagrams.azure.compute import AKS, VM
-from diagrams.azure.database import PostgreSQLServers
-from diagrams.azure.storage import StorageAccounts
+from diagrams import Diagram
+from diagrams.azure.compute import ACR, AKS
+from diagrams.azure.database import DatabaseForPostgresqlServers
 from diagrams.azure.security import KeyVaults
-from diagrams.azure.analytics import LogAnalyticsWorkspaces
-from diagrams.azure.general import Resourcegroups
+from diagrams.azure.network import VirtualNetworks, PrivateEndpoint, Subnets
+from diagrams.azure.storage import ArchiveStorage
 
 with Diagram("SIMPHERA Azure Reference Architecture", show=False):
-    with Cluster("Azure Infrastructure"):
-        vnet = VirtualNetworks("Virtual Network")
-        
-        with Cluster("Subnets"):
-            aks_subnet = Subnets("AKS Subnet")
-            pgsql_subnet = Subnets("PostgreSQL Subnet")
-            paas_subnet = Subnets("PaaS Services Subnet")
-            bastion_subnet = Subnets("Bastion Host Subnet")
-            license_subnet = Subnets("License Server Subnet")
+    vnet = VirtualNetworks("Virtual Network")
+    subnets = Subnets("Subnets")
+    vnet >> subnets
 
-        aks = AKS("Kubernetes Cluster")
-        postgres = PostgreSQLServers("PostgreSQL Flexible Servers")
-        storage = StorageAccounts("MinIO Storage Accounts")
-        keyvault = KeyVaults("Azure Key Vault")
-        log_analytics = LogAnalyticsWorkspaces("Log Analytics")
+    aks = AKS("Kubernetes Cluster")
+    db = DatabaseForPostgresqlServers("PostgreSQL Flexible Servers")
+    minio = ArchiveStorage("MinIO Storage Accounts")
+    keyvault = KeyVaults("Azure Key Vault")
+    private_link = PrivateEndpoint("Private Link")
 
-        with Cluster("Optional Components"):
-            license_server = VM("License Server")
-            bastion_host = VM("Bastion Host")
+    aks - db
+    aks - minio
+    aks - keyvault
+    aks - private_link
 
-        vnet >> aks_subnet >> aks
-        vnet >> pgsql_subnet >> postgres
-        vnet >> paas_subnet >> storage
-        vnet >> paas_subnet >> keyvault
-        vnet >> paas_subnet >> log_analytics
-        vnet >> license_subnet >> license_server
-        vnet >> bastion_subnet >> bastion_host
-
-    rg = Resourcegroups("Resource Group")
-    rg >> vnet
-    rg >> [aks, postgres, storage, keyvault, log_analytics, license_server, bastion_host]
+    subnets >> aks
+    subnets >> db
+    subnets >> minio
+    subnets >> keyvault
+    subnets >> private_link

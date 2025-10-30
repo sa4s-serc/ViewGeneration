@@ -1,48 +1,37 @@
 from graphviz import Digraph
 
-# Create a new directed graph
-dot = Digraph(comment='Search Ad Server Architecture', format='png')
+def generate_architecture_diagram():
+    dot = Digraph(comment='Search Ad Server Architecture')
 
-# Set graph attributes
-dot.attr(rankdir='TB', size='10,8')
+    # Components
+    dot.node('A', 'Servlets', shape='rectangle', style='filled', color='lightblue')
+    dot.node('B', 'Ad Retrieval', shape='rectangle', style='filled', color='lightgreen')
+    dot.node('C', 'Advertisement Entity', shape='rectangle', style='filled', color='lightcoral')
+    dot.node('D', 'Query Rewriting', shape='rectangle', style='filled', color='lightyellow')
+    dot.node('E', 'Elasticsearch Integration', shape='rectangle', style='filled', color='lightgrey')
+    dot.node('F', 'Database Interaction', shape='rectangle', style='filled', color='lightpink')
+    dot.node('G', 'Configuration', shape='rectangle', style='filled', color='lightcyan')
+    dot.node('H', 'Initialization', shape='rectangle', style='filled', color='lightgoldenrod')
+    dot.node('I', 'Frontend', shape='rectangle', style='filled', color='lightseagreen')
 
-# Define colors for different types of components
-colors = {
-    'Servlets': 'lightblue',
-    'Ad Retrieval': 'lightgreen',
-    'Advertisement Entity': 'lightyellow',
-    'Query Rewriting': 'lightcoral',
-    'Elasticsearch Integration': 'lightgrey',
-    'Database Interaction': 'lightpink',
-    'Configuration': 'lightgoldenrod',
-    'Initialization': 'lightcyan',
-    'Frontend': 'lightsteelblue'
-}
+    # Connectors
+    dot.edge('A', 'B', label='Handles HTTP Requests')
+    dot.edge('B', 'C', label='Uses')
+    dot.edge('B', 'D', label='Employs')
+    dot.edge('B', 'E', label='Queries')
+    dot.edge('B', 'F', label='Retrieves and Manages')
+    dot.edge('G', 'H', label='Initializes')
+    dot.edge('H', 'F', label='Connects to')
+    dot.edge('I', 'A', label='User Interactions')
 
-# Add nodes for each component
-dot.node('Servlets', 'Servlets', shape='box', style='filled', fillcolor=colors['Servlets'])
-dot.node('Ad Retrieval', 'Ad Retrieval', shape='box', style='filled', fillcolor=colors['Ad Retrieval'])
-dot.node('Advertisement Entity', 'Advertisement Entity', shape='box', style='filled', fillcolor=colors['Advertisement Entity'])
-dot.node('Query Rewriting', 'Query Rewriting', shape='box', style='filled', fillcolor=colors['Query Rewriting'])
-dot.node('Elasticsearch Integration', 'Elasticsearch Integration', shape='box', style='filled', fillcolor=colors['Elasticsearch Integration'])
-dot.node('Database Interaction', 'Database Interaction', shape='box', style='filled', fillcolor=colors['Database Interaction'])
-dot.node('Configuration', 'Configuration', shape='box', style='filled', fillcolor=colors['Configuration'])
-dot.node('Initialization', 'Initialization', shape='box', style='filled', fillcolor=colors['Initialization'])
-dot.node('Frontend', 'Frontend', shape='box', style='filled', fillcolor=colors['Frontend'])
+    # External Services (Thrift and Bing API)
+    dot.node('J', 'Thrift Service', shape='ellipse', style='filled', color='lightsteelblue')
+    dot.node('K', 'Bing API', shape='ellipse', style='filled', color='lightsteelblue')
+    
+    dot.edge('B', 'J', label='Delegates to')
+    dot.edge('A', 'K', label='Interacts with')
 
-# Add edges between components
-dot.edge('Frontend', 'Servlets', label='HTTP Requests')
-dot.edge('Servlets', 'Ad Retrieval', label='Process Requests')
-dot.edge('Ad Retrieval', 'Query Rewriting', label='Thrift Call')
-dot.edge('Query Rewriting', 'Elasticsearch Integration', label='Retrieve Data')
-dot.edge('Ad Retrieval', 'Database Interaction', label='Manage Budgets')
-dot.edge('Servlets', 'Configuration', label='Load Config')
-dot.edge('Initialization', 'Configuration', label='Initialize')
-dot.edge('Servlets', 'Database Interaction', label='Store Logs')
-dot.edge('Ad Retrieval', 'Advertisement Entity', label='Use Ad Data')
-dot.edge('Ad Retrieval', 'Servlets', label='Return Ads')
-dot.edge('Elasticsearch Integration', 'Database Interaction', label='Cache Data')
-dot.edge('Initialization', 'Database Interaction', label='Connect to DB')
+    return dot
 
-# Render the graph to a file
-dot.render(filename='search_ad_server_architecture')
+diagram = generate_architecture_diagram()
+diagram.render('search_ad_server_architecture', format='png', cleanup=True)

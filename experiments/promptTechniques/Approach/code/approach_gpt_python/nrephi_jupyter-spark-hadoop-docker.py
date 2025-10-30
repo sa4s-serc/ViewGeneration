@@ -1,34 +1,56 @@
-from diagrams import Diagram
-from diagrams.custom import Custom
+from diagrams import Diagram, Cluster
+from diagrams.onprem.compute import Server
 from diagrams.onprem.analytics import Spark
 from diagrams.onprem.database import MySQL, PostgreSQL
-from diagrams.onprem.compute import Server
-from diagrams.onprem.client import Users
-from diagrams.onprem.inmemory import Hadoop
-from diagrams.programming.language import Python, R
-from diagrams.generic.os import Centos
+from diagrams.onprem.inmemory import Redis
+from diagrams.onprem.monitoring import Prometheus, Grafana
+from diagrams.onprem.queue import Kafka
+from diagrams.onprem.workflow import Airflow
+from diagrams.onprem.network import Nginx
+from diagrams.onprem.vcs import Git
+from diagrams.programming.language import Python
 
 with Diagram("Dockerized Jupyter Spark Standalone Cluster", show=False):
-    jupyterlab = Custom("JupyterLab", "./resources/jupyterlab.png")
-    spark_master = Spark("Spark Master")
-    spark_worker = Spark("Spark Worker")
-    mysql = MySQL("MySQL (Hue)")
-    hadoop_namenode = Hadoop("Hadoop NameNode")
-    hadoop_datanode = Hadoop("Hadoop DataNode")
-    hive_metastore = PostgreSQL("Hive Metastore")
-    hive_server = Custom("Hive Server", "./resources/hive.png")
-    hue_interface = Custom("Hue Interface", "./resources/hue.png")
-    user = Users("Developer")
+    git = Git("GitHub Repo")
 
-    user >> jupyterlab
-    jupyterlab - [spark_master, spark_worker]
-    spark_master - spark_worker
-    hue_interface - mysql
-    hadoop_namenode - hadoop_datanode
-    hive_server - hive_metastore
+    with Cluster("Dockerized Environment"):
+        jupyter = Python("JupyterLab")
+        spark_master = Spark("Spark Master")
+        spark_worker1 = Spark("Spark Worker 1")
+        spark_worker2 = Spark("Spark Worker 2")
 
-    jupyterlab >> [Python("PySpark"), R("SparkR")]
-    hadoop_namenode >> hive_server
-    hue_interface >> hive_server
-    mysql >> hue_interface
-    jupyterlab >> Centos("Docker Environment")
+        git >> jupyter
+        jupyter >> [spark_master, spark_worker1, spark_worker2]
+
+        with Cluster("Hadoop Ecosystem"):
+            namenode = Server("Hadoop NameNode")
+            datanode = Server("Hadoop DataNode")
+            hive_metastore = MySQL("Hive Metastore")
+            hive_server = Server("Hive Server")
+            hue = Server("Hue")
+            mysql_hue = MySQL("Hue MySQL")
+
+            [namenode, datanode] - hive_metastore
+            hive_metastore >> hive_server
+            hue >> mysql_hue
+            hue - [hive_server, namenode]
+
+        with Cluster("Monitoring"):
+            prometheus = Prometheus("Prometheus")
+            grafana = Grafana("Grafana")
+
+        with Cluster("Messaging & Workflow"):
+            kafka = Kafka("Kafka")
+            airflow = Airflow("Airflow")
+
+        with Cluster("Additional Services"):
+            nginx = Nginx("Nginx")
+            redis = Redis("Redis")
+            postgres = PostgreSQL("PostgreSQL")
+
+        [spark_master, spark_worker1, spark_worker2] >> kafka
+        for sm in [spark_master, spark_worker1, spark_worker2]:
+            sm >> prometheus
+            sm >> grafana
+        nginx >> [jupyter, hue]
+        [kafka, airflow] >> postgres

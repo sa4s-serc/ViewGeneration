@@ -1,38 +1,28 @@
-from diagrams import Diagram, Cluster
-from diagrams.azure.compute import FunctionApps
+from diagrams import Diagram
+from diagrams.azure.compute import ACR, FunctionApps
 from diagrams.azure.database import SQLDatabases
-from diagrams.azure.devops import Pipelines
-from diagrams.generic.compute import Rack
-from diagrams.onprem.client import Users
-from diagrams.onprem.notification import Email
+from diagrams.saas.cdn import Cloudflare
+from diagrams.azure.integration import APIForFhir, ServiceBus
+from diagrams.azure.identity import ActiveDirectory
+from diagrams.azure.web import APIConnections
+from diagrams.firebase.grow import DynamicLinks
+from diagrams.oci.monitoring import Email
+from diagrams.firebase.develop import Functions
 
 with Diagram("Back to Work Solution Architecture", show=False):
-    users = Users("Employees")
+    user = DynamicLinks("User")
     
-    with Cluster("Azure Functions"):
-        http_post_funcs = [
-            FunctionApps("PostUserInfo"),
-            FunctionApps("PostSymptomsInfo"),
-            FunctionApps("PostLabTestInfo"),
-            FunctionApps("PostRequestStatus"),
-        ]
-        
-        http_get_funcs = [
-            FunctionApps("GetUserInfo"),
-            FunctionApps("GetSymptomsInfo"),
-            FunctionApps("GetLabTestInfo"),
-            FunctionApps("GetRequestStatus"),
-        ]
-        
-        notification_func = FunctionApps("TriggerNotification")
+    auth = ActiveDirectory("Azure AD")
+    bot = APIForFhir("Healthcare Bot")
+    functions = FunctionApps("Azure Functions")
+    db = SQLDatabases("Azure SQL Database")
+    notifications = Email("SendGrid Email")
+    teams = ServiceBus("Microsoft Teams")
+    api = APIConnections("API Management")
     
-    sql_db = SQLDatabases("Azure SQL Database")
-    healthcare_bot = Rack("Microsoft Healthcare Bot")
-    arm_templates = Pipelines("ARM Templates")
-    
-    users >> http_post_funcs >> sql_db
-    users >> http_get_funcs << sql_db
-    healthcare_bot >> http_get_funcs
-    notification_func >> Email("SendGrid Email") >> users
-    notification_func >> Rack("Microsoft Teams")
-    arm_templates >> FunctionApps("Automated Deployment")
+    user >> auth >> bot
+    bot >> functions
+    functions >> db
+    functions >> notifications
+    functions >> teams
+    functions >> api

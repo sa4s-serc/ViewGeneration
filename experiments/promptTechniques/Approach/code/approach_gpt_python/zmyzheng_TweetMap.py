@@ -1,33 +1,33 @@
-from diagrams import Diagram, Cluster
+from diagrams import Diagram
 from diagrams.onprem.queue import Kafka
 from diagrams.onprem.analytics import Flink
-from diagrams.onprem.database import Elasticsearch
-from diagrams.onprem.compute import Spring
-from diagrams.onprem.client import User
-from diagrams.onprem.container import Docker
-from diagrams.k8s.compute import Pod
+from diagrams.elastic.elasticsearch import Elasticsearch
+from diagrams.programming.framework import Spring
 from diagrams.programming.framework import Angular
+from diagrams.k8s.compute import Pod
+from diagrams.k8s.network import Service
+from diagrams.k8s.network import Ingress
+from diagrams.azure.compute import ContainerInstances
 
-with Diagram("Twitter Data Application Architecture", show=False, direction="TB"):
-    with Cluster("Microservices"):
-        with Cluster("Tweet Collector"):
-            tweet_collector = Docker("Tweet Collector")
-            kafka_sink = Kafka("Kafka Sink")
-            tweet_collector >> kafka_sink
+with Diagram("Microservices Twitter Data Application", show=False):
+    kafka = Kafka("Kafka Cluster")
+    
+    tweet_collector = Pod("Tweet Collector")
+    kafka << tweet_collector
 
-        with Cluster("Flink Processor"):
-            flink_processor = Flink("Flink Processor")
-            kafka_queue = Kafka("Kafka Queue")
-            flink_processor << kafka_queue
-            flink_processor >> Elasticsearch("Elasticsearch Data Store")
+    flink_processor = Flink("Flink Processor")
+    kafka >> flink_processor
 
-        with Cluster("REST API Server"):
-            rest_api_server = Spring("Spring Boot")
-            rest_api_server >> Elasticsearch("Elasticsearch Data Store")
+    elasticsearch = Elasticsearch("Elasticsearch")
+    flink_processor >> elasticsearch
 
-    user = User("User")
-    user >> Angular("Angular Frontend") >> rest_api_server
+    spring_boot = Spring("REST API Server")
+    elasticsearch >> spring_boot
 
-    with Cluster("Containerization & Orchestration"):
-        Docker("Docker")
-        Pod("Kubernetes")
+    angular_frontend = Angular("Frontend Visualization")
+    spring_boot >> angular_frontend
+
+    kubernetes = ContainerInstances("Kubernetes")
+    kubernetes - tweet_collector
+    kubernetes - flink_processor
+    kubernetes - spring_boot

@@ -1,33 +1,18 @@
-from diagrams import Diagram, Cluster
-from diagrams.aws.storage import S3
-from diagrams.onprem.client import User
-from diagrams.onprem.database import Mariadb
-from diagrams.onprem.compute import Server
-from diagrams.programming.language import Nodejs
+from diagrams import Diagram
 from diagrams.programming.framework import React
-from diagrams.generic.os import Linux
+from diagrams.onprem.database import Mariadb
+from diagrams.programming.language import NodeJS
+from diagrams.aws.storage import S3
+from diagrams.firebase.develop import Authentication
 
-with Diagram("VR Scene Exploration Application Architecture", show=False, direction="TB"):
-    client = User("User Browser")
+with Diagram("VR Scene Exploration Application Architecture", show=False):
+    react_client = React("React Client")
+    node_server = NodeJS("Node.js Server")
+    database = Mariadb("MariaDB")
+    storage = S3("AWS S3")
+    auth = Authentication("User Authentication")
 
-    with Cluster("Client-side"):
-        react_app = React("React App")
-        a_frame = Linux("A-Frame VR")
-        client >> react_app >> a_frame
-
-    with Cluster("Server-side"):
-        node_server = Nodejs("Node.js Server")
-        express = Server("Express.js")
-        react_app >> express
-        node_server >> express
-
-        with Cluster("Database"):
-            mariadb = Mariadb("MariaDB")
-            express >> mariadb
-
-        with Cluster("Storage"):
-            aws_s3 = S3("AWS S3")
-            express >> aws_s3
-
-    client >> react_app
-    express >> react_app
+    react_client >> node_server
+    node_server >> database
+    node_server >> storage
+    node_server >> auth

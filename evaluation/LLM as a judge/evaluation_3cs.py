@@ -107,12 +107,12 @@ def get_files_by_stem(folder):
     for fname in os.listdir(folder):
         stem, _ = os.path.splitext(fname)
         file_map[stem] = fname
-    return file_map
+    return file_map 
 
 def main():
     output_dir = "LLM_as_a_Judge_openai_outputs_3cs"
     folder1 = "./initial_images"
-    folder2 = "./zeroShot_claude_output_images"
+    folder2 = "./approach_gpt_python_images"
     tried=0
     files1 = get_files_by_stem(folder1)
     files2 = get_files_by_stem(folder2)

@@ -1,18 +1,19 @@
 from diagrams import Diagram
-from diagrams.gcp.storage import Storage
-from diagrams.gcp.devtools import Functions
-from diagrams.gcp.analytics import Logging
-from diagrams.gcp.integration import PubSub
+from diagrams.gcp.ml import AIPlatform, AIPlatformDataLabelingService
+from diagrams.gcp.analytics import PubSub
+from diagrams.gcp.compute import GCF
+from diagrams.gcp.devtools import GCR
+from diagrams.gcp.storage import GCS
 
-with Diagram("Google AI Platform Training Job Notification", show=False, direction="TB"):
-    log_sink = Logging("Log Sink")
-    ai_platform_logs = PubSub("AI Platform Log Topic")
+with Diagram("Google AI Platform Training Job Notification", show=False):
+    logs = AIPlatform("AI Platform Logs")
+    log_sink = PubSub("Log Sink")
+    cloud_function = GCF("Cloud Function")
     notification_topic = PubSub("Notification Topic")
+    storage_bucket = GCS("Cloud Function Source Code")
+    gcr = GCR("Container Registry")
     
-    cloud_storage = Storage("Cloud Storage Bucket")
-    cloud_function = Functions("Job State Detection Function")
-    
-    log_sink >> ai_platform_logs
-    ai_platform_logs >> cloud_function
+    logs >> log_sink >> cloud_function
     cloud_function >> notification_topic
-    cloud_function << cloud_storage
+    gcr >> cloud_function
+    storage_bucket >> cloud_function

@@ -1,51 +1,48 @@
-from diagrams import Diagram, Cluster, Edge
-from diagrams.azure.network import VirtualNetworks, LoadBalancers, VirtualNetworkGateways
-from diagrams.azure.compute import VirtualMachines
-from diagrams.azure.identity import KeyVault
-from diagrams.azure.general import ResourceGroups
-from diagrams.azure.devops import Repos
-from diagrams.custom import Custom
+from diagrams import Diagram, Cluster
+from diagrams.azure.compute import ACR, AKS
+from diagrams.azure.identity import ActiveDirectory
+from diagrams.azure.network import LoadBalancers, VirtualNetworks, DDOSProtectionPlans
+from diagrams.azure.web import AppServices, AppServicePlans
+from diagrams.azure.database import SQLDatabases
+from diagrams.onprem.monitoring import Prometheus
+from diagrams.onprem.queue import RabbitMQ
+from diagrams.onprem.iac import Terraform
 
-with Diagram("AzureStack-QuickStart-Templates Architecture", show=False):
+with Diagram("AzureStack QuickStart Templates Architecture", show=False):
     with Cluster("Azure Environment"):
-        azure_group = ResourceGroups("Resource Group")
+        vnet = VirtualNetworks("Virtual Network")
         
-        with Cluster("Networking"):
-            vnet = VirtualNetworks("Virtual Network")
+        with Cluster("Infrastructure"):
             lb = LoadBalancers("Load Balancer")
-            vpn = VirtualNetworkGateways("VPN Gateway")
+            lb - vnet
+            
+            with Cluster("Compute"):
+                k8s = AKS("Kubernetes Cluster")
+                acr = ACR("Container Registry")
+                k8s - acr
+                lb - k8s
+            
+            with Cluster("Identity"):
+                ad = ActiveDirectory("Active Directory")
+                ad - k8s
         
-        with Cluster("Compute Resources"):
-            vm1 = VirtualMachines("VM Instance 1")
-            vm2 = VirtualMachines("VM Instance 2")
+        with Cluster("Application Layer"):
+            app_service = AppServices("App Services")
+            app_plan = AppServicePlans("App Service Plans")
+            app_service - app_plan
+            k8s - app_service
         
-        with Cluster("Security"):
-            keyvault = KeyVault("Key Vault")
+        db = SQLDatabases("SQL Database")
+        vnet - db
         
-        azure_group >> Edge(label="Contains") >> [vnet, lb, vpn, vm1, vm2, keyvault]
-        lb >> Edge(label="Distributes Traffic") >> [vm1, vm2]
-        vpn >> Edge(label="Secure Connection") >> Custom("ConsortiumBridge", "./icons/consortiumbridge.png")
-        keyvault >> Edge(label="Stores Secrets") >> vm1
+        ddos = DDOSProtectionPlans("DDoS Protection")
+        ddos - vnet
 
-    with Cluster("Azure Stack Environment"):
-        stack_group = ResourceGroups("Resource Group")
+    with Cluster("On-premises"):
+        prometheus = Prometheus("Monitoring")
+        rabbitmq = RabbitMQ("Message Queue")
+        terraform = Terraform("IaC")
         
-        with Cluster("Networking"):
-            stack_vnet = VirtualNetworks("Virtual Network")
-            stack_lb = LoadBalancers("Load Balancer")
-        
-        with Cluster("Compute Resources"):
-            stack_vm1 = VirtualMachines("VM Instance 1")
-            stack_vm2 = VirtualMachines("VM Instance 2")
-        
-        with Cluster("Security"):
-            stack_keyvault = KeyVault("Key Vault")
-        
-        stack_group >> Edge(label="Contains") >> [stack_vnet, stack_lb, stack_vm1, stack_vm2, stack_keyvault]
-        stack_lb >> Edge(label="Distributes Traffic") >> [stack_vm1, stack_vm2]
-        stack_keyvault >> Edge(label="Stores Secrets") >> stack_vm1
-
-    with Cluster("Repository"):
-        repo = Repos("AzureStack-QuickStart-Templates")
-    
-    repo >> Edge(label="Deploys") >> [azure_group, stack_group]
+        prometheus >> rabbitmq
+        terraform >> prometheus
+        terraform >> rabbitmq

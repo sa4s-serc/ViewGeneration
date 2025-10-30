@@ -1,82 +1,34 @@
-from plantuml import PlantUML
+from diagrams import Diagram
+from diagrams.aws.general import User
+from diagrams.onprem.network import Apache
+from diagrams.onprem.vcs import Git
+from diagrams.onprem.inmemory import Redis
+from diagrams.onprem.database import Postgresql
+from diagrams.aws.security import CertificateManager, IdentityAndAccessManagementIam
+from diagrams.aws.management import Opsworks
+from diagrams.aws.integration import StepFunctions
+from diagrams.aws.compute import Lambda
 
-plantuml_code = """
-@startuml
-title Matryx Platform Architecture
+with Diagram("Matryx Platform Architecture", show=False):
+    user = User("User")
+    frontend = Apache("Frontend")
+    vcs = Git("Version Control System")
+    
+    ethereum_blockchain = Lambda("Ethereum Blockchain")
+    cert_manager = CertificateManager("TLS/SSL")
+    iam = IdentityAndAccessManagementIam("Access Management")
+    opsworks = Opsworks("Deployment & Management")
+    step_functions = StepFunctions("Workflow Management")
+    
+    db = Postgresql("Database")
+    cache = Redis("Cache")
 
-package "Smart Contracts (Solidity)" {
-    class MatryxPlatform {
-        +manageTournaments()
-        +manageSubmissions()
-        +manageCommits()
-        +forwardCalls()
-    }
-    class MatryxSystem {
-        +manageVersions()
-        +manageLibraryAddresses()
-    }
-    class MatryxForwarder {
-        +forwardCalls()
-    }
-    class LibPlatform {
-        +coreLogic()
-    }
-    class LibCommit {
-        +coreLogic()
-    }
-    class LibTournament {
-        +coreLogic()
-    }
-    class MatryxToken {
-        +ERC20Implementation()
-    }
-}
+    user >> frontend >> vcs
+    frontend >> ethereum_blockchain
+    frontend >> cert_manager
+    frontend >> iam
+    frontend >> opsworks
+    frontend >> step_functions
 
-package "Javascript/Build" {
-    class truffle_config {
-        +networkSettings()
-        +compilerOptions()
-    }
-    class test {
-        +integrationTests()
-    }
-    class benchmark {
-        +measureGasUsage()
-    }
-    class utils {
-        +utilityFunctions()
-    }
-    class network {
-        +ethereumNetworkConfig()
-    }
-}
-
-package "Documentation" {
-    class index {
-        +overview()
-    }
-    class searchtools {
-        +searchFunctions()
-    }
-}
-
-MatryxPlatform --> MatryxSystem : uses
-MatryxPlatform --> MatryxForwarder : uses
-MatryxPlatform --> LibPlatform : delegatecall
-MatryxPlatform --> LibCommit : delegatecall
-MatryxPlatform --> LibTournament : delegatecall
-MatryxPlatform --> MatryxToken : uses
-
-truffle_config --> test : setup
-truffle_config --> benchmark : setup
-truffle_config --> utils : setup
-truffle_config --> network : setup
-
-index --> searchtools : references
-
-@enduml
-"""
-
-url = "http://www.plantuml.com/plantuml/img/"
-uml = PlantUML(url)
-uml.processes(plantuml_code)
+    ethereum_blockchain >> db
+    ethereum_blockchain >> cache

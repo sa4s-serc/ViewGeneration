@@ -1,49 +1,28 @@
 from graphviz import Digraph
 
 # Create a new directed graph
-dot = Digraph(comment='Multi-Component System', format='png')
+dot = Digraph(comment='Multi-Component System Architecture')
 
-# Set graph attributes
-dot.attr(rankdir='TB', size='10,8')
-dot.attr('node', shape='rectangle', style='filled', color='lightgrey')
+# Add nodes for 3D Rendering and Visualization Core (Potree, Three.js)
+dot.node('Three.js', 'Three.js\n(Core Rendering)', shape='rectangle', style='filled', color='lightblue')
+dot.node('Potree', 'Potree\n(Point Cloud Rendering)', shape='rectangle', style='filled', color='lightblue')
+dot.node('LAS/LAZ Decoders', 'LAS/LAZ Decoders\n(Data Loading)', shape='rectangle', style='filled', color='lightblue')
 
-# Define nodes for main components
-dot.node('3D', '3D Rendering & Visualization\n(Potree, Three.js)', fillcolor='lightblue')
-dot.node('Robotic', 'Robotic Control & Sensing\n(ROS Integration)', fillcolor='lightgreen')
-dot.node('Geometric', 'Geometric Data Handling\n(CZML Processing)', fillcolor='lightyellow')
+# Add nodes for Robotic Control and Sensing (ROS Integration)
+dot.node('Robot', 'Robot Control', shape='rectangle', style='filled', color='lightgreen')
+dot.node('Sensor', 'Sensor Data Acquisition', shape='rectangle', style='filled', color='lightgreen')
+dot.node('ICP', 'Iterative Closest Point\n(Point Cloud Registration)', shape='rectangle', style='filled', color='lightgreen')
 
-# Define nodes for key libraries and utilities
-dot.node('Three.js', 'Three.js', fillcolor='lightblue')
-dot.node('Potree', 'Potree', fillcolor='lightblue')
-dot.node('ROS', 'ROS', fillcolor='lightgreen')
-dot.node('CZML', 'CZML', fillcolor='lightyellow')
+# Add nodes for Geometric Data Handling and CZML Processing
+dot.node('CzmlDataSource', 'CZML Data Source', shape='rectangle', style='filled', color='lightyellow')
+dot.node('CZML Processing', 'CZML Processing\n(Time-Dynamic Objects)', shape='rectangle', style='filled', color='lightyellow')
 
-# Define nodes for key components within subsystems
-dot.node('PointCloud', 'PointCloud Material', fillcolor='lightblue')
-dot.node('Shader', 'Shader System', fillcolor='lightblue')
-dot.node('Robot', 'Robot Control', fillcolor='lightgreen')
-dot.node('Sensor', 'Sensor Data Acquisition', fillcolor='lightgreen')
-dot.node('ICP', 'Iterative Closest Point', fillcolor='lightgreen')
-dot.node('CzmlDataSource', 'CzmlDataSource', fillcolor='lightyellow')
-dot.node('Animations', 'Animations', fillcolor='lightyellow')
+# Add edges to represent communication and data flow
+dot.edge('Three.js', 'Potree', label='integrates')
+dot.edge('Potree', 'LAS/LAZ Decoders', label='uses')
+dot.edge('Robot', 'Sensor', label='controls')
+dot.edge('Sensor', 'ICP', label='provides data for')
+dot.edge('CzmlDataSource', 'CZML Processing', label='feeds')
 
-# Define edges to represent communication between components
-dot.edge('3D', 'Three.js')
-dot.edge('3D', 'Potree')
-dot.edge('Three.js', 'PointCloud')
-dot.edge('Three.js', 'Shader')
-dot.edge('Robotic', 'ROS')
-dot.edge('Robotic', 'Robot')
-dot.edge('Robotic', 'Sensor')
-dot.edge('Robotic', 'ICP')
-dot.edge('Geometric', 'CZML')
-dot.edge('Geometric', 'CzmlDataSource')
-dot.edge('Geometric', 'Animations')
-
-# Define edges for communication between main components
-dot.edge('3D', 'Robotic', label='Data Exchange')
-dot.edge('3D', 'Geometric', label='Data Exchange')
-dot.edge('Robotic', 'Geometric', label='Sensor Data')
-
-# Render the graph
-dot.render('multi_component_system', view=True)
+# Render the graph to a file
+dot.render('multi_component_system_architecture', format='png', cleanup=True)

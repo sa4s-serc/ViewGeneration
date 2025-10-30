@@ -1,26 +1,40 @@
-from graphviz import Digraph
+from diagrams import Cluster, Diagram
+from diagrams.onprem.client import User
+from diagrams.onprem.network import Nginx
+from diagrams.onprem.compute import Server
+from diagrams.onprem.queue import ActiveMQ
+from diagrams.programming.flowchart import Action, Decision
 
-dot = Digraph(comment='PyJailBreak Frontend Architecture')
+with Diagram("PyJailBreak Frontend Architecture", show=False):
+    user = User("User")
 
-# Define nodes for components
-dot.node('A', 'UI for Scan Configuration', shape='rectangle', style='filled', color='lightblue')
-dot.node('B', 'Payload Management', shape='rectangle', style='filled', color='lightgrey')
-dot.node('C', 'Vulnerability Scan Execution', shape='rectangle', style='filled', color='lightblue')
-dot.node('D', 'Emulation Mode', shape='rectangle', style='filled', color='lightgrey')
-dot.node('E', 'Configuration', shape='rectangle', style='filled', color='lightblue')
-dot.node('F', 'API Documentation', shape='rectangle', style='filled', color='lightgrey')
+    with Cluster("Frontend"):
+        nginx = Nginx("Nginx")
+        user >> nginx
 
-# Define edges for communication
-dot.edge('A', 'C', label='Configure and Launch Scans', style='dashed')
-dot.edge('B', 'C', label='Manage Payloads', style='dashed')
-dot.edge('C', 'E', label='Execute Scans', style='dashed')
-dot.edge('D', 'C', label='Simulate Attacks', style='dashed')
-dot.edge('E', 'F', label='Access API Documentation', style='dashed')
+    with Cluster("Backend"):
+        server = Server("Backend Server")
+        activemq = ActiveMQ("ActiveMQ")
 
-# Legend
-dot.node('L1', 'Frontend Component', shape='rectangle', style='filled', color='lightblue')
-dot.node('L2', 'State Management Component', shape='rectangle', style='filled', color='lightgrey')
+        nginx >> server
+        server >> activemq
 
-# Display the graph
-print(dot.source)
-dot.render('pyjailbreak_frontend_architecture', view=True)
+    with Cluster("Core Functionality"):
+        scan_config = Action("Scan Configuration UI")
+        payload_mgmt = Action("Payload Management")
+        scan_exec = Action("Scan Execution")
+        emulation_mode = Action("Emulation Mode")
+        configuration = Action("Configuration")
+        api_doc = Action("API Documentation")
+
+        server >> scan_config
+        server >> payload_mgmt
+        server >> scan_exec
+        server >> emulation_mode
+        server >> configuration
+        server >> api_doc
+
+    with Cluster("Decision Points"):
+        decision = Decision("Choose Mode")
+        emulation_mode >> decision
+        decision >> scan_exec
