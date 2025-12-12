@@ -10,7 +10,7 @@ import time
 from openai import OpenAI
 import base64
 
-client = OpenAI(api_key="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")
+client = OpenAI(api_key="ADD YOUR KEY")
 
 
 def load_image_as_base64(image_path):

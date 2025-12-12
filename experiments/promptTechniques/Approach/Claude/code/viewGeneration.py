@@ -9,8 +9,7 @@ import anthropic
 from pathlib import Path
 import boto3
 from botocore.exceptions import ClientError
-# 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
-# client = anthropic.Anthropic(api_key="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")
+
 def get_python_from_summary(view_details, error_message=None, python_library="diagrams", code=None):
     with open("diagrams_import_reference.txt", "r") as f:
         import_content = ",".join(line.strip() for line in f)
