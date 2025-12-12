@@ -1,0 +1,88 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: kubescape_host-scanner
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** general
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+```text
+## Kubescape Host Scanner Analysis Report
+
+This report summarizes the core functionality, architecture, and end-to-end (e2e) testing of the Kubescape Host Scanner repository. The scanner gathers host information and exposes it through an HTTP API, facilitating security assessments and compliance checks.
+
+**Core Functionality and Components:**
+
+The host scanner operates as a microservice-like component, focusing on data acquisition from the host. It collects diverse information, including:
+
+*   OS details (release file content, kernel version)
+*   Network configuration (open ports)
+*   Container runtime information (CNI, containerd, CRI-O)
+*   Kubelet and Kube-proxy configurations (service files, config file path, kubeconfig path)
+*   Control plane details (API server, controller manager, scheduler, etcd)
+*   Linux Security Hardening (AppArmor, SELinux)
+*   Cloud Provider information (if running in cloud environment)
+*   Version
+
+This information is exposed via an HTTP API server, utilizing `negroni` middleware for recovery, logging, and liveness/readiness probes. Data structures are defined within the `sensor` package to represent the responses from API endpoints. Logging is performed using `go-logger` and `zap`, with OpenTelemetry support for tracing.
+
+**Key Files and Their Roles:**
+
+*   `sensor.go`: Main entry point, initializing the logger, HTTP router, signal handling, and OpenTelemetry.
+*   `httphandlers.go`: Defines HTTP handlers for each endpoint (e.g., `/healthz`, `/readyz`, `/osrelease`, `/kubeletinfo`), calling sensor functions and formatting responses.
+*   `sensor/*`: Implements individual sensor functions (e.g., `sensor/osrelease.go`, `sensor/kubelet.go`, `sensor/controlplane.go`, `sensor/CNI.go`) to gather specific host information.
+*   `sensor/internal/utils/containerruntime.go`: Provides utilities for detecting and inspecting container runtimes to discover CNI configurations.
+*   `deployment/k8s-deployment.yaml`: Kubernetes DaemonSet definition for deployment as a privileged pod.
+*   `build/Dockerfile`: Dockerfile for building the container image.
+*   `e2e/*_test.go`: Contains end-to-end test suites for each API endpoint.
+*   `e2e/e2e_suite_test.go`: Sets up and tears down the e2e testing environment using a Kind cluster.
+*   `e2e/*_kind_test.go`: Contains data to compare with data from endpoints.
+
+**Architectural Insights:**
+
+The host scanner adopts a layered design. HTTP handlers invoke sensor functions, which leverage utility functions to access the host filesystem and process information. Configuration is driven by environment variables (e.g., `OTEL_COLLECTOR_SVC`, `BuildVersion`) and file-based configurations for container runtimes. It runs as a privileged DaemonSet to ensure access to necessary host resources. The architecture emphasizes modularity, separating concerns through distinct packages and functions for each sensing task.
+
+**Design Patterns:**
+
+*   **Sensor Pattern:** Each information type is abstracted into a dedicated sensor function, promoting modularity.
+*   **Strategy Pattern (CNI Discovery):** Multiple strategies are employed to discover CNI configurations (inspecting kubelet flags, parsing runtime configs, default locations).
+*   **Middleware Pattern:** `negroni` handles common HTTP request behaviors.
+*   **Verbose Functions Pattern:** `make*Verbose` functions wrap `make*` functions to provide detailed logging for debugging.
+
+**End-to-End Testing:**
+
+E2E tests verify the functionality of the API endpoints. The testing environment utilizes Kind to simulate a Kubernetes cluster, enabling isolated testing. The tests follow these steps: send a GET request to an endpoint, assert a 200 status code, and validate the response body against expected values.
+
+Ginkgo and Gomega are used for a Behavior-Driven Development (BDD) style, increasing test readability. Test fixtures are managed by `BeforeSuite` and `AfterSuite` functions. `go build` tags provide different compilation of tests based on the running environment. Data-driven testing is employed in some instances using pre-defined data to validate API responses.
+```
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: general
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/kubescape_host-scanner.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

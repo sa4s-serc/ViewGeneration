@@ -1,0 +1,83 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: onlybakam_reinvent2022-vote-app
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** control_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## Reinvent2022 Vote App: Repository Analysis
+
+This report summarizes the key components, functionality, architecture, and design patterns of the Reinvent2022 Vote App, a full-stack application demonstrating a voting system. Built using Next.js for the front-end and AWS AppSync (GraphQL) for the API, the application allows users to vote for either Brazil (BR) or Cameroon (CM), associate a predefined message with their vote, and displays a real-time timeline of votes. Other AWS services utilized include DynamoDB for data storage and SNS for vote event notifications.
+
+**Key Functionalities and Components:**
+
+*   **Voting:** Users can vote for Brazil or Cameroon via a button that triggers an AppSync mutation (`AddVote`).
+*   **Real-time Updates:** GraphQL subscriptions (`OnPlusOne`) provide real-time updates of vote counts and the vote timeline.
+*   **Message Association & Translation:** Votes are associated with predefined messages, selected via a dropdown. AWS Translate is used to translate these messages into English.
+*   **Data Storage & Notifications:** DynamoDB stores vote data. SNS publishes vote events, enabling an event-driven architecture.
+
+**Important Files and Roles:**
+
+*   **`codegen.ts`/`codegen.js`:** Configures GraphQL code generation using `@graphql-codegen/cli` to generate TypeScript types and operations, ensuring type safety.
+*   **`README.md` (both `app` and `cdk`):** Provides application overview, setup instructions, and architectural information.
+*   **`cdk/`: (related files)** Contains AWS CDK code for infrastructure provisioning. `cdk-stack.ts` defines the AppSync API, DynamoDB table, SNS topic, and IAM roles. `cdk.ts` is the entrypoint to execute the CDK stack, enabling Infrastructure as Code (IaC).
+*   **`app/`: (related files)**
+    *   `pages/index.tsx`: Main Next.js page; implements the voting UI, displays vote counts, and handles real-time updates via GraphQL subscriptions.
+    *   `operations.ts`: Defines GraphQL mutations (e.g., `AddVote`) and subscriptions (e.g., `OnPlusOne`).
+    *   `graphql.ts` & `src/generated/graphql.ts`: Defines all the types that are required by the application.
+    *   `next.config.js`: Next.js configuration file.
+    *   `pages/_app.tsx`: Custom Next.js app component.
+    *   `m.ts`: Contains predefined messages for users to select when voting.
+*   **`src/`: (related files)**
+    *   `schema.graphql`: Defines the GraphQL schema for the AppSync API, including types, queries, mutations, and subscriptions. `aws.gql` defines AWS-specific GraphQL scalars and directives.
+    *   `functions/publishToSNS.ts`, `functions/saveToDynamodb.ts`, `functions/translateMessage.ts`: AppSync resolver functions (JavaScript) handle API business logic, interacting with SNS, DynamoDB, and Translate. Located in the `build/functions/` directory (compiled).
+    *   `common/messages.ts`: Shared message definitions.
+
+**Architectural Insights:**
+
+*   **Serverless Architecture:** Leverages serverless technologies (AWS AppSync, Lambda via resolvers, DynamoDB, SNS) for scalability and cost-effectiveness.
+*   **Event-Driven:** SNS facilitates an event-driven architecture, where votes trigger notifications that can be consumed by other services.
+*   **GraphQL API:** AppSync provides a GraphQL API, enabling efficient data fetching and mutation with real-time updates via subscriptions.
+*   **Infrastructure as Code (IaC):** CDK manages infrastructure as code, ensuring consistency.
+
+**Notable Design Patterns:**
+
+*   **Backend for Frontend (BFF):** AppSync API acts as a BFF, tailoring data and operations for the Next.js front-end.
+*   **CQRS (Command Query Responsibility Segregation):** Separation of mutations (commands, e.g., `AddVote`) and queries (e.g., `getTotals`) hints at CQRS.
+*   **Observer Pattern:** GraphQL subscriptions implement the Observer pattern for real-time updates.
+*   **Pipeline Pattern:** The `AddVote` mutation resolver uses a pipeline of functions (`publishToSNS`, `saveToDynamodb`, `translateMessage`) to perform actions sequentially.
+*   **Configuration as Code:** AppSync configuration from CDK output (`output.json`) configures the Amplify client.
+*   **Data Transfer Object (DTO):** `VoteInput` and `Vote` types are DTOs for data transfer.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: control_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/onlybakam_reinvent2022-vote-app.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

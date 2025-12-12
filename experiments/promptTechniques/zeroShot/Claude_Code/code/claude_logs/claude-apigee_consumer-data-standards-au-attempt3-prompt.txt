@@ -1,0 +1,112 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: apigee_consumer-data-standards-au
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** deployment, connectivity
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## Analysis of Apigee-Based Consumer Data Standards (CDS) Reference Implementation
+
+This report summarizes the analysis of an Apigee-based reference implementation of the Consumer Data Standards (CDS) for the Australian Open Banking initiative. This implementation leverages Apigee API Management platform to provide API proxies and shared flows designed to facilitate compliance with the CDS banking APIs. A mock data approach is used, simulating API responses without connecting to real banking systems.
+
+**1. Key Functionalities and Components:**
+
+The implementation encompasses several core functionalities:
+
+*   **CDS Banking API Proxies:** Implements various CDS Banking APIs including:
+    *   Get Products
+    *   Get Accounts
+    *   Get Transactions
+    *   Discovery API.
+    These proxies offer a REST API for accessing banking accounts data and adhere to CDS standards, supporting features like pagination and filtering. They include flow control logic, request validation, and response transformations, leveraging mock responses for development and testing.
+*   **Authentication and Authorization (OIDC Proxy):** Handles interaction with an external OpenID Connect (OIDC) provider.  Key features include:
+    *   Replacing OIDC tokens with opaque access and refresh tokens managed by Apigee.
+    *   Support for grant types like authorization code, client credentials, and refresh token.
+    *   mTLS with Holder of Key (HoK) verification.
+    *   Integration with a consent management solution.
+    *   JWT-based ID token verification and generation.
+    *   PAR (Pushed Authorization Request) support.
+    *   Authentication with Private Key JWT authentication.
+*   **Consent Management (ConsentMgmtWithKVM Proxy):** Provides consent management capabilities with a dedicated API proxy, managing user consents using Key Value Maps (KVMs) for persistence. Functionality includes endpoints to get, create, update, and revoke consents, along with consent screen display using XSLT transformations. Caching of consent states helps prevent replay attacks.
+*   **Dynamic Client Registration:** Supports dynamic client registration using Apigee's client management capabilities, and also mock implementations for the CDR register and ADR client roles. Includes validation of Software Statement Assertions (SSAs).
+*   **Reusable Artefacts (Shared Flows):** Provides reusable shared flows that encapsulate common functionalities such as:
+    *   Request header checking
+    *   Pagination
+    *   Traffic threshold application.
+    *   JWT verification
+    *   Request parameter validation.
+*   **Mock OIDC Provider:** Includes a standalone OpenID Connect Identity Provider (oidc-mock-provider) built using the `node-oidc-provider` package, simulating the authentication and authorization processes. It leverages Apigee's hosted targets functionality, running a Node.js application within Apigee.
+*   **Admin APIs:** Includes admin endpoints for Metadata Update and Get Metrics, intended for use by the CDR Register.
+*   **Metrics Service:** An additional solution that integrates with Apigee Analytics to provide actual metrics (beyond mock data). It collects performance metrics and determines if requests meet performance SLOs.
+    * The service integrates with Apigee Analytics to provide actual metrics (beyond mock data).
+    *   Employs separate parsers for different Apigee Analytics API responses to facilitate different parsing algorithms based on response type.
+
+**2. Important Files and Their Roles:**
+
+*   **`LICENSE`:** Specifies the Apache 2.0 license.
+*   **`README.md`:** Project overview, setup instructions, and usage information.
+*   **`CONTRIBUTING.md`:** Contribution guidelines, including CLA and code review process.
+*   **`specs/*.yaml`:** OpenAPI specifications for the Accounts, Products, Transactions and Discovery APIs, defining endpoints, request/response structures, etc.
+*   **`setup/*.sh`:** Shell scripts to automate deployment and undeployment of API proxies and shared flows to the Apigee platform.
+*   **`src/shared-flows/*`:** Directory containing reusable shared flows.
+*   **`src/apiproxies/*`:** Directory containing API proxy definitions.
+*   **`src/additional-solutions/metrics-service/*`:** Code for the optional metrics service, including the App Engine application, parsers, and utility functions.
+*   `*.xml` files: API proxy definitions, shared flow definitions, policy configurations (AssignMessage, ExtractVariables, JavaScript, KeyValueMapOperations, RaiseFault, ServiceCallout, OAuthV2 policies).
+*   `*.js` files: JavaScript policies implementing custom logic.
+*   `*.xsl` files: XSLT stylesheets for data transformations, specifically for rendering the consent screen.
+*   `manifest.xml`: Lists components included in an API proxy or shared flow.
+*   `default.xml`: Default proxy endpoint and target endpoint configurations.
+
+**3. Architectural Insights:**
+
+*   **Layered Architecture:**  Shared flows provide core functionality, and API proxies expose the APIs, orchestrating the shared flows.
+*   **Microservices/Modular Design:** Shared flows promote reusability, and the metrics service is implemented as an external application in Google App Engine for scalability.
+*   **API Gateway Pattern:** Apigee acts as an API gateway, handling authentication, authorization, rate limiting.
+*   **Backend for Frontend (BFF):** API proxies might act as a BFF, tailoring backend data for specific client applications.
+*   **Proxy Chaining:** Apigee proxy calls another, delegating responsibilities.
+*   **Configuration-Driven:** KVMs and externalized configuration files (e.g., `config.json`) facilitate easier customization and management without code modification.
+*   **Hosted Targets:** Mock OIDC provider leverages Apigee's hosted targets.
+
+**4. Notable Design Patterns:**
+
+*   **Facade:** API proxies provide a simplified interface to underlying shared flows and mock data.
+*   **Template Method:** Shared flows provide a template for implementing common CDS functionalities.
+*   **Strategy:** Use of separate parsers for different Apigee Analytics API responses demonstrates the Strategy pattern.
+*   **External Configuration:** Service loads Apigee config from a datastore or environmental variables.
+*   **Policy-Driven Development:** API logic is built using policies rather than directly in code.
+*   **Centralized Configuration:** KVMs enable centralized configuration of API behavior.
+
+This analysis provides a comprehensive overview of the CDS reference implementation. Examining the specific configurations and data transformations within policies and JavaScript code would offer even deeper understanding. The service also demonstrates external configuration to simplify configuration and deployment without needing to modify the code.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment, connectivity
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/apigee_consumer-data-standards-au.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

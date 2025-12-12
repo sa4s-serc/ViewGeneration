@@ -1,0 +1,80 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: tarhses_esp-alarm-clock
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** control_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## ESP32 Alarm Clock Project: Overview and Architecture
+
+This document summarizes the key aspects of an alarm clock project developed for the ESP32 microcontroller using the ESP-IDF framework. The project leverages multiple peripherals and libraries to deliver a feature-rich alarm clock experience.
+
+**1. Core Functionalities:**
+
+*   **Timekeeping:** Synchronizes with internet time servers using SNTP over WiFi. Features timezone configuration.
+*   **Alarm Management:** Sets alarms using potentiometers for hours and minutes (with a calibration routine for accuracy), activates/deactivates using a physical switch, and stops/snoozes alarms using a button.
+*   **Display:** Uses an E-Paper display to show current time and alarm time. Displays icons indicating alarm status and WiFi connectivity.
+*   **Sound:** Plays ringing sounds from audio files stored on an SD card, selecting a random file from a specified directory.
+*   **Networking:** Establishes WiFi connectivity for NTP time synchronization with automatic reconnection capabilities.
+*   **Storage:** Utilizes an SD card for storing configuration files (WiFi credentials, NTP server, timezone) and audio files. Employs Non-Volatile Storage (NVS) for storing potentiometer calibration data.
+*   **Configuration:** Reads network and NTP settings from a `config.json` file located on the SD card. Leverages `sdkconfig` for build-time project configuration.
+
+**2. Key Components and File Structure:**
+
+The project is structured into several modules, each encapsulated in separate files.
+
+*   **`main/main.c`:** The main application entry point. Initializes all core components: storage, network, potentiometers, sound, display, and alarm.
+*   **`main/alarm.c/h`:** Implements the core alarm logic. Manages alarm setting, activation, deactivation, snoozing, and triggers alarm sounds. Utilizes tasks and queues for event handling.
+*   **`main/network.c/h`:** Manages WiFi connection, IP address acquisition, and SNTP time synchronization. Relies on the configuration file for WiFi credentials and NTP server settings.
+*   **`main/display.c/h`:** Controls the E-Paper display. Receives time updates and alarm status, then renders the information on the screen. Employs tasks and queues for display updates.
+*   **`main/sound.c/h`:** Manages audio playback. Randomly selects a ringing file from the SD card and plays it when the alarm is triggered, using an I2S driver for audio output.
+*   **`main/pot.c/h`:** Reads potentiometer values to set the alarm time. Includes a calibration routine to compensate for potentiometer inaccuracies. Uses non-volatile storage (NVS) to save calibration data.
+*   **`main/storage.c/h`:** Handles SD card mounting and file system operations (reading config files, listing audio files). Also manages non-volatile storage (NVS) for potentiometer calibration.
+*   **`main/config.h`:** Defines project-specific configuration values, including GPIO pins, SD card settings, and file paths.
+*   **`sdkconfig`:** The ESP-IDF project configuration file, configuring various aspects of the ESP32 system, including compiler options, component settings, and FreeRTOS settings.
+*   **`CMakeLists.txt`:** Build configuration files for the ESP-IDF build system (root and `main` directories).
+
+**3. Architectural Design:**
+
+*   **Multi-threaded Design (FreeRTOS):** Employs FreeRTOS to create multiple tasks. Each task is responsible for a specific function (e.g., reading potentiometers, handling button presses, updating the display, playing sound), enabling concurrent operation and improving responsiveness.
+*   **Event-Driven Communication:** Modules communicate using ESP-IDF's event loop. Modules post events that other modules can subscribe to and react accordingly, promoting loose coupling and modularity.
+*   **Configuration-Driven:** The alarm clock's behavior is configured via a `config.json` file on the SD card, allowing user customization without requiring code recompilation.
+
+**4. Design Patterns:**
+
+*   **Task Queue Pattern:** Tasks utilize queues (e.g., `alarm_time_queue`, `screen_status_queue`) to receive data. This facilitates decoupling of data sending and receiving between tasks.
+*   **Interrupt-Driven:** Interrupts are used to detect button presses and switch changes, enabling immediate responses to user interactions.
+*   **Singleton (Event Loop):** Aims to provide a single, globally accessible event loop (using `esp_event_loop_create_default()`), despite multiple instances of event handler registration.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: control_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/tarhses_esp-alarm-clock.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

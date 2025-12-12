@@ -1,0 +1,94 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: florianhoehn_sf-apex-rest-api
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** general
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## Salesforce REST/JSON Integration Starter Kit Analysis
+
+This report analyzes a Salesforce Apex-based starter kit designed for building REST/JSON integrations. The kit provides a framework for both inbound REST API handling and outbound external callouts, emphasizing readability, maintainability, robust logging, and adherence to Salesforce best practices. It leverages Salesforce DX tooling for streamlined development and deployment.
+
+**Core Functionalities and Components:**
+
+*   **REST API Handling:** Facilitates the creation of REST resources and simplifies making external callouts.
+*   **Data Transformation:** Employs wrapper classes (`RestWrapper`, `RestResponse`, and example-specific wrappers) to map between Salesforce SObjects and JSON structures, enabling seamless data serialization and deserialization.
+*   **External Callouts:** Offers a base class (`RestCallout`) for managing HTTP requests and responses, including setting headers, endpoints, and handling authentication.
+*   **Logging:** Implements a comprehensive logging mechanism using `RestLogBuilder` and a custom `Rest_Log__c` object to record REST interaction details (endpoints, request/response bodies, errors, stack traces).
+*   **Error Handling:** Incorporates error handling within `RestResponse` and the logging mechanism to capture and report issues.
+*   **Example Implementations:** Includes example REST resources (`ExampleRatingRestResource`) and callouts (`ExampleRatingCallout`) demonstrating framework usage, particularly for integrating with external systems for rating information on Accounts and Opportunities.
+*   **Testing:** Provides comprehensive unit tests for all components and examples.
+*   **Salesforce DX Integration:** Utilizes Salesforce DX for project structure, scratch org creation, and deployment automation.
+
+**Key Files and Their Roles:**
+
+*   **Core Classes:**
+    *   `RestWrapper.cls`: Abstract base class for wrapper classes, handling JSON serialization and data conversion.
+    *   `RestResponse.cls`: Extends `RestWrapper`, defining the structure for REST responses and error handling.
+    *   `RestCallout.cls`: Base class for HTTP callouts, managing endpoints, headers, and bodies.
+    *   `RestLogBuilder.cls`: Constructs `Rest_Log__c` records for detailed logging.
+    *   `Rest_Log__c.object`: Custom object definition for storing REST API logs.
+*   **Example Code:** Located in `/src/main/default/classes/example/`, demonstrating practical usage of the framework.
+*   **Testing Classes:** Located in `/src/main/default/classes/tests/`, ensuring code quality.
+*   **Configuration & Build:**
+    *   `LICENSE`: Defines usage rights (MIT License).
+    *   `ruleset.xml`: PMD ruleset for static code analysis.
+    *   `.gitpod.Dockerfile`, `.gitpod.yml`: Gitpod configuration for a ready-to-code development environment.
+    *   `README.md`: Project overview, setup instructions, and architectural details.
+    *   `.forceignore`: Specifies files to exclude during source push/pull operations.
+    *   `.travis.yml`: Travis CI configuration for automated builds, testing, and deployment.
+    *   `scripts/installSFDXAndAutorizeDevhub.sh`: Script for installing the Salesforce CLI (sfdx) and authorizing the devhub org.
+    *   `scripts/dx/*`: Scripts for Salesforce DX tasks (scratch org creation, authorization, test execution, deletion).
+
+**Architectural Insights & Design Patterns:**
+
+*   **Layered Architecture:** Separates concerns (data transformation, API handling, logging).
+*   **Template Pattern:** `RestWrapper` and `RestCallout` leverage the Template Method pattern, defining a base algorithm and deferring specific steps to subclasses.
+*   **Dependency Injection:** Demonstrated in `ExampleRatingCallout`, promoting loose coupling and testability.
+*   **Wrapper:** `RestWrapper` encapsulates SObjects, providing abstraction and simplifying JSON serialization.
+*   **Abstract Class:** `RestWrapper` and `RestCallout` serve as abstract classes, defining common interfaces and behavior.
+*   **Builder:** `RestLogBuilder` uses the Builder pattern for fluent and controlled `Rest_Log__c` record creation.
+*   **JSON Serialization/Deserialization:** Relies heavily on Salesforce's JSON capabilities.
+
+**Points to Note and Potential Improvements:**
+
+*   **Hardcoded Endpoints:** The current implementation includes hardcoded endpoints. Implementing Named Credentials is highly recommended for security and maintainability.  The PMD ruleset flags this issue.
+*   **Logging Configuration:**  Consider moving the `logLevel` setting in `RestLogBuilder` to a custom setting or metadata type for configuration flexibility without code changes.
+*   **Error Handling:** The example callout only returns the first error encountered. Implementing a more comprehensive error aggregation strategy would enhance robustness.
+*   **Bulkification:** Review the `sendBatchOfAccounts` method in `ExampleRatingCallout` and ensure it's properly bulkified to prevent governor limit issues, especially in production environments.  The loop should be avoided and `for` loop to query should be replaced by querying `WHERE` clause.
+*   **Security:** The presence of `with sharing` and `Security.stripInaccessible` are good practices to observe object-level, field-level and data access control. Regular security code reviews are recommended
+*   **Asynchronous Processing:**  The use of `@future` methods in `ExampleRatingCallout` is a good start to offload long-running tasks. Consider switching to Queueable Apex for more robust and scalable asynchronous processing if necessary.
+*   **PMD Integration:** The repository already integrates with PMD. Regular execution is crucial for identifying potential code quality and security issues early.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: general
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/florianhoehn_sf-apex-rest-api.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

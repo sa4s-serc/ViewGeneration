@@ -1,0 +1,29 @@
+// Libre Core/Platform Architecture
+digraph {
+	rankdir=TB
+	node [fillcolor=lightblue shape=rectangle style="rounded,filled"]
+	admin_ui [label="Libre Administration UI"]
+	core [label="Libre Core"]
+	gateway [label="GraphQL Gateway"]
+	grafana [label="Grafana Dashboards"]
+	mqtt [label="MQTT Broker
+(EMQX)"]
+	workflow [label="Workflow Engine"]
+	data_provider [label="Data Provider Interface"]
+	node [fillcolor=lightgrey shape=cylinder]
+	dgraph [label="Dgraph DB"]
+	influxdb [label=InfluxDB]
+	admin_ui -> gateway [label="GraphQL API"]
+	gateway -> dgraph [label="Query/Mutate"]
+	core -> gateway [label=Federation]
+	workflow -> gateway [label=Federation]
+	mqtt -> data_provider [label=Events]
+	data_provider -> influxdb [label="Time Series Data"]
+	grafana -> influxdb [label=Visualize]
+	subgraph cluster_0 {
+		label="Docker Compose Environment"
+		node [fillcolor=lightgreen shape=rectangle style="rounded,filled"]
+		packml [label="PackML Simulator"]
+		packml -> mqtt [label=Publish]
+	}
+}

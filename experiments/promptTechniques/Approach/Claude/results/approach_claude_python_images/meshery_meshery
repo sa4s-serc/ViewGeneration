@@ -1,0 +1,42 @@
+// Meshery Architecture
+digraph {
+	rankdir=TB
+	node [shape=rectangle style=rounded]
+	server [label="Meshery Server
+(Core)"]
+	ui [label="Meshery UI
+(React/Next.js)"]
+	operator [label="Meshery Operator"]
+	adapters [label="Service Mesh Adapters"]
+	meshsync [label=MeshSync]
+	broker [label="Event Broker
+(NATS)"]
+	providers [label="Providers
+(Local/Remote)"]
+	meshkit [label="MeshKit Library"]
+	cli [label="mesheryctl
+(CLI)"]
+	graphql [label="GraphQL API Layer"]
+	ui -> graphql
+	graphql -> server
+	cli -> server
+	server -> adapters
+	server -> providers
+	server -> meshkit
+	operator -> meshsync
+	meshsync -> broker
+	broker -> server
+	adapters -> meshkit
+	subgraph cluster_0 {
+		label="Service Mesh Data Plane"
+		node [shape=rectangle]
+		istio [label=Istio]
+		linkerd [label=Linkerd]
+		consul [label=Consul]
+		nginx [label="NGINX SM"]
+	}
+	adapters -> istio
+	adapters -> linkerd
+	adapters -> consul
+	adapters -> nginx
+}

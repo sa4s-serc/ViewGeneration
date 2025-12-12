@@ -1,0 +1,99 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: kerollesroshdi_Cima-
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** general
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+Okay, here's a consolidated and refined analysis of the Cima+ iOS application, based on the provided summaries.
+
+**Cima+ iOS Application Analysis: A Summary**
+
+This code represents an iOS application called "Cima+" that enables users to browse movies, search for movies, and view detailed movie information retrieved from the TMDB API. The application is architected with a focus on maintainability, testability, and scalability, employing MVVM with Clean Architecture principles and the Coordinator pattern for navigation. Reactive programming using RxSwift and its ecosystem (RxCocoa, RxMoya) is central to the application's design.
+
+**Key Functionalities:**
+
+*   **Movie Browsing:** Displays categorized lists of movies ("Now Playing" and "Top Rated").
+*   **Movie Searching:** Allows users to search for movies by title.
+*   **Movie Details:** Presents comprehensive information about a selected movie, including the title, poster, backdrop, vote average, release date, runtime, genres, and overview.
+*   **Networking:** Handles communication with the TMDB API using Moya and RxSwift for asynchronous network requests.
+*   **Data Persistence (Potential):** While not explicitly implemented, the architecture's use of the Repository pattern allows for future implementation of local data caching or persistence.
+
+**Architectural Overview:**
+
+*   **MVVM Architecture:** The application strongly adheres to the Model-View-ViewModel (MVVM) architectural pattern. The UI logic (View) is decoupled from the data and business logic (ViewModel). The View observes and reacts to changes exposed by the ViewModel.
+*   **Clean Architecture:** The code is organized according to Clean Architecture principles, promoting separation of concerns and testability. Key layers include:
+    *   **Domain:** Contains core business logic (Use Cases), entities (data models), and repository interfaces.
+    *   **Data:** Responsible for data access, including remote data sources (API interactions) and repository implementations.
+    *   **App:** Contains the UI layer, view controllers, view models, and the application's entry point.
+*   **Coordinator Pattern:** The `AppCoordinator` manages application navigation, decoupling view controllers and simplifying navigation logic. It defines an `AppRoute` enum for navigation destinations and manages the tab bar setup and the presentation of movie detail views.
+*   **Reactive Programming (RxSwift):** RxSwift is heavily used for managing asynchronous operations, data streams, and UI events, contributing to improved code readability and maintainability.
+
+**Important Components and Their Roles:**
+
+*   **`AppDelegate.swift`:** The application's entry point; sets up the root view controller via the `AppCoordinator`.
+*   **`AppCoordinator.swift`:** Orchestrates the app's navigation flow using the Coordinator pattern.
+*   **`App/Scenes/*`:** Contains the view controllers, view models, and associated XIB files for each screen (`NowPlayingVC`, `TopRatedVC`, `SearchVC`, `MovieDetailsVC`, `GenreCell`, `MovieCell`).
+*   **`App/Scenes/Common/BrowseVM.swift`:** A shared view model for browsing movies, used by both "Now Playing" and "Top Rated" screens. Handles data fetching, loading states, and error management.
+*   **`App/Scenes/Search/SearchVM.swift`:** View model responsible for handling search functionality.
+*   **`App/Scenes/MovieDetails/MovieDetailsVM.swift`:** Manages the data and logic for displaying movie details.
+*   **`App/Core/Base VC & VM/BaseViewController.swift`:** A base class for all view controllers, providing common functionality such as dependency injection of the view model and management of state (error) views using the `StateView`.
+*   **`App/Core/Base VC & VM/ViewModel.swift`:** A protocol defining the interface for all view models.
+*   **`App/Core/TextyTabBar/*`:** Contains custom tab bar components for UI customization.
+*   **`App/Core/State View/*`:** Contains the `StateView` class, used for displaying error messages and managing different states in the UI.
+*   **`Data/RemoteDataSources/*`:** Handles communication with the TMDB API using Moya. Includes `RemoteMoviesDataSource.swift` (makes network requests), `MoviesService.swift` (defines API endpoints), and `RxSwift+Moya+Extensions.swift` (extension for handling errors in Moya responses).
+*   **`Data/RepositoriesImplementations/MoviesRepositoryImpl.swift`:** A concrete implementation of the `MoviesRepository` protocol, responsible for fetching movie data from the remote data source.
+*   **`Domain/Repositories/MoviesRepository.swift`:** Defines the `MoviesRepository` protocol, specifying the methods for accessing movie data.
+*   **`Domain/UseCases/*`:** Contains use cases that encapsulate specific business logic (e.g., `BrowseUseCase`, `SearchUseCase`, `MovieDetailsUseCase`).
+*   **`Domain/Entities/*`:** Defines the application's data models (`Movie`, `MovieDetails`, `Genre`, `AppError`, `Page`).
+*   **`App/Assets/Design System/*`:** Defines the application's color palette and design constants.
+*   **`App/Utilities/*`:** Contains extensions for various UIKit objects, offering UI customizations.
+
+**Design Patterns:**
+
+*   **MVVM:** (See Architectural Overview)
+*   **Coordinator:** (See Architectural Overview)
+*   **Repository:** The `MoviesRepository` protocol and its implementation abstract data access, allowing the application to switch between different data sources without affecting the core business logic.
+*   **Use Case:** Encapsulates specific business logic, promoting code reusability and testability.
+*   **Factory (Implicit):** The dependency injection through initializer methods (VCs receiving VMs, Coordinator setting up dependencies) indicates an implicit Factory pattern.
+
+**Key Considerations:**
+
+*   **Error Handling:** The application uses an `AppError` enum for handling different error types. The `setupStateViewWith` function displays error messages in the UI using a `StateView`.
+*   **Dependency Injection:** View models are injected into view controllers through the `BaseViewController`, promoting testability and modularity.
+*   **UI Customization:** The custom `TextyTabBarController` and UI extensions in `UIView+Extension.swift` showcase UI customization capabilities.
+*   **Code Reusability:** The `BrowseVM`'s reuse across the "Now Playing" and "Top Rated" screens highlights the emphasis on code reuse.
+*   **Asynchronous Operations:** RxSwift is utilized to manage asynchronous operations efficiently, enhancing the responsiveness of the application.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: general
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/kerollesroshdi_Cima-.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

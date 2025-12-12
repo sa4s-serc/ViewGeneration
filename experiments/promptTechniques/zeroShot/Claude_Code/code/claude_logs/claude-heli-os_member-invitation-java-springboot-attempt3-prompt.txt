@@ -1,0 +1,103 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: heli-os_member-invitation-java-springboot
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** general
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## Member Invitation System Analysis
+
+This report provides an analysis of a Java Spring Boot-based member invitation system designed to allow workspace managers to invite users to a group (workspace) via single-use, expiring invitation links managed with Redis.
+
+**System Overview:**
+
+The system facilitates the creation and management of invitations for users to join workspaces.  It handles generating unique, time-limited invitation links, storing invitation data (primarily in Redis), handling invitation acceptance (which activates the member and invalidates the link), and managing temporary "candidate" member accounts.
+
+**Key Functionalities:**
+
+*   **Invitation Management:** Generates unique, single-use, expiring invitation links. Stores and retrieves invitation data, invalidating links upon acceptance.
+*   **Member Management:** Creates temporary "candidate" member accounts upon invitation. Activates member accounts upon invitation acceptance. Provides member information retrieval.
+*   **API Endpoints:**
+    *   `POST /api/v1/workspace/{workspaceId}/invitation`: Creates an invitation for a workspace.
+    *   `GET /api/v1/invitation/{code}`: Retrieves an invitation by its code.
+    *   `POST /api/v1/invitation/{code}/accept`: Accepts an invitation.
+    *   `GET /api/v1/member/{memberId}`: Retrieves a member by their ID.
+*   **Redis Integration:** Utilizes Redis for efficient storage and management of invitation data, leveraging its in-memory speed and TTL (Time-To-Live) for automatic expiration.
+*   **Error Handling:** Employs global exception handling via `@RestControllerAdvice` for standardized error responses.
+
+**Architecture:**
+
+The system follows a layered architecture (Interface/API, Domain, Infrastructure) promoting separation of concerns and testability. It appears to draw inspiration from Hexagonal Architecture (Ports and Adapters), utilizing use case interfaces (`*UseCase`) in the domain layer defining the "ports," with infrastructure modules providing "adapters" to external systems. Spring profiles facilitate configuration for different environments.  Redis is strategically used for volatile invitation data, capitalizing on its speed and TTL capabilities.
+
+**Important Components and Files:**
+
+*   **`README.md`:** Provides high-level system overview, context, acceptance criteria, architectural diagrams, API documentation, and potential future improvements.
+*   **`gradlew` and `gradlew.bat`:** Gradle wrapper scripts for build and execution.
+*   **`member-invitation-interface/src/main/java/...` (REST API Layer):**
+    *   `MemberInvitationApplication.java`: Main Spring Boot application class.
+    *   `*RestController.java`: Defines REST API endpoints.
+    *   `*Dto.java`: Data Transfer Objects (DTOs) for request/response payloads.
+    *   `*Mapper.java`: Maps between domain objects and DTOs.
+    *   `config/`: Global configuration, including exception handling
+*   **`member-invitation-domain/src/main/java/...` (Domain Logic):**
+    *   `member/domain/Member.java`: Represents the Member domain object.
+    *   `invitation/domain/Invitation.java`: Represents the Invitation domain object.
+    *   `*UseCase.java`: Defines use case interfaces.
+    *   `*Service.java`: Implements use cases, orchestrating domain logic.
+*   **`member-invitation-infrastructure/...` (Infrastructure Implementations):**
+    *   `persistence-database/`: Implements persistence using a relational database (likely H2 for local development).  Includes JPA entities, repositories, and services.
+    *   `persistence-redis-adapter/`: Implements Redis persistence for invitation data.
+*   **`commons/common-model/src/main/java/...`:** Contains shared data models (e.g., `MemberStatus`, `InviteMember`).
+*   **`commons/common-util/src/main/java/...`:** Contains shared utility functions (e.g., `DateTimeUtils`).
+*   **`application.yml`:** Spring Boot application configuration.
+
+**Design Patterns:**
+
+*   **Data Transfer Object (DTO):** For data transfer between layers.
+*   **Repository Pattern:**  JPA repositories abstract database access.
+*   **Service Layer:** Encapsulates business logic and orchestrates interactions.
+*   **Facade:** Use cases provide a simplified interface to the domain.
+*   **Strategy:** Different persistence implementations (database vs. Redis) selectable via configuration.
+*   **Record (Java 14+):** Used for simple data classes.
+
+**Potential Improvements:**
+
+*   **Concurrency Handling:** Address potential issues with concurrent requests creating multiple temporary member accounts using locking mechanisms or distributed locks and transactional boundaries.
+*   **Error Handling:** Implement robust logging in exception handlers and consider more specific exception types.
+*   **Authentication/Authorization:** Implement authentication and authorization for security.
+*   **Testing:** Implement comprehensive testing, including E2E tests, to ensure system functionality and stability.
+*   **Idempotency:** Implement idempotency for invitation creation to prevent duplicates.
+*   **Metrics:** Implement business metrics to monitor invitation flow usage and success.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: general
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/heli-os_member-invitation-java-springboot.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

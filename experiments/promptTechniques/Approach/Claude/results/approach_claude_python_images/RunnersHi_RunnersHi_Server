@@ -1,0 +1,50 @@
+// RunnersHi Backend Architecture
+digraph {
+	rankdir=TB
+	node [shape=rectangle style=rounded]
+	client [label="Mobile Client"]
+	api [label="API Gateway
+(Express.js)"]
+	auth [label="Authentication
+(JWT + bcrypt)"]
+	socket [label="Socket.IO Server
+(Real-time Matching)"]
+	controllers [label=Controllers]
+	models [label=Models]
+	db [label="MySQL Database"]
+	middleware [label="Middleware
+(Error + Response)"]
+	subgraph cluster_controllers {
+		label="Controller Layer"
+		user_ctrl [label="User Controller"]
+		match_ctrl [label="Matching Controller"]
+		record_ctrl [label="Record Controller"]
+		rank_ctrl [label="Ranking Controller"]
+	}
+	subgraph cluster_models {
+		label="Model Layer"
+		user_model [label="User Model"]
+		match_model [label="Match Model"]
+		record_model [label="Record Model"]
+		rank_model [label="Ranking Model"]
+	}
+	client -> api
+	api -> auth
+	api -> socket
+	auth -> middleware
+	middleware -> controllers
+	controllers -> user_ctrl
+	controllers -> match_ctrl
+	controllers -> record_ctrl
+	controllers -> rank_ctrl
+	user_ctrl -> user_model
+	match_ctrl -> match_model
+	record_ctrl -> record_model
+	rank_ctrl -> rank_model
+	user_model -> db
+	match_model -> db
+	record_model -> db
+	rank_model -> db
+	socket -> match_ctrl
+	socket -> record_ctrl
+}

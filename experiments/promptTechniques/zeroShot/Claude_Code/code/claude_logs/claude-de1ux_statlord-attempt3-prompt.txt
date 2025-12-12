@@ -1,0 +1,99 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: de1ux_statlord
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** control_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## Statlord Dashboard Application Analysis Report
+
+This report provides an overview of the Statlord dashboard application, focusing on its key functionalities, components, architecture, and design patterns. Statlord is designed to allow users to create and display data visualizations (gauges, text) on various screens (displays) with different resolutions. It employs a client-server architecture with communication via HTTP, emphasizing extensibility to support diverse display types.
+
+**Functionality and Components:**
+
+*   **Dashboard Editor:** A web-based editor, built with React, Redux, and Fabric.js, allows users to create and edit dashboard layouts. This includes positioning gauges, text elements, and configuring display settings.
+*   **Data Visualization (Gauges):** Displays data from various sources (API).
+*   **Display Management:** Facilitates the registration of displays (e.g., Raspberry Pi with e-paper, Arduino with OLED, browsers) with their resolution. It enables the assignment of specific layouts to individual displays. The server tracks the configuration of displays.
+*   **Layout Management:** Stores dashboard definitions, including the position of elements and data sources.
+*   **Data Streaming:** A backend API provides endpoints to update data values. The client polls this API for updates and pushes display data to devices.
+*   **Display Rendering:** Viewers are responsible for rendering the dashboard on different displays, potentially converting layout definitions into bitwise representations suitable for the target device.
+*   **API:** An HTTP-based API (using Django REST Framework) manages gauges, displays, and layouts.
+
+**Key Files and Their Roles:**
+
+*   **Deployment & Configuration:**
+    *   `Dockerfile`: Defines the Docker image for containerization.
+    *   `Makefile`: Provides commands for building, installing, and running the application, managing dependencies (npm, pip), building the Docker image, and running development modes.
+    *   `README.md`: Provides a high-level overview of the application.
+    *   `.travis.yml`: Travis CI configuration for continuous integration, specifying Python and the build command.
+*   **Backend (Server):**
+    *   `server/requirements.txt`: Python dependencies for the Django server.
+    *   `server/settings.py`: Django settings, configuring the database (PostgreSQL), installed apps, middleware, and using environment variables for sensitive data.
+    *   `server/urls.py`: Django URL configuration, defining API endpoints and routes for static assets.
+    *   `server/statlord/models.py`: Django models for `Gauge`, `Layout`, and `Display`.
+    *   `server/statlord/serializers.py`: Django REST Framework serializers for converting model instances to JSON.
+    *   `server/statlord/views.py`: Django REST Framework views, handling API requests for managing gauges, displays, and layouts.
+*   **Frontend (Client):**
+    *   `client/index.tsx`: Main entry point for the React client application, setting up the Redux store, defining routes (`react-router-dom`), and rendering the main components (`Editor`, `Home`, `Viewer`).
+    *   `client/index.html`: Main HTML file for the client application, including the root element for React rendering.
+    *   `client/webpack.config.js`: Webpack configuration for building the client-side application.
+    *   `client/src/api.ts`: Functions for interacting with the backend API.
+    *   `client/src/models.ts`: TypeScript interfaces for `Gauge`, `Display`, and `Layout`.
+    *   `client/src/store.ts`: Defines the Redux store (state, actions, reducer).
+    *   `client/src/components/Editor.tsx`: The dashboard editor component.
+    *   `client/src/components/Viewer.tsx`: The dashboard viewer component.
+*   **Supporting Scripts:**
+    *   `scripts/clock_and_temp.py`: Mock data generator, pushing time and temperature to API endpoints.
+    *   `scripts/inky.py`: Example script for using an InkyWhat e-paper display.
+    *   `scripts/esp32_sharp_lcd.ino`: Arduino code for connecting to Wifi and rendering data to a Sharp LCD.
+    *   `client/serverSideRenderer.js`: Puppeteer script for server-side rendering.
+
+**Architectural Insights:**
+
+*   **Client-Server Architecture:**  Frontend (React) separated from the backend (Django REST Framework).
+*   **RESTful API:** The server exposes a RESTful API for data management.
+*   **Redux State Management:** The client uses Redux for predictable state management.
+*   **Component-Based UI:**  The client utilizes React's component-based architecture.
+*   **Docker Containerization:** The application is designed for Docker containerization.
+*   **Event-Driven Canvas Rendering:** Canvas rendering is driven by actions and state updates.
+
+**Design Patterns:**
+
+*   **Model-View-Controller (MVC):** Django follows the MVC pattern (MVT).
+*   **RESTful API:**  The server exposes a RESTful API.
+*   **Redux State Management:** The client uses Redux.
+*   **Asynchronous Operations:**  Heavy use of asynchronous operations (e.g., `fetch`, `Promises`).
+*   **Data Serialization/Deserialization:**  Serialization/deserialization for data transfer between client and server.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: control_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/de1ux_statlord.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

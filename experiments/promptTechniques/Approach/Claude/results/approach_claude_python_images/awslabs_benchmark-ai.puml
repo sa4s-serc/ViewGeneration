@@ -1,0 +1,43 @@
+
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Benchmark AI System Architecture
+
+Container_Boundary(bai, "Benchmark AI System") {
+    Container(bff, "BAI-BFF", "Clojure", "Backend For Frontend, handles job submissions and API endpoints")
+    Container(executor, "Executor", "Python", "Orchestrates benchmark jobs on Kubernetes")
+    Container(watcher, "Watcher", "Python", "Monitors job execution status")
+    Container(sm_executor, "SM-Executor", "Python", "Executes jobs on AWS SageMaker")
+    
+    Container(fetcher, "Fetcher", "Python", "Downloads datasets and models")
+    Container(fetcher_dispatcher, "Fetcher-Dispatcher", "Python", "Creates fetcher jobs")
+    Container(metrics_pusher, "Metrics-Pusher", "Python", "Collects metrics from jobs")
+    Container(metrics_extractor, "Metrics-Extractor", "Python", "Extracts metrics from logs")
+    Container(cloudwatch, "CloudWatch-Exporter", "Python", "Exports metrics to CloudWatch")
+}
+
+System_Ext(k8s, "Kubernetes")
+System_Ext(kafka, "Kafka")
+System_Ext(s3, "AWS S3")
+System_Ext(sagemaker, "AWS SageMaker")
+System_Ext(cloudwatch_aws, "AWS CloudWatch")
+System_Ext(zk, "ZooKeeper")
+
+Rel(bff, kafka, "Publishes events")
+Rel(executor, k8s, "Creates jobs")
+Rel(executor, kafka, "Consumes events")
+Rel(watcher, k8s, "Monitors")
+Rel(watcher, kafka, "Publishes status")
+Rel(sm_executor, sagemaker, "Manages jobs")
+Rel(sm_executor, kafka, "Consumes/Publishes")
+Rel(fetcher, s3, "Downloads data")
+Rel(fetcher_dispatcher, k8s, "Creates jobs")
+Rel(fetcher_dispatcher, zk, "Service discovery")
+Rel(metrics_pusher, kafka, "Pushes metrics")
+Rel(metrics_extractor, kafka, "Publishes metrics")
+Rel(cloudwatch, cloudwatch_aws, "Exports metrics")
+
+@enduml

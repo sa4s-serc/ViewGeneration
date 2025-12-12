@@ -1,0 +1,97 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: leopardslab_gocloud
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** deployment, connectivity
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+```
+## Analysis of the gocloud Repository
+
+This report summarizes an analysis of the gocloud repository, focusing on its structure, core functionalities, components, and architectural patterns, with particular emphasis on cloud provider integrations and container services.
+
+**Key Functionalities and Components:**
+
+The gocloud library provides a unified API for interacting with various cloud providers (AWS, Google Cloud, DigitalOcean, Alibaba Cloud, Vultr, Rackspace, Azure, OpenStack). It abstracts away the complexities of interacting with individual cloud provider APIs, allowing users to manage resources using a consistent interface.
+
+The library supports a wide range of cloud services:
+
+*   **Cloud Provider Abstraction:** Defines interfaces (`gocloudinterface` package) for common cloud services, enabling interchangeable use of different cloud providers.
+*   **Compute Services:** Includes implementations for managing virtual machines/instances (creating, starting, stopping, rebooting, deleting).
+*   **Storage Services:** Provides functionalities for managing disks and snapshots.
+*   **Container Services:** Manages container clusters and services on platforms like Google Kubernetes Engine (GKE) and AliCloud Container Service.
+*   **DNS Services:** Enables management of DNS records and zones.
+*   **Load Balancing Services:** Supports creating and managing load balancers, attaching and detaching nodes.
+*   **Serverless Computing:** Offers tools to manage serverless functions (e.g., AWS Lambda, Google Cloud Functions).
+*   **Database Services:** Provides access to cloud databases such as AWS DynamoDB and Google Cloud Bigtable.
+*   **Machine Learning Services:** Enables the usage of cloud machine learning services such as AWS Machine Learning and Google Cloud ML Engine.
+*   **Analytics Services:** Exposes functionalities for data analytics services such as Google BigQuery and AWS Redshift.
+*   **Vultr Bare Metal:** Supports creating, deleting, halting, listing, rebooting and reinstalling bare metal servers.
+*   **Notification Services:** Supports creating, deleting, getting, listing topics in AWS SNS and Google Cloud Pub/Sub.
+*   **Stream Data Processing:** Provides support for stream data processing services like AWS Kinesis and Google Cloud Dataflow.
+*   **Authentication:** Manages authentication with different cloud providers, including handling credentials and signing requests.
+
+The code includes implementations for several cloud providers, each with its own set of APIs for managing resources. Go interfaces and structs model the common cloud resources and operations. Each cloud provider implementation adapts its specific APIs to these common models.
+
+**Important Files and Their Roles:**
+
+*   **`gocloud/gocloud.go` and `gocloud/gocloudScalable.go`:** Define the core interfaces and functions for the gocloud library, including the `Gocloud` interface and the `CloudProvider` function.
+*   **`gocloudinterface/commonInterface.go`, `gocloudinterface/extendedInterface.go`:** Define interfaces for various cloud services.
+*   **`auth/*`, `aliauth/*`, `digioceanauth/*`, `rackspaceauth/*`, `vultrauth/*`:** Contain the authentication logic for the various cloud providers.
+*   **`aws/*`, `google/*`, `digiocean/*`, `ali/*`, `azure/*`, `openstack/*`, `rackspace/*`, `vultr/*`:** Contain the implementations for the various cloud providers, including the concrete types that implement the `Gocloud` interface.
+*   **`container/*`:** Contains the implementations for managing container services on the various cloud providers. Each subdirectory corresponds to a specific cloud provider (e.g., `awscontainer`, `googlecontainer`, `alicontainer`, `digioceancontainer`).
+*   **`compute/*/instance.go`:** Contain implementations for compute-related operations (e.g., `CreateNode`, `StartNode`, `StopNode`) for specific cloud providers.
+*   **`storage/*/storage.go`:** Implementations of storage services. Similar pattern for other service types like `container`, `dns`, `loadbalancer`.
+*   **`models.go` in each service directory:** Defines Go structs representing the request and response data for the service's API calls.
+*   **`container.go` or similar named file in each service directory:** This file contains the implementation of the service's API calls, including the logic for constructing HTTP requests, signing the requests, and parsing the responses.
+*   **`*_test.go` in each service directory:** These files contain unit tests for the service's API calls.
+*   **`*/utils.go`:** Contains utility functions, like signing requests, preparing parameters, and handling responses.
+*   **`*/auth.go`, `googleauth/sign.go`, `awsauth/awsauth.go`, `aliauth/aliauth.go`, `vultrauth/vultrauth.go`, `digioceanauth/digioceanauth.go`:** Contain authentication-related functionalities for the different cloud providers.
+*   **`examples/*/*.md`:** Provide usage examples and documentation for the library's features.
+
+**Architectural Insights:**
+
+*   **Provider Pattern:** The code uses the provider pattern to abstract away the differences between cloud provider APIs. The `CloudProvider` function acts as a factory that returns an instance of the appropriate cloud provider implementation based on the specified provider name. The library is structured around the concept of cloud providers. Each provider has its own implementation of the core interfaces, allowing for provider-specific logic and API calls.
+*   **Interface-Based Design:** The code uses Go interfaces extensively to define the common cloud resource and operation models. This allows for a flexible and extensible design, as new cloud providers can be added simply by implementing the appropriate interfaces. The use of interfaces (defined in `gocloudinterface`) enables a high degree of abstraction, making it possible to switch between cloud providers with minimal code changes.
+*   **Delegation Pattern:** The `CloudProvider` function acts as a central point for obtaining instances of cloud providers, which then delegate calls to specific service implementations.
+*   **Builder Pattern:** In certain modules (like `vultrbaremetal`, `aliloadbalancer`, `alistorage`, Vultr Compute, AliCloud ECS, and Vultr DNS), the code uses the builder pattern to construct complex request objects. This pattern provides a fluent interface for setting the various parameters of a request and helps to improve the readability and maintainability of the code.
+*   **Consistent Error Handling:**  There is a consistent attempt to return error responses with relevant status codes and messages. The responses have the body and status code.
+
+**Notable Design Patterns:**
+
+*   **Strategy Pattern:** The `Gocloud` interface and the concrete implementations for each cloud provider exemplify the Strategy pattern, allowing the client to choose an algorithm (cloud provider) at runtime.
+*   **Factory Pattern:** The `CloudProvider` function acts as a Factory, creating instances of different cloud providers based on the specified type.
+*   **Adapter Pattern:** The implementations for each cloud provider act as Adapters, translating the generic interface calls into the specific API calls required by each cloud platform.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment, connectivity
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/leopardslab_gocloud.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

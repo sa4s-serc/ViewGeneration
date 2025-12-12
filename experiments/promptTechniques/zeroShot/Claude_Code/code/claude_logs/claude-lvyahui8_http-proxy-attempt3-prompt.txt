@@ -1,0 +1,83 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: lvyahui8_http-proxy
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** general
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+Here's a consolidated report based on the provided summaries, focusing on key aspects of the HTTP proxy service:
+
+**Report: HTTP Proxy Service Analysis**
+
+This code represents a high-performance HTTP proxy service designed with advanced features like request filtering, response modification, load balancing, and API management. The project is structured as a multi-module Maven project, with the core functionality residing in the `proxy-server` module. Other modules provide client testing (`test-client`), a test backend server (`test-server`), and a basic SDK (`proxy-sdk`).
+
+**Key Functionalities:**
+
+*   **HTTP Proxying:** Core function is mediating between clients and backend servers by forwarding HTTP requests and responses.
+*   **Request/Response Filtering:** Employs filters (`ProxyRequestFilter`, `ProxyResponseFilter` interfaces) for modifying or inspecting requests and responses. Examples include `AttackRequestFilter` (security checks) and `DefaultProxyResponseFilter` (logging).
+*   **Entity Management:** `EntitysManager` dynamically configures proxy rules by loading proxy entities (inbound path/method to target URI mappings) from `entitys.json`. The system monitors the file for changes, enabling dynamic configuration reloading.
+*   **Asynchronous Networking:** Netty, a non-blocking I/O framework, handles network communication. This leverages `EventLoopGroup` for thread management, `ChannelHandler` for event processing, and `Bootstrap` for server setup.
+*   **Exception Handling:** A `GlobalExceptionHandler` provides centralized error handling, catching exceptions, building standardized error responses (`StandardResponse`), and sending them back to the client. It utilizes `MsgTranslater` and message codes (`MsgCode`) for user-friendly error messages.
+*   **Testing:** `test-client` uses async-http-client for performance testing. `test-server`, a Jersey/Grizzly based server, offers endpoints for proxy functionality verification.
+
+**Important Components & File Roles:**
+
+*   **`pom.xml` (root & modules):** Defines project structure, dependencies (Netty, Log4j2, Gson, Commons Configuration in `proxy-server/pom.xml`), and build configurations.
+*   **`HttpProxyServer.java`:** (Main class) Sets up the Netty server, binds to a port, and initializes the channel pipeline.
+*   **`ClientToProxyHandler.java`:** Handles client requests, looks up the correct proxy entity, modifies requests, and forwards them using a `Bootstrap`.
+*   **`ProxyToServerInboundHandler.java`:** Handles backend responses, applies response filters, and sends the modified response to the client.
+*   **`EntitysManager.java`:** Loads and manages proxy entities (routing rules) from `entitys.json`, dynamically reloading configuration.
+*   **`org.lyh.http.proxy.filter`:** Contains request/response filter implementations.
+*   **`org.lyh.http.proxy.msg`:** Defines message codes, translator, and standardized response structures.
+*   **`entitys.json`:** Stores proxy routing configurations (path/method to URI mappings).
+*   **`log4j2.xml`:** Configures the Log4j2 logging framework.
+*   **`TestClientApp.java`:** (test-client) Sends requests to the proxy for load testing.
+*   **`TestServerMain.java`:** (test-server) Starts the Jersey-based HTTP test server.
+*   **`TestResource.java`:** (test-server) Implements REST endpoints for the test server.
+
+**Architectural Insights:**
+
+*   **Modular Design:** Improves code reusability and maintainability.
+*   **Event-Driven Architecture:** Netty facilitates efficient concurrent request handling through the channel pipeline with specific handlers.
+*   **Filter Pattern:** Enables flexible and extensible request/response processing.
+*   **Configuration-Driven:** Routing rules are loaded from `entitys.json`, allowing dynamic updates.
+
+**Design Patterns:**
+
+*   **Filter Pattern:** `ProxyRequestFilter` and `ProxyResponseFilter` implementations.
+*   **Singleton:** Implemented for `EntitysManager` to provide a single access point.
+*   **Factory Pattern:**  Potentially used in `EventLoopGroupMannager`.
+*   **Interceptor Pattern:** `GlobalExceptionHandler` functions as an interceptor.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: general
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/lvyahui8_http-proxy.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

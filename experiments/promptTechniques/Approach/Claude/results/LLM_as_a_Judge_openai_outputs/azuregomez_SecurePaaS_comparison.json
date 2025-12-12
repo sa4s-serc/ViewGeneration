@@ -1,0 +1,306 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "App Gateway WAF",
+        "description": "Web Application Firewall",
+        "boundary": "Hub VNET",
+        "position": "left"
+      },
+      {
+        "name": "Firewall",
+        "description": "Network security",
+        "boundary": "Hub VNET",
+        "position": "left"
+      },
+      {
+        "name": "Private DNS Zones",
+        "description": "DNS management",
+        "boundary": "Hub VNET",
+        "position": "bottom"
+      },
+      {
+        "name": "Keyvault Private endpoint",
+        "description": "Secure access to Key Vault",
+        "boundary": "Keyvault Subnet",
+        "position": "top"
+      },
+      {
+        "name": "Web App",
+        "description": "Application hosting",
+        "boundary": "ASE Subnet",
+        "position": "center"
+      },
+      {
+        "name": "SQL Private endpoint",
+        "description": "Secure access to SQL Database",
+        "boundary": "Data Subnet",
+        "position": "center"
+      },
+      {
+        "name": "SQL Database",
+        "description": "Data storage",
+        "boundary": "Spoke VNET",
+        "position": "right"
+      },
+      {
+        "name": "Key Vault",
+        "description": "Secret management",
+        "boundary": "Internet",
+        "position": "top right"
+      },
+      {
+        "name": "Internet",
+        "description": "External network",
+        "boundary": "Internet",
+        "position": "top right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "App Gateway WAF",
+        "target": "Web App",
+        "label": "",
+        "type": "direct"
+      },
+      {
+        "source": "Firewall",
+        "target": "App Gateway WAF",
+        "label": "",
+        "type": "direct"
+      },
+      {
+        "source": "Private DNS Zones",
+        "target": "Firewall",
+        "label": "",
+        "type": "dashed"
+      },
+      {
+        "source": "Web App",
+        "target": "Keyvault Private endpoint",
+        "label": "",
+        "type": "direct"
+      },
+      {
+        "source": "SQL Private endpoint",
+        "target": "SQL Database",
+        "label": "Private Link",
+        "type": "direct"
+      },
+      {
+        "source": "Keyvault Private endpoint",
+        "target": "Key Vault",
+        "label": "Private Link",
+        "type": "direct"
+      },
+      {
+        "source": "Key Vault",
+        "target": "Internet",
+        "label": "",
+        "type": "direct"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "Peering",
+        "position": "between App Gateway WAF and Web App"
+      },
+      {
+        "text": "UDR",
+        "position": "between Firewall and SQL Private endpoint"
+      }
+    ],
+    "groups": [
+      {
+        "name": "Hub VNET",
+        "components": [
+          "App Gateway WAF",
+          "Firewall",
+          "Private DNS Zones"
+        ]
+      },
+      {
+        "name": "Keyvault Subnet",
+        "components": [
+          "Keyvault Private endpoint"
+        ]
+      },
+      {
+        "name": "ASE Subnet",
+        "components": [
+          "Web App"
+        ]
+      },
+      {
+        "name": "Data Subnet",
+        "components": [
+          "SQL Private endpoint"
+        ]
+      },
+      {
+        "name": "Spoke VNET",
+        "components": [
+          "SQL Database"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": null
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "WAF",
+        "description": "Web Application Firewall",
+        "boundary": "Application Gateway Subnet",
+        "position": "left"
+      },
+      {
+        "name": "App Service",
+        "description": "Application hosting",
+        "boundary": "App Service Subnet",
+        "position": "center"
+      },
+      {
+        "name": "Azure Firewall",
+        "description": "Network security",
+        "boundary": "Azure Firewall Subnet",
+        "position": "center"
+      },
+      {
+        "name": "Private Endpoint",
+        "description": "Secure access to SQL Database",
+        "boundary": "Database Subnet",
+        "position": "center"
+      },
+      {
+        "name": "Azure SQL",
+        "description": "Data storage",
+        "boundary": "Database Subnet",
+        "position": "right"
+      },
+      {
+        "name": "Key Vault",
+        "description": "Secret management",
+        "boundary": "bottom",
+        "position": "bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "WAF",
+        "target": "App Service",
+        "label": "",
+        "type": "direct"
+      },
+      {
+        "source": "App Service",
+        "target": "Azure Firewall",
+        "label": "",
+        "type": "direct"
+      },
+      {
+        "source": "Azure Firewall",
+        "target": "Private Endpoint",
+        "label": "",
+        "type": "direct"
+      },
+      {
+        "source": "Private Endpoint",
+        "target": "Azure SQL",
+        "label": "",
+        "type": "direct"
+      },
+      {
+        "source": "Azure Firewall",
+        "target": "Key Vault",
+        "label": "",
+        "type": "direct"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "Secure PaaS Deployment Architecture",
+        "position": "bottom"
+      }
+    ],
+    "groups": [
+      {
+        "name": "Azure Virtual Network",
+        "components": [
+          "WAF",
+          "App Service",
+          "Azure Firewall",
+          "Private Endpoint",
+          "Azure SQL"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Secure PaaS Deployment Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Web Application Firewall",
+      "Application hosting",
+      "Network security",
+      "Secure access to SQL Database",
+      "Data storage",
+      "Secret management"
+    ],
+    "unique_to_GroundTruth": [
+      "Private DNS Zones",
+      "Keyvault Private endpoint",
+      "Internet"
+    ],
+    "unique_to_GeneratedImage": [],
+    "common_connectors": [
+      {
+        "source": "Web Application Firewall",
+        "target": "Application hosting"
+      },
+      {
+        "source": "Application hosting",
+        "target": "Network security"
+      },
+      {
+        "source": "Network security",
+        "target": "Secure access to SQL Database"
+      },
+      {
+        "source": "Secure access to SQL Database",
+        "target": "Data storage"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Private DNS Zones",
+        "target": "Network security"
+      },
+      {
+        "source": "Web App",
+        "target": "Keyvault Private endpoint"
+      },
+      {
+        "source": "Keyvault Private endpoint",
+        "target": "Key Vault"
+      },
+      {
+        "source": "Key Vault",
+        "target": "Internet"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Network security",
+        "target": "Secret management"
+      }
+    ],
+    "explanation": "Both diagrams represent a secure deployment architecture with common components such as a Web Application Firewall, application hosting, network security, secure access to a SQL database, and secret management. The GroundTruth diagram includes additional components like Private DNS Zones, a Keyvault Private endpoint, and the Internet, which are not present in the GeneratedImage. The GeneratedImage is more simplified and lacks some of the detailed connections present in the GroundTruth. The GroundTruth diagram provides a more comprehensive view of the architecture, including peering and UDR annotations. The GeneratedImage is rated 7 out of 10 for accuracy and completeness, as it captures the core components but misses some specific elements and connections present in the GroundTruth.",
+    "Rating": 7
+  }
+}

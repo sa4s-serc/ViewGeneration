@@ -1,0 +1,85 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: XenitAB_git-auth-proxy
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** security, deployment
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+**XenitAB `git-auth-proxy` Analysis Report**
+
+The `git-auth-proxy` project provides multi-tenant access to Git repositories (GitHub and Azure DevOps) within Kubernetes environments by acting as a proxy server. It introduces an authentication and authorization layer between Git clients and the Git providers. The core concept involves generating static tokens for specific repositories, storing them as Kubernetes secrets within namespaces that require access. The proxy then validates these tokens against the requested repository during clone or API requests.
+
+**Key Functionalities and Components:**
+
+*   **Proxy Server:** Intercepts Git requests, authenticates them, and forwards them to the appropriate Git provider.
+*   **Token-Based Authentication:** Generates unique tokens for each repository/namespace combination for authentication.
+*   **Authorization Layer:** Determines if a token possesses the necessary permissions for the requested repository.
+*   **Configuration Loading:** Reads a JSON configuration file, defining organizations (GitHub or Azure DevOps), repositories, and associated Kubernetes namespaces.
+*   **Kubernetes Secret Management:** Manages Kubernetes secrets containing the tokens, including creation, updates, and deletion, synchronizing tokens by listening for Secret changes in the cluster.
+*   **Metrics Endpoint:** Exposes Prometheus-compatible metrics.
+
+**Important Files and Their Roles:**
+
+*   **`go.mod` & `go.sum`:** Manage Go dependencies, including `gin-gonic/gin` (web server), `bradleyfalzon/ghinstallation/v2` (GitHub App authentication), `k8s.io/client-go` (Kubernetes interaction), and `prometheus/client_golang` (metrics).
+*   **`LICENSE`:** Specifies the MIT License.
+*   **`Dockerfile`:** Defines the container image using a multi-stage build: a builder image for compilation and a distroless image for deployment, minimizing image size and security risks.
+*   **`Makefile`:** Contains common development tasks like building, testing, linting, and Docker image management within a Kind cluster.
+*   **`README.md`:** Provides project overview, goals, and usage instructions.
+*   **`.golangci.yaml`:** Configuration for `golangci-lint`, a Go linters aggregator, specifying enabled linters and exclusions.
+*   **`main.go`:** Application entry point, parsing arguments, setting up logging, loading configuration, initializing the authorizer and token writer, and starting proxy/metrics servers.
+*   **`SECURITY.md`:** References Xenit AB's vulnerability disclosure policy.
+*   **`charts/git-auth-proxy/`:** Helm chart for Kubernetes deployment, containing `Chart.yaml` (metadata), `values.yaml` (default values), and `templates/` (Kubernetes resource definitions).
+*   **`.github/workflows/`:** GitHub Actions workflows for CI/CD, including linting, testing, and release processes.
+*   **`e2e/e2e.sh`:** End-to-end test script deploying the proxy to a Kind cluster and verifying its functionality.
+*   **`pkg/token/token_writer.go` & `pkg/token/token_writer_test.go`:** Manages Kubernetes secrets for repository tokens.
+*   **`pkg/config/config.go` & `pkg/config/config_test.go`:** Defines and validates the configuration structure.
+*   **`pkg/auth/auth.go`:** Defines the `Authorizer` to control access, managing endpoints and their tokens.
+*   **`pkg/auth/azure_devops.go` & `pkg/auth/github.go`:** Implement the `Provider` interface, handling interactions with Azure DevOps and GitHub, including authorization header generation and API endpoint construction.
+*   **`pkg/server/server.go`:** Sets up the Gin web server, defining the proxy handler and health endpoints.
+*   **`pkg/server/token.go`:** Extracts tokens from HTTP requests.
+
+**Architectural Insights:**
+
+*   **Proxy Pattern:** The application acts as a proxy, intercepting requests for authentication and authorization before forwarding.
+*   **Configuration-Driven:** Proxy behavior is determined by configuration, allowing flexible management of organizations, repositories, and permissions.
+*   **Kubernetes-Native:** Utilizes Kubernetes secrets, integrates with the Kubernetes API, and is deployable via Helm.
+*   **Multi-tenancy:** Supports multiple namespaces accessing repositories with fine-grained permissions.
+
+**Notable Design Patterns:**
+
+*   **Factory Pattern (Implicit):** The `NewAuthorizer` function functions as a factory, creating an `Authorizer` instance based on configuration, while the `Provider` interface allows for Git provider specific implementations.
+*   **Strategy Pattern:** The `Provider` interface and its implementations (e.g., `azureDevOps`, `github`) allow the authentication and request modification logic to vary based on the Git provider.
+*   **Observer Pattern (with Kubernetes Informers):** The `TokenWriter` monitors Secret changes using Kubernetes informers, allowing the proxy to dynamically react to updates or deletions.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: security, deployment
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/XenitAB_git-auth-proxy.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

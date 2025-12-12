@@ -1,0 +1,37 @@
+// GraphRec Architecture
+digraph {
+	rankdir=TB
+	node [fontname=Arial shape=box style=rounded]
+	android [label="Android Application
+(Client)"]
+	flask [label="Flask Server
+(Backend)"]
+	cnn [label="CNN Model
+(TensorFlow)"]
+	subgraph cluster_android {
+		label="Android Components"
+		main [label=MainActivity]
+		camera [label=CameraActivity]
+		result [label=ResultActivity]
+		upload [label=ImageUploadTask]
+		preview [label=CameraPreview]
+	}
+	subgraph cluster_flask {
+		label="Server Components"
+		server [label="server.py"]
+		classifier [label="graph_classifier.py"]
+		images [label="graph_images.py"]
+		generate [label="generate_data.py"]
+	}
+	android -> flask [label="HTTP POST"]
+	flask -> cnn [label="Classification Request"]
+	cnn -> flask [label="Classification Result"]
+	flask -> android [label="HTTP Response"]
+	main -> camera
+	camera -> preview
+	camera -> upload
+	upload -> result
+	server -> classifier
+	classifier -> images
+	generate -> images
+}

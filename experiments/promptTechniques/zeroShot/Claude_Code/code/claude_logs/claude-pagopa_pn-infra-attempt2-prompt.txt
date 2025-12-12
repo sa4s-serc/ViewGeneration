@@ -1,0 +1,124 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: pagopa_pn-infra
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** control_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## Piattaforma Notifiche (PN) Infrastructure Analysis Report
+
+This report summarizes the infrastructure defined in the `pagopa_pn-infra` GitHub repository, focusing on key functionalities, components, architecture, and design patterns. The repository primarily utilizes AWS CloudFormation for Infrastructure as Code (IaC), enabling automated, repeatable, and version-controlled deployments of the "Piattaforma Notifiche" (PN) project, a notification platform likely used by the Italian government ("PagoPA").
+
+**Key Functionalities and Components:**
+
+*   **Infrastructure as Code (IaC):** CloudFormation templates define and manage the entire AWS infrastructure.
+*   **API Gateway and Lambda Functions:** Defines mock APIs for Proof of Concept (PoC) purposes (e.g., address book) and components for processing notifications (e.g., webhooks), exposed via API Gateway with features like custom domains, authorizers, usage plans and WAF integration. Also implements reverse proxy functionality through Lambda, routing requests based on URL paths.
+*   **Microservice Support:** Defines resources for deploying microservices including ECS clusters, task definitions, and service configurations using Fargate, often with sidecar containers for observability via `aws-otel-collector`.
+*   **Event-Driven Architecture:** EventBridge (formerly CloudWatch Events) is used to route events between microservices and trigger Lambda functions based on state changes. Extensive use of SNS topics and SQS queues for asynchronous communication.
+*   **Monitoring and Alarms:** Extensive monitoring setup using CloudWatch, including alarms for ECS tasks, API Gateway latency, Lambda errors, Kinesis stream iterator age, SSL certificate expiration, and SQS queue sizes.  Integrates with SNS for notifications (likely to Slack). Includes mechanisms for composite metrics generation based on alarm status.
+*   **Logging and Auditing:** Comprehensive logging setup, sending logs to S3 buckets, CloudWatch Logs and Kinesis streams for analysis. Includes CloudTrail trails for auditing Lambda function invocations. Features include centralized logging, log masking, and violation checking.
+*   **Data Management:**
+    *   Defines backup plans for DynamoDB tables using AWS Backup.
+    *   Includes scripts for data migration between DynamoDB tables, with potential sanitization/transformation.
+    *   Implements CDC (Change Data Capture) processing, using Athena to update CDC parsed cache.
+    *   Configures S3 buckets, KMS keys, and Kinesis streams for logging and data storage.
+*   **Celonis Integration:** Defines resources for exporting data to Celonis, a process mining platform, including S3 buckets, IAM users with limited permissions, key rotation, and a CodeBuild project to copy data.
+*   **Queue-based Communication:** Uses SQS queues extensively for asynchronous communication between microservices. Uses standard naming convention for queue identification.
+*   **Authentication and Authorization:** Employs Cognito user pools for authentication and authorization, integrated with API Gateway. Also uses IAM roles with least-privilege permissions, and Security Groups to control network access.
+*   **Parameter and Secret Management:** AWS Systems Manager Parameter Store and Secrets Manager are used to store configuration data and sensitive information. Includes scripts for backing up and cleaning up SSM parameters and Secrets Manager secrets.
+*   **Cost Optimization**: Contains templates to stop EC2 instances and ECS services during off-peak hours, to reduce costs.
+*   **Resource Tagging**: Implements a mechanism for automatically tagging AWS resources.
+
+**Important Files and Their Roles:**
+
+*   **`.yaml` files (CloudFormation Templates):** The core of the IaC setup defining AWS resources. Templates are modularized using fragments for reusability. Key templates include:
+    *   `pn-monitoring.yaml`: Monitoring queues and alarms.
+    *   `pn-backup*.yaml`: DynamoDB backup plans.
+    *   `celonis_exports.yaml`: Celonis data export resources.
+    *   `pn-event-bridge.yaml`: EventBridge event bus and rules.
+    *   `pn-infra-storage.yaml`: Storage (S3, KMS, Kinesis) configuration.
+    *   `pn-cost-saving.yaml`: EC2/ECS cost saving Lambda functions.
+    *   `pn-data-monitoring.yaml`: Data monitoring resources.
+    *   `pn-opensearch.yaml`: OpenSearch domain definition.
+    *   `pn-infra.yaml`: Main infrastructure template.
+    *   `pn-logs-export.yaml`: Kinesis Data Firehose configuration.
+    *   `pn-infra-dashboard.yaml`: CloudWatch dashboard.
+    *   `pn-credential-generator.yaml`: Dynamic token generation Lambda.
+    *   `pn-ipc.yaml`: SQS queues for inter-process communication.
+    *   `pn-aggregate-alarms.yaml`: Aggregates microservice alarms.
+    *   `pn-cdc-analytics.yaml`: Base resources for CDC file analysis.
+    *   `once4account/`: Configuration templates applied once per AWS account (e.g., SNS topic).
+    *   `account-A-cognito.yaml`: Cognito User and Identity Pools.
+    *   `account-B-api-gateway.yaml`: API Gateway with Cognito authorization.
+    *   `stack.yaml` (lambda-reverse-proxy): Reverse proxy Lambda.
+    *   `pagopa_vpcs/cnf-templates/multi-vpcs.yaml`: Creates multiple VPCs with Transit Gateway connections.
+    *   `private_hosted_zones/cnf-templates/private-hosted-zone.yaml`: Defines a private hosted zone.
+    *   `api-gw-expose-service-openapi.yaml`, `api-gw-expose-service.yaml`: API Gateway configuration including authorizers.
+    *   `lambda-alarms.yaml`: Lambda function alarms.
+    *   `sqs-queue.yaml`: SQS queue configuration.
+    *   `ecs-service.yaml`: ECS service on Fargate definition.
+    *   `microservice-cloudwatch-dashboard.yaml`: CloudWatch dashboard for microservices.
+    *   `api-gw-waf-acl.yaml`: WAF Web ACLs for API Gateways.
+*   **`runtime-infra/lambdas/`**: Contains code for Lambda functions (e.g., OpenSearch delivery, API alarms segmentation, safestorage logger, CDC Athena view transform, diagnostic logger).
+*   **Bash Scripts (`*.sh`):** For tasks like DNS record creation, certificate management, parameter backup/cleanup, database migration, and OpenTelemetry image creation.
+*   **JavaScript Files (`*.js`):** For managing SSM parameters, importing data into DynamoDB, and resource tagging.
+*   **Python Script (`*.py`):** For updating CDC cache tables via Athena queries.
+*   **`resource-tags.json`:** Resource type to tag mapping.
+
+**Architectural Insights:**
+
+*   **Microservices Architecture:** The platform follows a microservices architecture, with separate services communicating via queues and events.
+*   **Event-Driven Design:** EventBridge is used to decouple services and react to changes in the system.
+*   **Layered Infrastructure:** The CloudFormation templates are structured in a layered manner, with reusable components and specialized templates for different functionalities.
+*   **Multi-Account Strategy:**  Supports multi-account AWS setup with different environments in separate accounts.
+*   **Hub-and-Spoke Network Topology:** VPC peering and Transit Gateway indicate a hub-and-spoke network.
+*   **Configuration-Driven:** Many parameters customize the system behavior based on the environment (dev, test, prod). External configurations are also used, promoting separation of code and configuration.
+
+**Notable Design Patterns:**
+
+*   **Infrastructure as Code (IaC):** Using CloudFormation to define and manage infrastructure.
+*   **Event-Driven Architecture:** Using EventBridge for asynchronous communication and event processing.
+*   **Queue-Based Asynchronous Communication:** SQS queues are used for communication between microservices.
+*   **External Configuration:**  Using parameters to configure resources based on the environment.
+*   **Policy-Based Access Control:** IAM roles and policies are used to grant fine-grained access to resources.
+*   **Template Fragments:** Using smaller, reusable CloudFormation templates for common tasks.
+*   **Centralized Logging:** All logs are sent to central locations for analysis.
+*   **Macro Usage:** CloudFormation macros are used to automate complex tasks (e.g., dynamic env vars in Lambdas, UpdateDeploymentTransform for unique IDs).
+*   **Reverse Proxy:** Lambda acting as a reverse proxy for routing requests.
+*   **Data Lake:** Kinesis and S3 usage points to a data lake architecture for centralized analytics.
+*   **Scheduled Tasks:** Cron expressions indicate scheduled tasks.
+*   **Batch Processing:** DynamoDB batch operations for efficient data manipulation.
+*   **Sidecar Pattern:** `aws-otel-collector` suggests sidecar containers for observability.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: control_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/pagopa_pn-infra.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

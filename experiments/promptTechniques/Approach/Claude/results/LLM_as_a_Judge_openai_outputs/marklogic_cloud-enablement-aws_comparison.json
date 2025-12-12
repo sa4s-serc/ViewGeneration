@@ -1,0 +1,459 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "AWS",
+        "description": "AWS Cloud",
+        "boundaries": "outer",
+        "position": "top-left"
+      },
+      {
+        "name": "VPC",
+        "description": "Virtual Private Cloud",
+        "boundaries": "inner",
+        "position": "top-left"
+      },
+      {
+        "name": "Elastic Load Balancer",
+        "description": "Distributes incoming application traffic",
+        "boundaries": "none",
+        "position": "top-center"
+      },
+      {
+        "name": "Auto Scaling Group",
+        "description": "Automatically adjusts the number of instances",
+        "boundaries": "dashed",
+        "position": "center"
+      },
+      {
+        "name": "MarkLogic Node A",
+        "description": "MarkLogic AMI instance",
+        "boundaries": "dotted",
+        "position": "left"
+      },
+      {
+        "name": "MarkLogic Node B",
+        "description": "MarkLogic AMI instance",
+        "boundaries": "dotted",
+        "position": "center"
+      },
+      {
+        "name": "MarkLogic Node C",
+        "description": "MarkLogic AMI instance",
+        "boundaries": "dotted",
+        "position": "right"
+      },
+      {
+        "name": "Network Interface",
+        "description": "Network interface for MarkLogic nodes",
+        "boundaries": "none",
+        "position": "center"
+      },
+      {
+        "name": "EBS",
+        "description": "Elastic Block Store",
+        "boundaries": "none",
+        "position": "center"
+      },
+      {
+        "name": "CloudWatch Alarm",
+        "description": "Monitors AWS resources",
+        "boundaries": "none",
+        "position": "top-right"
+      },
+      {
+        "name": "Lambda: Managed ENI",
+        "description": "Manages Elastic Network Interfaces",
+        "boundaries": "none",
+        "position": "right"
+      },
+      {
+        "name": "Lambda: Node Manager",
+        "description": "Manages MarkLogic nodes",
+        "boundaries": "none",
+        "position": "right"
+      },
+      {
+        "name": "Simple Notification",
+        "description": "Notification service",
+        "boundaries": "none",
+        "position": "right"
+      },
+      {
+        "name": "DynamoDB as Metadata Store",
+        "description": "Stores metadata",
+        "boundaries": "none",
+        "position": "bottom-center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Elastic Load Balancer",
+        "target": "Auto Scaling Group",
+        "label": "Instance Recovery Alarm",
+        "type": "arrow"
+      },
+      {
+        "source": "Auto Scaling Group",
+        "target": "MarkLogic Node A",
+        "label": "Managed Network Interface",
+        "type": "arrow"
+      },
+      {
+        "source": "Auto Scaling Group",
+        "target": "MarkLogic Node B",
+        "label": "Managed Network Interface",
+        "type": "arrow"
+      },
+      {
+        "source": "Auto Scaling Group",
+        "target": "MarkLogic Node C",
+        "label": "Managed Network Interface",
+        "type": "arrow"
+      },
+      {
+        "source": "MarkLogic Node A",
+        "target": "DynamoDB as Metadata Store",
+        "label": "Sync up node information",
+        "type": "arrow"
+      },
+      {
+        "source": "MarkLogic Node B",
+        "target": "DynamoDB as Metadata Store",
+        "label": "Sync up node information",
+        "type": "arrow"
+      },
+      {
+        "source": "MarkLogic Node C",
+        "target": "DynamoDB as Metadata Store",
+        "label": "Sync up node information",
+        "type": "arrow"
+      },
+      {
+        "source": "Auto Scaling Group",
+        "target": "Lambda: Managed ENI",
+        "label": "ASG Life Cycle Event",
+        "type": "arrow"
+      },
+      {
+        "source": "Auto Scaling Group",
+        "target": "Lambda: Node Manager",
+        "label": "ASG Life Cycle Event",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Availability Zone A",
+        "components": [
+          "MarkLogic Node A"
+        ],
+        "boundaries": "dashed"
+      },
+      {
+        "name": "Availability Zone B",
+        "components": [
+          "MarkLogic Node B"
+        ],
+        "boundaries": "dashed"
+      },
+      {
+        "name": "Availability Zone C",
+        "components": [
+          "MarkLogic Node C"
+        ],
+        "boundaries": "dashed"
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "AWS Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "AWS Cloud",
+        "description": "AWS Cloud environment",
+        "boundaries": "outer",
+        "position": "top-left"
+      },
+      {
+        "name": "CloudFormation",
+        "description": "Infrastructure as code service",
+        "boundaries": "none",
+        "position": "left"
+      },
+      {
+        "name": "Node Manager",
+        "description": "Lambda function for managing nodes",
+        "boundaries": "none",
+        "position": "center"
+      },
+      {
+        "name": "ENI Manager",
+        "description": "Lambda function for managing ENIs",
+        "boundaries": "none",
+        "position": "center"
+      },
+      {
+        "name": "MarkLogic Node",
+        "description": "MarkLogic instance",
+        "boundaries": "none",
+        "position": "center"
+      },
+      {
+        "name": "EBS Volumes",
+        "description": "Elastic Block Store volumes",
+        "boundaries": "none",
+        "position": "right"
+      },
+      {
+        "name": "MarkLogicDDBTable",
+        "description": "DynamoDB table for MarkLogic",
+        "boundaries": "none",
+        "position": "right"
+      },
+      {
+        "name": "IAM Roles",
+        "description": "IAM roles for permissions",
+        "boundaries": "none",
+        "position": "center"
+      },
+      {
+        "name": "Application Load Balancer",
+        "description": "Distributes incoming application traffic",
+        "boundaries": "none",
+        "position": "bottom-center"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "CloudFormation",
+        "target": "Node Manager",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "CloudFormation",
+        "target": "ENI Manager",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Node Manager",
+        "target": "MarkLogic Node",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "ENI Manager",
+        "target": "MarkLogic Node",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "MarkLogic Node",
+        "target": "EBS Volumes",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "MarkLogic Node",
+        "target": "MarkLogicDDBTable",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "IAM Roles",
+        "target": "MarkLogic Node",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Application Load Balancer",
+        "target": "MarkLogic Node",
+        "label": "",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Custom Resources",
+        "components": [
+          "Node Manager",
+          "ENI Manager"
+        ],
+        "boundaries": "dashed"
+      },
+      {
+        "name": "Compute Layer",
+        "components": [
+          "MarkLogic Node"
+        ],
+        "boundaries": "dashed"
+      },
+      {
+        "name": "Storage & State",
+        "components": [
+          "EBS Volumes",
+          "MarkLogicDDBTable"
+        ],
+        "boundaries": "dashed"
+      },
+      {
+        "name": "Network Layer",
+        "components": [
+          "Application Load Balancer"
+        ],
+        "boundaries": "dashed"
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": "MarkLogic Cloud AWS Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Elastic Load Balancer",
+      "MarkLogic Node",
+      "EBS"
+    ],
+    "unique_to_GroundTruth": [
+      "AWS",
+      "VPC",
+      "Auto Scaling Group",
+      "MarkLogic Node A",
+      "MarkLogic Node B",
+      "MarkLogic Node C",
+      "Network Interface",
+      "CloudWatch Alarm",
+      "Lambda: Managed ENI",
+      "Lambda: Node Manager",
+      "Simple Notification",
+      "DynamoDB as Metadata Store"
+    ],
+    "unique_to_GeneratedImage": [
+      "AWS Cloud",
+      "CloudFormation",
+      "Node Manager",
+      "ENI Manager",
+      "EBS Volumes",
+      "MarkLogicDDBTable",
+      "IAM Roles",
+      "Application Load Balancer"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Elastic Load Balancer",
+        "target": "Auto Scaling Group",
+        "label": "Instance Recovery Alarm",
+        "type": "arrow"
+      },
+      {
+        "source": "Auto Scaling Group",
+        "target": "MarkLogic Node A",
+        "label": "Managed Network Interface",
+        "type": "arrow"
+      },
+      {
+        "source": "Auto Scaling Group",
+        "target": "MarkLogic Node B",
+        "label": "Managed Network Interface",
+        "type": "arrow"
+      },
+      {
+        "source": "Auto Scaling Group",
+        "target": "MarkLogic Node C",
+        "label": "Managed Network Interface",
+        "type": "arrow"
+      },
+      {
+        "source": "MarkLogic Node A",
+        "target": "DynamoDB as Metadata Store",
+        "label": "Sync up node information",
+        "type": "arrow"
+      },
+      {
+        "source": "MarkLogic Node B",
+        "target": "DynamoDB as Metadata Store",
+        "label": "Sync up node information",
+        "type": "arrow"
+      },
+      {
+        "source": "MarkLogic Node C",
+        "target": "DynamoDB as Metadata Store",
+        "label": "Sync up node information",
+        "type": "arrow"
+      },
+      {
+        "source": "Auto Scaling Group",
+        "target": "Lambda: Managed ENI",
+        "label": "ASG Life Cycle Event",
+        "type": "arrow"
+      },
+      {
+        "source": "Auto Scaling Group",
+        "target": "Lambda: Node Manager",
+        "label": "ASG Life Cycle Event",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "CloudFormation",
+        "target": "Node Manager",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "CloudFormation",
+        "target": "ENI Manager",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Node Manager",
+        "target": "MarkLogic Node",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "ENI Manager",
+        "target": "MarkLogic Node",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "MarkLogic Node",
+        "target": "EBS Volumes",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "MarkLogic Node",
+        "target": "MarkLogicDDBTable",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "IAM Roles",
+        "target": "MarkLogic Node",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "Application Load Balancer",
+        "target": "MarkLogic Node",
+        "label": "",
+        "type": "arrow"
+      }
+    ],
+    "explanation": "The two diagrams represent AWS architectures with MarkLogic components but differ in their structural organization and components. Both diagrams include an Elastic Load Balancer and MarkLogic Nodes, indicating a shared focus on load balancing and database management. However, the GroundTruth diagram emphasizes auto-scaling and network interfaces, with specific nodes (A, B, C) and AWS services like CloudWatch and Lambda functions for management. The GeneratedImage diagram focuses on a CloudFormation stack, custom resources, and IAM roles, highlighting infrastructure as code and permission management. The GroundTruth diagram is more detailed in terms of AWS service integration, while the GeneratedImage diagram is structured around layers and resource management. The GeneratedImage is rated 7 out of 10 for capturing core components but lacking the detailed AWS service interactions present in the GroundTruth.",
+    "Rating": 7
+  }
+}

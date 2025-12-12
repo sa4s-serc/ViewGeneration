@@ -1,0 +1,81 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: alanchn31_Movalytics-Data-Warehouse
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** data_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## Movalytics: Data Warehouse Solution for Movie Analytics - Repository Analysis Report
+
+This report analyzes the Movalytics GitHub repository, a data warehouse solution designed for movie analytics. The project utilizes Apache Airflow for orchestration, Apache Spark for data processing, and Amazon Redshift as the data warehouse. The ETL pipeline extracts data from Kaggle's MovieLens dataset and St. Louis FRED's CPI dataset, transforms it, and loads it into Redshift. Docker is employed for containerization to ensure portability and reproducibility.
+
+**Key Functionalities and Components:**
+
+*   **Data Extraction:** The pipeline extracts movie data from Kaggle (MovieLens dataset) using `kaggle datasets download` and consumer price index data from St. Louis FRED using `wget` commands.  The specific steps are outlined in the `README.md`.
+*   **Data Transformation (ETL):**  Apache Spark is used for data transformation. Python scripts located in the `dags/python_scripts` directory perform data cleaning, schema enforcement, and create derived tables (e.g., date dimension). Scripts include `load_staging_ratings.py` and `load_staging_movies.py`.
+*   **Data Loading:** Transformed data is loaded into staging tables in Redshift, and subsequently upserted into final dimension tables using SQL scripts.
+*   **Orchestration:** Apache Airflow orchestrates the entire ETL pipeline, defining task dependencies and scheduling their execution.
+*   **Data Quality Checks:** Data quality checks are implemented within the pipeline to ensure data integrity. A custom `DataQualityOperator` is employed for this purpose.
+*   **Containerization:** Docker is used to package the application and its dependencies, facilitating consistent deployments.
+*   **Infrastructure as Code:** The `docker-compose-LocalExecutor.yml` file defines the necessary services (Postgres, Airflow webserver) to run the application, enabling easy deployment and management of the infrastructure.
+
+**Important Files and Their Roles:**
+
+*   **`Dockerfile`:** Defines the Docker image for the Airflow environment, including installing Python libraries (e.g., `apache-airflow`, `pyspark`, `SQLAlchemy`), setting up the Airflow user, and configuring the environment.
+*   **`docker-compose-LocalExecutor.yml`:** Defines the services required to run the Airflow environment using Docker Compose, setting up the Airflow webserver and a PostgreSQL database for Airflow metadata.
+*   **`README.md`:** Provides a high-level project overview, including its purpose, architecture, data model, ETL pipeline, and development instructions. It also discusses potential improvements and scaling considerations, notably strategies for handling a 100x increase in data volume.
+*   **`dags/movies_dwh_dag.py`:** This Airflow DAG definition outlines the tasks, dependencies, and execution order within the ETL pipeline.  It utilizes operators like `BashOperator`, `PostgresOperator`, and the custom `DataQualityOperator`.
+*   **`dags/bash_scripts/load_staging_table.sh`:** A Bash script that executes Spark jobs to load data into staging tables in Redshift.  It takes parameters such as the S3 bucket, key, AWS credentials, and Redshift connection string.
+*   **`dags/python_scripts/load_staging_*.py`:** Python scripts leveraging Spark to read data from S3, transform it, and write it to staging tables in Redshift.
+*   **`config/airflow.cfg`:** The Airflow configuration file defines settings such as the Airflow home directory, database connection string, and executor type.
+*   **`plugins/__init__.py`, `plugins/operators/__init__.py`, `plugins/operators/data_quality.py`:**  Implements the custom `DataQualityOperator` as an Airflow plugin for data quality checks in Redshift.
+*   **`script/entrypoint.sh`:**  The entrypoint script for the Docker container initializes the Airflow database, waits for dependencies (PostgreSQL, Redis), and starts the Airflow webserver, scheduler, and worker processes.
+*   **`sql_scripts/*`:** Contains SQL scripts for creating tables, staging tables, and performing upsert operations.
+
+**Architectural Insights:**
+
+*   **Layered Architecture:** The project adopts a layered architecture, clearly separating concerns for data extraction, transformation, loading, orchestration, and data quality checks.
+*   **Cloud-Native:** The architecture leverages cloud services like S3 and Redshift for storage and data warehousing, respectively.
+*   **Modular Design:**  The use of Airflow DAGs and Spark scripts promotes modularity, facilitating maintenance and extensibility.
+*   **Scalability:** The selection of Spark and Redshift allows for horizontal scaling to accommodate larger datasets. The `README.md` details strategies for scaling to handle substantial data volume increases.
+*   **Idempotency:** The implementation of "upsert" operations indicates an effort to make the data loading process idempotent, preventing data duplication during repeated pipeline executions.
+
+**Notable Design Patterns:**
+
+*   **ETL Pipeline:** The core of the project is a well-defined ETL pipeline that extracts, transforms, and loads data.
+*   **DAG (Directed Acyclic Graph):** Airflow DAGs define the workflow and dependencies within the ETL pipeline.
+*   **Configuration as Code:**  The utilization of environment variables and configuration files enables straightforward customization and deployment in various environments.
+*   **Custom Operators (Airflow):** The `DataQualityOperator` showcases the use of custom Airflow operators to extend Airflow's functionality and encapsulate specific tasks.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: data_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/alanchn31_Movalytics-Data-Warehouse.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

@@ -1,0 +1,53 @@
+// QFrame Architecture
+digraph {
+	rankdir=TB splines=ortho
+	node [fontname=Arial margin=0.3 shape=rectangle style=rounded]
+	subgraph cluster_0 {
+		color=lightblue label="Data Collection Layer" style=rounded
+		collector_docker [label="Docker Events
+Collector"]
+		collector_file [label="File
+Collector"]
+		collector_tcp [label="TCP
+Collector"]
+	}
+	subgraph cluster_1 {
+		color=lightgreen label="Core Components" style=rounded
+		qchan [label="QChan
+Message Broadcasting"]
+		types [label="QFrame Types
+Data Structures"]
+		config [label="Configuration
+YAML/JSON"]
+	}
+	subgraph cluster_2 {
+		color=lightyellow label="Processing Layer" style=rounded
+		filter_grok [label="Grok Pattern
+Filter"]
+		filter_container [label="Container Metadata
+Filter"]
+	}
+	subgraph cluster_3 {
+		color=lightpink label="Output Layer" style=rounded
+		handler_influx [label="InfluxDB
+Handler"]
+		handler_elastic [label="Elasticsearch
+Handler"]
+		handler_log [label="Log File
+Handler"]
+	}
+	collector_docker -> qchan
+	collector_file -> qchan
+	collector_tcp -> qchan
+	config -> collector_docker [label=configures dir=both]
+	config -> filter_grok [label=configures dir=both]
+	config -> handler_influx [label=configures dir=both]
+	qchan -> filter_grok
+	qchan -> filter_container
+	filter_grok -> handler_influx
+	filter_grok -> handler_elastic
+	filter_grok -> handler_log
+	filter_container -> handler_influx
+	filter_container -> handler_elastic
+	types -> qchan [label=defines]
+}

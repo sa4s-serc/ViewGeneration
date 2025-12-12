@@ -1,0 +1,74 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: lovasoa_SuperLogger
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** connectivity
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## System Monitoring with ELK Stack: Repository Analysis Report
+
+This report summarizes the architecture, components, and functionality of a system monitoring repository leveraging the ELK stack (Elasticsearch, Logstash, Kibana) along with a custom Java agent. The system provides a method for collecting and visualizing system information such as CPU load, memory usage, computer name, and IP address.
+
+**Key Functionalities:**
+
+The core functionality is to collect system information, process it, and provide visualization capabilities. This is achieved by:
+
+*   **Data Collection:** An agent component collects system information periodically.
+*   **Data Transmission:** The agent sends the collected data over TCP to Logstash.
+*   **Data Processing:** Logstash receives data, enriches it with metadata (timestamp), and forwards it to Elasticsearch.
+*   **Data Storage & Indexing:** Elasticsearch stores and indexes the received data for efficient querying.
+*   **Data Visualization:** Kibana provides a user interface for visualizing the stored data and creating dashboards.
+
+**Architectural Overview:**
+
+The architecture follows a standard ELK stack pattern with an added agent responsible for data collection. Data flows from the Java agent to Logstash via TCP, then to Elasticsearch for storage and indexing, and finally to Kibana for visualization. The agent implements a simple TCP server to push the data. The README.md file contains a high-level overview, architecture diagram, and class diagram, explained in both English and Russian.
+
+**Components:**
+
+The system comprises the following key components:
+
+*   **Agent (Java):** The agent, implemented in Java, is responsible for gathering system information (using `SystemInfo.java`) and transmitting it to Logstash. The `TCPServer.java` class within the agent creates a TCP server to listen for connections from Logstash and send the collected data. The agent's build process and dependencies (javax.json, JUnit) are managed by `pom.xml`.
+*   **Logstash:** This component receives data from the agent via TCP. It then enriches the data (e.g., adds timestamps) and forwards it to Elasticsearch. The `logstash/pipeline/tcp2elastic.conf` file configures Logstash with the necessary input (TCP), codec (JSON), and output (Elasticsearch) settings. A `Dockerfile` defines how to build a Docker image for Logstash, including the deployment of the configuration file.
+*   **Elasticsearch:** This is the data storage and indexing engine, responsible for storing the system information received from Logstash.
+*   **Kibana:** This component provides the visualization layer, enabling users to create dashboards and visualize the data stored in Elasticsearch.
+
+**Design Patterns:**
+
+The system implicitly uses the Producer-Consumer pattern, where `SystemInfo` and `TCPServer` classes within the agent act as producer and consumer respectively. `SystemInfo` produces the system data, and `TCPServer` sends it to Logstash. The `TCPServer` class also implements a simple service layer, providing system information over TCP.
+
+**Licensing:**
+
+The software is licensed under the GNU GPL v3, allowing users to freely use, modify, and distribute the software under specific conditions. The licensing terms are defined in the `LICENSE` file.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: connectivity
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/lovasoa_SuperLogger.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

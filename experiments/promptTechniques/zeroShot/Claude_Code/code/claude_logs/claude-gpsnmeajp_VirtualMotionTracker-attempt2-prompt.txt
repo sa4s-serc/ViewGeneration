@@ -1,0 +1,91 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: gpsnmeajp_VirtualMotionTracker
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** deployment, connectivity
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## Eigen Library Repository Analysis Report
+
+This report synthesizes the analysis of the Eigen C++ linear algebra library, highlighting its core components, functionalities, architecture, and key design patterns.
+
+**Core Functionalities:**
+
+Eigen provides a comprehensive set of tools for:
+
+*   **Dense & Sparse Linear Algebra:** Matrix/vector arithmetic, transposition, conjugation, products, reductions (sum, mean, etc.), block operations, triangular solves, norms, trace, determinant, inverse. Key classes: `Matrix`, `Array`, `SparseMatrix`, `DiagonalMatrix`, `PermutationMatrix`.
+*   **Decomposition Algorithms:**  LU, Cholesky (LLT, LDLT), QR, and Singular Value Decomposition (SVD) for both dense and sparse matrices. These facilitate solving linear systems and eigenvalue problems.
+*   **Eigenvalue Solvers:** Computation of eigenvalues and eigenvectors using `EigenSolver`, `SelfAdjointEigenSolver`, `GeneralizedEigenSolver`, and associated decomposition routines.
+*   **Iterative Linear Solvers:** Conjugate Gradient (CG), BiCGSTAB, GMRES for large sparse systems, often used with preconditioners.
+*   **Geometry:** Representation and manipulation of geometric primitives (Euler angles, quaternions, hyperplanes, aligned boxes, transforms), and computations related to these primitives (distance, intersection, etc.).
+*   **Tensor Operations (Unsupported Module):** Multi-dimensional array operations, element-wise functions, reductions, contractions, convolutions, and more, with CPU, CUDA, and SYCL support.
+
+**Architecture & Key Components:**
+
+Eigen's design emphasizes performance, flexibility, and modularity.
+
+*   **Expression Templates:** Central to Eigen's architecture. Complex matrix expressions are not immediately evaluated; instead, a tree-like representation is built, enabling compile-time optimization and operator fusion. This is supported by components such as evaluators and kernel implementations.
+*   **Templates & Metaprogramming:** Heavy use of templates enables generic code adapting to different scalar types (float, double, complex), matrix sizes (static, dynamic), and storage orders (row-major, column-major).  Meta-programming features like traits (`internal::traits`), `enable_if`, and static assertions (`EIGEN_STATIC_ASSERT`) enforce constraints and optimize code at compile time.
+*   **Memory Management:** Aligned memory allocation/deallocation routines are crucial for optimal SIMD performance. Custom allocators ensure SIMD-friendly data alignment, especially important when using STL containers with Eigen types.  Mechanisms exist for runtime disabling of dynamic memory allocation.
+*   **SIMD Vectorization:** The architecture leverages SIMD intrinsics (SSE, AVX, NEON, AltiVec) for vectorized operations. Architecture-specific code paths provide efficient data processing on multiple data elements simultaneously. `PacketMath.h` files defines low-level data packet operations based on SIMD instruction set for particular architecture.
+*   **Modular Design:** The library is organized into modules (Core, Sparse, Geometry, Eigenvalues, etc.), allowing users to include only necessary components.
+*   **BLAS/LAPACK Integration:** Eigen seamlessly integrates with optimized BLAS/LAPACK libraries (MKL, OpenBLAS), providing optimized numerical routines for linear algebra operations, allowing them to be used as accelerated black boxes. A C interface known as LAPACKE abstracts away fortran implementation details of the actual LAPACK library.
+*   **Plugin System:** The architecture offers plugin mechanisms allowing users to extend functionalities, such as adding custom methods to `MatrixBase` or extending scalar/algebraic operations by adding custom functors.
+
+**Key Design Patterns:**
+
+*   **Expression Templates:** The core architectural driver, allowing for deferred evaluation and optimization.
+*   **Traits:**  Used extensively for compile-time type introspection, guiding optimization and algorithm selection.
+*   **Policy-Based Design:** Customizing algorithms and data structure behaviors through template parameters, enabling specialized and efficient code generation.
+*   **Strategy Pattern:** Employed in various contexts, such as selecting different preconditioners for iterative solvers or different matrix product implementations.
+*   **Bridge Pattern:**  Used for integrating with external libraries (BLAS/LAPACK), decoupling Eigen's API from specific implementations.
+
+**Testing and Documentation:**
+
+*   A comprehensive testing suite validates correctness and performance, including unit tests, benchmarks, and failtests (designed to ensure compile-time checks are working).
+*   Extensive Doxygen-based documentation explains key concepts, provides tutorials, and documents the API.
+
+**Unsupported Module Highlights:**
+
+The "unsupported" module provides a space for experimental features, including tensor operations, automatic differentiation, solvers, and matrix functions. This module emphasizes modularity and allows for experimentation with new functionalities before full integration into the core library. Key components of this module includes:
+
+* Matrix Functions: Implements matrix exponent, sine, and square root functions.
+* NonLinear Optimization: Allows optimization using algorithms like the Levenberg-Marquardt.
+* The Tensor submodule provides an interface to operate with tensors and utilizes device-specific specializations (CPU, CUDA, SYCL).
+
+**Overall:**
+
+Eigen is a powerful and versatile C++ linear algebra library designed for performance and flexibility. Its extensive use of templates, expression templates, and SIMD vectorization allows for highly optimized code generation. The modular design and integration with external libraries provide users with a comprehensive toolset for a wide range of numerical computations. The detailed documentation and testing framework contribute to the library's robustness and usability.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment, connectivity
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/gpsnmeajp_VirtualMotionTracker.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

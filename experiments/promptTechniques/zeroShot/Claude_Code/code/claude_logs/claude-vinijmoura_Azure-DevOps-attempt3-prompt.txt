@@ -1,0 +1,93 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: vinijmoura_Azure-DevOps
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** general
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## Unified Analysis of Azure DevOps Power BI Reporting Repository
+
+This report summarizes the functionalities, architecture, and design patterns observed within a GitHub repository focused on generating Azure DevOps management reports using Power BI. The repository primarily utilizes PowerShell scripts for data extraction, Azure SQL Database for data storage, and Power BI (with custom visuals) for data visualization and analysis.
+
+**I. Core Functionality and Components:**
+
+The repository's central purpose is to provide insightful reporting on various aspects of Azure DevOps, enabling data-driven decision-making. This is achieved through a modular ETL (Extract, Transform, Load) pipeline.
+
+*   **Data Extraction (PowerShell Scripts):** PowerShell scripts are used to extract data from Azure DevOps using a combination of the Azure DevOps CLI (`az devops`) and REST APIs. The scripts cover a broad range of Azure DevOps entities:
+    *   **User and Access Management:** User details, group memberships, access levels, personal access tokens (PATs), and project-level/organization-level/iteration-level permissions.
+    *   **Project and Process Management:** Project statistics, process templates, work item types, fields, picklists, areas, and iterations.
+    *   **Code Repositories:** Repository information (branches, policies, pull requests, ahead/behind counts).
+    *   **Build and Release Pipelines:** Build definitions, latest builds, build definition tasks, release definitions, release stages, and deployment approvals.
+    *   **Team Configuration:** Team settings, team card rules, team board configurations (columns, lanes), iteration capacities.
+    *   **Packaging:** Azure Artifact Feeds, packages, versions.
+    *   **Environments & Approvals:** Environment, approval workflow details.
+    *   **Task Groups:** Task group information.
+    *   **Service Hooks:** Service Hook configurations.
+    *   **Installed Extensions:** Lists installed extensions in an Azure DevOps organization.
+
+*   **Data Transformation (PowerShell Scripts):** The extracted data is transformed within the PowerShell scripts to prepare it for database insertion. This involves parsing JSON responses, filtering data, string manipulation, and creating custom PowerShell objects (PSObjects) to represent the data.
+
+*   **Data Storage (Azure SQL Database):** A SQL database acts as the central repository for the extracted and transformed data. PowerShell scripts truncate existing tables and then insert new data, ensuring a fresh dataset. Specific table names reflect the entity being stored (e.g., `AreaPermissions`, `VariableGroups`, `FeedPackageVersions`, `EnvironmentsDeploys`, `ProcessesWorkItemsFields`, `TeamSettingsBoards`, `PersonalAccessTokens`, `ReleaseDefinitionsClassic`).
+
+*   **Data Visualization (Power BI):** Power BI is used for data visualization and reporting. The repository includes `.pbix` files (Power BI Desktop files) that define the data model, queries, and visualizations. Custom visuals are extensively used to enhance the reporting capabilities.
+
+**II. Key Files and Their Roles:**
+
+*   `*.ps1` (PowerShell Scripts): Perform data extraction, transformation, and loading. Configuration is handled via parameters like `$PAT` (Personal Access Token), `$Organization` (Azure DevOps organization name), and `$Connstr` (SQL connection string). Some scripts also include basic logging and error handling.
+*   `*.pbix` (Power BI Desktop Files): Contain the data model, queries, visualizations, and layout for the Power BI reports. Connects to the SQL Database to visualize data in a user-friendly format.
+*   `Report/CustomVisuals/*/`: Contains files describing Power BI custom visuals:
+    *   `package.json`: Package metadata, dependencies.
+    *   `*.pbiviz.json`: Core custom visual definition (capabilities, properties, data roles).
+    *   JavaScript and CSS files: core visualization code.
+*   `Report/StaticResources/SharedResources/BaseThemes/*.json`: Define the visual theme for the Power BI reports (colors, fonts, etc.). Common theme filenames are `CY20SU09.json`, `CY21SU04.json`, `CY21SU11.json`.
+*   `README.md`, `CODE_OF_CONDUCT.md`, `LICENSE`, `CONTRIBUTING.md`, `SECURITY.md`: Standard repository documentation and governance files.
+*   `powershell-analysis.yml`: Defines a GitHub Actions workflow for static code analysis of Powershell code using PSScriptAnalyzer, promoting code quality and security.
+*   `bug_report.md`: Provides a template for users to report bugs in the repository, improving collaboration and issue resolution.
+
+**III. Architectural Insights:**
+
+*   **ETL Data Pipeline:** The repository follows a standard ETL architecture: Azure DevOps -> PowerShell -> SQL Database -> Power BI.
+*   **Modular Design:** The project adopts a modular approach. Separate PowerShell scripts handle different data sources within Azure DevOps. Power BI report design decouples from the data collection.
+*   **SQL as a Staging Area:** The SQL database acts as a central data staging area, facilitating efficient querying and reporting.
+*   **Power BI Extension through Custom Visuals:** Custom visuals provide specialized visualizations tailored for Azure DevOps data, enhancing the built-in Power BI capabilities.
+
+**IV. Notable Design Patterns:**
+
+*   **ETL (Extract, Transform, Load):** The foundation of the repository relies on this pattern.
+*   **Configuration-Driven Scripts:** PowerShell scripts accept parameters for configuration, making them reusable and adaptable.
+*   **Component-Based UI (Power BI):** Custom visuals are encapsulated as independent, reusable components.
+*   **Data Transfer Objects (DTOs):** PSObjects are used as DTOs within PowerShell to structure data being passed and processed.
+*   **Configuration as Code:** The workflow file (`powershell-analysis.yml`) defines the CI/CD process, version-controlled in the repository. The repo also has powershell scripts to create repos, or set branch policies.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: general
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/vinijmoura_Azure-DevOps.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

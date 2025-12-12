@@ -190,8 +190,8 @@ def main():
     output_dir = "approach_deepseek_python_images"
     for entry in entries:
         required_keys = ["Repository Name", "summary", "Concern", "Behavior"]
-        if total>2:
-            break
+        # if total>2:
+        #     break
         if all(key in entry for key in required_keys):
             clean_repo_name = entry["Repository Name"].replace('/', '_').replace('\\', '_').rstrip('_')
             expected_output_path = os.path.join(output_dir, f"{clean_repo_name}.png")

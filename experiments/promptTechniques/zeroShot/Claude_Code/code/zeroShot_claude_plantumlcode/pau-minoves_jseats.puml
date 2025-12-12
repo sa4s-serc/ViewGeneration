@@ -1,0 +1,164 @@
+@startuml
+!define COMPONENT_STYLE rectangle
+
+title jseats Electoral Seat Allocation System - Control Flow Architecture
+
+package "Command Line Interface" {
+    component [SeatAllocatorLauncher] as CLI
+    component [ConfigurationLoader] as ConfigLoader
+}
+
+package "Core Processing Layer" {
+    component [ProcessorConfig] as Config
+    component [SeatAllocatorProcessor] as Processor
+    component [SeatAllocatorResolver] as Resolver
+    component [SeatAllocatorDefaultResolver] as DefaultResolver
+}
+
+package "Data Model" {
+    component [Tally] as Tally
+    component [Candidate] as Candidate
+    component [Result] as Result
+}
+
+package "Tally Filters" {
+    component [TallyFilter] as TallyFilterInterface
+    component [BlankVotesThreshold] as BlankFilter
+    component [MinVotesThreshold] as MinFilter
+    component [PercentageThreshold] as PercentFilter
+}
+
+package "Seat Allocation Methods" {
+    component [SeatAllocationMethod] as MethodInterface
+
+    package "Majority Methods" {
+        component [SimpleMajority] as Simple
+        component [AbsoluteMajority] as Absolute
+        component [QualifiedMajority] as Qualified
+    }
+
+    package "Largest Remainder" {
+        component [LargestRemainderMethod] as LRBase
+        component [HareMethod] as Hare
+        component [DroopMethod] as Droop
+        component [ImperialiQuotaMethod] as ImperialiQuota
+    }
+
+    package "Highest Averages" {
+        component [HighestAveragesMethod] as HABase
+        component [DHondtMethod] as DHondt
+        component [SainteLagueMethod] as SainteLague
+        component [DanishMethod] as Danish
+        component [ImperialiHighestMethod] as ImperialiHighest
+    }
+
+    package "Equal Proportions" {
+        component [HuntingtonHillMethod] as HuntingtonHill
+    }
+
+    component [RankedVotesMethod] as RankedVotes
+}
+
+package "Result Decorators" {
+    component [ResultDecorator] as DecoratorInterface
+    component [AppendTextDecorator] as AppendDecorator
+    component [PrependTextDecorator] as PrependDecorator
+}
+
+package "Tie Breakers" {
+    component [TieBreaker] as TieBreakerInterface
+    component [RandomTieBreaker] as RandomTie
+    component [MinorityTieBreaker] as MinorityTie
+    component [InteractiveTieBreaker] as InteractiveTie
+}
+
+package "XML Serialization" {
+    component [JAXB] as JAXB
+}
+
+package "Logging" {
+    component [SLF4J/Logback] as Logger
+}
+
+' Control Flow Relationships
+
+CLI --> ConfigLoader : 1. Load configuration
+ConfigLoader --> JAXB : 2. Deserialize XML
+JAXB --> Config : 3. Create config
+CLI --> Tally : 4. Load/Create tally
+Tally --> Candidate : contains
+
+CLI --> Processor : 5. Execute allocation
+Processor --> Config : 6. Read settings
+Processor --> Resolver : 7. Resolve components
+Resolver --> DefaultResolver : implements
+
+Processor --> TallyFilterInterface : 8. Apply filters
+TallyFilterInterface <|.. BlankFilter : implements
+TallyFilterInterface <|.. MinFilter : implements
+TallyFilterInterface <|.. PercentFilter : implements
+
+TallyFilterInterface --> Tally : 9. Filter candidates
+
+Processor --> MethodInterface : 10. Execute method
+MethodInterface <|.. Simple : implements
+MethodInterface <|.. Absolute : implements
+MethodInterface <|.. Qualified : implements
+MethodInterface <|.. LRBase : implements
+LRBase <|-- Hare : extends
+LRBase <|-- Droop : extends
+LRBase <|-- ImperialiQuota : extends
+MethodInterface <|.. HABase : implements
+HABase <|-- DHondt : extends
+HABase <|-- SainteLague : extends
+HABase <|-- Danish : extends
+HABase <|-- ImperialiHighest : extends
+MethodInterface <|.. HuntingtonHill : implements
+MethodInterface <|.. RankedVotes : implements
+
+MethodInterface --> TieBreakerInterface : 11. Resolve ties
+TieBreakerInterface <|.. RandomTie : implements
+TieBreakerInterface <|.. MinorityTie : implements
+TieBreakerInterface <|.. InteractiveTie : implements
+
+MethodInterface --> Result : 12. Produce result
+
+Processor --> DecoratorInterface : 13. Apply decorators
+DecoratorInterface <|.. AppendDecorator : implements
+DecoratorInterface <|.. PrependDecorator : implements
+DecoratorInterface --> Result : 14. Modify result
+
+Processor --> Result : 15. Return final result
+Processor --> Logger : Log operations
+
+Result --> CLI : 16. Display output
+
+note right of Processor
+  Control Flow Orchestration:
+  1. Load configuration & tally
+  2. Apply tally filters
+  3. Execute allocation method
+  4. Handle tie-breaking
+  5. Apply result decorators
+  6. Return final result
+end note
+
+note left of Resolver
+  Dynamic component resolution
+  enables pluggable architecture
+  and runtime method selection
+end note
+
+note bottom of MethodInterface
+  Strategy Pattern: Different
+  allocation algorithms can be
+  selected at runtime
+end note
+
+note bottom of DecoratorInterface
+  Decorator Pattern: Result
+  modifications without
+  altering core structure
+end note
+
+@enduml

@@ -1,0 +1,93 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: pau-minoves_jseats
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** control_flow
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## Analysis of the `pau-minoves_jseats` Repository: A Java Implementation of Electoral Seat Allocation Algorithms
+
+The `jseats` repository provides a robust Java implementation for calculating electoral seat allocations. It offers both a Java API and a command-line interface (CLI) for executing these calculations. The core functionality centers around processing vote tallies and distributing seats based on a chosen method. The system is designed for versatility through customizable tally filters, result decorators, and tie-breaking mechanisms.
+
+**Key Functionalities and Components:**
+
+*   **Seat Allocation Algorithms:** The system implements a variety of seat allocation methods, categorized as follows:
+    *   Majority-based: Simple, Absolute, Qualified
+    *   Largest Remainder: Hare, Droop, Imperiali
+    *   Highest Averages: D'Hondt, Sainte-Laguë, Danish, Imperiali
+    *   Equal Proportions: Huntington-Hill
+    *   Ranked by Votes
+
+*   **Tally Processing:** Vote tallies, represented by `Candidate` objects and aggregated into a `Tally` object, are processed. Tallies can be loaded from XML files or created programmatically.
+
+*   **Customization Capabilities:**
+    *   **Tally Filters:** These allow for pre-processing tallies by filtering candidates (e.g., removing candidates below a vote threshold).
+    *   **Result Decorators:** These modify the allocation results (e.g., adding suffixes to candidate names).
+    *   **Tie Breakers:** Mechanisms are included to resolve ties, including random, minority-based, and interactive tie-breaking.
+
+*   **Command-Line Interface (CLI):** A command-line tool allows execution of seat allocation calculations. It is configurable via command-line arguments or configuration files. The `SeatAllocatorLauncher.java` serves as the entry point.
+
+*   **XML Serialization/Deserialization:** JAXB is utilized for serializing and deserializing `Tally` and `ProcessorConfig` objects to/from XML, facilitating the storage and loading of configurations and tallies.
+
+*   **Logging:** SLF4J and Logback are used for logging. Separate configurations (`logback.xml` for general logging and `logback-cli.xml` for cleaner CLI output) cater to different logging requirements.
+
+**Important Files and Their Roles:**
+
+*   **`LICENSE`**: Specifies the GNU Lesser General Public License v3.0 or later.
+*   **`pom.xml`**: Maven project file defines dependencies, build configurations, plugins, and project metadata.
+*   **`README.md`**: Provides a project overview, instructions, supported methods, and CLI usage information.
+*   **`src/main/java/org/jseats/...`**: Contains the core Java source code. Key classes include:
+    *   **`ProcessorConfig.java`**: Represents the configuration of the seat allocation processor. Handles XML serialization/deserialization.
+    *   **`SeatAllocatorProcessor.java`**: Orchestrates the seat allocation process. It applies filters, executes the selected allocation method, and applies decorators.
+    *   **`SeatAllocatorResolver.java` / `SeatAllocatorDefaultResolver.java`**: Defines and implements an interface to dynamically resolve seat allocation methods, tally filters, result decorators and tie breakers by their names.
+    *   **`model/...`**: Contains the data model classes (e.g., `Candidate`, `Tally`, `Result`, `ResultDecorator`, `TallyFilter`, `SeatAllocationMethod`, `TieBreaker`).
+    *   Sub-packages under `model/` contain implementations for the different seat allocation algorithms (`methods`), tally filters (`tally`), result decorators (`result`), and tie-breakers (`tie`).
+*   **`src/test/java/org/jseats/...`**: Contains JUnit unit tests.
+*   **`src/test/resources/...`**: Contains test data, including XML configuration files and JBehave stories. Includes the `stories/` folder for BDD acceptance tests.
+*   **`logback.xml` / `logback-cli.xml`**: Logback configuration files.
+
+**Architectural Insights:**
+
+*   **Component-Based Design:** The system employs a component-based design, ensuring a clear separation of concerns. Allocation methods, tally filters, result decorators, and tie-breakers are implemented as independent, pluggable components.
+*   **Configuration-Driven:** Configuration is managed via XML files through the `ProcessorConfig` class. This allows for modifying allocation methods, filters, and decorators without code changes.
+*   **Extensible:** The system is designed for extensibility. Interfaces (`SeatAllocatorMethod`, `TallyFilter`, `ResultDecorator`, `TieBreaker`) and a resolver (`SeatAllocatorResolver`) facilitate the addition of new allocation methods, filters, and decorators without altering core classes.
+
+**Notable Design Patterns:**
+
+*   **Strategy Pattern:** The `SeatAllocationMethod` interface enables runtime switching between different allocation algorithms.
+*   **Decorator Pattern:** The `ResultDecorator` interface enables adding behavior to the `Result` object without modifying its structure.
+*   **Factory/Resolver Pattern:** The `SeatAllocatorResolver` acts as a factory for creating instances of components based on their names, decoupling the processor from concrete implementations.
+*   **Template Method Pattern:** Abstract classes like `LargestRemainderMethod` and `HighestAveragesMethod` define the algorithm's structure, while delegating specific calculations to concrete subclasses.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: control_flow
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/pau-minoves_jseats.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

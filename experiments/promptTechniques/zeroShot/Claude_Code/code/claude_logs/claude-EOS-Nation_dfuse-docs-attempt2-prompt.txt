@@ -1,0 +1,78 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: EOS-Nation_dfuse-docs
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** general
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## Analysis of dfuse-based System (Partial Repository Summary)
+
+This report summarizes the key aspects of a GitHub repository focused on a *dfuse*-based system for interacting with EOSIO blockchains. The system provides tools for indexing, querying, and streaming blockchain data through a GraphQL API over gRPC, emphasizing high availability, scalability, and data integrity, even in the face of blockchain forks. The repository contains extensive documentation, including tutorials and code samples, targeting both system administrators and users.
+
+**Core Functionality:**
+
+*   **GraphQL API:** A central feature is a flexible and efficient GraphQL API for accessing blockchain data, supporting both single queries and real-time subscriptions. The API documentation, including queries, subscriptions, pagination, and error handling, is detailed in `content/platform/public-apis/graphql.md`.
+*   **Data Indexing & Search:** The system indexes blockchain data for efficient searching, with a defined search query language documented in `content/platform/public-apis/search-query-language.md`.
+*   **Streaming Data:** Real-time blockchain data streaming is supported, with specific provisions for handling blockchain forks.
+*   **`dfuseeos` CLI Tool:** This command-line tool provides the primary interface for managing and running the dfuse system's components.
+*   **Authentication & Authorization:** API keys and JWTs are used for authentication, with rate limiting to control usage.
+*   **`nodeos` Integration:** The system deeply integrates with `nodeos`, the EOSIO blockchain node software. It reads data (potentially with a deep-mind patch) and can proxy certain `nodeos` API calls.
+*   **Data storage:** The chunk talks about BigTable, TiKV and Badger as data storages options
+*   **Multi-Chain Support:** The system caters to multiple EOSIO-based chains (EOS Mainnet, WAX, Kylin, Jungle 4), with specific endpoints and indexed fields for each. Documentation for EOSIO blockchain APIs is found in `content/eosio/public-apis/*` and quick start guides for developers are in `content/eosio/public-apis/getting-started/*`.
+
+**Key Files & Their Roles:**
+
+*   `LICENSE`: Standard MIT license.
+*   `netlify.toml`: Configuration file indicating Netlify hosting for documentation, including build commands utilizing extraction and Hugo processing.
+*   `graphql.js`: Generates GraphQL schema data from `.graphql` source files.
+*   `README.md`: Provides a high-level project overview, requirements, development instructions, and a lexicon.
+*   `extract.js`: Extracts code snippets from markdown files for documentation, ensuring examples remain up-to-date. Referenced by this are `quickstarts/`, `tutorials/`, `samples/`, folders, which likely contain code examples and tutorials.
+*   `content/`: Contains the primary documentation content, structured for website navigation.
+
+**Architectural Overview:**
+
+*   **Microservice Architecture:** A microservice-based architecture is employed, with components like `mindreader`, `relayer`, `search`, and `dgraphql` operating as separate services communicating over gRPC.
+*   **Data Streaming Pipeline:** The system forms a pipeline for processing blockchain data. `mindreader` extracts raw data, which is then transformed, indexed, and served via the API.
+*   **Separation of Concerns:** Distinct component responsibilities (data extraction, indexing, API serving) promote modularity and scalability.
+*   **Hierarchical storage:** The project relies on object stores for cheap storage of artifacts and databases for quick access of data
+
+**Design Patterns (Inferred):**
+
+*   **Adapter Pattern:** Likely used within `kvdb` and `dstore` abstractions to support diverse database and storage technologies.
+*   **Strategy Pattern:** Different search tier configurations might employ the strategy pattern to select indexing strategies based on data range and performance needs.
+*   **Observer Pattern:** Used for detecting new blocks being indexed by other dfuse instances.
+
+**Templating:** Documentation pages utilize shortcodes (e.g., `{{< external-link ... >}}`, `{{< code-section ... >}}`), suggesting a templating system, likely Hugo based on `hugo` mentions.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: general
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/EOS-Nation_dfuse-docs.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

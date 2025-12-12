@@ -1,0 +1,84 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: kryptokrauts_ae-prediction-cards
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** control_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## Analysis of `kryptokrauts_ae-prediction-cards` Repository
+
+This report summarizes the architecture, key functionalities, and components of the `kryptokrauts_ae-prediction-cards` repository, a decentralized prediction market platform built on the Aeternity blockchain. The core concept involves predicting future asset prices by renting Non-Fungible Tokens (NFTs) representing potential outcomes (higher or lower). The longest renter of the NFT corresponding to the correct outcome ultimately becomes the NFT owner. The system comprises a smart contract, backend services (oracle and prediction processing), and a React-based frontend for user interaction.
+
+**Key Functionalities:**
+
+*   **Prediction Creation:** Users define predictions by specifying the asset, target price, start/end times, and outcome-related NFT images.
+*   **NFT Renting:** Users rent NFTs representing price outcomes, depositing funds and setting a rental price per millisecond. The highest bidder secures the rental.
+*   **Oracle Integration:** An oracle service provides the actual asset price at the prediction's end, determining the winning outcome.
+*   **Automated Prediction Processing:** A dedicated service automatically queries the oracle and processes prediction results based on the oracle's response and NFT renting durations.
+*   **Reward Claiming:** Renters of the winning NFT claim rewards proportionally to their holding time.
+*   **NFT Ownership Transfer:**  The longest renter of the winning NFT at the prediction end becomes the new NFT owner.
+*   **Frontend Interaction:** A React frontend provides a user interface for creating predictions, renting NFTs, viewing holdings, and claiming rewards.
+
+**Core Components:**
+
+*   **Smart Contract (`contract/PredictionCards.aes`):** This Aeternity smart contract, written in Sophia, is the heart of the system. It governs prediction creation (`create_prediction`), NFT renting (`rent_nft`, `deposit_to_nft`), oracle interaction (`ask_for_winning_option`, `process_oracle_response`), outcome determination, and reward distribution (`claim`). Its interface is defined in `contract/interface/PredictionCardsInterface.aes`.
+*   **Aeternity Blockchain Integration:** The platform leverages the Aeternity blockchain for trustless execution, data storage (predictions, NFT ownership), and smart contract logic. It uses AENS names for simplified contract access.
+*   **Backend Services:**
+    *   **Oracle Service (`oracle-service/src/main/java/...`):** Registers an oracle on the Aeternity blockchain and periodically queries it for prediction outcomes. Responds to oracle queries and periodically extends the oracle.
+    *   **Process Prediction Service (`process-prediction-service/src/main/java/...`):** Monitors the blockchain for completed predictions, triggers oracle queries, and processes the resulting data to determine winners.
+*   **Frontend (`frontend/src/App.tsx`):** The React-based frontend allows users to interact with the platform. Key components include:
+    *   `frontend/.env`: Stores environment variables like Aeternity node and compiler URLs.
+    *   `frontend/src/state.ts`: Manages application state using Redux, particularly wallet connection information.
+    *   `frontend/src/common/aeternity/WalletClient.ts`: Handles communication with the Aeternity wallet (Superhero), manages account data, and interacts with the smart contract.
+    *   `frontend/src/common/api/PredictionCards.api.ts`: Provides an API client for interacting with the PredictionCards smart contract using the `aepp-sdk-js` library.
+
+**Architectural Overview:**
+
+*   **Decentralized Architecture:** The platform employs a decentralized architecture, utilizing the Aeternity blockchain to ensure trustless execution and data integrity. The oracle and prediction processing services operate as independent, decoupled components.
+*   **Microservices (Implied):** The oracle and prediction processing services, while not explicitly defined, function as lightweight microservices, each responsible for specific tasks.
+*   **Event-Driven:** The `process-prediction-service` employs a scheduled task to monitor the blockchain for relevant events (predictions in a `CLOSED` state), triggering the oracle query process.
+*   **Layered Architecture:** The frontend, backend services, and smart contract form distinct layers with clearly defined responsibilities.
+
+**Design Patterns:**
+
+*   **Façade:** `PredictionCardsApi.ts` acts as a façade, simplifying interactions with the Aeternity blockchain and smart contract for the frontend.
+*   **Scheduler:** The `process-prediction-service` and `oracle-service` utilize the scheduler pattern to periodically monitor conditions and initiate actions (e.g., querying the oracle, processing responses).
+*   **Service Locator:** The use of factories (`AeternityServiceFactory`, `KeyPairServiceFactory`) suggests a service locator pattern, decoupling service usage from specific implementations.
+
+**Important Files:**
+
+*   **`README.md`:** Provides an overview of the project, its purpose, architecture, and instructions for building and running it.
+*   `*/*/pom.xml`: Maven configuration files for contract tests, process prediction service, and oracle service, defining dependencies, plugins, and build configurations.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: control_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/kryptokrauts_ae-prediction-cards.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

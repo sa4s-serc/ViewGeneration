@@ -1,0 +1,115 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: AhmedAbdelGawadFarag_Shams-Personal-Assistant
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** data_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+Here's a consolidated report based on the provided summaries:
+
+**Shams: An Arabic Virtual Assistant - System Overview**
+
+"Shams" is an Arabic virtual assistant application designed to understand and respond to voice commands in the Egyptian dialect. It offers a range of functionalities including calendar management, email handling, contact management, web searching, translation, alarm setting, notification reading, and app opening. The system employs a microservices architecture with distinct components handling different aspects of the assistant's functionality.
+
+**Key Functionalities:**
+
+The application supports the following functionalities:
+*   Voice command processing (Arabic) via Speech-to-Text (STT).
+*   Text-to-Speech (TTS) for providing responses.
+*   Intent classification to understand user commands.
+*   Named entity recognition (NER) to extract relevant information.
+*   Calendar management (create, read).
+*   Contact management (add, call, delete).
+*   Email handling (read, send).
+*   Web search.
+*   Translation.
+*   Alarm setting.
+*   Notification reading.
+*   App opening.
+*   Dialog management for multi-turn conversations.
+
+**Components:**
+
+The system consists of the following key components:
+
+1.  **Android Application (Shams\_Android):** This is the client-side application responsible for capturing user input (voice or text), communicating with backend servers via Retrofit, and presenting responses to the user in a RecyclerView based chat interface. Key classes include:
+    *   `MainActivity.java`: Handles user input, interacts with `BotManager`, and displays chat messages.
+    *   `BotManager.java`: Core logic for command processing, intent recognition, and interaction with provider classes.
+    *   `DialogManager.java`: Manages multi-turn conversations to gather necessary information.
+    *   `RecordingManager.java`: Handles audio recording.
+    *   `CalendarManager.java, ContactManager.java, EmailManager.java, WebSearchManager.java, OpenAppManager.java, NotificationProvider.java, ArabicTranslationManager.java`: Provider classes responsible for specific actions (calendar, contacts, emails, web searches, app launching, notifications, and translations respectively).
+    *   Layout files (`activity_main.xml`, `message_user_side.xml`, `message_bot_side.xml`, `alarm.xml`, `calendar.xml`, `add_contact.xml`): Define the application's UI.
+
+2.  **NER Server (servers/NER):** A Flask-based server providing Named Entity Recognition (NER) capabilities using a pre-trained Arabic NER model (hatmimoha/arabic-ner). Key files:
+    *   `app.py`: Flask application entry point with API endpoints for name and date extraction.
+    *   `ner_model/tagger.py`: Contains the NER model tagging logic.
+    *   `ner_model/helpers.py`: Helper functions for text preprocessing and postprocessing for NER.
+    *   `assistant_functions/call_contact.py`: Function to extract contact names.
+
+3.  **Main Server (servers/MAIN):**  A Flask-based server handling user requests, intent classification, task delegation, and speech processing. Key files:
+    *   `app.py`: Flask application entry point, defines API endpoints for various functionalities.
+    *   `helpers.py`: Helper functions for file uploads, speech-to-text conversion, and intent handling.
+    *   `trained_model/intent_classifier.py`: Loads and uses the trained intent classification model.
+    *   `asr/speech_to_text.py`: Speech-to-text conversion using Google Cloud Speech-to-Text API.
+    *   `asr/text_to_speech.py`: Text-to-speech conversion using Google Cloud Text-to-Speech API.
+    *   `trained_model/intents.py`: Business logic for executing intents (calling a contact, creating a calendar event, etc.).
+    *   `translation/translation.py`: Handles translation tasks.
+    *   `trained_model/preprocess.py`: Preprocessing of arabic text before intent classification.
+
+4.  **Intent Classification Model Training (model):** Contains the code for training the intent classification model using a BERT-based architecture. The `arabic-intent.ipynb` notebook (Kaggle) details the training process, which uses transfer learning with an Arabic BERT model.
+
+**Architectural Insights:**
+
+*   The application employs a microservices architecture, with independent servers for NER and core application logic, communicating over HTTP.
+*   Cloud-based services (Google Cloud Speech-to-Text and Text-to-Speech) are used for ASR and TTS.
+*   Separation of the Android app (client) and server-side logic facilitates updates and maintenance.
+*   Modular design through separation of intent classification, NER, and action execution promotes scalability.
+
+**Design Patterns:**
+
+*   **Provider Pattern:** Classes like `CalendarManager`, `ContactManager`, and `EmailManager` encapsulate specific functionalities.
+*   **Singleton Pattern:** Ensures a single instance of core manager classes: `BotManager`, `DialogManager`, `RecordingManager`, `AlarmClockManager`, `CalendarManager`, `ContactManager`, `WebSearchManager`, `EmailManager`, `OpenAppManager`, `NotificationProvider`, and `ArabicTranslationManager`.
+
+**Notable Dependencies:**
+
+*   TensorFlow/Keras: Intent classification model development.
+*   Transformers (Hugging Face): Leveraging pre-trained Arabic BERT models.
+*   Flask: REST API development for the servers.
+*   Google Cloud Speech-to-Text & Text-to-Speech: ASR and TTS functionalities.
+*   Retrofit: Android application network requests.
+*   pydub: Audio format conversion (to flac).
+*   farasapy: Arabic text segmentation.
+*   google-auth, google-api-core: Authentication with google cloud platform.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: data_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/AhmedAbdelGawadFarag_Shams-Personal-Assistant.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

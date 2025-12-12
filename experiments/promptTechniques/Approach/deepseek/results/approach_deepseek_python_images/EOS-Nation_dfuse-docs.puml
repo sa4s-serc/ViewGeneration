@@ -1,0 +1,60 @@
+
+@startuml
+!define RECTANGLE class
+skinparam class {
+    BackgroundColor White
+    BorderColor Black
+    ArrowColor Black
+    FontSize 12
+}
+
+package "dfuse System" {
+    RECTANGLE "mindreader" as mindreader
+    RECTANGLE "relayer" as relayer
+    RECTANGLE "search" as search
+    RECTANGLE "dgraphql" as dgraphql
+    RECTANGLE "GraphQL API" as graphql_api
+    RECTANGLE "gRPC" as grpc
+}
+
+RECTANGLE "dfuseeos CLI" as dfuseeos
+RECTANGLE "nodeos" as nodeos
+RECTANGLE "BigTable" as bigtable
+RECTANGLE "TiKV" as tikv
+RECTANGLE "Badger" as badger
+RECTANGLE "EOSIO Blockchain" as blockchain
+RECTANGLE "Client Applications" as clients
+
+mindreader --> relayer : blockchain data
+relayer --> search : transformed data
+search --> dgraphql : indexed data
+dgraphql --> graphql_api : GraphQL queries
+graphql_api --> grpc : gRPC transport
+dfuseeos --> mindreader : management
+dfuseeos --> relayer : management
+dfuseeos --> search : management
+dfuseeos --> dgraphql : management
+nodeos --> mindreader : raw data
+bigtable --> search : storage
+tikv --> search : storage
+badger --> search : storage
+blockchain --> nodeos : blockchain data
+clients --> graphql_api : API requests
+clients --> grpc : gRPC calls
+
+note right of mindreader
+  Extracts raw blockchain data
+  from nodeos
+end note
+
+note right of search
+  Indexes blockchain data
+  for efficient querying
+end note
+
+note right of graphql_api
+  Provides GraphQL interface
+  for data access
+end note
+
+@enduml

@@ -1,0 +1,40 @@
+// Statlord Dashboard Architecture
+digraph {
+	rankdir=TB
+	node [shape=rectangle style=rounded]
+	subgraph cluster_frontend {
+		label=Frontend
+		editor [label="Dashboard Editor
+(React, Redux, Fabric.js)"]
+		viewer [label="Dashboard Viewer"]
+		api_client [label="API Client"]
+	}
+	subgraph cluster_backend {
+		label=Backend
+		api [label="REST API
+(Django)"]
+		models [label="Models
+(Gauge, Layout, Display)"]
+		serializers [label=Serializers]
+		views [label=Views]
+	}
+	db [label=PostgreSQL]
+	subgraph cluster_displays {
+		label="Display Devices"
+		browser [label=Browser]
+		epaper [label="E-paper Display
+(Raspberry Pi)"]
+		lcd [label="LCD Display
+(Arduino)"]
+	}
+	editor -> api_client
+	viewer -> api_client
+	api_client -> api
+	api -> views
+	views -> serializers
+	serializers -> models
+	models -> db
+	api -> browser
+	api -> epaper
+	api -> lcd
+}

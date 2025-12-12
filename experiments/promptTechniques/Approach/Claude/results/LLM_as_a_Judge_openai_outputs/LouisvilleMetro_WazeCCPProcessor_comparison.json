@@ -1,0 +1,425 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Cloudwatch Event",
+        "description": "Triggers Lambda function at scheduled intervals",
+        "position": "top"
+      },
+      {
+        "name": "Lambda Function",
+        "description": "Processes data",
+        "position": "center"
+      },
+      {
+        "name": "S3 Bucket",
+        "description": "Inbound and completed storage",
+        "position": "right"
+      },
+      {
+        "name": "SNS Topic",
+        "description": "Triggers notifications",
+        "position": "right"
+      },
+      {
+        "name": "SQS Queue",
+        "description": "Holds messages",
+        "position": "left"
+      },
+      {
+        "name": "Cloudwatch Alarm",
+        "description": "Monitors queues",
+        "position": "left"
+      },
+      {
+        "name": "RDS",
+        "description": "Database storage",
+        "position": "bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Cloudwatch Event",
+        "target": "Lambda Function",
+        "label": "1",
+        "type": "event"
+      },
+      {
+        "source": "Lambda Function",
+        "target": "S3 Bucket",
+        "label": "3",
+        "type": "data transfer"
+      },
+      {
+        "source": "S3 Bucket",
+        "target": "SNS Topic",
+        "label": "4",
+        "type": "event"
+      },
+      {
+        "source": "SNS Topic",
+        "target": "SQS Queue",
+        "label": "5",
+        "type": "message"
+      },
+      {
+        "source": "SQS Queue",
+        "target": "Lambda Function",
+        "label": "6",
+        "type": "message"
+      },
+      {
+        "source": "Lambda Function",
+        "target": "RDS",
+        "label": "8",
+        "type": "data transfer"
+      },
+      {
+        "source": "Lambda Function",
+        "target": "S3 Bucket",
+        "label": "9",
+        "type": "data transfer"
+      },
+      {
+        "source": "Lambda Function",
+        "target": "SNS Topic",
+        "label": "10",
+        "type": "notification"
+      }
+    ],
+    "annotations": [
+      "Cloudwatch alarm triggers an SNS topic to notify when records are in the dead letter queue"
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": null
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Waze CCP Feed",
+        "description": "Data source",
+        "position": "left"
+      },
+      {
+        "name": "waze-data-download",
+        "description": "Downloads data",
+        "position": "left"
+      },
+      {
+        "name": "Raw Data Lake",
+        "description": "Stores raw data",
+        "position": "left"
+      },
+      {
+        "name": "waze-data-process",
+        "description": "Processes data",
+        "position": "center"
+      },
+      {
+        "name": "Processing Queue",
+        "description": "Queues data for processing",
+        "position": "center"
+      },
+      {
+        "name": "alerts-processing",
+        "description": "Processes alerts",
+        "position": "right"
+      },
+      {
+        "name": "irregularities-processing",
+        "description": "Processes irregularities",
+        "position": "right"
+      },
+      {
+        "name": "jams-processing",
+        "description": "Processes jams",
+        "position": "right"
+      },
+      {
+        "name": "API Endpoint",
+        "description": "API access",
+        "position": "top"
+      },
+      {
+        "name": "waze-data-api",
+        "description": "API for data",
+        "position": "top"
+      },
+      {
+        "name": "PostgreSQL DB",
+        "description": "Database storage",
+        "position": "top"
+      },
+      {
+        "name": "Monitoring",
+        "description": "System monitoring",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Waze CCP Feed",
+        "target": "waze-data-download",
+        "type": "data transfer"
+      },
+      {
+        "source": "waze-data-download",
+        "target": "Raw Data Lake",
+        "type": "data transfer"
+      },
+      {
+        "source": "Raw Data Lake",
+        "target": "waze-data-process",
+        "type": "data transfer"
+      },
+      {
+        "source": "waze-data-process",
+        "target": "Processing Queue",
+        "type": "data transfer"
+      },
+      {
+        "source": "Processing Queue",
+        "target": "alerts-processing",
+        "type": "data transfer"
+      },
+      {
+        "source": "Processing Queue",
+        "target": "irregularities-processing",
+        "type": "data transfer"
+      },
+      {
+        "source": "Processing Queue",
+        "target": "jams-processing",
+        "type": "data transfer"
+      },
+      {
+        "source": "API Endpoint",
+        "target": "waze-data-api",
+        "type": "api call"
+      },
+      {
+        "source": "waze-data-api",
+        "target": "PostgreSQL DB",
+        "type": "data transfer"
+      },
+      {
+        "source": "alerts-processing",
+        "target": "Monitoring",
+        "type": "notification"
+      },
+      {
+        "source": "irregularities-processing",
+        "target": "Monitoring",
+        "type": "notification"
+      },
+      {
+        "source": "jams-processing",
+        "target": "Monitoring",
+        "type": "notification"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Data Collection",
+        "components": [
+          "Waze CCP Feed",
+          "waze-data-download",
+          "Raw Data Lake"
+        ]
+      },
+      {
+        "name": "Processing Pipeline",
+        "components": [
+          "waze-data-process",
+          "Processing Queue",
+          "alerts-processing",
+          "irregularities-processing",
+          "jams-processing"
+        ]
+      },
+      {
+        "name": "Storage & API",
+        "components": [
+          "API Endpoint",
+          "waze-data-api",
+          "PostgreSQL DB"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Waze CCP Data Processing Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      {
+        "name": "Database",
+        "description": "RDS and PostgreSQL DB both serve as database storage"
+      }
+    ],
+    "unique_to_GroundTruth": [
+      {
+        "name": "Cloudwatch Event",
+        "description": "Triggers Lambda function"
+      },
+      {
+        "name": "Lambda Function",
+        "description": "Processes data"
+      },
+      {
+        "name": "S3 Bucket",
+        "description": "Storage"
+      },
+      {
+        "name": "SNS Topic",
+        "description": "Notifications"
+      },
+      {
+        "name": "SQS Queue",
+        "description": "Message queue"
+      },
+      {
+        "name": "Cloudwatch Alarm",
+        "description": "Monitoring"
+      }
+    ],
+    "unique_to_GeneratedImage": [
+      {
+        "name": "Waze CCP Feed",
+        "description": "Data source"
+      },
+      {
+        "name": "waze-data-download",
+        "description": "Downloads data"
+      },
+      {
+        "name": "Raw Data Lake",
+        "description": "Stores raw data"
+      },
+      {
+        "name": "waze-data-process",
+        "description": "Processes data"
+      },
+      {
+        "name": "Processing Queue",
+        "description": "Queues data"
+      },
+      {
+        "name": "alerts-processing",
+        "description": "Processes alerts"
+      },
+      {
+        "name": "irregularities-processing",
+        "description": "Processes irregularities"
+      },
+      {
+        "name": "jams-processing",
+        "description": "Processes jams"
+      },
+      {
+        "name": "API Endpoint",
+        "description": "API access"
+      },
+      {
+        "name": "waze-data-api",
+        "description": "API for data"
+      },
+      {
+        "name": "Monitoring",
+        "description": "System monitoring"
+      }
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Cloudwatch Event",
+        "target": "Lambda Function"
+      },
+      {
+        "source": "Lambda Function",
+        "target": "S3 Bucket"
+      },
+      {
+        "source": "S3 Bucket",
+        "target": "SNS Topic"
+      },
+      {
+        "source": "SNS Topic",
+        "target": "SQS Queue"
+      },
+      {
+        "source": "SQS Queue",
+        "target": "Lambda Function"
+      },
+      {
+        "source": "Lambda Function",
+        "target": "RDS"
+      },
+      {
+        "source": "Lambda Function",
+        "target": "S3 Bucket"
+      },
+      {
+        "source": "Lambda Function",
+        "target": "SNS Topic"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Waze CCP Feed",
+        "target": "waze-data-download"
+      },
+      {
+        "source": "waze-data-download",
+        "target": "Raw Data Lake"
+      },
+      {
+        "source": "Raw Data Lake",
+        "target": "waze-data-process"
+      },
+      {
+        "source": "waze-data-process",
+        "target": "Processing Queue"
+      },
+      {
+        "source": "Processing Queue",
+        "target": "alerts-processing"
+      },
+      {
+        "source": "Processing Queue",
+        "target": "irregularities-processing"
+      },
+      {
+        "source": "Processing Queue",
+        "target": "jams-processing"
+      },
+      {
+        "source": "API Endpoint",
+        "target": "waze-data-api"
+      },
+      {
+        "source": "waze-data-api",
+        "target": "PostgreSQL DB"
+      },
+      {
+        "source": "alerts-processing",
+        "target": "Monitoring"
+      },
+      {
+        "source": "irregularities-processing",
+        "target": "Monitoring"
+      },
+      {
+        "source": "jams-processing",
+        "target": "Monitoring"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on AWS services like Lambda, S3, SNS, and SQS for event-driven processing, with Cloudwatch for monitoring. The GeneratedImage diagram represents a data processing pipeline with components for data collection, processing, and monitoring, using services like API Gateway and PostgreSQL. Both diagrams include database components, but they differ in their architectural focus: event-driven processing versus a data pipeline. The GroundTruth diagram is more AWS-centric, while the GeneratedImage diagram is structured around a data flow pipeline. Rating: 7/10. The GeneratedImage effectively captures a data processing architecture but lacks some AWS-specific components and event-driven details present in the GroundTruth.",
+    "Rating": 7
+  }
+}

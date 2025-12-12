@@ -1,0 +1,119 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: coverage-robot_core
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** control_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## Coverage Robot System Analysis: A Consolidated Report
+
+This report consolidates the analysis of the Coverage Robot system, a platform for ingesting, analyzing, and publishing code coverage data. The system is structured as a monorepo using PHP (Symfony) and Terraform, designed for cloud deployment on AWS and GCP. It operates under a Business Source License 1.1, limiting commercial use for competing services.
+
+**Core Functionalities:**
+
+The system provides end-to-end code coverage management:
+
+*   **Coverage Ingestion, Analysis, and Publishing:** The core purpose is to collect, analyze, and report on code coverage data.
+*   **GitHub Integration:** Integrates with GitHub via a GitHub App for authentication and API interaction, enabling reporting directly within pull requests.
+*   **Event-Driven Architecture:** Leverages AWS EventBridge for asynchronous communication between services, enabling decoupling and scalability.
+*   **Data Warehousing and Storage:** Employs BigQuery for aggregated data storage, AWS S3 for storing raw coverage data, and DynamoDB for configuration, project metadata, and the event store.
+*   **Telemetry:** Utilizes CloudWatch EMF for metrics reporting and monitoring.
+*   **Configuration Management:** Provides a configuration system, with settings stored in DynamoDB, for customizing coverage reporting (comment style, path replacements).
+*   **Badge Generation:** The `api` service provides endpoints for generating and serving coverage badges (SVG images) based on data stored in DynamoDB.
+*   **Upload Handling:** The `api` service generates pre-signed URLs for secure uploading of coverage reports to S3.
+*   **Webhook Processing**: The `api` service handles incoming webhooks from providers like Github, validates them, and enqueues them for processing.
+
+**Architecture and Key Components:**
+
+The system adopts a microservices architecture, composed of independent services. Infrastructure is managed as code (IaC) using Terraform, enabling automated provisioning on both AWS and GCP.
+
+*   **Monorepo Structure:**  Uses a monorepo structure to facilitate code sharing and dependency management.
+*   **`api` Service:** Provides API endpoints for uploading coverage reports, generating badges, and processing webhooks. Uses Cognito for authentication and authorization via upload and graph tokens. Implemented as AWS Lambda functions behind a Bref layer.
+*   **`orchestrator` Service:** The central orchestrator reacts to events, coordinates the analysis pipeline, and publishes final coverage reports. Implemented as AWS Lambda functions behind a Bref layer. Persists state changes to DynamoDB based event store.
+*   **`analyse` Service:**  Processes coverage data, compares it against previous states, and publishes reports. Employs caching and lazy loading for efficiency.
+*   **`publish` Service:** Responsible for publishing coverage reports to external platforms like GitHub. (Inferred from `docker-compose.yml` but details were not provided in summaries).
+*   **`ingest` Service:** (Inferred from `docker-compose.yml` but details were not provided in summaries).
+*   **Packages:** The `packages/` directory contains reusable PHP packages, including:
+    *   `clients`: Clients for interacting with external services (GitHub, ObjectReference).
+    *   `message`: Defines message structures and a publish client using SQS.
+    *   `configuration`: Manages project configuration using DynamoDB.
+    *   `event`: Defines events, handlers, and event processors using EventBridge.
+    *   `telemetry`: Provides metrics reporting using AWS CloudWatch EMF.
+    *   `local`: Commands and services for local development.
+
+**Key Files and Their Roles:**
+
+*   **`LICENSE`**:  Specifies the Business Source License 1.1.
+*   **`README.md`**: Project overview, architecture, and deployment approach.
+*   **`docker-compose.yml`**: Defines a local development environment using Docker and LocalStack (for AWS service emulation).
+*   **`.github/workflows/*`**: GitHub Actions workflows for CI/CD (linting, testing, deployment).
+*   **`infrastructure/`**: Terraform configuration for AWS and GCP infrastructure.
+*   **`src/Service/CachingCoverageAnalyserService.php`, `src/Service/AbstractCoverageAnalyserService.php`**: Orchestrates coverage analysis, fetches data, and calculates metrics.  `CachingCoverageAnalyserService` implements in-memory caching.
+*   **`src/Model/CoverageReport.php`**: Central data model representing the coverage report. Uses lazy loading.
+*   **`src/Query/*`**: Defines classes for querying the data warehouse (BigQuery).
+*   **`src/Service/QueryService.php`**: Executes SQL queries.
+*   **`services/api/src/Handler/WebhookHandler.php`:** Handles incoming webhooks, validates them, and queues them for processing.
+*   **`services/orchestrator/src/Event/*EventProcessor.php`:** Implements event processing logic, updating the event store and triggering subsequent events.
+*   **`services/orchestrator/src/Service/EventStoreService.php`:** Manages interaction with the DynamoDB event store.
+
+**Notable Design Patterns:**
+
+*   **Event-Driven Architecture:** Central to the system's operation.
+*   **Dependency Injection (Symfony):**  Used extensively for loose coupling and testability.
+*   **Strategy:** Used in `QueryService` for query execution and result parsing, and in `BackoffStrategyInterface`.
+*   **Template:** Used in `TemplateRenderingService` to construct messages and AbstractIngestEventProcessor
+*   **Decorator:** Used for adding caching behavior (e.g., `CachingCoverageAnalyserService`, `CachingEventStoreService`).
+*   **Lazy Loading:** Implemented in `CoverageReport` to defer metric calculation.
+*   **Chain of Responsibility:** Utilized in event processing pipeline.
+*   **Command Pattern:** Likely used to encapsulate the creation of new projects.
+*   **Factory Pattern:** For creating mock objects (e.g., MockTagBehaviourServiceFactory).
+
+**Efficiency Considerations:**
+
+The system prioritizes efficiency through:
+
+*   **Caching:** Aggressive caching at multiple levels (InMemoryCacheTrait, DynamoDB client caching, dedicated caching services).
+*   **Lazy Loading:** Deferring computation until necessary.
+
+**Technology Stack:**
+
+*   PHP (Symfony)
+*   Terraform
+*   AWS (S3, DynamoDB, EventBridge, CloudWatch, Cognito, SQS)
+*   GCP (BigQuery - optional deployment target)
+*   Docker
+*   LocalStack (for local development)
+*   GitHub Actions
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: control_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/coverage-robot_core.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

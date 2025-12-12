@@ -1,0 +1,114 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: chirgjin_track-my-events
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** control_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## Event Tracking System Analysis Report
+
+This report summarizes the architecture, key functionalities, components, and design patterns of a microservices-based event tracking system. The system comprises a React frontend and three backend services (gateway, user, and tracking) built with Node.js and Express. It utilizes PostgreSQL for persistent storage, Redis for pub/sub messaging, and Prisma as an ORM.
+
+**Functionality Overview:**
+
+The system allows users to register, log in, and integrate a Javascript SDK into their applications/websites to track user events. Collected data is visualized on a user-friendly dashboard, displaying metrics like active users, event counts, and page visits. The core features include:
+
+*   **Event Tracking:** Capturing user events on integrated platforms.
+*   **User Management:** Account creation, login, profile management, and API key generation.
+*   **Authentication:** Secure access using access and refresh tokens.
+*   **Data Visualization:** Displaying aggregated event data on a dashboard.
+
+**Architectural Highlights:**
+
+The system adopts a microservices architecture for modularity and scalability. Key architectural elements include:
+
+*   **Microservices Architecture:** Separating functionalities into independent, deployable services.
+*   **API Gateway:** A single entry point for all frontend requests, routing them to the appropriate backend service and enforcing authentication. This functions as a simplified Backend for Frontend (BFF) pattern.
+*   **Asynchronous Communication:** Redis Pub/Sub enables asynchronous communication between the gateway and tracking services, improving performance and decoupling.
+
+**Component Breakdown:**
+
+*   **Frontend (React):** Located in the `frontend/` directory, the React application provides the user interface.
+    *   `src/index.tsx`: Entry point, setting up routing and rendering the main application component.
+    *   `src/routes.tsx`: Defines application routes for authentication and dashboard functionalities.
+    *   `src/apis/`: Contains API client code (using Axios) for communicating with backend services.
+    *   `src/components/`: Houses reusable React components for the dashboard (e.g., `Chart`, `EventTable`, `Overview`, `Sidebar`).
+    *   `src/layouts/`: Defines UI layout components (`UnAuthenticatedLayout`, `LoggedInLayout`).
+    *   `src/views/`: Contains components for different views (e.g., `Login`, `Register`, `Dashboard`, `Profile`, `Setup`).
+    *   `src/assets/tracking-sdk.js`: The Javascript SDK for event tracking.
+    *   `src/assets/scss/argon-dashboard-react.scss`: Main SCSS file for styling using the Argon Dashboard React theme.
+    *   `src/helpers/sdkSnippet.ts`: Provides code snippets for SDK integration.
+
+*   **Tracking Service:** Located in `services/tracking-service/`, this service processes and stores event data.
+    *   `src/app.ts`: Entry point of the Express application.
+    *   `src/subscriber.ts`: Listens to the Redis "events" channel, processes event data, and stores it in PostgreSQL.
+    *   `prisma/schema.prisma`: Defines the database schema using Prisma ORM.
+    *   `src/prismaClient.ts`: Initializes the Prisma client.
+    *   `src/controllers/Public/EventsController.ts`: Handles API requests related to event data, including creation, overview statistics, and active user retrieval.
+
+*   **User Service:** Located in `services/user-service/`, this service handles user management.
+    *   `src/app.ts`: Entry point of the Express application.
+    *   `prisma/schema.prisma`: Defines the database schema using Prisma ORM.
+    *   `src/controllers/Public/UsersController.ts`: Handles user management API requests (creation, profile updates).
+    *   `src/controllers/Public/AuthenticationController.ts`: Manages user authentication (login, refresh token, logout).
+
+*   **Gateway Service:** Located in `services/gateway/`, this service acts as a reverse proxy.
+    *   `src/app.ts`: Entry point of the Express application.
+    *   `src/controllers/ServiceController.ts`: Forwards requests to the appropriate backend services and handles authentication.
+
+**Key Files:**
+
+*   **`LICENSE`:**  MIT License.
+*   **`README.md`:** Provides project description, architecture overview, and local setup instructions.
+*   **`cloudbuild.yaml`:** (in root, tracking-service, user-service) Defines the build process for each service using Google Cloud Build, creating Docker images.
+
+**Design Patterns:**
+
+The codebase utilizes several design patterns:
+
+*   **Data Transfer Object (DTO):**  Consistent API responses with `data` and `errors` properties.
+*   **Repository Pattern (Implicit):** Prisma ORM abstracts database access details.
+*   **Middleware Pattern:** Express middleware is used for logging, authentication, and error handling.
+
+**Further Analysis:**
+
+The following areas warrant further investigation:
+
+*   **Exception Handling:** Error handling strategies within services and error propagation to the client.
+*   **Authentication and Authorization:** Details of access and refresh token generation and validation logic.
+*   **Deployment Strategy:** Deployment process and management of services in a production environment (clues in `cloudbuild.yaml`).
+*   **Scalability and Performance:** System's ability to handle a large number of events and users.
+*   **Testing:** Unit and integration tests for different components.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: control_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/chirgjin_track-my-events.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

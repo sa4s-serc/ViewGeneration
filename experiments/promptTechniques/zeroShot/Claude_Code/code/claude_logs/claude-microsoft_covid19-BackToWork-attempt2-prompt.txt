@@ -1,0 +1,92 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: microsoft_covid19-BackToWork
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** control_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## Back to Work Solution: GitHub Repository Analysis Report
+
+This report summarizes the analysis of a "Back to Work" solution repository on GitHub, leveraging Microsoft technologies like Azure Functions, Azure SQL Database, and Microsoft Healthcare Bot. The solution aims to facilitate a safe return to work during a pandemic by assessing employee health status, collecting user information, symptoms, and lab test results, determining work clearance, and sending notifications.
+
+**Key Functionalities:**
+
+*   **Data Collection:** Collects user data including personal information, symptoms, lab results, and return-to-work requests.
+*   **Health Assessment:** Implements logic (primarily within Healthcare Bot scenarios) to determine return-to-work clearance based on symptoms, exposure, and lab results.
+*   **Data Persistence:** Stores and retrieves data from an Azure SQL Database.
+*   **Notification System:** Sends email notifications (using SendGrid) with assessment results and QR codes (if cleared). Supports programmatic triggers for Microsoft Teams notifications.
+*   **QR Code Generation:** Generates QR codes for cleared employees for verification purposes.
+
+**Core Components and Architecture:**
+
+The solution is built on a serverless architecture utilizing Azure Functions, providing scalability and cost-effectiveness. The functions are designed in a microservices-ish manner, with each responsible for a specific task. Infrastructure as Code (IaC) is implemented using ARM templates for automated deployment. Key components include:
+
+*   **Azure Functions:** The core logic is implemented as serverless Azure Functions that handle HTTP requests and interact with the database.
+*   **Azure SQL Database:** Serves as the primary data store for user information, symptoms, lab results, and request status. The solution opts for SQL Database instead of FHIR (the primary recommendation for healthcare) potentially to support broader data types or organizational constraints.
+*   **Microsoft Healthcare Bot:** The Healthcare Bot scenarios define the core logic for health assessment.
+*   **ARM Templates:** Automate the deployment of Azure resources. The `BackToWork.ps1` PowerShell script streamlines the ARM template deployment.
+
+**Important Files and Roles:**
+
+*   **Repository Documentation:**
+    *   `CODE_OF_CONDUCT.md`: Defines the code of conduct for contributors.
+    *   `LICENSE`: Specifies the MIT License.
+    *   `README.md`: Provides a high-level overview, setup instructions, and resources.
+    *   `SECURITY.md`: Outlines the process for reporting security vulnerabilities.
+*   **Deployment and Configuration:**
+    *   `WebchatChannel/*`: Contains files related to deploying the Healthcare Bot using a web chat channel, including instructions, ARM templates, and configuration details. Includes guidance on using PowerBI for data visualization (`WebchatChannel/5-Visualize-PowerBI.md`) and implementing Azure Active Directory login (`WebchatChannel/Additional-Login-Methods.md`).
+    *   `Scripts/*`: Contains SQL scripts for database creation, stored procedures, views, Healthcare Bot scenarios, and localization files.
+    *   `ARM/*`: Contains ARM templates for automated deployment of Azure resources.
+*   **Azure Functions Codebase (`AzureFunctionsCodebase/*`):**
+    *   `BackToWork.sln`: Visual Studio Solution file.
+    *   `TriggerNotification.cs`: Azure Function to send scheduled email notifications.
+    *   `PostRequestStatus.cs`, `PostLabTestInfo.cs`, `PostSymptomsInfo.cs`, `PostUserInfo.cs`: Azure Functions to handle HTTP POST requests for writing data.
+    *   `GetLabTestInfo.cs`, `GetRequestStatus.cs`, `GetSymptomsInfo.cs`, `GetUserInfo.cs`: Azure Functions to handle HTTP GET requests for retrieving data.
+    *   `Model/*`: Contains C# classes that define the data models (e.g., `UserInfo`, `SymptomsInfo`, `LabTestInfo`, `RequestStatus`).
+    *   `Helper/*`: Contains helper classes for database interaction (`DbHelper`), notification sending (`NotificationHelper`), and programmatic triggers (`ProgrammaticTrigger`).
+    *   `Constants.cs`: Defines constant strings for stored procedure names and configuration values.
+    *   `Properties/PublishProfiles/*`: Contains publish profiles for deploying the Azure Functions.
+
+**Design Patterns:**
+
+*   **Repository Pattern:** The `DbHelper` class acts as a repository, abstracting database access.
+*   **Factory Pattern (Implied):** `DbHelper` likely uses a mechanism to create SQL commands based on the operation.
+*   **Configuration Pattern:** Application settings manage configuration parameters (SQL connection string, SendGrid API key).
+*   **Strategy Pattern (Potential):** The notification system could be extended to support different notification channels.
+
+**Architectural Insights:**
+
+The solution exhibits a degree of separation of concerns, with distinct layers for data access, business logic (within the Healthcare Bot scenarios), and notification handling. Stored procedures are used to interact with the Azure SQL database, providing an abstraction layer and potentially improving security and performance.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: control_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/microsoft_covid19-BackToWork.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

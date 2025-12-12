@@ -1,0 +1,85 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: hyper-prog_hasses
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** deployment, data_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+Here's a consolidated report based on the provided summaries of the `hyper-prog_hasses` repository analysis.
+
+**Report: Analysis of the `hyper-prog_hasses` Server-Sent Events (SSE) Server**
+
+The `hyper-prog_hasses` repository contains a C-based, asynchronous SSE server designed for scalable, real-time notifications. Unlike traditional approaches that allocate a thread/process per client, `hasses` leverages Linux's `epoll` for non-blocking I/O, achieving a lightweight and efficient solution. It interacts with web servers (e.g., Apache, Nginx) via a FIFO file or dedicated TCP socket. The web server forwards messages to `hasses`, which then relays them to subscribed clients.
+
+**Key Functionalities and Components:**
+
+*   **SSE Handling:** Manages SSE connections, parsing HTTP requests, and maintaining persistent connections. This includes handling the SSE handshake by setting appropriate headers like `Content-Type: text/event-stream` and `Cache-Control: no-cache`.
+*   **Asynchronous I/O via `epoll`:** The core of the server's scalability is its use of `epoll` to concurrently handle multiple client connections without blocking, enabling efficient management of numerous clients.
+*   **Client Management:** Maintains a data structure of connected clients, tracking their subscription tokens and connection status, along with mechanisms for handling client timeouts and re-initialization.
+*   **Message Routing:**  Routes messages received from the web server to the appropriate clients based on subscription tokens, supporting targeted messaging (specific clients, groups, or all clients).
+*   **Communication Channel:** Supports both a FIFO file and a TCP socket interface, providing flexibility for web servers or other processes to send messages to `hasses`.
+*   **Logging:** Offers configurable logging levels (quiet, normal, debug) for detailed server activity and error recording.
+*   **SSL Support:** Integrates OpenSSL for encrypted (HTTPS) connections, securing communication.
+*   **Configuration:** Reads server settings from a configuration file (`hasses.conf`), including ports, log file locations, and URL matching.
+*   **CORS Support:** Enables configuration of the CORS origin.
+*   **Daemonization:** Can operate as a background daemon process.
+*   **Status Monitoring:** Provides a mechanism to query the server's operational status, including the number of connected clients, uptime, and other relevant metrics, via the communication channel.
+
+**Key Files and Their Roles:**
+
+*   **`hasses.c`:** The main source file, containing the `main` function responsible for argument parsing, daemonization, socket creation, `epoll` setup, and the primary event loop, implementing the core server logic.
+*   **`chat.c/h`:** Handles SSE-specific logic, parsing HTTP requests, extracting subscription parameters, sending SSE handshake responses, encoding messages into SSE format, and generating HTTP responses.
+*   **`cdata.c/h`:** Manages client data structures, including client lists, subscriptions, and connection states. Provides functions for client management (add, delete, query).
+*   **`cio.c/h`:** Manages input/output (I/O) operations, including reading from and writing to sockets, abstracting the I/O layer, and integrating SSL support.
+*   **`hasses.h`:** Defines core data structures (`Hasses_Settings`, `Hasses_Statistics`), common constants, and function declarations.
+*   **`Makefile`:** The build file for compiling the server.
+*   **`hasses.conf`:** The configuration file loaded at server startup.
+*   **`build-hasses-parameters`:** A Perl script for generating command-line parameters based on `hasses.conf`.
+*   **`Docker/Dockerfile`:** Defines the steps to build a Docker image for the server.
+*   **`README.md`:** Provides an overview, compilation instructions, and usage examples.
+*   **`LICENSE.txt`:** Contains the GNU General Public License v2.
+*   **`init_script/*`:** Files for integration with SysVinit systems.
+*   **`EXAMPLES/*`:** Example configurations and integrations such as a chat web site.
+
+**Architectural Insights and Design Patterns:**
+
+*   **Event-Driven Architecture:** The server's core is an event loop driven by `epoll`. Events (socket readiness, data received) trigger corresponding handlers.
+*   **Non-Blocking I/O:** `epoll` allows the server to manage many concurrent connections without blocking.
+*   **Modular Design:** The code is organized into distinct modules (`chat`, `cdata`, `cio`) with well-defined interfaces, promoting maintainability and testability.
+*   **Layered Architecture:** The architecture separates concerns, with the `cio` layer abstracting the socket layer, and the `chat` layer abstracting SSE protocol related functions from `hasses.c`.
+*   **Callback Pattern:**  The `cio` module uses callbacks (`cio_high_read_SET`, `cio_low_write_SET`) to handle I/O events asynchronously.
+*   **Singleton Pattern (Implicit):** `Hasses_Settings` and `Hasses_Statistics` are treated as singletons, accessible globally, though not explicitly enforced.
+*   **Strategy Pattern:** The `cio` layer abstracts SSL/non-SSL communication; SSL implementations are separate and toggled via the `use_ssl` flag.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment, data_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/hyper-prog_hasses.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

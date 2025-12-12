@@ -1,0 +1,92 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: zalando-incubator_fabric-gateway
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** control_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+**Fabric Gateway Project Analysis Report**
+
+This report summarizes an analysis of the Fabric Gateway project, a Kubernetes-based API gateway built on Skipper, with a focus on its functionalities, architecture, key components, and design patterns. The gateway leverages Kubernetes Custom Resource Definitions (CRDs) to define and manage API configurations, automating Ingress resource management based on the `FabricGateway` CRD. The project documentation is built using MkDocs, providing a user guide, setup instructions, and feature explanations.
+
+**Key Functionalities:**
+
+*   **API Gateway Configuration and Ingress Management:** Defines the `FabricGateway` CRD for configuring authentication, authorization, rate-limiting, and other API management features. Generates and manages Kubernetes Ingress resources, ensuring zero-downtime deployments during updates.
+*   **Policy Enforcement:** Implements core API gateway features like authentication (using Zalando's IAM service with service and employee token support), authorization (based on scopes defined in the `FabricGateway` resource), rate limiting, and CORS. Dynamic filter configuration allows extending functionality.
+*   **Service Discovery:** Integrates with StackSets for dynamic service discovery, adapting to changes in backend service deployments managed by StackSets and handling traffic switching and versioned hosts.
+*   **Validation:** Implements validation of `FabricGateway` resources to ensure they meet defined constraints using Kubernetes admission webhooks to reject invalid resources.
+*   **End-to-End Testing**: Includes Dockerfiles and resources for E2E tests validating gateway behavior in realistic environments.
+*   **Search:** Implements a full-fledged search feature, with query parsing, suggestion, result highlighting, and a separate web worker for indexing and querying.
+*   **License Management**: SBT generates a license report (`GatewayOperatorDepLicenses.md`) tracking project dependencies.
+*   **Security**: Manages security through the SECURITY.md file, which describes the vulnerability reporting process.
+
+**Key Components and Important Files:**
+
+*   **`FabricGateway` CRD:** The central configuration point, defining the desired state of the API gateway.
+*   **`IngressDerivationChain.scala`:** Core logic for deriving Skipper routes and Ingress resources from the `FabricGateway` CRD.
+*   **`StackSetOperations.scala`:** Handles integration with StackSets.
+*   **`GatewayWebhookRoutes.scala`:** Defines HTTP routes for webhook endpoints (synchronization and validation).
+*   **`delivery.yaml`:** Defines the continuous delivery pipeline.
+*   **`make-site.sh`:** Shell script for building the documentation site.
+*   **`src/assets/javascripts/worker/search.a68abb33.min.js`:** The main entry point for the search worker.
+*   **`docs/*`**: Contains all the generated files for the documentation site.
+*   **Other files**: `CODE_OF_CONDUCT.md`, `README.md`, `CONTRIBUTING.md`, `LICENSE.md`, `SECURITY.md`,  Kubernetes manifests (`deploy/operator/apply/*.yaml`, `deploy/test-app/apply/*.yaml`, `deploy/e2e-test-resources/apply/*.yaml`), `GatewayOperatorDepLicenses.md`.
+
+**Architectural Insights:**
+
+*   **Kubernetes-Native:** The project is heavily integrated with Kubernetes, using CRDs and implemented as a Kubernetes operator.
+*   **Operator Pattern:** Automates the management and configuration of Ingress resources.
+*   **Microservice Deployment:** E2E tests deploy test applications as microservices within the Kubernetes cluster.
+*   **Webhook-based:** Utilizes webhook endpoints for synchronization and validation.
+*   **Reactive Programming:** Javascript codebase uses RxJS for handling asynchronous operations, including keyboard events and managing component state. Offloads search indexing to Web Workers to improve performance.
+*   **Modular Design:** Code is organized into well-defined components (e.g., Ingress derivation chain, StackSet operations, UI components) for improved maintainability.
+
+**Design Patterns:**
+
+*   **Operator Pattern:** Central to managing the lifecycle of Ingress resources.
+*   **Chain of Responsibility:** The `IngressDerivationChain` applies a sequence of transformations and policies.
+*   **Configuration-as-Code:** API configurations are defined declaratively using Kubernetes manifests.
+*   **Module Pattern:** many files return functions
+*   **Strategy Pattern**: Used in Authentication, Service Provider Selection, and Validation. Also used in Javascript codebase for Stemming of words.
+*   **Template Method:**  ZeroDowntimeIngressTransitions are using the Template pattern. Used in Javascript codebase via the "patch" system.
+*   **Factory Pattern**:  `setupSearchHighlighter` serves as a factory, creating highlighter functions based on configuration.
+*   **Observer Pattern**: RxJS's Observables and Subscribers implement the observer pattern.
+
+**Important Considerations:**
+
+*   **IAM Integration:** Relies on Zalando's internal IAM service for authentication and authorization.
+*   **Stringly Typed:** A lot of logic depends on string comparisons and concatenations for keys in hashmaps.
+*   **Kubernetes API Dependence:** Tightly coupled to the Kubernetes API.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: control_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/zalando-incubator_fabric-gateway.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

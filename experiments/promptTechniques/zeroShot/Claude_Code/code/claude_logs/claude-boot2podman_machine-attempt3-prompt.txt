@@ -1,0 +1,94 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: boot2podman_machine
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** connectivity
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+```text
+## Report: Podman Machine Repository Analysis
+
+This report synthesizes the analysis of a GitHub repository implementing `podman-machine`, a tool inspired by Docker Machine that manages Podman virtual machines (VMs). The tool facilitates VM lifecycle management, Podman client configuration, and supports multiple hypervisor drivers. The project utilizes a plugin-based architecture, leveraging code generation, and strives for cross-platform compatibility.
+
+**Core Functionality:**
+
+The primary functionality centers on VM creation and management (create, start, stop, restart, kill, remove). It includes Podman client configuration by setting environment variables, managing SSH keys, configuring VM networks (host-only, port forwarding), facilitating file transfer and mounting, and certificate regeneration. The tool integrates with `podman-remote` and `pypodman`, and supports various ISO images (boot2podman, Fedora, customized). The system also automatically handles certificate renewal.
+
+**Key Components:**
+
+*   **CLI Commands:** Defined commands such as `create`, `start`, `stop`, `rm`, `env`, and `ssh`.
+*   **Drivers:** Abstraction layer for hypervisors (VirtualBox, QEMU, Generic, Not Supported, Serialized), handling VM lifecycle, networking and management. Drivers can be loaded as plugins and communicate via RPC. A SerialDriver helps serialize driver access, addressing provider-specific concurrency issues.
+*   **Libmachine:** Core library implementing VM and host management logic, including provisioning and state management, including `Client`, `Filestore`, `NewHost`, `Create`, `Load` functions for managing VMs.
+*   **Provisioners:** Install and configure Podman inside the VMs, with different implementations for RedHat, Fedora, CentOS, Boot2Podman, controlled via the OS detection mechanisms. Provisioners generate engine configuration from templates. Provisioners make use of dependency injection such as with the use of `SSHCommander` which in turn utilizes a `Driver`.
+*   **Host:** Represents a Podman Machine host, encapsulating its configuration, driver, and options.
+*   **Configuration Files:** Stores configurations and TLS certificates for VMs.
+*   **Network Components:** Implementation of Netfilter and NFTables allowing for network packet filtering and manipulation.
+
+**Architectural Insights:**
+
+The tool adopts a driver-based architecture for hypervisor abstraction, enabling addition of new hypervisor support. The command structure is modular. The use of vendoring ensures consistent builds. Cross-platform support is achieved via OS-specific implementations within drivers. The focus is on providing an interface to interact with remote Podman installations through SSH, as well as varlink bridges. A plugin architecture extends functionality, allowing dynamic loading of drivers. RPC provides communication between the `podman-machine` process and driver plugins. The architecture supports code generation for creating system call bindings.
+
+**Notable Design Patterns:**
+
+*   **Driver Pattern:** Abstraction of hypervisor technologies via a common interface (`Driver`).
+*   **Command Pattern:** Each command-line action is encapsulated in a separate function or type.
+*   **Factory Pattern:** Driver and provisioner creation, for example through `NewRPCClientDriverFactory` and `NewBoot2PodmanProvisioner`.
+*   **Strategy Pattern:** Provisioning logic encapsulated in separate provisioner structs (e.g., `RedHatProvisioner`), challenge handling in ACME client, configurable retry mechanism, and usage of the `AuthMethod` interface to use different authentication strategies.
+*   **Wrapper Pattern:** The `SerialDriver` wraps other drivers to serialize access.
+*   **Code Generation:** Extensive use of `mksyscall.go`, `godefs`, and other tools automates the generation of system call wrappers and data structure definitions, ensuring consistency across platforms. The automatic error and signal definitions using mkerrors.sh.
+*   **Facade Pattern:** The `unix` package serves as a facade over the system call API.
+*   **Data Transfer Object:** Structs mirroring C structures enable data transfer between Go code and the kernel.
+
+**Key Technologies & Libraries:**
+
+*   **`golang.org/x/crypto`:** Cryptographic primitives, including Ed25519, Salsa20, scrypt, and ChaCha20-Poly1305.
+*   **`golang.org/x/sys`:** Low-level system call interfaces for multiple operating systems. Provides a bridge between Go and the OS kernel.
+*   **`github.com/davecgh/go-spew`:** Debugging tool for data structure inspection.
+*   **`github.com/pmezard/go-difflib`:** Diff generation.
+*   **`github.com/skarademir/naturalsort`:** Natural string sorting.
+*   **`github.com/stretchr/testify`:** Testing utilities.
+*   **ACME Protocol:** Implementation of Automatic Certificate Management Environment for simplified TLS certificate retrieval.
+*   **bcrypt:** Secure password hashing.
+*   **OCSP:** Online Certificate Status Protocol for certificate revocation checking.
+*   **Vendoring:** All dependencies are included within the project.
+
+**Important Considerations:**
+
+*   Security considerations, especially around cryptography and system calls, are critical.
+*   Build tags are extensively used for platform-specific implementations.
+*   The reliance on `unsafe.Pointer` for interacting with system calls requires careful attention to memory management.
+
+This report summarizes the architecture, functionality, and dependencies of the `podman-machine` repository, highlighting its key design choices and focus on portability, extensibility, and automation.
+```
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: connectivity
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/boot2podman_machine.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

@@ -1,0 +1,106 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: hex-js_nodejs-hexagonal-boilerplate-ts
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** general
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## Analysis of a Todo Management Project using Hexagonal Architecture
+
+This report summarizes the key aspects of a Node.js/TypeScript project designed to manage "todos," utilizing a hexagonal architecture and various AWS services for its implementation. The project emphasizes separation of concerns, testability, and employs infrastructure-as-code (IaC) principles.
+
+**Core Functionality:**
+
+The primary function of the project is to manage todo items, encompassing creation, retrieval, updates, and deletion operations.
+
+**Architectural Overview:**
+
+The project adheres to a hexagonal architecture (also known as ports and adapters architecture). This design isolates the core business logic ("business" layer) from external dependencies, allowing for independent development and testing. The architecture implements a layered structure of: Core business logic -> Adapters -> Ports -> External Systems.
+
+*   **Business Logic:** The `src/business/*` directory houses the core business logic, which remains independent of any specific framework or external service.
+*   **Adapters:** Located in `src/adapters/*`, adapters serve as translation layers, converting data and events between the business logic and the ports interacting with external systems. The `todo.ts` adapter bridges the business logic with the DynamoDB repository. The `todoAdapterFactory` function utilizes the factory pattern for creating adapter instances with injected dependencies.
+*   **Ports:** The `src/ports/*` directory defines interfaces and implementations for interacting with external systems. Key ports include:
+    *   `aws-dynamo/*`: Implements the DynamoDB repository for persistent storage of todo items, abstracting data access logic behind an interface following the repository pattern. This pattern could potentially evolve into a Strategy pattern.
+    *   `aws-sqs/*`: Implements SQS interaction for asynchronous communication or task processing related to todos.
+    *   `aws-lambda/*`: Defines the handler function for AWS Lambda, allowing parts of the application to run as serverless functions. The `serverless.yaml` file is a crucial resource for this functionality.
+    *   `http/*`: Defines the HTTP server (using Express.js) and controllers, providing a RESTful API for todo management.
+    *   `logger/*`: Implements the application logging using `pino`.
+
+**AWS Integration:**
+
+The project leverages several AWS services:
+
+*   **DynamoDB:** Used as the primary data store for todo items.
+*   **SQS:** Likely utilized for asynchronous communication or task processing related to todos.  The specifics of message processing should be further investigated.
+*   **Lambda:** Deployed via the Serverless Framework, enabling serverless execution of application components. The deployment process of Lambda functions warrants further investigation.
+
+**Local Development Environment:**
+
+*   **Localstack:** Enables local development and testing of AWS services (DynamoDB, SQS, Lambda) without requiring actual AWS resources. `docker-compose.yml` and `docker-compose-macos.yml` define the local development environment.
+*   **Terraform:** Used via `iaac/localstack/*` to provision infrastructure (DynamoDB table, SQS queue, Lambda function) in the localstack environment, employing Infrastructure as Code (IaC).
+
+**Configuration and Utilities:**
+
+*   **Configuration:** Uses environment variables (via `.env.*` files) and configuration files in `src/config/*` for environment-specific settings.
+*   **Validation:** Employs `Joi` for input validation, ensuring data integrity.
+*   **Error Handling:** Implements custom error handling using `CustomError` and `throwCustomError` functions.
+*   **Monads:** Implements a `Maybe` monad (`src/utils/monad.ts`) for handling nullable values safely.
+*   **Logging**: Utilizes the `pino` library for robust application logging capabilities.
+
+**Testing and CI/CD:**
+
+*   **Testing:** Uses Jest for unit and integration testing. Stryker is integrated for mutation testing. `jest.config.js` provides the configuration.
+*   **CI/CD:** Utilizes CircleCI for continuous integration and continuous delivery, configured via `.circleci/config.yml`.
+
+**Project Structure and Key Files:**
+
+*   `README.md`: Provides a project overview, inspiration, and usage instructions, including a hexagonal architecture explanation.
+*   `serverless.yaml`: Configures the Serverless Framework, defining Lambda functions, events, and resources for deployment to AWS Lambda.
+*   `src/models/*`: Defines data models (e.g., `Todo`, enums for status and priority).
+*   `src/utils/*`: Contains utility functions.
+
+**Notable Design Patterns:**
+
+*   **Repository Pattern:** As mentioned above, implemented in `aws-dynamo` and `aws-sqs`.
+*   **Factory Pattern:** Demonstrated by the `todoAdapterFactory` function.
+*   **Monad:** The `Maybe` monad in `src/utils/monad.ts`.
+
+**Potential and Future Analysis:**
+
+*   **Microservice Potential:** The design, particularly the use of Lambda functions and SQS, lends itself to breaking down the application into smaller microservices.
+*   **Authentication and Authorization:** The current analysis lacks details on how authentication and authorization are handled within the application. This should be investigated.
+*   **SQS Usage:** Further analysis is needed to understand the specifics of SQS usage and message processing.
+*   **Logging Capabilities**: A deeper investigation into the logging capabilities and strategies is recommended.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: general
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/hex-js_nodejs-hexagonal-boilerplate-ts.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

@@ -1,0 +1,110 @@
+
+@startuml
+!define RECTANGLE class
+!define COMPONENT component
+!define INTERFACE interface
+!define PACKAGE package
+!define NODE node
+!define FOLDER folder
+!define DATABASE database
+!define CLOUD cloud
+!define STORAGE storage
+!define QUEUE queue
+!define API API
+
+skinparam {
+  BackgroundColor White
+  ArrowColor #000000
+  BorderColor #000000
+  ActorBorderColor #000000
+  UsecaseBorderColor #000000
+  ClassBorderColor #000000
+  ComponentBorderColor #000000
+  NodeBorderColor #000000
+  PackageBorderColor #000000
+  DatabaseBorderColor #000000
+  QueueBorderColor #000000
+  StorageBorderColor #000000
+  CloudBorderColor #000000
+  NoteBackgroundColor #FFFFCC
+  NoteBorderColor #000000
+  Shadowing false
+  RoundCorner 10
+}
+
+title Zswag Project Architecture - OpenAPI Bridge for Zserio Services
+
+package "Zswag Project" {
+  package "OpenAPI Generation" {
+    [zswag.gen CLI Tool]
+  }
+
+  package "Python Components" {
+    [OAServer - Python Server]
+    [OAClient - Python Client]
+  }
+
+  package "C++ Components" {
+    [OAClient - C++ Client]
+    [httpcl - HTTP Client Library]
+    [zswagcl - Core C++ Library]
+  }
+
+  package "Build & Packaging" {
+    [CMake Build System]
+    [Conan Dependency Manager]
+    [Python Setup Tools]
+  }
+}
+
+package "External Dependencies" {
+  [Zserio Framework]
+  [Flask/Connexion]
+  [cpp-httplib]
+  [OpenAPI Specifications]
+}
+
+[Zserio Framework] --> [zswag.gen CLI Tool] : generates
+[zswag.gen CLI Tool] --> [OpenAPI Specifications] : produces
+[OpenAPI Specifications] --> [OAServer - Python Server] : uses
+[OpenAPI Specifications] --> [OAClient - Python Client] : uses
+[OpenAPI Specifications] --> [OAClient - C++ Client] : uses
+
+[Flask/Connexion] --> [OAServer - Python Server] : powers
+[cpp-httplib] --> [httpcl - HTTP Client Library] : wraps
+[httpcl - HTTP Client Library] --> [OAClient - C++ Client] : used by
+[zswagcl - Core C++ Library] --> [OAClient - C++ Client] : implements
+
+[CMake Build System] --> [C++ Components] : builds
+[Conan Dependency Manager] --> [C++ Components] : manages deps
+[Python Setup Tools] --> [Python Components] : packages
+
+[OAServer - Python Server] --> [Zserio Framework] : integrates with
+[OAClient - Python Client] --> [Zserio Framework] : interacts with
+[OAClient - C++ Client] --> [Zserio Framework] : interacts with
+
+note right of [OAServer - Python Server]
+  Handles request parsing
+  Response serialization
+  Dependency injection
+end note
+
+note right of [OAClient - Python Client]
+  Generic HTTP/REST client
+  Persistent configuration
+  Request customization
+end note
+
+note right of [OAClient - C++ Client]
+  Uses Zserio reflection
+  Python bindings (pyzswagcl)
+  Persistent HTTP config
+end note
+
+legend
+  | Pattern Usage |
+  Adapter: OAClient components
+  Facade: OAServer
+  Factory: Client configuration methods
+end legend
+@enduml

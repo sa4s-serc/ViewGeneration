@@ -13,7 +13,7 @@ from image_similarity_measures.quality_metrics import (
 )
 
 folderA = "./initial_images"
-folderB = "./approach_gpt_python_images"
+folderB = "./zeroShot_deepseek_output_images"
 output_csv = f"./{os.path.basename(folderB.rstrip('/'))}_similarity_results.csv"
 
 
@@ -29,7 +29,7 @@ def compare_images(img1, img2):
         "RMSE": rmse(img1, img2),
         "SAM": sam(img1, img2),
         "SRE": sre(img1, img2),
-        "UIQ": uiq(img1, img2),
+        # "UIQ": uiq(img1, img2),
     }
 
 def build_stem_map(folder):

@@ -1,0 +1,337 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Appian Oracle DB",
+        "description": "Database component",
+        "boundaries": "AWS Cloud",
+        "position": "left"
+      },
+      {
+        "name": "AWS Lambda - create/delete topics",
+        "description": "Lambda function for topic management",
+        "boundaries": "Private subnet",
+        "position": "top right"
+      },
+      {
+        "name": "AWS Fargate - Kafka Connect Cluster",
+        "description": "Kafka Connect Cluster",
+        "boundaries": "Private subnet",
+        "position": "middle right"
+      },
+      {
+        "name": "CMS BigMAC",
+        "description": "Data storage and processing",
+        "boundaries": "AWS Cloud",
+        "position": "right"
+      },
+      {
+        "name": "AWS EventBridge",
+        "description": "Event routing service",
+        "boundaries": "AWS Cloud",
+        "position": "bottom left"
+      },
+      {
+        "name": "SNS Topic",
+        "description": "Notification service",
+        "boundaries": "AWS Cloud",
+        "position": "bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Appian Oracle DB",
+        "target": "AWS Lambda - create/delete topics",
+        "label": "VPC peering connection",
+        "type": "data flow"
+      },
+      {
+        "source": "AWS Lambda - create/delete topics",
+        "target": "CMS BigMAC",
+        "label": "Appian data",
+        "type": "data flow"
+      },
+      {
+        "source": "AWS EventBridge",
+        "target": "SNS Topic",
+        "label": "alerts",
+        "type": "event flow"
+      }
+    ],
+    "annotations": [
+      "Appian data is captured in real time by a JDBC connector",
+      "Appian data topics are created using KafkaJS. Development branch topics are automatically deleted when no longer needed.",
+      "Appian data is sent to BigMAC and stored in the topics created by the topics service (above).",
+      "ECS Failure Events are matched by an EventBridge rule and sent to SNS for notification fan out."
+    ],
+    "groups": [
+      {
+        "name": "topics",
+        "components": [
+          "AWS Lambda - create/delete topics"
+        ],
+        "boundaries": "Private subnet"
+      },
+      {
+        "name": "connector",
+        "components": [
+          "AWS Fargate - Kafka Connect Cluster"
+        ],
+        "boundaries": "Private subnet"
+      },
+      {
+        "name": "alerts",
+        "components": [
+          "SNS Topic"
+        ],
+        "boundaries": "AWS Cloud"
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "AWS Cloud Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "IAM",
+        "description": "Identity and Access Management",
+        "boundaries": "N/A",
+        "position": "top left"
+      },
+      {
+        "name": "SSM Parameter Store",
+        "description": "Configuration storage",
+        "boundaries": "N/A",
+        "position": "top center"
+      },
+      {
+        "name": "Secrets Manager",
+        "description": "Secrets management",
+        "boundaries": "N/A",
+        "position": "top right"
+      },
+      {
+        "name": "Kafka Connector",
+        "description": "Data streaming",
+        "boundaries": "N/A",
+        "position": "top right"
+      },
+      {
+        "name": "ECS Service",
+        "description": "Container service",
+        "boundaries": "N/A",
+        "position": "center"
+      },
+      {
+        "name": "CloudWatch",
+        "description": "Monitoring service",
+        "boundaries": "N/A",
+        "position": "bottom left"
+      },
+      {
+        "name": "BigMAC",
+        "description": "Data storage and processing",
+        "boundaries": "N/A",
+        "position": "bottom center"
+      },
+      {
+        "name": "SNS Topic",
+        "description": "Notification service",
+        "boundaries": "N/A",
+        "position": "bottom right"
+      },
+      {
+        "name": "Alerts Service",
+        "description": "Alert management",
+        "boundaries": "Monitoring & Alerting",
+        "position": "bottom"
+      },
+      {
+        "name": "Dashboard",
+        "description": "Status display",
+        "boundaries": "Monitoring & Alerting",
+        "position": "bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Appian",
+        "target": "Kafka Connector",
+        "label": "Data Changes",
+        "type": "data flow"
+      },
+      {
+        "source": "IAM",
+        "target": "ECS Service",
+        "label": "Permissions",
+        "type": "data flow"
+      },
+      {
+        "source": "SSM Parameter Store",
+        "target": "ECS Service",
+        "label": "Config",
+        "type": "data flow"
+      },
+      {
+        "source": "Secrets Manager",
+        "target": "ECS Service",
+        "label": "Credentials",
+        "type": "data flow"
+      },
+      {
+        "source": "Kafka Connector",
+        "target": "ECS Service",
+        "label": "Stream",
+        "type": "data flow"
+      },
+      {
+        "source": "ECS Service",
+        "target": "BigMAC",
+        "label": "Data Transfer",
+        "type": "data flow"
+      },
+      {
+        "source": "ECS Service",
+        "target": "SNS Topic",
+        "label": "Notifications",
+        "type": "event flow"
+      },
+      {
+        "source": "CloudWatch",
+        "target": "Alerts Service",
+        "label": "Metrics",
+        "type": "data flow"
+      },
+      {
+        "source": "Alerts Service",
+        "target": "Dashboard",
+        "label": "Status",
+        "type": "data flow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Monitoring & Alerting",
+        "components": [
+          "Alerts Service",
+          "Dashboard"
+        ],
+        "boundaries": "N/A"
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "ECS Service Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      {
+        "name": "BigMAC",
+        "description": "Data storage and processing"
+      },
+      {
+        "name": "SNS Topic",
+        "description": "Notification service"
+      }
+    ],
+    "unique_to_GroundTruth": [
+      "Appian Oracle DB",
+      "AWS Lambda - create/delete topics",
+      "AWS Fargate - Kafka Connect Cluster",
+      "AWS EventBridge"
+    ],
+    "unique_to_GeneratedImage": [
+      "IAM",
+      "SSM Parameter Store",
+      "Secrets Manager",
+      "Kafka Connector",
+      "ECS Service",
+      "CloudWatch",
+      "Alerts Service",
+      "Dashboard"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Appian Oracle DB",
+        "target": "AWS Lambda - create/delete topics",
+        "label": "VPC peering connection",
+        "type": "data flow"
+      },
+      {
+        "source": "AWS Lambda - create/delete topics",
+        "target": "CMS BigMAC",
+        "label": "Appian data",
+        "type": "data flow"
+      },
+      {
+        "source": "AWS EventBridge",
+        "target": "SNS Topic",
+        "label": "alerts",
+        "type": "event flow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Appian",
+        "target": "Kafka Connector",
+        "label": "Data Changes",
+        "type": "data flow"
+      },
+      {
+        "source": "IAM",
+        "target": "ECS Service",
+        "label": "Permissions",
+        "type": "data flow"
+      },
+      {
+        "source": "SSM Parameter Store",
+        "target": "ECS Service",
+        "label": "Config",
+        "type": "data flow"
+      },
+      {
+        "source": "Secrets Manager",
+        "target": "ECS Service",
+        "label": "Credentials",
+        "type": "data flow"
+      },
+      {
+        "source": "Kafka Connector",
+        "target": "ECS Service",
+        "label": "Stream",
+        "type": "data flow"
+      },
+      {
+        "source": "ECS Service",
+        "target": "BigMAC",
+        "label": "Data Transfer",
+        "type": "data flow"
+      },
+      {
+        "source": "ECS Service",
+        "target": "SNS Topic",
+        "label": "Notifications",
+        "type": "event flow"
+      },
+      {
+        "source": "CloudWatch",
+        "target": "Alerts Service",
+        "label": "Metrics",
+        "type": "data flow"
+      },
+      {
+        "source": "Alerts Service",
+        "target": "Dashboard",
+        "label": "Status",
+        "type": "data flow"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of a cloud architecture. The GroundTruth diagram focuses on AWS services like Lambda, Fargate, and EventBridge, emphasizing data flow from an Oracle DB to BigMAC via Kafka topics. The GeneratedImage diagram highlights ECS Service with IAM, SSM, and Secrets Manager for configuration and credentials, and includes monitoring with CloudWatch and alerting with a Dashboard. Common elements include BigMAC and SNS Topic, but their roles and connections differ. The GroundTruth diagram is more AWS-centric, while the GeneratedImage diagram is more service-oriented. The GeneratedImage is rated 7 out of 10 for its completeness and inclusion of monitoring and alerting, but it lacks some AWS-specific components found in the GroundTruth diagram.",
+    "Rating": 7
+  }
+}

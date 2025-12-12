@@ -112,7 +112,7 @@ def get_files_by_stem(folder):
 def main():
     output_dir = "LLM_as_a_Judge_openai_outputs_3cs"
     folder1 = "./initial_images"
-    folder2 = "./approach_gpt_python_images"
+    folder2 = "./approach_claude_python_images"
     tried=0
     files1 = get_files_by_stem(folder1)
     files2 = get_files_by_stem(folder2)

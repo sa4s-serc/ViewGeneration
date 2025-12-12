@@ -1,0 +1,68 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: jsarcher_zilgraph
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** deployment, data_flow
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## Zilgraph Repository Analysis: A Comprehensive Overview
+
+Zilgraph is a dashboard application designed to visualize Zilswap activity on the Zilliqa blockchain. It offers charts and tables displaying ZRC-2 token data, trading volume, liquidity distribution, and other relevant analytics. The project architecture can be described as a microservices-like system, divided into distinct components for data acquisition, processing, storage, and visualization.
+
+**Key Functionalities and Components:**
+
+*   **Data Acquisition:** The system utilizes `Zilcrawler` (located in `zilswap/zilcrawl.py` and initiated via `zilswap/crawler.py`) to crawl the Zilliqa blockchain and fetch transaction data. This component retrieves and processes raw transaction data from the Zilliqa blockchain using `pyzil`.
+*   **Data Storage:** Raw, unprocessed data is stored in Elasticsearch (`etc/elasticsearch/elasticsearch.yml` configures Elasticsearch). Elasticsearch is used for its advanced querying and aggregation capabilities, enabling flexible analysis. Aggregated data is subsequently stored in MongoDB for faster frontend access. `zilswap/zillog.py` is responsible for data collection and aggregation about zilswap liquidity, utilizing Elasticsearch and MongoDB.
+*   **Data Aggregation and Processing:** Specialized aggregator classes query the Elasticsearch data store. `zilswap/zilswap.py` provides functions for interacting with the Zilliqa blockchain and the Zilswap smart contract, retrieving information such as swap rates, liquidity, and APY (Annual Percentage Yield).
+*   **Frontend Visualization:** The frontend leverages the Bokeh Python library for generating interactive charts and tables, including the Liquidity Distribution donut chart (`pie/main.py`, `pie/templates/index.html`) and the Token Details table (`table/main.py`, `table/templates/index.html`). Custom CSS files (`pie/static/css/custom.min.css`, `table/static/css/custom.min.css`, `zilswap/static/css/custom.min.css`) are used to style the frontend elements. Embedded Kibana dashboards (configured via `etc/kibana/kibana.yml`) provide additional analytics capabilities. `zilswap/main.py` is used to setup the title for Zilgraph's dashboard. The overall HTML code is located in `zilswap/templates/index.html`.
+*   **Zilgraph Oracle (Early Stage):** The project includes an early-stage idea for a Zilgraph Oracle. This oracle aims to provide aggregated data directly to the Zilliqa blockchain through a Scilla smart contract.
+
+**Important Files and Their Roles:**
+
+*   **`LICENSE`**: Specifies the terms of use, modification, and distribution of the software under the GNU General Public License v3.
+*   **`README.md`**: Provides a high-level project overview, including features, dependencies, installation, and contribution guidelines.
+*   **`misc/ziltx.py`**: Facilitates ZIL transfers between accounts, likely for testing and development purposes.
+*   **`etc/nginx/conf.d/zilgraph.io.conf`**: Configures Nginx as a reverse proxy for the Bokeh server and Kibana, enabling SSL termination, HTTP to HTTPS redirection, and enhanced security. This file is essential for deployment and security.
+*   **`doc/README.md`**: Describes both the legacy (XSGD hackathon result) and proposed Architecture 2.0. Architecture 2.0 replaces MongoDB raw data with Elasticsearch and a local Zil Seed Node API. The document also includes details of the Zilgraph Oracle concept.
+*   **`doc/drawio/Zilgraph.drawio`**: Contains architecture diagrams illustrating the legacy architecture, Architecture 2.0, and the Zilgraph Oracle concept, created using diagrams.net.
+
+**Architectural Insights and Design Patterns:**
+
+*   **Data Pipeline:** The system implements a comprehensive data pipeline: Data is extracted from the Zilliqa blockchain, stored in Elasticsearch (for flexible querying), aggregated, saved to MongoDB, and ultimately presented through the frontend.
+*   **Data Lake/Data Warehouse:** Elasticsearch functions as a data lake, providing storage for raw data and enabling flexible querying and analysis. MongoDB acts as a data warehouse, storing aggregated data optimized for specific dashboard displays.
+*   **Reverse Proxy:** An Nginx reverse proxy configuration protects against security threats, enables load balancing, and handles SSL termination.
+
+In summary, Zilgraph is a well-structured application for visualizing Zilswap activity, employing a microservices-like architecture, a robust data pipeline, and industry-standard design patterns for data storage, processing, and presentation. The project also explores innovative ideas, such as a Zilgraph Oracle, to further integrate on-chain data analysis.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment, data_flow
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/jsarcher_zilgraph.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

@@ -1,0 +1,258 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "Web-Client",
+        "description": "Client interacting with the system",
+        "boundaries": "External",
+        "position": "Left"
+      },
+      {
+        "name": "Board on scrumlr.io",
+        "description": "Board component of the application",
+        "boundaries": "Internal",
+        "position": "Bottom Left"
+      },
+      {
+        "name": "scrumlr.io server",
+        "description": "Main server handling requests",
+        "boundaries": "Internal",
+        "position": "Center"
+      },
+      {
+        "name": "nats.io",
+        "description": "Messaging system",
+        "boundaries": "External",
+        "position": "Bottom Center"
+      },
+      {
+        "name": "SQL database",
+        "description": "Database storing data",
+        "boundaries": "Internal",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Web-Client",
+        "target": "scrumlr.io server",
+        "label": "API request changes",
+        "type": "HTTP"
+      },
+      {
+        "source": "scrumlr.io server",
+        "target": "SQL database",
+        "label": "write changes",
+        "type": "Database"
+      },
+      {
+        "source": "scrumlr.io server",
+        "target": "nats.io",
+        "label": "notifies changes",
+        "type": "Messaging"
+      },
+      {
+        "source": "nats.io",
+        "target": "scrumlr.io server",
+        "label": "publish changes",
+        "type": "Messaging"
+      },
+      {
+        "source": "Web-Client",
+        "target": "Board on scrumlr.io",
+        "label": "participates on",
+        "type": "Interaction"
+      },
+      {
+        "source": "scrumlr.io server",
+        "target": "Web-Client",
+        "label": "listen to websocket",
+        "type": "WebSocket"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "GroundTruthDiagram.png",
+      "title": "Scrumlr.io Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Frontend (TypeScript/React)",
+        "description": "Frontend application",
+        "boundaries": "Internal",
+        "position": "Top"
+      },
+      {
+        "name": "Backend (Go)",
+        "description": "Backend services",
+        "boundaries": "Internal",
+        "position": "Center"
+      },
+      {
+        "name": "Storage & Messaging",
+        "description": "Storage and messaging systems",
+        "boundaries": "External",
+        "position": "Bottom"
+      },
+      {
+        "name": "OAuth Providers",
+        "description": "Authentication providers",
+        "boundaries": "External",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Frontend (TypeScript/React)",
+        "target": "API Server",
+        "label": "HTTP/REST",
+        "type": "HTTP"
+      },
+      {
+        "source": "Frontend (TypeScript/React)",
+        "target": "WebSocket Handler",
+        "label": "WebSocket",
+        "type": "WebSocket"
+      },
+      {
+        "source": "API Server",
+        "target": "Database Layer",
+        "label": "SQL",
+        "type": "Database"
+      },
+      {
+        "source": "WebSocket Handler",
+        "target": "Storage & Messaging",
+        "label": "pub/sub",
+        "type": "Messaging"
+      },
+      {
+        "source": "Auth Service",
+        "target": "OAuth Providers",
+        "label": "delegates auth",
+        "type": "Authentication"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Frontend",
+        "components": [
+          "Components",
+          "Redux Store",
+          "React Application"
+        ]
+      },
+      {
+        "name": "Backend",
+        "components": [
+          "API Server",
+          "WebSocket Handler",
+          "Board Service",
+          "Note Service",
+          "User Service",
+          "Auth Service",
+          "Database Layer"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImageDiagram.png",
+      "title": "Scrumlr.io Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "scrumlr.io server",
+      "nats.io",
+      "SQL database"
+    ],
+    "unique_to_GroundTruth": [
+      "Web-Client",
+      "Board on scrumlr.io"
+    ],
+    "unique_to_GeneratedImage": [
+      "Frontend (TypeScript/React)",
+      "Backend (Go)",
+      "Storage & Messaging",
+      "OAuth Providers"
+    ],
+    "common_connectors": [
+      {
+        "source": "scrumlr.io server",
+        "target": "SQL database",
+        "label": "write changes",
+        "type": "Database"
+      },
+      {
+        "source": "scrumlr.io server",
+        "target": "nats.io",
+        "label": "notifies changes",
+        "type": "Messaging"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "Web-Client",
+        "target": "scrumlr.io server",
+        "label": "API request changes",
+        "type": "HTTP"
+      },
+      {
+        "source": "nats.io",
+        "target": "scrumlr.io server",
+        "label": "publish changes",
+        "type": "Messaging"
+      },
+      {
+        "source": "Web-Client",
+        "target": "Board on scrumlr.io",
+        "label": "participates on",
+        "type": "Interaction"
+      },
+      {
+        "source": "scrumlr.io server",
+        "target": "Web-Client",
+        "label": "listen to websocket",
+        "type": "WebSocket"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Frontend (TypeScript/React)",
+        "target": "API Server",
+        "label": "HTTP/REST",
+        "type": "HTTP"
+      },
+      {
+        "source": "Frontend (TypeScript/React)",
+        "target": "WebSocket Handler",
+        "label": "WebSocket",
+        "type": "WebSocket"
+      },
+      {
+        "source": "API Server",
+        "target": "Database Layer",
+        "label": "SQL",
+        "type": "Database"
+      },
+      {
+        "source": "WebSocket Handler",
+        "target": "Storage & Messaging",
+        "label": "pub/sub",
+        "type": "Messaging"
+      },
+      {
+        "source": "Auth Service",
+        "target": "OAuth Providers",
+        "label": "delegates auth",
+        "type": "Authentication"
+      }
+    ],
+    "explanation": "The GroundTruth diagram focuses on a high-level overview with a simple client-server interaction and messaging system, while the GeneratedImage diagram provides a more detailed view of the architecture, including specific frontend and backend components, as well as storage and authentication services. Both diagrams share common components like the server, messaging, and database systems but differ in their level of detail and specific components. The GroundTruth diagram is simpler, focusing on basic interactions, whereas the GeneratedImage diagram outlines a more comprehensive architecture with explicit layers and services. The GeneratedImage diagram is rated 8 out of 10 for its accuracy and completeness, as it provides a more detailed and structured representation of the architecture, although it lacks some specific client interactions present in the GroundTruth diagram.",
+    "Rating": 8
+  }
+}

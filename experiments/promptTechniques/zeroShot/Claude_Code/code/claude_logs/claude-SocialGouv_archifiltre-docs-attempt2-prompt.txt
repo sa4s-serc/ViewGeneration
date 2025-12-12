@@ -1,0 +1,115 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: SocialGouv_archifiltre-docs
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** deployment, data_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## Merged Repository Analysis: SocialGouv_archifiltre-docs
+
+This report summarizes the architecture, functionality, and key components of the `SocialGouv_archifiltre-docs` GitHub repository, based on available partial analyses. The repository builds a cross-platform desktop application, Archifiltre, for file system analysis, metadata extraction, and data export.
+
+**Overall Focus:**
+
+The application focuses on loading, processing, and analyzing file system data, enabling users to extract and utilize this information via multiple export options. Strong emphasis is placed on code quality and functionality verification through extensive testing infrastructure.
+
+**Key Functionalities and Components:**
+
+*   **File System Loading and Processing:** The application loads file system data, calculates hashes, identifies file types, and performs duplicate detection. The data is represented in a structured format utilizing a "Virtual File System" (VFS) for efficient manipulation and analysis without direct storage interaction.  It also generates file system metadata snapshots including file paths, sizes, modification dates, and MD5 hashes.
+*   **Data Export:** Supports multiple export formats (CSV, Excel, RESIP, METS, JSON), along with DOCX audit report generation with charts. The CSV export provides data for tree visualization and deletion candidate lists.
+*   **Metadata Management:** Manages metadata associated with files and folders, including aliases, comments, tags, and custom metadata from external sources.
+*   **Asynchronous Processing:** Employs asynchronous workers (Node.js Child Processes) to prevent UI unresponsiveness during resource-intensive operations like hash calculation and RESIP export. AsyncWorker objects abstract the ChildProcess API.
+*   **State Management:** Utilizes Redux for centralized state management with an `undoable` enhancer for undo/redo functionality. A migration to Zustand is planned.
+*   **Tracking and Monitoring:** Integrates Sentry for error logging and Matomo (with a planned migration to Posthog) for usage tracking.
+*   **User Configuration:** Manages user-specific configuration settings.
+*   **Internationalization (i18n):** Supports multiple languages via `i18next`.
+*   **Automated Updates:**  Uses electron-updater for automated updates.
+*   **Font Management:** Includes font management using `@font-face` and handling font licenses.
+*   **File Deletion Scripts:** Generates file deletion scripts tailored for Windows and Unix-based systems.
+*   **CI/CD:** Uses GitHub Actions for automated testing, building, and releasing the application. Includes workflows for code quality checks, E2E testing, branch management, and license updates.
+*   **Translation Utilities:** Includes Node.js scripts for comparing translation files and converting CSV translations to JSON.
+*   **React Devtools:** Includes a script to download and extract React DevTools for debugging.
+*   **App Notarization:** Includes a Node.js script for notarizing the app on macOS.
+*   **Installer Customization:** Uses NSIS script to customize the Windows installer.
+
+**Important Files and Their Roles:**
+
+*   `CODE_OF_CONDUCT.md`: Defines community behavior expectations.
+*   `globals.d.ts`: TypeScript declaration file for global variables and module augmentations.
+*   `LICENSE`: Specifies the Apache 2.0 license.
+*   `CHANGELOG.md`: Documents release history.
+*   `webpack.*.config.js`: Webpack configurations for bundling the renderer, main, and common code. `webpack.main.config.js` excludes worker files.
+*   `jest.config.js`: Configuration for the Jest testing framework.
+*   `.env.dist`, `.env.test`: Example and testing environment configurations.
+*   `playwright.config.js`: Configuration for Playwright end-to-end testing.
+*   `TODO.md`: Outlines future development tasks.
+*   `README.md`: Provides a project overview and instructions.
+*   `CONTRIBUTING.md`: Details contribution guidelines.
+*   `.eslintrc.js`: ESLint configuration for code style consistency.
+*   `publiccode.yml`: Metadata file declaring software information.
+*   `.releaserc.js`: Configuration for Semantic Release, automating releases.
+*   `tests/mocks/`: Contains mock implementations for testing.
+*   `tests/integration/`: Contains integration tests.
+*   `tests/utils/` & `tests/e2e/utils`: Contains testing helper utilities.
+*   `tests/integration/renderer/exporters/`: Integration tests for export functionality.
+*   `tests/integration/renderer/utils/`: Utility functions and fast-check arbitraries for testing.
+*   `tests/integration/renderer/reducers/`: Integration tests for Redux reducers and selectors.
+*   `tests/e2e/`: Contains E2E tests.
+*   `static/fonts/fonts.css`: Defines font faces.
+*   `scripts/load-filesystem.sh`: Bash script for generating file system metadata snapshots on Unix.
+*   `scripts/Dockerfile`: Defines the Docker image.
+*   `src/renderer/index.tsx`: Main entry point for the renderer process.
+*   `src/renderer/secret-devtools.ts`: Enables a hidden feature to open devtools.
+*   `src/renderer/exporters/*`: Files defining data export functionalities.
+*   `electron/build/installer.nsh`: NSIS script to customize the Windows installer.
+
+**Architectural Insights:**
+
+*   **Cross-Platform:** Designed to be cross-platform, with specific handling for Windows and Unix-like systems.
+*   **Modular Design:** Structured into distinct modules for main process, renderer process, and common code.
+*   **Testing-Centric:** Extensive testing infrastructure indicates TDD or a robust testing strategy.
+*   **Microservice Adoption:** Adopting a microservice architecture with Node.js and a message queue (redis) for conversion services.
+*   **Renderer Architecture:** The renderer process uses React with Redux for UI and application state management.
+
+**Notable Design Patterns:**
+
+*   **Factory Pattern:** Used via `createAsyncWorkerForChildProcessControllerFactory` for creating asynchronous worker controllers.
+*   **Observer Pattern:** Implemented using RxJS Observables for asynchronous operations and data streams.
+*   **Redux (with Undoable Enhancement):**  For state management with undo/redo capabilities.
+*   **Conventional Commits:**  Follows conventional commits style for automated versioning.
+*   **Thunk Pattern:** Used for asynchronous actions in Redux, especially for export functionalities.
+*   **Strategy Pattern:**  `generateDeletionScript` uses the strategy pattern to choose between Windows and Unix deletion script generation.
+*   **Template Method Pattern:**  The audit report generation process has a template structure for all types of reports.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment, data_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/SocialGouv_archifiltre-docs.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

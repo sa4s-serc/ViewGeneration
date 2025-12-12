@@ -1,0 +1,103 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: CMU-RERC-APT_tiramisu3-pr
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** control_flow
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## Tiramisu3-PR Public Transportation System: A Comprehensive Overview
+
+This report provides an overview of the Tiramisu3-PR project, a public transportation route prediction system designed to provide a personalized and adaptive mobile transit experience. The system employs a layered architecture encompassing a mobile client (likely built with Ionic and Angular), a Java frontend, a backend data processing layer, a Python prediction component, and AWS infrastructure.
+
+**Core Functionalities & Components:**
+
+Tiramisu3-PR offers a range of functionalities organized across its client and server-side components:
+
+*   **Real-time Data Ingestion & Processing (Backend):** The backend layer retrieves real-time transit data (GTFS format) from transportation agencies like PAAC and MTA using components such as `FeedGrabberPAAC` and `FeedGrabberMTA`. `ObservationProcessor` parses this data and stores it in a DynamoDB database.  `DynamoCleaner` removes outdated data. AWS Simple Queue Service (SQS) facilitates asynchronous communication between `FeedGrabber` and `ObservationProcessor`.
+*   **Real-time Data Serving (Frontend):** The frontend layer serves real-time bus arrival information to the mobile app through servlets such as `SchedulesForLocationServlet`. These servlets fetch data from OneBusAway (OBA) and DynamoDB.
+*   **User Interaction Logging (Frontend):** The system logs user interactions within the mobile app (navigation, button presses, filter choices) to a Postgres database using servlets like `WriteFavRouteServlet` and `ReadFavRouteServlet`, `StatusLogServlet`, `ButtonLogServlet`, and `FocusLogServlet`.
+*   **Route Prediction (Predictor):** A Random Forest model, implemented in `predictor/route_predict/*.py`, predicts users' preferred bus routes and directions based on historical data and context (time, location).
+*   **Alarm/Notification System (Backend & Client):**  The system allows users to set up notifications for specific routes and stops via the `AlarmProcessor`.  The `AWSSendEmail.java` uses a strategy pattern to determine how alarms are being sent by checking the `devicePlatform` for each alarm (either iOS or Android).  On the client side, utilizes push notifications and local alarms to remind users of upcoming bus arrivals (Push, LocalNotifications).
+*   **User Personalization (Client):** The mobile app enables users to favorite routes and stops (`FavRoutesService`, `FavStopsService`), set alarms (`AlarmService`), and customize app settings based on accessibility preferences (`HandleSettingsService`). User preferences are stored locally using Ionic Storage.
+*   **Mobile App Capabilities:** Displays nearby routes and schedules, integrates Google Maps for route visualization and navigation, and offers search functionality.
+
+**Important Files & Their Roles:**
+
+The project's codebase is organized with key files playing specific roles:
+
+*   **`README.md`:** Provides a central overview of the project, its architecture, subsystems, setup guides, and related research papers.
+*   **`LICENSE`:**  MIT License for the code.
+*   **`frontend/tiramisu/pom.xml`:** Maven build file for the Java frontend, defining dependencies like `onebusaway-gtfs`, `aws-java-sdk`, `postgresql`, and `gtfs-realtime-bindings`.
+*   **`frontend/setenv.sh`:** Sets environment variables for the Tomcat server hosting the frontend, including database connection parameters and OBA URL.
+*   **`frontend/data-sources.xml`:** Spring configuration file for the OneBusAway (OBA) data source.
+*   **`frontend/tiramisu/src/main/java/*.java`:** Java servlets that manage user favorites, fetch bus schedules, provide real-time GTFS data, log user interactions, manage user alarms and accessibility settings.
+*   **`backend/gtfs-realtime-processor/pom.xml`:** Maven build file for the Java backend application.
+*   **`backend/gtfs-realtime-processor/src/main/java/cmu/edu/gtfs_realtime_processor/avl/*.java`:** Java classes implementing backend logic for fetching, processing, and storing real-time GTFS data.
+*   **`backend/gtfs-monitor/*.sh`:** Shell scripts for periodically checking GTFS data feed updates.
+*   **`backend/alarm-processor/pom.xml`:** Maven build file for the alarm processor application.
+*   **`backend/alarm-processor/src/main/java/cmu/edu/alarm_processor/*.java`:** Java classes to manage notifications.
+*   **`predictor/route_predict/*.py`:** Python files for machine learning route prediction.
+*   **`src/app/app.module.ts` (Client):** Defines the Angular module, configures the Ionic module, and sets backend URLs and API keys.
+*   **`src/app/app.component.ts` (Client):** The root component, handles platform readiness, push notification registration, network connection monitoring, and alarm initialization.
+*   **`src/pages/home-page/home-page.ts` (Client):** The main screen, displays nearby routes and schedules, integrates the map, and manages search.
+*   **`src/pages/route-page/route-page.ts` (Client):** Displays detailed information about a specific route.
+*   **`src/pages/stop-page/stop-page.ts` (Client):** Displays information about a specific stop.
+*   **`src/providers/*` (Client):** Contains services for data fetching, storage, and business logic (e.g., `LocationService`, `FavRoutesService`, `SchedulesFromStopService`).
+*   **`src/model/*` (Client):** Defines data models used throughout the application.
+*   **`config.xml` (Client):** Cordova configuration file defining app metadata, platform settings, and plugin dependencies.
+*   **`setup.sh` (Client):** Shell script for setting up the client-side development environment.
+
+**Architectural Insights:**
+
+The system's architecture exhibits several key characteristics:
+
+*   **Layered Architecture:** The system is explicitly designed using a layered architecture, promoting modularity and separation of concerns.
+*   **Microservice-like Backend:** The backend features independent Java processes (FeedGrabber, ObservationProcessor, DynamoCleaner) enabling independent scaling.
+*   **Message Queue:** Utilizes AWS SQS for asynchronous communication, decoupling data ingestion and processing.
+*   **Strategic Database Choices:** Postgres is used for user interaction logging, while DynamoDB is used for real-time transit data.
+*   **Component-Based Architecture (Client):**  The mobile app is built using Angular components responsible for UI and logic for specific features.
+*   **Service-Oriented Design (Client):** The mobile app uses Angular services to provide reusable functionality, enhancing modularity.
+*   **Asynchronous Data Handling (Client):**  Relies on Observables for data fetching and user interaction management, ensuring a responsive UI.
+
+**Notable Design Patterns:**
+
+*   **Singleton:** The `Database` class (frontend) and potentially services managing application-wide state (client) use the Singleton pattern.
+*   **Factory:** The `GtfsInfo` class can be seen as an Abstract Factory pattern.
+*   **Strategy:** The `AWSSendEmail.java` uses a strategy pattern to determine how alarms are being sent.
+*   **Observer Pattern:** The use of Observables and RxJS throughout the mobile app demonstrates the observer pattern.
+*   **Facade Pattern:**  Services like `HandleSettingsService` (client) act as facades, simplifying access to underlying functionalities.
+
+In summary, Tiramisu3-PR is a well-structured public transportation system leveraging a layered architecture, microservice principles, and appropriate design patterns to deliver a personalized and accessible mobile transit experience. It incorporates real-time data processing, machine learning-based route prediction, and a comprehensive set of user-centric features.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: control_flow
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/CMU-RERC-APT_tiramisu3-pr.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

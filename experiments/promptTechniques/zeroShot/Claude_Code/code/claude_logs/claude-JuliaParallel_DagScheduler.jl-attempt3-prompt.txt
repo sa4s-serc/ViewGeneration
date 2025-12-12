@@ -1,0 +1,81 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: JuliaParallel_DagScheduler.jl
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** data_flow, performance
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+**DagScheduler.jl: A Parallel Task Scheduler for Julia**
+
+DagScheduler.jl is a parallel task scheduler for Julia designed to execute directed acyclic graphs (DAGs) across multiple machines. It aims to be more scalable and resilient than Dagger.jl's default scheduler, integrating closely with the Dagger.jl package. The design prioritizes data locality, asynchronous execution, and fault tolerance. It also includes hooks for integration with RemoteMonitor for remote monitoring and FoundationDB for persistent task tracking.
+
+**Key Functionalities and Components:**
+
+The core functionality is the **parallel execution of DAGs**. The `rundag` function initiates the scheduling and coordination across multiple processes and nodes. A key goal is **improved scheduling**, considering data locality, resource optimization, and distributed scheduling load via DAG decomposition.
+
+**Data Locality** is prioritized, minimizing data transfer by computing tasks where the data resides. **Asynchronous execution** is employed for data transfer and I/O operations, utilizing broker processes for inter-node I/O to prevent computation blocking. **Fault tolerance** mechanisms detect and recover from node/process failures by rescheduling tasks.
+
+A **metadata store** tracks DAG execution state, intermediate result locations, and reference counts. Different implementations exist:
+
+*   **Shared Memory (ShmemMetaStore):** Fast, node-local metadata storage.
+*   **Simple Meta Store:** Uses Julia messaging for cluster-wide metadata storage.
+*   **FoundationDB (FDBMetaStore):** Persistent, fault-tolerant metadata storage.
+
+The system employs a tiered architecture: **nodes** (physical machines), **brokers** (processes coordinating tasks on a node), and **executors** (processes executing individual tasks). A **RunEnv** sets up the execution environment, and **queue-based task stealing** improves resource utilization.
+
+**Important Files and Their Roles:**
+
+*   `src/DagScheduler.jl`: Main module, defining core functionalities and integrating other modules.
+*   `src/common.jl`: Defines common data structures (`NodeEnv`, `RunEnv`, `ComputeCost`), utilities for logging, topology setup, and DAG manipulation.
+*   `src/scheduling/scheduler.jl`: Implements core scheduling logic, including task prioritization, affinity considerations, and DAG decomposition.
+*   `src/execution/engine.jl`: Contains the execution engine, coordinating task execution, handling failures, and managing metadata.
+*   `src/execution/queue.jl`: Manages execution queues and task assignment.
+*   `src/meta_stores/*`: Contains metadata store implementations (ShmemMetaStore, SimpleMetaStore, FDBMetaStore).
+*   `src/plugin.jl`: Allows DagScheduler to be used as a Dagger.jl scheduler plugin.
+*   `test/*`: Contains unit tests and benchmarks.
+
+**Architectural Insights:**
+
+DagScheduler features a **plugin architecture**, allowing seamless integration with Dagger.jl. The **tiered architecture** (nodes, brokers, executors) distributes scheduling load and avoids central bottlenecks. **Metadata abstraction** enables using different metadata store implementations based on deployment requirements. Some MetaStore implementations use a **shared-nothing architecture** (SimpleMeta), while others use **shared memory** (ShmemMeta), offering performance tradeoffs.
+
+**Notable Design Patterns:**
+
+*   **Strategy Pattern:**  Used for metadata store implementations, allowing interchangeable storage mechanisms and flexible configuration.
+*   **Observer Pattern:**  Used by the metadata store to notify executors of relevant data changes.
+
+**Important Considerations:**
+
+The system relies on a configuration dictionary `DagScheduler.META_IMPL` to select metadata store implementations and configure their parameters. Robust error handling is present for process failures, including logic to remove faulty nodes and reschedule tasks.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: data_flow, performance
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/JuliaParallel_DagScheduler.jl.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

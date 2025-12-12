@@ -1,0 +1,342 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "KVM",
+        "description": "L0",
+        "boundaries": "Outside Hyper-V",
+        "position": "Top"
+      },
+      {
+        "name": "hAFL2",
+        "description": "",
+        "boundaries": "Outside Hyper-V",
+        "position": "Center"
+      },
+      {
+        "name": "Hyper-V",
+        "description": "L1 - Host",
+        "boundaries": "Main container",
+        "position": "Center"
+      },
+      {
+        "name": "vmswitch.sys",
+        "description": "",
+        "boundaries": "Root Partition Host OS",
+        "position": "Left"
+      },
+      {
+        "name": "CrashMonitoring.sys",
+        "description": "",
+        "boundaries": "Root Partition Host OS",
+        "position": "Left"
+      },
+      {
+        "name": "harness.sys",
+        "description": "",
+        "boundaries": "Child Partition Guest VM",
+        "position": "Right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "KVM",
+        "target": "hAFL2",
+        "label": "",
+        "type": "dotted arrow"
+      },
+      {
+        "source": "hAFL2",
+        "target": "Hyper-V",
+        "label": "",
+        "type": "dotted arrow"
+      },
+      {
+        "source": "vmswitch.sys",
+        "target": "harness.sys",
+        "label": "",
+        "type": "solid arrow"
+      },
+      {
+        "source": "CrashMonitoring.sys",
+        "target": "KVM",
+        "label": "",
+        "type": "dotted arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Root Partition Host OS",
+        "description": "L2",
+        "components": [
+          "vmswitch.sys",
+          "CrashMonitoring.sys"
+        ]
+      },
+      {
+        "name": "Child Partition Guest VM",
+        "description": "L2",
+        "components": [
+          "harness.sys"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "Hyper-V Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Master Process",
+        "description": "kafl_fuzz.py",
+        "boundaries": "Fuzzing Infrastructure",
+        "position": "Top"
+      },
+      {
+        "name": "GUI Monitor",
+        "description": "kafl_gui.py",
+        "boundaries": "Fuzzing Infrastructure",
+        "position": "Bottom Left"
+      },
+      {
+        "name": "Slave Processes",
+        "description": "slave.py",
+        "boundaries": "Fuzzing Infrastructure",
+        "position": "Bottom Right"
+      },
+      {
+        "name": "Redqueen Instrumentation",
+        "description": "",
+        "boundaries": "Instrumentation & Monitoring",
+        "position": "Top"
+      },
+      {
+        "name": "Intel PT Coverage",
+        "description": "",
+        "boundaries": "Instrumentation & Monitoring",
+        "position": "Top"
+      },
+      {
+        "name": "CrashMonitoringDriver.sys",
+        "description": "",
+        "boundaries": "Instrumentation & Monitoring",
+        "position": "Top"
+      },
+      {
+        "name": "CPHarness.sys",
+        "description": "",
+        "boundaries": "Instrumentation & Monitoring",
+        "position": "Top"
+      },
+      {
+        "name": "QEMU/KVM Host",
+        "description": "",
+        "boundaries": "Virtualization Layer",
+        "position": "Middle"
+      },
+      {
+        "name": "Root Partition",
+        "description": "Windows VM",
+        "boundaries": "Virtualization Layer",
+        "position": "Bottom"
+      },
+      {
+        "name": "Child Partition",
+        "description": "Windows VM",
+        "boundaries": "Virtualization Layer",
+        "position": "Bottom"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Master Process",
+        "target": "GUI Monitor",
+        "label": "Reports status",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Master Process",
+        "target": "Slave Processes",
+        "label": "Distributes tasks",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Slave Processes",
+        "target": "Redqueen Instrumentation",
+        "label": "Input feedback",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Redqueen Instrumentation",
+        "target": "Intel PT Coverage",
+        "label": "Coverage feedback",
+        "type": "solid arrow"
+      },
+      {
+        "source": "QEMU/KVM Host",
+        "target": "Root Partition",
+        "label": "Hosts",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Root Partition",
+        "target": "Child Partition",
+        "label": "Hosts",
+        "type": "solid arrow"
+      },
+      {
+        "source": "CrashMonitoringDriver.sys",
+        "target": "QEMU/KVM Host",
+        "label": "Monitors crashes",
+        "type": "solid arrow"
+      },
+      {
+        "source": "CPHarness.sys",
+        "target": "QEMU/KVM Host",
+        "label": "Tests VSPs",
+        "type": "solid arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Fuzzing Infrastructure",
+        "description": "",
+        "components": [
+          "Master Process",
+          "GUI Monitor",
+          "Slave Processes"
+        ]
+      },
+      {
+        "name": "Instrumentation & Monitoring",
+        "description": "",
+        "components": [
+          "Redqueen Instrumentation",
+          "Intel PT Coverage",
+          "CrashMonitoringDriver.sys",
+          "CPHarness.sys"
+        ]
+      },
+      {
+        "name": "Virtualization Layer",
+        "description": "",
+        "components": [
+          "QEMU/KVM Host",
+          "Root Partition",
+          "Child Partition"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": "Fuzzing Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "CrashMonitoring.sys",
+      "Root Partition",
+      "Child Partition"
+    ],
+    "unique_to_GroundTruth": [
+      "KVM",
+      "hAFL2",
+      "Hyper-V",
+      "vmswitch.sys",
+      "harness.sys"
+    ],
+    "unique_to_GeneratedImage": [
+      "Master Process",
+      "GUI Monitor",
+      "Slave Processes",
+      "Redqueen Instrumentation",
+      "Intel PT Coverage",
+      "CrashMonitoringDriver.sys",
+      "CPHarness.sys",
+      "QEMU/KVM Host"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "KVM",
+        "target": "hAFL2",
+        "label": "",
+        "type": "dotted arrow"
+      },
+      {
+        "source": "hAFL2",
+        "target": "Hyper-V",
+        "label": "",
+        "type": "dotted arrow"
+      },
+      {
+        "source": "vmswitch.sys",
+        "target": "harness.sys",
+        "label": "",
+        "type": "solid arrow"
+      },
+      {
+        "source": "CrashMonitoring.sys",
+        "target": "KVM",
+        "label": "",
+        "type": "dotted arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Master Process",
+        "target": "GUI Monitor",
+        "label": "Reports status",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Master Process",
+        "target": "Slave Processes",
+        "label": "Distributes tasks",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Slave Processes",
+        "target": "Redqueen Instrumentation",
+        "label": "Input feedback",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Redqueen Instrumentation",
+        "target": "Intel PT Coverage",
+        "label": "Coverage feedback",
+        "type": "solid arrow"
+      },
+      {
+        "source": "QEMU/KVM Host",
+        "target": "Root Partition",
+        "label": "Hosts",
+        "type": "solid arrow"
+      },
+      {
+        "source": "Root Partition",
+        "target": "Child Partition",
+        "label": "Hosts",
+        "type": "solid arrow"
+      },
+      {
+        "source": "CrashMonitoringDriver.sys",
+        "target": "QEMU/KVM Host",
+        "label": "Monitors crashes",
+        "type": "solid arrow"
+      },
+      {
+        "source": "CPHarness.sys",
+        "target": "QEMU/KVM Host",
+        "label": "Tests VSPs",
+        "type": "solid arrow"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of virtualization and fuzzing architectures. The GroundTruth diagram focuses on a Hyper-V based architecture with components like KVM, hAFL2, and specific system files like vmswitch.sys and harness.sys. It emphasizes the hierarchical structure of virtualization layers (L0, L1, L2). The GeneratedImage diagram, on the other hand, illustrates a fuzzing infrastructure with components related to fuzzing processes and instrumentation. It includes a virtualization layer with QEMU/KVM and partitions similar to the GroundTruth. Common elements include the concept of root and child partitions, and monitoring components like CrashMonitoring.sys. However, the GeneratedImage is more detailed in terms of fuzzing processes and monitoring. The GroundTruth diagram lacks fuzzing-specific components, while the GeneratedImage lacks specific Hyper-V components. Based on the accuracy and completeness, the GeneratedImage is rated 7 out of 10. It captures the virtualization aspect but diverges significantly in focus and detail from the GroundTruth, which is more centered on Hyper-V.",
+    "Rating": 7
+  }
+}

@@ -1,0 +1,94 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: adityajain10_foot365-live-streaming-chatbot-prediction-app-on-aws
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** control_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+Here's a merged and refined analysis of the Foot365 repository, focusing on key functionalities, components, architecture, and design patterns:
+
+**Overview:**
+
+Foot365 is a web application designed for football enthusiasts, providing match information, live scores, predictions, and a chatbot interface. Built on AWS cloud services, it comprises a frontend (HTML, CSS, JavaScript), a backend (Lambda functions in Python), and leverages services like Cognito, S3, API Gateway, Lambda, SQS, SNS, SageMaker, EC2, DynamoDB, ElasticSearch, and Lex. The frontend interacts with the backend via API Gateway endpoints, which trigger Lambda functions to retrieve and process data from external football APIs and internal databases. A Kafka infrastructure delivers live score updates to DynamoDB.
+
+**Key Functionalities and Components:**
+
+*   **Frontend:** The user interface (UI) allows access to match data, predictions, and a chatbot. It displays leaderboards, fixtures, and live scores. It utilizes JavaScript and JQuery for dynamic features and UI elements, Bootstrap for responsive design, and plugins like Slick Slider, jQuery Countdown, and Fancybox. Key files include `index.html` (main page), `predict.html` (predictions), `live.html` (live scores), `fixture.html` (leaderboard/fixtures/results), and `chat.html` (chatbot).
+
+*   **Backend (Lambda Functions):** Implemented as microservices using Python.
+    *   `standings.py`: Fetches and processes standings data, likely from a DynamoDB table.
+    *   `predictions.py`: Uses machine learning (SageMaker) via statistical models to predict match outcomes.
+    *   `LF2.py`: Lex/chatbot interaction handler; processes SQS queue requests, retrieves fixtures (date range from ElasticSearch), sends SMS via SNS.
+    *   `getFixtures.py`: Fetches match fixtures from ElasticSearch based on date ranges.
+    *   `scrapeMatchData.py`: Triggered by an S3 event (JSON upload); parses match standings and stores them in DynamoDB.
+    *   `getScore.py`: Retrieves live scores; queries ElasticSearch for match data, then DynamoDB for details.
+    *   `LF1.py`: Handles Lex chatbot requests (intents); provides greetings, fixtures, match results, recommendations, and Uber integration.
+    *   `getLiveScores.py`: Fetches live scores from a DynamoDB table.
+
+*   **API Gateway:** Serves as the entry point for all API requests, routing them to appropriate Lambda functions. The frontend uses an auto-generated `apigClient.js` file to interact with API Gateway.  `apiGateway-js-core` files, including `apiGatewayClient.js`, `sigV4Client.js`, `simpleHttpClient.js`, and `utils.js`, provide the necessary infrastructure.  It likely uses a Facade pattern to simplify interaction between the front-end and back-end.
+
+*   **Kafka Infrastructure:** Deploys Kafka for live score updates.  `producer.js` fetches Football API data, serializes it using Avro, and publishes it to a Kafka topic.  `consumer.js` consumes messages from Kafka, deserializes them using Avro, and stores/updates data in DynamoDB. `avro.js` defines the Avro schema.
+
+*   **AWS Services:**
+    *   **Cognito & IAM:** User authentication and security management.
+    *   **S3:** Static web hosting, prediction data storage, profile image storage.
+    *   **Lambda:** Serverless compute for backend logic.
+    *   **SQS:** Queuing for asynchronous chatbot request processing (LF2).
+    *   **SNS:** Notification service for sending SMS messages (LF2).
+    *   **SageMaker:** Machine learning for match predictions.
+    *   **EC2:** Hosts the Kafka infrastructure.
+    *   **DynamoDB:** NoSQL database for match results, standings, live scores, and data from Kafka.
+    *   **ElasticSearch:** Indexes match data for fast lookups (fixtures, results).
+    *   **Lex:** Powers the conversational chatbot interface.
+    *   **CloudWatch:** For monitoring, triggering, and analytics.
+
+*   **Other Key Components:** An AWS Signature Version 4 (SigV4) client handles authentication for AWS service requests. A simple HTTP client facilitates basic HTTP requests. Utilities provide helper functions.
+
+**Architectural Insights:**
+
+*   **Microservices Architecture:** The backend is structured as independent microservices (Lambda functions), promoting modularity, scalability, and independent deployment.  Communication occurs through API Gateway and queues (SQS/SNS).
+*   **Event-Driven Architecture:** `scrapeMatchData.py` triggered by S3 events exemplifies an event-driven approach.  Kafka's use for live score updates also showcases event-driven design.
+*   **Cloud-Native Design:** Leverages AWS scalability and managed services to minimize operational overhead.
+*   **Data Serialization:**  Avro serialization, paired with Kafka, allows for schema evolution and efficient data storage.
+
+**Notable Design Patterns:**
+
+*   **Facade Pattern:** API Gateway provides a simplified interface.
+*   **Event-Driven Architecture:** Use of S3 events and Kafka messaging.
+*   **Microservices:** Separate Lambda functions for distinct functionalities.
+*   **Serverless:** Lambda functions and API Gateway create a serverless backend.
+*   **Factory Pattern:** Client factories are used for generating API Gateway and HTTP clients.
+*   **Module Pattern:** Used to encapsulate functionality in JavaScript.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: control_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/adityajain10_foot365-live-streaming-chatbot-prediction-app-on-aws.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

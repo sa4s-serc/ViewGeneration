@@ -1,0 +1,119 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a component diagram for the following system.
+
+REPOSITORY: calmato_gran-book
+
+
+**Diagram Type:** PlantUML Component Diagram (for static architecture)
+**Architectural Concern:** connectivity
+
+The diagram should:
+- Clearly show system components and their relationships
+- Highlight how the architecture addresses the specified concern
+- Use proper component diagram syntax with components, interfaces, and dependencies
+- Represent the static structure of the system
+
+
+ARCHITECTURAL SUMMARY:
+## Gran Book Application: Repository Analysis Report
+
+This report summarizes the analysis of a GitHub repository for the "Gran Book" application, focusing on the web admin panel and related backend logic. The application is a book management and social reading platform built with a modern technology stack, emphasizing modularity, maintainability, and scalability.
+
+**I. Core Functionalities and Components:**
+
+The Gran Book application provides a comprehensive set of features centered around book management and user interaction. Key functionalities include:
+
+*   **Book Management:** CRUD operations for books (create, read, update, delete) and author information.
+*   **Bookshelf Management:** Users can add books to their personal bookshelves, tracking their reading progress with different statuses.
+*   **Review Management:** Users can create and manage book reviews, with the application providing functionalities for listing and retrieving both book and user-specific reviews.
+*   **User Management:** Features include user profile management, following/unfollowing other users, and retrieving user profile information.
+*   **Chat Functionality:** Real-time chat capabilities with the ability to create chat rooms and send text or image messages.
+*   **Authentication and Authorization:** Secure user authentication and authorization mechanisms, potentially using Firebase.
+*   **Admin Panel:** A web-based admin interface for managing administrators, books, and notifications.
+*   **API Gateway:** Handles routing, authentication, and request/response transformation for both native (mobile) and admin interfaces.
+*   **Image Handling:** The application supports image uploads, storage, and retrieval, potentially with metadata management for images.
+
+**II. Key Files and Their Roles:**
+
+The repository is organized into logical directories, each serving a specific purpose:
+
+*   **`nuxt.config.js`:**  Central configuration file for the Nuxt.js web admin panel. Defines application settings, API base URL, Firebase credentials, and Vuetify theme settings.
+*   **`store/` (Vuex Modules):** Contains Vuex store modules (`admin.ts`, `auth.ts`, `book.ts`, `common.ts`) for managing application state related to admin users, authentication, books, and common UI elements (snackbar messages, loading states).
+*   **`types/` (TypeScript Definitions):** Defines TypeScript interfaces for data structures, API request/response formats, and store types, enhancing code type safety and maintainability. This includes form definitions for interacting with backend models.
+*   **`components/` (Vue.js Components):**  Houses Vue.js components organized by complexity levels:
+    *   `atoms`: Basic, reusable UI elements (e.g., `TheTextField`, `TheSelect`).
+    *   `molecules`: Composed of atoms, representing simple UI sections (e.g., `MailInput`, `PasswordInput`).
+    *   `organisms`: More complex UI blocks assembled from molecules and atoms (e.g., `CommonHeader`, `CommonSidebar`).
+    *   `templates`: Page-level components composing organisms to create the structure of specific pages (e.g., `AdminList`, `SignIn`).
+*   **`pages/` (Vue.js Pages):**  Vue.js components representing different routes/views of the web admin panel (e.g., `index.vue`, `signin.vue`, `admin/*.vue`).
+*   **`plugins/` (Nuxt.js Plugins):** Extends Nuxt.js functionality with plugins for Axios (API communication), Firebase (authentication), `vuex-persistedstate` (state persistence), and `vee-validate` (form validation). Notably `axios-accessor.ts` sets up request and response interceptors for API calls.
+*   **`layouts/` (Layout Components):** Defines the overall layout of application pages (e.g., `default.vue`, `auth.vue`).
+*   **`app/store/`:** Contains Vuex modules for the core application, like `common.ts` (snackbar and connection status), `admin.ts` (admin user management), and `auth.ts` (user authentication).
+*   **`spec/components/**/*.spec.ts`:** Jest test files for Vue components, ensuring correct behavior of individual components.
+*   **`docs/12_backend/11_swagger/native/openapi.yaml` & `admin/openapi.yaml`:** OpenAPI/Swagger definitions for the native app and admin interface APIs, respectively.
+*   **`docs/13_database/db_design.md`:** Documentation for the relational database schema, detailing table structures, data types, constraints, and relationships.
+*   **`api/internal/book/domain/book/*`:** Defines core domain models for books, authors, bookshelves, and reviews.
+*   **`api/internal/book/application/*`:** Implements application services for managing books, bookshelves, and reviews.
+*   **`api/internal/book/infrastructure/*`:** Provides concrete implementations for the book repository and domain validation.
+*   **`api/internal/gateway/*`:** Contains API gateway logic for both native and admin interfaces.
+*   **`api/internal/gateway/*/handler/*`:** Defines handlers for different API versions and interfaces.
+*   **`api/proto/*`:** Contains protobuf definitions for gRPC services (user, book, chat).
+*   **`api/pkg/*`:** Provides reusable utility functions.
+*   **`Data/`:** Directory for storing image files used by the application.
+
+**III. Architectural Insights:**
+
+The Gran Book application adopts a robust and well-defined architecture:
+
+*   **Component-Based Architecture:** The web admin panel follows a component-based architecture, promoting reusability and maintainability.
+*   **Hexagonal Architecture:** The backend architecture is structured around a hexagonal (ports and adapters) design. The `internal` packages represent the core domain and application layers, while the `infrastructure` packages provide concrete implementations for data access and external service integration. This separates core logic from infrastructure concerns.
+*   **Vuex for State Management:** Vuex is used for centralized state management in both the web admin panel and potentially the native application, enhancing data consistency. Vuex Modules (`admin`, `auth`, `common`) organize state logically.
+*   **RESTful API Design:** The backend APIs adhere to RESTful principles, utilizing standard HTTP methods and resource-based URLs.
+*   **Microservices Architecture (Likely):** The presence of multiple API directories (Auth API, User API, Book API, etc.) suggests a microservices architecture with separate services for specific functionalities.
+*   **gRPC Communication:** The system uses gRPC for communication between microservices within the backend, utilizing `.proto` files for service definitions.
+*   **Nuxt.js Framework:** The web admin panel leverages the Nuxt.js framework, utilizing its conventions for routing, middleware, and plugin configuration.
+*   **Firebase Integration:** Firebase is integrated for user authentication, leveraging environment variables for configuration.
+
+**IV. Design Patterns:**
+
+The application employs several design patterns to enhance its structure and maintainability:
+
+*   **Module Pattern:** Vuex modules encapsulate related state, mutations, actions, and getters.
+*   **Centralized Configuration:** Configuration data (API endpoints, Firebase settings) is stored in `nuxt.config.js` and accessed via `process.env`.
+*   **Repository Pattern:** Abstracting data access logic from application services. `Repository` interfaces are implemented by concrete repositories in the `infrastructure` layer.
+*   **Service Layer:**  The `application` packages encapsulate business logic and orchestrate interactions between domain objects and repositories.
+*   **Dependency Injection:**  Dependencies (e.g., repositories, validators) are injected into components and services to enhance testability and flexibility.
+*   **Factory Pattern:** Creating concrete implementations using factory functions (`NewBookRepository`, `NewBookDomainValidation`).
+*   **Middleware:** Gin middlewares are used for authentication, request ID generation, CORS, and logging.
+*   **Data Transfer Objects (DTOs):**  Used to transfer data between application layers. Indicated by request/response types in the `/types` directory and filenames with UUIDs for images.
+
+**V. Testing and Documentation**
+* Component specifications are used in `spec/components/**/*.spec.ts` for unit testing.
+* Swagger/OpenAPI documents the RESTful APIs for both native and admin interfaces in the `/docs` directory.
+
+**Overall:**
+
+The Gran Book application demonstrates a well-structured architecture, employing modern frameworks and design patterns. The clear separation of concerns, use of TypeScript, and adherence to established architectural principles indicate a focus on scalability, maintainability, and testability. The application is designed to be a robust platform for book management and social reading.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: connectivity
+   - Uses appropriate PlantUML elements for a component diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/calmato_gran-book.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

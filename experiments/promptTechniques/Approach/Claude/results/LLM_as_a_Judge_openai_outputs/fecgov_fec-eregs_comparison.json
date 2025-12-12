@@ -1,0 +1,360 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "eRegulations project document",
+        "description": "https://eregs.github.io",
+        "boundaries": "rectangle",
+        "position": "top left"
+      },
+      {
+        "name": "GovInfo(xml)",
+        "description": "https://www.govinfo.gov/bulkdata/CFR/",
+        "boundaries": "rectangle",
+        "position": "middle left"
+      },
+      {
+        "name": "fr-notices",
+        "description": "Edit notice xml",
+        "boundaries": "rectangle",
+        "position": "middle left"
+      },
+      {
+        "name": "Django library (Regulations Site)",
+        "description": "https://regulations-site.readthedocs.io/en/latest/ https://github.com/eregs/regulations-site",
+        "boundaries": "rectangle",
+        "position": "top middle"
+      },
+      {
+        "name": "API library (Regulations Core)",
+        "description": "https://github.com/eregs/regulations-core (Python 3.6) Django and Haystack application",
+        "boundaries": "rectangle",
+        "position": "middle middle"
+      },
+      {
+        "name": "Regulations Parser",
+        "description": "https://github.com/eregs/regulations-parser (Python 3.5)",
+        "boundaries": "rectangle",
+        "position": "bottom middle"
+      },
+      {
+        "name": "fec-eregs app",
+        "description": "https://github.com/fecgov/fec-eregs https://www.fec.gov/regulations/",
+        "boundaries": "rectangle",
+        "position": "top right"
+      },
+      {
+        "name": "fec-eregs API",
+        "description": "https://fec-{0}-eregs.app.cloud.gov/regulations/api",
+        "boundaries": "rectangle",
+        "position": "middle right"
+      },
+      {
+        "name": "fec-eregs-db",
+        "description": "",
+        "boundaries": "rectangle",
+        "position": "bottom right"
+      },
+      {
+        "name": "fec api (openFEC)",
+        "description": "",
+        "boundaries": "rectangle",
+        "position": "bottom middle"
+      },
+      {
+        "name": "Elasticsearch",
+        "description": "",
+        "boundaries": "rectangle",
+        "position": "bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "GovInfo(xml)",
+        "target": "fr-notices",
+        "label": "Input(xml)",
+        "type": "arrow"
+      },
+      {
+        "source": "fr-notices",
+        "target": "Regulations Parser",
+        "label": "Input(xml)",
+        "type": "arrow"
+      },
+      {
+        "source": "Regulations Parser",
+        "target": "API library (Regulations Core)",
+        "label": "Output (Json)",
+        "type": "arrow"
+      },
+      {
+        "source": "Django library (Regulations Site)",
+        "target": "fec-eregs app",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "API library (Regulations Core)",
+        "target": "fec-eregs app",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "fec-eregs app",
+        "target": "fec-eregs API",
+        "label": "Get/Post",
+        "type": "arrow"
+      },
+      {
+        "source": "fec-eregs API",
+        "target": "fec-eregs-db",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "fec api (openFEC)",
+        "target": "Elasticsearch",
+        "label": "load_regulations",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "CFR (The Code of Federal Regulations)",
+        "position": "bottom left"
+      },
+      {
+        "text": "Parse regulation locally: Python 3.7.9 --running the API Python 3.6.1-- parsing the regulations",
+        "position": "bottom left"
+      }
+    ],
+    "groups": [
+      {
+        "name": "Search eregs",
+        "components": [
+          "fec-eregs app",
+          "fec-eregs API",
+          "fec-eregs-db"
+        ],
+        "position": "right"
+      }
+    ],
+    "metadata": {
+      "filename": "eRegs_General_Architecture.png",
+      "title": "eRegs General Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Cloud Foundry Infrastructure",
+        "description": "",
+        "boundaries": "rectangle",
+        "position": "top"
+      },
+      {
+        "name": "Web Interface (Django Templates)",
+        "description": "",
+        "boundaries": "rectangle",
+        "position": "top middle"
+      },
+      {
+        "name": "FEC CMS Integration",
+        "description": "",
+        "boundaries": "rectangle",
+        "position": "middle"
+      },
+      {
+        "name": "API Layer",
+        "description": "",
+        "boundaries": "rectangle",
+        "position": "middle"
+      },
+      {
+        "name": "Core Application (Django)",
+        "description": "",
+        "boundaries": "rectangle",
+        "position": "middle"
+      },
+      {
+        "name": "Regulations Parser",
+        "description": "",
+        "boundaries": "rectangle",
+        "position": "bottom left"
+      },
+      {
+        "name": "PostgreSQL (MPTT Structure)",
+        "description": "",
+        "boundaries": "rectangle",
+        "position": "bottom middle"
+      },
+      {
+        "name": "ElasticSearch (Search)",
+        "description": "",
+        "boundaries": "rectangle",
+        "position": "bottom right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Cloud Foundry Infrastructure",
+        "target": "Web Interface (Django Templates)",
+        "label": "Hosts",
+        "type": "arrow"
+      },
+      {
+        "source": "Web Interface (Django Templates)",
+        "target": "FEC CMS Integration",
+        "label": "Content Integration",
+        "type": "arrow"
+      },
+      {
+        "source": "Web Interface (Django Templates)",
+        "target": "API Layer",
+        "label": "HTTP/JSON",
+        "type": "arrow"
+      },
+      {
+        "source": "API Layer",
+        "target": "Core Application (Django)",
+        "label": "Internal API",
+        "type": "arrow"
+      },
+      {
+        "source": "Regulations Parser",
+        "target": "PostgreSQL (MPTT Structure)",
+        "label": "Regulation Updates",
+        "type": "arrow"
+      },
+      {
+        "source": "Core Application (Django)",
+        "target": "ElasticSearch (Search)",
+        "label": "Search Queries",
+        "type": "arrow"
+      }
+    ],
+    "annotations": [],
+    "groups": [],
+    "metadata": {
+      "filename": "Generated_Architecture.png",
+      "title": ""
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Regulations Parser"
+    ],
+    "unique_to_GroundTruth": [
+      "eRegulations project document",
+      "GovInfo(xml)",
+      "fr-notices",
+      "Django library (Regulations Site)",
+      "API library (Regulations Core)",
+      "fec-eregs app",
+      "fec-eregs API",
+      "fec-eregs-db",
+      "fec api (openFEC)",
+      "Elasticsearch"
+    ],
+    "unique_to_GeneratedImage": [
+      "Cloud Foundry Infrastructure",
+      "Web Interface (Django Templates)",
+      "FEC CMS Integration",
+      "API Layer",
+      "Core Application (Django)",
+      "PostgreSQL (MPTT Structure)",
+      "ElasticSearch (Search)"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "GovInfo(xml)",
+        "target": "fr-notices",
+        "label": "Input(xml)",
+        "type": "arrow"
+      },
+      {
+        "source": "fr-notices",
+        "target": "Regulations Parser",
+        "label": "Input(xml)",
+        "type": "arrow"
+      },
+      {
+        "source": "Regulations Parser",
+        "target": "API library (Regulations Core)",
+        "label": "Output (Json)",
+        "type": "arrow"
+      },
+      {
+        "source": "Django library (Regulations Site)",
+        "target": "fec-eregs app",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "API library (Regulations Core)",
+        "target": "fec-eregs app",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "fec-eregs app",
+        "target": "fec-eregs API",
+        "label": "Get/Post",
+        "type": "arrow"
+      },
+      {
+        "source": "fec-eregs API",
+        "target": "fec-eregs-db",
+        "label": "",
+        "type": "arrow"
+      },
+      {
+        "source": "fec api (openFEC)",
+        "target": "Elasticsearch",
+        "label": "load_regulations",
+        "type": "arrow"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Cloud Foundry Infrastructure",
+        "target": "Web Interface (Django Templates)",
+        "label": "Hosts",
+        "type": "arrow"
+      },
+      {
+        "source": "Web Interface (Django Templates)",
+        "target": "FEC CMS Integration",
+        "label": "Content Integration",
+        "type": "arrow"
+      },
+      {
+        "source": "Web Interface (Django Templates)",
+        "target": "API Layer",
+        "label": "HTTP/JSON",
+        "type": "arrow"
+      },
+      {
+        "source": "API Layer",
+        "target": "Core Application (Django)",
+        "label": "Internal API",
+        "type": "arrow"
+      },
+      {
+        "source": "Regulations Parser",
+        "target": "PostgreSQL (MPTT Structure)",
+        "label": "Regulation Updates",
+        "type": "arrow"
+      },
+      {
+        "source": "Core Application (Django)",
+        "target": "ElasticSearch (Search)",
+        "label": "Search Queries",
+        "type": "arrow"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of a regulatory software architecture. The GroundTruth diagram focuses on the eRegulations system, detailing components like the Django library, API library, and various data sources and outputs. It has a clear focus on regulations parsing and integration with external APIs. The GeneratedImage diagram, on the other hand, emphasizes a broader infrastructure setup with components like Cloud Foundry Infrastructure, Web Interface, and PostgreSQL. Both diagrams share the 'Regulations Parser' component, indicating a common functionality in regulation processing. However, the connectors and other components differ significantly, reflecting different architectural focuses: one on application-specific components and the other on infrastructure and integration layers. The GroundTruth diagram is more detailed in terms of specific libraries and their roles, while the GeneratedImage diagram provides a higher-level view of system integration. Rating: 6/10. The GeneratedImage captures some core elements but lacks the detailed application-specific components and connections present in the GroundTruth diagram.",
+    "Rating": 6
+  }
+}

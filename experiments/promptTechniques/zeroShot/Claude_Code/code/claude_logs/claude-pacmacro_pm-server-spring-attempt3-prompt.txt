@@ -1,0 +1,88 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: pacmacro_pm-server-spring
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** deployment, control_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## Pac Macro Game Server: Codebase Analysis Report
+
+This report summarizes the architecture, key functionalities, and components of the Pac Macro game server, a Spring Boot RESTful application designed to relay information between devices during gameplay.
+
+**Overview:**
+
+The server facilitates a Pac Macro game by managing players, game state, pacdots, and tagging interactions. It exposes a RESTful API for clients to interface with these core game elements.  The codebase employs a layered architecture and utilizes in-memory data storage.
+
+**Key Functionalities:**
+
+The server provides the following core functionalities:
+
+*   **Player Management:** Selecting, deselecting, updating location, and updating player state (e.g., alive, dead).
+*   **Game State Management:** Handling game initialization, tracking game progress (in progress, paused), and determining the game's end state (Pacman win, Ghosts win).
+*   **Pacdot Management:** Retrieving the count of pacdots, retrieving uneaten pacdots, retrieving all pacdots, and resetting pacdots for a new game.
+*   **Tagging Functionality:** Registering tags between players, enabling interaction based on player proximity.
+*   **REST API:** Provides endpoints for clients to interact with the game server.
+
+**Architectural Components:**
+
+The application is structured around a layered architecture, promoting separation of concerns:
+
+*   **Controllers:** Located in `src/main/java/com/pm/server/controller/*Controller.java`, these components expose REST endpoints (e.g., `AdminController`, `PlayerController`, `GameStateController`, `PacdotController`, `TagController`, `MetricsController`, `HomeController`). They handle incoming HTTP requests and delegate tasks to the manager layer.
+*   **Managers:** Located in `src/main/java/com/pm/server/manager/*Manager.java`, these components implement the core business logic. They orchestrate interactions between registries and repositories (e.g., `AdminManager`, `PlayerManager`, `GameStateManager`, `PacdotManager`, `TagManager`).  They act as Facades, simplifying interaction with the registry and repository layers.
+*   **Registries:** Located in `src/main/java/com/pm/server/registry/*Registry.java`, these components manage in-memory game data and state. Examples include `PlayerRegistry`, `GameStateRegistry`, `PacdotRegistry`, and `TagRegistry`.
+*   **Repositories:** Located in `src/main/java/com/pm/server/repository/*Repository.java`, this layer provides data access functionality. It interacts with the underlying data storage (currently in-memory lists) through `PlayerRepository` and `PacdotRepository`. These could be swapped out for database implementation.
+*   **Data Types:** Located in `src/main/java/com/pm/server/datatype/*.java`, these components define the data structures used throughout the application. Examples include `Player`, `Coordinate`, `Pacdot`, and `GameState`.
+*   **Responses & Requests:** Define the structure of data exchanged through the API. `Responses` (e.g., `GameStateResponse`, `PlayerDetailsResponse`, `PacdotCountResponse`) define the data returned by API endpoints.  `Requests` (e.g., `StateRequest`, `TagRequest`, `LocationRequest`) define the structure of the data accepted by API endpoints.
+*   **Utilities:** Located in `src/main/java/com/pm/server/PmServerApplication.java` these provide helper functions (e.g., `ValidationUtils`, `JsonUtils`). The file also contains the Main Spring Boot application class.
+*   **Exception Handling:** Implemented using custom exception classes (`PmServerException`) and a global exception handler (`CustomExceptionHandler`) for consistent error handling.
+*   **Configuration:** Configures CORS and sets default settings. The main configuration file is located in `src/main/resources/*.properties` as well as logging configuration such as `log4j2.xml, log4j.prod.xml` and static web content `index.html`. Unit tests are found in `src/test/java/com/pm/server/*`.
+
+**Key Files:**
+
+*   **`pom.xml`:** Maven project configuration file, specifying dependencies, plugins, and build settings.
+*   **`src/main/java/com/pm/server/PmServerApplication.java`:** Main Spring Boot application class.
+
+**Architectural Insights & Design Patterns:**
+
+*   **Layered Architecture:** The code strictly adheres to a layered architecture, improving maintainability and testability.
+*   **RESTful API:** The server follows REST principles, enabling interoperability with various clients.
+*   **Spring Boot:** The application leverages Spring Boot's features, including dependency injection and auto-configuration, simplifying development.
+*   **In-Memory Data Storage:** The current implementation uses in-memory data storage. This is suitable for prototyping but limits scalability. Data can be persisted to a file which is why filenames are being read.
+*   **Repository Pattern:** Used for data access to abstract the data storage mechanism.
+*   **Registry Pattern:** Used for managing and accessing game data in memory.
+*   **Facade Pattern:** Managers act as facades, simplifying the interaction with registries and repositories.
+
+This report provides a comprehensive overview of the Pac Macro game server codebase. It highlights the system's key components, functionalities, and architectural design, aiding in understanding and maintaining the application.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: deployment, control_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/pacmacro_pm-server-spring.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

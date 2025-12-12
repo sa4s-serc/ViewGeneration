@@ -1,0 +1,87 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: thill_kafkacap
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** data_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## KafkaCap Repository Analysis Report
+
+This report summarizes the key functionalities, architecture, and design patterns found in the KafkaCap repository. KafkaCap provides a framework for reliably capturing messages to Kafka using redundant capture devices and a deduplicator consumer group. The core goal is to ensure messages are uniquely written to a single Kafka topic, even in the presence of failures or redundancy.
+
+**Core Functionality:**
+
+KafkaCap achieves reliable message capture through three primary mechanisms:
+
+1.  **Redundant Capture Devices:** Messages are captured from various sources (Aeron, Multicast, Websocket) via multiple capture devices. Each device writes to a separate Kafka topic.
+2.  **Deduplicator:** A Kafka Consumer Group consumes from all capture topics. It deduplicates messages, ensuring only unique messages are written to the outbound Kafka topic.
+3.  **Buffered Publisher:** Messages are buffered before being published to Kafka. This mitigates back-pressure and provides resilience during Kafka outages.
+
+**Key Components:**
+
+*   **CaptureDevice (Abstract Class):** Defines the interface for capturing messages from various sources. Concrete implementations exist for Aeron (`AeronCaptureDevice`), Multicast (`MulticastCaptureDevice`), and Websocket (`WebsocketCaptureDevice`). The `AeronDedupStrategy` builds on the MultiProducerDedupStrategy to use Aeron's stream ID.
+*   **Deduplicator:** The central component responsible for deduplicating messages. The main class is `Deduplicator.java` in the `kafkacap-core` module.
+*   **DedupStrategy (Interface):** Defines the deduplication logic. Implementations include `SequencedDedupStrategy` (for sequenced streams) and `MultiProducerDedupStrategy` (for streams with multiple logical producers).
+*   **CaptureQueue (Interface):** Manages buffering of inbound messages. Available implementations include `MemoryCaptureQueue` (in-memory) and `ChronicleCaptureQueue` (disk-based, using Chronicle-Queue).
+*   **RecordPopulator:** Creates Kafka records from the captured messages.
+*   **RecoveryService:** Recovers deduplication state upon restart by reading the last committed offsets from the outbound Kafka topic.
+
+**Architectural Overview:**
+
+KafkaCap follows a modular, pluggable, and configuration-driven architecture. Its design emphasizes fault tolerance and relies heavily on Kafka's features.
+
+*   **Modular Design:** The repository is organized into modules (core, aeron, multicast, websocket), enabling easy extension with new capture devices.
+*   **Pluggable Components:** Interfaces like `CaptureDevice`, `DedupStrategy`, and `CaptureQueue` allow users to customize the system with their own implementations.
+*   **Fault Tolerance:** Redundant capture devices and Kafka Consumer Groups contribute to high availability.
+*   **Kafka-Centric:** Leverages Kafka's topics, partitions, and consumer groups for message storage, deduplication, and fault tolerance.
+*   **Configuration-Driven:** YAML files configure both capture devices and the deduplicator, promoting flexibility and ease of deployment. Example Deduplicator configuration can be found in `dedup_demo.yaml`. The general architecture is documented in `kafkacap_architecture.drawio`
+
+**Notable Design Patterns:**
+
+*   **Strategy:** The `DedupStrategy` interface exemplifies the Strategy pattern, allowing the deduplication logic to be easily swapped.
+*   **Template Method:** The `CaptureDevice` abstract class uses the Template Method pattern, defining the skeleton of an algorithm while allowing subclasses to implement specific steps.
+*   **Factory:** The `RecordCacheFactory` interface demonstrates the Factory pattern, abstracting the creation of RecordCache instances.
+*   **Builder:** The `BufferedPublisherBuilder` and `DeduplicatorBuilder` simplify the creation of complex objects with many optional parameters.
+
+**Important Files:**
+
+*   **LICENSE:** Apache 2.0 license file.
+*   **pom.xml:** Maven project files defining dependencies, build configurations, and project metadata for each module (core, aeron, multicast, websocket).
+*   **README.md:** High-level overview of KafkaCap, its architecture, and instructions for use.
+
+**Conclusion:**
+
+KafkaCap provides a robust and flexible framework for capturing and deduplicating messages into Kafka. Its modular design, pluggable components, and reliance on proven design patterns contribute to its maintainability and extensibility. The use of redundant capture devices and Kafka's features ensure high availability and fault tolerance.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: data_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/thill_kafkacap.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

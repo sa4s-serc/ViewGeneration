@@ -1,0 +1,44 @@
+// Bytom Server Architecture
+digraph Bytom_Architecture {
+	rankdir=TB
+	node [shape=box style=rounded]
+	splines=ortho
+	subgraph cluster_core {
+		label="Core Blockchain"
+		protocol [label="Protocol
+(bc, types, validation)"]
+		txpool [label="Transaction Pool"]
+		consensus [label=Consensus]
+		mining [label="Mining
+(Tensority)"]
+	}
+	subgraph cluster_network {
+		label=Networking
+		p2p [label="P2P Network"]
+		netsync [label="Block Sync"]
+		api [label="gRPC API"]
+	}
+	subgraph cluster_storage {
+		label=Storage
+		db [label="Database
+(LevelDB)"]
+		state [label="State Management"]
+	}
+	subgraph cluster_security {
+		label=Security
+		auth [label="Access Token"]
+		crypto [label=Cryptography]
+		hsm [label=Pseudohsm]
+	}
+	p2p -> netsync
+	netsync -> protocol
+	protocol -> txpool
+	txpool -> mining
+	protocol -> db
+	protocol -> state
+	api -> auth
+	api -> protocol
+	mining -> crypto
+	hsm -> crypto
+	state -> db
+}

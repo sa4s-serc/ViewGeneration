@@ -1,0 +1,89 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: fredrikhgrelland_data-mesh
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** connectivity
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## Data Mesh Implementation Analysis: `fredrikhgrelland_data-mesh` Repository
+
+This report analyzes the `fredrikhgrelland_data-mesh` repository, outlining its core components, functionalities, architectural design, and key implementation details. The repository provides a Vagrant-managed environment demonstrating a data mesh architecture, employing cloud-native principles with containerized services orchestrated by Nomad.
+
+**Core Functionality and Components:**
+
+The system provides a foundation for a data mesh by focusing on the following key areas:
+
+*   **Data Storage:** MinIO, an S3-compatible object storage, serves as the primary data lake. It is configured to act as a gateway.
+*   **Metadata Management:** The Hive Metastore stores schema and metadata, providing a centralized catalog for data within MinIO.
+*   **Query Engine:** Presto enables SQL-based querying of data residing in MinIO, leveraging the Hive Metastore for schema discovery.
+*   **SQL IDE:** SQLPad offers a web-based interface for writing and executing SQL queries against the Presto query engine.
+*   **Orchestration:** Nomad manages the deployment, scaling, and lifecycle of all services (MinIO, Hive, Presto, SQLPad, and an example CSV service) as individual jobs.
+*   **Service Discovery:** Consul is employed for service discovery, enabling dynamic location and communication between different services. Consul Connect is used for secure service-to-service communication.
+*   **Infrastructure as Code (IaC):** Terraform, orchestrated via Ansible, defines and provisions the Nomad jobs, ensuring consistent and repeatable deployments.
+*   **Development Environment:** Vagrant creates a consistent, isolated environment for local development and testing.
+*   **Automated Testing:** A GitHub Actions workflow (`fullstack.yml`) implements automated testing, including linting and executing make tests on pull requests and pushes to the main branch, ensuring code quality and stability.
+
+**Key Files and Their Roles:**
+
+The repository's functionality is defined through several key files:
+
+*   **`LICENSE` (Apache 2.0):** Specifies the open-source license under which the project is released.
+*   **`README.md`:** Provides essential information for onboarding, including project overview, setup instructions, and usage examples for the various components.
+*   **`CHANGELOG.md`:** Documents changes and version history of the project.
+*   **`Makefile`:** Offers convenient commands for common tasks, such as starting the environment (`make up`), updating the Vagrant box (`make update-box`), cleaning the environment (`make clean`), and connecting to services via Consul (`make connect-to-*`).
+*   **`Vagrantfile`:** Defines the Vagrant environment, specifying the base box, network configuration, and provisioning steps using Ansible.
+*   **`resources/terraform/main.tf`:** A Terraform configuration file that defines the Nomad jobs to be deployed.
+*   **`resources/ansible/run-jobs.yml`:** An Ansible playbook that executes Terraform to deploy Nomad jobs and runs subsequent health checks.
+*   **`resources/ansible/test.yml`:** An Ansible playbook that defines health checks for the services.
+*   **`resources/nomad-jobs/*.hcl`:** Nomad job specifications (HCL format) defining deployment and configuration details for each service. These files include resource requirements, Docker image specifications, service discovery settings (via Consul), and crucially, `connect` stanzas for configuring Consul Connect's secure service-to-service communication.
+*    **`resources/debug/example-csv/docker-compose.yml` and `resources/debug/example-csv/create-table.hql`**: Used for debugging and manually creating table.
+*   **`.github/workflows/fullstack.yml`**: Defines the GitHub Actions workflow for automated testing.
+
+**Architectural Insights and Design Patterns:**
+
+The repository showcases several key architectural and design patterns:
+
+*   **Microservices Architecture:** The system adopts a microservices architecture, with each component (MinIO, Hive Metastore, Presto, SQLPad) deployed as an independent, containerized service managed by Nomad.
+*   **Service Mesh (Consul Connect):** Consul Connect secures communication between services through the extensive use of sidecar proxies. These proxies handle authentication, authorization, and encryption, enforced through mutual TLS.
+*   **Data Mesh Principles:** While the repository aims to implement data mesh principles, it leans toward a centralized approach to data mesh enablement, where a single team manages the entire infrastructure stack. This serves as a foundation for a more decentralized, domain-driven approach in the future.
+*   **Infrastructure as Code (IaC):** The use of Terraform and Ansible promotes IaC, enabling consistent and repeatable deployments.
+*   **Configuration via Templates:** Templates within the Nomad job specifications allow for dynamic configuration of services based on environment variables and Consul service discovery information.
+*   **Sidecar Proxy:** Consul Connect's sidecar proxy pattern enhances secure service communication.
+*   **Health Checks:** Nomad's built-in health check mechanism monitors service health and automatically restarts failed services.
+*   **Job Orchestration (Nomad):** Nomad manages the lifecycle of the various services.
+*   **Test Automation:**  Integration with a CI/CD pipeline promotes robust testing practices.
+
+In conclusion, the `fredrikhgrelland_data-mesh` repository provides a valuable demonstration of a data mesh architecture, highlighting key components, architectural considerations, and design patterns involved in building a modern, data-driven platform. It's notable implementation details focus on leveraging containerization, orchestration, and service mesh technologies for increased agility and scalability.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: connectivity
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/fredrikhgrelland_data-mesh.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

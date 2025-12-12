@@ -1,0 +1,38 @@
+// ZID-Automat Controller Architecture
+digraph {
+	rankdir=TB
+	node [shape=box style=rounded]
+	main [label="Main123
+(Core Controller)"]
+	borrow [label="BorrowM
+(Borrowing Logic)"]
+	qr [label="QRCodeReader
+(Serial Communication)"]
+	eject [label="Eject
+(Item Dispensing)"]
+	api [label="Requests
+(Backend API)"]
+	data [label="DataCollect
+(Event Logging)"]
+	screen [label="ScreenOutput
+(LCD Display)"]
+	config [label="Configuration.json"]
+	main -> borrow [label=orchestrates]
+	borrow -> qr [label="reads QR"]
+	borrow -> eject [label=triggers]
+	borrow -> api [label="validates/updates"]
+	borrow -> data [label="logs events"]
+	borrow -> screen [label="displays status"]
+	main -> config [label=loads]
+	api -> data [label="sends logs"]
+	node [shape=cylinder]
+	backend [label="Backend Server"]
+	api -> backend [label="HTTP/REST"]
+	node [shape=box style="rounded,dashed"]
+	lcd [label="I2C LCD"]
+	gpio [label="GPIO Pins"]
+	serial [label="Serial Port"]
+	screen -> lcd [label=controls]
+	eject -> gpio [label=activates]
+	qr -> serial [label="reads from"]
+}

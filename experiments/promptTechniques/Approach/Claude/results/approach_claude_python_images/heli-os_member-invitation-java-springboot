@@ -1,0 +1,44 @@
+// Member Invitation System Architecture
+digraph {
+	rankdir=TB
+	node [shape=rectangle style=rounded]
+	subgraph cluster_0 {
+		label="Interface Layer"
+		node [fillcolor=lightblue style="filled,rounded"]
+		rest_controllers [label="REST Controllers
+(MemberInvitationController)"]
+		dtos [label="DTOs
+(InvitationDto, MemberDto)"]
+		mappers [label=Mappers]
+		config [label="Global Config
+(Exception Handling)"]
+	}
+	subgraph cluster_1 {
+		label="Domain Layer"
+		node [fillcolor=lightgreen style="filled,rounded"]
+		use_cases [label="Use Cases
+(InvitationUseCase, MemberUseCase)"]
+		services [label="Services
+(InvitationService, MemberService)"]
+		domain_models [label="Domain Models
+(Member, Invitation)"]
+	}
+	subgraph cluster_2 {
+		label="Infrastructure Layer"
+		node [fillcolor=lightsalmon style="filled,rounded"]
+		redis_adapter [label="Redis Adapter
+(Invitation Storage)"]
+		db_adapter [label="Database Adapter
+(Member Storage)"]
+		repositories [label=Repositories]
+	}
+	rest_controllers -> dtos
+	dtos -> mappers
+	mappers -> domain_models
+	rest_controllers -> use_cases
+	use_cases -> services
+	services -> domain_models
+	services -> repositories
+	repositories -> redis_adapter
+	repositories -> db_adapter
+}

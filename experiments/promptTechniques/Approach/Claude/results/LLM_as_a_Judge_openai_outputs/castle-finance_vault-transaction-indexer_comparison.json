@@ -1,0 +1,286 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "EventBridge Scheduler",
+        "description": "",
+        "boundaries": "",
+        "position": ""
+      },
+      {
+        "name": "Index Transaction IDs Lambda",
+        "description": "",
+        "boundaries": "",
+        "position": ""
+      },
+      {
+        "name": "Transaction SNS Topic",
+        "description": "",
+        "boundaries": "",
+        "position": ""
+      },
+      {
+        "name": "Download Queue",
+        "description": "",
+        "boundaries": "",
+        "position": ""
+      },
+      {
+        "name": "Download Raw Transaction Lambda",
+        "description": "",
+        "boundaries": "",
+        "position": ""
+      },
+      {
+        "name": "Raw Transactions DynamoDB",
+        "description": "",
+        "boundaries": "",
+        "position": ""
+      },
+      {
+        "name": "Normalize Transaction Lambda",
+        "description": "",
+        "boundaries": "",
+        "position": ""
+      },
+      {
+        "name": "Normalized Transactions DynamoDB",
+        "description": "",
+        "boundaries": "",
+        "position": ""
+      },
+      {
+        "name": "Solscan API",
+        "description": "",
+        "boundaries": "",
+        "position": ""
+      }
+    ],
+    "connectors": [
+      {
+        "source": "EventBridge Scheduler",
+        "target": "Index Transaction IDs Lambda",
+        "label": "",
+        "type": ""
+      },
+      {
+        "source": "Index Transaction IDs Lambda",
+        "target": "Transaction SNS Topic",
+        "label": "",
+        "type": ""
+      },
+      {
+        "source": "Transaction SNS Topic",
+        "target": "Download Queue",
+        "label": "",
+        "type": ""
+      },
+      {
+        "source": "Download Queue",
+        "target": "Download Raw Transaction Lambda",
+        "label": "",
+        "type": ""
+      },
+      {
+        "source": "Download Raw Transaction Lambda",
+        "target": "Raw Transactions DynamoDB",
+        "label": "",
+        "type": ""
+      },
+      {
+        "source": "Download Raw Transaction Lambda",
+        "target": "Solscan API",
+        "label": "",
+        "type": "dashed"
+      },
+      {
+        "source": "Raw Transactions DynamoDB",
+        "target": "Normalize Transaction Lambda",
+        "label": "",
+        "type": ""
+      },
+      {
+        "source": "Normalize Transaction Lambda",
+        "target": "Normalized Transactions DynamoDB",
+        "label": "",
+        "type": ""
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "AWS Cloud",
+        "components": [
+          "EventBridge Scheduler",
+          "Index Transaction IDs Lambda",
+          "Transaction SNS Topic",
+          "Download Queue",
+          "Download Raw Transaction Lambda",
+          "Raw Transactions DynamoDB",
+          "Normalize Transaction Lambda",
+          "Normalized Transactions DynamoDB"
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "GroundTruth.png",
+      "title": "Castle Finance Vault Transaction Indexer"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "Lambda",
+        "description": "Normalize raw transaction and save to DynamoDB",
+        "boundaries": "",
+        "position": ""
+      },
+      {
+        "name": "DynamoDB",
+        "description": "Sync with raw transactions",
+        "boundaries": "",
+        "position": ""
+      },
+      {
+        "name": "SQS Queue",
+        "description": "Download raw transaction to DynamoDB",
+        "boundaries": "",
+        "position": ""
+      },
+      {
+        "name": "SNS Topic",
+        "description": "Publish txHash to SNS topic to queue intake",
+        "boundaries": "",
+        "position": ""
+      },
+      {
+        "name": "Lambda",
+        "description": "Download failures added to dead-letter SQS queue",
+        "boundaries": "",
+        "position": ""
+      }
+    ],
+    "connectors": [
+      {
+        "source": "Lambda",
+        "target": "DynamoDB",
+        "label": "Normalize raw transaction and save to DynamoDB",
+        "type": "solid"
+      },
+      {
+        "source": "DynamoDB",
+        "target": "SQS Queue",
+        "label": "Sync with raw transactions in DynamoDB",
+        "type": "dashed"
+      },
+      {
+        "source": "SQS Queue",
+        "target": "Lambda",
+        "label": "Download raw transaction to DynamoDB",
+        "type": "solid"
+      },
+      {
+        "source": "SNS Topic",
+        "target": "SQS Queue",
+        "label": "Publish txHash to SNS topic to queue intake",
+        "type": "solid"
+      },
+      {
+        "source": "Lambda",
+        "target": "SQS Queue",
+        "label": "Download failures added to dead-letter SQS queue",
+        "type": "solid"
+      }
+    ],
+    "annotations": [
+      {
+        "text": "Every 3 minutes",
+        "position": ""
+      }
+    ],
+    "groups": [],
+    "metadata": {
+      "filename": "GeneratedImage.png",
+      "title": ""
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "Lambda",
+      "DynamoDB",
+      "SQS Queue",
+      "SNS Topic"
+    ],
+    "unique_to_GroundTruth": [
+      "EventBridge Scheduler",
+      "Index Transaction IDs Lambda",
+      "Download Queue",
+      "Raw Transactions DynamoDB",
+      "Normalize Transaction Lambda",
+      "Normalized Transactions DynamoDB",
+      "Solscan API"
+    ],
+    "unique_to_GeneratedImage": [
+      "Lambda (Download failures added to dead-letter SQS queue)"
+    ],
+    "common_connectors": [],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "EventBridge Scheduler",
+        "target": "Index Transaction IDs Lambda"
+      },
+      {
+        "source": "Index Transaction IDs Lambda",
+        "target": "Transaction SNS Topic"
+      },
+      {
+        "source": "Transaction SNS Topic",
+        "target": "Download Queue"
+      },
+      {
+        "source": "Download Queue",
+        "target": "Download Raw Transaction Lambda"
+      },
+      {
+        "source": "Download Raw Transaction Lambda",
+        "target": "Raw Transactions DynamoDB"
+      },
+      {
+        "source": "Download Raw Transaction Lambda",
+        "target": "Solscan API"
+      },
+      {
+        "source": "Raw Transactions DynamoDB",
+        "target": "Normalize Transaction Lambda"
+      },
+      {
+        "source": "Normalize Transaction Lambda",
+        "target": "Normalized Transactions DynamoDB"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "Lambda",
+        "target": "DynamoDB"
+      },
+      {
+        "source": "DynamoDB",
+        "target": "SQS Queue"
+      },
+      {
+        "source": "SQS Queue",
+        "target": "Lambda"
+      },
+      {
+        "source": "SNS Topic",
+        "target": "SQS Queue"
+      },
+      {
+        "source": "Lambda",
+        "target": "SQS Queue"
+      }
+    ],
+    "explanation": "The GroundTruth diagram is more detailed, including specific AWS services and a clear flow of data through various components. It includes components like the EventBridge Scheduler and Solscan API, which are not present in the GeneratedImage. The GeneratedImage focuses on a simplified view with fewer components and connections, lacking some of the specific AWS services and flows. The common elements include the use of Lambda, DynamoDB, SQS Queue, and SNS Topic, but the GeneratedImage lacks the detailed flow and additional components found in the GroundTruth. The GeneratedImage is rated 5 out of 10 for capturing some key components but missing the detailed structure and additional elements present in the GroundTruth.",
+    "Rating": 5
+  }
+}

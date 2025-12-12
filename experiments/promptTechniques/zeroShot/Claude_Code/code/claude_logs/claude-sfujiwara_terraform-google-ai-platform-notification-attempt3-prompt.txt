@@ -1,0 +1,95 @@
+I need you to generate valid PlantUML code based on architectural knowledge.
+
+TASK: Generate a sequence diagram for the following system.
+
+REPOSITORY: sfujiwara_terraform-google-ai-platform-notification
+
+
+**Diagram Type:** PlantUML Sequence Diagram (for dynamic interactions)
+**Behavioral Focus:** data_flow
+
+The diagram should:
+- Accurately represent runtime message flow between components or services
+- Show dynamic interactions and communication patterns
+- Use proper sequence diagram syntax with participants, messages, and activations
+- Match the described system behavior from the summary
+
+
+ARCHITECTURAL SUMMARY:
+## Google AI Platform Training Job Notification Module: An Analysis
+
+This Terraform module provides a solution to the absence of native status change notifications for Google AI Platform training jobs. It establishes an infrastructure to monitor AI Platform logs, detect job state transitions (SUCCEEDED, FAILED, CANCELLED, QUEUED), and publish notifications to a designated Pub/Sub topic. This is achieved through a combination of Google Cloud services orchestrated using Terraform.
+
+**Key Functionalities and Components:**
+
+The system's core functionalities revolve around:
+
+*   **Log Monitoring:** Utilizing a Google Cloud Logging sink to capture AI Platform logs.
+*   **Job State Detection:** Employing a Cloud Function to analyze incoming logs and identify job state transitions.
+*   **Notification Publishing:** Publishing a message to a specified Pub/Sub topic upon detecting a state change, including information about the job ID, project ID, timestamp, and job state.
+*   **Infrastructure Provisioning:** Automating the creation and configuration of necessary Google Cloud resources using Terraform code.
+
+**Infrastructure as Code (IaC) with Terraform:**
+
+The module is defined using Terraform, enabling Infrastructure as Code (IaC) principles. The core configuration resides in `main.tf`, where the following resources are provisioned:
+
+*   `google_pubsub_topic`: Creates two Pub/Sub topics - one for AI Platform logs (`ai_platform_log`) and another for notifications.
+*   `google_logging_project_sink`: Configures a log sink to forward AI Platform logs to the `ai_platform_log` topic.
+*   `google_cloudfunctions_function`: Defines the Cloud Function triggered by messages on the `ai_platform_log` topic.
+*   `google_storage_bucket`, `google_storage_bucket_object`: Creates a storage bucket to store the Cloud Function's source code.
+*   `google_pubsub_topic_iam_member`: Grants the log sink the necessary permissions to publish to the `ai_platform_log` topic.
+
+`outputs.tf` defines the module's outputs, particularly the names of the Pub/Sub topics. `variables.tf` defines input variables such as project ID, region, and topic names, allowing for customization and reusability.
+
+**Cloud Function Logic:**
+
+The Python code within `functions/main.py` performs the core processing:
+
+*   Receives log messages from the `ai_platform_log` Pub/Sub topic.
+*   Parses the log message to determine the AI Platform job's state.
+*   Publishes a notification message to the notification topic with relevant job information.
+
+`functions/data.py` defines Pydantic models for structuring event, job state, and log payload data, promoting type safety and validation. `functions/requirements.txt` specifies the necessary Python dependencies.
+
+**Architectural Overview:**
+
+The architecture follows an **event-driven approach**, leveraging Pub/Sub for asynchronous communication and enhancing scalability and resilience. The Cloud Function acts as the central processor, triggered by events (log messages) on the log topic. This **loose coupling** between components (log sink, Pub/Sub topics, Cloud Function) allows for independent modification and replacement.
+
+**Design Patterns:**
+
+*   **Observer Pattern:** The Cloud Function effectively acts as an observer, monitoring AI Platform logs and triggering a notification when a job state changes.
+*   **Configuration as Code:** Terraform facilitates infrastructure management through code, enabling versioning, repeatability, and collaborative development.
+
+**Supporting Files:**
+
+*   `README.md`: Provides documentation, including architecture overview, usage instructions, and information on inputs/outputs. This file is automatically updated by a github action.
+*   `.terraform-docs.yml`:  Configuration for `terraform-docs`, automating documentation generation from Terraform files.
+*   `examples/main.tf`: Demonstrates module usage with a simple example that creates subscriptions to both the notification and log topics for verification.
+*   `.github/workflows/config.yml`:  Defines a GitHub Actions workflow that automatically runs code formatting, unit tests, and updates the `README.md` with `terraform-docs` on each push to the repository.
+
+**Potential Improvements:**
+
+*   Enhance error handling within the Cloud Function to gracefully manage unexpected log formats or failures in Pub/Sub publishing.
+*   Implement retry mechanisms for Pub/Sub publishing in the Cloud Function to improve reliability.
+
+
+
+
+INSTRUCTIONS:
+1. Read and analyze the architectural summary carefully
+2. Understand the system components, relationships, and behaviors described
+3. Create valid PlantUML code that:
+   - Follows PlantUML syntax strictly
+   - Is complete and can be compiled without errors
+   - Accurately represents the architecture from the summary
+   - Focuses on the specified concern: data_flow
+   - Uses appropriate PlantUML elements for a sequence diagram
+4. Save the PlantUML code to: zeroShot_claude_plantumlcode/sfujiwara_terraform-google-ai-platform-notification.puml
+   - Create the directory if it doesn't exist
+   - Save ONLY the PlantUML code (no markdown code blocks like ```plantuml)
+   - The file must start with @startuml and end with @enduml
+   - No explanations or comments outside the PlantUML code
+
+CRITICAL: You must ONLY generate and save the .puml file. DO NOT compile it or run plantuml command. The compilation will be handled separately by the Python script.
+
+Your expertise in software architecture and PlantUML makes you ideal for creating accurate PlantUML code.

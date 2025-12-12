@@ -1,0 +1,48 @@
+
+@startuml
+skinparam componentStyle uml2
+skinparam linetype ortho
+
+package "Incremental Data Migration Tool" {
+    component "Binlog Capture & Parsing" as binlog {
+        [go-mysql/canal] as canal
+        [BinlogParser] as parser
+        [RowEventHandler] as handler
+    }
+    
+    package "Data Models" {
+        [User]
+        [Email]
+        [Mobile]
+    }
+    
+    package "Database Operations" {
+        [InsertToNew]
+        [UpdateToNew]
+        [DeleteFromNew]
+    }
+
+    package "Data Access Layer" {
+        [Type Conversions] as typeconv
+        [SQL Queries] as sql
+    }
+
+    database "Source MySQL" as source
+    database "Target DB" as target
+
+    source --> canal : binlog stream
+    canal --> parser
+    parser --> handler : row events
+    handler --> [Data Models]
+    [Data Models] ..> typeconv : use
+    [Data Models] --> [Database Operations]
+    [Database Operations] ..> sql : execute
+    sql --> target : apply changes
+
+    note right of binlog
+        Uses go-mysql library
+        for real-time replication
+    end note
+}
+
+@enduml

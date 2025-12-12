@@ -1,0 +1,37 @@
+// Hysia Video-to-Retail Platform Architecture
+digraph Hysia_Architecture {
+	graph [rankdir=TB]
+	frontend [label="Frontend
+(React + Redux)" shape=component]
+	api_layer [label="API Layer
+(Django + gRPC)" shape=component]
+	decode [label="Video Decoder
+(CPU/GPU)" shape=component]
+	monitor [label="System Monitor" shape=component]
+	storage [label="Storage
+(SQLite + Pickle)" shape=database]
+	subgraph cluster_ml {
+		label="ML Processing"
+		obj_detect [label="Object Detection
+(SSD, Faster R-CNN)"]
+		face_recog [label="Face Recognition"]
+		scene_recog [label="Scene Recognition
+(Places365 + SoundNet)"]
+		text_proc [label="Text Processing
+(Sentence Encoder)"]
+	}
+	frontend -> api_layer
+	api_layer -> decode
+	decode -> obj_detect
+	decode -> face_recog
+	decode -> scene_recog
+	decode -> text_proc
+	obj_detect -> storage
+	face_recog -> storage
+	scene_recog -> storage
+	text_proc -> storage
+	monitor -> api_layer [dir=both]
+	rankdir=TB
+	node [shape=box]
+	edge [color=black]
+}

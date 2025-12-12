@@ -1,0 +1,432 @@
+{
+  "GroundTruth": {
+    "components": [
+      {
+        "name": "User",
+        "description": "End user accessing the system",
+        "boundaries": "external",
+        "position": "top-left"
+      },
+      {
+        "name": "CloudFront",
+        "description": "Content Delivery Network",
+        "boundaries": "internal",
+        "position": "top-center"
+      },
+      {
+        "name": "Amazon Cognito",
+        "description": "Authentication service",
+        "boundaries": "internal",
+        "position": "top-right"
+      },
+      {
+        "name": "Amazon S3",
+        "description": "Storage for SPA",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "AWS Lambda",
+        "description": "Serverless compute service",
+        "boundaries": "internal",
+        "position": "various"
+      },
+      {
+        "name": "Amazon API Gateway",
+        "description": "API management",
+        "boundaries": "internal",
+        "position": "center-right"
+      },
+      {
+        "name": "AWS Fargate",
+        "description": "Container management",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "AWS ElasticSearch Service",
+        "description": "Search and analytics engine",
+        "boundaries": "internal",
+        "position": "bottom-right"
+      },
+      {
+        "name": "Contentful",
+        "description": "Content management system",
+        "boundaries": "internal",
+        "position": "bottom-left"
+      },
+      {
+        "name": "External Link Checker",
+        "description": "Python script for checking links",
+        "boundaries": "external",
+        "position": "bottom-left"
+      },
+      {
+        "name": "Shibboleth",
+        "description": "Single sign-on system",
+        "boundaries": "external",
+        "position": "right"
+      },
+      {
+        "name": "Sentry",
+        "description": "Error tracking",
+        "boundaries": "external",
+        "position": "right"
+      },
+      {
+        "name": "Google Analytics",
+        "description": "Web analytics service",
+        "boundaries": "external",
+        "position": "right"
+      },
+      {
+        "name": "Grafana",
+        "description": "Monitoring and analytics",
+        "boundaries": "external",
+        "position": "right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "User",
+        "target": "CloudFront",
+        "label": "access",
+        "type": "HTTP"
+      },
+      {
+        "source": "CloudFront",
+        "target": "Amazon Cognito",
+        "label": "UoA SSO",
+        "type": "authentication"
+      },
+      {
+        "source": "Amazon Cognito",
+        "target": "Amazon API Gateway",
+        "label": "search",
+        "type": "API call"
+      },
+      {
+        "source": "Amazon API Gateway",
+        "target": "AWS Lambda",
+        "label": "bulk indexing",
+        "type": "function call"
+      },
+      {
+        "source": "AWS Lambda",
+        "target": "AWS ElasticSearch Service",
+        "label": "hub-search-proxy",
+        "type": "data transfer"
+      },
+      {
+        "source": "Contentful",
+        "target": "AWS Lambda",
+        "label": "webhooks update/delete",
+        "type": "event"
+      },
+      {
+        "source": "External Link Checker",
+        "target": "Contentful",
+        "label": "export",
+        "type": "data export"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Prod",
+        "description": "Production environment",
+        "boundaries": "internal",
+        "position": "top"
+      },
+      {
+        "name": "Nonprod",
+        "description": "Non-production environment",
+        "boundaries": "internal",
+        "position": "bottom"
+      },
+      {
+        "name": "Frontend Monitoring",
+        "description": "Monitoring tools",
+        "boundaries": "external",
+        "position": "right"
+      },
+      {
+        "name": "Backend Monitoring",
+        "description": "Monitoring tools",
+        "boundaries": "external",
+        "position": "right"
+      }
+    ],
+    "metadata": {
+      "filename": "ground_truth.png",
+      "title": "ResearchHub Architecture"
+    }
+  },
+  "GeneratedImage": {
+    "components": [
+      {
+        "name": "ResearchHub Website",
+        "description": "Frontend application",
+        "boundaries": "internal",
+        "position": "top-left"
+      },
+      {
+        "name": "CDN",
+        "description": "Content Delivery Network",
+        "boundaries": "internal",
+        "position": "top-center"
+      },
+      {
+        "name": "Auth Service",
+        "description": "Authentication service",
+        "boundaries": "internal",
+        "position": "top-right"
+      },
+      {
+        "name": "GraphQL API",
+        "description": "API for data queries",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "Search Proxy",
+        "description": "Search service",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "cer-graphql",
+        "description": "GraphQL server",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "Database",
+        "description": "Data storage",
+        "boundaries": "internal",
+        "position": "bottom-left"
+      },
+      {
+        "name": "Cache",
+        "description": "Caching service",
+        "boundaries": "internal",
+        "position": "bottom-center"
+      },
+      {
+        "name": "Content Storage",
+        "description": "Storage for content",
+        "boundaries": "internal",
+        "position": "bottom-right"
+      }
+    ],
+    "connectors": [
+      {
+        "source": "ResearchHub Website",
+        "target": "CDN",
+        "label": "serve content",
+        "type": "HTTP"
+      },
+      {
+        "source": "CDN",
+        "target": "Auth Service",
+        "label": "authentication",
+        "type": "auth"
+      },
+      {
+        "source": "Auth Service",
+        "target": "GraphQL API",
+        "label": "API call",
+        "type": "API call"
+      },
+      {
+        "source": "GraphQL API",
+        "target": "Search Proxy",
+        "label": "search",
+        "type": "API call"
+      },
+      {
+        "source": "GraphQL API",
+        "target": "cer-graphql",
+        "label": "data query",
+        "type": "API call"
+      },
+      {
+        "source": "Search Proxy",
+        "target": "Database",
+        "label": "data storage",
+        "type": "data transfer"
+      },
+      {
+        "source": "cer-graphql",
+        "target": "Cache",
+        "label": "cache data",
+        "type": "data transfer"
+      },
+      {
+        "source": "cer-graphql",
+        "target": "Content Storage",
+        "label": "store content",
+        "type": "data transfer"
+      }
+    ],
+    "annotations": [],
+    "groups": [
+      {
+        "name": "Frontend",
+        "description": "Frontend services",
+        "boundaries": "internal",
+        "position": "top"
+      },
+      {
+        "name": "Authentication",
+        "description": "Authentication services",
+        "boundaries": "internal",
+        "position": "top-right"
+      },
+      {
+        "name": "Backend Services",
+        "description": "Backend services",
+        "boundaries": "internal",
+        "position": "center"
+      },
+      {
+        "name": "Storage",
+        "description": "Storage services",
+        "boundaries": "internal",
+        "position": "bottom"
+      }
+    ],
+    "metadata": {
+      "filename": "generated_image.png",
+      "title": "ResearchHub Architecture"
+    }
+  },
+  "comparison": {
+    "common_components": [
+      "CDN",
+      "Auth Service",
+      "GraphQL API",
+      "Search Proxy",
+      "cer-graphql"
+    ],
+    "unique_to_GroundTruth": [
+      "User",
+      "Amazon Cognito",
+      "Amazon S3",
+      "AWS Lambda",
+      "Amazon API Gateway",
+      "AWS Fargate",
+      "AWS ElasticSearch Service",
+      "Contentful",
+      "External Link Checker",
+      "Shibboleth",
+      "Sentry",
+      "Google Analytics",
+      "Grafana"
+    ],
+    "unique_to_GeneratedImage": [
+      "ResearchHub Website",
+      "Database",
+      "Cache",
+      "Content Storage"
+    ],
+    "common_connectors": [
+      {
+        "source": "CDN",
+        "target": "Auth Service",
+        "label": "authentication",
+        "type": "auth"
+      },
+      {
+        "source": "Auth Service",
+        "target": "GraphQL API",
+        "label": "API call",
+        "type": "API call"
+      },
+      {
+        "source": "GraphQL API",
+        "target": "Search Proxy",
+        "label": "search",
+        "type": "API call"
+      },
+      {
+        "source": "GraphQL API",
+        "target": "cer-graphql",
+        "label": "data query",
+        "type": "API call"
+      }
+    ],
+    "unique_connectors_GroundTruth": [
+      {
+        "source": "User",
+        "target": "CloudFront",
+        "label": "access",
+        "type": "HTTP"
+      },
+      {
+        "source": "CloudFront",
+        "target": "Amazon Cognito",
+        "label": "UoA SSO",
+        "type": "authentication"
+      },
+      {
+        "source": "Amazon Cognito",
+        "target": "Amazon API Gateway",
+        "label": "search",
+        "type": "API call"
+      },
+      {
+        "source": "Amazon API Gateway",
+        "target": "AWS Lambda",
+        "label": "bulk indexing",
+        "type": "function call"
+      },
+      {
+        "source": "AWS Lambda",
+        "target": "AWS ElasticSearch Service",
+        "label": "hub-search-proxy",
+        "type": "data transfer"
+      },
+      {
+        "source": "Contentful",
+        "target": "AWS Lambda",
+        "label": "webhooks update/delete",
+        "type": "event"
+      },
+      {
+        "source": "External Link Checker",
+        "target": "Contentful",
+        "label": "export",
+        "type": "data export"
+      }
+    ],
+    "unique_connectors_GeneratedImage": [
+      {
+        "source": "ResearchHub Website",
+        "target": "CDN",
+        "label": "serve content",
+        "type": "HTTP"
+      },
+      {
+        "source": "Search Proxy",
+        "target": "Database",
+        "label": "data storage",
+        "type": "data transfer"
+      },
+      {
+        "source": "cer-graphql",
+        "target": "Cache",
+        "label": "cache data",
+        "type": "data transfer"
+      },
+      {
+        "source": "cer-graphql",
+        "target": "Content Storage",
+        "label": "store content",
+        "type": "data transfer"
+      }
+    ],
+    "explanation": "The two diagrams represent different aspects of the ResearchHub architecture. The GroundTruth diagram is more comprehensive, including both production and non-production environments, and integrates various AWS services like Lambda, S3, and ElasticSearch. It also includes external services like Shibboleth and monitoring tools such as Sentry and Grafana. The GeneratedImage focuses on a simplified view, highlighting frontend, authentication, backend services, and storage. Both diagrams share common components like CDN, Auth Service, and GraphQL API, but the GroundTruth diagram provides a more detailed and complete picture of the architecture. The GeneratedImage lacks some of the specific AWS services and external integrations present in the GroundTruth diagram. Based on the accuracy and completeness, the GeneratedImage can be rated a 6 out of 10, as it captures some core elements but misses several key components and connections found in the GroundTruth.",
+    "Rating": 6
+  }
+}
