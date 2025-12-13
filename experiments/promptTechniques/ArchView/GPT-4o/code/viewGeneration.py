@@ -7,21 +7,28 @@ import shutil
 import tempfile
 client = OpenAI(api_key="")
 
-def prompt_builder(view_details, error_message=None, python_library="diagrams", code=None):
+def prompt_builder(view_details, error_message=None, code=None):
     """
     Prompt Builder Agent: Constructs comprehensive prompts integrating IEEE architectural 
     view standards (behavior, concerns, granularity), architectural design style specifications,
     extracted architectural information, and view generation instructions.
+    Dynamically selects the architectural notation based on metadata.
     
     Args:
         view_details: Dictionary containing architectural metadata
         error_message: Optional error feedback for iterative correction
-        python_library: Target visualization library (diagrams, graphviz, plantuml)
         code: Previous code attempt if error correction is needed
     
     Returns:
         Tuple of (system_prompt, user_prompt) for view generation
     """
+    # Dynamically select python library based on Architectural Notation
+    python_library = "diagrams"  
+    if view_details.get("Architectural Notation") == "boxes_and_arrows":
+        python_library = "graphviz"
+    elif view_details.get("Architectural Notation") == "UML":
+        python_library = "plantuml"
+    
     with open("diagrams_import_reference.txt", "r") as f:
         import_content = ",".join(line.strip() for line in f)
 
@@ -98,7 +105,7 @@ def view_generator(system_prompt, user_prompt):
         return f"Error: {e}"
 
 
-def save_code(python_code, repo_name):
+def image_generator(python_code, repo_name):
     os.makedirs("approach_gpt_python", exist_ok=True)
     file_path = os.path.join("approach_gpt_python", f"{repo_name}.py")
     lines = python_code.strip().splitlines()
@@ -115,7 +122,7 @@ def save_code(python_code, repo_name):
     return file_path
 
 
-def image_renderer(repo_name, input_path, output_dir="./approach_gpt_python_images"):
+def code_compiler(repo_name, input_path, output_dir="./approach_gpt_python_images"):
     """
     Image Renderer Agent: Validates the generated code, provides error feedback for 
     iterative correction (maximum three iterations), compiles validated code into 
@@ -167,30 +174,26 @@ def image_renderer(repo_name, input_path, output_dir="./approach_gpt_python_imag
 
 def process_view(repo_name, view_details):
 
-    # Generate and compile PlantUML code with retry mechanism
+    # Generate and compile code with retry mechanism (max 3 iterations)
     max_retries = 3
     attempt = 0
     cnt=0
     error_message = None
     python_code = None
-    python_library = "diagrams"  
-    if view_details["Architectural Notation"] == "boxes_and_arrows":
-        python_library = "graphviz"
-    elif view_details["Architectural Notation"] == "UML":
-        python_library = "plantuml"
+    
     # Open log file in append mode
     with open("error.log", "a", encoding="utf-8") as log_file:
         while attempt < max_retries:
-            # Prompt Builder: Construct comprehensive prompts
-            system_prompt, user_prompt = prompt_builder(view_details, error_message=error_message, python_library=python_library, code=python_code)
+            # Prompt Builder: Construct comprehensive prompts and select notation
+            system_prompt, user_prompt = prompt_builder(view_details, error_message=error_message, code=python_code)
             
             # View Generator: Generate code from structured prompt
             python_code = view_generator(system_prompt, user_prompt)
 
-            file_path = save_code(python_code, repo_name)
+            file_path = image_generator(python_code, repo_name)
             
             # Image Renderer: Validate, compile, and store diagram
-            success, error_message = image_renderer(repo_name, file_path)
+            success, error_message = code_compiler(repo_name, file_path)
 
             if success:
                 log_file.write(f"Successfully processed repo {repo_name}\n")
