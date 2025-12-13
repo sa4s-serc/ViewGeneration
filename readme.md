@@ -15,7 +15,7 @@ pip install venv
 - write the activation of the virtual environment in the main directory of the project.
 ```
 cd CodeToDiagram
-write the activation command based on the operating system
+python3 -m venv venv
 eg. for linux 
 source venv/bin/activate
 ```
