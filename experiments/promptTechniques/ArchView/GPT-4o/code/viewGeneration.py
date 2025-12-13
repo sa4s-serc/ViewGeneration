@@ -5,9 +5,23 @@ import json
 import glob
 import shutil
 import tempfile
-client = OpenAI(api_key="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")
+client = OpenAI(api_key="")
 
-def get_python_from_summary(view_details, error_message=None, python_library="diagrams", code=None):
+def prompt_builder(view_details, error_message=None, python_library="diagrams", code=None):
+    """
+    Prompt Builder Agent: Constructs comprehensive prompts integrating IEEE architectural 
+    view standards (behavior, concerns, granularity), architectural design style specifications,
+    extracted architectural information, and view generation instructions.
+    
+    Args:
+        view_details: Dictionary containing architectural metadata
+        error_message: Optional error feedback for iterative correction
+        python_library: Target visualization library (diagrams, graphviz, plantuml)
+        code: Previous code attempt if error correction is needed
+    
+    Returns:
+        Tuple of (system_prompt, user_prompt) for view generation
+    """
     with open("diagrams_import_reference.txt", "r") as f:
         import_content = ",".join(line.strip() for line in f)
 
@@ -48,12 +62,31 @@ PLEASE CHECK FOR THE IMPORTS NEW VERSION AND USE THEM. DO NOT USE THE OLD VERSIO
 {code}
 """
 
-    user_prompt="Generate an architectural view diagram."
+    user_prompt = "Generate an architectural view diagram."
+    
+    # Combine system prompt with retry instruction if error exists
+    final_system_prompt = system_prompt + retry_instruction if error_message else system_prompt
+    
+    return final_system_prompt, user_prompt
+
+
+def view_generator(system_prompt, user_prompt):
+    """
+    View Generator Agent: Processes the structured prompt and generates code 
+    representing the architecture view.
+    
+    Args:
+        system_prompt: Comprehensive system prompt from Prompt Builder
+        user_prompt: User instruction for view generation
+    
+    Returns:
+        Generated Python code as string or error message
+    """
     try:
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": system_prompt + retry_instruction if error_message else system_prompt},
+                {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
             temperature=0.7,
@@ -82,9 +115,19 @@ def save_code(python_code, repo_name):
     return file_path
 
 
-def compile_python(repo_name, input_path, output_dir="./approach_gpt_python_images"):
+def image_renderer(repo_name, input_path, output_dir="./approach_gpt_python_images"):
     """
-    Runs a Python script and captures its output file.
+    Image Renderer Agent: Validates the generated code, provides error feedback for 
+    iterative correction (maximum three iterations), compiles validated code into 
+    visual diagrams, and stores results for evaluation.
+    
+    Args:
+        repo_name: Name of the repository being processed
+        input_path: Path to the Python script to execute
+        output_dir: Directory to store generated diagrams
+    
+    Returns:
+        Tuple of (success: bool, message: str) - success status and output path or error message
     """
     os.makedirs(output_dir, exist_ok=True)
 
@@ -138,10 +181,16 @@ def process_view(repo_name, view_details):
     # Open log file in append mode
     with open("error.log", "a", encoding="utf-8") as log_file:
         while attempt < max_retries:
-            python_code = get_python_from_summary(view_details, error_message=error_message, python_library=python_library, code=python_code)
+            # Prompt Builder: Construct comprehensive prompts
+            system_prompt, user_prompt = prompt_builder(view_details, error_message=error_message, python_library=python_library, code=python_code)
+            
+            # View Generator: Generate code from structured prompt
+            python_code = view_generator(system_prompt, user_prompt)
 
             file_path = save_code(python_code, repo_name)
-            success, error_message = compile_python(repo_name, file_path)
+            
+            # Image Renderer: Validate, compile, and store diagram
+            success, error_message = image_renderer(repo_name, file_path)
 
             if success:
                 log_file.write(f"Successfully processed repo {repo_name}\n")
@@ -159,7 +208,7 @@ def process_view(repo_name, view_details):
     return cnt
 
 def main():
-    input_jsonl = "../../../Architectural_knowledge_extraction/generated_summaries.jsonl"
+    input_jsonl = "../../../../Architectural_knowledge_extraction/generated_summaries.jsonl"
     global_cnt = 0
     total=1
     try:
