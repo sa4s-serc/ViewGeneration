@@ -5,7 +5,7 @@ import json
 import glob
 import shutil
 import tempfile
-client = OpenAI(api_key="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")
+client = OpenAI(api_key="")
 
 def get_python_from_summary(view_details, error_message=None, python_library="diagrams", code=None):
     system_prompt=f"""You are an expert Software Architect specializing in software architecture views and also you are proficient in python. Your task in the hand is generating a python code which represents a view given summary and other meta information.
