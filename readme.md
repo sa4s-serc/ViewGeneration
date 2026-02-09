@@ -3,7 +3,7 @@
 ## Description
 This repository contains the complete experimental data and source code for the study on **LLM-based Automated Architecture View Generation: Where Are We Now?**. The project explores automated knowledge mining from software repositories and the subsequent generation of structured architectural diagrams (Mermaid, PlantUML) using Large Language Models (LLMs).
 
-The study evaluates multiple prompting strategies and AI agents against a grounded truth dataset of hundreds of open-source projects.
+The study evaluates multiple prompting strategies and AI agents against a grounded truth dataset of hundreds of open-source projects for generating the Architectural Views.
 
 ## Repository Structure
 
@@ -29,8 +29,8 @@ CodeToDiagram/
 │   │   ├── zeroShot/                       # [Claude/GPT/DeepSeek] Zero-Shot logic
 │   │   ├── 1shot/                          # [Claude/GPT/DeepSeek] One-Shot logic
 │   │   ├── fewshot/                        # [Claude/GPT/DeepSeek] Few-Shot logic
-│   │   ├── ArchView/                       # Architectural-notation-aware prompts
-│   │   └── Agent/                          # Agentic/Iterative generation logic
+│   │   ├── ArchView/                       # Architectural-notation-aware 
+│   │   └── Agent/                          # Agentic using claude code
 │   └── Repo_Summary_Extraction/            # Repository context condensation
 │       └── Summary_extraction.py           # Logic for creating repo summaries
 ├── pilot study/                            # Early investigations and baselines
@@ -87,12 +87,6 @@ The experiment evaluates several generation conditions:
 - **Agentic**: Multi-turn interaction to refine the generated diagrams.
 - **Approach-based**: Testing templates tailored to specific architectural notations (e.g., boxes and arrows vs. UML).
 
-## AI Agents
-The following Large Language Models were evaluated in this study:
-- **GPT-4o** (OpenAI)
-- **Claude 3.5 Sonnet** (Anthropic)
-- **DeepSeek V2.5**
-- **Gemini 1.5 Pro/Flash** (used in pilot study and summarization)
 
 ## Installation & Setup
 To replicate the experiments, please follow the detailed instructions in **[install.md](install.md)**.
@@ -102,12 +96,48 @@ To replicate the experiments, please follow the detailed instructions in **[inst
 - [PlantUML](https://plantuml.com/) (requires Java & Graphviz)
 - API Keys for the respective LLMs (configured via `.env`)
 
-## Running the Code
-Most generation and evaluation scripts are interactive.
-```bash
-python experiments/promptTechniques/zeroShot/GPT-4o/Code/viewGeneration.py
-```
-*The script will ask for the input JSONL summary path and use the default if simply Enter is pressed.*
+## Replication Guide (Step-by-Step)
+
+To reproduce the results (tables, figures, and metrics) presented in the paper, follow these steps:
+
+### 1. Architectural View Generation
+First, generate the diagrams for a specific experimental setting:
+- Navigate to the `experiments/promptTechniques/` directory.
+- Choose a configuration (e.g., `zeroShot/GPT-4o/`).
+- Run the `viewGeneration.py` script located in the `Code/` folder of your chosen setting.
+  ```bash
+  python experiments/promptTechniques/zeroShot/GPT-4o/Code/viewGeneration.py
+  ```
+- This will generate architectural code (Mermaid/PlantUML) and corresponding images in the `Results/` directory of that experiment.
+
+### 2. Output Evaluation
+Once views are generated, evaluate them using automated metrics:
+
+#### A. Image Similarity (SSIM/Cosine)
+- Navigate to `evaluation/Image_Similarity_Metrics/`.
+- Run `check_image_similarity.py`. When prompted, provide the path to your generated images folder and the ground truth folder (`dataset/ground_truth_views/`).
+  ```bash
+  python evaluation/Image_Similarity_Metrics/check_image_similarity.py
+  ```
+
+#### B. LLM as a Judge (Quality Scoring)
+- Navigate to `evaluation/LLM as a judge/`.
+- Run `evaluation_3cs.py` to get automated scores for Accuracy, Detail, and Clarity.
+  ```bash
+  python evaluation/LLM as a judge/evaluation_3cs.py
+  ```
+
+### 3. Result Aggregation and Table Generation
+After evaluation, move the resulting `.csv` files to the `Results/` folder of the corresponding experiment. Then:
+- Use `calculate.py` to aggregate statistics and generate summary metrics.
+- Use `llm_analysis.py` to process judge scores and produce formatting for the tables presented in the paper.
+- These scripts are available in each `Results/` subdirectory (e.g., `experiments/promptTechniques/zeroShot/GPT-4o/Results/`).
+
+### 4. Human Evaluation
+For details on manual assessment, refer to the `evaluation/human_evaluation/` directory.
+- Review the `evaluation_rubric.md` for scoring criteria.
+- Consistency and consensus results can be analyzed using `consensus_rating.py`.
+- To check the samples used in the human evaluation, please check [human evaluation website](https://elegant-lily-a7bdfd.netlify.app)
 
 ## Configuration
 API keys must be stored in a `.env` file at the root directory:
@@ -123,3 +153,4 @@ See **[.env.example](.env.example)** for the template.
 - All generated outputs are stored within corresponding `results/` or `output_images/` folders within the experiment directories.
 - The repository-level summaries used for generation are typically stored in `.jsonl` formats.
 - For questions regarding specific evaluation rubrics, refer to `evaluation/human_evaluation/evaluation_rubric.md`.
+- To check the human evaluation website, please check the website [human evaluation](https://elegant-lily-a7bdfd.netlify.app)
