@@ -355,7 +355,6 @@ def print_summary_statistics(author1_file, author2_file):
 # =============================================================================
 
 if __name__ == "__main__":
-    # File paths - UPDATE THESE
     AUTHOR1_FILE = "evaluation_author_2.json"
     AUTHOR2_FILE = "evaluation_author_1.json"
     OUTPUT_DIR = "justifications/"

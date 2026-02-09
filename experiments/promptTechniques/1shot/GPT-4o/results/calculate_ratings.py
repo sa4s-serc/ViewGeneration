@@ -4,7 +4,7 @@ import os
 import statistics
 
 # Paths
-low_granularity_file = "../../../../Architectural_knowledge_extraction/UML.jsonl"
+low_granularity_file = "../../../../Repo_Summary_Extraction/UML.jsonl"
 ratings_csv = "ratings_summary.csv"
 output_csv = "low_granularity_ratings.csv"
 

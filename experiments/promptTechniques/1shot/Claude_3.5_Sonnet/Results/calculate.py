@@ -1,12 +1,12 @@
 '''
-This script reads a CSV file containing image similarity metrics (SSIM, PSNR, RMSE, SAM, SRE, UIQ) for a set of generated images
-compared to ground truth images.
+This script reads the CSV file containing the image similarity metrics (SSIM, PSNR, RMSE, SAM, SRE, UIQ) for the generated views
+compared to the ground truth views.
 '''
 import csv
 import statistics
 
 # Path to your CSV file
-csv_file = "oneShot_gpt_output_images_similarity_results.csv"
+csv_file = "oneShot_claude_output_images_similarity_results.csv"
 
 # List of metric columns
 metric_keys = ["SSIM", "PSNR", "RMSE", "SAM", "SRE", "UIQ"]

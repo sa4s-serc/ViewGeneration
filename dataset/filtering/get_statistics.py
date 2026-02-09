@@ -1,3 +1,7 @@
+'''
+This script reads a CSV file containing architectural data, calculates the unique value counts for each column, and prints the statistics.
+
+'''
 import pandas as pd
 
 # Load the dataset

@@ -1,3 +1,7 @@
+'''
+This script reads a CSV file containing architectural data, filters the rows to include only those that mention "UML" in the "Architectural Notation" column, 
+and writes the filtered data to a new CSV file. The input and output file paths can be specified as needed.
+'''
 import csv
 
 def filter_uml_static(input_csv, output_csv):
@@ -25,4 +29,4 @@ def filter_uml_static(input_csv, output_csv):
         print(f"An error occurred: {str(e)}")
 
 # Example usage:
-filter_uml_static('data_extraction_framework.csv', 'filtered_output_uml.csv')
+filter_uml_static('Ground_truth_dataset.csv', 'filtered_output_uml.csv')

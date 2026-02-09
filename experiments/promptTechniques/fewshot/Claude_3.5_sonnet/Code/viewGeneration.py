@@ -1,3 +1,8 @@
+'''
+This script generates PlantUML diagrams based on repository summaries, concerns, and behaviors using the Claude 3.5 Sonnet API. 
+It implements a few-shot prompting technique to guide the model in generating valid PlantUML code. 
+The generated code is then compiled into images, with error handling and retry mechanisms in place to ensure successful generation.
+'''
 import os
 import subprocess
 import json
@@ -6,9 +11,16 @@ import shutil
 import tempfile
 import time
 import anthropic
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Initialize Claude client
-client = anthropic.Anthropic(api_key="")  # Replace with actual key or use os.getenv
+api_key = os.getenv("CLAUDE_API_KEY")
+if not api_key:
+    print("⚠️ Warning: CLAUDE_API_KEY not found in environment variables or .env file.")
+client = anthropic.Anthropic(api_key=api_key)
 
 
 
@@ -171,7 +183,9 @@ def process_view(repo_name, summary, concern, behavior):
 
 
 def main():
-    input_jsonl = "../../../../Architectural_knowledge_extraction/generated_summaries.jsonl"
+    default_input_jsonl = "../../../../Repo_Summary_Extraction/generated_summaries.jsonl"
+    input_jsonl = input(f"Enter the path for the input JSONL file [default: {default_input_jsonl}]: ").strip() or default_input_jsonl
+    
     column_name1 = "Repository Name"
     column_name2 = "summary"
     column_name3 = "Concern"

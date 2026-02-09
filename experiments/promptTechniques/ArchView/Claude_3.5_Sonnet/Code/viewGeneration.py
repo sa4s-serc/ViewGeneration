@@ -1,6 +1,7 @@
 '''
-This script generates architectural view diagrams based on repository summaries, concerns, and behaviors using the GPT-4o API. 
-It implements a one-shot prompting technique to guide the model in generating valid Python code that produces diagrams using
+This script generates architectural view diagrams based on repository summaries, concerns, and behaviors using the Claude 3.5 Sonnet API.
+It implements a one-shot prompting technique to guide the model in generating valid Python code that produces architectural diagrams using libraries
+like PlantUML, Graphviz, or Diagrams. The generated code is then
 '''
 import os
 import subprocess
@@ -9,16 +10,18 @@ import json
 import glob
 import shutil
 import tempfile
+import anthropic
+from pathlib import Path
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
 
-# Initialize OpenAI client
-api_key = os.getenv("OPENAI_API_KEY")
+# Initialize Claude client
+api_key = os.getenv("CLAUDE_API_KEY")
 if not api_key:
-    print("⚠️ Warning: OPENAI_API_KEY not found in environment variables or .env file.")
-client = OpenAI(api_key=api_key)
+    print("⚠️ Warning: CLAUDE_API_KEY not found in environment variables or .env file.")
+client = anthropic.Anthropic(api_key=api_key)
 
 def prompt_builder(view_details, error_message=None, code=None):
     """
@@ -81,7 +84,9 @@ PLEASE CHECK FOR THE IMPORTS NEW VERSION AND USE THEM. DO NOT USE THE OLD VERSIO
 - **Problematic Code to fix:**
 {code}
 """
-
+    else:
+        retry_instruction = ""
+    
     user_prompt = "Generate an architectural view diagram."
     
     # Combine system prompt with retry instruction if error exists
@@ -103,24 +108,37 @@ def view_generator(system_prompt, user_prompt):
         Generated Python code as string or error message
     """
     try:
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
-            temperature=0.7,
+        response = client.messages.create(
+            model="claude-3-5-sonnet-20241022",
             max_tokens=1024,
-            stream=False
+            temperature=0.7,
+            system=system_prompt,
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": user_prompt
+                        }
+                    ]
+                }
+            ]
         )
-        return response.choices[0].message.content
+        # Return only the text blocks
+        return ''.join(part.text for part in response.content if part.type == "text")
     except Exception as e:
+        return f"Error: {e}"
+        return model_response["content"][0]["text"]
+        
+    except (ClientError, Exception) as e:
         return f"Error: {e}"
 
 
+
 def image_generator(python_code, repo_name):
-    os.makedirs("approach_gpt_python", exist_ok=True)
-    file_path = os.path.join("approach_gpt_python", f"{repo_name}.py")
+    os.makedirs("approach_claude_python", exist_ok=True)
+    file_path = os.path.join("approach_claude_python", f"{repo_name}.py")
     lines = python_code.strip().splitlines()
     if (len(lines) >= 2 and
             lines[0].strip() == "```python" and
@@ -135,7 +153,7 @@ def image_generator(python_code, repo_name):
     return file_path
 
 
-def code_compiler(repo_name, input_path, output_dir="./approach_gpt_python_images"):
+def code_compiler(repo_name, input_path, output_dir="./approach_claude_python_images"):
     """
     Image Renderer Agent: Validates the generated code, provides error feedback for 
     iterative correction (maximum three iterations), compiles validated code into 
@@ -219,7 +237,7 @@ def process_view(repo_name, view_details):
                 
         if attempt == max_retries:
             cnt+=1
-            log_file.write(f"Failed to generate valid PlantUML for {repo_name} after {max_retries} attempts\n")
+            log_file.write(f"Failed to generate valid diagram for {repo_name} after {max_retries} attempts\n")
 
     return cnt
 
@@ -255,11 +273,9 @@ def main():
         "Explicit Ports/Interfaces?",
         "Explicit Connectors?",
     }
-    output_dir = "approach_gpt_python_images"
+    output_dir = "approach_claude_python_images"
     for entry in entries:
         required_keys = ["Repository Name", "summary", "Concern", "Behavior"]
-        # if total>1:
-        #     break
         if all(key in entry for key in required_keys):
             clean_repo_name = entry["Repository Name"].replace('/', '_').replace('\\', '_').rstrip('_')
             expected_output_path = os.path.join(output_dir, f"{clean_repo_name}.png")

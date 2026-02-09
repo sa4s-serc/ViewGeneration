@@ -1,3 +1,8 @@
+'''
+This script generates PlantUML diagrams based on repository summaries, concerns, and behaviors using the DeepSeek API. 
+It implements a few-shot prompting technique to guide the model in generating valid PlantUML code. 
+The generated code is then compiled into images, with error handling and retry mechanisms in place to ensure successful generation.
+'''
 import os
 import subprocess
 from openai import OpenAI
@@ -5,8 +10,16 @@ import json
 import glob
 import shutil
 import tempfile
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
 # Initialize DeepSeek client
-client = OpenAI(api_key="", base_url="https://api.deepseek.com/v1")
+api_key = os.getenv("DEEPSEEK_API_KEY")
+if not api_key:
+    print("⚠️ Warning: DEEPSEEK_API_KEY not found in environment variables or .env file.")
+client = OpenAI(api_key=api_key, base_url="https://api.deepseek.com/v1")
 
 def get_plantuml_from_summary(summary, repo_name, concern, behavior, error_message=None, code=None):
     # Decide on diagram type based on behavior
@@ -122,7 +135,9 @@ def process_view(repo_name, summary, concern, behavior):
 
 
 def main():
-    input_jsonl = "../../../../Architectural_knowledge_extraction/generated_summaries.jsonl"
+    default_input_jsonl = "../../../../Repo_Summary_Extraction/generated_summaries.jsonl"
+    input_jsonl = input(f"Enter the path for the input JSONL file [default: {default_input_jsonl}]: ").strip() or default_input_jsonl
+    
     column_name1 = "Repository Name"
     column_name2 = "summary"
     column_name3 = "Concern"

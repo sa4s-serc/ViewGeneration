@@ -5,9 +5,16 @@ import shutil
 import tempfile
 import glob
 import anthropic
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Initialize Claude client
-client = anthropic.Anthropic(api_key="")  # Replace with actual key or use os.getenv
+api_key = os.getenv("CLAUDE_API_KEY")
+if not api_key:
+    print("⚠️ Warning: CLAUDE_API_KEY not found in environment variables or .env file.")
+client = anthropic.Anthropic(api_key=api_key)
 
 def load_one_shot_example(behavior, json_path="example_prompts.json"):
     try:
@@ -165,7 +172,9 @@ def process_view(repo_name, summary, concern, behavior):
 
 
 def main():
-    input_jsonl = "../../../../Architectural_knowledge_extraction/generated_summaries.jsonl"
+    default_input_jsonl = "../../../../Repo_Summary_Extraction/generated_summaries.jsonl"
+    input_jsonl = input(f"Enter the path for the input JSONL file [default: {default_input_jsonl}]: ").strip() or default_input_jsonl
+    
     column_name1 = "Repository Name"
     column_name2 = "summary"
     column_name3 = "Concern"

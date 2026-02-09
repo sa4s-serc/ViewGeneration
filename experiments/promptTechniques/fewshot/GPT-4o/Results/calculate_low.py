@@ -3,7 +3,7 @@ import json
 import statistics
 
 # Paths
-low_granularity_file = "../../../../Architectural_knowledge_extraction/UML.jsonl"
+low_granularity_file = "../../../../Repo_Summary_Extraction/UML.jsonl"
 csv_file = "fewShot_gpt_output_images_similarity_results.csv"
 
 # Step 1: Load low granularity repo names

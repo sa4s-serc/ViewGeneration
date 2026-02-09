@@ -1,6 +1,5 @@
 """
 Consensus Rating Calculator
-============================
 This script calculates consensus ratings between two authors
 and provides statistics by experimental setting.
 """

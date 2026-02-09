@@ -1,3 +1,7 @@
+'''
+This script reads image similarity metrics from a CSV file, filters out rows with all NaN values in the metric columns,
+and computes statistical measures (mean, median, variance, standard deviation) for each metric.
+'''
 import csv
 import statistics
 

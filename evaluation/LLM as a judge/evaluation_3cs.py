@@ -9,8 +9,16 @@ import re
 import time
 from openai import OpenAI
 import base64
+from dotenv import load_dotenv
 
-client = OpenAI(api_key="ADD YOUR KEY")
+# Load environment variables from .env file
+load_dotenv()
+
+api_key = os.getenv("OPENAI_API_KEY")
+if not api_key:
+    print("⚠️ Warning: OPENAI_API_KEY not found in environment variables or .env file.")
+
+client = OpenAI(api_key=api_key)
 
 
 def load_image_as_base64(image_path):
@@ -111,8 +119,11 @@ def get_files_by_stem(folder):
 
 def main():
     output_dir = "LLM_as_a_Judge_openai_outputs_3cs"
-    folder1 = "./initial_images"
-    folder2 = "./approach_claude_python_images"
+    folder1 = "../dataset/ground_truth_views"
+    default_folder2 = "../../experiments/promptTechniques/ArchView/Results/approach_claude_python_views"
+    
+    folder2 = input(f"Enter the path for Folder 2 (to evaluate) [default: {default_folder2}]: ").strip() or default_folder2
+    
     tried=0
     files1 = get_files_by_stem(folder1)
     files2 = get_files_by_stem(folder2)
@@ -143,7 +154,3 @@ def main():
         # time.sleep(10)
 if __name__ == "__main__":
     main()
-
-
-
-# Results saved in results folder. Total failed attempts: 58

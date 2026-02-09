@@ -1,12 +1,8 @@
 """
 Human Evaluation Analysis Script
-=================================
 This script processes human evaluation data for architectural view generation,
 calculates inter-rater reliability, validates LLM-as-a-Judge ratings,
 and generates statistical summaries.
-
-Author: [Your Name]
-Date: [Current Date]
 """
 
 import json
