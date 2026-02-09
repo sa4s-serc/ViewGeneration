@@ -4,6 +4,11 @@ import base64
 import openai
 from pathlib import Path
 import json
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
 def encode_image_to_base64(image_path):
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode('utf-8')
@@ -50,9 +55,10 @@ def analyze_image_pair(initial_image_path, output_image_path):
     return response.choices[0].message['content']
 
 def main():
-    # Set OpenAI API key
-    with open("openai_key.txt", "r") as file:
-        openai.api_key = file.read().strip()
+    # Set OpenAI API key from environment variable
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+    if not openai.api_key:
+        print("⚠️ Warning: OPENAI_API_KEY not found in environment variables or .env file.")
     
     # Create new analysis JSONL file
     with open('analysis.jsonl', 'w', encoding='utf-8') as jsonl_file:

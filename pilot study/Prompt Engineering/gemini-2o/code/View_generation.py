@@ -6,12 +6,21 @@ import csv
 import re
 import json
 import google.generativeai as genai
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
 # Function to extract repository URL from a GitHub file URL
 def extract_repo_url(link):
     match = re.match(r"(https://github\.com/[^/]+/[^/]+)", link)
     return match.group(1) + "/" if match else link
 
-genai.configure(api_key="your_api_key")
+# Configure Gemini API from environment variable
+gemini_api_key = os.getenv("GEMINI_API_KEY")
+if not gemini_api_key:
+    print("⚠️ Warning: GEMINI_API_KEY not found in environment variables or .env file.")
+genai.configure(api_key=gemini_api_key)
 
 def get_chatgpt_response(link):
     try:

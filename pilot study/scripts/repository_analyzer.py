@@ -6,6 +6,10 @@ import shutil
 import json
 import re
 import tiktoken  
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 TOKEN_LIMIT = 5000
 
@@ -227,8 +231,10 @@ def process_repository(link):
 
 
 def main():
-    with open("openai_key.txt", "r") as file:
-        openai.api_key = file.read().strip()
+    # Set OpenAI API key from environment variable
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+    if not openai.api_key:
+        print("⚠️ Warning: OPENAI_API_KEY not found in environment variables or .env file.")
 
     input_csv = "./dataset/filtered_output_uml.csv"
     output_jsonl = "output.jsonl"

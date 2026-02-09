@@ -5,15 +5,20 @@ import pandas as pd
 import csv
 import re
 import json
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Function to extract repository URL from a GitHub file URL
 def extract_repo_url(link):
     match = re.match(r"(https://github\.com/[^/]+/[^/]+)", link)
     return match.group(1) + "/" if match else link
 
-# Read OpenAI API key from file
-with open("openai_key.txt", "r") as file:
-    openai.api_key = file.read().strip()
+# Set OpenAI API key from environment variable
+openai.api_key = os.getenv("OPENAI_API_KEY")
+if not openai.api_key:
+    print("⚠️ Warning: OPENAI_API_KEY not found in environment variables or .env file.")
 
 def get_chatgpt_response(link):
     try:

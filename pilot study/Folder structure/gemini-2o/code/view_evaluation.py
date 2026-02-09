@@ -6,6 +6,10 @@ from pathlib import Path
 import json
 import PIL.Image
 import google.generativeai as genai
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 def load_image(image_path):
     return PIL.Image.open(image_path)
@@ -15,8 +19,11 @@ def analyze_image_pair(initial_image_path, output_image_path):
     initial_image = load_image(initial_image_path)
     output_image = load_image(output_image_path)
     
-    # Initialize Gemini API client
-    genai.configure(api_key="your_api_key")
+    # Initialize Gemini API client from environment variable
+    gemini_api_key = os.getenv("GEMINI_API_KEY")
+    if not gemini_api_key:
+        print("⚠️ Warning: GEMINI_API_KEY not found in environment variables or .env file.")
+    genai.configure(api_key=gemini_api_key)
     model = genai.GenerativeModel("gemini-2.0-flash-exp")
     
     # Generate content using the model
