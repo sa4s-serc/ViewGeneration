@@ -36,7 +36,10 @@ CodeToDiagram/
 ├── pilot study/                            # Early investigations and baselines
 │   ├── scripts/                            # Initial analysis and token counting
 │   ├── Code/                               # Early ChatGPT/Gemini view generation
+│   ├── Link/                               # Experiments with external documentation links
+│   ├── Folder structure/                   # Investigations on repo layout context
 │   └── Prompt Engineering/                 # Exploratory prompt template versions
+
 ├── figures/                                # Result visualizations (heatmaps, plots)
 ├── mermaidtrials/                          # Mermaid.js specific experiments
 ├── src/                                    # Shared project source code
