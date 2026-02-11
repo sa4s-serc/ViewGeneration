@@ -154,3 +154,4 @@ See **[.env.example](.env.example)** for the template.
 - The repository-level summaries used for generation are typically stored in `.jsonl` formats.
 - For questions regarding specific evaluation rubrics, refer to `evaluation/human_evaluation/evaluation_rubric.md`.
 - To check the human evaluation website, please check the website [human evaluation](https://elegant-lily-a7bdfd.netlify.app)
+- To generate images which are found in the paper, please check the `indepth` dolder in the evaluations folder.
