@@ -109,6 +109,7 @@ First, generate the diagrams for a specific experimental setting:
   python experiments/promptTechniques/zeroShot/GPT-4o/Code/viewGeneration.py
   ```
 - This will generate architectural code (Mermaid/PlantUML) and corresponding images in the `Results/` directory of that experiment.
+- One can change the total variable and uncomment the lines the `main` function if chose to run less number of repositories.
 
 ### 2. Output Evaluation
 Once views are generated, evaluate them using automated metrics:
@@ -155,3 +156,4 @@ See **[.env.example](.env.example)** for the template.
 - For questions regarding specific evaluation rubrics, refer to `evaluation/human_evaluation/evaluation_rubric.md`.
 - To check the human evaluation website, please check the website [human evaluation](https://elegant-lily-a7bdfd.netlify.app)
 - To generate images which are found in the paper, please check the `indepth` dolder in the evaluations folder.
+- One can change the total variable and uncomment the lines the `main` function if chose to run less number of repositories.
