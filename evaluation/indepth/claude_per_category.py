@@ -27,9 +27,12 @@ OUTPUT_DIR.mkdir(exist_ok=True)
 
 STRATEGIES = ['fewshot_claude', 'agent_claude', 'approach_claude']
 
-# Column labels (what appears in the heatmap)
-STRATEGY_LABELS = ['Few-shot', 'Agent', 'ArchView']
-
+STRATEGY_LABELS = ['Few-shot (FS)', 'Agent (GPA)', 'ArchView (AV)']
+STRATEGY_SHORT = {
+    'fewshot_claude': 'FS',
+    'agent_claude': 'GPA',
+    'approach_claude': 'AV'
+}
 # Colors for other plots (not used in heatmap directly)
 COLORS = {
     'fewshot_claude': '#3498DB',      # Blue
@@ -289,20 +292,56 @@ def create_bar_chart(df: pd.DataFrame, category: str, metric: str, output_file: 
     x = np.arange(len(views))
     width = 0.25
     
-    for i, (strategy, label, color) in enumerate(zip(STRATEGIES, STRATEGY_LABELS, 
-                                                      [COLORS[s] for s in STRATEGIES])):
-        means = [cat_df[(cat_df['Strategy'] == strategy) & (cat_df['View'] == v)][metric].mean() 
-                for v in views]
-        ax.bar(x + i*width, means, width, label=label, color=color, alpha=0.85,
-              edgecolor='white', linewidth=0.5)
+    for i, strategy in enumerate(STRATEGIES):
+        label = STRATEGY_LABELS[i]
+        color = COLORS[strategy]
+        short_label = STRATEGY_SHORT[strategy]
+
+        means = [
+            cat_df[
+                (cat_df['Strategy'] == strategy) & 
+                (cat_df['View'] == v)
+            ][metric].mean()
+            for v in views
+        ]
+
+        bars = ax.bar(
+            x + i * width,
+            means,
+            width,
+            label=label,
+            color=color,
+            alpha=0.85,
+            edgecolor='white',
+            linewidth=0.5
+        )
+
+        for bar in bars:
+            height = bar.get_height()
+            if not np.isnan(height):
+                ax.text(
+                    bar.get_x() + bar.get_width() / 2,
+                    height,
+                    short_label,
+                    ha='center',
+                    va='bottom',
+                    fontsize=9,
+                    fontweight='bold'
+                )
     
     # Clean labels
     clean_labels = [label_map.get(v, v) for v in views]
     
     ax.set_ylabel(metric, fontsize=12, fontweight='bold')
     ax.set_xticks(x + width)
-    ax.set_xticklabels(clean_labels, fontsize=10, rotation=45, ha='right')
-    ax.legend(fontsize=11, framealpha=0.9)
+    ax.set_xticklabels(clean_labels, fontsize=10, rotation=27, ha='right')
+    ax.legend(
+    fontsize=11,
+    framealpha=0.9,
+    ncol=len(STRATEGIES),        # makes it horizontal
+    loc='upper center',
+    bbox_to_anchor=(0.5, 1.15)   # move slightly above plot
+)
     ax.grid(axis='y', alpha=0.3, linestyle='--')
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
