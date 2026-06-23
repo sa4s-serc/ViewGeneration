@@ -24,9 +24,18 @@ plt.rcParams['axes.linewidth'] = 1.5
 
 OUTPUT_DIR = Path("./publication_crosstables")
 OUTPUT_DIR.mkdir(exist_ok=True)
+# 'pastel' index 6 is typically a soft lavender, index 0 is a soft pink/red
 
-# Use Seaborn Spectral palette
-Spectral_colors = sns.color_palette("Spectral", 13).as_hex()
+ 
+cubehelix_colors = sns.color_palette("cubehelix", 13).as_hex()
+
+# If you want it to look more "lavender" (starting lighter and staying purple)
+Spectral_colors = sns.color_palette(
+    sns.cubehelix_palette(13, start=0.5, rot=-0.2, light=0.9, dark=0.6)
+).as_hex()
+# Spectral_colors = sns.color_palette("crest", 13).as_hex()
+
+
 
 # ============================================================================
 # CONFIGURATION
@@ -176,15 +185,15 @@ def create_heatmap(cross_df: pd.DataFrame, output_name: str, label_style: str = 
     ax.set_yticks(range(len(concerns)))
     
     # Ticks: 13pt (Big)
-    ax.set_xticklabels([qa_labels.get(qa, qa) for qa in qas], rotation=0, ha='center', fontsize=10, fontweight='bold')
-    ax.set_yticklabels([concern_labels.get(c, c) for c in concerns], fontsize=10, fontweight='bold')
+    ax.set_xticklabels([qa_labels.get(qa, qa) for qa in qas], rotation=00, ha='center', fontsize=10, fontweight='bold')
+    ax.set_yticklabels([concern_labels.get(c, c) for c in concerns], rotation=65,fontsize=10, fontweight='bold')
     
     ax.set_xlim(-0.5, len(qas)-0.5)
     ax.set_ylim(len(concerns)-0.5, -0.5)
     
     # Labels: 16pt (Larger)
-    ax.set_xlabel('Quality Attribute', fontsize=16, fontweight='bold', labelpad=12)
-    ax.set_ylabel('Concern', fontsize=16, fontweight='bold', labelpad=12)
+    ax.set_xlabel('Quality Attribute', fontsize=10, fontweight='bold', labelpad=12)
+    ax.set_ylabel('Concern', fontsize=10, fontweight='bold', labelpad=12)
 
     # Grid and Spines
     ax.set_xticks([x + 0.5 for x in range(len(qas)-1)], minor=True)
@@ -208,7 +217,7 @@ def create_heatmap(cross_df: pd.DataFrame, output_name: str, label_style: str = 
         color = CONFIG_COLORS[setting]
         label = FULL_LABELS[setting].replace("\n", " ") if label_style == "full" else COMPACT_LABELS[setting]
         
-        legend_handles.append(Line2D([0], [0], marker='s', markersize=12, linestyle='none', 
+        legend_handles.append(Line2D([0], [0], marker='s', markersize=10, linestyle='none', 
                                     markerfacecolor=color, markeredgecolor='black', markeredgewidth=1))
         legend_labels.append(label)
     
@@ -218,9 +227,9 @@ def create_heatmap(cross_df: pd.DataFrame, output_name: str, label_style: str = 
         loc='lower left',             
         bbox_to_anchor=(1.02, 0),    
         ncol=1,                        
-        fontsize=14,                   
+        fontsize=10,                   
         title="Settings",
-        title_fontsize=16,             
+        title_fontsize=10,             
         frameon=False,
         labelspacing=0.8               
     )

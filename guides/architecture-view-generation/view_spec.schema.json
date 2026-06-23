@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/CodeToDiagram/guides/architecture-view-generation/view_spec.schema.json",
+  "title": "Architecture View Specification",
+  "description": "IEEE 42010-aligned specification for generating a software architecture view. Derived from the ArchView approach in the empirical study 'LLM-based Automated Architecture View Generation: Where Are We Now?' (https://arxiv.org/html/2603.21178). Required fields gate generation; recommended and optional fields improve quality. Use with PROMPT_TEMPLATES.md and INSTRUCTIONS.md.",
+  "type": "object",
+  "properties": {
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Textual architecture description extracted from source code or docs. Primary structural guide for the diagram."
+    },
+    "Concern": {
+      "type": "string",
+      "description": "What the view must visually emphasize.",
+      "enum": [
+        "general",
+        "control_flow",
+        "data_flow",
+        "deployment",
+        "connectivity",
+        "security",
+        "performance",
+        "scheduling"
+      ],
+      "default": "general"
+    },
+    "Behavior": {
+      "type": "string",
+      "description": "static -> component/deployment/package diagram; dynamic -> sequence/activity diagram; both -> component with annotations or two views.",
+      "enum": ["static", "dynamic", "both"],
+      "default": "static"
+    },
+    "Granularity": {
+      "type": "string",
+      "description": "Abstraction level. low: 3-8 blocks; medium: 5-15 nodes; high: 8-20 nodes (no class-level explosion).",
+      "enum": ["low", "medium", "high"],
+      "default": "medium"
+    },
+    "Architecture Scope": {
+      "type": "string",
+      "description": "entire: full system; part: one subsystem/feature; entire+: full system plus contextual elements.",
+      "enum": ["entire", "part", "entire+"],
+      "default": "entire"
+    },
+    "Architectural Notation": {
+      "type": "string",
+      "description": "Drives output library: icons_and_arrows -> diagrams; boxes_and_arrows -> graphviz; UML -> plantuml; boxes -> graphviz/plantuml. Hybrids allowed; pick the dominant style for library selection.",
+      "default": "boxes_and_arrows",
+      "examples": [
+        "boxes",
+        "boxes_and_arrows",
+        "icons_and_arrows",
+        "UML",
+        "boxes_and_arrows, icons_and_arrows"
+      ]
+    },
+    "Components Nature": {
+      "type": "string",
+      "description": "Types of nodes to show (e.g., services, APIs, databases, classes, containers, actors)."
+    },
+    "Connectors Nature": {
+      "type": "string",
+      "description": "Types of edges (e.g., REST, gRPC, message queue, function call, SQL, file I/O)."
+    },
+    "QAs": {
+      "type": "string",
+      "description": "Quality attributes (ISO 25010-inspired) the view should suggest. Comma-separated allowed.",
+      "examples": [
+        "functional_suitability",
+        "maintainability",
+        "security",
+        "flexibility",
+        "performance_efficiency",
+        "reliability",
+        "compatibility",
+        "interaction_capability"
+      ]
+    },
+    "Architectural Styles": {
+      "type": "string",
+      "description": "Structural organization. Comma-separated allowed.",
+      "examples": [
+        "layered",
+        "microservices",
+        "client-server",
+        "event-driven",
+        "SOA",
+        "hexagonal",
+        "pipeline",
+        "peer-to-peer",
+        "serverless"
+      ]
+    },
+    "Shapes": {
+      "type": "string",
+      "description": "Preferred node shape (e.g., rectangle, circle)."
+    },
+    "Colored?": {
+      "type": "string",
+      "enum": ["yes", "no"],
+      "default": "no",
+      "description": "Whether to color nodes by component type/technology."
+    },
+    "Connectors Direction": {
+      "type": "string",
+      "enum": ["unidirectional", "bidirectional", "mixed"],
+      "description": "Arrow semantics for connectors."
+    },
+    "Legend?": {
+      "type": "string",
+      "enum": ["yes", "no"],
+      "default": "no",
+      "description": "Whether to include a legend."
+    },
+    "Nested Components?": {
+      "type": "string",
+      "enum": ["yes", "no"],
+      "default": "no",
+      "description": "Whether components contain sub-components (use clusters/subgraphs)."
+    },
+    "Explicit Ports/Interfaces?": {
+      "type": "string",
+      "enum": ["yes", "no"],
+      "default": "no",
+      "description": "Whether to show explicit ports or interfaces."
+    },
+    "Explicit Connectors?": {
+      "type": "string",
+      "enum": ["yes", "no"],
+      "default": "no",
+      "description": "Whether to label all connectors explicitly."
+    },
+    "assumptions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Inferred defaults or self-resolved clarifications. Populated by the Metadata Assembler; surfaced in the final output."
+    },
+    "questions": {
+      "type": "array",
+      "maxItems": 2,
+      "items": { "type": "string" },
+      "description": "At most two batched clarification questions for genuinely ambiguous high-impact fields. A complete best-guess spec must still be produced so generation can proceed without answers."
+    }
+  },
+  "required": [
+    "summary",
+    "Concern",
+    "Behavior",
+    "Granularity",
+    "Architecture Scope",
+    "Architectural Notation"
+  ],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "summary": "Three-tier web app: React frontend, FastAPI backend, PostgreSQL. Nginx reverse proxy. Redis for session cache.",
+      "Concern": "deployment",
+      "Behavior": "static",
+      "Granularity": "medium",
+      "Components Nature": "web server, API service, database, cache",
+      "Connectors Nature": "HTTP, SQL, Redis protocol",
+      "QAs": "performance_efficiency",
+      "Architecture Scope": "entire",
+      "Architectural Notation": "icons_and_arrows",
+      "Architectural Styles": "layered, client-server",
+      "Shapes": "rectangle",
+      "Colored?": "yes",
+      "Connectors Direction": "unidirectional",
+      "Legend?": "no",
+      "Nested Components?": "yes",
+      "Explicit Ports/Interfaces?": "no",
+      "Explicit Connectors?": "yes",
+      "assumptions": ["QAs inferred as performance_efficiency from caching layer"]
+    },
+    {
+      "summary": "User submits order via API gateway. Order service validates, publishes to Kafka. Payment service processes async. Notification service sends confirmation.",
+      "Concern": "control_flow",
+      "Behavior": "dynamic",
+      "Granularity": "medium",
+      "Components Nature": "API gateway, order service, payment service, notification service, message broker",
+      "Connectors Nature": "HTTP, Kafka publish/subscribe",
+      "QAs": "functional_suitability",
+      "Architecture Scope": "part",
+      "Architectural Notation": "UML",
+      "Architectural Styles": "event-driven, microservices",
+      "Connectors Direction": "unidirectional",
+      "Nested Components?": "no",
+      "Explicit Connectors?": "yes"
+    }
+  ]
+}
